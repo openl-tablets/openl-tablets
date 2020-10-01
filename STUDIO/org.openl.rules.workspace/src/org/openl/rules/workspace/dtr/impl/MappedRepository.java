@@ -610,6 +610,9 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private String toInternal(ProjectIndex externalToInternal, String externalPath) {
+        if (externalPath == null) {
+            return null;
+        }
         for (ProjectInfo project : externalToInternal.getProjects()) {
             String externalBase = baseFolder + getMappedName(project);
             if (externalPath.equals(externalBase) || externalPath.startsWith(externalBase + "/")) {

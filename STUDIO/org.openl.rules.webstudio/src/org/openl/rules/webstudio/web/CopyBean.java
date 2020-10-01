@@ -101,10 +101,6 @@ public class CopyBean {
         return currentProjectName;
     }
 
-    public void setCurrentProjectName(String currentProjectName) {
-        this.currentProjectName = currentProjectName;
-    }
-
     public String getNewProjectName() {
         return newProjectName;
     }
@@ -260,6 +256,7 @@ public class CopyBean {
             repositoryTreeState.invalidateTree();
 
             switchToNewBranch();
+            currentProjectName = null;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             errorMessage = "Cannot copy the project: " + e.getMessage();

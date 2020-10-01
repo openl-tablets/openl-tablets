@@ -235,11 +235,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
             if (projectsRefreshNeeded) {
                 refreshRulesProjects();
             }
-            if (userRulesProjects.get(new ProjectKey(repositoryId, name.toLowerCase())) != null) {
-                return true;
-            }
+            return userRulesProjects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()));
         }
-        return localWorkspace.hasProject(repositoryId, name) || designTimeRepository.hasProject(repositoryId, name);
     }
 
     @Override

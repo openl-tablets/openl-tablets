@@ -111,10 +111,11 @@ public class RulesProject extends UserWorkspaceProject {
 
         // Process saved data
         if (designRepository.supports().mappedFolders()) {
+            // Project can be renamed.
             String mappedName = ((FolderMapper) designRepository).findMappedName(realPath);
-            if (mappedName != null && !mappedName.equals(designFolderName)) {
-                // Project can be renamed.
-                log.debug("Project was renamed from {} to {}", designFolderName, mappedName);
+            if (mappedName == null) {
+                designFolderName = designProject.getFileData().getName();
+            } else {
                 designFolderName = mappedName;
             }
         }

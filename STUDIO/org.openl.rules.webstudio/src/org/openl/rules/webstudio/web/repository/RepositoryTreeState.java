@@ -271,11 +271,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     UserWorkspaceProject newProject = (UserWorkspaceProject) currentArtefact;
                     if (!branch.equals(newProject.getBranch())) {
                         try {
-                            // Update branch for the project
-                            newProject.setBranch(branch);
-                            // Rebuild children for the node
-                            currentNode.refresh();
-                        } catch (ProjectException e) {
+                            RulesProject rulesProject = (RulesProject) project;
+                            boolean containsBranch = ((BranchRepository) rulesProject.getDesignRepository())
+                                .getBranches(((RulesProject) project).getDesignFolderName())
+                                .contains(branch);
+                            if (containsBranch) {
+                                // Update branch for the project
+                                newProject.setBranch(branch);
+                                // Rebuild children for the node
+                                currentNode.refresh();
+                            }
+                        } catch (ProjectException | IOException e) {
                             log.error("Cannot update selected node: {}", e.getMessage(), e);
                         }
                     }

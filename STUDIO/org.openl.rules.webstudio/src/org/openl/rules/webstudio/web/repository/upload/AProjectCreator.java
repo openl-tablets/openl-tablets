@@ -19,9 +19,10 @@ public abstract class AProjectCreator {
 
     private static final Logger LOG = LoggerFactory.getLogger(AProjectCreator.class);
 
-    private String projectName;
-    private String projectFolder;
-    private UserWorkspace userWorkspace;
+    private final String projectName;
+    private final String projectFolder;
+    private final UserWorkspace userWorkspace;
+    private String createdProjectName;
 
     public AProjectCreator(String projectName, String projectFolder, UserWorkspace userWorkspace) {
         this.projectName = projectName;
@@ -50,6 +51,7 @@ public abstract class AProjectCreator {
         try {
             projectBuilder = getProjectBuilder();
             projectBuilder.save();
+            createdProjectName = projectBuilder.getCreateProjectName();
         } catch (Exception e) {
             Throwable cause = e.getCause();
             if (projectBuilder != null && cause instanceof MergeConflictException) {
@@ -57,6 +59,7 @@ public abstract class AProjectCreator {
                 // Try to save second time. It should resolve the issue if conflict in openl-projects.properties file.
                 try {
                     projectBuilder.save();
+                    createdProjectName = projectBuilder.getCreateProjectName();
                 } catch (Exception ex) {
                     LOG.error("Error creating project.", ex);
                     projectBuilder.cancel();
@@ -71,6 +74,10 @@ public abstract class AProjectCreator {
             }
         }
         return errorMessage;
+    }
+
+    public String getCreatedProjectName() {
+        return createdProjectName;
     }
 
     private String getErrorMessage(Exception e) {

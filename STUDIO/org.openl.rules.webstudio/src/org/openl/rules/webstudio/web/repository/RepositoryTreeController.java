@@ -581,7 +581,8 @@ public class RepositoryTreeController {
             String creationMessage = projectCreator.createRulesProject();
             if (creationMessage == null) {
                 try {
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    String technicalName = projectCreator.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
 
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
@@ -597,6 +598,8 @@ public class RepositoryTreeController {
                     this.clearForm();
                 } catch (Exception e) {
                     creationMessage = e.getMessage();
+                    log.warn(creationMessage, e);
+                    WebStudioUtils.addErrorMessage(creationMessage);
                 }
             } else {
                 WebStudioUtils.addErrorMessage(creationMessage);
@@ -1428,7 +1431,7 @@ public class RepositoryTreeController {
                     log.error("Cannot find dependency {}", dependency);
                     continue;
                 }
-                String physicalName = projectNode.getName();
+                String physicalName = projectNode.getData().getName();
                 RulesProject project = userWorkspace.getProject(repoId, physicalName);
                 if (!userWorkspace.isOpenedOtherProject(project)) {
                     project.open();
@@ -1727,6 +1730,7 @@ public class RepositoryTreeController {
             try {
                 AProject createdProject = userWorkspace.getProject(repositoryId, projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
+                selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
@@ -1766,6 +1770,7 @@ public class RepositoryTreeController {
                 try {
                     AProject createdProject = userWorkspace.getProject(repositoryId, projectName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
+                    selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                     resetStudioModel();
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                 } catch (Exception e) {

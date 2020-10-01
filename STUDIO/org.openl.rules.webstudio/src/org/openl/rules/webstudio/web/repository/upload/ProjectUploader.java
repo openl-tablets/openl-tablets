@@ -21,6 +21,7 @@ public class ProjectUploader {
     private final ZipCharsetDetector zipCharsetDetector;
     private final String comment;
     private final String repositoryId;
+    private String createdProjectName;
 
     public ProjectUploader(String repositoryId,
         ProjectFile uploadedFile,
@@ -100,7 +101,8 @@ public class ProjectUploader {
                 }
                 errorMessage = projectCreator.createRulesProject();
                 if (errorMessage == null) {
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    createdProjectName = projectCreator.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
                     }
@@ -116,5 +118,9 @@ public class ProjectUploader {
             }
         }
         return errorMessage;
+    }
+
+    public String getCreatedProjectName() {
+        return createdProjectName;
     }
 }

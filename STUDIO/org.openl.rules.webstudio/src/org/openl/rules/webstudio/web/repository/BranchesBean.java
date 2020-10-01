@@ -47,10 +47,6 @@ public class BranchesBean {
         return currentProjectName;
     }
 
-    public void setCurrentProjectName(String currentProjectName) {
-        this.currentProjectName = currentProjectName;
-    }
-
     public List<String> getBranches() {
         return branches;
     }
@@ -166,9 +162,13 @@ public class BranchesBean {
         }
         UserWorkspace userWorkspace;
         try {
+            RulesProject project = getProject(currentProjectName);
+            if (project == null) {
+                return false;
+            }
             userWorkspace = getUserWorkspace();
             LockEngine projectsLockEngine = userWorkspace.getProjectsLockEngine();
-            LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, currentProjectName);
+            LockInfo lockInfo = projectsLockEngine.getLockInfo(currentRepositoryId, branchToMergeTo, project.getRealPath());
             return lockInfo.isLocked();
         } catch (WorkspaceException e) {
             LOG.error(e.getMessage(), e);
@@ -296,6 +296,9 @@ public class BranchesBean {
     }
 
     private boolean isMergedInto(String from, String to) {
+        if (from == null || to == null) {
+            return false;
+        }
         try {
             RulesProject project = getProject(currentProjectName);
             if (project != null) {

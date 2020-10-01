@@ -88,9 +88,6 @@
                     <h:outputText value=""/>
                     <h:outputText value="#{copyBean.errorMessage}" styleClass="error"/>
                 </h:panelGrid>
-
-                <h:inputHidden id="hiddenProjectName" value="#{copyBean.currentProjectName}"/>
-
             </h:panelGroup>
 
             <footer>
@@ -125,7 +122,6 @@
         }
 
         function showCopyProjectDialog() {
-            $j('#copyProjectForm\\:hiddenProjectName').val($j('#copyProjectForm\\:currentProjectName').text());
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
             updateStates();
             $j('#copyProjectForm\\:copy').prop('disabled', true);

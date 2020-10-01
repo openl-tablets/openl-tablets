@@ -26,6 +26,7 @@ public class RulesProjectBuilder {
     private final UserWorkspace workspace;
     private final String comment;
     private final Path tempLocalRepositoryPath;
+    private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
         String repositoryId,
@@ -129,8 +130,14 @@ public class RulesProjectBuilder {
         // unerasable history for example in Git).
         project.getFileData().setComment(comment);
         project.save(user);
+        String designFolderPath = project.getDesignFolderName();
+        createProjectName = designFolderPath.substring(designFolderPath.lastIndexOf('/') + 1);
         workspace.refresh();
         FileUtils.deleteQuietly(tempLocalRepositoryPath.toFile());
+    }
+
+    public String getCreateProjectName() {
+        return createProjectName;
     }
 
     private void checkName(String artefactName) throws ProjectException {
