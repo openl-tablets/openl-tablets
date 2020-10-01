@@ -5,6 +5,8 @@ import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.admin.RepositoryType;
+import org.openl.rules.workspace.dtr.impl.ProjectIndex;
+import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -18,9 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.*;
 
 /**
  * For setting migration purposes. It cleans up default settings and reconfigure user defined properties.
@@ -59,8 +59,9 @@ public class Migrator {
             LOG.error("Migration of properties failed.", e);
         }
     }
+
     //5.23.5
-    private static void  migrateTo5_23_5(HashMap<String, String> props){
+    private static void migrateTo5_23_5(HashMap<String, String> props) {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
@@ -74,8 +75,11 @@ public class Migrator {
         if (fromVersion.compareTo("5.24.0") < 0) {
             try {
                 // migrate local repo path if have default value, since the default has changed on 5.24.0
-                if (settings.getProperty("repository.design.local-repository-path") == null) {
-                    props.put("repository.design.local-repository-path", Props.text("openl.home") + "\\design-repository");
+                // null means this property have default value from previous OpenL version
+                Object objDesignRepo = settings.getProperty("repository.design.local-repository-path");
+                String designRepo = objDesignRepo != null ? objDesignRepo.toString() : Props.text("openl.home") + "\\design-repository";
+                if (objDesignRepo == null) {
+                    props.put("repository.design.local-repository-path", designRepo);
                 }
 
                 // migrate deploy-config
@@ -83,8 +87,13 @@ public class Migrator {
                     props.put("repository.deploy-config.use-repository", "design");
                 }
 
-                //migrate branches.properties to branches.yaml if repoType is Git
-                migrateBranchesProps();
+                // migrate deploy-config
+                if (settings.getProperty("repository.production.local-repository-path") == null) {
+                    props.put("repository.production.local-repository-path", Props.text("openl.home") + "\\production-repository");
+                }
+
+                //migrate branches and project properties to branches.yaml if repoType is Git
+                migrateProjectBranchesProps(designRepo);
 
                 //migrate locks.
                 migrateLocks();
@@ -94,52 +103,81 @@ public class Migrator {
         }
     }
 
-    private static void migrateBranchesProps() {
+    private static void migrateProjectBranchesProps(String designRepo) {
         if (RepositoryType.GIT.getFactoryClassName().equals(Props.text("repository.design.factory"))) {
-            File branchesProperties = new File(new File(Props.text("openl.home") + "\\git-settings"), "branches.properties");
+            String openlHome = Props.text("openl.home");
+            File projectProperties = new File(designRepo, "openl-projects.properties");
+            Map<String, String> projectPathMap = new HashMap<>();
+            if (projectProperties.isFile()) {
+                try (InputStreamReader in = new InputStreamReader(new FileInputStream(projectProperties),
+                        StandardCharsets.UTF_8)) {
+                    Properties projectProps = new Properties();
+                    projectProps.load(in);
+                    int projectsCount = projectProps.size() / 2;
+                    ProjectIndex index = new ProjectIndex();
+                    List<ProjectInfo> projects = new ArrayList<>();
+                    for (int i = 1; i <= projectsCount; i++) {
+                        String name = projectProps.getProperty("project." + i + ".name");
+                        String path = projectProps.getProperty("project." + i + ".path");
+                        projects.add(new ProjectInfo(name, path));
+                        projectPathMap.put(name, path);
+                    }
+                    index.setProjects(projects);
+                    createYaml(index, Paths.get(openlHome, "repositories", "settings", "design", "openl-projects.yaml"));
+                } catch (IOException e) {
+                    LOG.error("Migration of branches properties failed.", e);
+                }
+            }
+
+            File branchesProperties = new File(new File(openlHome + "\\git-settings"), "branches.properties");
             if (branchesProperties.isFile()) {
                 try (InputStreamReader in = new InputStreamReader(new FileInputStream(branchesProperties),
                         StandardCharsets.UTF_8)) {
-                    Properties properties = new Properties();
-                    properties.load(in);
-                    String numStr = properties.getProperty("projects.number");
+                    Properties branchProps = new Properties();
+                    branchProps.load(in);
+                    String numStr = branchProps.getProperty("projects.number");
                     BranchesData branches = new BranchesData();
                     if (numStr != null) {
                         int num = Integer.parseInt(numStr);
                         for (int i = 1; i <= num; i++) {
-                            String name = properties.getProperty("project." + i + ".name");
-                            String branchesStr = properties.getProperty("project." + i + ".branches");
+                            String name = branchProps.getProperty("project." + i + ".name");
+                            String branchesStr = branchProps.getProperty("project." + i + ".branches");
                             if (StringUtils.isBlank(name) || StringUtils.isBlank(branchesStr)) {
                                 continue;
                             }
                             for (String branch : branchesStr.split(",")) {
-                                branches.addBranch(name, branch, null);
+                                name = projectPathMap.get(name) != null ? projectPathMap.get(name) : "\\DESIGN\\rules\\" + name;
+                                branches.addBranch(projectPathMap.get(name), branch, null);
                             }
                         }
-                        DumperOptions options = new DumperOptions();
-                        options.setPrettyFlow(true);
-                        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-                        Yaml yaml = new Yaml(options);
-                        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                        try (OutputStreamWriter out = new OutputStreamWriter(outputStream,
-                                StandardCharsets.UTF_8)) {
-                            yaml.dump(branches, out);
-                        }
-                        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-                                outputStream.toByteArray());
-                        File file = new File(Props.text("openl.home") + "\\repositories\\settings\\design\\", "branches.yaml");
-                        File parentFile = file.getParentFile();
-                        if (!parentFile.mkdirs() && !parentFile.exists()) {
-                            throw new FileNotFoundException(
-                                    "Cannot create the folder " + parentFile.getAbsolutePath());
-                        }
-                        IOUtils.copyAndClose(byteArrayInputStream, new FileOutputStream(file));
+                        createYaml(branches, Paths.get(openlHome, "repositories", "settings", "design", "branches.yaml"));
                     }
                 } catch (IOException e) {
                     LOG.error("Migration of branches properties failed.", e);
                 }
             }
         }
+    }
+
+    private static void createYaml(Object data, Path filePath) throws IOException {
+        DumperOptions options = new DumperOptions();
+        options.setPrettyFlow(true);
+        options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+        Yaml yaml = new Yaml(options);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (OutputStreamWriter out = new OutputStreamWriter(outputStream,
+                StandardCharsets.UTF_8)) {
+            yaml.dump(data, out);
+        }
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
+                outputStream.toByteArray());
+        File file = filePath.toFile();
+        File parentFile = file.getParentFile();
+        if (!parentFile.mkdirs() && !parentFile.exists()) {
+            throw new FileNotFoundException(
+                    "Cannot create the folder " + parentFile.getAbsolutePath());
+        }
+        IOUtils.copyAndClose(byteArrayInputStream, new FileOutputStream(file));
     }
 
     private static void migrateLocks() throws IOException {

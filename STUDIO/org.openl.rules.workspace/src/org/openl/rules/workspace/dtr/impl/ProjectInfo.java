@@ -9,6 +9,14 @@ public class ProjectInfo {
     private boolean archived;
     private boolean duplicated = false;
 
+    public ProjectInfo() {
+    }
+
+    public ProjectInfo(String name, String path) {
+        this.name = name;
+        this.path = path;
+    }
+
     public String getName() {
         return name;
     }
@@ -53,9 +61,7 @@ public class ProjectInfo {
     }
 
     public ProjectInfo copy() {
-        ProjectInfo info = new ProjectInfo();
-        info.setName(getName());
-        info.setPath(getPath());
+        ProjectInfo info = new ProjectInfo(getName(), getPath());
         info.setModifiedAt(getModifiedAt());
         info.setArchived(isArchived());
         info.setDuplicated(isDuplicated());
