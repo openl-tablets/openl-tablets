@@ -1010,8 +1010,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public String getBusinessName(String mappedName) {
-        int index = mappedName.lastIndexOf(SEPARATOR);
-        return index >= 0 ? mappedName.substring(0, index) : mappedName;
+        int separatorIndex = mappedName.lastIndexOf(SEPARATOR);
+        if (separatorIndex >= 0) {
+            String projectName = mappedName.substring(0, separatorIndex);
+            int subFolderIndex = mappedName.indexOf('/', separatorIndex + 1);
+            return subFolderIndex >= 0 ? projectName + mappedName.substring(subFolderIndex) : projectName;
+        }
+        return mappedName;
     }
 
     @Override
@@ -1021,6 +1026,16 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private String getMappedName(ProjectInfo project) {
         return getMappedName(project.getName(), project.getPath());
+    }
+
+    @Override
+    public String findMappedName(String internalPath) {
+        ProjectIndex mapping = getUpToDateMapping(true);
+        Optional<ProjectInfo> projectInfo = mapping.getProjects()
+            .stream()
+            .filter(p -> p.getPath().equals(internalPath))
+            .findFirst();
+        return projectInfo.map(p -> baseFolder + getMappedName(p)).orElse(null);
     }
 
     private String getHash(String s) {

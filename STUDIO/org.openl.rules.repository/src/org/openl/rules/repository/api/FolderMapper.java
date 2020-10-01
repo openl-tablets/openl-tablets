@@ -14,4 +14,6 @@ public interface FolderMapper {
     String getBusinessName(String mappedName);
 
     String getMappedName(String businessName, String path);
+
+    String findMappedName(String internalPath);
 }

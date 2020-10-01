@@ -157,10 +157,19 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
                         String mappedName = name;
                         Repository designRepo = designTimeRepository.getRepository(repository.getId());
+                        String rulesLocation = designTimeRepository.getRulesLocation();
                         if (designRepo != null && designRepo.supports().mappedFolders()) {
-                            mappedName = ((FolderMapper) designRepo).getMappedName(name, repositoryPath);
+                            FolderMapper mapper = (FolderMapper) designRepo;
+                            String mappedPath = mapper.findMappedName(repositoryPath);
+                            if (mappedPath == null) {
+                                mappedName = mapper.getMappedName(name, repositoryPath);
+                            } else {
+                                mappedName = mappedPath.startsWith(rulesLocation) ?
+                                             mappedPath.substring(rulesLocation.length()) :
+                                             mappedPath;
+                            }
                         }
-                        mappingData.setExternalPath(designTimeRepository.getRulesLocation() + mappedName);
+                        mappingData.setExternalPath(rulesLocation + mappedName);
                     }
                     lpi = new AProject(repository, fileData);
                 }
