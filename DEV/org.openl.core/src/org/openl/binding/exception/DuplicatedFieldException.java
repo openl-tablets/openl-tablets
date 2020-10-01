@@ -6,7 +6,7 @@ public class DuplicatedFieldException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = 2754037692502108330L;
 
-    private String fieldName;
+    private final String fieldName;
 
     public DuplicatedFieldException(String msg, String fieldName) {
         super(msg);

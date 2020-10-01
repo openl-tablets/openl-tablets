@@ -17,6 +17,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.ActionType;
@@ -25,6 +26,9 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
+import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridTable;
+import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -312,11 +316,26 @@ public class DecisionTableLoader {
                     tableSyntaxNode);
             }
         }
+        if (tableBody.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
+        }
+        if (tableBody.getHeight() == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            //create virtual empty Row
+            GridTable virtualDefaultRulesRowGridTable = new GridTable(0,
+                    0,
+                    0,
+                    tableBody.getSource().getWidth() - 1,
+                    DecisionTableHelper.createVirtualGrid());
+            IGrid grid = new CompositeGrid(new IGridTable[] { tableBody.getSource(), virtualDefaultRulesRowGridTable }, true);
+            tableBody = LogicalTableHelper.logicalTable(
+                    new GridTable(0, 0, tableBody.getHeight(), tableBody.getSource().getWidth() - 1, grid));
+            bindingContext.addMessage(OpenLMessagesUtils
+                    .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
+        }
         ILogicalTable toParse = tableBody;
 
         // process lookup decision table.
         //
-
         int nHConditions = DecisionTableHelper.countHConditionsByHeaders(toParse);
         int nVConditions = DecisionTableHelper.countVConditionsByHeaders(toParse);
         TableStructure tableStructure = new TableStructure();
@@ -342,10 +361,6 @@ public class DecisionTableLoader {
             tableStructure.info = new DTInfo(nHConditions, nVConditions);
         }
         decisionTable.setDtInfo(tableStructure.info);
-
-        if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
-        }
         tableStructure.columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
 
         // NOTE! this method call depends on upper stacks calls, don`t move it upper.
