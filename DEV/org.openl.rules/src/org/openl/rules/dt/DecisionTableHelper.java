@@ -244,30 +244,18 @@ public final class DecisionTableHelper {
             sizeOfVirtualGridTable/* originalTable.getSource().getWidth() - 1 */,
             virtualGrid);
 
-        int finalHeight = originalTable.getSource().getHeight() + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1;
-        IGridTable[] tables;
-        if (isSmart(tableSyntaxNode) && originalTable.getHeight() < 2) {
-            GridTable virtualDefaultRulesRowGridTable = new GridTable(0,
-                0,
-                0,
-                originalTable.getSource().getWidth() - 1,
-                createVirtualGrid());
-            tables = new IGridTable[] { virtualGridTable, originalTable.getSource(), virtualDefaultRulesRowGridTable };
-            finalHeight++;
-            bindingContext.addMessage(OpenLMessagesUtils
-                .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
-        } else {
-            tables = new IGridTable[] { virtualGridTable, originalTable.getSource() };
-        }
-
-        IGrid grid = new CompositeGrid(tables, true);
+        IGrid grid = new CompositeGrid(new IGridTable[] { virtualGridTable, originalTable.getSource() }, true);
         // If the new table header size bigger than the size of the old table we
         // use the new table size
         int sizeofGrid = virtualGridTable.getWidth() < originalTable.getSource().getWidth() ? originalTable.getSource()
             .getWidth() - 1 : virtualGridTable.getWidth() - 1;
 
         return LogicalTableHelper.logicalTable(
-            new GridTable(0, 0, finalHeight, sizeofGrid /* originalTable.getSource().getWidth() - 1 */, grid));
+            new GridTable(0,
+                0,
+            originalTable.getSource().getHeight() + IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
+                sizeofGrid /* originalTable.getSource().getWidth() - 1 */,
+                grid));
     }
 
     private static FuzzyContext buildFuzzyContext(TableSyntaxNode tableSyntaxNode,
