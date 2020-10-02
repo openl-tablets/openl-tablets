@@ -7,7 +7,10 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -85,11 +88,41 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLock() {
+    public void testForceLock() throws InterruptedException {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
         LockInfo lockInfo = lock.info();
         assertEquals("user2", lockInfo.getLockedBy());
+    }
+
+    @Test
+    public void testForceLockInterrupting() {
+        assertTrue(lock.tryLock("user1"));
+
+        AtomicBoolean interrupted = new AtomicBoolean(false);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            try {
+                // Set too big value for time to live
+                lock.forceLock("user3", 1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                interrupted.set(true);
+            }
+        });
+
+        // Interrupt long running thread
+        try {
+            executor.shutdownNow();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+        } finally {
+            assertTrue("Long running thread must be terminated", executor.isTerminated());
+            assertTrue("forceLock() must throw InterruptedException", interrupted.get());
+        }
+
+        // Make sure that the lock isn't overridden.
+        LockInfo lockInfo = lock.info();
+        assertEquals("user1", lockInfo.getLockedBy());
     }
 }
