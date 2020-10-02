@@ -247,6 +247,7 @@ public class InterfaceGenerator {
         if (v != null) {
             return v;
         }
+        invalidTypeMap.put(openClass, Boolean.FALSE);
         if (openClass.isArray()) {
             boolean isInvalidComponentType = isInvalidType(openClass.getComponentClass(), invalidTypeMap);
             invalidTypeMap.put(openClass, isInvalidComponentType);
@@ -264,7 +265,6 @@ public class InterfaceGenerator {
                 }
             }
         }
-        invalidTypeMap.put(openClass, Boolean.FALSE);
         return false;
     }
 
