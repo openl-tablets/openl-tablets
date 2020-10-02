@@ -118,9 +118,6 @@ public class Lock {
                 String message = "Log retrieving is interrupted. Don't create a lock.";
                 LOG.debug(message, e);
                 throw new InterruptedException(message);
-            } catch (IOException e) {
-                LOG.error("Failed to retrieve lock info.", e);
-                throw e;
             }
             if (info.isLocked()) {
                 Instant deadline = info.getLockedAt().plus(timeToLive, toTemporalUnit(unit));
