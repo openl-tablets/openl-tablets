@@ -3,6 +3,7 @@ package org.openl.rules.lock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -12,17 +13,28 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.util.FileUtils;
 
 public class LockTest {
 
     private Lock lock;
+    private Path tempDirectoryPath;
 
     @Before
     public void setUp() throws IOException {
-        Path tempDirectoryPath = Files.createTempDirectory("openl-locks");
+        tempDirectoryPath = Files.createTempDirectory("openl-locks");
         lock = new Lock(tempDirectoryPath, "my/lock/id");
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        FileUtils.delete(tempDirectoryPath.toFile());
+        if (tempDirectoryPath.toFile().exists()) {
+            fail("Cannot delete folder " + tempDirectoryPath);
+        }
     }
 
     @Test
