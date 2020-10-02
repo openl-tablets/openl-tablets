@@ -45,7 +45,16 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy) {
-        LockInfo info = info();
+        LockInfo info;
+        try {
+            info = getInfo();
+        } catch (ClosedByInterruptException e) {
+            LOG.info("Log retrieving is interrupted. Don't create a lock.", e);
+            return false;
+        } catch (IOException e) {
+            LOG.error("Failed to retrieve lock info.", e);
+            return false;
+        }
         if (info.isLocked()) {
             // If lockedBy is empty, will return false. Can't lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
@@ -94,7 +103,7 @@ public class Lock {
         return result;
     }
 
-    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) throws InterruptedException {
+    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) throws InterruptedException, IOException {
         // Time to wait while it's unlocked by somebody
         long timeToWait = timeToLive / 10;
         boolean result = tryLock(lockedBy, timeToWait, unit);
@@ -102,7 +111,17 @@ public class Lock {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
             }
-            LockInfo info = info();
+            LockInfo info;
+            try {
+                info = getInfo();
+            } catch (ClosedByInterruptException e) {
+                String message = "Log retrieving is interrupted. Don't create a lock.";
+                LOG.debug(message, e);
+                throw new InterruptedException(message);
+            } catch (IOException e) {
+                LOG.error("Failed to retrieve lock info.", e);
+                throw e;
+            }
             if (info.isLocked()) {
                 Instant deadline = info.getLockedAt().plus(timeToLive, toTemporalUnit(unit));
                 if (deadline.isBefore(Instant.now())) {
@@ -161,6 +180,14 @@ public class Lock {
     }
 
     public LockInfo info() {
+        try {
+            return getInfo();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private LockInfo getInfo() throws IOException {
         Path lock = lockPath.resolve(READY_LOCK);
         if (!Files.isRegularFile(lock)) {
             return LockInfo.NO_LOCK;
@@ -184,8 +211,6 @@ public class Lock {
                 }
             }
             return new LockInfo(date, userName);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
         }
     }
 

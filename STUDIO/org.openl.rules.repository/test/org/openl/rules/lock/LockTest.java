@@ -100,7 +100,7 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLock() throws InterruptedException {
+    public void testForceLock() throws InterruptedException, IOException {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
@@ -120,6 +120,8 @@ public class LockTest {
                 lock.forceLock("user3", 1, TimeUnit.MINUTES);
             } catch (InterruptedException e) {
                 interrupted.set(true);
+            } catch (IOException e) {
+                interrupted.set(false);
             }
         });
 
