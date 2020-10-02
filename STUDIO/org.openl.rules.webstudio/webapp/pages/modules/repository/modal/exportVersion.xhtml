@@ -19,7 +19,8 @@
         <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                      rendered="#{!empty nodeVersionsBean.nodeToView}">
           <h:outputText value="Project Name:" />
-          <h:outputText value="#{artefact.businessName}" />
+          <h:outputText value="#{artefact.businessName}" rendered="#{node.type == 'project'}" />
+          <h:outputText value="#{artefact.name}" rendered="#{node.type != 'project'}" />
           <h:outputLabel for="projectVersion" styleClass="required" value="Project Revision:" />
           <h:selectOneMenu id="projectVersion" value="#{repositoryTreeController.version}" required="true">
             <f:selectItems value="#{repositoryTreeController.selectedProjectVersions}" />
