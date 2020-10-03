@@ -31,7 +31,7 @@ public final class UriMemberHelper {
                 throw new DuplicatedMethodException(message, existedMethod, method);
             }
         } else {
-            throw new IllegalStateException("Implementation supports only IUriMember.");
+            throw new IllegalStateException("The implementation supports only IUriMember.");
         }
     }
 
@@ -41,7 +41,7 @@ public final class UriMemberHelper {
                 throw new DuplicatedFieldException("", openField.getName());
             }
         } else {
-            throw new IllegalStateException("Implementation supports only IUriMember.");
+            throw new IllegalStateException("The implementation supports only IUriMember.");
         }
     }
 
@@ -69,7 +69,7 @@ public final class UriMemberHelper {
             // Case module names where not set to the methods
             if (canBeDispatched) {
                 message = String.format(
-                    "Table '%s' is already used with the same version, active status, properties set.",
+                    "Method '%s' is already used with the same version, active status, properties set.",
                     MethodUtil.printSignature(existedMethod, INamedThing.REGULAR));
             } else {
                 message = String.format("Method '%s' is already used.",
@@ -81,7 +81,7 @@ public final class UriMemberHelper {
             if (modules.size() > 1) {
                 if (canBeDispatched) {
                     message = String.format(
-                        "Table '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
+                        "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
                         MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         modulesString,
                         modules.get(1));
@@ -94,11 +94,11 @@ public final class UriMemberHelper {
             } else {
                 if (canBeDispatched) {
                     message = String.format(
-                        "Table '%s' is already used in module '%s' with the same version, active status, properties set.",
+                        "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
                         MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         modulesString);
                 } else {
-                    message = String.format("Table '%s' is already used in module '%s'.",
+                    message = String.format("Method '%s' is already used in module '%s'.",
                         MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         modulesString);
                 }

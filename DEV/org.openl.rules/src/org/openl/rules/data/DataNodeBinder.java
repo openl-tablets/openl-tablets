@@ -89,7 +89,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        parsedHeader = mergeArraySimbols(parsedHeader);
+        parsedHeader = mergeArraySymbols(parsedHeader);
 
         if (parsedHeader.length > 3) {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
@@ -116,7 +116,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         return dataNode;
     }
 
-    private static IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
+    private static IdentifierNode[] mergeArraySymbols(IdentifierNode[] parsedHeader) {
         List<IdentifierNode> parsedHeader1 = new ArrayList<>();
         parsedHeader1.add(parsedHeader[0]);
         int i = 2;

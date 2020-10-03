@@ -41,18 +41,18 @@ public class TableSyntaxNode extends NaryNode {
 
     private ILogicalTable table;
 
-    private HeaderSyntaxNode headerNode;
+    private final HeaderSyntaxNode headerNode;
 
     private ITableProperties tableProperties;
 
     private IOpenMember member;
 
-    private Map<String, ILogicalTable> subTables = new HashMap<>();
+    private final Map<String, ILogicalTable> subTables = new HashMap<>();
 
     /**
      * Map with errors in the order in which they were inserted
      */
-    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
+    private final LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
 
     private Object validationResult;
 

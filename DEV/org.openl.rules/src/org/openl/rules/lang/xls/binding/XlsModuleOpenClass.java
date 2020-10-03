@@ -16,7 +16,9 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -376,10 +378,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (existingMethod != null) {
 
             if (!existingMethod.getType().equals(m.getType())) {
-                String message = String.format(
-                    "Method '%s' with return type '%s' is already defined with another return type ('%s')",
-                    m.getName(),
-                    m.getType().getDisplayName(0),
+                String message = String.format("Method '%s' is already defined with another return type '%s'.",
+                    MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existingMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existingMethod, method);
             }
