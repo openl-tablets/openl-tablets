@@ -3,23 +3,38 @@ package org.openl.rules.lock;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.openl.util.FileUtils;
 
 public class LockTest {
 
     private Lock lock;
+    private Path tempDirectoryPath;
 
     @Before
     public void setUp() throws IOException {
-        Path tempDirectoryPath = Files.createTempDirectory("openl-locks");
+        tempDirectoryPath = Files.createTempDirectory("openl-locks");
         lock = new Lock(tempDirectoryPath, "my/lock/id");
+    }
+
+    @After
+    public void tearDown() throws IOException {
+        FileUtils.delete(tempDirectoryPath.toFile());
+        if (tempDirectoryPath.toFile().exists()) {
+            fail("Cannot delete folder " + tempDirectoryPath);
+        }
     }
 
     @Test
@@ -85,11 +100,43 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLock() {
+    public void testForceLock() throws InterruptedException, IOException {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
         LockInfo lockInfo = lock.info();
         assertEquals("user2", lockInfo.getLockedBy());
+    }
+
+    @Test
+    public void testForceLockInterrupting() {
+        assertTrue(lock.tryLock("user1"));
+
+        AtomicBoolean interrupted = new AtomicBoolean(false);
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            try {
+                // Set too big value for time to live
+                lock.forceLock("user3", 1, TimeUnit.MINUTES);
+            } catch (InterruptedException e) {
+                interrupted.set(true);
+            } catch (IOException e) {
+                interrupted.set(false);
+            }
+        });
+
+        // Interrupt long running thread
+        try {
+            executor.shutdownNow();
+            executor.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException ignored) {
+        } finally {
+            assertTrue("Long running thread must be terminated", executor.isTerminated());
+            assertTrue("forceLock() must throw InterruptedException", interrupted.get());
+        }
+
+        // Make sure that the lock isn't overridden.
+        LockInfo lockInfo = lock.info();
+        assertEquals("user1", lockInfo.getLockedBy());
     }
 }

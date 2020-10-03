@@ -517,9 +517,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 designTimeRepository.getRepository(repositoryId),
                 designData,
                 projectsLockEngine);
-            if (!isOpenedOtherProject(rulesProject)) {
-                rulesProject.open();
-            }
+            rulesProject.open();
 
             refreshRulesProjects();
         } catch (ProjectException e) {

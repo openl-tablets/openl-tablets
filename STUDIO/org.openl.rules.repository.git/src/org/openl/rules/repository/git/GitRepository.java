@@ -2315,7 +2315,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private void lockSettings() {
+    private void lockSettings() throws IOException {
         if (repositorySettings != null) {
             repositorySettings.lock(branchesConfigFile);
         }

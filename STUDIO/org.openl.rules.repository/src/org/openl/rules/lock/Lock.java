@@ -5,12 +5,12 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
@@ -45,21 +45,42 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy) {
-        LockInfo info = info();
+        LockInfo info;
+        try {
+            info = getInfo();
+        } catch (ClosedByInterruptException e) {
+            LOG.info("Log retrieving is interrupted. Don't create a lock.", e);
+            return false;
+        } catch (IOException e) {
+            LOG.error("Failed to retrieve lock info.", e);
+            return false;
+        }
         if (info.isLocked()) {
             // If lockedBy is empty, will return false. Can't lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
         boolean lockAcquired = false;
         if (!Files.exists(lockPath)) {
+            Path prepareLock = null;
             try {
-                Path prepareLock = createLockFile(lockedBy);
+                prepareLock = createLockFile(lockedBy);
                 lockAcquired = finishLockCreating(prepareLock);
                 if (!lockAcquired) {
                     // Delete because of it loos lock
                     Files.delete(prepareLock);
                     deleteEmptyParentFolders();
                 }
+            } catch (ClosedByInterruptException e) {
+                LOG.info("Another thread interrupted IO operation. Cancel lock '{}'.", lockPath);
+                try {
+                    if (prepareLock != null){
+                        Files.delete(prepareLock);
+                    }
+                    deleteEmptyParentFolders();
+                } catch (IOException ex) {
+                    LOG.error(ex.getMessage(), ex);
+                }
+                lockAcquired = false;
             } catch (IOException e) {
                 LOG.error("Failure of lock creation.", e);
             }
@@ -82,12 +103,22 @@ public class Lock {
         return result;
     }
 
-    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) {
+    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) throws InterruptedException, IOException {
         // Time to wait while it's unlocked by somebody
         long timeToWait = timeToLive / 10;
         boolean result = tryLock(lockedBy, timeToWait, unit);
         while (!result) {
-            LockInfo info = info();
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException();
+            }
+            LockInfo info;
+            try {
+                info = getInfo();
+            } catch (ClosedByInterruptException e) {
+                String message = "Log retrieving is interrupted. Don't create a lock.";
+                LOG.debug(message, e);
+                throw new InterruptedException(message);
+            }
             if (info.isLocked()) {
                 Instant deadline = info.getLockedAt().plus(timeToLive, toTemporalUnit(unit));
                 if (deadline.isBefore(Instant.now())) {
@@ -146,6 +177,14 @@ public class Lock {
     }
 
     public LockInfo info() {
+        try {
+            return getInfo();
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private LockInfo getInfo() throws IOException {
         Path lock = lockPath.resolve(READY_LOCK);
         if (!Files.isRegularFile(lock)) {
             return LockInfo.NO_LOCK;
@@ -169,8 +208,6 @@ public class Lock {
                 }
             }
             return new LockInfo(date, userName);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
         }
     }
 

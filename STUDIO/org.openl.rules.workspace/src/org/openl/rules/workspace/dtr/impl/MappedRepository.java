@@ -197,19 +197,23 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     @Override
     public void setListener(final Listener callback) {
         delegate.setListener(() -> {
-            repositorySettings.lock(configFile);
             try {
-                refreshMapping();
+                repositorySettings.lock(configFile);
+                try {
+                    refreshMapping();
 
-                ProjectIndex projectIndex = externalToInternal.copy();
-                boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
-                if (modified) {
-                    saveProjectIndex(projectIndex);
+                    ProjectIndex projectIndex = externalToInternal.copy();
+                    boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
+                    if (modified) {
+                        saveProjectIndex(projectIndex);
+                    }
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                } finally {
+                    repositorySettings.unlock(configFile);
                 }
-            } catch (Exception e) {
-                log.warn(e.getMessage(), e);
-            } finally {
-                repositorySettings.unlock(configFile);
+            } catch (IOException e) {
+                log.warn("Skip project index updating because thread was interrupted.", e);
             }
 
             if (callback != null) {
@@ -516,7 +520,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      *                 should be managed outside. If refresh isn't needed, lock file will not be created, this flag doesn't
      *                 matter.
      */
-    private ProjectIndex getUpToDateMapping(boolean withLock) {
+    private ProjectIndex getUpToDateMapping(boolean withLock) throws IOException {
         boolean modified = !repositorySettings.getSyncDate().equals(settingsSyncDate);
         if (!modified) {
             try {
@@ -864,7 +868,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return externalToInternal;
     }
 
-    private void refreshMappingWithLock() {
+    private void refreshMappingWithLock() throws IOException {
         repositorySettings.lock(configFile);
         try {
             refreshMapping();
@@ -954,7 +958,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
-    private boolean isUpdateConfigNeeded(FileData folderData) {
+    private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             String internalPath = mappingData.getInternalPath();
@@ -984,7 +988,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public String getRealPath(String externalPath) {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        ProjectIndex mapping;
+        try {
+            mapping = getUpToDateMapping(true);
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+            mapping = externalToInternal.copy();
+        }
         return toInternal(mapping, externalPath);
     }
 
@@ -1010,7 +1020,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     @Override
     public String findMappedName(String internalPath) {
-        ProjectIndex mapping = getUpToDateMapping(true);
+        ProjectIndex mapping;
+        try {
+            mapping = getUpToDateMapping(true);
+        } catch (IOException e) {
+            log.warn(e.getMessage(), e);
+            mapping = externalToInternal.copy();
+        }
         Optional<ProjectInfo> projectInfo = mapping.getProjects()
                 .stream()
                 .filter(p -> p.getPath().equals(internalPath))
