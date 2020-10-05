@@ -25,6 +25,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -53,6 +54,7 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
+import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -63,6 +65,7 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
+
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
     private final RepositoryTreeState repositoryTreeState;
@@ -77,6 +80,7 @@ public class ProjectBean {
     private List<ListItem<ProjectDependencyDescriptor>> dependencies;
     private String sources;
     private String[] propertiesFileNamePatterns;
+    private OpenAPI openAPI;
 
     private UIInput propertiesFileNameProcessorInput;
     private String propertiesFileNameProcessor;
@@ -154,6 +158,16 @@ public class ProjectBean {
         this.sources = sources;
     }
 
+    public OpenAPI getOpenAPI() {
+        ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
+        openAPI = currentProject.getOpenapi();
+        return openAPI;
+    }
+
+    public void setOpenAPI(OpenAPI openAPI) {
+        this.openAPI = openAPI;
+    }
+
     public String getPropertiesFileNamePatterns() {
         propertiesFileNamePatterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
         return StringUtils.join(propertiesFileNamePatterns, "\n");
@@ -209,7 +223,7 @@ public class ProjectBean {
                 projectDescriptor.setPropertiesFileNamePatterns(patterns);
                 processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
                 if (processor instanceof FileNamePatternValidator) {
-                    for(String pattern: patterns) {
+                    for (String pattern : patterns) {
                         ((FileNamePatternValidator) processor).validate(pattern);
                     }
                 }
@@ -541,6 +555,21 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
+    public void editOpenAPI() {
+        tryLockProject();
+
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        clean(newProjectDescriptor);
+        String normalizedAlgorithmPath = FileNameFormatter.normalizePath(openAPI.getAlgorithmPath());
+        String normalizedModelPath = FileNameFormatter.normalizePath(openAPI.getModelPath());
+        openAPI.setAlgorithmPath(normalizedAlgorithmPath);
+        openAPI.setModelPath(normalizedModelPath);
+        newProjectDescriptor.setOpenapi(openAPI);
+
+        save(newProjectDescriptor);
+    }
+
     private void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
         if (!currentProject.tryLock()) {
@@ -621,6 +650,20 @@ public class ProjectBean {
 
         if (CollectionUtils.isEmpty(descriptor.getDependencies())) {
             descriptor.setDependencies(null);
+        }
+
+        OpenAPI openapi = descriptor.getOpenapi();
+        if (openapi != null) {
+            if (StringUtils.isBlank(openapi.getPath())) {
+                openapi.setPath(null);
+            }
+
+            if (StringUtils.isBlank(openapi.getAlgorithmPath())) {
+                openapi.setAlgorithmPath(null);
+            }
+            if (StringUtils.isBlank(openapi.getModelPath())) {
+                openapi.setModelPath(null);
+            }
         }
 
         List<Module> modules = descriptor.getModules();

@@ -186,7 +186,8 @@
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
 
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                                         onfilesubmit="showLoader();" oncomplete="excelFileUploaded=true; hideLoader(); checkCreateOnExcelPanel();"
+                                         onfilesubmit="showLoader();"
+                                         oncomplete="excelFileUploaded=true; hideLoader(); checkCreateOnExcelPanel();"
                                          immediateUpload="true"
                                          noDuplicate="true"
                                          onclear="excelFileUploaded=false; onClearFile(event);  checkCreateOnExcelPanel();"
@@ -322,7 +323,8 @@
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                         <h:outputLabel for="file" styleClass="required" value="File:"/>
                         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                                         onfilesubmit="showLoader(); checkFileName(event);" oncomplete="openApiFileUploaded=true; hideLoader(); checkCreateOnOpenApiPanel();"
+                                         onfilesubmit="showLoader();"
+                                         oncomplete="openApiFileUploaded=true; hideLoader(); checkCreateOnOpenApiPanel();"
                                          immediateUpload="true"
                                          noDuplicate="true"
                                          onclear="openApiFileUploaded=false; onClearFile(event); checkCreateOnOpenApiPanel();"
@@ -336,6 +338,22 @@
                                      value="#{repositoryTreeController.projectName}"
                                      onkeyup="checkCreateOnOpenApiPanel();"
                                      onchange="checkCreateOnOpenApiPanel(); createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
+                        <h:outputLabel styleClass="required" for="modelsModuleName"
+                                       value="Module Name for Data Types:"/>
+                        <h:inputText id="modelsModuleName" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.modelsModuleName}"/>
+                        <h:outputLabel styleClass="required" for="modelsFileName"
+                                       value="Path for Module with Data Types:"/>
+                        <h:inputText id="modelsFileName" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.modelsPath}"/>
+                        <h:outputLabel styleClass="required" for="algorithmsModuleName"
+                                       value="Module Name for Tables:"/>
+                        <h:inputText id="algorithmsModuleName" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.algorithmsModuleName}"/>
+                        <h:outputLabel styleClass="required" for="algorithmsFileName"
+                                       value="Path for Module with Tables:"/>
+                        <h:inputText id="algorithmsFileName" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.algorithmsPath}"/>
                     </h:panelGrid>
                     <h:panelGrid id="openApiPanel" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -421,7 +439,8 @@
                                           rendered="#{empty localUpload.projects4Upload}"/>
                         </h:panelGrid>
 
-                        <h:panelGrid id="workPanelRepo" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
+                        <h:panelGrid id="workPanelRepo" columns="2" styleClass="formfields" cellspacing="1"
+                                     columnClasses="label,"
                                      rendered="#{not empty localUpload.projects4Upload}">
                             <h:outputLabel for="repositoryLocal" value="Repository:" styleClass="required"/>
                             <h:selectOneMenu id="repositoryLocal" value="#{localUpload.repositoryId}"
@@ -630,21 +649,6 @@
             projectNameInput.trigger("change");
         }
 
-        function checkFileName(event) {
-            let file = event.rf.data.file;
-            if (!file) {
-                return;
-            }
-            let fileName = file.name;
-            let name = fileName.split('.').slice(0, -1).join('.');
-
-            if (name.toUpperCase() !== 'openapi'.toUpperCase()) {
-                showMessagePopup('Only files with name "openapi" and formats JSON, YML/YAML are accepted');
-                clearFiles(fileName);
-                enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
-            }
-        }
-
         function onClearFile(event) {
             let files = "";
             const data = event.rf.data;
@@ -695,50 +699,50 @@
         var openApiFileUploaded = false;
         var checkedCount = 0;
 
-        function checkCreateOnTemplatePanel(){
-            if($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val()!=="none"){
+        function checkCreateOnTemplatePanel() {
+            if ($j("#createProjectFormTempl\\:projectName").val() && $j("#createProjectFormTempl\\:repositoryTemplate").val() !== "none") {
                 enableCreateButton(true, #{rich:element("sbtTemplates")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("sbtTemplates")});
             }
         }
 
-        function checkCreateOnExcelPanel(){
-            if(excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val()!=="none"){
+        function checkCreateOnExcelPanel() {
+            if (excelFileUploaded && $j("#createProjectFormFiles\\:projectName").val() && $j("#createProjectFormFiles\\:repositoryExcel").val() !== "none") {
                 enableCreateButton(true, #{rich:element("sbtFiles")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("sbtFiles")});
             }
         }
 
-        function checkCreateOnZipPanel(){
-            if(zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val()!=="none"){
+        function checkCreateOnZipPanel() {
+            if (zipFileUploaded && $j("#uploadProjectForm\\:projectName").val() && $j("#uploadProjectForm\\:repositoryZip").val() !== "none") {
                 enableCreateButton(true, #{rich:element("sbtZips")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("sbtZips")});
             }
         }
 
-        function checkCreateOnOpenApiPanel(){
-            if(openApiFileUploaded && $j("#openAPIProjectForm\\:projectName").val() && $j("#openAPIProjectForm\\:repositoryOpenAPI").val()!=="none"){
+        function checkCreateOnOpenApiPanel() {
+            if (openApiFileUploaded && $j("#openAPIProjectForm\\:projectName").val() && $j("#openAPIProjectForm\\:repositoryOpenAPI").val() !== "none") {
                 enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
             }
         }
 
-        function checkCreateWorkspacePanel(){
-            if(checkedCount !== 0 && $j("#repositoryLocal").val()!=="none"){
+        function checkCreateWorkspacePanel() {
+            if (checkedCount !== 0 && $j("#repositoryLocal").val() !== "none") {
                 enableCreateButton(true, #{rich:element("sbtWorkspace")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("sbtWorkspace")});
             }
         }
 
-        function checkImportRepoPanel(){
-            if($j("#importFromRepoForm\\:repositoryImport").val()!=="none"){
+        function checkImportRepoPanel() {
+            if ($j("#importFromRepoForm\\:repositoryImport").val() !== "none") {
                 enableCreateButton(true, #{rich:element("importFromRepoForm:sbtRepo")});
-            }else{
+            } else {
                 enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});
             }
         }
