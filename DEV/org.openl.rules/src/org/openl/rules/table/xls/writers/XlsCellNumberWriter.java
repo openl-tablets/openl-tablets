@@ -16,7 +16,6 @@ public class XlsCellNumberWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        removeFormulaIfPresent();
         Number numberValue = (Number) getValueToWrite();
         Cell cellToWrite = getCellToWrite();
         cellToWrite.setCellValue(numberValue.doubleValue());
