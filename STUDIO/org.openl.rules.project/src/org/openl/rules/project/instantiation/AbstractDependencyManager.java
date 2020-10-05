@@ -184,7 +184,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
             if (isCircularDependency) {
                 throw new OpenLCompilationException(String.format("Circular dependency is detected: %s.",
-                    extractCircularDependencyDetails(dependencyName, compilationStack)));
+                    buildCircularDependencyDetails(dependencyName, compilationStack)));
             }
 
             CompiledDependency compiledDependency;
@@ -225,8 +225,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                             if (openClass instanceof ComponentOpenClass) {
                                 ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
                             }
-                        } catch (OpenLCompilationException ignored) {
-                            LOG.debug("Ignored error: ", ignored);
+                        } catch (OpenLCompilationException e) {
+                            LOG.debug("Ignored error: ", e);
                         }
                     }
                 }
@@ -234,7 +234,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
     }
 
-    private static String extractCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
+    private static String buildCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
         StringBuilder sb = new StringBuilder();
         Iterator<String> itr = compilationStack.iterator();
         sb.append("'").append(dependencyName).append("'");
@@ -268,9 +268,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (classLoaders.get(project.getName()) != null) {
             return classLoaders.get(project.getName());
         }
-        ClassLoader parentClassLoader = rootClassLoader == null
-                ? this.getClass().getClassLoader()
-                : rootClassLoader;
+        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
         OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
@@ -324,13 +322,13 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
 
         List<DependencyReference> dependenciesToReset = new ArrayList<>();
-        List<DependencyReference> dependenciesReferenciesToClear = new ArrayList<>();
+        List<DependencyReference> dependenciesReferencesToClear = new ArrayList<>();
         for (DependencyReference dependencyReference : dependencyReferences) {
             if (dependencyReference.getReference().equals(dependencyName)) {
                 dependenciesToReset.add(dependencyReference);
             }
             if (dependencyReference.getDependency().equals(dependencyName)) {
-                dependenciesReferenciesToClear.add(dependencyReference);
+                dependenciesReferencesToClear.add(dependencyReference);
             }
         }
 
@@ -343,7 +341,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
         if (loaders != null) {
             loaders.forEach(IDependencyLoader::reset);
-            for (DependencyReference dependencyReference : dependenciesReferenciesToClear) {
+            for (DependencyReference dependencyReference : dependenciesReferencesToClear) {
                 dependencyReferences.remove(dependencyReference);
             }
         }
