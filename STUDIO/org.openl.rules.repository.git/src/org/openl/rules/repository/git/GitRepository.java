@@ -1606,7 +1606,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             Ref branchRef = git.getRepository().findRef(branchFrom);
             String mergeMessage = getMergeMessage(author, branchRef);
-            MergeResult mergeResult = git.merge().include(branchRef).setMessage(mergeMessage).call();
+            MergeResult mergeResult = git.merge()
+                    .include(branchRef)
+                    .setMessage(mergeMessage)
+                    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                    .call();
 
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
