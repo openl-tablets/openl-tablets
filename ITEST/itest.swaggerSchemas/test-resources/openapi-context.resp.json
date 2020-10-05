@@ -69,6 +69,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "text/plain": {
                 "schema": {
