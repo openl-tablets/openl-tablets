@@ -104,7 +104,7 @@ public class OpenAPITypeUtils {
                 result = "=0L";
                 break;
             case DOUBLE:
-                result = "=0.0d";
+                result = "=0.0";
                 break;
             case FLOAT:
                 result = "=0.0f";

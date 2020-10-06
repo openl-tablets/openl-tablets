@@ -1,6 +1,7 @@
 package org.openl.rules.table.xls.writers;
 
 import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellType;
 import org.openl.rules.table.xls.PoiExcelHelper;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 
@@ -23,8 +24,7 @@ public class XlsCellFormulaWriter extends AXlsCellWriter {
             // OpenL formula
             // TODO make separate writers and editors for OpenL and Excel
             // Formulas
-            //if CellType is Formula we need to delete it. Otherwise, type isn't changed and OpenL formula will be represented as Excel Formula
-            removeFormulaIfPresent();
+            cellToWrite.setCellType(CellType.STRING);
             cellToWrite.setCellValue(formula);
         }
     }

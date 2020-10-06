@@ -10,7 +10,6 @@ public class XlsCellEnumWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        removeFormulaIfPresent();
         getCellToWrite().setCellValue(((Enum<?>) getValueToWrite()).name());
     }
 

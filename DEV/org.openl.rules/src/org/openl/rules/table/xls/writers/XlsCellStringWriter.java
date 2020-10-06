@@ -10,7 +10,7 @@ public class XlsCellStringWriter extends AXlsCellWriter {
 
     @Override
     public void writeCellValue() {
-        removeFormulaIfPresent();
+        getCellToWrite().setBlank();
         getCellToWrite().setCellValue(getStringValue());
     }
 

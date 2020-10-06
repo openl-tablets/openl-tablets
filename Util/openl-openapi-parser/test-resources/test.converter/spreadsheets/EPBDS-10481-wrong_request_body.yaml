@@ -1,0 +1,40 @@
+openapi: 3.0.1
+info:
+  title: test
+  version: 1.0.0
+servers:
+  - url: /test
+    variables: { }
+paths:
+  /ThisIsEndpoint:
+    post:
+      summary: TestCalc
+      description: "Test text"
+      operationId: BlaBlaBla
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WrapperObject'
+      responses:
+        "200":
+          description: "Test response"
+          content:
+            text/plain:
+              schema:
+                type: string
+components:
+  schemas:
+    InnerObject:
+      type: object
+      properties:
+        text:
+          type: string
+        birthDate:
+          type: string
+          format: date-time
+    WrapperObject:
+      type: object
+      properties:
+        input:
+          $ref: '#/components/schemas/InnerObject'
