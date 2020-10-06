@@ -3,15 +3,7 @@ package org.openl.rules.project.resolving;
 import java.lang.reflect.Array;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -155,7 +147,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             format.setLenient(false);
             try {
                 String dateForCheck = "2014-06-20";
-                SimpleDateFormat correctFormat = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat correctFormat = createDateFormat("yyyy-MM-dd");
                 Date date = correctFormat.parse(dateForCheck);
 
                 Date parsedDate = format.parse(format.format(date));
@@ -252,7 +244,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 if (format == null) {
                     format = "yyyyMMdd"; // default pattern for easier declaration and be ordered by date naturally
                 }
-                dateFormats.put(propertyName, new SimpleDateFormat(format));
+                dateFormats.put(propertyName, createDateFormat(format));
                 pattern = dateFormatToPattern(format);
             } else if (returnType.isEnum()) {
                 pattern = "[a-zA-Z$_][\\w$_]*";
@@ -326,5 +318,11 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             }
             return arrObject.toArray((Object[]) Array.newInstance(componentClass, 0));
         }
+    }
+
+    private static SimpleDateFormat createDateFormat(String pattern) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(pattern);
+        dateFormat.setLenient(false); //strict match
+        return dateFormat;
     }
 }
