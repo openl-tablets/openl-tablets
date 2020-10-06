@@ -51,6 +51,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.io.NullOutputStream;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -1745,7 +1746,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             RevCommit fromCommit = revWalk.parseCommit(fromId);
             RevCommit toCommit = revWalk.parseCommit(toId);
-            return revWalk.isMergedInto(fromCommit, toCommit);
+            boolean merged = revWalk.isMergedInto(fromCommit, toCommit);
+            if (!merged) {
+                try (DiffFormatter diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
+                    diffFormatter.setRepository(git.getRepository());
+                    List<DiffEntry> diffEntries = diffFormatter.scan(fromCommit, toCommit);
+                    if (diffEntries.isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+            return merged;
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
