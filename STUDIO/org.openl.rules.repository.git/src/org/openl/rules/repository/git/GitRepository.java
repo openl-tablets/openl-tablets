@@ -1693,6 +1693,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             addTagToCommit(commit, folderData.getAuthor());
 
             push();
+
+            if (uri == null) {
+                // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
+                // autoGC() didn't solve the issue for local repository, so we use gc() instead.
+                git.gc().call();
+            }
         } catch (IOException e) {
             reset(commitId);
             throw e;
