@@ -360,14 +360,17 @@ public class RepositoryTreeController {
             return false;
         }
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (selectedProject instanceof ADeploymentProject) {
                 return false;
             }
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getRepository().getId(),
-                    selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(),
+                    branch,
+                    selectedProject.getRealPath(),
+                    version);
             return !getDependencies(newVersion, false).isEmpty();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -396,11 +399,14 @@ public class RepositoryTreeController {
             return Collections.emptyList();
         }
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getRepository().getId(),
-                    selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(),
+                    branch,
+                    selectedProject.getRealPath(),
+                    version);
             List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -1106,11 +1112,14 @@ public class RepositoryTreeController {
         File zipFile = null;
         String zipFileName = null;
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getRepository().getId(),
-                    selectedProject.getName(),
-                    new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(),
+                    branch,
+                    selectedProject.getRealPath(),
+                    version);
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
             zipFileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -1139,9 +1148,14 @@ public class RepositoryTreeController {
         InputStream is = null;
         OutputStream os = null;
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getRepository().getId(), selectedProject.getName(), new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(),
+                    branch,
+                    selectedProject.getRealPath(),
+                    version);
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1182,7 +1196,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Path should not be empty");
             return null;
         }
-        AProject selectedProject = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
@@ -1212,8 +1226,13 @@ public class RepositoryTreeController {
             AProject forExport;
             String repositoryId = selectedProject.getRepository().getId();
             if (hasVersions && currentRevision == null) {
+                Repository repository = selectedProject.getDesignRepository();
+                String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 forExport = userWorkspace.getDesignTimeRepository()
-                    .getProject(repositoryId, selectedProject.getName(), new CommonVersionImpl(version));
+                    .getProjectByPath(repositoryId,
+                        branch,
+                        selectedProject.getRealPath(),
+                        version);
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
