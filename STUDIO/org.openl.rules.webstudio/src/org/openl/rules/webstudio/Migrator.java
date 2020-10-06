@@ -36,7 +36,9 @@ public class Migrator {
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
-
+        if (!settings.getFile().exists()) {
+            return;
+        }
         HashMap<String, String> props = new HashMap<>();
 
         Object fromVersion = settings.getProperty(".version");

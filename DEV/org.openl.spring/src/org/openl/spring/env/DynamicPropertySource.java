@@ -77,7 +77,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         timestamp = lastModified;
     }
 
-    private File getFile() {
+    public File getFile() {
         String property = resolver.getProperty(OPENL_HOME_SHARED);
         File file = new File(property, appName + ".properties");
         return file;
