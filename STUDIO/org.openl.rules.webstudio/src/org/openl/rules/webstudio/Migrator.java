@@ -199,7 +199,7 @@ public class Migrator {
                         File branch = lock.getParentFile();
                         File project = branch.getParentFile();
                         String fileName = project.getName();
-                        String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName) : fileName;
+                        String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName) : "\\DESIGN\\rules\\" + fileName;
                         Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, "[branches]", branch.getName(), "ready.lock");
                         FileUtils.copy(lock, newLock.toFile());
                     }
