@@ -1,0 +1,1 @@
+ERROR: OpenAPI validation: Type of cell '$Bla3' must be compatible with OpenAPI type 'number(double)' of schema property 'Bla3'.

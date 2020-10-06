@@ -849,11 +849,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             IOpenClass parameterOpenClass) {
         String expectedParameterSchemaType = resolveSimplifiedName(expectedParameterSchema);
         String actualParameterSchemaType = resolveSimplifiedName(parameterSchema);
-        return expectedParameterSchemaType != null && actualParameterSchemaType != null && (!isCompatibleTypes(
-            actualParameterSchemaType,
-            expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
-                actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
-                    .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
+        if (expectedParameterSchemaType != null && actualParameterSchemaType != null) {
+            return (!isCompatibleTypes(actualParameterSchemaType,
+                expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
+                    actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
+                        .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
+        }
+        return true;
     }
 
     private boolean isSimpleJavaType(String type) {
@@ -875,7 +877,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (schema.get$ref() != null) {
             return RefUtils.computeDefinitionName(schema.get$ref());
         }
-        if ("string".equals(schema.getType())) {
+        if ("object".equals(schema.getType())) {
+            return "object";
+        } else if ("string".equals(schema.getType())) {
             if ("date".equals(schema.getFormat())) {
                 return "Date";
             } else if ("date-time".equals(schema.getFormat())) {
