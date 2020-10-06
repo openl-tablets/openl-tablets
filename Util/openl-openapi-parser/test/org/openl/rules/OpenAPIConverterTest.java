@@ -66,13 +66,13 @@ public class OpenAPIConverterTest {
             .extractProjectModel("test.converter/project/reusable/request/reusable_request_body_once.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        assertEquals(1, datatypeModels.size());
+        assertEquals(2, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
         SpreadsheetModel sprResult = spreadsheetModels.iterator().next();
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("BigInteger", param.getType());
+        assertEquals("RequestModel", param.getType());
     }
 
     @Test
@@ -97,10 +97,21 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/reusable/response/reusable_response.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(1, datatypeModels.size());
-        DatatypeModel datatypeModel = datatypeModels.iterator().next();
+        assertEquals(2, datatypeModels.size());
+        Optional<DatatypeModel> optionalDatatypeModel = datatypeModels.stream()
+            .filter(x -> x.getName().equals("MyModel"))
+            .findAny();
+        assertTrue(optionalDatatypeModel.isPresent());
+        DatatypeModel datatypeModel = optionalDatatypeModel.get();
         assertEquals("MyModel", datatypeModel.getName());
         assertEquals(3, datatypeModel.getFields().size());
+
+        Optional<DatatypeModel> optionalRequestModel = datatypeModels.stream()
+            .filter(x -> x.getName().equals("RequestModel"))
+            .findAny();
+        assertTrue(optionalRequestModel.isPresent());
+        DatatypeModel requestModel = optionalRequestModel.get();
+        assertEquals(1, requestModel.getFields().size());
     }
 
     @Test
@@ -127,7 +138,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInRequest.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        assertEquals(3, datatypeModels.size());
+        assertEquals(4, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
         Optional<DatatypeModel> body = datatypeModels.stream().filter(x -> x.getName().equals("Body")).findFirst();
         boolean isBodyPresented = body.isPresent();
@@ -136,7 +147,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = sprModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter ip = parameters.iterator().next();
-        assertEquals("String", ip.getType());
+        assertEquals("Body", ip.getType());
     }
 
     @Test
@@ -174,7 +185,7 @@ public class OpenAPIConverterTest {
             .extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInResponse.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(6, datatypeModels.size());
+        assertEquals(7, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
     }
 

@@ -49,6 +49,7 @@ public class OpenLOpenAPIUtils {
     public static final String TEXT_PLAIN = "text/plain";
 
     public static final byte MAX_PARAMETERS_COUNT = 7;
+    public static final int MIN_PARAMETERS_COUNT = 1;
 
     @SuppressWarnings("unchecked")
     public static <T> T resolve(JXPathContext jxPathContext, T obj, Function<T, String> getRefFuc) {
@@ -634,7 +635,8 @@ public class OpenLOpenAPIUtils {
                     properties = resSchema.getProperties();
                 }
                 if (CollectionUtils.isNotEmpty(properties)) {
-                    if (properties.size() > MAX_PARAMETERS_COUNT) {
+                    int propertiesCount = properties.size();
+                    if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
                         String name = OpenAPITypeUtils.getSimpleName(ref);
                         parameterModels = new ArrayList<>(Collections.singletonList(
                             new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name))));

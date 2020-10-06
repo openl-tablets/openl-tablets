@@ -645,4 +645,19 @@ public class SpreadsheetsConverterTest {
         assertEquals("=new SpreadsheetResultNewPet[][][][]{{{{NewPet(null,null)}}}}", step.getValue());
     }
 
+    @Test
+    public void testIncorrectWrapperCase() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        assertEquals(1, spreadsheetResultModels.size());
+        SpreadsheetModel spreadsheetModel = spreadsheetResultModels.iterator().next();
+        List<InputParameter> parameters = spreadsheetModel.getParameters();
+        assertEquals(1, parameters.size());
+        InputParameter next = parameters.iterator().next();
+        assertEquals("WrapperObject", next.getType());
+        assertEquals("wrapperObject", next.getName());
+    }
+
 }
