@@ -1,0 +1,8 @@
+WARN: Module 'Module-01092018-010092018' does not match file name pattern 'Module-%startRequestDate:ddMMyyyy%-%endRequestDate:ddMMyyyy%'.
+WARN: Module 'Module-01092018-550092018' does not match file name pattern 'Module-%startRequestDate:ddMMyyyy%-%endRequestDate:ddMMyyyy%'.
+WARN: Module 'Module-01092018-55666777' does not match file name pattern 'Module-%startRequestDate:ddMMyyyy%-%endRequestDate:ddMMyyyy%'.
+ERROR: There can be only one active table.
+ERROR: There can be only one active table.
+ERROR: There can be only one active table.
+ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-550092018' and 'Module-01092018-010092018' with the same version, active status, properties set.
+ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-55666777' and 'Module-01092018-010092018' with the same version, active status, properties set.
