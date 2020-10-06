@@ -15,6 +15,10 @@ import org.openl.spring.env.DynamicPropertySource;
 public class Migrator {
 
     public void migrate() throws IOException {
+        DynamicPropertySource settings = DynamicPropertySource.get();
+        if (!settings.getFile().exists()) {
+            return;
+        }
         HashMap<String, String> props = new HashMap<>();
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
