@@ -224,7 +224,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(numAccidentsDouble.isPresent());
         StepModel doubleStep = numAccidentsDouble.get();
         assertEquals("Double", doubleStep.getType());
-        assertEquals("=0.0d", doubleStep.getValue());
+        assertEquals("=0.0", doubleStep.getValue());
 
         Optional<StepModel> numAccidentsLong = steps.stream()
             .filter(x -> x.getName().equals("numAccidentsEight"))
