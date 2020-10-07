@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * For setting migration purposes. It cleans up default settings and reconfigure user defined properties.
@@ -96,13 +97,47 @@ public class Migrator {
                 }
 
                 //migrate branches and project properties to branches.yaml if repoType is Git
-                Map<String, String> stringStringMap = migrateProjectProps(designRepo);
-                migrateBranchesProps(stringStringMap);
+                Map<String, String> nonFlatProjectPaths = migrateProjectProps(designRepo);
+                migrateBranchesProps(nonFlatProjectPaths);
+
+                //migrate NonFlat project settings
+                migrateNonFlatProjectSettings(nonFlatProjectPaths);
 
                 //migrate locks.
-                migrateLocks(stringStringMap, homePath);
+                migrateLocks(nonFlatProjectPaths, homePath);
             } catch (IOException e) {
                 LOG.error("Migration failed.", e);
+            }
+        }
+    }
+
+    private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths)  {
+        String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
+        File workspace = Paths.get(workspacePath).toFile();
+        if (workspace.exists() && workspace.list() != null) {
+            List<String> userFolders = Arrays.stream(workspace.list()).filter(f -> !f.equals(".locks")).collect(Collectors.toList());
+            for (String projectName : nonFlatProjectPaths.keySet()) {
+                for(String user: userFolders){
+                    File version = Paths.get(workspacePath, user, projectName, ".studioProps", ".version").toFile();
+                    if(version.exists()){
+                        try (InputStreamReader in = new InputStreamReader(new FileInputStream(version),
+                                StandardCharsets.UTF_8)) {
+                            Properties projectProps = new Properties();
+                            projectProps.load(in);
+                            projectProps.setProperty("path-in-repository", nonFlatProjectPaths.get(projectName));
+                            FileOutputStream os = null;
+                            try {
+                                os = new FileOutputStream(version);
+                                projectProps.store(os, "Openl project properties");
+                                os.close();
+                            } finally {
+                                IOUtils.closeQuietly(os);
+                            }
+                        } catch (IOException e) {
+                            LOG.error("Migration of non-flat project properties failed.", e);
+                        }
+                    }
+                }
             }
         }
     }
