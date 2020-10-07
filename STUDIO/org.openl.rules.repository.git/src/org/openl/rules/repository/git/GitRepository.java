@@ -1697,7 +1697,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             if (uri == null) {
                 // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
                 // autoGC() didn't solve the issue for local repository, so we use gc() instead.
-                git.gc().call();
+                try {
+                    git.gc().call();
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                }
             }
         } catch (IOException e) {
             reset(commitId);
