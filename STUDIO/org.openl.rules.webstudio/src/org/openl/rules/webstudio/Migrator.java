@@ -79,7 +79,8 @@ public class Migrator {
                 // migrate local repo path if have default value, since the default has changed on 5.24.0
                 // null means this property have default value from previous OpenL version
                 Object objDesignRepo = settings.getProperty("repository.design.local-repository-path");
-                String designRepo = objDesignRepo != null ? objDesignRepo.toString() : Props.text("openl.home") + "\\design-repository";
+                String homePath = Props.text("openl.home");
+                String designRepo = objDesignRepo != null ? objDesignRepo.toString() : homePath + "\\design-repository";
                 if (objDesignRepo == null) {
                     props.put("repository.design.local-repository-path", designRepo);
                 }
@@ -99,7 +100,7 @@ public class Migrator {
                 migrateBranchesProps(stringStringMap);
 
                 //migrate locks.
-                migrateLocks(stringStringMap);
+                migrateLocks(stringStringMap, homePath);
             } catch (IOException e) {
                 LOG.error("Migration failed.", e);
             }
@@ -188,19 +189,19 @@ public class Migrator {
         IOUtils.copyAndClose(byteArrayInputStream, new FileOutputStream(file));
     }
 
-    private static void migrateLocks(Map<String, String> projectPathMap) throws IOException {
+    private static void migrateLocks(Map<String, String> projectPathMap, String homePath) throws IOException {
         File projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules").toFile();
+        String lockPath = homePath + "\\user-workspace\\.locks\\rules\\branches\\";
         if (projectLocks.exists() && projectLocks.isDirectory()) {
-            Files.walkFileTree(projectLocks.toPath(), new HashSet<>(), 4, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(projectLocks.toPath(), new HashSet<>(), 50, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     File lock = file.toFile();
                     if (lock.isFile()) {
-                        File branch = lock.getParentFile();
-                        File project = branch.getParentFile();
-                        String fileName = project.getName();
+                        String branchName = lock.getPath().substring(lockPath.length()).replaceFirst(lock.getName() + "\\\\", "").replaceAll("\\\\" + lock.getName() + "$", "");
+                        String fileName = lock.getName();
                         String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName) : "\\DESIGN\\rules\\" + fileName;
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, "[branches]", branch.getName(), "ready.lock");
+                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, "[branches]", branchName, "ready.lock");
                         FileUtils.copy(lock, newLock.toFile());
                     }
                     return super.visitFile(file, attrs);
