@@ -986,7 +986,7 @@ public class RepositoryTreeController {
                                 userName)).getRepository(repoId);
                             repository.initialize();
 
-                            ProjectState projectState = repository.getProjectState(projectName);
+                            ProjectState projectState = repository.getProjectState(businessName);
                             String savedRepoId = projectState.getRepositoryId();
                             FileData savedData = projectState.getFileData();
                             String savedBranch = savedData == null ? null : savedData.getBranch();
@@ -994,8 +994,9 @@ public class RepositoryTreeController {
                             if (savedRepoId != null && savedRepoId.equals(repoId)) {
                                 if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
                                     FileData fileData = new FileData();
-                                    fileData.setName(projectName);
+                                    fileData.setName(businessName);
                                     repository.delete(fileData);
+                                    projectState.delete();
                                 }
                             }
                         } catch (Exception e) {
