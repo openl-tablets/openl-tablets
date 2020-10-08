@@ -52,6 +52,8 @@ class Context {
     private OpenAPIResolver expectedOpenAPIResolver;
     private final SpreadsheetMethodResolver spreadsheetMethodResolver = new SpreadsheetMethodResolver(this);
 
+    private boolean yaml = false;
+
     private boolean typeValidationInProgress;
 
     public ValidatedCompiledOpenClass getValidatedCompiledOpenClass() {
@@ -284,5 +286,13 @@ class Context {
 
     public void setIsIncompatibleTypesPredicate(BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate) {
         this.isIncompatibleTypesPredicate = isIncompatibleTypesPredicate;
+    }
+
+    public boolean isYaml() {
+        return yaml;
+    }
+
+    public void setYaml(boolean yaml) {
+        this.yaml = yaml;
     }
 }

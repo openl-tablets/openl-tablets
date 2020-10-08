@@ -51,7 +51,12 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.jaxrs2.Reader;
@@ -79,7 +84,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private final Reader reader = new Reader();
 
-    private OpenAPI loadOpenAPI(ProjectDescriptor projectDescriptor,
+    private OpenAPI loadOpenAPI(Context context,
+            ProjectDescriptor projectDescriptor,
             ValidatedCompiledOpenClass validatedCompiledOpenClass) {
         ProjectResourceLoader projectResourceLoader = new ProjectResourceLoader(validatedCompiledOpenClass);
         String openApiFile;
@@ -108,6 +114,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         }
         if (projectResource != null) {
+            if (projectResource.getFile().endsWith(".yaml") || projectResource.getFile().endsWith(".yml")) {
+                context.setYaml(true);
+            }
             OpenAPIParser openApiParser = new OpenAPIParser();
             ParseOptions options = new ParseOptions();
             options.setResolve(true);
@@ -134,11 +143,11 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         final CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
         final ValidatedCompiledOpenClass validatedCompiledOpenClass = new OpenApiValidatedCompiledOpenClass(
             compiledOpenClass);
-        OpenAPI expectedOpenAPI = loadOpenAPI(projectDescriptor, validatedCompiledOpenClass);
+        final Context context = new Context();
+        OpenAPI expectedOpenAPI = loadOpenAPI(context, projectDescriptor, validatedCompiledOpenClass);
         if (expectedOpenAPI == null) {
             return validatedCompiledOpenClass;
         }
-        final Context context = new Context();
         context.setExpectedOpenAPI(expectedOpenAPI);
         context.setExpectedOpenAPIResolver(new OpenAPIResolver(context, expectedOpenAPI));
         context.setValidatedCompiledOpenClass(validatedCompiledOpenClass);
@@ -236,7 +245,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             provideVariations);
     }
 
-    @SuppressWarnings("rawtypes")
     private void validateOpenAPI(Context context) {
         if (context.getExpectedOpenAPI().getPaths() != null) {
             for (Map.Entry<String, PathItem> entry : context.getExpectedOpenAPI().getPaths().entrySet()) {
@@ -850,9 +858,11 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         String expectedParameterSchemaType = resolveSimplifiedName(expectedParameterSchema);
         String actualParameterSchemaType = resolveSimplifiedName(parameterSchema);
         if (expectedParameterSchemaType != null && actualParameterSchemaType != null) {
-            while (expectedParameterSchemaType.endsWith("[]") && actualParameterSchemaType.endsWith("[]")){
-                expectedParameterSchemaType = expectedParameterSchemaType.substring(0, expectedParameterSchemaType.length() - 2);
-                actualParameterSchemaType = actualParameterSchemaType.substring(0, actualParameterSchemaType.length() - 2);
+            while (expectedParameterSchemaType.endsWith("[]") && actualParameterSchemaType.endsWith("[]")) {
+                expectedParameterSchemaType = expectedParameterSchemaType.substring(0,
+                    expectedParameterSchemaType.length() - 2);
+                actualParameterSchemaType = actualParameterSchemaType.substring(0,
+                    actualParameterSchemaType.length() - 2);
             }
             return (!isCompatibleTypes(actualParameterSchemaType,
                 expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
@@ -988,12 +998,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     superClass,
                                     validatedSchemas);
                             } catch (DifferentTypesException e) {
+                                String schemaToString = schemaToString(context,
+                                    extractParentSchema(expectedComposedSchema));
                                 OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                     String.format(
-                                        OPEN_API_VALIDATION_MSG_PREFIX + "Parent '%s' of type '%s' mismatches to declared schema '%s'.",
+                                        OPEN_API_VALIDATION_MSG_PREFIX + "Parent '%s' of type '%s' mismatches to declared schema%s",
                                         superClass.getDisplayName(INamedThing.REGULAR),
                                         openClass.getDisplayName(INamedThing.REGULAR),
-                                        extractParentSchema(expectedComposedSchema)));
+                                        schemaToString == null ? "." : ":\n" + schemaToString));
                             }
                             propertiesOfExpectedSchema = extractObjectSchema(expectedComposedSchema).getProperties();
                             propertiesOfActualSchema = extractObjectSchema(actualComposedSchema).getProperties();
@@ -1210,6 +1222,26 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
         } finally {
             context.setType(oldType);
+        }
+    }
+
+    private String schemaToString(Context context, Schema<?> extractParentSchema) {
+        if (extractParentSchema == null) {
+            return null;
+        }
+        ObjectMapper objectMapper;
+        if (context.isYaml()) {
+            objectMapper = new ObjectMapper(new YAMLFactory().disable(YAMLGenerator.Feature.WRITE_DOC_START_MARKER));
+        } else {
+            objectMapper = new ObjectMapper();
+        }
+        objectMapper.deactivateDefaultTyping();
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        objectMapper.enable(SerializationFeature.INDENT_OUTPUT);
+        try {
+            return objectMapper.writeValueAsString(extractParentSchema);
+        } catch (JsonProcessingException ignore) {
+            return null;
         }
     }
 
