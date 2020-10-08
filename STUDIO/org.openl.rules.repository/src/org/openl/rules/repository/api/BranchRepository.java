@@ -22,5 +22,7 @@ public interface BranchRepository extends Repository {
 
     void merge(String branchFrom, String author, ConflictResolveData conflictResolveData) throws IOException;
 
+    String getBaseBranch();
+
     void pull(String author) throws IOException;
 }

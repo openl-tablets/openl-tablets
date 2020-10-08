@@ -51,6 +51,7 @@ import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.testmethod.TestSuiteExecutor;
 import org.openl.rules.ui.tree.view.CategoryDetailedView;
@@ -310,8 +311,16 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             ProjectHistoryService.deleteHistory(projectName);
             project.save();
+            Repository repository = project.getDesignRepository();
+            if (repository.supports().branches()) {
+                BranchRepository branchRepository = (BranchRepository) repository;
+                if (!branchRepository.getBranch().equals(branchRepository.getBaseBranch())) {
+                    // Rename only on base branch.
+                    renameProject = false;
+                }
+            }
             if (renameProject) {
-                if (project.getDesignRepository().supports().mappedFolders()) {
+                if (repository.supports().mappedFolders()) {
                     LocalWorkspace localWorkspace = rulesUserSession.getUserWorkspace().getLocalWorkspace();
                     File repoRoot = localWorkspace.getRepository(project.getRepository().getId()).getRoot();
                     String prevPath = project.getFolderPath();
