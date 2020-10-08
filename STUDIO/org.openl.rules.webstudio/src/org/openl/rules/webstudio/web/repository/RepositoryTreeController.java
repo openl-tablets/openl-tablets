@@ -36,7 +36,6 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -241,7 +240,6 @@ public class RepositoryTreeController {
                         try {
                             AProjectFolder addedFolder = folder.addFolder(folderName);
                             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
-                            resetStudioModel();
                         } catch (Exception e) {
                             log.error("Failed to create folder '{}'.", folderName, e);
                             errorMessage = e.getMessage();
