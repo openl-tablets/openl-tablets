@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Type of field 'anotheField2' in type 'CircleDatatype3' must be compatible with OpenAPI type 'CircleDatatype3' of schema property 'anotheField2'.
+ERROR: OpenAPI Reconciliation: Type of field 'anotheField2' in type 'CircleDatatype3' must be compatible with OpenAPI type 'CircleDatatype3' of schema property 'anotheField2'.

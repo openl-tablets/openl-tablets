@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Type of cell '$CDTcodeValidationResult' must be compatible with type 'integer' of schema property 'CDTcodeValidationResult'. Found OpenAPI type: 'number(double)'.
+ERROR: OpenAPI Reconciliation: Type of cell '$CDTcodeValidationResult' must be compatible with type 'integer' of schema property 'CDTcodeValidationResult'. Found OpenAPI type: 'number(double)'.

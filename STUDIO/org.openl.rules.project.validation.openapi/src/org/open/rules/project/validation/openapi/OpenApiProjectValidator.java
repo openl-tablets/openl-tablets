@@ -78,7 +78,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     private static final String OPENAPI_JSON = "openapi.json";
     private static final String OPENAPI_YAML = "openapi.yaml";
     private static final String OPENAPI_YML = "openapi.yml";
-    public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI validation: ";
+    public static final String OPEN_API_VALIDATION_MSG_PREFIX = "OpenAPI Reconciliation: ";
 
     private boolean resolveMethodParameterNames = true;
 

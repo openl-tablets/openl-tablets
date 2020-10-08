@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: File 'custom1.yaml' is not found.
+ERROR: OpenAPI Reconciliation: File 'custom1.yaml' is not found.

@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: File 'openapi.json' format is invalid.
+ERROR: OpenAPI Reconciliation: File 'openapi.json' format is invalid.
