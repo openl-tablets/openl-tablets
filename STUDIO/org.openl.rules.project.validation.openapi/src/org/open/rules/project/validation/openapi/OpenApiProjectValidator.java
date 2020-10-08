@@ -564,7 +564,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             .getInstanceClass() ? openMethod.getType() : JavaOpenClass.getOpenClass(method.getReturnType());
         String type = resolveType(expectedMediaType.getSchema());
         String format = expectedMediaType.getSchema().getFormat();
-        if (isIncompatibleTypes(actualSchema, expectedSchema, returnType)) {
+        if (isIncompatibleTypes(context, actualSchema, expectedSchema, returnType)) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                 String.format(
                     OPEN_API_VALIDATION_MSG_PREFIX + "Return type of method '%s'%s must be compatible with OpenAPI type '%s%s'.",
@@ -744,7 +744,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         } else {
             String type = resolveType(expectedParameterSchema);
             String format = expectedParameterSchema.getFormat();
-            if (isIncompatibleTypes(parameterSchema, expectedParameterSchema, parameterOpenClass)) {
+            if (isIncompatibleTypes(context, parameterSchema, expectedParameterSchema, parameterOpenClass)) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                     String.format(
                         OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of parameter '%s' in method '%s'%s must be compatible with OpenAPI type '%s%s'.",
@@ -852,7 +852,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return Objects.equals(actualType, expectedType);
     }
 
-    private boolean isIncompatibleTypes(Schema<?> parameterSchema,
+    private boolean isIncompatibleTypes(Context context,
+            Schema<?> parameterSchema,
             Schema<?> expectedParameterSchema,
             IOpenClass parameterOpenClass) {
         String expectedParameterSchemaType = resolveSimplifiedName(expectedParameterSchema);
@@ -866,8 +867,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             return (!isCompatibleTypes(actualParameterSchemaType,
                 expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
-                    actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
-                        .equals(expectedParameterSchema.getName(), parameterSchema.getName()));
+                    actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && expectedParameterSchema
+                        .get$ref() != null && parameterSchema.get$ref() != null && !Objects.equals(
+                            RefUtils.computeDefinitionName(expectedParameterSchema.get$ref()),
+                            RefUtils.computeDefinitionName(parameterSchema.get$ref())));
         }
         return true;
     }
@@ -1049,7 +1052,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             .getField(openClass, entry.getKey());
                         if (openField != null) {
                             BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate = (e,
-                                    f) -> isIncompatibleTypes(e, entry.getValue(), f.getType());
+                                    f) -> isIncompatibleTypes(context, e, entry.getValue(), f.getType());
                             if (isIncompatibleTypesPredicate.test(fieldActualSchema, openField)) {
                                 final String type = resolveType(entry.getValue());
                                 final String format = entry.getValue().getFormat();
@@ -1165,7 +1168,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         IOpenField openField = context.getOpenClassPropertiesResolver()
                             .getField(openClass, entry.getKey());
                         if (openField != null) {
-                            if (!isIncompatibleTypes(fieldActualSchema, entry.getValue(), openField.getType())) {
+                            if (!isIncompatibleTypes(context,
+                                fieldActualSchema,
+                                entry.getValue(),
+                                openField.getType())) {
                                 try {
                                     validateType(context,
                                         fieldActualSchema,
