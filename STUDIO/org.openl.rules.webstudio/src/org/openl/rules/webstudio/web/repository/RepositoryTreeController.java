@@ -649,7 +649,7 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            } else if (userWorkspace.hasProject(repositoryId, projectName)) {
+            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
             }
             return msg;
