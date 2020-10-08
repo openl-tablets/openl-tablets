@@ -38,17 +38,16 @@ public class Migrator {
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
         if (!settings.getFile().exists()) {
+            //first start on the current directory, no migration needed
             return;
         }
         HashMap<String, String> props = new HashMap<>();
 
         Object fromVersion = settings.getProperty(".version");
-
-        //fromVersion == null means that this is the first start, no migration needed
         if (fromVersion != null) {
             String stringFromVersion = fromVersion.toString();
             if (fromVersion.toString().compareTo(OpenLVersion.getVersion()) < 0) {
-                migrateTo5_23_5(props);
+                migrateTo5_23_5(props, stringFromVersion);
                 migrateTo5_24(settings, props, stringFromVersion);
                 //add subsequent migrations in order of priority
             }
@@ -64,13 +63,15 @@ public class Migrator {
     }
 
     //5.23.5
-    private static void migrateTo5_23_5(HashMap<String, String> props) {
-        if (Props.bool("project.history.unlimited")) {
-            props.put("project.history.count", ""); // Define unlimited
+    private static void migrateTo5_23_5(HashMap<String, String> props, String fromVersion) {
+        if (fromVersion.compareTo("5.23.5") < 0) {
+            if (Props.bool("project.history.unlimited")) {
+                props.put("project.history.count", ""); // Define unlimited
+            }
+            props.put("project.history.unlimited", null); // Remove
+            props.put("test.run.parallel", null); // Remove
+            props.put("project.history.home", null); // Remove
         }
-        props.put("project.history.unlimited", null); // Remove
-        props.put("test.run.parallel", null); // Remove
-        props.put("project.history.home", null); // Remove
     }
 
     //5.24
@@ -111,15 +112,15 @@ public class Migrator {
         }
     }
 
-    private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths)  {
+    private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths) {
         String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
         File workspace = Paths.get(workspacePath).toFile();
         if (workspace.exists() && workspace.list() != null) {
             List<String> userFolders = Arrays.stream(workspace.list()).filter(f -> !f.equals(".locks")).collect(Collectors.toList());
             for (String projectName : nonFlatProjectPaths.keySet()) {
-                for(String user: userFolders){
+                for (String user : userFolders) {
                     File version = Paths.get(workspacePath, user, projectName, ".studioProps", ".version").toFile();
-                    if(version.exists()){
+                    if (version.exists()) {
                         try (InputStreamReader in = new InputStreamReader(new FileInputStream(version),
                                 StandardCharsets.UTF_8)) {
                             Properties projectProps = new Properties();
@@ -228,15 +229,16 @@ public class Migrator {
         File projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules").toFile();
         String lockPath = homePath + "\\user-workspace\\.locks\\rules\\branches\\";
         if (projectLocks.exists() && projectLocks.isDirectory()) {
-            Files.walkFileTree(projectLocks.toPath(), new HashSet<>(), 50, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(projectLocks.toPath(), new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     File lock = file.toFile();
                     if (lock.isFile()) {
                         String branchName = lock.getPath().substring(lockPath.length()).replaceFirst(lock.getName() + "\\\\", "").replaceAll("\\\\" + lock.getName() + "$", "");
+                        branchName = branchName.isEmpty() ? "" : "[branches]\\" + branchName;
                         String fileName = lock.getName();
                         String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName) : "\\DESIGN\\rules\\" + fileName;
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, "[branches]", branchName, "ready.lock");
+                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, branchName, "ready.lock");
                         FileUtils.copy(lock, newLock.toFile());
                     }
                     return super.visitFile(file, attrs);
