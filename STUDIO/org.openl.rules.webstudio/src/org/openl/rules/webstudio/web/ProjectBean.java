@@ -929,11 +929,6 @@ public class ProjectBean {
         return true;
     }
 
-    public String getPropertiesFileNamePattern() {
-        String[] patterns = studio.getCurrentProjectDescriptor().getPropertiesFileNamePatterns();
-        return CollectionUtils.isEmpty(patterns) ? null : patterns[0];
-    }
-
     public String getCurrentPropertiesFileNameProcessor() {
         return studio.getCurrentProjectDescriptor().getPropertiesFileNameProcessor();
     }
