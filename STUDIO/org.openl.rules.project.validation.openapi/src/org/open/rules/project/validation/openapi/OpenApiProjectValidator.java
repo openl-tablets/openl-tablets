@@ -850,6 +850,10 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         String expectedParameterSchemaType = resolveSimplifiedName(expectedParameterSchema);
         String actualParameterSchemaType = resolveSimplifiedName(parameterSchema);
         if (expectedParameterSchemaType != null && actualParameterSchemaType != null) {
+            while (expectedParameterSchemaType.endsWith("[]") && actualParameterSchemaType.endsWith("[]")){
+                expectedParameterSchemaType = expectedParameterSchemaType.substring(0, expectedParameterSchemaType.length() - 2);
+                actualParameterSchemaType = actualParameterSchemaType.substring(0, actualParameterSchemaType.length() - 2);
+            }
             return (!isCompatibleTypes(actualParameterSchemaType,
                 expectedParameterSchemaType)) && (isSimpleJavaType(expectedParameterSchemaType) || isSimpleJavaType(
                     actualParameterSchemaType) || parameterOpenClass instanceof DatatypeOpenClass && Objects
@@ -1084,9 +1088,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                                         OPEN_API_VALIDATION_MSG_PREFIX + "Type of field '%s' in type '%s' must be compatible with OpenAPI type '%s%s' of schema property '%s'.",
                                                         openField.getName(),
                                                         openClass.getDisplayName(INamedThing.REGULAR),
-                                                        entry.getKey(),
                                                         type,
-                                                        format != null ? "(" + format + ")" : ""));
+                                                        format != null ? "(" + format + ")" : "",
+                                                        entry.getKey()));
                                             } else {
                                                 OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                                     String.format(
