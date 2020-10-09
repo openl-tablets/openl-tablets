@@ -130,6 +130,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
+    public String getBaseBranch() {
+        return baseBranch;
+    }
+
+    @Override
     public List<FileData> list(String path) throws IOException {
         if (isEmpty()) {
             return Collections.emptyList();
