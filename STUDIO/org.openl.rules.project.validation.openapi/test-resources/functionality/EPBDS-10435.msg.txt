@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Unexpected cell '$Step7' is found.
+ERROR: OpenAPI Reconciliation: Unexpected cell '$Step7' is found.

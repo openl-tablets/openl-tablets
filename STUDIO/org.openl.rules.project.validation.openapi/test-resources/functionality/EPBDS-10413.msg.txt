@@ -1,1 +1,1 @@
-ERROR: OpenAPI validation: Type 'ProcessProcedure' of field 'status' in type 'ProcessClaim' mismatches to declared schema 'ProcessProcedure[]'.
+ERROR: OpenAPI Reconciliation: Type 'ProcessProcedure' of field 'status' in type 'ProcessClaim' must be compatible with OpenAPI schema 'array[] of ProcessProcedure'.
