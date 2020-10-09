@@ -1,24 +1,24 @@
-ERROR: OpenAPI Reconciliation: Type of field 'field17' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field17'.
-ERROR: OpenAPI Reconciliation: Type of field 'field18' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field18'.
-ERROR: OpenAPI Reconciliation: Type of field 'field19' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field19'.
-ERROR: OpenAPI Reconciliation: Type of field 'field22' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field22'.
-ERROR: OpenAPI Reconciliation: Type of field 'field20' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field20'.
-ERROR: OpenAPI Reconciliation: Type of field 'field21' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field21'.
-ERROR: OpenAPI Reconciliation: Type of field 'field26' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field26'.
-ERROR: OpenAPI Reconciliation: Type of field 'field27' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field27'.
-ERROR: OpenAPI Reconciliation: Type of field 'field24' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field24'.
-ERROR: OpenAPI Reconciliation: Type of field 'field25' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field25'.
-ERROR: OpenAPI Reconciliation: Type of field 'field28' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field28'.
-ERROR: OpenAPI Reconciliation: Type of field 'field29' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field29'.
-ERROR: OpenAPI Reconciliation: Type of field 'field11' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field11'.
-ERROR: OpenAPI Reconciliation: Type of field 'field12' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field12'.
-ERROR: OpenAPI Reconciliation: Type of field 'field1' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field1'.
-ERROR: OpenAPI Reconciliation: Type of field 'field10' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field10'.
-ERROR: OpenAPI Reconciliation: Type of field 'field15' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field15'.
-ERROR: OpenAPI Reconciliation: Type of field 'field14' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field14'.
-ERROR: OpenAPI Reconciliation: Type of field 'field6' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field6'.
-ERROR: OpenAPI Reconciliation: Type of field 'field9' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field9'.
-ERROR: OpenAPI Reconciliation: Type of field 'field8' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field8'.
-ERROR: OpenAPI Reconciliation: Type of field 'field3' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field3'.
-ERROR: OpenAPI Reconciliation: Type of field 'field2' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field2'.
-ERROR: OpenAPI Reconciliation: Type of field 'field5' in type 'MyDatatype2' must be compatible with OpenAPI type 'array' of schema property 'field5'.
+ERROR: OpenAPI Reconciliation: Type of field 'field19' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of number' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field17' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of number' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field18' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of integer' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field22' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of integer' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field20' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of number(double)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field21' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of number' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field26' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of StringRange' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field27' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of IntRange' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field24' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of string(date-time)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field25' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of DoubleRange' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field28' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int32)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field29' in type 'MyDatatype2' must be compatible with OpenAPI schema 'array[] of MyDatatype' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field11' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int32)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field12' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of number(float)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field1' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int32)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field10' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int64)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field15' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int32)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field14' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of number(double)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field6' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int64)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field9' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of boolean' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field8' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of boolean' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field3' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of number(float)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field2' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of number(double)' that incompatible with actual type 'array[] of string'.
+ERROR: OpenAPI Reconciliation: Type of field 'field5' in type 'MyDatatype2' must be compatible with OpenAPI type 'array[] of integer(int32)' that incompatible with actual type 'array[] of string'.
