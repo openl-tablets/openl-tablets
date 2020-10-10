@@ -75,7 +75,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     private ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        return dependencyManager.getClassLoader(getProject());
+        return dependencyManager.getExternalJarsClassLoader(getProject());
     }
 
     public CompiledOpenClass compile(final String dependencyName,
