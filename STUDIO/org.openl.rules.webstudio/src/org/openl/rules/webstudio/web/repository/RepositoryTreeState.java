@@ -291,6 +291,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
         if (currentNode != null) {
             setSelectedNode(currentNode);
+        } else {
+            invalidateSelection();
         }
     }
 
@@ -528,8 +530,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanSaveProject() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        return selectedProject.isModified() && isGranted(EDIT_PROJECTS);
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            return selectedProject != null && selectedProject.isModified() && isGranted(EDIT_PROJECTS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
     }
 
     public boolean getCanClose() {
@@ -543,13 +550,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanDelete() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly()) {
-            // any user can delete own local project
-            return true;
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            if (selectedProject.isLocalOnly()) {
+                // any user can delete own local project
+                return true;
+            }
+            return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
+                DELETE_PROJECTS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
         }
-        return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-            DELETE_PROJECTS);
     }
 
     public boolean getCanErase() {
@@ -557,13 +569,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanOpen() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
-            .isOpenedForEditing() || selectedProject.isOpened()) {
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject
+                .isOpenedForEditing() || selectedProject.isOpened()) {
+                return false;
+            }
+
+            return isGranted(VIEW_PROJECTS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return false;
         }
-
-        return isGranted(VIEW_PROJECTS);
     }
 
     public boolean getCanOpenOtherVersion() {
@@ -592,12 +609,17 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanRedeploy() {
-        UserWorkspaceProject selectedProject = getSelectedProject();
-        if (selectedProject.isLocalOnly() || selectedProject.isModified()) {
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            if (selectedProject == null || selectedProject.isLocalOnly() || selectedProject.isModified()) {
+                return false;
+            }
+
+            return isGranted(DEPLOY_PROJECTS);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
             return false;
         }
-
-        return isGranted(DEPLOY_PROJECTS);
     }
 
     public boolean getCanUndelete() {

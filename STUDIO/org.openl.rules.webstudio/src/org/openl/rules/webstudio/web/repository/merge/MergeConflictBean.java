@@ -10,6 +10,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
@@ -391,11 +392,23 @@ public class MergeConflictBean {
             updateRulesXmlFiles(repositoryId, modulesToAppend, branch);
 
             if (opened) {
+                String repoId = designRepository.getId();
+                String realPath = project.getRealPath();
+
                 if (project.isDeleted()) {
                     project.close();
                 } else {
-                    // Update files
-                    project.open();
+                    // Project can be renamed after merge, so we close it before opening to ensure that
+                    // project folder name in editor is up to date.
+                    project.close();
+                    Optional<RulesProject> refreshedProject = getUserWorkspace().getProjects(false)
+                        .stream()
+                        .filter(p -> repoId.equals(p.getDesignRepository()
+                            .getId()) && realPath.equals(p.getRealPath()))
+                        .findFirst();
+                    if (refreshedProject.isPresent()) {
+                        refreshedProject.get().open();
+                    }
                 }
             }
 
