@@ -253,36 +253,8 @@
             </h:panelGroup>
         </div>
 
-        <h:panelGroup rendered="#{!empty module}">
-        <div class="navbar-inner right">
-            <span class="dropdown">
-            </span>
-            <c:choose>
-                <c:when test="#{studio.changeableModuleMode}">
-                    <span class="dropdown" style="text-align: right">
-                        <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                            #{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu pull-right" role="menu">
-                            <h:panelGroup rendered="#{!empty rProject}">
-                                <li><a class="changes-listener" onclick="useSingleModuleMode(); return false;" href="#">Single-module mode</a></li>
-                            </h:panelGroup>
-                            <li><a class="changes-listener" onclick="useMultiModuleMode(); return false;" href="#">Multi-module mode</a></li>
-                        </ul>
-                    </span>
-                </c:when>
-                <c:otherwise>
-                    <a href="javascript:void(0)">#{studio.model.singleModuleMode ? "Single-module" : "Multi-module"}</a>
-                </c:otherwise>
-            </c:choose>
-        </div>
-        </h:panelGroup>
-
         <a4j:jsFunction name="invokeManualCompile" action="#{studio.invokeManualCompile()}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
         <a4j:jsFunction name="forceReload" action="#{mainBean.reload}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
-        <a4j:jsFunction name="useSingleModuleMode" action="#{studio.model.useSingleModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
-        <a4j:jsFunction name="useMultiModuleMode" action="#{studio.model.useMultiModuleMode}" onbegin="ws.ui.showLoader();" oncomplete="ws.nav.reload(true);ws.ui.hideLoader();" />
-
     </h:form>
 
     <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">

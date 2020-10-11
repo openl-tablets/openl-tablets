@@ -19,7 +19,7 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         this.studio = studio;
     }
 
-    public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module, boolean singleModuleMode) {
+    public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module) {
         List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         projectDescriptors.add(module.getProject());
         projectDescriptors.addAll(getDependentProjects(module));
@@ -27,7 +27,6 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
         return new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors,
             rootClassLoader,
-            singleModuleMode,
             false,
             studio.getExternalProperties());
     }
