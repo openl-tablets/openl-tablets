@@ -13,6 +13,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,6 +26,8 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.dependency.CompiledDependency;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -36,7 +39,11 @@ import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
+import org.openl.syntax.code.Dependency;
+import org.openl.syntax.code.DependencyType;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ThisField;
 
 /**
@@ -240,14 +247,34 @@ public final class TestMojo extends BaseOpenLMojo {
                 SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
-                    .setModule(module.getName())
                     .setExternalParameters(externalParameters)
                     .build();
 
                 info("");
-                info("Searching tests in module '", module.getName(), "'...");
-                CompiledOpenClass openLRules = factory.getCompiledOpenClass();
-                Summary summary = executeTests(openLRules);
+                info("Searching tests in the module '", module.getName(), "'...");
+                CompiledOpenClass compiledOpenClass;
+                try {
+                    CompiledDependency compiledDependency = factory.getDependencyManager()
+                        .loadDependency(new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(), null, module.getName(), null)));
+                    compiledOpenClass = compiledDependency.getCompiledOpenClass();
+                } catch (OpenLCompilationException e) {
+                    Collection<OpenLMessage> messages = new LinkedHashSet<>();
+                    for (OpenLMessage openLMessage : OpenLMessagesUtils.newErrorMessages(e)) {
+                        String message = String.format("Failed to load module '%s': %s",
+                            module.getName(),
+                            openLMessage.getSummary());
+                        messages.add(new OpenLMessage(message, Severity.ERROR));
+                    }
+                    ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+                    Thread.currentThread().setContextClassLoader(classLoader);
+                    try {
+                        compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
+                    } finally {
+                        Thread.currentThread().setContextClassLoader(oldClassLoader);
+                    }
+                }
+                Summary summary = executeTests(compiledOpenClass);
 
                 runTests += summary.getRunTests();
                 failedTests += summary.getFailedTests();

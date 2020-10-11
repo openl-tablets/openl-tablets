@@ -18,9 +18,8 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
     public WebStudioDependencyLoader(ProjectDescriptor project,
             Module module,
-            boolean singleModuleMode,
             WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
-        super(project, module, singleModuleMode, false, dependencyManager);
+        super(project, module, false, dependencyManager);
     }
 
     @Override

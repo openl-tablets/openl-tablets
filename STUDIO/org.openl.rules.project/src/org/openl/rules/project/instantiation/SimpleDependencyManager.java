@@ -12,16 +12,13 @@ import org.openl.rules.project.model.ProjectDescriptor;
 public class SimpleDependencyManager extends AbstractDependencyManager {
 
     private final Collection<ProjectDescriptor> projects;
-    private boolean singleModuleMode;
 
     public SimpleDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
-            boolean singleModuleMode,
             boolean executionMode,
             Map<String, Object> externalParameters) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = Objects.requireNonNull(projects, "projects cannot be null");
-        this.singleModuleMode = singleModuleMode;
     }
 
     @Override
@@ -32,7 +29,6 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
                 for (final Module m : project.getModules()) {
                     final SimpleDependencyLoader moduleDependencyLoader = new SimpleDependencyLoader(project,
                         m,
-                        singleModuleMode,
                         executionMode,
                         this);
                     Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders
@@ -42,7 +38,6 @@ public class SimpleDependencyManager extends AbstractDependencyManager {
 
                 final SimpleDependencyLoader projectDependencyLoader = new SimpleDependencyLoader(project,
                     null,
-                    singleModuleMode,
                     executionMode,
                     this);
                 Collection<IDependencyLoader> dependencyLoadersByName = dependencyLoaders

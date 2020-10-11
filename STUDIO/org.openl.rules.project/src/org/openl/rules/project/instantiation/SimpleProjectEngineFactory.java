@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,12 +25,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     private final Logger log = LoggerFactory.getLogger(SimpleProjectEngineFactory.class);
 
-    private final boolean singleModuleMode;
     private final Map<String, Object> externalParameters;
     private final boolean provideRuntimeContext;
     private final boolean provideVariations;
     private final boolean executionMode;
-    private final String module;
     private final ClassLoader classLoader;
     private final File[] projectDependencies;
     private final File project;
@@ -44,7 +41,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         private String project;
         private String workspace;
         private ClassLoader classLoader;
-        private String module;
         private boolean provideRuntimeContext = false;
         private boolean provideVariations = false;
         private Class<T> interfaceClass = null;
@@ -91,14 +87,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
         public SimpleProjectEngineFactoryBuilder<T> setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
-            return this;
-        }
-
-        public SimpleProjectEngineFactoryBuilder<T> setModule(String module) {
-            if (module == null || module.isEmpty()) {
-                throw new IllegalArgumentException("module cannot be null or empty.");
-            }
-            this.module = module;
             return this;
         }
 
@@ -157,7 +145,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             return new SimpleProjectEngineFactory<>(projectFile,
                 dependencies,
                 classLoader,
-                module,
                 interfaceClass,
                 externalParameters,
                 provideRuntimeContext,
@@ -170,7 +157,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     private SimpleProjectEngineFactory(File project,
             File[] projectDependencies,
             ClassLoader classLoader,
-            String module,
             Class<T> interfaceClass,
             Map<String, Object> externalParameters,
             boolean provideRuntimeContext,
@@ -184,8 +170,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
         this.provideRuntimeContext = provideRuntimeContext;
         this.provideVariations = provideVariations;
         this.executionMode = executionMode;
-        this.module = module;
-        this.singleModuleMode = module != null;
     }
 
     private RulesInstantiationStrategy rulesInstantiationStrategy = null;
@@ -258,16 +242,12 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
             projectDescriptors.addAll(dependentProjects);
         }
         projectDescriptors.add(projectDescriptor);
-        return new SimpleDependencyManager(projectDescriptors,
-            classLoader,
-            isSingleModuleMode(),
-            isExecutionMode(),
-            getExternalParameters());
+        return new SimpleDependencyManager(projectDescriptors, classLoader, isExecutionMode(), getExternalParameters());
     }
 
     private IDependencyManager dependencyManager = null;
 
-    protected synchronized final IDependencyManager getDependencyManager() throws ProjectResolvingException {
+    public synchronized final IDependencyManager getDependencyManager() throws ProjectResolvingException {
         if (dependencyManager == null) {
             dependencyManager = buildDependencyManager();
         }
@@ -276,11 +256,6 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
     public boolean isExecutionMode() {
         return executionMode;
-    }
-
-    @Override
-    public boolean isSingleModuleMode() {
-        return singleModuleMode;
     }
 
     @Override
@@ -344,23 +319,8 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
     public final synchronized RulesInstantiationStrategy getRulesInstantiationStrategy() throws RulesInstantiationException,
                                                                                          ProjectResolvingException {
         if (rulesInstantiationStrategy == null) {
-            RulesInstantiationStrategy instantiationStrategy = null;
-            if (!isSingleModuleMode()) {
-                instantiationStrategy = getStrategy(getProjectDescriptor().getModules(), getDependencyManager());
-            } else {
-                for (Module module : getProjectDescriptor().getModules()) {
-                    if (module.getName().equals(this.module)) {
-                        Collection<Module> modules = new ArrayList<>();
-                        modules.add(module);
-                        instantiationStrategy = getStrategy(modules, getDependencyManager());
-                        break;
-                    }
-                }
-                if (instantiationStrategy == null) {
-                    throw new RulesInstantiationException(
-                        String.format("Module '%s' is not found in the project.", this.module));
-                }
-            }
+            RulesInstantiationStrategy instantiationStrategy = getStrategy(getProjectDescriptor().getModules(),
+                getDependencyManager());
 
             if (isProvideVariations()) {
                 instantiationStrategy = new VariationInstantiationStrategyEnhancer(instantiationStrategy);
@@ -370,12 +330,10 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
                 instantiationStrategy = new RuntimeContextInstantiationStrategyEnhancer(instantiationStrategy);
             }
 
-            Map<String, Object> parameters = new HashMap<>(getExternalParameters());
-            if (!isSingleModuleMode()) {
-                parameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
-                    getExternalParameters(),
+            Map<String, Object> parameters = ProjectExternalDependenciesHelper
+                .buildExternalParamsWithProjectDependencies(getExternalParameters(),
                     getProjectDescriptor().getModules());
-            }
+
             instantiationStrategy.setExternalParameters(parameters);
             try {
                 if (interfaceClass != null) {

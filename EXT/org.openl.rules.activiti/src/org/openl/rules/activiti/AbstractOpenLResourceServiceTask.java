@@ -18,7 +18,6 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory.SimplePr
 public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegate {
 
     protected Expression provideRuntimeContext;
-    protected Expression module;
     protected Expression resource;
 
     protected Class<T> interfaceClass;
@@ -78,13 +77,6 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
 
         if (interfaceClass != null && interfaceClass != Object.class) {
             simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);
-        }
-
-        if (module != null) {
-            String moduleValue = (String) module.getValue(execution);
-            if (moduleValue != null) {
-                simpleProjectEngineFactoryBuilder.setModule(moduleValue);
-            }
         }
 
         return simpleProjectEngineFactoryBuilder.build();

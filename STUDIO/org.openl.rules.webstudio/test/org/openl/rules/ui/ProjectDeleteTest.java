@@ -2,7 +2,6 @@ package org.openl.rules.ui;
 
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,7 +35,6 @@ public class ProjectDeleteTest {
         FileUtils.copy(new File("test/rules/locking/"), projectFolder);
 
         WebStudio ws = mock(WebStudio.class);
-        when(ws.isChangeableModuleMode()).thenReturn(true);
         pm = new ProjectModel(ws);
     }
 
@@ -53,23 +51,8 @@ public class ProjectDeleteTest {
     }
 
     @Test
-    public void testUseSingleModuleThenDelete() throws Exception {
+    public void testDelete() throws Exception {
         pm.setModuleInfo(getModules().get(0));
-        pm.useSingleModuleMode();
-        pm.clearModuleInfo();
-
-        try {
-            FileUtils.delete(projectFolder);
-        } catch (IOException e) {
-            fail("Project is locked and cannot be deleted");
-        }
-    }
-
-    @Test
-    public void testUseMultiModuleThenDelete() throws Exception {
-        pm.setModuleInfo(getModules().get(0));
-        pm.useSingleModuleMode();
-        pm.useMultiModuleMode();
         pm.clearModuleInfo();
 
         try {

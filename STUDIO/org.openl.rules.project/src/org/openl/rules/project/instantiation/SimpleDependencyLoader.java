@@ -2,7 +2,6 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -27,19 +26,12 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     private final String dependencyName;
     private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
-    private final boolean singleModuleMode;
     private final ProjectDescriptor project;
     private final Module module;
 
     protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
-        Map<String, Object> params;
-        if (!singleModuleMode) {
-            params = ProjectExternalDependenciesHelper
+        return ProjectExternalDependenciesHelper
                 .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
-        } else {
-            params = new HashMap<>(dependencyManager.getExternalParameters());
-        }
-        return params;
     }
 
     @Override
@@ -63,13 +55,11 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     public SimpleDependencyLoader(ProjectDescriptor project,
             Module module,
-            boolean singleModuleMode,
             boolean executionMode,
             AbstractDependencyManager dependencyManager) {
         this.project = Objects.requireNonNull(project, "project cannot be null");
         this.module = module;
         this.executionMode = executionMode;
-        this.singleModuleMode = singleModuleMode;
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.dependencyName = buildDependencyName(project, module);
     }

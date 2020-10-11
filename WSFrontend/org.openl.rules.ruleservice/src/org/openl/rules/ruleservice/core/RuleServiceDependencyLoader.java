@@ -13,7 +13,7 @@ final class RuleServiceDependencyLoader extends SimpleDependencyLoader {
     public RuleServiceDependencyLoader(ProjectDescriptor project,
             Module module,
             RuleServiceDependencyManager dependencyManager) {
-        super(project, module, false, true, dependencyManager);
+        super(project, module, true, dependencyManager);
     }
 
     @Override
