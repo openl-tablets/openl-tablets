@@ -261,6 +261,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
             if (repository.supports().branches()) {
                 try {
+                    if (repository.supports().mappedFolders()) {
+                        Optional<AProject> projectOptional = projects.values()
+                            .stream()
+                            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                            .findFirst();
+                        if (projectOptional.isPresent()) {
+                            String realPath = projectOptional.get().getRealPath();
+                            projectPath = ((MappedRepository) repository).findMappedName(realPath);
+                        }
+                    }
                     FileData fileData = repository.checkHistory(projectPath, repoVersion);
                     if (fileData != null) {
                         project = new AProject(repository, fileData);
@@ -292,13 +302,6 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             projectsVersions.put(key, project);
         }
         return project;
-    }
-
-    @Override
-    public AProject getProject(String repositoryId, String branch, String project, String version) throws IOException {
-        BranchRepository repository = ((BranchRepository) getRepository(repositoryId)).forBranch(branch);
-        String projectPath = rulesLocation + project;
-        return new AProject(repository, projectPath, version);
     }
 
     @Override

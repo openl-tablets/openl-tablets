@@ -1,2 +1,2 @@
-ERROR: OpenAPI validation: Unexpected field 'bankFullName' is found in type 'SuperBank'.
-ERROR: OpenAPI validation: Unexpected field 'currentFinancialData' is found in type 'Bank'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'bankFullName' is found in type 'SuperBank'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'currentFinancialData' is found in type 'Bank'.

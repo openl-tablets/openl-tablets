@@ -4,8 +4,8 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public class Dependency implements IDependency {
 
-    private DependencyType type;
-    private IdentifierNode node;
+    private final DependencyType type;
+    private final IdentifierNode node;
 
     public Dependency(DependencyType type, IdentifierNode node) {
         this.type = type;
@@ -22,4 +22,8 @@ public class Dependency implements IDependency {
         return node;
     }
 
+    @Override
+    public String toString() {
+        return "Dependency{" + "type=" + type + ", node=" + node + '}';
+    }
 }

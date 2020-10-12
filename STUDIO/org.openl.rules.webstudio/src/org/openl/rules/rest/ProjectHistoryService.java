@@ -76,20 +76,6 @@ public class ProjectHistoryService {
         return collect;
     }
 
-    private ProjectHistoryItem createItem(String name) {
-        String version = name.split("_")[0];
-        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
-        String modifiedOn;
-        try {
-            long time = Long.parseLong(version);
-            modifiedOn = formatter.format(new Date(time));
-        } catch (NumberFormatException e) {
-            modifiedOn = version;
-        }
-
-        return new ProjectHistoryItem(name, modifiedOn, name.endsWith(CURRENT_VERSION));
-    }
-
     @POST
     @Path("/restore")
     public void restore(String versionToRestore) throws Exception {
@@ -118,15 +104,20 @@ public class ProjectHistoryService {
         }
     }
 
-    static class DeleteHistoryVisitor extends SimpleFileVisitor<java.nio.file.Path> {
-        @Override
-        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
-            FileVisitResult fileVisitResult = super.visitFile(file, attrs);
-            File f = file.toFile();
-            if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {
-                FileUtils.delete(f);
-            }
-            return fileVisitResult;
+    public static File get(String storagePath, String version) {
+        File file = new File(storagePath, version);
+        return file.exists() ? file : null;
+    }
+
+    public static void init(String storagePath, File source) {
+        File destFile = new File(storagePath);
+        if (destFile.exists() && destFile.listFiles().length > 0) {
+            return;
+        }
+        try {
+            FileUtils.copy(source, new File(storagePath, REVISION_VERSION + CURRENT_VERSION));
+        } catch (Exception e) {
+            LOG.error("Cannot add file", e);
         }
     }
 
@@ -162,6 +153,18 @@ public class ProjectHistoryService {
         }
     }
 
+    static class DeleteHistoryVisitor extends SimpleFileVisitor<java.nio.file.Path> {
+        @Override
+        public FileVisitResult visitFile(java.nio.file.Path file, BasicFileAttributes attrs) throws IOException {
+            FileVisitResult fileVisitResult = super.visitFile(file, attrs);
+            File f = file.toFile();
+            if (f.isDirectory() && f.getName().equals(FolderHelper.HISTORY_FOLDER)) {
+                FileUtils.delete(f);
+            }
+            return fileVisitResult;
+        }
+    }
+
     private static void deleteHistoryOverLimit(String storagePath) {
         Integer count = Props.integer("project.history.count");
         if (count == null) {
@@ -190,23 +193,6 @@ public class ProjectHistoryService {
         }
     }
 
-    public static File get(String storagePath, String version) {
-        File file = new File(storagePath, version);
-        return file.exists() ? file : null;
-    }
-
-    public static void init(String storagePath, File source) {
-        File destFile = new File(storagePath);
-        if (destFile.exists() && destFile.listFiles().length > 0) {
-            return;
-        }
-        try {
-            FileUtils.copy(source, new File(storagePath, REVISION_VERSION + CURRENT_VERSION));
-        } catch (Exception e) {
-            LOG.error("Cannot add file", e);
-        }
-    }
-
     private static File getCurrentVersion(String storagePath) {
         File dir = new File(storagePath);
         String[] historyListFiles = dir.list();
@@ -227,5 +213,19 @@ public class ProjectHistoryService {
         if (currentVersion != null) {
             currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
         }
+    }
+
+    private ProjectHistoryItem createItem(String name) {
+        String version = name.split("_")[0];
+        SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
+        String modifiedOn;
+        try {
+            long time = Long.parseLong(version);
+            modifiedOn = formatter.format(new Date(time));
+        } catch (NumberFormatException e) {
+            modifiedOn = version;
+        }
+
+        return new ProjectHistoryItem(name, modifiedOn, name.endsWith(CURRENT_VERSION));
     }
 }

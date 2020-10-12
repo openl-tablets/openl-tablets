@@ -381,6 +381,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     @Override
+    public String getBaseBranch() {
+        return delegate.supports().branches() ? ((BranchRepository) delegate).getBaseBranch() : null;
+    }
+
+    @Override
     public void pull(String author) throws IOException {
         ((BranchRepository) delegate).pull(author);
     }
@@ -959,6 +964,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private boolean isUpdateConfigNeeded(FileData folderData) throws IOException {
+        if (supports().branches()) {
+            if (!getBranch().equals(getBaseBranch())) {
+                // Update project name only on base branch.
+                return false;
+            }
+        }
         FileMappingData mappingData = folderData.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {
             String internalPath = mappingData.getInternalPath();

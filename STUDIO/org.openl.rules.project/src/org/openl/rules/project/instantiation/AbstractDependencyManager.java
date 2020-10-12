@@ -1,18 +1,6 @@
 package org.openl.rules.project.instantiation;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
@@ -23,8 +11,6 @@ import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.XlsBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.Dependency;
@@ -43,7 +29,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private volatile Map<String, Collection<IDependencyLoader>> dependencyLoaders;
     private final LinkedHashSet<DependencyReference> dependencyReferences = new LinkedHashSet<>();
     private final ThreadLocal<Deque<String>> compilationStackThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
-    private final Map<String, ClassLoader> classLoaders = new HashMap<>();
+    private final Map<String, ClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
     private Map<String, Object> externalParameters;
@@ -184,7 +170,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
             if (isCircularDependency) {
                 throw new OpenLCompilationException(String.format("Circular dependency is detected: %s.",
-                    extractCircularDependencyDetails(dependencyName, compilationStack)));
+                    buildCircularDependencyDetails(dependencyName, compilationStack)));
             }
 
             CompiledDependency compiledDependency;
@@ -225,8 +211,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                             if (openClass instanceof ComponentOpenClass) {
                                 ((ComponentOpenClass) openClass).clearOddDataForExecutionMode();
                             }
-                        } catch (OpenLCompilationException ignored) {
-                            LOG.debug("Ignored error: ", ignored);
+                        } catch (OpenLCompilationException e) {
+                            LOG.debug("Ignored error: ", e);
                         }
                     }
                 }
@@ -234,7 +220,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
     }
 
-    private static String extractCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
+    private static String buildCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
         StringBuilder sb = new StringBuilder();
         Iterator<String> itr = compilationStack.iterator();
         sb.append("'").append(dependencyName).append("'");
@@ -263,28 +249,27 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         throw exception;
     }
 
-    public synchronized ClassLoader getClassLoader(ProjectDescriptor project) {
+    public synchronized ClassLoader getExternalJarsClassLoader(ProjectDescriptor project) {
         getDependencyLoaders(); // Init dependency loaders
-        if (classLoaders.get(project.getName()) != null) {
-            return classLoaders.get(project.getName());
+        if (externalJarsClassloaders.get(project.getName()) != null) {
+            return externalJarsClassloaders.get(project.getName());
         }
-        ClassLoader parentClassLoader = rootClassLoader == null
-                ? this.getClass().getClassLoader()
-                : rootClassLoader;
-        OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
+        ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
+        OpenLBundleClassLoader externalJarsClassloader = new OpenLBundleClassLoader(project.getClassPathUrls(), parentClassLoader);
+        //To load classes from dependency jars first
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
                 for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
                     if (projectDependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        classLoader.addClassLoader(getClassLoader(projectDescriptor));
+                        externalJarsClassloader.addClassLoader(getExternalJarsClassLoader(projectDescriptor));
                         break;
                     }
                 }
             }
         }
 
-        classLoaders.put(project.getName(), classLoader);
-        return classLoader;
+        externalJarsClassloaders.put(project.getName(), externalJarsClassloader);
+        return externalJarsClassloader;
     }
 
     public Collection<ProjectDescriptor> getProjectDescriptors() {
@@ -296,41 +281,21 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private final List<ClassLoader> oldClassLoaders = new ArrayList<>();
-
     private void reset(IDependency dependency, Set<String> doNotDoTheSameResetTwice) {
         final String dependencyName = dependency.getNode().getIdentifier();
         if (doNotDoTheSameResetTwice.contains(dependencyName)) {
             return;
         }
         doNotDoTheSameResetTwice.add(dependencyName);
-        for (ProjectDescriptor projectDescriptor : getProjectDescriptors()) {
-            String projectDependencyName = ProjectExternalDependenciesHelper
-                .buildDependencyNameForProject(projectDescriptor.getName());
-            if (dependencyName.equals(projectDependencyName)) {
-                ClassLoader classLoader = classLoaders.get(projectDescriptor.getName());
-                if (classLoader != null) {
-                    oldClassLoaders.add(classLoader);
-                }
-                classLoaders.remove(projectDescriptor.getName());
-                for (Module module : projectDescriptor.getModules()) {
-                    reset(
-                        new Dependency(DependencyType.MODULE,
-                            new IdentifierNode(dependency.getNode().getType(), null, module.getName(), null)),
-                        doNotDoTheSameResetTwice);
-                }
-                break;
-            }
-        }
 
         List<DependencyReference> dependenciesToReset = new ArrayList<>();
-        List<DependencyReference> dependenciesReferenciesToClear = new ArrayList<>();
+        List<DependencyReference> dependenciesReferencesToClear = new ArrayList<>();
         for (DependencyReference dependencyReference : dependencyReferences) {
             if (dependencyReference.getReference().equals(dependencyName)) {
                 dependenciesToReset.add(dependencyReference);
             }
             if (dependencyReference.getDependency().equals(dependencyName)) {
-                dependenciesReferenciesToClear.add(dependencyReference);
+                dependenciesReferencesToClear.add(dependencyReference);
             }
         }
 
@@ -343,7 +308,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
         if (loaders != null) {
             loaders.forEach(IDependencyLoader::reset);
-            for (DependencyReference dependencyReference : dependenciesReferenciesToClear) {
+            for (DependencyReference dependencyReference : dependenciesReferencesToClear) {
                 dependencyReferences.remove(dependencyReference);
             }
         }
@@ -356,14 +321,10 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     @Override
     public synchronized void resetAll() {
-        for (ClassLoader classLoader : oldClassLoaders) {
+        for (ClassLoader classLoader : externalJarsClassloaders.values()) {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
-        oldClassLoaders.clear();
-        for (ClassLoader classLoader : classLoaders.values()) {
-            OpenClassUtil.releaseClassLoader(classLoader);
-        }
-        classLoaders.clear();
+        externalJarsClassloaders.clear();
         for (Collection<IDependencyLoader> loaders : getDependencyLoaders().values()) {
             loaders.forEach(IDependencyLoader::reset);
         }

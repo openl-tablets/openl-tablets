@@ -43,10 +43,11 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of rules project
      * @param version exact version of project
      * @return specified version of rules project
+     * @deprecated This method is used for backward compatibility with old version of deploy configs. Use
+     *             getProjectByPath() instead.
      */
+    @Deprecated
     AProject getProject(String repositoryId, String name, CommonVersion version);
-
-    AProject getProject(String repositoryId, String branch, String project, String version) throws IOException;
 
     AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;
 

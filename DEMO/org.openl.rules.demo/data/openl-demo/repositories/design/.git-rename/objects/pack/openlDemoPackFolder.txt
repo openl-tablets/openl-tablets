@@ -1,0 +1,1 @@
+This file is necessary for the folder 'pack' to exist at the start of the demo. Empty folders are not supported in the git.

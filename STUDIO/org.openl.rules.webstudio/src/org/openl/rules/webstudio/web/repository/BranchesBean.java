@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.faces.model.SelectItem;
 
@@ -123,6 +124,8 @@ public class BranchesBean {
             RulesProject project = getProject(currentProjectName);
             if (project != null) {
                 Repository designRepository = project.getDesignRepository();
+                String repoId = designRepository.getId();
+                String realPath = project.getRealPath();
                 boolean opened = project.isOpened();
 
                 String userId = getUserWorkspace().getUser().getUserId();
@@ -132,10 +135,22 @@ public class BranchesBean {
                     if (project.isDeleted()) {
                         project.close();
                     } else {
-                        // Update files
-                        project.open();
+                        // Project can be renamed after merge, so we close it before opening to ensure that
+                        // project folder name in editor is up to date.
+                        project.close();
+
+                        Optional<RulesProject> refreshedProject = getUserWorkspace().getProjects(false)
+                            .stream()
+                            .filter(p -> repoId.equals(p.getDesignRepository()
+                                .getId()) && realPath.equals(p.getRealPath()))
+                            .findFirst();
+                        if (refreshedProject.isPresent()) {
+                            refreshedProject.get().open();
+                        }
                     }
                 }
+                getUserWorkspace().refresh();
+                WebStudioUtils.getWebStudio().reset();
                 setWasMerged(true);
             }
         } catch (MergeConflictException e) {

@@ -72,17 +72,12 @@ public class Lock {
                 }
             } catch (ClosedByInterruptException e) {
                 LOG.info("Another thread interrupted IO operation. Cancel lock '{}'.", lockPath);
-                try {
-                    if (prepareLock != null){
-                        Files.delete(prepareLock);
-                    }
-                    deleteEmptyParentFolders();
-                } catch (IOException ex) {
-                    LOG.error(ex.getMessage(), ex);
-                }
+                deleteLockAndFolders(prepareLock);
                 lockAcquired = false;
             } catch (IOException e) {
                 LOG.error("Failure of lock creation.", e);
+                deleteLockAndFolders(prepareLock);
+                lockAcquired = false;
             }
         }
         return lockAcquired;
@@ -98,6 +93,8 @@ public class Lock {
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
+                // Thread is interrupted. Quit the loop.
+                break;
             }
         }
         return result;
@@ -219,6 +216,10 @@ public class Lock {
             os.write("#Lock info\n");
             os.append("user=").append(userName).write('\n');
             os.append("date=").append(Instant.now().toString()).write('\n');
+        } catch (Exception e) {
+            LOG.info("Can't create lock file '{}'. Delete it.", lock);
+            deleteLockAndFolders(lock);
+            throw e;
         }
         return lock;
     }
@@ -243,5 +244,16 @@ public class Lock {
         }
         Files.move(lock, lockPath.resolve(READY_LOCK));
         return true;
+    }
+
+    private void deleteLockAndFolders(Path lock) {
+        try {
+            if (lock != null){
+                Files.delete(lock);
+            }
+            deleteEmptyParentFolders();
+        } catch (Exception ex) {
+            LOG.error(ex.getMessage(), ex);
+        }
     }
 }

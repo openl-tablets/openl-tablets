@@ -76,7 +76,12 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 projectVersion.getVersionInfo().getCreatedAt(),
                 ProjectVersionH2CacheDB.RepoType.DESIGN);
             if (StringUtils.isEmpty(hash)) {
-                AProject designProject = designRepository.getProject(project.getRepository().getId(), project.getName(), projectVersion);
+                Repository repo = project.getRepository();
+                String branch = repo.supports().branches() ? ((BranchRepository) repo).getBranch() : null;
+                AProject designProject = designRepository.getProjectByPath(project.getRepository().getId(),
+                    branch,
+                    project.getRealPath(),
+                    projectVersion.getVersionName());
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
             }
         }

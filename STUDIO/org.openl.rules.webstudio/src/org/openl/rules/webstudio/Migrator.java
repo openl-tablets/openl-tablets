@@ -21,6 +21,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * For setting migration purposes. It cleans up default settings and reconfigure user defined properties.
@@ -36,18 +37,19 @@ public class Migrator {
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
-
+        if (!settings.getFile().exists()) {
+            // first start on the current directory, no migration needed
+            return;
+        }
         HashMap<String, String> props = new HashMap<>();
 
         Object fromVersion = settings.getProperty(".version");
-
-        //fromVersion == null means that this is the first start, no migration needed
         if (fromVersion != null) {
             String stringFromVersion = fromVersion.toString();
             if (fromVersion.toString().compareTo(OpenLVersion.getVersion()) < 0) {
-                migrateTo5_23_5(props);
+                migrateTo5_23_5(props, stringFromVersion);
                 migrateTo5_24(settings, props, stringFromVersion);
-                //add subsequent migrations in order of priority
+                // add subsequent migrations in order of priority
             }
         }
 
@@ -60,24 +62,29 @@ public class Migrator {
         }
     }
 
-    //5.23.5
-    private static void migrateTo5_23_5(HashMap<String, String> props) {
-        if (Props.bool("project.history.unlimited")) {
-            props.put("project.history.count", ""); // Define unlimited
+    // 5.23.5
+    private static void migrateTo5_23_5(HashMap<String, String> props, String fromVersion) {
+        if (fromVersion.compareTo("5.23.5") < 0) {
+            if (Props.bool("project.history.unlimited")) {
+                props.put("project.history.count", ""); // Define unlimited
+            }
+            props.put("project.history.unlimited", null); // Remove
+            props.put("test.run.parallel", null); // Remove
+            props.put("project.history.home", null); // Remove
         }
-        props.put("project.history.unlimited", null); // Remove
-        props.put("test.run.parallel", null); // Remove
-        props.put("project.history.home", null); // Remove
     }
 
-    //5.24
-    private static void migrateTo5_24(DynamicPropertySource settings, HashMap<String, String> props, String fromVersion) {
+    // 5.24
+    private static void migrateTo5_24(DynamicPropertySource settings,
+                                      HashMap<String, String> props,
+                                      String fromVersion) {
         if (fromVersion.compareTo("5.24.0") < 0) {
             try {
                 // migrate local repo path if have default value, since the default has changed on 5.24.0
                 // null means this property have default value from previous OpenL version
                 Object objDesignRepo = settings.getProperty("repository.design.local-repository-path");
-                String designRepo = objDesignRepo != null ? objDesignRepo.toString() : Props.text("openl.home") + "\\design-repository";
+                String homePath = Props.text("openl.home");
+                String designRepo = objDesignRepo != null ? objDesignRepo.toString() : homePath + "/design-repository";
                 if (objDesignRepo == null) {
                     props.put("repository.design.local-repository-path", designRepo);
                 }
@@ -89,24 +96,62 @@ public class Migrator {
 
                 // migrate deploy-config
                 if (settings.getProperty("repository.production.local-repository-path") == null) {
-                    props.put("repository.production.local-repository-path", Props.text("openl.home") + "\\production-repository");
+                    props.put("repository.production.local-repository-path",
+                            Props.text("openl.home") + "/production-repository");
                 }
 
-                //migrate branches and project properties to branches.yaml if repoType is Git
-                Map<String, String> stringStringMap = migrateProjectProps(designRepo);
-                migrateBranchesProps(stringStringMap);
+                // migrate branches and project properties to branches.yaml if repoType is Git
+                Map<String, String> nonFlatProjectPaths = migrateProjectProps(designRepo);
+                migrateBranchesProps(nonFlatProjectPaths);
 
-                //migrate locks.
-                migrateLocks(stringStringMap);
+                // migrate NonFlat project settings
+                migrateNonFlatProjectSettings(nonFlatProjectPaths);
+
+                // migrate locks.
+                migrateLocks(nonFlatProjectPaths, homePath);
             } catch (IOException e) {
                 LOG.error("Migration failed.", e);
             }
         }
     }
 
+    private static void migrateNonFlatProjectSettings(Map<String, String> nonFlatProjectPaths) {
+        String workspacePath = Props.text(AdministrationSettings.USER_WORKSPACE_HOME);
+        File workspace = Paths.get(workspacePath).toFile();
+        if (workspace.exists() && workspace.list() != null) {
+            List<String> userFolders = Arrays.stream(workspace.list())
+                    .filter(f -> !f.equals(".locks"))
+                    .collect(Collectors.toList());
+            for (String projectName : nonFlatProjectPaths.keySet()) {
+                for (String user : userFolders) {
+                    File version = Paths.get(workspacePath, user, projectName, ".studioProps", ".version").toFile();
+                    if (version.exists()) {
+                        try (InputStreamReader in = new InputStreamReader(new FileInputStream(version),
+                                StandardCharsets.UTF_8)) {
+                            Properties projectProps = new Properties();
+                            projectProps.load(in);
+                            projectProps.setProperty("path-in-repository", nonFlatProjectPaths.get(projectName));
+                            FileOutputStream os = null;
+                            try {
+                                os = new FileOutputStream(version);
+                                projectProps.store(os, "Openl project properties");
+                                os.close();
+                            } finally {
+                                IOUtils.closeQuietly(os);
+                            }
+                        } catch (IOException e) {
+                            LOG.error("Migration of non-flat project properties failed.", e);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     private static void migrateBranchesProps(Map<String, String> projectPathMap) {
         if (RepositoryType.GIT.getFactoryClassName().equals(Props.text("repository.design.factory"))) {
-            File branchesProperties = new File(new File(Props.text("openl.home") + "\\git-settings"), "branches.properties");
+            File branchesProperties = new File(new File(Props.text("openl.home") + "/git-settings"),
+                    "branches.properties");
             if (branchesProperties.isFile()) {
                 try (InputStreamReader in = new InputStreamReader(new FileInputStream(branchesProperties),
                         StandardCharsets.UTF_8)) {
@@ -123,11 +168,13 @@ public class Migrator {
                                 continue;
                             }
                             for (String branch : branchesStr.split(",")) {
-                                String namePath = projectPathMap.get(name) != null ? projectPathMap.get(name) : "\\DESIGN\\rules\\" + name;
+                                String namePath = projectPathMap.get(name) != null ? projectPathMap.get(name)
+                                        : "DESIGN/rules/" + name;
                                 branches.addBranch(namePath, branch, null);
                             }
                         }
-                        createYaml(branches, Paths.get(Props.text("openl.home"), "repositories", "settings", "design", "branches.yaml"));
+                        createYaml(branches,
+                                Paths.get(Props.text("openl.home"), "repositories", "settings", "design", "branches.yaml"));
                     }
                 } catch (IOException e) {
                     LOG.error("Migration of branches properties failed.", e);
@@ -155,7 +202,9 @@ public class Migrator {
                         projectPathMap.put(name, path);
                     }
                     index.setProjects(projects);
-                    createYaml(index, Paths.get(Props.text("openl.home"), "repositories", "settings", "design", "openl-projects.yaml"));
+                    createYaml(index,
+                            Paths.get(Props
+                                    .text("openl.home"), "repositories", "settings", "design", "openl-projects.yaml"));
                 } catch (IOException e) {
                     LOG.error("Migration of project properties failed.", e);
                 }
@@ -164,41 +213,54 @@ public class Migrator {
         return projectPathMap;
     }
 
-
     private static void createYaml(Object data, Path filePath) throws IOException {
         DumperOptions options = new DumperOptions();
         options.setPrettyFlow(true);
         options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
         Yaml yaml = new Yaml(options);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try (OutputStreamWriter out = new OutputStreamWriter(outputStream,
-                StandardCharsets.UTF_8)) {
+        try (OutputStreamWriter out = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
             yaml.dump(data, out);
         }
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(
-                outputStream.toByteArray());
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(outputStream.toByteArray());
         File file = filePath.toFile();
         File parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
-            throw new FileNotFoundException(
-                    "Cannot create the folder " + parentFile.getAbsolutePath());
+            throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
         }
         IOUtils.copyAndClose(byteArrayInputStream, new FileOutputStream(file));
     }
 
-    private static void migrateLocks(Map<String, String> projectPathMap) throws IOException {
-        File projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules").toFile();
+    private static void migrateLocks(Map<String, String> projectPathMap, String homePath) throws IOException {
+        File projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules")
+                .toFile();
+        String lockPath = homePath + "/user-workspace/.locks/rules/branches/";
         if (projectLocks.exists() && projectLocks.isDirectory()) {
-            Files.walkFileTree(projectLocks.toPath(), new HashSet<>(), 4, new SimpleFileVisitor<Path>() {
+            Files.walkFileTree(projectLocks.toPath(), new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                     File lock = file.toFile();
                     if (lock.isFile()) {
-                        File branch = lock.getParentFile();
-                        File project = branch.getParentFile();
-                        String fileName = project.getName();
-                        String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName) : fileName;
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "projects", "design", projectName, "[branches]", branch.getName(), "ready.lock");
+                        String lockName = lock.getName();
+                        String branchName = "";
+                        //if lockPath does not exist - repository has no branches
+                        if (new File(lockPath).exists()) {
+                            branchName = lock.getPath()
+                                    .substring((lockPath + lockName).length() + 1, lock.getPath().length() - lockName.length() - 1);
+                            if (!branchName.isEmpty()) {
+                                branchName = "[branches]/" + branchName;
+                            }
+                        }
+                        String fileName = lock.getName();
+                        String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName)
+                                : "/DESIGN/rules/" + fileName;
+                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
+                                ".locks",
+                                "projects",
+                                "design",
+                                projectName,
+                                branchName,
+                                "ready.lock");
                         FileUtils.copy(lock, newLock.toFile());
                     }
                     return super.visitFile(file, attrs);

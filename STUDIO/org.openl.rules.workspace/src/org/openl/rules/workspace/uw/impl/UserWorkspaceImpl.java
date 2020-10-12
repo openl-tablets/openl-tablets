@@ -510,6 +510,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
             createdProject.getFileData().setComment(comment);
             createdProject.update(project, user);
+            designData.setName(createdProject.getFolderPath());
 
             RulesProject rulesProject = new RulesProject(getUser(),
                 localWorkspace.getRepository(repositoryId),

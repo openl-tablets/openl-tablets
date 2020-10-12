@@ -181,16 +181,15 @@ public class RepositoryDiffController extends AbstractDiffController {
             Repository designRepository = projectUW.getDesignRepository();
             if (designRepository.supports().branches()) {
                 projectRepo = designTimeRepository
-                    .getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
+                    .getProjectByPath(designRepository.getId(), branch, projectUW.getRealPath(), selectedVersionRepo);
             } else {
-                CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
                     projectRepo = designTimeRepository
-                        .getProject(designRepository.getId(), projectUW.getName(), version);
+                        .getProjectByPath(designRepository.getId(), null, projectUW.getRealPath(), selectedVersionRepo);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),
-                        version.getVersionName(),
+                        selectedVersionRepo,
                         e);
                     projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName());
                 }

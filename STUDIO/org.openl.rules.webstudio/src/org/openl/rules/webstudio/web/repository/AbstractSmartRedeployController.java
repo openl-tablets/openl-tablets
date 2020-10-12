@@ -133,7 +133,7 @@ public abstract class AbstractSmartRedeployController {
         }
         Deployment deployment = new Deployment(deployRepo,
             deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + deployConfigName,
-            wsProject.getName(),
+                deployConfigName,
             null,
             folderStructure);
         return deployment.getProject(wsProject.getName());
@@ -197,8 +197,7 @@ public abstract class AbstractSmartRedeployController {
             String lastDeployedVersion = "";
             AProject deployedProject = null;
             try {
-                String name = getSelectedProject().getBusinessName();
-                deployedProject = getDeployedProject(project, name);
+                deployedProject = getDeployedProject(project, deploymentProject.getName());
                 lastDeployedVersion = deployedProject != null ? projectVersionCacheManager
                     .getDeployedProjectVersion(deployedProject) : null;
             } catch (IOException e) {
@@ -513,6 +512,7 @@ public abstract class AbstractSmartRedeployController {
 
     public void setRepositoryConfigName(String repositoryConfigName) {
         if (repositoryConfigName == null || !repositoryConfigName.equals(this.repositoryConfigName)) {
+            this.repositoryConfigName = repositoryConfigName;
             AProject project = getSelectedProject();
             if (project != null && items != null) {
                 List<DeploymentProjectItem> newItems = getItems4Project(project, getRepositoryConfigName());
@@ -529,7 +529,6 @@ public abstract class AbstractSmartRedeployController {
                 items = null;
             }
         }
-        this.repositoryConfigName = repositoryConfigName;
     }
 
     public Collection<RepositoryConfiguration> getRepositories() {

@@ -155,11 +155,11 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public void close(CommonUser user) throws ProjectException {
         try {
-            if (localFolderName != null) {
-                deleteFromLocalRepository();
-            }
             if (isLockedByUser(user)) {
                 unlock();
+            }
+            if (localFolderName != null) {
+                deleteFromLocalRepository();
             }
             if (!isLocalOnly()) {
                 setRepository(designRepository);
