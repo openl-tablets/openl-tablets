@@ -89,8 +89,7 @@ public class ProjectHistoryService {
         if (fileToRestore != null) {
             File currentSourceFile = model.getCurrentModuleWorkbook().getSourceFile();
             FileUtils.copy(fileToRestore, currentSourceFile);
-            model.reset(ReloadType.FORCED);
-            model.buildProjectTree();
+            model.reset(ReloadType.RELOAD);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
         }
     }
