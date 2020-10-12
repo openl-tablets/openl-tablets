@@ -1,2 +1,0 @@
-ERROR: OpenAPI Reconciliation: Type 'AnySpreadsheetResult' of field 'step3' in type 'MainSpr' must be compatible with OpenAPI schema 'AnySpreadsheetResult'.
-ERROR: OpenAPI Reconciliation: Return type of method 'callTestSrp' must be compatible with OpenAPI schema 'AnySpreadsheetResult'.

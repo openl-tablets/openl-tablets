@@ -27,6 +27,7 @@ import javax.ws.rs.QueryParam;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -1050,7 +1051,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 for (Map.Entry<String, Schema> entry : propertiesOfExpectedSchema.entrySet()) {
                     Schema<?> fieldActualSchema = propertiesOfActualSchema.get(entry.getKey());
                     if (fieldActualSchema == null) {
-                        if (context.getSpreadsheetMethodResolver().resolve(openClass) == null) {
+                        if (context.getSpreadsheetMethodResolver().resolve(openClass) == null || openClass instanceof SpreadsheetResultOpenClass) {
                             wrongFields.add(() -> OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                 String.format(
                                     OPEN_API_VALIDATION_MSG_PREFIX + "Expected non transient field for schema property '%s' is not found in type '%s'.",
