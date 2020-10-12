@@ -347,11 +347,11 @@
                         <h:inputText id="modelsFileName" size="35" maxlength="70"
                                      value="#{repositoryTreeController.modelsPath}"/>
                         <h:outputLabel styleClass="required" for="algorithmsModuleName"
-                                       value="Module Name for Tables:"/>
+                                       value="Module Name for Rules:"/>
                         <h:inputText id="algorithmsModuleName" size="35" maxlength="70"
                                      value="#{repositoryTreeController.algorithmsModuleName}"/>
                         <h:outputLabel styleClass="required" for="algorithmsFileName"
-                                       value="Path for Module with Tables:"/>
+                                       value="Path for Module with Rules:"/>
                         <h:inputText id="algorithmsFileName" size="35" maxlength="70"
                                      value="#{repositoryTreeController.algorithmsPath}"/>
                     </h:panelGrid>
@@ -746,6 +746,14 @@
                 enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});
             }
         }
+
+        function toggleDetails(link, show) {
+            console.log(link + ' this is link');
+            let elementId = $j(link.id);
+            console.log(elementId);
+            document.getElementById(elementId).style.display = (show ? 'block' : 'none');
+        }
+
         //]]>
 
     </script>

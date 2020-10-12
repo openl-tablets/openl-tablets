@@ -6,6 +6,15 @@ public final class OpenAPI {
     private String modelModuleName;
     private String algorithmModuleName;
 
+    public OpenAPI() {
+    }
+
+    public OpenAPI(String path, String modelModuleName, String algorithmModuleName) {
+        this.path = path;
+        this.modelModuleName = modelModuleName;
+        this.algorithmModuleName = algorithmModuleName;
+    }
+
     public String getPath() {
         return path;
     }

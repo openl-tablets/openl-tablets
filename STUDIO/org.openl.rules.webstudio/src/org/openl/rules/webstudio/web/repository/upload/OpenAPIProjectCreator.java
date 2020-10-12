@@ -29,6 +29,7 @@ import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,16 +70,24 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             throw new ProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");
         }
         if (StringUtils.isBlank(modelsModuleName)) {
-            throw new ProjectException("Error creating the project, models module name is not provided.");
+            throw new ProjectException("Error creating the project, module name for Data Types is not provided.");
         }
         if (StringUtils.isBlank(modelsPath)) {
-            throw new ProjectException("Error creating the project, models file name is not provided.");
+            throw new ProjectException("Error creating the project, path for module with Data Types is not provided.");
         }
+
         if (StringUtils.isBlank(algorithmsModuleName)) {
-            throw new ProjectException("Error creating the project, algorithms module name is not provided.");
+            throw new ProjectException("Error creating the project, module name for Rules is not provided.");
         }
         if (StringUtils.isBlank(algorithmsPath)) {
-            throw new ProjectException("Error creating the project, algorithms file name is not provided.");
+            throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
+        }
+        if (!FileTypeHelper.isExcelFile(algorithmsPath)) {
+            throw new ProjectException("Error creating the project, unsupported file extension for module with Rules.");
+        }
+        if (!FileTypeHelper.isExcelFile(modelsPath)) {
+            throw new ProjectException(
+                "Error creating the project, unsupported file extension for module with Data Types.");
         }
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
@@ -118,13 +127,13 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             if (dataTypesArePresented) {
                 addFile(projectBuilder,
                     generateDataTypesFile(datatypeModels),
-                        modelsPath,
+                    modelsPath,
                     "Error uploading dataTypes file.");
             }
             if (spreadsheetsArePresented) {
                 addFile(projectBuilder,
                     generateSpreadsheetsFile(spreadsheetModels, environmentModel),
-                        algorithmsPath,
+                    algorithmsPath,
                     "Error uploading spreadsheets file.");
             }
             addFile(projectBuilder,
@@ -202,6 +211,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private ProjectDescriptor defineDescriptor(boolean dataTypesArePresented, boolean spreadsheetsArePresented) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         OpenAPI openAPI = new OpenAPI();
+        openAPI.setAlgorithmModuleName(algorithmsModuleName);
+        openAPI.setModelModuleName(modelsModuleName);
         descriptor.setName(projectName);
         List<Module> modules = new ArrayList<>();
         if (spreadsheetsArePresented) {
@@ -209,15 +220,12 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
             rulesModule.setName(algorithmsModuleName);
             modules.add(rulesModule);
-            openAPI.setAlgorithmModuleName(algorithmsModuleName);
         }
-
         if (dataTypesArePresented) {
             Module modelsModule = new Module();
             modelsModule.setName(modelsModuleName);
             modelsModule.setRulesRootPath(new PathEntry(modelsPath));
             modules.add(modelsModule);
-            openAPI.setModelModuleName(modelsModuleName);
         }
         openAPI.setPath(uploadedOpenAPIFile.getName());
         descriptor.setOpenapi(openAPI);

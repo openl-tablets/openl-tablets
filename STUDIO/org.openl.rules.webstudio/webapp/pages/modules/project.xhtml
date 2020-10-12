@@ -326,7 +326,7 @@
                                 <h:outputText value="#{project.openapi.path}"/>
                             </li>
                             <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
-                                Module Name for Tables:
+                                Module Name for Rules:
                                 <h:outputText value="#{project.openapi.algorithmModuleName}"/>
                             </li>
                             <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
@@ -592,7 +592,7 @@
                     <h:outputLabel styleClass="required" for="openAPIPath" value="OpenAPI file path:"/>
                     <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPI.path}"/>
                     <h:outputLabel styleClass="required" for="openAPIAlgorithmModuleName"
-                                   value="Module Name for Tables:"/>
+                                   value="Module Name for Rules:"/>
                     <h:inputText id="openAPIAlgorithmModuleName" size="35" maxlength="70"
                                  value="#{projectBean.openAPI.algorithmModuleName}"/>
                     <h:outputLabel styleClass="required" for="openAPIModelModuleName"

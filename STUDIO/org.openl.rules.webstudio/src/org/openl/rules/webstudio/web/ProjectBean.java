@@ -54,7 +54,6 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
-import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -161,6 +160,9 @@ public class ProjectBean {
     public OpenAPI getOpenAPI() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         openAPI = currentProject.getOpenapi();
+        if (openAPI == null) {
+            openAPI = new OpenAPI("", "", "");
+        }
         return openAPI;
     }
 
@@ -339,6 +341,8 @@ public class ProjectBean {
 
         Module module;
 
+        boolean moduleWasRenamed = false;
+
         if (StringUtils.isBlank(oldName) && StringUtils.isBlank(index)) {
             // Add new Module
             module = new Module();
@@ -348,6 +352,9 @@ public class ProjectBean {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
                 module = studio.getModule(newProjectDescriptor, oldName);
+                if (!oldName.equals(name)) {
+                    moduleWasRenamed = true;
+                }
             } else {
                 module = newProjectDescriptor.getModules().get(Integer.parseInt(index));
             }
@@ -376,6 +383,21 @@ public class ProjectBean {
             }
             if (StringUtils.isNotBlank(excludes)) {
                 filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+            }
+
+            if (moduleWasRenamed) {
+                OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
+                String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
+                String modelsModuleName = descriptorOpenAPI.getModelModuleName();
+                boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
+                    .isNotBlank(modelsModuleName);
+                if (moduleNamesExists) {
+                    if (oldName.equals(algorithmsModuleName)) {
+                        descriptorOpenAPI.setAlgorithmModuleName(name);
+                    } else if (oldName.equals(modelsModuleName)) {
+                        descriptorOpenAPI.setModelModuleName(name);
+                    }
+                }
             }
 
             clean(newProjectDescriptor);
@@ -557,7 +579,18 @@ public class ProjectBean {
 
     public void editOpenAPI() {
         tryLockProject();
-
+        final String algorithmModuleName = openAPI.getAlgorithmModuleName();
+        final String modelModuleName = openAPI.getModelModuleName();
+        final String path = openAPI.getPath();
+        if (StringUtils.isBlank(algorithmModuleName)) {
+            throw new Message("Module Name for Rules must not be empty");
+        }
+        if (StringUtils.isBlank(modelModuleName)) {
+            throw new Message("Module Name for Data Types must not be empty");
+        }
+        if (StringUtils.isBlank(path)) {
+            throw new Message("OpenAPI file path must not be empty");
+        }
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
