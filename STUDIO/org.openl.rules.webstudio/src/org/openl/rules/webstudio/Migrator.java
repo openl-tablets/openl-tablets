@@ -47,7 +47,7 @@ public class Migrator {
         if (fromVersion != null) {
             String stringFromVersion = fromVersion.toString();
             if (fromVersion.toString().compareTo(OpenLVersion.getVersion()) < 0) {
-                migrateTo5_23_5(props, stringFromVersion);
+                migrateTo5_23_5(settings, props, stringFromVersion);
                 migrateTo5_24(settings, props, stringFromVersion);
                 // add subsequent migrations in order of priority
             }
@@ -63,10 +63,15 @@ public class Migrator {
     }
 
     // 5.23.5
-    private static void migrateTo5_23_5(HashMap<String, String> props, String fromVersion) {
-        if (fromVersion.compareTo("5.23.5") < 0) {
+    private static void migrateTo5_23_5(DynamicPropertySource settings, HashMap<String, String> props, String fromVersion) {
+        //clarify version
+        if (fromVersion.compareTo("5.24.0") < 0) {
             if (Props.bool("project.history.unlimited")) {
                 props.put("project.history.count", ""); // Define unlimited
+            }
+            Object runTestParallel = settings.getProperty("test.run.parallel");
+            if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel.toString())) {
+                props.put("test.run.thread.count", "1");
             }
             props.put("project.history.unlimited", null); // Remove
             props.put("test.run.parallel", null); // Remove
