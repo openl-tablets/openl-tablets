@@ -269,8 +269,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private List<ClassLoader> oldClassLoaders = new ArrayList<>();
-
     private void reset(IDependency dependency, Set<String> doNotDoTheSameResetTwice) {
         final String dependencyName = dependency.getNode().getIdentifier();
         if (doNotDoTheSameResetTwice.contains(dependencyName)) {
@@ -311,10 +309,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     @Override
     public synchronized void resetAll() {
-        for (ClassLoader classLoader : oldClassLoaders) {
-            OpenClassUtil.releaseClassLoader(classLoader);
-        }
-        oldClassLoaders.clear();
         for (ClassLoader classLoader : externalJarsClassloaders.values()) {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
