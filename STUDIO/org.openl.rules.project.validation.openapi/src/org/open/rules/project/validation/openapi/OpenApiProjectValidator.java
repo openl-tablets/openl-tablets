@@ -994,7 +994,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     d++;
                     if (p instanceof ArraySchema) {
                         p = ((ArraySchema) p).getItems();
-                        p = context.getActualOpenAPIResolver().resolve(p, Schema::get$ref);
+                        p = context.getExpectedOpenAPIResolver().resolve(p, Schema::get$ref);
                         k++;
                     }
                 }
