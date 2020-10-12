@@ -158,7 +158,8 @@
             }).done(function () {
                 $jq('#changes').trigger('refresh');
                 ws.ui.success("Restoring changes was successful!");
-                ws.nav.reloadPanel('left');
+                ws.nav.reload(true);
+                ws.ui.hideLoader();
                 $compareBtn.prop("disabled", true);
             }).fail(function () {
                 ws.ui.error("Restoring changes was failed!");
