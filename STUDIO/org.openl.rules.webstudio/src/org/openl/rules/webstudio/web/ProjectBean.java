@@ -561,10 +561,7 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
-        String normalizedAlgorithmPath = FileNameFormatter.normalizePath(openAPI.getAlgorithmPath());
-        String normalizedModelPath = FileNameFormatter.normalizePath(openAPI.getModelPath());
-        openAPI.setAlgorithmPath(normalizedAlgorithmPath);
-        openAPI.setModelPath(normalizedModelPath);
+
         newProjectDescriptor.setOpenapi(openAPI);
 
         save(newProjectDescriptor);
@@ -658,11 +655,11 @@ public class ProjectBean {
                 openapi.setPath(null);
             }
 
-            if (StringUtils.isBlank(openapi.getAlgorithmPath())) {
-                openapi.setAlgorithmPath(null);
+            if (StringUtils.isBlank(openapi.getAlgorithmModuleName())) {
+                openapi.setAlgorithmModuleName(null);
             }
-            if (StringUtils.isBlank(openapi.getModelPath())) {
-                openapi.setModelPath(null);
+            if (StringUtils.isBlank(openapi.getModelModuleName())) {
+                openapi.setModelModuleName(null);
             }
         }
 

@@ -199,8 +199,8 @@ public class RepositoryTreeController {
 
     private String modelsModuleName = "Models";
     private String algorithmsModuleName = "Algorithms";
-    private String modelsPath = "Models.xlsx";
-    private String algorithmsPath = "Algorithms.xlsx";
+    private String modelsPath = "rules/Models.xlsx";
+    private String algorithmsPath = "rules/Algorithms.xlsx";
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -371,10 +371,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             return !getDependencies(newVersion, false).isEmpty();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -407,10 +404,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -1134,10 +1128,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
             zipFileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -1170,10 +1161,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1247,10 +1235,7 @@ public class RepositoryTreeController {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repositoryId,
-                        branch,
-                        selectedProject.getRealPath(),
-                        version);
+                    .getProjectByPath(repositoryId, branch, selectedProject.getRealPath(), version);
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();

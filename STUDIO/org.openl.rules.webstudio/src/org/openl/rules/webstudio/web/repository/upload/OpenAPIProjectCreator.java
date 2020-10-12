@@ -209,7 +209,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
             rulesModule.setName(algorithmsModuleName);
             modules.add(rulesModule);
-            openAPI.setAlgorithmPath(algorithmsPath);
+            openAPI.setAlgorithmModuleName(algorithmsModuleName);
         }
 
         if (dataTypesArePresented) {
@@ -217,7 +217,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             modelsModule.setName(modelsModuleName);
             modelsModule.setRulesRootPath(new PathEntry(modelsPath));
             modules.add(modelsModule);
-            openAPI.setModelPath(modelsPath);
+            openAPI.setModelModuleName(modelsModuleName);
         }
         openAPI.setPath(uploadedOpenAPIFile.getName());
         descriptor.setOpenapi(openAPI);

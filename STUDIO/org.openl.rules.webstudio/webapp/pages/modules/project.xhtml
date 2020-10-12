@@ -325,13 +325,13 @@
                                 OpenAPI File Path:
                                 <h:outputText value="#{project.openapi.path}"/>
                             </li>
-                            <li style="display: #{not empty project.openapi.algorithmPath ? 'list-item' :'none'}">
-                                Path for Module with Tables:
-                                <h:outputText value="#{project.openapi.algorithmPath}"/>
+                            <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
+                                Module Name for Tables:
+                                <h:outputText value="#{project.openapi.algorithmModuleName}"/>
                             </li>
-                            <li style="display: #{not empty project.openapi.modelPath ? 'list-item' :'none'}">
-                                Path for Module with Data Types:
-                                <h:outputText value="#{project.openapi.modelPath}"/>
+                            <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
+                                Module Name for Data Types:
+                                <h:outputText value="#{project.openapi.modelModuleName}"/>
                             </li>
                         </ul>
                     </div>
@@ -585,19 +585,20 @@
             </f:facet>
             <f:facet name="controls">
                 <h:graphicImage value="/images/close.gif" class="close"
-                                onclick="ws.ui.hide('manageSourcesPopup')" alt="Close"/>
+                                onclick="ws.ui.hide('manageOpenAPIPopup')" alt="Close"/>
             </f:facet>
             <h:form prependId="false" id="manageOpenAPIForm">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel styleClass="required" for="openAPIPath" value="OpenAPI file path:"/>
                     <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPI.path}"/>
-                    <h:outputLabel styleClass="required" for="openAPIAlgorithmPath"
-                                   value="Path for module with tables:"/>
-                    <h:inputText id="openAPIAlgorithmPath" size="35" maxlength="70"
-                                 value="#{projectBean.openAPI.algorithmPath}"/>
-                    <h:outputLabel styleClass="required" for="openAPIModelPath" value="Path for module with models:"/>
-                    <h:inputText id="openAPIModelPath" size="35" maxlength="70"
-                                 value="#{projectBean.openAPI.modelPath}"/>
+                    <h:outputLabel styleClass="required" for="openAPIAlgorithmModuleName"
+                                   value="Module Name for Tables:"/>
+                    <h:inputText id="openAPIAlgorithmModuleName" size="35" maxlength="70"
+                                 value="#{projectBean.openAPI.algorithmModuleName}"/>
+                    <h:outputLabel styleClass="required" for="openAPIModelModuleName"
+                                   value="Module Name for Data Types:"/>
+                    <h:inputText id="openAPIModelModuleName" size="35" maxlength="70"
+                                 value="#{projectBean.openAPI.modelModuleName}"/>
                 </h:panelGrid>
                 <footer>
                     <a4j:commandButton id="editOpenAPIBtn" value="Save" action="#{projectBean.editOpenAPI}"
