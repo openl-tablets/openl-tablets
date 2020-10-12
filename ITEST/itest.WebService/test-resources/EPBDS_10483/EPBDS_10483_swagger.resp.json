@@ -1,0 +1,288 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "EPBDS-10483"
+  },
+  "basePath": "/REST/EPBDS-10483/EPBDS-10483",
+  "paths": {
+    "/test": {
+      "get": {
+        "summary": "EntityXjoBxZVvyZgHogIF test()",
+        "description": "Rules method: org.openl.generated.beans.EntityXjoBxZVvyZgHogIF test()",
+        "operationId": "test",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/EntityXjoBxZVvyZgHogIF"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/test1": {
+      "post": {
+        "summary": "Test test(Integer)",
+        "description": "Rules method: SpreadsheetResulttest test(java.lang.Integer hour)",
+        "operationId": "test_1",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Test"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/Hello": {
+      "post": {
+        "summary": "String Hello(Integer)",
+        "description": "Rules method: java.lang.String Hello(java.lang.Integer hour)",
+        "operationId": "Hello",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EntityXjoBxZVvyZgHogIF": {
+      "type": "object",
+      "properties": {
+        "_name": {
+          "type": "string"
+        }
+      }
+    },
+    "JAXRSErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "USER_ERROR",
+            "RULES_RUNTIME",
+            "COMPILATION",
+            "SYSTEM",
+            "BAD_REQUEST",
+            "VALIDATION"
+          ]
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Test": {
+      "type": "object",
+      "properties": {
+        "Value_R10": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value1_R10": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value2_R10": {
+          "type": "string"
+        },
+        "Value_R20": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value1_R20": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value2_R20": {
+          "type": "string"
+        },
+        "Value_R30": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value1_R30": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value2_R30": {
+          "type": "string"
+        },
+        "Value_R40": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value1_R40": {
+          "type": "number",
+          "format": "double"
+        },
+        "Value2_R40": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}
