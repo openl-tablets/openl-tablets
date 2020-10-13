@@ -29,6 +29,7 @@ import io.swagger.converter.ModelConverter;
 import io.swagger.converter.ModelConverterContext;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 
@@ -97,7 +98,9 @@ public class SwaggerSupportConverter implements ModelConverter {
             JsonSubTypes jsonSubTypes = beanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
             XmlSeeAlso xmlSeeAlso = beanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
             if (jsonSubTypes != null || xmlSeeAlso != null) {
-                impl.setAdditionalProperties(new StringProperty());
+                ObjectProperty objectProperty = new ObjectProperty();
+                objectProperty.setType(null);
+                impl.setAdditionalProperties(objectProperty);
             }
         }
 

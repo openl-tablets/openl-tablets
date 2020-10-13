@@ -6,73 +6,6 @@
   },
   "basePath": "/REST/EPBDS-9764/EPBDS-9764",
   "paths": {
-    "/myMethod2": {
-      "post": {
-        "summary": "MyMethod2 myMethod2(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod2 myMethod2(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
-        "operationId": "myMethod2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MyMethod2Request"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyMethod2"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
     "/myMethod5": {
       "post": {
         "summary": "MyMethod5 myMethod5(IRulesRuntimeContext)",
@@ -140,11 +73,11 @@
         }
       }
     },
-    "/getMyType2Data": {
+    "/getMyType4Data": {
       "post": {
-        "summary": "MyType2[] getMyType2Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType2Data",
+        "summary": "MyType4[] getMyType4Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType4Data",
         "consumes": [
           "application/json"
         ],
@@ -167,7 +100,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/MyType2"
+                "$ref": "#/definitions/MyType4"
               }
             }
           },
@@ -277,11 +210,11 @@
         }
       }
     },
-    "/myMethod": {
+    "/getMyType1Data": {
       "post": {
-        "summary": "MyMethod myMethod(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod myMethod(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
-        "operationId": "myMethod",
+        "summary": "MyType1[] getMyType1Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType1Data",
         "consumes": [
           "application/json"
         ],
@@ -294,7 +227,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/MyMethodRequest"
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
             }
           }
         ],
@@ -302,7 +235,10 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MyMethod"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyType1"
+              }
             }
           },
           "422": {
@@ -344,11 +280,11 @@
         }
       }
     },
-    "/getMyType1Data": {
+    "/getMyType2Data": {
       "post": {
-        "summary": "MyType1[] getMyType1Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType1[] getMyType1Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType1Data",
+        "summary": "MyType2[] getMyType2Data(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.MyType2[] getMyType2Data(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getMyType2Data",
         "consumes": [
           "application/json"
         ],
@@ -371,7 +307,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/MyType1"
+                "$ref": "#/definitions/MyType2"
               }
             }
           },
@@ -484,11 +420,11 @@
         }
       }
     },
-    "/getMyType4Data": {
+    "/myMethod": {
       "post": {
-        "summary": "MyType4[] getMyType4Data(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.beans.MyType4[] getMyType4Data(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "getMyType4Data",
+        "summary": "MyMethod myMethod(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod myMethod(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
+        "operationId": "myMethod",
         "consumes": [
           "application/json"
         ],
@@ -501,7 +437,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+              "$ref": "#/definitions/MyMethodRequest"
             }
           }
         ],
@@ -509,10 +445,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/MyType4"
-              }
+              "$ref": "#/definitions/MyMethod"
             }
           },
           "422": {
@@ -687,12 +620,95 @@
           }
         }
       }
+    },
+    "/myMethod2": {
+      "post": {
+        "summary": "MyMethod2 myMethod2(IRulesRuntimeContext, MyType1, MyType2, MyType3, MyType4)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MyMethod2 myMethod2(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.MyType1, org.openl.generated.beans.MyType2, org.openl.generated.beans.MyType3, org.openl.generated.beans.MyType4)",
+        "operationId": "myMethod2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MyMethod2Request"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyMethod2"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
-    "MyMethod2": {
+    "Base": {
+      "type": "object",
+      "required": [
+        "@class"
+      ],
+      "discriminator": "@class",
+      "properties": {
+        "@class": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "MyMethod5": {
       "type": "object",
       "properties": {
+        "Step0": {
+          "$ref": "#/definitions/MyType5"
+        },
         "Step1": {
           "type": "string"
         },
@@ -704,38 +720,138 @@
         },
         "Step4": {
           "type": "string"
-        },
-        "Step5": {
-          "type": "string"
-        },
-        "Step6": {
-          "type": "string"
-        },
-        "Step7": {
-          "type": "string"
-        },
-        "Step8": {
-          "type": "string"
-        },
-        "Step9": {
-          "type": "string"
-        },
-        "Step10": {
-          "type": "string"
-        },
-        "Step11": {
-          "type": "string"
-        },
-        "Step12": {
-          "type": "string"
-        },
-        "Step13": {
-          "type": "string"
-        },
-        "Step14": {
-          "type": "string"
         }
       }
+    },
+    "MyType1": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MyType1SuperType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field4": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType1SuperType": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field3": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType2": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MyType2SuperClass"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field2": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType2SuperClass": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field4": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType3": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MyType3SuperClass"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field2": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType3SuperClass": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field4": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType5": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/MyType5SuperType"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field4": {
+              "type": "string",
+              "default": "defaultValue4"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "MyType5SuperType": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Base"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "field3": {
+              "type": "string",
+              "default": "defaultValue3"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
     },
     "JAXRSErrorResponse": {
       "type": "object",
@@ -760,21 +876,6 @@
             "type": "string"
           }
         }
-      }
-    },
-    "Base": {
-      "type": "object",
-      "required": [
-        "@class"
-      ],
-      "discriminator": "@class",
-      "properties": {
-        "@class": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {
-        "type": "string"
       }
     },
     "DefaultRulesRuntimeContext": {
@@ -1112,197 +1213,11 @@
         }
       }
     },
-    "MyMethod2Request": {
-      "type": "object",
-      "properties": {
-        "runtimeContext": {
-          "$ref": "#/definitions/DefaultRulesRuntimeContext"
-        },
-        "myType1": {
-          "$ref": "#/definitions/MyType1"
-        },
-        "myType2": {
-          "$ref": "#/definitions/MyType2"
-        },
-        "myType3": {
-          "$ref": "#/definitions/MyType3"
-        },
-        "myType4": {
-          "$ref": "#/definitions/MyType4"
-        }
-      }
-    },
-    "MyType1": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MyType1SuperType"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field4": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType1SuperType": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Base"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field3": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType2": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MyType2SuperClass"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field2": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType2SuperClass": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Base"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field4": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType3": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MyType3SuperClass"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field2": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType3SuperClass": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Base"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field4": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
     "MyType4": {
       "type": "object",
       "properties": {
         "field2": {
           "$ref": "#/definitions/MyType2"
-        }
-      }
-    },
-    "MyType5": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/MyType5SuperType"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field4": {
-              "type": "string",
-              "default": "defaultValue4"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyType5SuperType": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Base"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "field3": {
-              "type": "string",
-              "default": "defaultValue3"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "MyMethod5": {
-      "type": "object",
-      "properties": {
-        "Step0": {
-          "$ref": "#/definitions/MyType5"
-        },
-        "Step1": {
-          "type": "string"
-        },
-        "Step2": {
-          "type": "string"
-        },
-        "Step3": {
-          "type": "string"
-        },
-        "Step4": {
-          "type": "string"
         }
       }
     },
@@ -1477,6 +1392,73 @@
         },
         "Step5": {
           "type": "string"
+        }
+      }
+    },
+    "MyMethod2": {
+      "type": "object",
+      "properties": {
+        "Step1": {
+          "type": "string"
+        },
+        "Step2": {
+          "type": "string"
+        },
+        "Step3": {
+          "type": "string"
+        },
+        "Step4": {
+          "type": "string"
+        },
+        "Step5": {
+          "type": "string"
+        },
+        "Step6": {
+          "type": "string"
+        },
+        "Step7": {
+          "type": "string"
+        },
+        "Step8": {
+          "type": "string"
+        },
+        "Step9": {
+          "type": "string"
+        },
+        "Step10": {
+          "type": "string"
+        },
+        "Step11": {
+          "type": "string"
+        },
+        "Step12": {
+          "type": "string"
+        },
+        "Step13": {
+          "type": "string"
+        },
+        "Step14": {
+          "type": "string"
+        }
+      }
+    },
+    "MyMethod2Request": {
+      "type": "object",
+      "properties": {
+        "runtimeContext": {
+          "$ref": "#/definitions/DefaultRulesRuntimeContext"
+        },
+        "myType1": {
+          "$ref": "#/definitions/MyType1"
+        },
+        "myType2": {
+          "$ref": "#/definitions/MyType2"
+        },
+        "myType3": {
+          "$ref": "#/definitions/MyType3"
+        },
+        "myType4": {
+          "$ref": "#/definitions/MyType4"
         }
       }
     }
