@@ -160,9 +160,7 @@
               "format": "int32"
             }
           },
-          "additionalProperties": {
-            "type": "string"
-          }
+          "additionalProperties": {}
         }
       ]
     },
@@ -185,9 +183,7 @@
           "type": "string"
         }
       },
-      "additionalProperties": {
-        "type": "string"
-      }
+      "additionalProperties": {}
     },
     "Mansion": {
       "allOf": [
@@ -202,9 +198,7 @@
               "format": "int32"
             }
           },
-          "additionalProperties": {
-            "type": "string"
-          }
+          "additionalProperties": {}
         }
       ]
     },
