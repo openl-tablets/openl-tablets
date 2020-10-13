@@ -12,7 +12,7 @@ package org.openl.rules.serialization;
 
 import org.openl.util.StringUtils;
 
-public class UncapitalizeSpreadsheetResultFieldNameResolver implements SpreadsheetResultFieldNameResolver {
+public class UncapitalizeSpreadsheetResultCellNameResolver implements SpreadsheetResultCellNameResolver {
     @Override
     public String resolveName(String name, String columnName, String rowName) {
         return name != null ? StringUtils.uncapitalize(name) : null;

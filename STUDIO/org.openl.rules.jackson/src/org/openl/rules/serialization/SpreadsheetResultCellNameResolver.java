@@ -10,6 +10,6 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-public interface SpreadsheetResultFieldNameResolver {
+public interface SpreadsheetResultCellNameResolver {
     String resolveName(String name, String columnName, String rowName);
 }

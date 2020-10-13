@@ -228,7 +228,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             if (!noWadl) {
                 Map<String, Object> configuration = serviceDescriptionObjectFactory.getObject().getConfiguration();
                 if (configuration != null && configuration
-                    .get(ProjectJacksonObjectMapperFactoryBean.JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER) != null) {
+                    .get(ProjectJacksonObjectMapperFactoryBean.JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER) != null) {
                     noWadl = true;
                 }
             }

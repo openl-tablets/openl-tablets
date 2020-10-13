@@ -32,13 +32,13 @@ class SpreadsheetResultBeanClassMixInAnnotationsWriter extends ClassVisitor {
     private final String className;
     private final Class<?> originalMixInClass;
     private final CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass;
-    private final SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver;
+    private final SpreadsheetResultCellNameResolver spreadsheetResultFieldNameResolver;
 
     public SpreadsheetResultBeanClassMixInAnnotationsWriter(ClassVisitor delegatedClassVisitor,
             String className,
             Class<?> originalMixInClass,
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameProcessor) {
+            SpreadsheetResultCellNameResolver spreadsheetResultFieldNameProcessor) {
         super(Opcodes.ASM5, delegatedClassVisitor);
         this.className = className;
         this.originalMixInClass = originalMixInClass;

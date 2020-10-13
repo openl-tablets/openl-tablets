@@ -10,7 +10,7 @@ package org.openl.rules.serialization;
  * #L%
  */
 
-public final class LowerCaseSpreadsheetResultFieldNameResolver implements SpreadsheetResultFieldNameResolver {
+public final class LowerCaseSpreadsheetResultCellNameResolver implements SpreadsheetResultCellNameResolver {
     @Override
     public String resolveName(String name, String columnName, String rowName) {
         return name != null ? name.toLowerCase() : null;

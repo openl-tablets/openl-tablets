@@ -44,7 +44,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     public static final String JACKSON_FAIL_ON_UNKNOWN_PROPERTIES = "jackson.failOnUnknownProperties";
     public static final String JACKSON_SIMPLE_CLASS_NAME_AS_TYPING_PROPERTY_VALUE = "jackson.simpleClassNameAsTypingPropertyValue";
     public static final String JACKSON_TYPING_PROPERTY_NAME = "jackson.typingPropertyName";
-    public static final String JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER = "jackson.spreadsheetResultFieldNameResolver";
+    public static final String JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER = "jackson.spreadsheetResultCellNameResolver";
 
     private final JacksonObjectMapperFactoryBean delegate = new JacksonObjectMapperFactoryBean();
 
@@ -293,13 +293,13 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     protected ObjectMapper enhanceObjectMapper(ObjectMapper objectMapper) {
         if (xlsModuleOpenClass != null) {
-            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver = extractSpreadsheetResultFieldNameResolver();
+            SpreadsheetResultCellNameResolver spreadsheetResultCellNameResolver = extractSpreadsheetResultCellNameResolver();
             for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
                 if (type instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = ((CustomSpreadsheetResultOpenClass) type);
                     addMixInAnnotationsToSprBeanClass(objectMapper,
                         customSpreadsheetResultOpenClass,
-                        spreadsheetResultFieldNameResolver);
+                        spreadsheetResultCellNameResolver);
                 }
             }
             // Check: custom spreadsheet is enabled
@@ -309,7 +309,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
                     .toCustomSpreadsheetResultOpenClass();
                 addMixInAnnotationsToSprBeanClass(objectMapper,
                     customSpreadsheetResultOpenClass,
-                    spreadsheetResultFieldNameResolver);
+                    spreadsheetResultCellNameResolver);
             }
             for (IOpenClass type : xlsModuleOpenClass.getTypes()) {
                 if (type instanceof DatatypeOpenClass) {
@@ -320,44 +320,44 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
         return objectMapper;
     }
 
-    private SpreadsheetResultFieldNameResolver extractSpreadsheetResultFieldNameResolver() {
+    private SpreadsheetResultCellNameResolver extractSpreadsheetResultCellNameResolver() {
         if (rulesDeploy != null) {
             if (rulesDeploy.getConfiguration() != null) {
-                Object spreadsheetResultFieldNameResolver = rulesDeploy.getConfiguration()
-                    .get(JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER);
-                if (spreadsheetResultFieldNameResolver != null) {
-                    if (spreadsheetResultFieldNameResolver instanceof String) {
-                        String spreadsheetResultFieldNameResolverClassName = (String) spreadsheetResultFieldNameResolver;
+                Object spreadsheetResultCellNameResolver = rulesDeploy.getConfiguration()
+                    .get(JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER);
+                if (spreadsheetResultCellNameResolver != null) {
+                    if (spreadsheetResultCellNameResolver instanceof String) {
+                        String spreadsheetResultCellNameResolverClassName = (String) spreadsheetResultCellNameResolver;
                         try {
                             Class<?> spreadsheetResultFieldNameResolverClass = getClassLoader()
-                                .loadClass(spreadsheetResultFieldNameResolverClassName);
-                            if (!SpreadsheetResultFieldNameResolver.class
+                                .loadClass(spreadsheetResultCellNameResolverClassName);
+                            if (!SpreadsheetResultCellNameResolver.class
                                 .isAssignableFrom(spreadsheetResultFieldNameResolverClass)) {
                                 throw new ObjectMapperConfigurationParsingException(String.format(
-                                    "Failed to load spreadsheet result field name resolver class '%s' for service '%s'. The class must be an implementation of interface '%s'.",
-                                    JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                    "Failed to load spreadsheet result cell name resolver class '%s' for service '%s'. The class must be an implementation of interface '%s'.",
+                                    JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER,
                                     rulesDeploy.getServiceName(),
-                                    SpreadsheetResultFieldNameResolver.class.getTypeName()));
+                                    SpreadsheetResultCellNameResolver.class.getTypeName()));
                             }
                             try {
-                                return (SpreadsheetResultFieldNameResolver) spreadsheetResultFieldNameResolverClass
+                                return (SpreadsheetResultCellNameResolver) spreadsheetResultFieldNameResolverClass
                                     .newInstance();
                             } catch (InstantiationException | IllegalAccessException e) {
                                 throw new ObjectMapperConfigurationParsingException(String.format(
-                                    "Failed to instantiate spreadsheet result field name resolver class '%s' for service '%s'.",
-                                    JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                    "Failed to instantiate spreadsheet result cell name resolver class '%s' for service '%s'.",
+                                    JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER,
                                     rulesDeploy.getServiceName()), e);
                             }
                         } catch (ClassNotFoundException e) {
                             throw new ObjectMapperConfigurationParsingException(String.format(
-                                "Failed to load spreadsheet result field name resolver class '%s' for service '%s'.",
-                                JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                "Failed to load spreadsheet result cell name resolver class '%s' for service '%s'.",
+                                JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER,
                                 rulesDeploy.getServiceName()), e);
                         }
                     } else {
                         throw new ObjectMapperConfigurationParsingException(
                             String.format("Expected string value for '%s' in the configuration for service '%s'.",
-                                JACKSON_SPREADSHEETRESULT_FIELD_NAME_RESOLVER,
+                                JACKSON_SPREADSHEETRESULT_CELL_NAME_RESOLVER,
                                 rulesDeploy.getServiceName()));
                     }
                 }
@@ -368,7 +368,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private void addMixInAnnotationsToSprBeanClass(ObjectMapper objectMapper,
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver) {
+            SpreadsheetResultCellNameResolver spreadsheetResultFieldNameResolver) {
         Class<?> sprBeanClass = customSpreadsheetResultOpenClass.getBeanClass();
         Class<?> originalMixInClass = objectMapper.findMixInClassFor(sprBeanClass);
         Class<?> mixInClass = enhanceMixInClassForSprBeanClass(
@@ -389,7 +389,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
 
     private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass,
             CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass,
-            SpreadsheetResultFieldNameResolver spreadsheetResultFieldNameResolver,
+            SpreadsheetResultCellNameResolver spreadsheetResultFieldNameResolver,
             ClassLoader classLoader) {
         String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
         try {
