@@ -29,7 +29,7 @@ import org.openl.types.IOpenField;
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 
-    private ComponentOpenClass componentOpenClass;
+    private final ComponentOpenClass componentOpenClass;
 
     private Map<String, IOpenClass> internalTypes = null;
 
@@ -46,8 +46,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
      * @return namespace::typeName
      */
     private String buildTypeName(String namespace, String typeName) {
-        final StringBuilder builder = new StringBuilder(64);
-        return builder.append(namespace).append("::").append(typeName).toString();
+        return namespace + "::" + typeName;
     }
 
     public ComponentOpenClass getComponentOpenClass() {

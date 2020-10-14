@@ -97,15 +97,20 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     private final ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
 
     @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return CastFactory.findParentClass1(openClass1, openClass2);
+    }
+
+    @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         Key key = new Key(openClass1, openClass2);
         IOpenClass closestClass;
-        Lock readlock = closestClassCacheLock.readLock();
+        Lock readLock = closestClassCacheLock.readLock();
         try {
-            readlock.lock();
+            readLock.lock();
             closestClass = closestClassCache.get(key);
         } finally {
-            readlock.unlock();
+            readLock.unlock();
         }
         if (closestClass == null) {
             Collection<JavaCastComponent> components = getAllJavaCastComponents();
@@ -118,7 +123,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                     allMethods.add(method);
                 }
             }
-
             closestClass = CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
                 @Override
                 public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
@@ -129,13 +133,18 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 public IOpenCast getCast(IOpenClass from, IOpenClass to) {
                     return OpenLConfiguration.this.getCast(from, to);
                 }
+
+                @Override
+                public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+                    return CastFactory.findParentClass1(openClass1, openClass2);
+                }
             }, allMethods);
-            Lock writelock = closestClassCacheLock.readLock();
+            Lock writeLock = closestClassCacheLock.readLock();
             try {
-                writelock.lock();
+                writeLock.lock();
                 closestClassCache.put(key, closestClass);
             } finally {
-                writelock.unlock();
+                writeLock.unlock();
             }
         }
         return closestClass;
@@ -378,13 +387,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 return false;
             }
             if (openClass2 == null) {
-                if (other.openClass2 != null) {
-                    return false;
-                }
-            } else if (!openClass2.equals(other.openClass2)) {
-                return false;
+                return other.openClass2 == null;
+            } else {
+                return openClass2.equals(other.openClass2);
             }
-            return true;
         }
     }
 

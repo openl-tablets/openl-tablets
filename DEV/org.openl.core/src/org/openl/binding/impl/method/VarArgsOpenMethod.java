@@ -8,10 +8,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class VarArgsOpenMethod extends AOpenMethodDelegator {
 
-    private int indexOfFirstVarArg;
-    private Class<?> componentVarArgClass;
-    private IOpenCast[] parameterCasts;
-    private IMethodCaller methodCaller;
+    private final int indexOfFirstVarArg;
+    private final Class<?> componentVarArgClass;
+    private final IOpenCast[] parameterCasts;
+    private final IMethodCaller methodCaller;
 
     public VarArgsOpenMethod(IMethodCaller methodCaller, Class<?> componentVarArgClass, int indexOfFirstVarArg) {
         this(methodCaller, componentVarArgClass, indexOfFirstVarArg, null);

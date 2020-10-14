@@ -14,8 +14,27 @@ import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenMethod;
+import org.openl.util.OpenClassUtils;
 
 public class DefaultAutoCastFactory implements AutoCastFactory {
+
+    private IOpenClass extractSimpleReturnType(IOpenClass type, Integer arrayDim) {
+        IOpenClass simpleReturnType = type;
+        int d = 0;
+        while (simpleReturnType.isArray()) {
+            if (simpleReturnType.getAggregateInfo() != null) {
+                simpleReturnType = simpleReturnType.getAggregateInfo().getComponentType(simpleReturnType);
+            } else {
+                simpleReturnType = simpleReturnType.getComponentClass();
+            }
+            d++;
+        }
+
+        if (arrayDim != null && d > arrayDim) {
+            simpleReturnType = JavaOpenClass.OBJECT;
+        }
+        return simpleReturnType;
+    }
 
     @Override
     public IMethodCaller build(IBindingContext bindingContext,
@@ -30,11 +49,21 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                 for (Annotation annotation : parameterAnnotations) {
                     if (annotation instanceof ReturnType) {
                         ReturnType returnType = (ReturnType) annotation;
+                        IOpenClass type;
+                        if (i < javaOpenMethod.getNumberOfParameters() - 1) {
+                            type = parameterTypes[i];
+                        } else {
+                            type = parameterTypes[i];
+                            for (int j = i + 1; j < parameterTypes.length; j++) {
+                                type = bindingContext.findParentClass(type, parameterTypes[j]);
+                            }
+                        }
                         return buildAutoCastResultOpenMethod(bindingContext,
                             methodCaller,
                             javaOpenMethod,
-                            parameterTypes[i],
-                            returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null);
+                            extractSimpleReturnType(type,
+                                returnType.arrayDimension() >= 0 ? returnType.arrayDimension() : null));
+
                     }
                 }
                 i++;
@@ -46,30 +75,14 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
     private IMethodCaller buildAutoCastResultOpenMethod(IBindingContext bindingContext,
             IMethodCaller methodCaller,
             JavaOpenMethod method,
-            IOpenClass type,
-            Integer arrayDim) {
-        if (NullOpenClass.the.equals(type)) {
+            IOpenClass simpleReturnType) {
+        if (NullOpenClass.the.equals(simpleReturnType)) {
             return methodCaller;
         }
-        IOpenClass simpleType = type;
-        int d = 0;
-        while (simpleType.isArray()) {
-            if (simpleType.getAggregateInfo() != null) {
-                simpleType = simpleType.getAggregateInfo().getComponentType(simpleType);
-            } else {
-                simpleType = simpleType.getComponentClass();
-            }
-            d++;
-        }
-
-        if (arrayDim != null && d > arrayDim) {
-            simpleType = JavaOpenClass.OBJECT;
-        }
-
         if (!method.getType().isArray()) {
-            IOpenCast cast = bindingContext.getCast(method.getType(), simpleType);
+            IOpenCast cast = bindingContext.getCast(method.getType(), simpleReturnType);
             if (cast != null) {
-                return new AutoCastableResultOpenMethod(methodCaller, simpleType, cast);
+                return new AutoCastableResultOpenMethod(methodCaller, simpleReturnType, cast);
             }
         } else {
             IOpenClass v = method.getType();
@@ -79,7 +92,7 @@ public class DefaultAutoCastFactory implements AutoCastFactory {
                 dims++;
             }
 
-            IOpenClass arrayOpenClass = simpleType.getArrayType(dims);
+            IOpenClass arrayOpenClass = simpleReturnType.getArrayType(dims);
             IOpenCast cast = bindingContext.getCast(method.getType(), arrayOpenClass);
             if (cast != null) {
                 return new AutoCastableResultOpenMethod(methodCaller, arrayOpenClass, cast);

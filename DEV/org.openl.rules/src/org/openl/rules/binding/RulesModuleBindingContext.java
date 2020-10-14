@@ -52,14 +52,14 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
     public static final String GLOBAL_PROPERTIES_KEY = "Properties:Global";
     public static final String MODULE_PROPERTIES_KEY = "Properties:Module";
     public static final String CATEGORY_PROPERTIES_KEY = "Properties:Category:";
-    private Map<String, TableSyntaxNode> bindedTables = new HashMap<>();
+    private final Map<String, TableSyntaxNode> bindedTables = new HashMap<>();
 
     /**
      * Internal OpenL service methods.
      */
-    private List<IOpenMethod> internalMethods;
+    private final List<IOpenMethod> internalMethods;
 
-    private PreBinderMethods preBinderMethods = new PreBinderMethods();
+    private final PreBinderMethods preBinderMethods = new PreBinderMethods();
 
     private boolean ignoreCustomSpreadsheetResultCompilation = false;
 
@@ -99,7 +99,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         Iterable<IOpenMethod> select = CollectionUtils.findAll(
             preBinderMethods.values().stream().map(IOpenMethod.class::cast).collect(Collectors.toList()),
             e -> Objects.equals(methodName, e.getName()));
-        IMethodCaller method = null;
+        IMethodCaller method;
         try {
             method = MethodSearch.findMethod(methodName, parTypes, this, select);
             if (method != null) {
@@ -131,9 +131,9 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         }
         method = super.findMethodCaller(namespace, methodName, parTypes);
         if (method == null) {
-            Iterable<IOpenMethod> internalselect = CollectionUtils.findAll(internalMethods,
+            Iterable<IOpenMethod> internalSelect = CollectionUtils.findAll(internalMethods,
                 e -> Objects.equals(methodName, e.getName()));
-            method = MethodSearch.findMethod(methodName, parTypes, this, internalselect);
+            method = MethodSearch.findMethod(methodName, parTypes, this, internalSelect);
         }
         return method;
     }
@@ -142,7 +142,7 @@ public class RulesModuleBindingContext extends ModuleBindingContext {
         if (method instanceof RecursiveOpenMethodPreBinder) {
             return (RecursiveOpenMethodPreBinder) method;
         } else if (method instanceof CastingMethodCaller) {
-            return (RecursiveOpenMethodPreBinder) ((CastingMethodCaller) method).getMethod();
+            return (RecursiveOpenMethodPreBinder) method.getMethod();
         } else if (method instanceof VarArgsOpenMethod) {
             return (RecursiveOpenMethodPreBinder) ((VarArgsOpenMethod) method).getDelegate();
         }
