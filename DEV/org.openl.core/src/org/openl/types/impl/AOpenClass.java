@@ -119,7 +119,7 @@ public abstract class AOpenClass implements IOpenClass {
     @Override
     public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
 
-        IOpenField f = null;
+        IOpenField f;
         if (strictMatch) {
 
             Map<String, IOpenField> m = fieldMap();

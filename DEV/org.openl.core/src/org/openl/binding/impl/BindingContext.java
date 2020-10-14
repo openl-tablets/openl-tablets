@@ -145,16 +145,19 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-
         return binder.getCastFactory().findClosestClass(openClass1, openClass2);
+    }
 
+    @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return binder.getCastFactory().findParentClass(openClass1, openClass2);
     }
 
     private static final SyntaxNodeException[] NO_ERRORS = {};
 
     @Override
     public SyntaxNodeException[] getErrors() {
-        return errors.isEmpty() ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
+        return errors.isEmpty() ? NO_ERRORS : errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
     }
 
     @Override

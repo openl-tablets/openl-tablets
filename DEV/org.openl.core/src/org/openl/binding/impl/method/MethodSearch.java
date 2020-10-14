@@ -640,7 +640,7 @@ public final class MethodSearch {
                                                                          .getParameterType(method.getSignature()
                                                                              .getNumberOfParameters() - 1)
                                                                          .isArray());
-        caller = findVarArgMethod(name, params, castFactory, filtered, OpenClassUtils::findParentClass);
+        caller = findVarArgMethod(name, params, castFactory, filtered, castFactory::findParentClass);
         if (caller != null) {
             return caller;
         }
