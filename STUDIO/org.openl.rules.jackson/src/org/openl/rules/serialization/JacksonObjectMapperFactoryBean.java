@@ -277,6 +277,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, isFailOnUnknownProperties());
         mapper.configure(MapperFeature.ACCEPT_CASE_INSENSITIVE_PROPERTIES, isCaseInsensitiveProperties());
         mapper.configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, false); // OpenL uses ENUMs names
+        mapper.configure(MapperFeature.ALLOW_EXPLICIT_PROPERTY_RENAMING, true);
 
         if (getDefaultDateFormat() != null) {
             mapper.setDateFormat(getDefaultDateFormat());

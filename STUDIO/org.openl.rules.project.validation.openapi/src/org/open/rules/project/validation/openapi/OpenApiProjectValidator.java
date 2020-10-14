@@ -217,7 +217,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         objectMapperFactoryBean.setClassLoader(context.getServiceClassLoader());
         try {
             ObjectMapper objectMapper = objectMapperFactoryBean.createJacksonObjectMapper();
-            return OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
+            OpenApiObjectMapperConfigurationHelper.configure(objectMapper);
+            return objectMapper;
         } catch (ClassNotFoundException e) { // Never happens
             throw new IllegalStateException("Failed to create an object mapper", e);
         }

@@ -4,8 +4,8 @@
     <serviceName>EPBDS-10026</serviceName>
     <configuration>
         <entry>
-            <string>jackson.spreadsheetResultCellNameResolver</string>
-            <string>org.openl.rules.serialization.UncapitalizeSpreadsheetResultCellNameResolver</string>
+            <string>jackson.propertyNamingStrategy</string>
+            <string>org.openl.rules.serialization.SpreadsheetResultBeanPropertyNamingStrategy$LowerCamelStrategy</string>
         </entry>
     </configuration>
 </rules-deploy>

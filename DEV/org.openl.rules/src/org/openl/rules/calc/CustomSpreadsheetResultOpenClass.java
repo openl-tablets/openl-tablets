@@ -11,6 +11,7 @@ import java.util.stream.IntStream;
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.objectweb.asm.Type;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -478,6 +479,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                             .withAdditionalConstructor(false)
                             .withEqualsHashCodeToStringMethods(false);
+                        beanClassBuilder.addClassAnnotationWriter(classWriter -> {
+                            classWriter.visitAnnotation(Type.getDescriptor(SpreadsheetResultBean.class), true)
+                                .visitEnd();
+                        });
                         TreeMap<String, String> xmlNames = new TreeMap<>(FIELD_COMPARATOR);
                         @SuppressWarnings("unchecked")
                         List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
