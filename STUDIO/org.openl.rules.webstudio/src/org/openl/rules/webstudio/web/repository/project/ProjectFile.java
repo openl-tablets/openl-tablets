@@ -46,10 +46,6 @@ public class ProjectFile {
         return tempFile;
     }
 
-    public void setTempFile(File tempFile) {
-        this.tempFile = tempFile;
-    }
-
     public long getSize() {
         return size;
     }

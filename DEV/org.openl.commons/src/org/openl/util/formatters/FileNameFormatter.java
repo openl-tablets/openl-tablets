@@ -6,6 +6,9 @@ public class FileNameFormatter {
 
     private static final Pattern BACK_SLASH_PATTERN = Pattern.compile("\\\\+");
 
+    private FileNameFormatter() {
+    }
+
     public static String normalizePath(String path) {
         return BACK_SLASH_PATTERN.matcher(path).replaceAll("/");
     }

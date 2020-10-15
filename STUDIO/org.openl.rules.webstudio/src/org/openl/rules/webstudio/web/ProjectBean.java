@@ -316,7 +316,7 @@ public class ProjectBean {
         toCheck.setRulesRootPath(new PathEntry(modulePath));
         boolean withWildcard = isModuleWithWildcard(toCheck);
         if (!withWildcard) {
-            WebStudioUtils.validate(StringUtils.isNotBlank(newName), "Cannot be empty");
+            WebStudioUtils.validate(StringUtils.isNotBlank(newName), CANNOT_BE_EMPTY_MESSAGE);
         }
 
         if (StringUtils.isBlank(oldName) // Add new Module
@@ -333,7 +333,7 @@ public class ProjectBean {
     // TODO Move messages to ValidationMessages.properties
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
         String path = (String) value;
-        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
 
         if (!(path.contains("*") || path.contains("?"))) {
             File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
@@ -343,7 +343,7 @@ public class ProjectBean {
 
     public void validateModulePathForCopy(FacesContext context, UIComponent toValidate, Object value) {
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
-        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
 
         WebStudioUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
         File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
