@@ -8,9 +8,10 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import org.openl.util.formatters.FileNameFormatter;
 
 /**
  * Pack a file to an output stream.
@@ -19,7 +20,6 @@ import java.util.zip.ZipOutputStream;
  */
 public final class ZipArchiver implements Closeable {
     private static final int BUFFER_SIZE = 64 * 1024;
-    private static final Pattern BACK_SLASH = Pattern.compile("\\\\+");
 
     private final ZipOutputStream zos;
     private final byte[] buffer = new byte[BUFFER_SIZE];
@@ -56,14 +56,14 @@ public final class ZipArchiver implements Closeable {
     }
 
     public void addFile(InputStream inputStream, String path) throws IOException {
-        String zipPath = normalize(path);
+        String zipPath = FileNameFormatter.normalizePath(path);
         ZipEntry entry = new ZipEntry(zipPath);
         zos.putNextEntry(entry);
         IOUtils.copy(inputStream, zos, buffer);
     }
 
     public void addFolder(String path) throws IOException {
-        String zipPath = normalize(path + File.separatorChar);
+        String zipPath = FileNameFormatter.normalizePath(path + File.separatorChar);
         ZipEntry entry = new ZipEntry(zipPath);
         zos.putNextEntry(entry);
     }
@@ -77,7 +77,4 @@ public final class ZipArchiver implements Closeable {
         zos.finish();
     }
 
-    private String normalize(String relativePath) {
-        return BACK_SLASH.matcher(relativePath).replaceAll("/");
-    }
 }

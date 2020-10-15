@@ -11,6 +11,7 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.formatters.FileNameFormatter;
 
 public class ProjectUploader {
     private final String projectName;
@@ -21,16 +22,24 @@ public class ProjectUploader {
     private final ZipCharsetDetector zipCharsetDetector;
     private final String comment;
     private final String repositoryId;
+    private final String modelsPath;
+    private final String algorithmsPath;
+    private final String modelsModuleName;
+    private final String algorithmsModuleName;
     private String createdProjectName;
 
     public ProjectUploader(String repositoryId,
-        ProjectFile uploadedFile,
-        String projectName,
-        String projectFolder,
-        UserWorkspace userWorkspace,
-        String comment,
-        PathFilter zipFilter,
-        ZipCharsetDetector zipCharsetDetector) {
+            ProjectFile uploadedFile,
+            String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
+            String comment,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector,
+            String modelsPath,
+            String algorithmsPath,
+            String modelsModuleName,
+            String algorithmsModuleName) {
         this.repositoryId = repositoryId;
         this.projectFolder = projectFolder;
         this.comment = comment;
@@ -41,16 +50,24 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
         this.zipFilter = zipFilter;
+        this.modelsPath = modelsPath;
+        this.algorithmsPath = algorithmsPath;
+        this.modelsModuleName = modelsModuleName;
+        this.algorithmsModuleName = algorithmsModuleName;
     }
 
     public ProjectUploader(String repositoryId,
-        List<ProjectFile> uploadedFiles,
-        String projectName,
-        String projectFolder,
-        UserWorkspace userWorkspace,
-        String comment,
-        PathFilter zipFilter,
-        ZipCharsetDetector zipCharsetDetector) {
+            List<ProjectFile> uploadedFiles,
+            String projectName,
+            String projectFolder,
+            UserWorkspace userWorkspace,
+            String comment,
+            PathFilter zipFilter,
+            ZipCharsetDetector zipCharsetDetector,
+            String modelsPath,
+            String algorithmsPath,
+            String modelsModuleName,
+            String algorithmsModuleName) {
         this.repositoryId = repositoryId;
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
@@ -59,6 +76,10 @@ public class ProjectUploader {
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
+        this.modelsPath = modelsPath;
+        this.algorithmsPath = algorithmsPath;
+        this.modelsModuleName = modelsModuleName;
+        this.algorithmsModuleName = algorithmsModuleName;
     }
 
     public String uploadProject() {
@@ -72,17 +93,22 @@ public class ProjectUploader {
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
                 String fileName = file.getName();
                 if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
-                    projectCreator = new OpenAPIProjectCreator(fileName,
-                        file.getInput(),
-                        file.getSize(),
+                    String normalizedAlgorithmPath = FileNameFormatter.normalizePath(algorithmsPath);
+                    String normalizedModelPath = FileNameFormatter.normalizePath(modelsPath);
+                    projectCreator = new OpenAPIProjectCreator(file,
                         repositoryId,
                         projectName,
                         projectFolder,
                         userWorkspace,
-                        comment);
+                        comment,
+                        normalizedModelPath,
+                        normalizedAlgorithmPath,
+                        modelsModuleName,
+                        algorithmsModuleName);
                 } else if (FileTypeHelper.isZipFile(fileName)) {
                     // Create project creator for the single zip file
-                    projectCreator = new ZipFileProjectCreator(repositoryId, fileName,
+                    projectCreator = new ZipFileProjectCreator(repositoryId,
+                        fileName,
                         file.getInput(),
                         projectName,
                         projectFolder,
@@ -91,7 +117,8 @@ public class ProjectUploader {
                         zipFilter,
                         zipCharsetDetector);
                 } else {
-                    projectCreator = new ExcelFilesProjectCreator(repositoryId, projectName,
+                    projectCreator = new ExcelFilesProjectCreator(repositoryId,
+                        projectName,
                         projectFolder,
                         userWorkspace,
                         comment,

@@ -5,6 +5,8 @@ import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
 import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
+import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_ALGORITHMS_PATH;
+import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_MODELS_PATH;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
@@ -50,6 +52,7 @@ import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
 import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -195,6 +198,11 @@ public class RepositoryTreeController {
     private String eraseProjectComment;
     private String filterRepositoryId;
     private boolean eraseFromRepository;
+
+    private String modelsModuleName = "Models";
+    private String algorithmsModuleName = "Algorithms";
+    private String modelsPath = DEFAULT_MODELS_PATH;
+    private String algorithmsPath = DEFAULT_ALGORITHMS_PATH;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -365,10 +373,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             return !getDependencies(newVersion, false).isEmpty();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -401,10 +406,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -438,7 +440,8 @@ public class RepositoryTreeController {
         String repoId = project.getRepository().getId();
         for (ProjectDependencyDescriptor dependency : dependencies) {
             try {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId, dependency.getName());
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId,
+                    dependency.getName());
                 if (projectNode == null) {
                     continue;
                 }
@@ -575,7 +578,8 @@ public class RepositoryTreeController {
             return null;
         }
 
-        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(repositoryId, projectName,
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(repositoryId,
+            projectName,
             projectFolder,
             userWorkspace,
             comment,
@@ -761,6 +765,16 @@ public class RepositoryTreeController {
                 return;
             } finally {
                 IOUtils.closeQuietly(content);
+            }
+            OpenAPI openAPI = projectDescriptor.getOpenapi();
+            final FileData fileData = aProjectArtefact.getFileData();
+            if (openAPI != null && fileData != null) {
+                final String name = fileData.getName();
+                final String rootName = projectDescriptor.getName();
+                String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
+                if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
+                    openAPI.setPath(null);
+                }
             }
             for (String modulePath : modulePaths) {
                 projectDescriptor.getModules()
@@ -982,8 +996,9 @@ public class RepositoryTreeController {
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
                         try {
-                            LocalRepository repository = localWorkspaceManager.getWorkspace(new WorkspaceUserImpl(
-                                userName)).getRepository(repoId);
+                            LocalRepository repository = localWorkspaceManager
+                                .getWorkspace(new WorkspaceUserImpl(userName))
+                                .getRepository(repoId);
                             repository.initialize();
 
                             ProjectState projectState = repository.getProjectState(businessName);
@@ -992,7 +1007,8 @@ public class RepositoryTreeController {
                             String savedBranch = savedData == null ? null : savedData.getBranch();
 
                             if (savedRepoId != null && savedRepoId.equals(repoId)) {
-                                if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
+                                if (branch == null && savedBranch == null || branch != null && branch
+                                    .equals(savedBranch)) {
                                     FileData fileData = new FileData();
                                     fileData.setName(businessName);
                                     repository.delete(fileData);
@@ -1045,7 +1061,8 @@ public class RepositoryTreeController {
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository(project.getRepository().getId());
+                Repository mainRepo = userWorkspace.getDesignTimeRepository()
+                    .getRepository(project.getRepository().getId());
                 if (project instanceof RulesProject && isDeleteBranch(project)) {
                     // Delete secondary branch
                     ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
@@ -1104,7 +1121,8 @@ public class RepositoryTreeController {
         }
 
         Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository(project.getRepository().getId());
-        return mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch());
+        return mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
+            .equals(project.getBranch());
     }
 
     public String exportProjectVersion() {
@@ -1115,10 +1133,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
             String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
             zipFileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
@@ -1151,10 +1166,7 @@ public class RepositoryTreeController {
             Repository repository = selectedProject.getDesignRepository();
             String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProjectByPath(repository.getId(),
-                    branch,
-                    selectedProject.getRealPath(),
-                    version);
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
             ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1228,10 +1240,7 @@ public class RepositoryTreeController {
                 Repository repository = selectedProject.getDesignRepository();
                 String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 forExport = userWorkspace.getDesignTimeRepository()
-                    .getProjectByPath(repositoryId,
-                        branch,
-                        selectedProject.getRealPath(),
-                        version);
+                    .getProjectByPath(repositoryId, branch, selectedProject.getRealPath(), version);
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
                 ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
@@ -1463,7 +1472,8 @@ public class RepositoryTreeController {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
             if (userWorkspace.isOpenedOtherProject(repositoryProject)) {
                 WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
-                // To avoid unnecessary request for the version when it's not needed (from getHasDependenciesForVersion())
+                // To avoid unnecessary request for the version when it's not needed (from
+                // getHasDependenciesForVersion())
                 version = null;
                 return null;
             }
@@ -1519,7 +1529,8 @@ public class RepositoryTreeController {
 
     private void selectProject(String projectName, TreeRepository root) {
         for (TreeNode node : root.getChildNodes()) {
-            if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
+            if (node.getData().getName().equals(projectName) && repositoryId
+                .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 break;
             }
@@ -1538,7 +1549,8 @@ public class RepositoryTreeController {
         // Find first found project with a given business name in current repository in any path.
         for (TreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
             RulesProject project = (RulesProject) node.getData();
-            if (project.getBusinessName().equals(businessName) && repositoryId.equals(project.getRepository().getId())) {
+            if (project.getBusinessName().equals(businessName) && repositoryId
+                .equals(project.getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 break;
             }
@@ -1651,12 +1663,13 @@ public class RepositoryTreeController {
     }
 
     private CommentValidator getDesignCommentValidator(String repositoryId) {
-        return StringUtils.isEmpty(repositoryId) ? CommentValidator.forRepo("") : CommentValidator.forRepo(repositoryId);
+        return StringUtils.isEmpty(repositoryId) ? CommentValidator.forRepo("")
+                                                 : CommentValidator.forRepo(repositoryId);
     }
 
     private Comments getDesignRepoComments() {
         return StringUtils.isEmpty(repositoryId) ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
-                                    : new Comments(propertyResolver, repositoryId);
+                                                 : new Comments(propertyResolver, repositoryId);
     }
 
     public void setNewProjectName(String newProjectName) {
@@ -1775,13 +1788,18 @@ public class RepositoryTreeController {
         } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(repositoryId, uploadedFiles,
+            errorMessage = new ProjectUploader(repositoryId,
+                uploadedFiles,
                 projectName,
                 projectFolder,
                 userWorkspace,
                 comment,
                 zipFilter,
-                zipCharsetDetector).uploadProject();
+                zipCharsetDetector,
+                modelsPath,
+                algorithmsPath,
+                modelsModuleName,
+                algorithmsModuleName).uploadProject();
             if (errorMessage != null) {
                 WebStudioUtils.addErrorMessage(errorMessage);
             } else {
@@ -1924,13 +1942,18 @@ public class RepositoryTreeController {
                     comment = getDesignRepoComments().createProject(projectName);
                 }
 
-                ProjectUploader projectUploader = new ProjectUploader(repositoryId, uploadedItem,
+                ProjectUploader projectUploader = new ProjectUploader(repositoryId,
+                    uploadedItem,
                     projectName,
                     projectFolder,
                     userWorkspace,
                     comment,
                     zipFilter,
-                    zipCharsetDetector);
+                    zipCharsetDetector,
+                    modelsPath,
+                    algorithmsPath,
+                    modelsModuleName,
+                    algorithmsModuleName);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
@@ -2043,8 +2066,7 @@ public class RepositoryTreeController {
      * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration
      * tab).
      *
-     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen()}
-     *         is invoked
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen()} is invoked
      */
     public boolean isCurrentProjectSelected() {
         AProject selectedProject = getSelectedProject();
@@ -2103,8 +2125,11 @@ public class RepositoryTreeController {
     }
 
     public List<Repository> getNonFlatRepositories() {
-        return userWorkspace.getDesignTimeRepository().getRepositories().stream().filter(r -> r.supports().mappedFolders()).collect(
-            Collectors.toList());
+        return userWorkspace.getDesignTimeRepository()
+            .getRepositories()
+            .stream()
+            .filter(r -> r.supports().mappedFolders())
+            .collect(Collectors.toList());
     }
 
     @Deprecated
@@ -2176,7 +2201,8 @@ public class RepositoryTreeController {
 
     public void validateProjectForBranch(FacesContext context, UIComponent toValidate, Object value) {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-        if (!(selectedProject instanceof RulesProject) || !isSupportsBranches(selectedProject.getRepository().getId())) {
+        if (!(selectedProject instanceof RulesProject) || !isSupportsBranches(
+            selectedProject.getRepository().getId())) {
             return;
         }
         String branch = (String) value;
@@ -2198,8 +2224,8 @@ public class RepositoryTreeController {
                 return Collections.emptyList();
             }
 
-            List<String> branches = new ArrayList<>(
-                ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository(selectedProject.getRepository().getId()))
+            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository(selectedProject.getRepository().getId()))
                     .getBranches(((RulesProject) selectedProject).getDesignFolderName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
@@ -2262,8 +2288,8 @@ public class RepositoryTreeController {
         if (StringUtils.isEmpty(repositoryId)) {
             return false;
         }
-        return Boolean
-            .parseBoolean(propertyResolver.getProperty("repository." + repositoryId + ".comment-template.use-custom-comments"));
+        return Boolean.parseBoolean(
+            propertyResolver.getProperty("repository." + repositoryId + ".comment-template.use-custom-comments"));
     }
 
     /**
@@ -2463,5 +2489,37 @@ public class RepositoryTreeController {
 
     public void setEraseFromRepository(boolean eraseFromRepository) {
         this.eraseFromRepository = eraseFromRepository;
+    }
+
+    public void setModelsModuleName(String modelsModuleName) {
+        this.modelsModuleName = modelsModuleName;
+    }
+
+    public String getModelsModuleName() {
+        return modelsModuleName;
+    }
+
+    public String getAlgorithmsModuleName() {
+        return algorithmsModuleName;
+    }
+
+    public void setAlgorithmsModuleName(String algorithmsModuleName) {
+        this.algorithmsModuleName = algorithmsModuleName;
+    }
+
+    public String getModelsPath() {
+        return modelsPath;
+    }
+
+    public void setModelsPath(String modelsPath) {
+        this.modelsPath = modelsPath;
+    }
+
+    public String getAlgorithmsPath() {
+        return algorithmsPath;
+    }
+
+    public void setAlgorithmsPath(String algorithmsPath) {
+        this.algorithmsPath = algorithmsPath;
     }
 }
