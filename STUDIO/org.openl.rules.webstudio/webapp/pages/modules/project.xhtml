@@ -590,23 +590,57 @@
             <h:form prependId="false" id="manageOpenAPIForm">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel styleClass="required" for="openAPIPath" value="OpenAPI file path:"/>
-                    <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPI.path}"/>
+                    <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPIPath}"
+                                 validator="#{projectBean.validateOpenAPIPath}"/>
                     <h:outputLabel styleClass="required" for="openAPIAlgorithmModuleName"
                                    value="Module Name for Rules:"/>
                     <h:inputText id="openAPIAlgorithmModuleName" size="35" maxlength="70"
-                                 value="#{projectBean.openAPI.algorithmModuleName}"/>
+                                 value="#{projectBean.algorithmModuleName}"
+                                 validator="#{projectBean.validateAlgorithmModuleName}"/>
                     <h:outputLabel styleClass="required" for="openAPIModelModuleName"
                                    value="Module Name for Data Types:"/>
                     <h:inputText id="openAPIModelModuleName" size="35" maxlength="70"
-                                 value="#{projectBean.openAPI.modelModuleName}"/>
+                                 value="#{projectBean.modelModuleName}"
+                                 validator="#{projectBean.validateModelModuleName}"/>
                 </h:panelGrid>
+                <a4j:outputPanel ajaxRendered="true">
+                    <h:message for="openAPIPath" styleClass="error"/><br/>
+                    <h:message for="openAPIAlgorithmModuleName" styleClass="error"/><br/>
+                    <h:message for="openAPIModelModuleName" styleClass="error"/>
+                </a4j:outputPanel>
                 <footer>
                     <a4j:commandButton id="editOpenAPIBtn" value="Save" action="#{projectBean.editOpenAPI}"
                                        styleClass="button-primary"
-                                       oncomplete="ws.ui.hide('manageOpenAPIPopup');ws.nav.reload()"/>
+                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('manageOpenAPIPopup');ws.nav.reload();}"/>
+                    <a4j:commandButton id="regenerateOpenAPIBtn" value="Save and regenerate"
+                                       action="#{projectBean.tryToRegenerateOpenAPI}"
+                                       styleClass="button-primary"
+                                       oncomplete="if(!#{facesContext.validationFailed}){onOpenAPIEditComplete();}"/>
                     <input type="button" value="Cancel" onclick="ws.ui.hide('manageOpenAPIPopup');"/>
                 </footer>
             </h:form>
+
+            <rich:popupPanel id="confirmOpenAPIRegenerationPopup" minWidth="340" autosized="true">
+                <f:facet name="header">
+                    <h:outputText value="OpenAPI file replacement confirmation."/>
+                </f:facet>
+                <f:facet name="controls">
+                    <h:graphicImage value="/images/close.gif" class="close"
+                                    onclick="ws.ui.hide('confirmOpenAPIRegenerationPopup')" alt="Close"/>
+                </f:facet>
+                <h:form prependId="false" id="openAPIRegenerationForm">
+                    <h:panelGrid columns="1" styleClass="formfields">
+                        <h:outputText value="OpenAPI generated files already exist. Do you want to override them?"/>
+                    </h:panelGrid>
+                    <footer>
+                        <a4j:commandButton id="sumbitOpenAPIRegeneration" value="Yes"
+                                           action="#{projectBean.regenerateOpenAPI}"
+                                           styleClass="button-primary"
+                                           oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('confirmOpenAPIRegenerationPopup');ws.nav.reload();}"/>
+                        <input type="button" value="No" onclick="ws.ui.hide('confirmOpenAPIRegenerationPopup');"/>
+                    </footer>
+                </h:form>
+            </rich:popupPanel>
         </rich:popupPanel>
 
         <script>
@@ -624,6 +658,15 @@
             var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
             var initSupportedVersion = $j("#supportedVersion").val();
+
+            function initOpenAPIValues() {
+                const initialOpenAPIPath = $j("#openAPIPath").val();
+                const initialModelModuleName = $j("#openAPIModelModuleName").val();
+                const initialAlgorithmsModuleName = $j("#openAPIAlgorithmModuleName").val();
+                return {initialOpenAPIPath, initialModelModuleName, initialAlgorithmsModuleName};
+            }
+
+            const {initialOpenAPIPath, initialModelModuleName, initialAlgorithmsModuleName} = initOpenAPIValues();
 
             function onPropertiesFileNameProcessorCheckboxClick() {
                 $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'))
@@ -750,7 +793,30 @@
                 if (!canOverwriteRevision()) {
                     return false;
                 }
+                const editBtn = $j("#editOpenAPIBtn");
+                const editAndRegenerateBtn = $j("#regenerateOpenAPIBtn");
+
+                editBtn.prop("disabled", true);
+                editAndRegenerateBtn.prop("disabled", true);
+
+                $j("#openAPIPath").val(initialOpenAPIPath);
+                $j("#openAPIModelModuleName").val(initialModelModuleName);
+                $j("#openAPIAlgorithmModuleName").val(initialAlgorithmsModuleName);
+
                 ws.ui.show("manageOpenAPIPopup");
+
+                $j("#openAPIPath, #openAPIModelModuleName, #openAPIAlgorithmModuleName").on("keyup", function () {
+                    let openAPIPathVal = $j("#openAPIPath").val();
+                    let modelModuleVal = $j("#openAPIModelModuleName").val();
+                    let algoModuleNameVal = $j("#openAPIAlgorithmModuleName").val();
+                    let valueNotChanged = openAPIPathVal === initialOpenAPIPath
+                        && modelModuleVal === initialModelModuleName
+                        && algoModuleNameVal === initialAlgorithmsModuleName;
+                    let isEmpty = !openAPIPathVal || !modelModuleVal || !algoModuleNameVal;
+                    let isInvalid = valueNotChanged || isEmpty;
+                    editBtn.prop("disabled", isInvalid);
+                    editAndRegenerateBtn.prop("disabled", isInvalid);
+                })
 
             }
 
@@ -769,6 +835,25 @@
             function canOverwriteRevision() {
                 var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
                 return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+            }
+
+            function openAPIGeneratedFilesAreExist() {
+                let filesExist = #{projectBean.openAPIGeneratedFilesExist};
+                return !filesExist || confirm("Do you want to override existing files?")
+            }
+
+            function showRegenerationConfirmationDialog() {
+                if (!canOverwriteRevision()) {
+                    return false;
+                }
+                ws.ui.show("confirmOpenAPIRegenerationPopup");
+            }
+
+            function onOpenAPIEditComplete(validationProceeded) {
+                ws.ui.hide('manageOpenAPIPopup');
+                if (openAPIGeneratedFilesAreExist()) {
+                    showRegenerationConfirmationDialog();
+                }
             }
 
             $j(function () {

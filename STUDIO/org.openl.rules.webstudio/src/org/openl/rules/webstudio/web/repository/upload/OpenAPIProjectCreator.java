@@ -75,6 +75,20 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (StringUtils.isBlank(modelsPath)) {
             throw new ProjectException("Error creating the project, path for module with Data Types is not provided.");
         }
+        if (modelsPath.startsWith("/")) {
+            throw new ProjectException("Path for Data Types cannot start with '/'");
+        }
+        if (algorithmsPath.startsWith("/")) {
+            throw new ProjectException("Path for Rules cannot start with '/'");
+        }
+
+        if (modelsPath.endsWith("/")) {
+            modelsPath = modelsPath.substring(0, modelsPath.length() - 1);
+        }
+
+        if (algorithmsPath.endsWith("/")) {
+            algorithmsPath = algorithmsPath.substring(0, algorithmsPath.length() - 1);
+        }
 
         if (StringUtils.isBlank(algorithmsModuleName)) {
             throw new ProjectException("Error creating the project, module name for Rules is not provided.");

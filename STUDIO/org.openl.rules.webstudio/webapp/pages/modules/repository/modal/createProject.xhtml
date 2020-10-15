@@ -341,19 +341,23 @@
                         <h:outputLabel styleClass="required" for="modelsModuleName"
                                        value="Module Name for Data Types:"/>
                         <h:inputText id="modelsModuleName" size="35" maxlength="70"
-                                     value="#{repositoryTreeController.modelsModuleName}"/>
-                        <h:outputLabel styleClass="required" for="modelsFileName"
+                                     value="#{repositoryTreeController.modelsModuleName}"
+                                     onkeyup="checkCreateOnOpenApiPanel();"/>
+                        <h:outputLabel styleClass="required" for="modelsFilePath"
                                        value="Path for Module with Data Types:"/>
-                        <h:inputText id="modelsFileName" size="35" maxlength="70"
-                                     value="#{repositoryTreeController.modelsPath}"/>
+                        <h:inputText id="modelsFilePath" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.modelsPath}"
+                                     onkeyup="checkCreateOnOpenApiPanel();"/>
                         <h:outputLabel styleClass="required" for="algorithmsModuleName"
                                        value="Module Name for Rules:"/>
                         <h:inputText id="algorithmsModuleName" size="35" maxlength="70"
-                                     value="#{repositoryTreeController.algorithmsModuleName}"/>
-                        <h:outputLabel styleClass="required" for="algorithmsFileName"
+                                     value="#{repositoryTreeController.algorithmsModuleName}"
+                                     onkeyup="checkCreateOnOpenApiPanel();"/>
+                        <h:outputLabel styleClass="required" for="algorithmsFilePath"
                                        value="Path for Module with Rules:"/>
-                        <h:inputText id="algorithmsFileName" size="35" maxlength="70"
-                                     value="#{repositoryTreeController.algorithmsPath}"/>
+                        <h:inputText id="algorithmsFilePath" size="35" maxlength="70"
+                                     value="#{repositoryTreeController.algorithmsPath}"
+                                     onkeyup="checkCreateOnOpenApiPanel();"/>
                     </h:panelGrid>
                     <h:panelGrid id="openApiPanel" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -538,7 +542,7 @@
                                 render="createProjectFormTempl createProjectFormFiles uploadProjectForm openAPIProjectForm uploadWorkspaceProjectForm importFromRepoForm"
                                 oncomplete="showNewProjectDialog()"/>
 
-                <a4j:jsFunction name="clearFiles" render="openAPIProjectForm">
+                <a4j:jsFunction name="clearFiles">
                     <a4j:param name="fileNames" assignTo="#{repositoryTreeController.fileNamesToRemove}"/>
                 </a4j:jsFunction>
             </h:form>
@@ -644,7 +648,7 @@
             selectedTemplate.addClass("row-selected");
 
             $j("#createProjectFormTempl\\:projectTemplate").val(selectedTemplate.find("input").val());
-            var projectNameInput = $j("#createProjectFormTempl\\:projectName");
+            let projectNameInput = $j("#createProjectFormTempl\\:projectName");
             projectNameInput.val(selectedTemplate.find("span").text());
             projectNameInput.trigger("change");
         }
@@ -694,9 +698,9 @@
             clearFields();
         }
 
-        var excelFileUploaded = false;
-        var zipFileUploaded = false;
-        var openApiFileUploaded = false;
+        let excelFileUploaded = false;
+        let zipFileUploaded = false;
+        let openApiFileUploaded = false;
         var checkedCount = 0;
 
         function checkCreateOnTemplatePanel() {
@@ -723,8 +727,34 @@
             }
         }
 
+        function getOpenAPIProjectName() {
+            return $j("#openAPIProjectForm\\:projectName");
+        }
+
+        function getOpenAPIRepository() {
+            return $j("#openAPIProjectForm\\:repositoryOpenAPI");
+        }
+
+        function getOpenAPIModelsModuleName() {
+            return $j("#openAPIProjectForm\\:modelsModuleName");
+        }
+
+        function getOpenAPIAlgorithmsModuleName() {
+            return $j("#openAPIProjectForm\\:algorithmsModuleName");
+        }
+
+        function getOpenAPIModelsFilePath() {
+            return $j("#openAPIProjectForm\\:modelsFilePath");
+        }
+
+        function getOpenAPIAlgorithmsFilePath() {
+            return $j("#openAPIProjectForm\\:algorithmsFilePath");
+        }
+
         function checkCreateOnOpenApiPanel() {
-            if (openApiFileUploaded && $j("#openAPIProjectForm\\:projectName").val() && $j("#openAPIProjectForm\\:repositoryOpenAPI").val() !== "none") {
+            let namesAreDefined = getOpenAPIModelsModuleName().val() && getOpenAPIAlgorithmsModuleName().val();
+            let pathsAreDefined = getOpenAPIModelsFilePath().val() && getOpenAPIAlgorithmsFilePath().val();
+            if (openApiFileUploaded && getOpenAPIProjectName().val() && namesAreDefined && pathsAreDefined && getOpenAPIRepository().val() !== "none") {
                 enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
             } else {
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});

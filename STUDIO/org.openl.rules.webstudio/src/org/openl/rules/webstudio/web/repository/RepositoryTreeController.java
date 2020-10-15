@@ -5,6 +5,8 @@ import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
 import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
+import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_ALGORITHMS_PATH;
+import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_MODELS_PATH;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
@@ -199,8 +201,8 @@ public class RepositoryTreeController {
 
     private String modelsModuleName = "Models";
     private String algorithmsModuleName = "Algorithms";
-    private String modelsPath = "rules/Models.xlsx";
-    private String algorithmsPath = "rules/Algorithms.xlsx";
+    private String modelsPath = DEFAULT_MODELS_PATH;
+    private String algorithmsPath = DEFAULT_ALGORITHMS_PATH;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -765,9 +767,12 @@ public class RepositoryTreeController {
                 IOUtils.closeQuietly(content);
             }
             OpenAPI openAPI = projectDescriptor.getOpenapi();
-            if (openAPI != null) {
-                String fileName = FileUtils.getName(aProjectArtefact.getFileData().getName());
-                if (openAPI.getPath() != null && fileName.equals(openAPI.getPath())) {
+            final FileData fileData = aProjectArtefact.getFileData();
+            if (openAPI != null && fileData != null) {
+                final String name = fileData.getName();
+                final String rootName = projectDescriptor.getName();
+                String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
+                if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
                     openAPI.setPath(null);
                 }
             }
