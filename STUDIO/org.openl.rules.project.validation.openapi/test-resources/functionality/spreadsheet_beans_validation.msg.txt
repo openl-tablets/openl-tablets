@@ -1,3 +1,3 @@
 ERROR: OpenAPI Reconciliation: Type of cell '$Value$CapitalAdequacy' must be compatible with OpenAPI type 'string' that incompatible with actual type 'number(double)'.
-ERROR: OpenAPI Reconciliation: Unexpected cell '$Description$QuickRatioScore' is found.
+ERROR: OpenAPI Reconciliation: Unexpected schema property 'Description_QuickRatioScore' related to cell '$Description$QuickRatioScore' is found.
 ERROR: OpenAPI Reconciliation: Expected non transient cell for schema property 'Description_QuickRatioScore_Renamed' is not found.

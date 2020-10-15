@@ -1,1 +1,1 @@
-ERROR: OpenAPI Reconciliation: Unexpected cell '$Step7' is found.
+OpenAPI Reconciliation: Unexpected schema property 'Step7' related to cell '$Step7' is found.

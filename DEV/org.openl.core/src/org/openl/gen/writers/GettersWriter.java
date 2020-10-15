@@ -1,6 +1,7 @@
 package org.openl.gen.writers;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
@@ -62,6 +63,13 @@ public class GettersWriter extends DefaultBeanByteCodeWriter {
         if (fieldDescription.isTransient()) {
             methodVisitor.visitAnnotation("Ljavax/xml/bind/annotation/XmlTransient;", true).visitEnd();
         }
+
+        if (fieldDescription.getGetterVisitorWriters() != null) {
+            for (Consumer<MethodVisitor> methodVisitorConsumer : fieldDescription.getGetterVisitorWriters()) {
+                methodVisitorConsumer.accept(methodVisitor);
+            }
+        }
+
     }
 
 }

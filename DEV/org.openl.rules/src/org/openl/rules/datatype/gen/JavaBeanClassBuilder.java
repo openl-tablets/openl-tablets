@@ -24,7 +24,7 @@ public class JavaBeanClassBuilder {
     protected boolean additionalConstructor = true;
     protected boolean publicFields = false;
     protected boolean equalsHashCodeToStringMethods = true;
-    protected LinkedHashSet<Consumer<ClassWriter>> classAnnotationWriters = new LinkedHashSet<>();
+    protected LinkedHashSet<Consumer<ClassWriter>> typeWriters = new LinkedHashSet<>();
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');
@@ -49,9 +49,9 @@ public class JavaBeanClassBuilder {
         return this;
     }
 
-    public JavaBeanClassBuilder addClassAnnotationWriter(Consumer<ClassWriter> writer) {
+    public JavaBeanClassBuilder writeToType(Consumer<ClassWriter> writer) {
         if (writer != null) {
-            classAnnotationWriters.add(writer);
+            typeWriters.add(writer);
         }
         return this;
     }
@@ -107,7 +107,7 @@ public class JavaBeanClassBuilder {
         return new POJOByteCodeGenerator(beanName,
             fields,
             parentType,
-            parentFields, classAnnotationWriters,
+            parentFields, typeWriters,
             additionalConstructor,
             equalsHashCodeToStringMethods,
             publicFields).byteCode();

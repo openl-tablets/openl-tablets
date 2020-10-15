@@ -45,7 +45,7 @@ public class POJOByteCodeGenerator {
     private final Map<String, FieldDescription> parentFields;
     private final List<BeanByteCodeWriter> writers;
     private final boolean publicFields;
-    private final Set<Consumer<ClassWriter>> classAnnotationWriters;
+    private final Set<Consumer<ClassWriter>> typeWriters;
 
     /**
      *
@@ -58,7 +58,7 @@ public class POJOByteCodeGenerator {
             Map<String, FieldDescription> beanFields,
             TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
-            Set<Consumer<ClassWriter>> classAnnotationWriters,
+            Set<Consumer<ClassWriter>> typeWriters,
             boolean additionalConstructor,
             boolean equalsHashCodeToStringMethods,
             boolean publicFields) {
@@ -68,8 +68,7 @@ public class POJOByteCodeGenerator {
         this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : Collections.emptyMap();
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.publicFields = publicFields;
-        this.classAnnotationWriters = classAnnotationWriters != null ? new LinkedHashSet<>(classAnnotationWriters)
-                                                                     : Collections.emptySet();
+        this.typeWriters = typeWriters != null ? new LinkedHashSet<>(typeWriters) : Collections.emptySet();
 
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(this.parentFields);
@@ -123,8 +122,8 @@ public class POJOByteCodeGenerator {
         return new String[] { "java/io/Serializable" };
     }
 
-    private void visitClassAnnotationWriters(ClassWriter classWriter) {
-        for (Consumer<ClassWriter> writer : classAnnotationWriters) {
+    private void visitTypeWriters(ClassWriter classWriter) {
+        for (Consumer<ClassWriter> writer : typeWriters) {
             writer.accept(classWriter);
         }
     }
@@ -205,6 +204,7 @@ public class POJOByteCodeGenerator {
     }
 
     private void visitFields(ClassWriter classWriter) {
+        int i = 0;
         for (Map.Entry<String, FieldDescription> field : fields.entrySet()) {
             String fieldTypeName = field.getValue().getTypeDescriptor();
             int acc = (publicFields ? Opcodes.ACC_PUBLIC
@@ -215,8 +215,24 @@ public class POJOByteCodeGenerator {
             if (field.getValue().isContextProperty()) {
                 visitOpenLContextAnnotation(field.getValue().getContextPropertyName(), fieldVisitor);
             }
+
+            if (field.getValue().getFieldVisitorWriters() != null) {
+                for (Consumer<FieldVisitor> fieldVisitorConsumer : field.getValue().getFieldVisitorWriters()) {
+                    fieldVisitorConsumer.accept(fieldVisitor);
+                }
+            }
+
             visitJAXBAnnotationsOnField(fieldVisitor, field.getKey(), field.getValue(), fieldTypeName);
+            visitFieldVisitor(fieldVisitor, field.getKey(), field.getValue(), fieldTypeName, i);
+            i++;
         }
+    }
+
+    protected void visitFieldVisitor(FieldVisitor fieldVisitor,
+            String fieldName,
+            FieldDescription field,
+            String javaType,
+            int index) {
     }
 
     private void visitOpenLContextAnnotation(String fieldName, FieldVisitor fieldVisitor) {
@@ -253,7 +269,7 @@ public class POJOByteCodeGenerator {
 
         visitJAXBAnnotations(classWriter);
 
-        visitClassAnnotationWriters(classWriter);
+        visitTypeWriters(classWriter);
 
         visitFields(classWriter);
 
