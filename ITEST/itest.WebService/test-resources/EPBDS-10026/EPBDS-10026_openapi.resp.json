@@ -81,79 +81,6 @@
         }
       }
     },
-    "/arrSpreadsheetResultspr1": {
-      "post": {
-        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrSpreadsheetResultspr1",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Spr1"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/arrSpreadsheetResult": {
       "post": {
         "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
@@ -300,11 +227,11 @@
         }
       }
     },
-    "/mySpr2": {
+    "/arrSpreadsheetResultspr1": {
       "post": {
-        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResultspr1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -362,7 +289,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MySpr2"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Spr1"
+                  }
                 }
               }
             }
@@ -439,6 +369,76 @@
           }
         }
       }
+    },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr2"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -471,141 +471,141 @@
       "AnySpreadsheetResult": {
         "type": "object",
         "properties": {
-          "value3_step3": {
+          "value3Step3": {
             "type": "number",
             "format": "double"
           },
-          "value4_step3": {
+          "value4Step3": {
             "type": "number",
             "format": "double"
           },
-          "value_step3": {
+          "valueStep3": {
             "type": "array",
             "items": {
               "type": "number",
               "format": "double"
             }
           },
-          "value3_step4": {
+          "value3Step4": {
             "type": "number",
             "format": "double"
           },
-          "value4_step4": {
+          "value4Step4": {
             "type": "number",
             "format": "double"
           },
-          "value_step4": {
+          "valueStep4": {
             "type": "object"
           },
-          "value1_step1": {
+          "value1Step1": {
             "type": "number",
             "format": "double"
           },
-          "value2_step1": {
+          "value2Step1": {
             "type": "number",
             "format": "double"
           },
-          "value_step1": {
+          "valueStep1": {
             "type": "object"
           },
-          "value1_step2": {
+          "value1Step2": {
             "type": "number",
             "format": "double"
           },
-          "value2_step2": {
+          "value2Step2": {
             "type": "number",
             "format": "double"
           },
-          "value_step2": {
+          "valueStep2": {
             "$ref": "#/components/schemas/AnySpreadsheetResult"
           },
-          "value_step5": {
+          "valueStep5": {
             "type": "object"
           },
-          "value_step6": {
+          "valueStep6": {
             "type": "object"
           },
-          "value_step7": {
+          "valueStep7": {
             "type": "object"
           },
-          "value_step8": {
+          "valueStep8": {
             "type": "object"
           },
-          "value_step9": {
+          "valueStep9": {
             "type": "object"
           },
-          "value_step10": {
+          "valueStep10": {
             "type": "object"
           },
-          "value_step11": {
+          "valueStep11": {
             "type": "object"
           },
-          "value_step13": {
+          "valueStep13": {
             "type": "object"
           },
-          "value_step14": {
+          "valueStep14": {
             "type": "object"
           },
-          "value_step15": {
+          "valueStep15": {
             "type": "object"
           },
-          "value_step16": {
+          "valueStep16": {
             "type": "object"
           },
-          "value_step17": {
+          "valueStep17": {
             "type": "object"
           },
-          "value_step18": {
+          "valueStep18": {
             "type": "object"
           },
-          "value_step19": {
+          "valueStep19": {
             "type": "object"
           },
-          "value_step20": {
+          "valueStep20": {
             "$ref": "#/components/schemas/AnySpreadsheetResult"
           },
-          "value_step21": {
+          "valueStep21": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AnySpreadsheetResult"
             }
           },
-          "value_step22": {
+          "valueStep22": {
             "type": "array",
             "items": {
               "type": "object"
             }
           },
-          "value_step23": {
+          "valueStep23": {
             "type": "array",
             "items": {
               "type": "object"
             }
           },
-          "value_aAA": {
+          "valueAAA": {
             "type": "number",
             "format": "double"
           },
-          "value_step0": {
+          "valueStep0": {
             "type": "number",
             "format": "double"
           },
-          "value_step12": {
+          "valueStep12": {
             "type": "boolean"
           },
-          "rowNames": {
+          "RowNames": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "columnNames": {
+          "ColumnNames": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "tableDetails": {
+          "TableDetails": {
             "type": "array",
             "items": {
               "type": "array",
@@ -749,19 +749,19 @@
             "type": "number",
             "format": "double"
           },
-          "rowNames": {
+          "RowNames": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "columnNames": {
+          "ColumnNames": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
-          "tableDetails": {
+          "TableDetails": {
             "type": "array",
             "items": {
               "type": "array",
@@ -1250,43 +1250,6 @@
           }
         }
       },
-      "MySpr2": {
-        "type": "object",
-        "properties": {
-          "value3_step3": {
-            "type": "number",
-            "format": "double"
-          },
-          "value4_step3": {
-            "type": "number",
-            "format": "double"
-          },
-          "value3_step4": {
-            "type": "number",
-            "format": "double"
-          },
-          "value4_step4": {
-            "type": "number",
-            "format": "double"
-          },
-          "value1_step1": {
-            "type": "number",
-            "format": "double"
-          },
-          "value2_step1": {
-            "type": "number",
-            "format": "double"
-          },
-          "value1_step2": {
-            "type": "number",
-            "format": "double"
-          },
-          "value2_step2": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
       "MySpr": {
         "type": "object",
         "properties": {
@@ -1295,6 +1258,43 @@
             "format": "double"
           },
           "step2": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MySpr2": {
+        "type": "object",
+        "properties": {
+          "value3Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4Step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value3Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4Step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2Step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1Step2": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2Step2": {
             "type": "number",
             "format": "double"
           }
