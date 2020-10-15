@@ -9,7 +9,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-public final class OpenApiValidatorTest {
+public final class OpenApiProjectValidatorTest {
 
     public static final String DIR = "test-resources/functionality/";
     private Locale defaultLocale;

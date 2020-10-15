@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Shareable, file based locking system.
- * 
+ *
  * @author Yury Molchan
  */
 public class Lock {
@@ -104,6 +104,7 @@ public class Lock {
         // Time to wait while it's unlocked by somebody
         long timeToWait = timeToLive / 10;
         boolean result = tryLock(lockedBy, timeToWait, unit);
+        Instant deadline = Instant.now().plus(timeToLive, toTemporalUnit(unit));
         while (!result) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException();
@@ -116,23 +117,20 @@ public class Lock {
                 LOG.debug(message, e);
                 throw new InterruptedException(message);
             }
-            if (info.isLocked()) {
-                Instant deadline = info.getLockedAt().plus(timeToLive, toTemporalUnit(unit));
-                if (deadline.isBefore(Instant.now())) {
-                    String message = "Too much time after the lock was created. Looks like the lock is never gonna unlocked. Unlock it ourselves.\n"
+            if (deadline.isBefore(Instant.now())) {
+                String message = "Too much time after the lock was created. Looks like the lock is never gonna unlocked. Unlock it ourselves.\n"
                         + "Lock path: {}\n"
                         + "Locked at: {}\n"
                         + "Locked by: {}\n"
                         + "Time to live: {} {}";
-                    LOG.warn(
+                LOG.warn(
                         message,
                         lockPath,
                         info.getLockedAt(),
                         info.getLockedBy(),
                         timeToLive,
                         unit);
-                    unlock();
-                }
+                unlock();
             }
             result = tryLock(lockedBy, timeToWait, unit);
         }
@@ -143,14 +141,22 @@ public class Lock {
      */
     private TemporalUnit toTemporalUnit(TimeUnit unit) {
         switch (unit) {
-            case NANOSECONDS:  return ChronoUnit.NANOS;
-            case MICROSECONDS: return ChronoUnit.MICROS;
-            case MILLISECONDS: return ChronoUnit.MILLIS;
-            case SECONDS:      return ChronoUnit.SECONDS;
-            case MINUTES:      return ChronoUnit.MINUTES;
-            case HOURS:        return ChronoUnit.HOURS;
-            case DAYS:         return ChronoUnit.DAYS;
-            default: throw new IllegalArgumentException();
+            case NANOSECONDS:
+                return ChronoUnit.NANOS;
+            case MICROSECONDS:
+                return ChronoUnit.MICROS;
+            case MILLISECONDS:
+                return ChronoUnit.MILLIS;
+            case SECONDS:
+                return ChronoUnit.SECONDS;
+            case MINUTES:
+                return ChronoUnit.MINUTES;
+            case HOURS:
+                return ChronoUnit.HOURS;
+            case DAYS:
+                return ChronoUnit.DAYS;
+            default:
+                throw new IllegalArgumentException();
         }
     }
 
@@ -238,7 +244,7 @@ public class Lock {
             FileTime another = Files.getLastModifiedTime(file.toPath());
 
             if (current
-                .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
+                    .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
                 return false;
             }
         }
@@ -248,9 +254,10 @@ public class Lock {
 
     private void deleteLockAndFolders(Path lock) {
         try {
-            if (lock != null){
+            if (lock != null) {
                 Files.delete(lock);
             }
+            FileUtils.delete(lockPath.toFile());
             deleteEmptyParentFolders();
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);

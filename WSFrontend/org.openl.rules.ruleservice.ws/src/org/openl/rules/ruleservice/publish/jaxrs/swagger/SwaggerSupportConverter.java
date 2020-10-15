@@ -29,6 +29,7 @@ import io.swagger.converter.ModelConverter;
 import io.swagger.converter.ModelConverterContext;
 import io.swagger.models.Model;
 import io.swagger.models.ModelImpl;
+import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 
@@ -97,7 +98,9 @@ public class SwaggerSupportConverter implements ModelConverter {
             JsonSubTypes jsonSubTypes = beanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
             XmlSeeAlso xmlSeeAlso = beanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
             if (jsonSubTypes != null || xmlSeeAlso != null) {
-                impl.setAdditionalProperties(new StringProperty());
+                ObjectProperty objectProperty = new ObjectProperty();
+                objectProperty.setType(null);
+                impl.setAdditionalProperties(objectProperty);
             }
         }
 
@@ -108,22 +111,31 @@ public class SwaggerSupportConverter implements ModelConverter {
                 if (m.getName().startsWith("get") || m.getName().startsWith("is")) {
                     Property prop = model.getProperties().get(m.getName());
                     if (prop != null) {
-                        String getterMethod = ClassUtils.getter(prop.getName());
-                        if (!methodNames.contains(getterMethod)) {
-                            XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
-                            if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
+                        String customPropertyName = null;
+                        XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
+                        if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
                                 .equals(xmlAttributeAnn.name())) {
-                                prop = prop.rename(xmlAttributeAnn.name());
-                            }
-                            XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
-                            if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
+                            customPropertyName = xmlAttributeAnn.name();
+                        }
+                        XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
+                        if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
                                 .equals(xmlElementAnn.name())) {
-                                prop = prop.rename(xmlElementAnn.name());
+                            customPropertyName = xmlElementAnn.name();
+                        }
+                        String getterMethod = ClassUtils.getter(prop.getName());
+                        if (!methodNames.contains(getterMethod) && customPropertyName != null) {
+                            prop.setName(customPropertyName);
+                            model.getProperties().remove(m.getName());
+                            model.getProperties().put(prop.getName(), prop);
+                        } else if (customPropertyName == null) {
+                            if (prop.getName().startsWith("get")) {
+                                prop.setName(prop.getName().substring(3));
                             }
-                            if (xmlElementAnn != null || xmlAttributeAnn != null) {
-                                model.getProperties().remove(m.getName());
-                                model.getProperties().put(prop.getName(), prop);
+                            if (prop.getName().startsWith("is")) {
+                                prop.setName(prop.getName().substring(2));
                             }
+                            model.getProperties().remove(m.getName());
+                            model.getProperties().put(prop.getName(), prop);
                         }
                     }
                 }

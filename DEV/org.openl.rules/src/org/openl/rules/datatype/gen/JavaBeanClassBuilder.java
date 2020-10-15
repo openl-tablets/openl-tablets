@@ -1,9 +1,12 @@
 package org.openl.rules.datatype.gen;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
+import org.objectweb.asm.ClassWriter;
 import org.openl.gen.FieldDescription;
 import org.openl.gen.POJOByteCodeGenerator;
 import org.openl.gen.TypeDescription;
@@ -21,6 +24,7 @@ public class JavaBeanClassBuilder {
     protected boolean additionalConstructor = true;
     protected boolean publicFields = false;
     protected boolean equalsHashCodeToStringMethods = true;
+    protected LinkedHashSet<Consumer<ClassWriter>> classAnnotationWriters = new LinkedHashSet<>();
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');
@@ -40,7 +44,14 @@ public class JavaBeanClassBuilder {
         Objects.requireNonNull(type, "type type be null");
         Object put = parentFields.put(name, type);
         if (put != null) {
-            throw new IllegalArgumentException(String.format("The same parent field '%s has been put.", name));
+            throw new IllegalArgumentException(String.format("The same parent field '%s has been added.", name));
+        }
+        return this;
+    }
+
+    public JavaBeanClassBuilder addClassAnnotationWriter(Consumer<ClassWriter> writer) {
+        if (writer != null) {
+            classAnnotationWriters.add(writer);
         }
         return this;
     }
@@ -50,7 +61,7 @@ public class JavaBeanClassBuilder {
         Objects.requireNonNull(type, "type type be null");
         Object put = fields.put(name, type);
         if (put != null) {
-            throw new IllegalArgumentException(String.format("The same parent field '%s has been put.", name));
+            throw new IllegalArgumentException(String.format("The same field '%s has been added.", name));
         }
         return this;
     }
@@ -96,7 +107,7 @@ public class JavaBeanClassBuilder {
         return new POJOByteCodeGenerator(beanName,
             fields,
             parentType,
-            parentFields,
+            parentFields, classAnnotationWriters,
             additionalConstructor,
             equalsHashCodeToStringMethods,
             publicFields).byteCode();

@@ -81,11 +81,11 @@
         }
       }
     },
-    "/mySpr": {
+    "/arrSpreadsheetResultspr1": {
       "post": {
-        "summary": "MySpr mySpr(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr",
+        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResultspr1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -143,77 +143,10 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/MySpr"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/mySpr2": {
-      "post": {
-        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/MySpr2"
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Spr1"
+                  }
                 }
               }
             }
@@ -294,79 +227,6 @@
         }
       }
     },
-    "/arrSpreadsheetResultspr1": {
-      "post": {
-        "summary": "Spr1[] arrSpreadsheetResultspr1(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.Spr1[] arrSpreadsheetResultspr1(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrSpreadsheetResultspr1",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "array",
-                  "items": {
-                    "$ref": "#/components/schemas/Spr1"
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/arrObjSpreadsheetResult": {
       "post": {
         "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
@@ -439,6 +299,146 @@
           }
         }
       }
+    },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -471,126 +471,126 @@
       "AnySpreadsheetResult": {
         "type": "object",
         "properties": {
-          "value3_Step3": {
+          "value3_step3": {
             "type": "number",
             "format": "double"
           },
-          "value4_Step3": {
+          "value4_step3": {
             "type": "number",
             "format": "double"
           },
-          "value_Step3": {
+          "value_step3": {
             "type": "array",
             "items": {
               "type": "number",
               "format": "double"
             }
           },
-          "value3_Step4": {
+          "value3_step4": {
             "type": "number",
             "format": "double"
           },
-          "value4_Step4": {
+          "value4_step4": {
             "type": "number",
             "format": "double"
           },
-          "value_Step4": {
+          "value_step4": {
             "type": "object"
           },
-          "value1_Step1": {
+          "value1_step1": {
             "type": "number",
             "format": "double"
           },
-          "value2_Step1": {
+          "value2_step1": {
             "type": "number",
             "format": "double"
           },
-          "value_Step1": {
+          "value_step1": {
             "type": "object"
           },
-          "value1_Step2": {
+          "value1_step2": {
             "type": "number",
             "format": "double"
           },
-          "value2_Step2": {
+          "value2_step2": {
             "type": "number",
             "format": "double"
           },
-          "value_Step2": {
+          "value_step2": {
             "$ref": "#/components/schemas/AnySpreadsheetResult"
           },
-          "value_Step5": {
+          "value_step5": {
             "type": "object"
           },
-          "value_Step6": {
+          "value_step6": {
             "type": "object"
           },
-          "value_Step7": {
+          "value_step7": {
             "type": "object"
           },
-          "value_Step8": {
+          "value_step8": {
             "type": "object"
           },
-          "value_Step9": {
+          "value_step9": {
             "type": "object"
           },
-          "value_Step10": {
+          "value_step10": {
             "type": "object"
           },
-          "value_Step11": {
+          "value_step11": {
             "type": "object"
           },
-          "value_Step13": {
+          "value_step13": {
             "type": "object"
           },
-          "value_Step14": {
+          "value_step14": {
             "type": "object"
           },
-          "value_Step15": {
+          "value_step15": {
             "type": "object"
           },
-          "value_Step16": {
+          "value_step16": {
             "type": "object"
           },
-          "value_Step17": {
+          "value_step17": {
             "type": "object"
           },
-          "value_Step18": {
+          "value_step18": {
             "type": "object"
           },
-          "value_Step19": {
+          "value_step19": {
             "type": "object"
           },
-          "value_Step20": {
+          "value_step20": {
             "$ref": "#/components/schemas/AnySpreadsheetResult"
           },
-          "value_Step21": {
+          "value_step21": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/AnySpreadsheetResult"
             }
           },
-          "value_Step22": {
+          "value_step22": {
             "type": "array",
             "items": {
               "type": "object"
             }
           },
-          "value_Step23": {
+          "value_step23": {
             "type": "array",
             "items": {
               "type": "object"
             }
           },
-          "value_AAA": {
+          "value_aAA": {
             "type": "number",
             "format": "double"
           },
-          "value_Step0": {
+          "value_step0": {
             "type": "number",
             "format": "double"
           },
-          "value_Step12": {
+          "value_step12": {
             "type": "boolean"
           },
           "rowNames": {
@@ -1250,6 +1250,43 @@
           }
         }
       },
+      "MySpr2": {
+        "type": "object",
+        "properties": {
+          "value3_step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_step3": {
+            "type": "number",
+            "format": "double"
+          },
+          "value3_step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value4_step4": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1_step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_step1": {
+            "type": "number",
+            "format": "double"
+          },
+          "value1_step2": {
+            "type": "number",
+            "format": "double"
+          },
+          "value2_step2": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
       "MySpr": {
         "type": "object",
         "properties": {
@@ -1258,43 +1295,6 @@
             "format": "double"
           },
           "step2": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
-      "MySpr2": {
-        "type": "object",
-        "properties": {
-          "value3_Step3": {
-            "type": "number",
-            "format": "double"
-          },
-          "value4_Step3": {
-            "type": "number",
-            "format": "double"
-          },
-          "value3_Step4": {
-            "type": "number",
-            "format": "double"
-          },
-          "value4_Step4": {
-            "type": "number",
-            "format": "double"
-          },
-          "value1_Step1": {
-            "type": "number",
-            "format": "double"
-          },
-          "value2_Step1": {
-            "type": "number",
-            "format": "double"
-          },
-          "value1_Step2": {
-            "type": "number",
-            "format": "double"
-          },
-          "value2_Step2": {
             "type": "number",
             "format": "double"
           }

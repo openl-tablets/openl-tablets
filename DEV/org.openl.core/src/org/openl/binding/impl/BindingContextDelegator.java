@@ -91,6 +91,10 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         if (openClass == null) {
             return null;
         }
+        return findOpenClass(openClass);
+    }
+
+    private IOpenClass findOpenClass(IOpenClass openClass) {
         int dim = 0;
         while (openClass.isArray()) {
             openClass = openClass.getComponentClass();
@@ -98,6 +102,15 @@ public class BindingContextDelegator implements IBindingContextDelegator {
         }
         openClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
         return dim > 0 ? openClass.getArrayType(dim) : openClass;
+    }
+
+    @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        IOpenClass openClass = delegate.findParentClass(openClass1, openClass2);
+        if (openClass == null) {
+            return null;
+        }
+        return findOpenClass(openClass);
     }
 
     public IBindingContext getDelegate() {

@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.publish.jaxrs;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -22,7 +23,7 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
             TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
             String methodName) {
-        super(beanName, beanFields, parentType, parentFields, false, false, true);
+        super(beanName, beanFields, parentType, parentFields, Collections.emptySet(), false, false, true);
         this.methodName = Objects.requireNonNull(methodName, "methodName cannot be null");
     }
 

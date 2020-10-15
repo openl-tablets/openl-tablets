@@ -3,11 +3,15 @@ package org.openl.gen;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.function.Consumer;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -41,6 +45,7 @@ public class POJOByteCodeGenerator {
     private final Map<String, FieldDescription> parentFields;
     private final List<BeanByteCodeWriter> writers;
     private final boolean publicFields;
+    private final Set<Consumer<ClassWriter>> classAnnotationWriters;
 
     /**
      *
@@ -53,15 +58,18 @@ public class POJOByteCodeGenerator {
             Map<String, FieldDescription> beanFields,
             TypeDescription parentType,
             Map<String, FieldDescription> parentFields,
+            Set<Consumer<ClassWriter>> classAnnotationWriters,
             boolean additionalConstructor,
             boolean equalsHashCodeToStringMethods,
             boolean publicFields) {
 
-        this.fields = beanFields != null ? new LinkedHashMap<>(beanFields) : new LinkedHashMap<>();
+        this.fields = beanFields != null ? new LinkedHashMap<>(beanFields) : Collections.emptyMap();
         this.parentType = parentType;
-        this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : new LinkedHashMap<>();
+        this.parentFields = parentFields != null ? new LinkedHashMap<>(parentFields) : Collections.emptyMap();
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.publicFields = publicFields;
+        this.classAnnotationWriters = classAnnotationWriters != null ? new LinkedHashSet<>(classAnnotationWriters)
+                                                                     : Collections.emptySet();
 
         Map<String, FieldDescription> allFields = new LinkedHashMap<>();
         allFields.putAll(this.parentFields);
@@ -113,6 +121,12 @@ public class POJOByteCodeGenerator {
 
     protected String[] getDefaultInterfaces() {
         return new String[] { "java/io/Serializable" };
+    }
+
+    private void visitClassAnnotationWriters(ClassWriter classWriter) {
+        for (Consumer<ClassWriter> writer : classAnnotationWriters) {
+            writer.accept(classWriter);
+        }
     }
 
     private void visitJAXBAnnotations(ClassWriter classWriter) {
@@ -238,6 +252,8 @@ public class POJOByteCodeGenerator {
         visitClassDescription(classWriter);
 
         visitJAXBAnnotations(classWriter);
+
+        visitClassAnnotationWriters(classWriter);
 
         visitFields(classWriter);
 

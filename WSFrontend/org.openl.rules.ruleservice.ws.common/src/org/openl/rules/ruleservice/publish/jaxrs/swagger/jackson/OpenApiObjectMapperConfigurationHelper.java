@@ -8,8 +8,7 @@ public final class OpenApiObjectMapperConfigurationHelper {
     private OpenApiObjectMapperConfigurationHelper() {
     }
 
-    public static ObjectMapper configure(ObjectMapper objectMapper) {
+    public static void configure(ObjectMapper objectMapper) {
         objectMapper.addMixIn(Schema.class, OpenApiXmlIgnoreMixIn.class);
-        return objectMapper;
     }
 }
