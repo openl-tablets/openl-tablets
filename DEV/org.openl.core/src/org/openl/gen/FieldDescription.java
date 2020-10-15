@@ -1,7 +1,6 @@
 package org.openl.gen;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.function.Consumer;
 
 import org.objectweb.asm.FieldVisitor;
@@ -22,16 +21,16 @@ public class FieldDescription {
 
     public FieldDescription(String typeName) {
         this.typeDescription = new TypeDescription(typeName);
-        this.fieldVisitorWriters = Collections.emptyList();
-        this.getterVisitorWriters = Collections.emptyList();
+        this.fieldVisitorWriters = null;
+        this.getterVisitorWriters = null;
     }
 
     public FieldDescription(String typeName,
             Collection<Consumer<FieldVisitor>> fieldVisitorWriters,
             Collection<Consumer<MethodVisitor>> getterVisitorWriters) {
         this.typeDescription = new TypeDescription(typeName);
-        this.fieldVisitorWriters = fieldVisitorWriters != null ? fieldVisitorWriters : Collections.emptyList();
-        this.getterVisitorWriters = getterVisitorWriters != null ? getterVisitorWriters : Collections.emptyList();
+        this.fieldVisitorWriters = fieldVisitorWriters;
+        this.getterVisitorWriters = getterVisitorWriters;
     }
 
     public FieldDescription(String typeName,
