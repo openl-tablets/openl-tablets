@@ -65,10 +65,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     private final DesignTimeRepositoryListener designRepoListener = this::refresh;
 
     public UserWorkspaceImpl(WorkspaceUser user,
-            LocalWorkspace localWorkspace,
-            DesignTimeRepository designTimeRepository,
-            LockEngine projectsLockEngine,
-            LockEngine deploymentsLockEngine) {
+                             LocalWorkspace localWorkspace,
+                             DesignTimeRepository designTimeRepository,
+                             LockEngine projectsLockEngine,
+                             LockEngine deploymentsLockEngine) {
         this.user = user;
         this.localWorkspace = localWorkspace;
         this.designTimeRepository = designTimeRepository;
@@ -94,9 +94,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void copyDDProject(ADeploymentProject project, String name, String comment) throws ProjectException {
         ADeploymentProject newProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-            .user(getUser())
-            .lockEngine(deploymentsLockEngine)
-            .build();
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
         newProject.getFileData().setComment(comment);
         newProject.update(project, user);
 
@@ -109,9 +109,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
             refreshDeploymentProjects();
         }
         ADeploymentProject ddProject = designTimeRepository.createDeploymentConfigurationBuilder(name)
-            .user(getUser())
-            .lockEngine(deploymentsLockEngine)
-            .build();
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
         userDProjects.put(name, ddProject);
         return ddProject;
     }
@@ -132,9 +132,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public ADeploymentProject getLatestDeploymentConfiguration(String name) {
         return getDesignTimeRepository().createDeploymentConfigurationBuilder(name)
-            .user(getUser())
-            .lockEngine(deploymentsLockEngine)
-            .build();
+                .user(getUser())
+                .lockEngine(deploymentsLockEngine)
+                .build();
     }
 
     @Override
@@ -261,6 +261,25 @@ public class UserWorkspaceImpl implements UserWorkspace {
         scheduleDeploymentsRefresh();
     }
 
+    @Override
+    public void syncProjects(){
+        for (RulesProject rPr : getProjects()) {
+            String designFolderName = rPr.getDesignFolderName();
+            String masterProjectName = designFolderName.substring(designFolderName.lastIndexOf('/') + 1,designFolderName.lastIndexOf(':'));
+            if(rPr.isOpened() && !rPr.getLocalFolderName().equals(masterProjectName)){
+                try {
+                    rPr.close();
+                    rPr.setLocalFolderName(null);
+                    rPr.open();
+                } catch (ProjectException e) {
+                    log.warn("Could not reopen the project '{}' because of error: {}",
+                            rPr.getName(),
+                            e.getMessage());
+                }
+            }
+        }
+    }
+
     private void scheduleDeploymentsRefresh() {
         synchronized (userDProjects) {
             deploymentsRefreshNeeded = true;
@@ -281,9 +300,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
                     userDProject = new ADeploymentProject(user,
-                        ddp.getRepository(),
-                        ddp.getFileData(),
-                        deploymentsLockEngine);
+                            ddp.getRepository(),
+                            ddp.getFileData(),
+                            deploymentsLockEngine);
                     if (!userDProject.isOpened()) {
                         // Closed project cannot be locked.
                         // DeployConfiguration changes aren't persisted. If it closed, it means changes are lost. We can
@@ -369,7 +388,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                             branch = local.getBranch();
                             if (branch == null) {
                                 log.warn("Unknown branch in repository supporting branches for project {}.",
-                                    local.getName());
+                                        local.getName());
                             }
                         } else {
                             branch = closedProjectBranches.get(new ProjectKey(repoId, name.toLowerCase()));
@@ -392,30 +411,30 @@ public class UserWorkspaceImpl implements UserWorkspace {
                     }
                 } catch (IOException e) {
                     log.warn("Skip workspace changes for project '{}' because of error: {}",
-                        rp.getName(),
-                        e.getMessage());
+                            rp.getName(),
+                            e.getMessage());
                     desRepo = rp.getRepository();
                     designFileData = rp.getFileData();
                     local = null;
                 }
 
                 RulesProject project = new RulesProject(getUser(),
-                    localRepository,
-                    local,
-                    desRepo,
-                    designFileData,
-                    projectsLockEngine);
+                        localRepository,
+                        local,
+                        desRepo,
+                        designFileData,
+                        projectsLockEngine);
 
                 if (cleanUpOnActivation) {
                     // Clean ups after session activation (should be done only once).
                     if (!isVersionExistInHistory(project)) {
                         log.warn("The Project '{}' has a version {}, but absents in the history.",
-                            project.getName(),
-                            project.getHistoryVersion());
+                                project.getName(),
+                                project.getHistoryVersion());
                         if (!project.isModified()) {
                             log.warn(
-                                "The project '{}' isn't modified and will be closed because it absents in the history.",
-                                project.getName());
+                                    "The project '{}' isn't modified and will be closed because it absents in the history.",
+                                    project.getName());
                             closeProject = true;
                         }
                     }
@@ -513,11 +532,11 @@ public class UserWorkspaceImpl implements UserWorkspace {
             designData.setName(createdProject.getFolderPath());
 
             RulesProject rulesProject = new RulesProject(getUser(),
-                localWorkspace.getRepository(repositoryId),
-                project.getFileData(),
-                designTimeRepository.getRepository(repositoryId),
-                designData,
-                projectsLockEngine);
+                    localWorkspace.getRepository(repositoryId),
+                    project.getFileData(),
+                    designTimeRepository.getRepository(repositoryId),
+                    designData,
+                    projectsLockEngine);
             rulesProject.open();
 
             refreshRulesProjects();
@@ -541,10 +560,10 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public boolean isOpenedOtherProject(AProject project) {
         return getProjects(false).stream()
-            .anyMatch(p -> p.isOpened() && project.getBusinessName()
-                .equals(p.getBusinessName()) && (!project.getRepository()
-                    .getId()
-                    .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
+                .anyMatch(p -> p.isOpened() && project.getBusinessName()
+                        .equals(p.getBusinessName()) && (!project.getRepository()
+                        .getId()
+                        .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
 
     }
 }

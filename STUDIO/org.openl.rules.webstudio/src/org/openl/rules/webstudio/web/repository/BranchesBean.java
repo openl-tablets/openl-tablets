@@ -135,20 +135,7 @@ public class BranchesBean {
                     if (project.isDeleted()) {
                         project.close();
                     } else {
-                        // Project can be renamed after merge, so we close it before opening to ensure that
-                        // project folder name in editor is up to date.
-                        project.close();
-                        String currentBranch = project.getBranch();
-
-                        Optional<RulesProject> refreshedProject = getUserWorkspace().getProjects(false)
-                            .stream()
-                            .filter(p -> repoId.equals(p.getDesignRepository()
-                                .getId()) && realPath.equals(p.getRealPath()))
-                            .findFirst();
-                        if (refreshedProject.isPresent()) {
-                            refreshedProject.get().setBranch(currentBranch);
-                            refreshedProject.get().open();
-                        }
+                        project.open();
                     }
                 }
                 getUserWorkspace().refresh();

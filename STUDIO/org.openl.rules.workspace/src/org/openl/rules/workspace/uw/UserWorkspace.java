@@ -39,6 +39,8 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void refresh();
 
+    void syncProjects();
+
     void release();
 
     void removeWorkspaceListener(UserWorkspaceListener listener);

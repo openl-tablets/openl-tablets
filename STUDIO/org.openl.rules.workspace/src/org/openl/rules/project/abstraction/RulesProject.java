@@ -534,4 +534,12 @@ public class RulesProject extends UserWorkspaceProject {
             return folderPath;
         }
     }
+
+    public void setLocalFolderName(String localFolderName) {
+        this.localFolderName = localFolderName;
+    }
+
+    public String getLocalFolderName() {
+        return localFolderName;
+    }
 }
