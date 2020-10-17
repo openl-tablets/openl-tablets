@@ -463,15 +463,17 @@ public class ProjectBean {
 
             if (moduleWasRenamed) {
                 OpenAPI descriptorOpenAPI = newProjectDescriptor.getOpenapi();
-                String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
-                String modelsModuleName = descriptorOpenAPI.getModelModuleName();
-                boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
-                    .isNotBlank(modelsModuleName);
-                if (moduleNamesExists) {
-                    if (oldName.equals(algorithmsModuleName)) {
-                        descriptorOpenAPI.setAlgorithmModuleName(name);
-                    } else if (oldName.equals(modelsModuleName)) {
-                        descriptorOpenAPI.setModelModuleName(name);
+                if (descriptorOpenAPI != null) {
+                    String algorithmsModuleName = descriptorOpenAPI.getAlgorithmModuleName();
+                    String modelsModuleName = descriptorOpenAPI.getModelModuleName();
+                    boolean moduleNamesExists = StringUtils.isNotBlank(algorithmsModuleName) || StringUtils
+                        .isNotBlank(modelsModuleName);
+                    if (moduleNamesExists) {
+                        if (oldName.equals(algorithmsModuleName)) {
+                            descriptorOpenAPI.setAlgorithmModuleName(name);
+                        } else if (oldName.equals(modelsModuleName)) {
+                            descriptorOpenAPI.setModelModuleName(name);
+                        }
                     }
                 }
             }

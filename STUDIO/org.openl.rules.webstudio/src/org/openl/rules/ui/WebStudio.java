@@ -531,6 +531,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         forcedCompile = true;
         projects = null;
         try {
+            rulesUserSession.getUserWorkspace().syncProjects();
             rulesUserSession.getUserWorkspace().refresh();
         } catch (CommonException e) {
             log.error("Error on reloading user's workspace", e);
