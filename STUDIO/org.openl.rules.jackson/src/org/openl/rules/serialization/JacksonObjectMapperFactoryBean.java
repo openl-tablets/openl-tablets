@@ -165,16 +165,16 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             .registerModule(new JavaTimeModule());
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
-        JaxbAnnotationIntrospector secondaryIntropsector = new JaxbAnnotationIntrospector(
+        JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
             TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
-            secondaryIntropsector.setNonNillableInclusion(serializationInclusion);
+            secondaryIntrospector.setNonNillableInclusion(serializationInclusion);
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
-            secondaryIntropsector);
+            secondaryIntrospector);
 
         mapper.setAnnotationIntrospector(introspector);
 
