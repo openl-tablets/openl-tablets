@@ -22,7 +22,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 
 class SubtypeMixInClassWriter extends ClassVisitor {
-    private final String className;
     private final Class<?> originalMixInClass;
     private final Class<?> parentType;
     private final Class<?>[] subTypes;
@@ -30,14 +29,12 @@ class SubtypeMixInClassWriter extends ClassVisitor {
     private final boolean simpleClassNameAsTypingPropertyValue;
 
     public SubtypeMixInClassWriter(ClassVisitor delegatedClassVisitor,
-            String className,
             Class<?> originalMixInClass,
             Class<?> parentType,
             Class<?>[] subTypes,
             String typingPropertyName,
             boolean simpleClassNameAsTypingPropertyValue) {
         super(Opcodes.ASM5, delegatedClassVisitor);
-        this.className = Objects.requireNonNull(className, "className cannot be null");
         this.parentType = parentType;
         this.subTypes = Objects.requireNonNull(subTypes, "subTypes cannot be null");
         this.originalMixInClass = Objects.requireNonNull(originalMixInClass, "originalMixInClass cannot be null");
@@ -47,7 +44,7 @@ class SubtypeMixInClassWriter extends ClassVisitor {
 
     @Override
     public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-        super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        super.visit(arg0, arg1, arg2, arg3, arg4, arg5);
         if (subTypes.length > 0) {
             if (!originalMixInClass.isAnnotationPresent(JsonSubTypes.class)) {
                 AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonSubTypes.class), true);

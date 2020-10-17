@@ -17,7 +17,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
  *
  * @author Marat Kamalov
  */
-public class VariationsResultType {
+public abstract class VariationsResultType {
 
     @JsonIgnore
     public String[] getCalculatedVariationIDs() {
