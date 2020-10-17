@@ -10,6 +10,6 @@ package org.openl.rules.serialization.jackson.org.openl.rules.variation;
  * #L%
  */
 
-public class VariationType {
+public abstract class VariationType {
 
 }

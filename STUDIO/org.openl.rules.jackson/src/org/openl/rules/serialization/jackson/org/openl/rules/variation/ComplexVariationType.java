@@ -20,7 +20,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Marat Kamalov
  */
-public class ComplexVariationType {
+public abstract class ComplexVariationType {
     public ComplexVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("variations") Variation... variations) {
     }

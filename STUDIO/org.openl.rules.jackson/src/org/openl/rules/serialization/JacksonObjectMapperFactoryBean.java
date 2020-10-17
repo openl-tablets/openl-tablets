@@ -139,7 +139,6 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 typingPropertyName = null;
             }
             ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                className,
                 originalClass,
                 parentTypeClass,
                 subTypeClasses.toArray(new Class<?>[0]),
@@ -152,7 +151,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
                 return Class.forName(className, true, classLoader);
             } catch (Exception e1) {
-                throw new RuntimeException(e1);
+                throw new IllegalStateException(e1);
             }
         }
     }

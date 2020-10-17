@@ -1,9 +1,12 @@
 package org.openl.util.generation;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Executable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -14,7 +17,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
-import org.openl.rules.runtime.InterfaceGenerator;
+import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -32,7 +35,7 @@ import org.springframework.core.annotation.AnnotationUtils;
  */
 public class InterfaceTransformer {
     private final Logger log = LoggerFactory.getLogger(InterfaceTransformer.class);
-    private final Class<?> interfaceToTransform;
+    private final Class<?> classToTransform;
     private final String className;
     private final boolean processParamAnnotation;
 
@@ -41,13 +44,13 @@ public class InterfaceTransformer {
      * @param className Name for new class(java notation: with .(dot) as the delimiter).
      */
     public InterfaceTransformer(Class<?> interfaceToTransform, String className) {
-        this.interfaceToTransform = interfaceToTransform;
+        this.classToTransform = interfaceToTransform;
         this.className = className;
         this.processParamAnnotation = true;
     }
 
     public InterfaceTransformer(Class<?> interfaceToTransform, String className, boolean processParamAnnotation) {
-        this.interfaceToTransform = interfaceToTransform;
+        this.classToTransform = interfaceToTransform;
         this.className = className;
         this.processParamAnnotation = processParamAnnotation;
     }
@@ -59,22 +62,44 @@ public class InterfaceTransformer {
      * @param classVisitor Visitor to consume writing instructions.
      */
     public void accept(ClassVisitor classVisitor) {
+        Class<?> superClass = classToTransform.getSuperclass();
+        Constructor<?> superClassConstructor = null;
+        if (!classToTransform.isInterface()) {
+            for (Constructor<?> c : classToTransform.getDeclaredConstructors()) {
+                if ((Modifier.isPublic(c.getModifiers()) || Modifier.isProtected(c.getModifiers())) && c
+                    .getParameterCount() == 0) {
+                    superClassConstructor = c;
+                    break;
+                }
+            }
+            if (superClassConstructor == null) {
+                superClass = Object.class;
+                try {
+                    superClassConstructor = Object.class.getConstructor();
+                } catch (NoSuchMethodException e) {
+                    throw new IllegalStateException(e);
+                }
+            }
+        }
+        if (superClass == null) {
+            superClass = Object.class;
+        }
         classVisitor.visit(Opcodes.V1_8,
-            interfaceToTransform.getModifiers(),
+            classToTransform.isInterface() ? classToTransform.getModifiers()
+                                           : classToTransform.getModifiers() | Modifier.ABSTRACT,
             className.replace('.', '/'),
             null,
-            interfaceToTransform.getSuperclass() != null
-                                                         ? interfaceToTransform.getSuperclass()
-                                                             .getName()
-                                                             .replace('.', '/')
-                                                         : InterfaceGenerator.JAVA_LANG_OBJECT,
-            null);
-        for (Annotation annotation : interfaceToTransform.getAnnotations()) {
+            superClass.getName().replace('.', '/'),
+            Arrays.stream(classToTransform.getInterfaces())
+                .map(e -> e.getName().replace('.', '/'))
+                .toArray(String[]::new));
+
+        for (Annotation annotation : classToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
             processAnnotation(annotation, av);
         }
 
-        for (Field field : interfaceToTransform.getDeclaredFields()) {
+        for (Field field : classToTransform.getDeclaredFields()) {
             try {
                 field.setAccessible(true);
                 FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
@@ -94,32 +119,62 @@ public class InterfaceTransformer {
             }
         }
 
-        for (Method method : interfaceToTransform.getDeclaredMethods()) {
+        for (Method method : classToTransform.getDeclaredMethods()) {
             String ruleName = method.getName();
-            MethodVisitor methodVisitor = classVisitor.visitMethod(InterfaceGenerator.PUBLIC_ABSTRACT,
+            MethodVisitor methodVisitor = classVisitor.visitMethod(
+                classToTransform.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
                 ruleName,
                 Type.getMethodDescriptor(method),
                 null,
                 null);
+            processAnnotationsOnExecutable(methodVisitor, method);
             if (methodVisitor != null) {
-                for (Annotation annotation : method.getAnnotations()) {
-                    AnnotationVisitor av = methodVisitor
-                        .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-                    processAnnotation(annotation, av);
-                }
-                if (processParamAnnotation) {
-                    int index = 0;
-                    for (Annotation[] annotations : method.getParameterAnnotations()) {
-                        for (Annotation annotation : annotations) {
-                            String descriptor = Type.getDescriptor(annotation.annotationType());
-                            AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index, descriptor, true);
-                            processAnnotation(annotation, av);
-                        }
-                        index++;
+                methodVisitor.visitEnd();
+            }
+        }
+
+        if (!classToTransform.isInterface()) {
+            for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
+                GeneratorAdapter mg = new GeneratorAdapter(constructor
+                    .getModifiers(), org.objectweb.asm.commons.Method.getMethod(constructor), null, null, classVisitor);
+                processAnnotationsOnExecutable(mg, constructor);
+                mg.visitCode();
+                mg.loadThis();
+                mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
+                    org.objectweb.asm.commons.Method.getMethod(superClassConstructor));
+                mg.visitInsn(Opcodes.RETURN);
+                int i = 1;
+                for (Class<?> paramType : constructor.getParameterTypes()) {
+                    if (long.class == paramType || double.class == paramType) {
+                        i += 2;
+                    } else {
+                        i++;
                     }
                 }
+                mg.visitMaxs(1, i);
+                mg.visitEnd();
             }
+        }
+    }
 
+    private void processAnnotationsOnExecutable(MethodVisitor methodVisitor, Executable executable) {
+        if (methodVisitor != null) {
+            for (Annotation annotation : executable.getAnnotations()) {
+                AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
+                    true);
+                processAnnotation(annotation, av);
+            }
+            if (processParamAnnotation) {
+                int index = 0;
+                for (Annotation[] annotations : executable.getParameterAnnotations()) {
+                    for (Annotation annotation : annotations) {
+                        String descriptor = Type.getDescriptor(annotation.annotationType());
+                        AnnotationVisitor av = methodVisitor.visitParameterAnnotation(index, descriptor, true);
+                        processAnnotation(annotation, av);
+                    }
+                    index++;
+                }
+            }
         }
     }
 
@@ -137,8 +192,8 @@ public class InterfaceTransformer {
                 if (attributeType.isArray()) {
                     AnnotationVisitor arrayVisitor = av.visitArray(annotationAttribute.getKey());
                     Object[] array = (Object[]) attributeValue;
-                    for (int i = 0; i < array.length; i++) {
-                        visitNonArrayAnnotationAttribute(arrayVisitor, null, array[i]);
+                    for (Object o : array) {
+                        visitNonArrayAnnotationAttribute(arrayVisitor, null, o);
                     }
                     arrayVisitor.visitEnd();
                 } else {
@@ -169,8 +224,8 @@ public class InterfaceTransformer {
     /**
      * @return Base class for generations.
      */
-    public Class<?> getInterfaceToTransform() {
-        return interfaceToTransform;
+    public Class<?> getClassToTransform() {
+        return classToTransform;
     }
 
     /**
