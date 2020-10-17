@@ -144,7 +144,7 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 subTypeClasses.toArray(new Class<?>[0]),
                 typingPropertyName,
                 isSimpleClassNameAsTypingPropertyValue());
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
+            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
             transformer.accept(classVisitor);
             classWriter.visitEnd();
             try {
@@ -264,12 +264,12 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         for (Class<?> clazz : overrideClasses) {
-            Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+            Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
                 mapper.findMixInClassFor(clazz),
                 overrideClasses,
                 getClassLoader());
-            if (subtypeMixInCLass != null) {
-                mapper.addMixIn(clazz, subtypeMixInCLass);
+            if (subtypeMixInClass != null) {
+                mapper.addMixIn(clazz, subtypeMixInClass);
             }
         }
 

@@ -348,7 +348,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             StringBuilder sb = new StringBuilder();
             sb.append("/").append(getPath(originalMethod));
             if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
-                    .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
+                .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
                 mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -796,7 +796,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 resolveMethodParameterNames,
                 provideRuntimeContext,
                 provideVariations);
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, enhancedClassName, false);
+            InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
+                enhancedClassName,
+                InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);
             transformer.accept(enhancerClassVisitor);
             cw.visitEnd();
             enhancedClass = ClassUtils.defineClass(enhancedClassName, cw.toByteArray(), classLoader);

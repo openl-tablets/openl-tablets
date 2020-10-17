@@ -413,7 +413,7 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
             String className,
             ClassWriter classWriter,
             ClassVisitor classVisitor) {
-        InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className, true);
+        InterfaceTransformer transformer = new InterfaceTransformer(originalMixInClass, className);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
         try {

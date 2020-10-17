@@ -71,7 +71,9 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new UndecoratingClassWriter(classWriter, className);
-        InterfaceTransformer transformer = new InterfaceTransformer(original, className, false);
+        InterfaceTransformer transformer = new InterfaceTransformer(original,
+            className,
+            InterfaceTransformer.REMOVE_FIRST_PARAMETER);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
 
@@ -115,7 +117,9 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
 
         ClassWriter classWriter = new ClassWriter(0);
         ClassVisitor classVisitor = new DecoratingClassWriter(classWriter, className);
-        InterfaceTransformer transformer = new InterfaceTransformer(original, className, false);
+        InterfaceTransformer transformer = new InterfaceTransformer(original,
+            className,
+            InterfaceTransformer.ADD_FIRST_PARAMETER);
         transformer.accept(classVisitor);
         classWriter.visitEnd();
 
