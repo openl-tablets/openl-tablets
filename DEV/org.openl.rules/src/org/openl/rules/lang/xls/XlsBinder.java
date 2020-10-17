@@ -619,7 +619,6 @@ public class XlsBinder implements IOpenBinder {
         // and
         // meta info initialized.
         if (OpenLSystemProperties.isCustomSpreadsheetTypesSupported(rulesModuleBindingContext.getExternalParams())) {
-            Set<CustomSpreadsheetResultOpenClass> skip = new HashSet<>();
             for (IMemberBoundNode child : childrens) {
                 if (child instanceof SpreadsheetBoundNode) {
                     SpreadsheetBoundNode spreadsheetBoundNode = (SpreadsheetBoundNode) child;
@@ -634,10 +633,10 @@ public class XlsBinder implements IOpenBinder {
             for (IOpenClass openClass : module.getTypes()) {
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
-                    if (!skip.contains(customSpreadsheetResultOpenClass)) {
-                        customSpreadsheetResultOpenClass.getFields().forEach(IOpenField::getType);
-                        skip.add(customSpreadsheetResultOpenClass);
-                    }
+                    customSpreadsheetResultOpenClass.getFields().forEach(IOpenField::getType);
+                    module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                        .toCustomSpreadsheetResultOpenClass()
+                        .updateWithType(customSpreadsheetResultOpenClass);
                 }
             }
             module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()

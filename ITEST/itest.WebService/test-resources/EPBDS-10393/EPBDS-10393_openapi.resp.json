@@ -69,6 +69,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -129,6 +130,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -199,6 +201,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -268,6 +271,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {
@@ -337,6 +341,7 @@
             }
           },
           "200": {
+            "description": "Successful operation",
             "content": {
               "application/json": {
                 "schema": {

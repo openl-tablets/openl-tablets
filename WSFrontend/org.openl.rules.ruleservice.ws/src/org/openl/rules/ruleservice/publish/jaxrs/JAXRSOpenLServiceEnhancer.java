@@ -555,6 +555,7 @@ public final class JAXRSOpenLServiceEnhancer {
                         AnnotationVisitor av1 = av.visitArray("responses");
                         AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
+                        av2.visit("description", "Successful operation");
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
                         addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());

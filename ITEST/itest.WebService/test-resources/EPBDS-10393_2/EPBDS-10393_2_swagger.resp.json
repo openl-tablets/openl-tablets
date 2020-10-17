@@ -6,13 +6,13 @@
   },
   "basePath": "/REST/EPBDS-10393_2",
   "paths": {
-    "/someRule": {
+    "/someRule4": {
       "post": {
-        "summary": "Benefit someRule(Integer)",
-        "description": "Rules method: org.openl.generated.beans.Benefit someRule(java.lang.Integer a)",
-        "operationId": "someRule",
+        "summary": "Object someRule4(Object)",
+        "description": "Rules method: java.lang.Object someRule4(java.lang.Object arg)",
+        "operationId": "someRule4",
         "consumes": [
-          "text/plain"
+          "application/json"
         ],
         "produces": [
           "application/json"
@@ -23,8 +23,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "type": "integer",
-              "format": "int32"
+              "type": "object"
             }
           }
         ],
@@ -32,7 +31,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/Benefit"
+              "type": "object"
             }
           },
           "422": {
@@ -92,6 +91,74 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/Benefit"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Benefit"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/someRule": {
+      "post": {
+        "summary": "Benefit someRule(Integer)",
+        "description": "Rules method: org.openl.generated.beans.Benefit someRule(java.lang.Integer a)",
+        "operationId": "someRule",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
             }
           }
         ],
@@ -265,144 +332,9 @@
           }
         }
       }
-    },
-    "/someRule4": {
-      "post": {
-        "summary": "Object someRule4(Object)",
-        "description": "Rules method: java.lang.Object someRule4(java.lang.Object arg)",
-        "operationId": "someRule4",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "type": "object"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "object"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
     }
   },
   "definitions": {
-    "Benefit": {
-      "type": "object",
-      "properties": {
-        "fieldOne": {
-          "type": "string"
-        },
-        "fieldTwo": {
-          "type": "string"
-        }
-      },
-      "additionalProperties": {
-        "type": "string"
-      }
-    },
-    "SubBenefit": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/Benefit"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "fieldThree": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "SubSubBenefit": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/SubBenefit"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "fieldFour": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
-    "SubSubSubBenefit": {
-      "allOf": [
-        {
-          "$ref": "#/definitions/SubSubBenefit"
-        },
-        {
-          "type": "object",
-          "properties": {
-            "fieldFive": {
-              "type": "string"
-            }
-          },
-          "additionalProperties": {
-            "type": "string"
-          }
-        }
-      ]
-    },
     "JAXRSErrorResponse": {
       "type": "object",
       "properties": {
@@ -427,6 +359,66 @@
           }
         }
       }
+    },
+    "Benefit": {
+      "type": "object",
+      "properties": {
+        "fieldOne": {
+          "type": "string"
+        },
+        "fieldTwo": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "SubBenefit": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/Benefit"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fieldThree": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "SubSubBenefit": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SubBenefit"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fieldFour": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
+    },
+    "SubSubSubBenefit": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/SubSubBenefit"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "fieldFive": {
+              "type": "string"
+            }
+          },
+          "additionalProperties": {}
+        }
+      ]
     },
     "WrapperClass": {
       "type": "object",

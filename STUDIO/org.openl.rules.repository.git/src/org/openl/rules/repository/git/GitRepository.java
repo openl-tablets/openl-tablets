@@ -50,6 +50,7 @@ import org.eclipse.jgit.treewalk.filter.PathFilter;
 import org.eclipse.jgit.treewalk.filter.PathFilterGroup;
 import org.eclipse.jgit.treewalk.filter.TreeFilter;
 import org.eclipse.jgit.util.FS;
+import org.eclipse.jgit.util.io.NullOutputStream;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
@@ -1606,7 +1607,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             Ref branchRef = git.getRepository().findRef(branchFrom);
             String mergeMessage = getMergeMessage(author, branchRef);
-            MergeResult mergeResult = git.merge().include(branchRef).setMessage(mergeMessage).call();
+            MergeResult mergeResult = git.merge()
+                    .include(branchRef)
+                    .setMessage(mergeMessage)
+                    .setFastForward(MergeCommand.FastForwardMode.NO_FF)
+                    .call();
 
             if (conflictResolveData != null) {
                 resolveConflict(mergeResult, conflictResolveData, author);
@@ -1653,7 +1658,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
             RevCommit fromCommit = revWalk.parseCommit(fromId);
             RevCommit toCommit = revWalk.parseCommit(toId);
-            return revWalk.isMergedInto(fromCommit, toCommit);
+            boolean merged = revWalk.isMergedInto(fromCommit, toCommit);
+            if (!merged) {
+                try (DiffFormatter diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
+                    diffFormatter.setRepository(git.getRepository());
+                    List<DiffEntry> diffEntries = diffFormatter.scan(fromCommit, toCommit);
+                    if (diffEntries.isEmpty()) {
+                        return true;
+                    }
+                }
+            }
+            return merged;
         } catch (IOException e) {
             throw e;
         } catch (Exception e) {
@@ -1678,6 +1693,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             addTagToCommit(commit, folderData.getAuthor());
 
             push();
+
+            if (uri == null) {
+                // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
+                // autoGC() didn't solve the issue for local repository, so we use gc() instead.
+                try {
+                    git.gc().call();
+                } catch (Exception e) {
+                    log.warn(e.getMessage(), e);
+                }
+            }
         } catch (IOException e) {
             reset(commitId);
             throw e;
