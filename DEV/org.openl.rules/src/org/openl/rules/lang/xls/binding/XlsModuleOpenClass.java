@@ -368,6 +368,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // the class.
         //
         IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+
         if (existingMethod != null) {
             if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
                 UriMemberHelper.validateMethodDuplication(method, existingMethod);
@@ -379,6 +380,16 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existingMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existingMethod, method);
+            }
+
+            for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
+                if (!Objects.equals(existingMethod.getSignature().getParameterType(i),
+                    m.getSignature().getParameterType(i))) {
+                    String message = String.format("Method '%s' conflicts with another method '%s'.",
+                        MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
+                        MethodUtil.printSignature(m, INamedThing.REGULAR));
+                    throw new DuplicatedMethodException(message, existingMethod, method);
+                }
             }
 
             // Checks the instance of existed method. If it's the
