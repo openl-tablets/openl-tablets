@@ -2,6 +2,7 @@ package org.openl.rules.types;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -46,6 +47,16 @@ public final class UriMemberHelper {
     }
 
     private static String getDuplicatedMethodMessage(IOpenMethod existedMethod, IOpenMethod newMethod) {
+        if (existedMethod.getSignature().getNumberOfParameters() != existedMethod.getSignature()
+            .getNumberOfParameters()) {
+            throw new IllegalStateException("Different method signatures are found");
+        }
+        for (int i = 0; i < existedMethod.getSignature().getNumberOfParameters(); i++) {
+            if (!Objects.equals(existedMethod.getSignature().getParameterType(i),
+                newMethod.getSignature().getParameterType(i))) {
+                throw new IllegalStateException("Different method signatures are found");
+            }
+        }
         String message;// Modules to which methods belongs to
         List<String> modules = new ArrayList<>();
         if (newMethod instanceof IModuleInfo) {

@@ -23,7 +23,7 @@ import org.openl.util.print.DefaultFormat;
  */
 public final class MethodUtil {
 
-    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = (e) -> printType(e);
+    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = MethodUtil::printType;
 
     private MethodUtil() {
         // Hidden constructor
@@ -43,7 +43,6 @@ public final class MethodUtil {
         StringBuilder buf = new StringBuilder();
         IConvertor<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
-
         return buf.toString();
     }
 
