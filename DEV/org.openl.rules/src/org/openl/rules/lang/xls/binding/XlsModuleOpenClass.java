@@ -19,6 +19,7 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.ConflictsMethodException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -376,10 +377,17 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 throw new DuplicatedMethodException(message, existingMethod, method);
             }
 
-            if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
-                UriMemberHelper.validateMethodDuplication(method, existingMethod);
-                return;
-            }
+
+           for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
+                if (!Objects.equals(existingMethod.getSignature().getParameterName(i),
+                    m.getSignature().getParameterName(i))) {
+                    String message = String.format(
+                            "Method '%s' conflicts with another method '%s', because parameter names are different.",
+                            MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
+                            MethodUtil.printSignature(m, INamedThing.REGULAR));
+                    throw new ConflictsMethodException(message);
+                }
+           }
 
             // Checks the instance of existed method. If it's the
             // OpenMethodDecorator then just add the method-candidate to
