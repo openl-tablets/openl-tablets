@@ -1,7 +1,7 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_ALGORITHMS_PATH;
-import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_MODELS_PATH;
+import static org.openl.rules.webstudio.web.util.OpenAPIEditorUtils.DEFAULT_ALGORITHMS_PATH;
+import static org.openl.rules.webstudio.web.util.OpenAPIEditorUtils.DEFAULT_MODELS_PATH;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
