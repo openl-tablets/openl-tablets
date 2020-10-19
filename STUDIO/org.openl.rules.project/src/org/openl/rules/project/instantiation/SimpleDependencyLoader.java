@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.engine.OpenLCompileManager;
@@ -89,7 +90,10 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        return dependencyManager.getClassLoader(getProject());
+        ClassLoader projectClassLoader = dependencyManager.getExternalJarsClassLoader(getProject());
+        OpenLBundleClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(null);
+        simpleBundleClassLoader.addClassLoader(projectClassLoader);
+        return simpleBundleClassLoader;
     }
 
     protected CompiledDependency compileDependency(String dependencyName,

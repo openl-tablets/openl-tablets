@@ -1,0 +1,19 @@
+<project>
+  <name>EPBDS-10158_incorrectDate</name>
+  <comment></comment>
+  <modules>
+    <module>
+      <name>Module-01092018-010092018</name>
+      <rules-root path="Module-01092018-010092018.xlsx"/>
+    </module>
+    <module>
+      <name>Module-01092018-550092018</name>
+      <rules-root path="Module-01092018-550092018.xlsx"/>
+    </module>
+    <module>
+      <name>Module-01092018-55666777</name>
+      <rules-root path="Module-01092018-55666777.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>Module-%startRequestDate:ddMMyyyy%-%endRequestDate:ddMMyyyy%</properties-file-name-pattern>
+</project>

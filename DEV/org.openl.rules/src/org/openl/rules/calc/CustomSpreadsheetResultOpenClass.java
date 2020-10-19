@@ -172,8 +172,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         if (superClasses == null) {
             Class<?>[] interfaces = SpreadsheetResult.class.getInterfaces();
             List<IOpenClass> superClasses = new ArrayList<>(interfaces.length + 1);
-            for (Class<?> interf : interfaces) {
-                superClasses.add(JavaOpenClass.getOpenClass(interf));
+            for (Class<?> c : interfaces) {
+                superClasses.add(JavaOpenClass.getOpenClass(c));
             }
             this.superClasses = superClasses;
         }
@@ -260,8 +260,10 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
             this.rowNamesForResultModel = nRowNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
             this.columnNamesForResultModel = nColumnNamesForResultModel.toArray(EMPTY_STRING_ARRAY);
-            this.columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
-            this.rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
+            this.columnsForResultModelCount = Arrays.stream(this.columnNamesForResultModel)
+                .filter(Objects::nonNull)
+                .count();
+            this.rowsForResultModelCount = Arrays.stream(this.rowNamesForResultModel).filter(Objects::nonNull).count();
         }
 
         for (IOpenField field : fields) {
@@ -419,7 +421,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
 
     public boolean isBeanClassInitialized() {
         return beanClass != null;
-
     }
 
     public Class<?> getBeanClass() {
@@ -481,7 +482,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             @SuppressWarnings("unchecked")
                             List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
                             Map<String, List<IOpenField>> fieldsMap = new HashMap<>();
-                            List<Pair<Point, IOpenField>> fields = getSortedFields();
+                            List<Pair<Point, IOpenField>> fields = getListOfFields();
                             addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, true, fieldsMap);
                             addFieldsToJavaClassBuilder(beanClassBuilder, fields, used, xmlNames, false, fieldsMap);
                             sprStructureFieldNames = addSprStructureFields(beanClassBuilder,
@@ -501,7 +502,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
     }
 
-    private List<Pair<Point, IOpenField>> getSortedFields() {
+    private List<Pair<Point, IOpenField>> getListOfFields() {
         return getFields().stream()
             .map(e -> Pair.of(fieldsCoordinates.get(e.getName()), e))
             .sorted(COMP)
@@ -570,7 +571,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             Map<String, List<IOpenField>> beanFieldsMap) {
         for (Pair<Point, IOpenField> pair : fields) {
             Point point = pair.getLeft();
-            IOpenField field = pair.getRight();
             if (point == null) {
                 continue;
             }
@@ -579,15 +579,18 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             String rowName = rowNamesForResultModel[row];
             String columnName = columnNamesForResultModel[column];
             if (rowName != null && columnName != null) {
+                IOpenField field = null;
                 if (used[row][column] == null) {
                     String fieldName;
                     String xmlName;
                     if (simpleRefBeanByRow) {
                         fieldName = ClassUtils.decapitalize(rowName);
                         xmlName = rowName;
+                        field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowName);
                     } else if (simpleRefBeanByColumn) {
                         fieldName = ClassUtils.decapitalize(columnName);
                         xmlName = columnName;
+                        field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnName);
                     } else if (absentInHistory(rowName, columnName)) {
                         continue;
                     } else if (StringUtils.isBlank(columnName)) { // * in the column
@@ -599,6 +602,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                     } else {
                         fieldName = ClassUtils.decapitalize(columnName) + ClassUtils.capitalize(rowName);
                         xmlName = columnName + "_" + rowName;
+                    }
+                    if (field == null) {
+                        field = pair.getRight();
+                    }
+                    if (!field.getName().startsWith(SpreadsheetStructureBuilder.DOLLAR_SIGN)) {
+                        continue;
                     }
                     if (StringUtils.isBlank(fieldName)) {
                         fieldName = "_";
@@ -635,9 +644,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                                 .toCustomSpreadsheetResultOpenClass()
                                 .generateBeanClass();
                         }
-                        typeName = dim > 0 ? IntStream.range(0, dim)
+                        typeName = dim > 0 ? (IntStream.range(0, dim)
                             .mapToObj(e -> "[")
-                            .collect(joining()) + "L" + fieldClsName + ";" : fieldClsName;
+                            .collect(joining()) + "L" + fieldClsName + ";") : fieldClsName;
                     } else if (JavaOpenClass.VOID.equals(t) || JavaOpenClass.CLS_VOID.equals(t) || NullOpenClass.the
                         .equals(t)) {
                         continue; // IGNORE VOID FIELDS
@@ -679,13 +688,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 } else {
                     boolean f = false;
                     for (IOpenField openField : used[row][column]) { // Do not add the same twice
-                        if (openField.getName().equals(field.getName())) {
+                        if (openField.getName().equals(pair.getRight().getName())) {
                             f = true;
                             break;
                         }
                     }
                     if (!f) {
-                        used[row][column].add(field);
+                        used[row][column].add(pair.getRight());
                     }
                 }
             }
