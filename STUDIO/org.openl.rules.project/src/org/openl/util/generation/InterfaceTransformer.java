@@ -97,12 +97,12 @@ public class InterfaceTransformer {
         queue.add(classToTransform);
         while (!queue.isEmpty()) {
             Class<?> x = queue.poll();
-            if (usedClasses.contains(x)) {
+            if (x.isSynthetic() || usedClasses.contains(x)) {
                 continue;
             }
             usedClasses.add(x);
             for (Field field : x.getDeclaredFields()) {
-                if (!usedFields.contains(field.getName())) {
+                if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
                     usedFields.add(field.getName());
                     try {
                         field.setAccessible(true);
@@ -124,22 +124,24 @@ public class InterfaceTransformer {
                 }
             }
             for (Method method : x.getDeclaredMethods()) {
-                MethodKey methodKey = new MethodKey(method.getName(),
-                    Arrays.stream(method.getParameterTypes())
-                        .map(JavaOpenClass::getOpenClass)
-                        .toArray(JavaOpenClass[]::new));
-                if (!usedMethods.contains(methodKey)) {
-                    usedMethods.add(methodKey);
-                    String ruleName = method.getName();
-                    MethodVisitor methodVisitor = classVisitor.visitMethod(
-                        x.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
-                        ruleName,
-                        Type.getMethodDescriptor(method),
-                        null,
-                        null);
-                    processAnnotationsOnExecutable(methodVisitor, method);
-                    if (methodVisitor != null) {
-                        methodVisitor.visitEnd();
+                if (!method.isSynthetic()) {
+                    MethodKey methodKey = new MethodKey(method.getName(),
+                        Arrays.stream(method.getParameterTypes())
+                            .map(JavaOpenClass::getOpenClass)
+                            .toArray(JavaOpenClass[]::new));
+                    if (!usedMethods.contains(methodKey)) {
+                        usedMethods.add(methodKey);
+                        String ruleName = method.getName();
+                        MethodVisitor methodVisitor = classVisitor.visitMethod(
+                            x.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
+                            ruleName,
+                            Type.getMethodDescriptor(method),
+                            null,
+                            null);
+                        processAnnotationsOnExecutable(methodVisitor, method);
+                        if (methodVisitor != null) {
+                            methodVisitor.visitEnd();
+                        }
                     }
                 }
             }
@@ -156,24 +158,28 @@ public class InterfaceTransformer {
         }
         if (!classToTransform.isInterface()) {
             for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
-                GeneratorAdapter mg = new GeneratorAdapter(constructor
-                    .getModifiers(), org.objectweb.asm.commons.Method.getMethod(constructor), null, null, classVisitor);
-                processAnnotationsOnExecutable(mg, constructor);
-                mg.visitCode();
-                mg.loadThis();
-                mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
-                    org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
-                mg.visitInsn(Opcodes.RETURN);
-                int i = 1;
-                for (Class<?> paramType : constructor.getParameterTypes()) {
-                    if (long.class == paramType || double.class == paramType) {
-                        i += 2;
-                    } else {
-                        i++;
+                if (!constructor.isSynthetic()) {
+                    GeneratorAdapter mg = new GeneratorAdapter(constructor.getModifiers(),
+                            org.objectweb.asm.commons.Method.getMethod(constructor),
+                            null,
+                            null,
+                            classVisitor);
+                    processAnnotationsOnExecutable(mg, constructor);
+                    mg.visitCode();
+                    mg.loadThis();
+                    mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()), org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
+                    mg.visitInsn(Opcodes.RETURN);
+                    int i = 1;
+                    for (Class<?> paramType : constructor.getParameterTypes()) {
+                        if (long.class == paramType || double.class == paramType) {
+                            i += 2;
+                        } else {
+                            i++;
+                        }
                     }
+                    mg.visitMaxs(1, i);
+                    mg.visitEnd();
                 }
-                mg.visitMaxs(1, i);
-                mg.visitEnd();
             }
         }
     }
