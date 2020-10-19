@@ -60,7 +60,7 @@ class OpenClassPropertiesResolver {
         return null;
     }
 
-    public IOpenField getField(IOpenClass openClass, String propertyName) {
+    public IOpenField findFieldByPropertyName(IOpenClass openClass, String propertyName) {
         Map<String, IOpenField> propertiesCache = cache.computeIfAbsent(openClass, e -> new HashMap<>());
         return propertiesCache.computeIfAbsent(propertyName, e -> resolveOpenFieldByPropertyName(openClass, e));
     }

@@ -6,6 +6,13 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.TYPE })
-public @interface SpreadsheetResultBean {
+@Target(value = { ElementType.FIELD, ElementType.METHOD })
+public @interface SpreadsheetCell {
+    String column();
+
+    String row();
+
+    boolean simpleRefByRow() default false;
+
+    boolean simpleRefByColumn() default false;
 }

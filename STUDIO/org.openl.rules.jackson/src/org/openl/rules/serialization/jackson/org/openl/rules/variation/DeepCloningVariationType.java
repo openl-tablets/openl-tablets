@@ -21,7 +21,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
  *
  * @author Marat Kamalov
  */
-public class DeepCloningVariationType {
+public abstract class DeepCloningVariationType {
     public DeepCloningVariationType(@JsonProperty("variationID") String variationID,
             @JsonProperty("variation") Variation variation) {
     }

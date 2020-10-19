@@ -11,6 +11,76 @@
     }
   ],
   "paths": {
+    "/tiktak": {
+      "post": {
+        "summary": "Tiktak tiktak(int, String)",
+        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
+        "operationId": "tiktak",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TiktakRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Tiktak"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/EPBDS_9437": {
       "post": {
         "summary": "EPBDS_9437 EPBDS_9437(Integer)",
@@ -81,76 +151,6 @@
           }
         }
       }
-    },
-    "/tiktak": {
-      "post": {
-        "summary": "Tiktak tiktak(int, String)",
-        "description": "Rules method: SpreadsheetResulttiktak tiktak(int i, java.lang.String j)",
-        "operationId": "tiktak",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/TiktakRequest"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Tiktak"
-                }
-              }
-            }
-          }
-        }
-      }
     }
   },
   "components": {
@@ -163,35 +163,19 @@
           },
           "type": {
             "type": "string",
-            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
           },
           "details": {
             "type": "array",
             "items": {
               "type": "string"
-            }
-          }
-        }
-      },
-      "AnySpreadsheetResult": {
-        "type": "object",
-        "properties": {
-          "INT": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "String": {
-            "type": "string"
-          }
-        }
-      },
-      "EPBDS_9437": {
-        "type": "object",
-        "properties": {
-          "Driver_Forms": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/AnySpreadsheetResult"
             }
           }
         }
@@ -217,6 +201,35 @@
           },
           "j": {
             "type": "string"
+          }
+        }
+      },
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "Driver_Forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "INT": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "String": {
+            "type": "string"
+          }
+        }
+      },
+      "EPBDS_9437": {
+        "type": "object",
+        "properties": {
+          "Driver_Forms": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
           }
         }
       }

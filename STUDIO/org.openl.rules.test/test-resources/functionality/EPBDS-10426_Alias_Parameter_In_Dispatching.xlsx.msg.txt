@@ -1,0 +1,1 @@
+ERROR: Method 'MyRule(SomeParameter param)' conflicts with another method 'MyRule(AnyParameter param)'.

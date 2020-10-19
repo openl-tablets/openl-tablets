@@ -139,20 +139,19 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 typingPropertyName = null;
             }
             ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                className,
                 originalClass,
                 parentTypeClass,
                 subTypeClasses.toArray(new Class<?>[0]),
                 typingPropertyName,
                 isSimpleClassNameAsTypingPropertyValue());
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className, true);
+            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
             transformer.accept(classVisitor);
             classWriter.visitEnd();
             try {
                 ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
                 return Class.forName(className, true, classLoader);
             } catch (Exception e1) {
-                throw new RuntimeException(e1);
+                throw new IllegalStateException(e1);
             }
         }
     }
@@ -166,16 +165,16 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
             .registerModule(new JavaTimeModule());
 
         AnnotationIntrospector primaryIntrospector = new JacksonAnnotationIntrospector();
-        JaxbAnnotationIntrospector secondaryIntropsector = new JaxbAnnotationIntrospector(
+        JaxbAnnotationIntrospector secondaryIntrospector = new JaxbAnnotationIntrospector(
             TypeFactory.defaultInstance());
 
         if (serializationInclusion != null) {
             mapper.setSerializationInclusion(serializationInclusion);
-            secondaryIntropsector.setNonNillableInclusion(serializationInclusion);
+            secondaryIntrospector.setNonNillableInclusion(serializationInclusion);
         }
 
         AnnotationIntrospector introspector = new AnnotationIntrospectorPair(primaryIntrospector,
-            secondaryIntropsector);
+            secondaryIntrospector);
 
         mapper.setAnnotationIntrospector(introspector);
 
@@ -265,12 +264,12 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         }
 
         for (Class<?> clazz : overrideClasses) {
-            Class<?> subtypeMixInCLass = enhanceMixInClassWithSubTypes(clazz,
+            Class<?> subtypeMixInClass = enhanceMixInClassWithSubTypes(clazz,
                 mapper.findMixInClassFor(clazz),
                 overrideClasses,
                 getClassLoader());
-            if (subtypeMixInCLass != null) {
-                mapper.addMixIn(clazz, subtypeMixInCLass);
+            if (subtypeMixInClass != null) {
+                mapper.addMixIn(clazz, subtypeMixInClass);
             }
         }
 

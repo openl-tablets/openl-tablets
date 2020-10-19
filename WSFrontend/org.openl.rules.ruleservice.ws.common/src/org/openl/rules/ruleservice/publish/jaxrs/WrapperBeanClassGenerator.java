@@ -5,7 +5,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -104,5 +106,17 @@ class WrapperBeanClassGenerator extends POJOByteCodeGenerator {
         addArgs(classWriter, getFields());
         addTypes(classWriter, getFields());
         addMethod(classWriter, methodName);
+    }
+
+    @Override
+    protected void visitFieldVisitor(FieldVisitor fieldVisitor,
+            String fieldName,
+            FieldDescription field,
+            String javaType,
+            int index) {
+        AnnotationVisitor annotationVisitor = fieldVisitor.visitAnnotation(Type.getDescriptor(ParameterIndex.class),
+            true);
+        annotationVisitor.visit("value", index);
+        annotationVisitor.visitEnd();
     }
 }

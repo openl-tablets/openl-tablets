@@ -19,6 +19,7 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.ConflictsMethodException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -375,6 +376,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // the class.
         //
         IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+
         if (existingMethod != null) {
 
             if (!existingMethod.getType().equals(m.getType())) {
@@ -382,6 +384,27 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existingMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existingMethod, method);
+            }
+
+            for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
+                if (!Objects.equals(existingMethod.getSignature().getParameterType(i),
+                    m.getSignature().getParameterType(i))) {
+                    String message = String.format("Method '%s' conflicts with another method '%s'.",
+                        MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
+                        MethodUtil.printSignature(m, INamedThing.REGULAR));
+                    throw new ConflictsMethodException(message);
+                }
+            }
+
+            for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
+                if (!Objects.equals(existingMethod.getSignature().getParameterName(i),
+                    m.getSignature().getParameterName(i))) {
+                    String message = String.format(
+                        "Method '%s' conflicts with another method '%s', because parameter names are different.",
+                        MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
+                        MethodUtil.printSignature(m, INamedThing.REGULAR));
+                    throw new ConflictsMethodException(message);
+                }
             }
 
             if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {

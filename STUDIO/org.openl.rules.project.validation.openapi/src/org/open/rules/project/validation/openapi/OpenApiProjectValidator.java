@@ -24,6 +24,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.message.OpenLMessagesUtils;
@@ -39,16 +40,17 @@ import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidat
 import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
+import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiObjectMapperHack;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.OpenApiRulesCacheWorkaround;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.SchemaJacksonObjectMapperFactoryBean;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory;
-import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.types.java.JavaOpenField;
 import org.openl.util.StringUtils;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -192,6 +194,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     OpenApiRulesCacheWorkaround.reset();
                     openApiObjectMapperHack.apply(objectMapper);
                     actualOpenAPI = reader.read(enhancedServiceClass);
+                } catch (Exception e) {
+                    StringBuilder message = new StringBuilder(OPEN_API_VALIDATION_MSG_PREFIX);
+                    message.append("Failed to build OpenAPI for the current project.");
+                    if (StringUtils.isNotBlank(e.getMessage())) {
+                        message.append(" ").append(e.getMessage());
+                    }
+                    validatedCompiledOpenClass
+                        .addValidationMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
+                    return validatedCompiledOpenClass;
                 } finally {
                     OpenApiRulesCacheWorkaround.reset();
                     openApiObjectMapperHack.revert();
@@ -639,11 +650,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             return;
         }
         Method method = context.getMethodMap().get(context.getMethod());
-        String[] parameterNames = MethodUtils.getParameterNames(
-            isResolveMethodParameterNames() ? context.getOpenClass() : null,
-            method,
-            context.isProvideRuntimeContext(),
-            context.isProvideRuntimeContext());
 
         Map<String, Schema> allPropertiesOfActualSchema = context.getActualOpenAPIResolver()
             .resolveAllProperties(actualSchema);
@@ -652,30 +658,34 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             .resolveAllProperties(expectedSchema);
 
         if (method.getParameterCount() > 1 && context.getMethod().getParameterCount() == 1) {
-            int i = 0;
-            for (String parameterName : parameterNames) {
-                Schema<?> parameterSchema = allPropertiesOfActualSchema.get(parameterName);
-                Class<?> parameterType = method.getParameterTypes()[i];
-                IOpenClass parameterOpenClass = extractParameterOpenClass(context,
-                    openMethod,
-                    method,
-                    i,
-                    parameterType);
-                Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterName);
-                validateMethodParameter(context,
-                    method,
-                    parameterName,
-                    parameterSchema,
-                    parameterOpenClass,
-                    expectedParameterSchema);
-                i++;
-            }
             for (Map.Entry<String, Schema> entry : allPropertiesOfExpectedSchema.entrySet()) {
-                if (allPropertiesOfActualSchema.get(entry.getKey()) == null) {
+                Schema<?> actualParameterSchema = allPropertiesOfActualSchema.get(entry.getKey());
+                if (actualParameterSchema != null) {
+                    // Use openl types instead of java types
+                    Pair<String, IOpenClass> parameter = findParameter(context, entry.getKey());
+                    validateMethodParameter(context,
+                        method,
+                        entry.getKey(),
+                        parameter.getLeft(),
+                        parameter.getRight(),
+                        actualParameterSchema,
+                        entry.getValue());
+                } else {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
-                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected parameter '%s' is not found in method '%s'%s.",
+                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected parameter for schema property '%s' is not found in method '%s'%s.",
                             entry.getKey(),
+                            method.getName(),
+                            getMethodRelatedPathStringPart(method.getName(), context.getPath())));
+                }
+            }
+            for (Map.Entry<String, Schema> entry : allPropertiesOfActualSchema.entrySet()) {
+                if (allPropertiesOfExpectedSchema.get(entry.getKey()) == null) {
+                    Pair<String, IOpenClass> parameter = findParameter(context, entry.getKey());
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                        String.format(
+                            OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter '%s' is found in method '%s'%s.",
+                            parameter.getLeft(),
                             method.getName(),
                             getMethodRelatedPathStringPart(method.getName(), context.getPath())));
                 }
@@ -683,74 +693,107 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         } else {
             if (method.getParameterCount() == 1 && isJAXRSBeanParamAnnotationPresented(
                 method.getParameterAnnotations()[0])) {
-                IOpenClass parameterOpenClass = extractParameterOpenClass(context,
-                    openMethod,
-                    method,
-                    0,
-                    method.getParameterTypes()[0]);
                 validateMethodParameter(context,
                     method,
-                    parameterNames[0],
+                    null,
+                    openMethod != null ? openMethod.getSignature().getParameterName(0)
+                                       : method.getParameters()[0].getName(),
+                    openMethod != null ? openMethod.getSignature().getParameterType(0)
+                                       : JavaOpenClass.getOpenClass(method.getParameterTypes()[0]),
                     actualSchema,
-                    parameterOpenClass,
                     expectedSchema);
             } else if (method.getParameterCount() > 0) {
                 int i = 0;
                 for (Annotation[] parameterAnnotations : method.getParameterAnnotations()) {
-                    Class<?> parameterType = method.getParameterTypes()[i];
-                    IOpenClass parameterOpenClass = extractParameterOpenClass(context,
-                        openMethod,
-                        method,
-                        i,
-                        parameterType);
-                    String parameterName = parameterNames[i];
                     if (!isJAXRSParameterAnnotationPresented(parameterAnnotations)) {
+                        Pair<String, IOpenClass> parameter = findParameter(context, method, i);
                         validateMethodParameter(context,
                             method,
-                            parameterName,
+                            null,
+                            parameter.getLeft(),
+                            parameter.getRight(),
                             actualSchema,
-                            parameterOpenClass,
                             expectedSchema);
                         return;
                     }
                     i++;
                 }
-                i = 0;
-                for (String parameterName : parameterNames) {
-                    Schema<?> parameterSchema = allPropertiesOfActualSchema.get(parameterName);
-                    Class<?> parameterType = method.getParameterTypes()[i];
-                    boolean isJAXRSFormParamAnnotationPresented = isJAXRSFormParamAnnotationPresented(
-                        method.getParameterAnnotations()[i]);
-                    if (isJAXRSFormParamAnnotationPresented) {
-                        IOpenClass parameterOpenClass = extractParameterOpenClass(context,
-                            openMethod,
-                            method,
-                            i,
-                            parameterType);
-                        Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(parameterName);
-                        validateMethodParameter(context,
-                            method,
-                            parameterName,
-                            parameterSchema,
-                            parameterOpenClass,
-                            expectedParameterSchema);
+                for (i = 0; i < method.getParameterCount(); i++) {
+                    String name = getJAXRSFormParamAnnotation(method.getParameterAnnotations()[i]);
+                    if (name != null) {
+                        Schema<?> actualParameterSchema = allPropertiesOfActualSchema.get(name);
+                        Schema<?> expectedParameterSchema = allPropertiesOfExpectedSchema.get(name);
+                        if (expectedParameterSchema != null) {
+                            Pair<String, IOpenClass> parameter = findParameter(context, method, i);
+                            validateMethodParameter(context,
+                                method,
+                                name,
+                                parameter.getLeft(),
+                                parameter.getRight(),
+                                actualParameterSchema,
+                                expectedParameterSchema);
+                        } else {
+                            OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                String.format(
+                                    OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter for schema property '%s' is found in method '%s'%s.",
+                                    name,
+                                    method.getName(),
+                                    getMethodRelatedPathStringPart(method.getName(), context.getPath())));
+                        }
                     }
-                    i++;
                 }
             }
         }
     }
 
+    private Pair<String, IOpenClass> findParameter(Context context, Method method, int i) {
+        int index = i;
+        if (context.isProvideRuntimeContext()) {
+            index = index - 1;
+        }
+        String parameterName = method.getParameters()[i].getName();
+        IOpenClass parameterType = JavaOpenClass.getOpenClass(method.getParameterTypes()[i]);
+        if (context.getOpenMethod() != null && index >= 0 && index < context.getOpenMethod()
+            .getSignature()
+            .getNumberOfParameters()) {
+            parameterName = context.getOpenMethod().getSignature().getParameterName(index);
+            parameterType = context.getOpenMethod().getSignature().getParameterType(index);
+        }
+        return Pair.of(parameterName, parameterType);
+    }
+
+    private Pair<String, IOpenClass> findParameter(Context context, String propertyName) {
+        JavaOpenField javaOpenField = (JavaOpenField) context.getOpenClassPropertiesResolver()
+            .findFieldByPropertyName(JavaOpenClass.getOpenClass(context.getMethod().getParameterTypes()[0]),
+                propertyName);
+        String parameterName = javaOpenField.getName();
+        IOpenClass parameterType = javaOpenField.getType();
+        if (context.getOpenMethod() != null) {
+            ParameterIndex parameterIndex = javaOpenField.getJavaField().getAnnotation(ParameterIndex.class);
+            int index = parameterIndex.value();
+            if (context.isProvideRuntimeContext()) {
+                index = index - 1;
+            }
+            if (index >= 0 && index < context.getOpenMethod().getSignature().getNumberOfParameters()) {
+                parameterName = context.getOpenMethod().getSignature().getParameterName(index);
+                parameterType = context.getOpenMethod().getSignature().getParameterType(index);
+            }
+        }
+        return Pair.of(parameterName, parameterType);
+    }
+
     private void validateMethodParameter(Context context,
             Method method,
+            String parameterPropertyName,
             String parameterName,
-            Schema<?> parameterSchema,
-            IOpenClass parameterOpenClass,
+            IOpenClass parameterType,
+            Schema<?> actualParameterSchema,
             Schema<?> expectedParameterSchema) {
         if (expectedParameterSchema == null) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter '%s' is found in method '%s'%s.",
-                    parameterName,
+                String.format(
+                    OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected parameter for schema property%s is found in method '%s'%s.",
+                    parameterPropertyName != null ? String.format(" '%s'", parameterPropertyName) : "",
                     method.getName(),
                     getMethodRelatedPathStringPart(method.getName(), context.getPath())));
         } else {
@@ -758,15 +801,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 context.setTypeValidationInProgress(true);
                 try {
                     validateType(context,
-                        parameterSchema,
+                        actualParameterSchema,
                         expectedParameterSchema,
-                        parameterOpenClass,
+                        parameterType,
                         new HashSet<>());
                 } catch (DifferentTypesException e) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                         String.format(
                             OPEN_API_VALIDATION_MSG_PREFIX + "Type '%s' of parameter '%s' in method '%s'%s must be compatible with OpenAPI %s.",
-                            parameterOpenClass.getDisplayName(INamedThing.REGULAR),
+                            parameterType.getDisplayName(INamedThing.REGULAR),
                             parameterName,
                             method.getName(),
                             getMethodRelatedPathStringPart(method.getName(), context.getPath()),
@@ -778,33 +821,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
     }
 
-    private IOpenClass extractParameterOpenClass(Context context,
-            IOpenMethod openMethod,
-            Method method,
-            int index,
-            Class<?> parameterType) {
-        IOpenClass parameterOpenClass = null;
-        if (!(context.isProvideVariations() && VariationsPack.class == parameterType && index == method
-            .getParameterCount() - 1)) {
-            if (context.isProvideRuntimeContext()) {
-                if (index > 0) {
-                    if (openMethod != null) {
-                        parameterOpenClass = openMethod.getSignature().getParameterType(index - 1);
-                    } else {
-                        parameterOpenClass = JavaOpenClass.getOpenClass(method.getParameterTypes()[index - 1]);
-                    }
-                }
-            } else {
-                if (openMethod != null) {
-                    parameterOpenClass = openMethod.getSignature().getParameterType(index);
-                } else {
-                    parameterOpenClass = JavaOpenClass.getOpenClass(method.getParameterTypes()[index]);
-                }
-            }
-        }
-        return parameterOpenClass == null ? JavaOpenClass.getOpenClass(parameterType) : parameterOpenClass;
-    }
-
     private boolean isJAXRSParameterAnnotationPresented(Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof PathParam || annotation instanceof QueryParam || annotation instanceof CookieParam || annotation instanceof FormParam || annotation instanceof BeanParam || annotation instanceof HeaderParam || annotation instanceof MatrixParam) {
@@ -814,13 +830,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return false;
     }
 
-    private boolean isJAXRSFormParamAnnotationPresented(Annotation[] annotations) {
+    private String getJAXRSFormParamAnnotation(Annotation[] annotations) {
         for (Annotation annotation : annotations) {
             if (annotation instanceof FormParam) {
-                return true;
+                FormParam formParam = (FormParam) annotation;
+                return formParam.value();
             }
         }
-        return false;
+        return null;
     }
 
     private boolean isJAXRSBeanParamAnnotationPresented(Annotation[] annotations) {
@@ -1064,7 +1081,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         }
                     } else {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
-                            .getField(openClass, entry.getKey());
+                            .findFieldByPropertyName(openClass, entry.getKey());
                         if (openField != null) {
                             BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate = (e1, f) -> {
                                 try {
@@ -1129,7 +1146,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     Schema<?> fieldExpectedSchema = propertiesOfExpectedSchema.get(entry.getKey());
                     if (fieldExpectedSchema == null) {
                         IOpenField openField = context.getOpenClassPropertiesResolver()
-                            .getField(openClass, entry.getKey());
+                            .findFieldByPropertyName(openClass, entry.getKey());
                         if (openField != null) {
                             final String stepName = context.getSpreadsheetMethodResolver()
                                 .resolveStepName(context.getType(), openField);
@@ -1145,7 +1162,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     } else {
                                         OpenApiProjectValidatorMessagesUtils.addTypeError(context,
                                             String.format(
-                                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected cell '%s' is found.",
+                                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected schema property '%s' related to cell '%s' is found.",
+                                                entry.getKey(),
                                                 stepName));
                                     }
                                 } finally {

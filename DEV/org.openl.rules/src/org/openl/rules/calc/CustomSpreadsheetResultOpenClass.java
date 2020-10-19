@@ -6,11 +6,14 @@ import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
 import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
+import org.objectweb.asm.AnnotationVisitor;
+import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Type;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.gen.FieldDescription;
@@ -70,8 +73,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private final XlsModuleOpenClass module;
     private volatile Class<?> beanClass;
     private volatile SpreadsheetResultSetter[] spreadsheetResultSetters;
-    private boolean simpleRefBeanByRow;
-    private boolean simpleRefBeanByColumn;
+    private boolean simpleRefByRow;
+    private boolean simpleRefByColumn;
     private long columnsForResultModelCount;
     private long rowsForResultModelCount;
     private boolean detailedPlainModel;
@@ -104,8 +107,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         this.columnsForResultModelCount = Arrays.stream(columnNamesForResultModel).filter(Objects::nonNull).count();
         this.rowsForResultModelCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
 
-        this.simpleRefBeanByRow = columnsForResultModelCount == 1;
-        this.simpleRefBeanByColumn = rowsForResultModelCount == 1;
+        this.simpleRefByRow = columnsForResultModelCount == 1;
+        this.simpleRefByColumn = rowsForResultModelCount == 1;
 
         this.rowAndColumnNamesForResultModelHistory = new ArrayList<>();
         this.rowAndColumnNamesForResultModelHistory
@@ -129,8 +132,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             EMPTY_STRING_ARRAY,
             module,
             false);
-        this.simpleRefBeanByRow = true;
-        this.simpleRefBeanByColumn = true;
+        this.simpleRefByRow = true;
+        this.simpleRefByColumn = true;
         this.logicalTable = logicalTable;
     }
 
@@ -188,8 +191,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             String[] rowTitles,
             String[] columnTitles,
             Collection<IOpenField> fields,
-            boolean simpleRefBeanByRow,
-            boolean simpleRefBeanByColumn,
+            boolean simpleRefByRow,
+            boolean simpleRefByColumn,
             boolean detailedPlainModel) {
         if (beanClass != null) {
             throw new IllegalStateException(
@@ -250,8 +253,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         }
 
         if (rowColumnsForResultModelNeedUpdate) {
-            this.simpleRefBeanByRow = simpleRefBeanByRow && this.simpleRefBeanByRow;
-            this.simpleRefBeanByColumn = simpleRefBeanByColumn && this.simpleRefBeanByColumn;
+            this.simpleRefByRow = simpleRefByRow && this.simpleRefByRow;
+            this.simpleRefByColumn = simpleRefByColumn && this.simpleRefByColumn;
 
             this.rowAndColumnNamesForResultModelHistory.add(Pair.of(columnNamesForResultModel, rowNamesForResultModel));
 
@@ -311,8 +314,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             customSpreadsheetResultOpenClass.rowTitles,
             customSpreadsheetResultOpenClass.columnTitles,
             customSpreadsheetResultOpenClass.getFields(),
-            customSpreadsheetResultOpenClass.simpleRefBeanByRow,
-            customSpreadsheetResultOpenClass.simpleRefBeanByColumn,
+            customSpreadsheetResultOpenClass.simpleRefByRow,
+            customSpreadsheetResultOpenClass.simpleRefByColumn,
             customSpreadsheetResultOpenClass.detailedPlainModel);
     }
 
@@ -356,10 +359,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return columnNamesForResultModel.clone();
     }
 
-    private static boolean isCustomSpreadsheetResultField(IOpenField field) {
-        return field instanceof CustomSpreadsheetResultField;
-    }
-
     @Override
     public CustomSpreadsheetResultOpenClass makeCopyForModule(XlsModuleOpenClass module) {
         CustomSpreadsheetResultOpenClass type = new CustomSpreadsheetResultOpenClass(getName(),
@@ -372,7 +371,7 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             module,
             detailedPlainModel);
         for (IOpenField field : getFields()) {
-            if (isCustomSpreadsheetResultField(field)) {
+            if (field instanceof CustomSpreadsheetResultField) {
                 type.addField(field);
             }
         }
@@ -479,10 +478,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         JavaBeanClassBuilder beanClassBuilder = new JavaBeanClassBuilder(beanClassName)
                             .withAdditionalConstructor(false)
                             .withEqualsHashCodeToStringMethods(false);
-                        beanClassBuilder.addClassAnnotationWriter(classWriter -> {
-                            classWriter.visitAnnotation(Type.getDescriptor(SpreadsheetResultBean.class), true)
-                                .visitEnd();
-                        });
                         TreeMap<String, String> xmlNames = new TreeMap<>(FIELD_COMPARATOR);
                         @SuppressWarnings("unchecked")
                         List<IOpenField>[][] used = new List[rowNames.length][columnNames.length];
@@ -587,11 +582,11 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 if (used[row][column] == null) {
                     String fieldName;
                     String xmlName;
-                    if (simpleRefBeanByRow) {
+                    if (simpleRefByRow) {
                         fieldName = ClassUtils.decapitalize(rowName);
                         xmlName = rowName;
                         field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + rowName);
-                    } else if (simpleRefBeanByColumn) {
+                    } else if (simpleRefByColumn) {
                         fieldName = ClassUtils.decapitalize(columnName);
                         xmlName = columnName;
                         field = getField(SpreadsheetStructureBuilder.DOLLAR_SIGN + columnName);
@@ -662,13 +657,28 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             typeName = instanceClass.getName();
                         }
                     }
+                    Collection<Consumer<FieldVisitor>> fieldVisitorWriters = Collections.singleton((fieldVisitor) -> {
+                        AnnotationVisitor annotationVisitor = fieldVisitor
+                            .visitAnnotation(Type.getDescriptor(SpreadsheetCell.class), true);
+                        annotationVisitor.visit("column", columnName);
+                        annotationVisitor.visit("row", rowName);
+                        if (simpleRefByRow) {
+                            annotationVisitor.visit("simpleRefByRow", true);
+                        }
+                        if (simpleRefByColumn) {
+                            annotationVisitor.visit("simpleRefByColumn", true);
+                        }
+                        annotationVisitor.visitEnd();
+                    });
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
                         FieldDescription fieldDescription = new FieldDescription(typeName,
                             null,
                             null,
                             null,
                             xmlName,
-                            false);
+                            false,
+                            fieldVisitorWriters,
+                            null);
                         beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
@@ -690,7 +700,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             null,
                             null,
                             newXmlName,
-                            false);
+                            false,
+                            fieldVisitorWriters,
+                            null);
                         beanClassBuilder.addField(newFieldName, fieldDescription);
                         beanFieldsMap.put(newFieldName, fillUsed(used, point, field));
                         usedXmlNames.put(newFieldName, newXmlName);
@@ -730,9 +742,9 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
     private List<IOpenField> fillUsed(List<IOpenField>[][] used, Point point, IOpenField field) {
         List<IOpenField> fields = new ArrayList<>();
         fields.add(field);
-        if (simpleRefBeanByRow) {
+        if (simpleRefByRow) {
             Arrays.fill(used[point.getRow()], fields);
-        } else if (simpleRefBeanByColumn) {
+        } else if (simpleRefByColumn) {
             for (int w = 0; w < used.length; w++) {
                 used[w][point.getColumn()] = fields;
             }
