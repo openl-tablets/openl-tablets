@@ -1,4 +1,4 @@
-package org.open.rules.project.validation.openapi.utils;
+package org.openl.rules.project.validation.openapi.utils;
 
 import java.util.ArrayList;
 import java.util.Collection;

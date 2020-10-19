@@ -1,4 +1,4 @@
-package org.open.rules.project.validation.openapi;
+package org.openl.rules.project.validation.openapi;
 
 import static org.junit.Assert.assertFalse;
 

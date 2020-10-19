@@ -133,8 +133,8 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                         "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
                         annotationTemplateClassName)));
                 }
-            } catch (Exception | NoClassDefFoundError ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (Exception | NoClassDefFoundError e) {
+                LOG.debug("Ignored error: ", e);
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String
                     .format("Failed to load or apply annotation template class '%s'.", annotationTemplateClassName)));
             }

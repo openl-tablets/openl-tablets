@@ -1,4 +1,4 @@
-package org.open.rules.project.validation.openapi.test;
+package org.openl.rules.project.validation.openapi.test;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;

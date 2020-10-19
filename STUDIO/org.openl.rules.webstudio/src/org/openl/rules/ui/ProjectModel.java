@@ -9,7 +9,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
 
-import org.open.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.dependency.IDependencyManager;

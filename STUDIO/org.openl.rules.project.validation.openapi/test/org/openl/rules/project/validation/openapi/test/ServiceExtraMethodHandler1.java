@@ -1,4 +1,4 @@
-package org.open.rules.project.validation.openapi.test;
+package org.openl.rules.project.validation.openapi.test;
 
 import java.lang.reflect.Method;
 

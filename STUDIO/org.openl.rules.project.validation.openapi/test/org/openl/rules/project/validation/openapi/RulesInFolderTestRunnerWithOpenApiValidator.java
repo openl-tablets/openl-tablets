@@ -1,4 +1,4 @@
-package org.open.rules.project.validation.openapi;
+package org.openl.rules.project.validation.openapi;
 
 import org.openl.CompiledOpenClass;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
