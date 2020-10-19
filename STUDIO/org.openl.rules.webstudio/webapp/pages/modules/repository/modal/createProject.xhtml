@@ -23,6 +23,14 @@
         .label {
             width: 120px;
         }
+
+        .expandable-link-path {
+            cursor: pointer;
+            border-bottom: 1px dashed #777777;
+            color: black;
+            text-decoration: none;
+        }
+
     </style>
 
     <rich:popupPanel id="modalNewProject" autosized="true" minWidth="580" maxWidth="580">
@@ -338,6 +346,9 @@
                                      value="#{repositoryTreeController.projectName}"
                                      onkeyup="checkCreateOnOpenApiPanel();"
                                      onchange="checkCreateOnOpenApiPanel(); createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
+                    </h:panelGrid>
+                    <h:panelGrid id="openAPIModulesAndPaths" columns="2" styleClass="formfields" cellspacing="1"
+                                 columnClasses="label,">
                         <h:outputLabel styleClass="required" for="modelsModuleName"
                                        value="Module Name for Data Types:"/>
                         <h:inputText id="modelsModuleName" size="35" maxlength="70"
@@ -347,7 +358,15 @@
                                        value="Path for Module with Data Types:"/>
                         <h:inputText id="modelsFilePath" size="35" maxlength="70"
                                      value="#{repositoryTreeController.modelsPath}"
-                                     onkeyup="checkCreateOnOpenApiPanel();"/>
+                                     onkeyup="checkCreateOnOpenApiPanel();"
+                                     rendered="#{repositoryTreeController.editModelsPath}"/>
+                        <a4j:commandLink id="modelsFilePathLink" styleClass="expandable-link-path"
+                                         render="openAPIModulesAndPaths"
+                                         oncomplete="modelsPathIsInput = true;initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
+                                         action="#{repositoryTreeController.enableModelsFilePathInput}"
+                                         rendered="#{not repositoryTreeController.editModelsPath}">
+                            <h:outputText id="modelsFilePathLinkText"/>
+                        </a4j:commandLink>
                         <h:outputLabel styleClass="required" for="algorithmsModuleName"
                                        value="Module Name for Rules:"/>
                         <h:inputText id="algorithmsModuleName" size="35" maxlength="70"
@@ -356,8 +375,16 @@
                         <h:outputLabel styleClass="required" for="algorithmsFilePath"
                                        value="Path for Module with Rules:"/>
                         <h:inputText id="algorithmsFilePath" size="35" maxlength="70"
+                                     rendered="#{repositoryTreeController.editAlgorithmsPath}"
                                      value="#{repositoryTreeController.algorithmsPath}"
                                      onkeyup="checkCreateOnOpenApiPanel();"/>
+                        <a4j:commandLink id="algorithmsFilePathLink" styleClass="expandable-link-path"
+                                         render="openAPIModulesAndPaths"
+                                         oncomplete="algorithmsPathIsInput = true; initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
+                                         action="#{repositoryTreeController.enableAlgorithmsFilePathInput}"
+                                         rendered="#{not repositoryTreeController.editAlgorithmsPath}">
+                            <h:outputText id="algorithmsFilePathLinkText"/>
+                        </a4j:commandLink>
                     </h:panelGrid>
                     <h:panelGrid id="openApiPanel" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -693,6 +720,7 @@
             checkCreateOnZipPanel();
             checkCreateOnExcelPanel();
             checkCreateOnOpenApiPanel();
+            initOpenAPIPanel();
             checkCreateWorkspacePanel();
             checkImportRepoPanel();
             clearFields();
@@ -701,6 +729,9 @@
         let excelFileUploaded = false;
         let zipFileUploaded = false;
         let openApiFileUploaded = false;
+        let modelsPathIsInput = false;
+        let algorithmsPathIsInput = false;
+
         var checkedCount = 0;
 
         function checkCreateOnTemplatePanel() {
@@ -751,10 +782,32 @@
             return $j("#openAPIProjectForm\\:algorithmsFilePath");
         }
 
+        function getOpenAPIModelsPathLink() {
+            return $j("#openAPIProjectForm\\:modelsFilePathLinkText");
+        }
+
+        function getOpenAPIAlgorithmsPathLink() {
+            return $j("#openAPIProjectForm\\:algorithmsFilePathLinkText");
+        }
+
         function checkCreateOnOpenApiPanel() {
-            let namesAreDefined = getOpenAPIModelsModuleName().val() && getOpenAPIAlgorithmsModuleName().val();
-            let pathsAreDefined = getOpenAPIModelsFilePath().val() && getOpenAPIAlgorithmsFilePath().val();
-            if (openApiFileUploaded && getOpenAPIProjectName().val() && namesAreDefined && pathsAreDefined && getOpenAPIRepository().val() !== "none") {
+            let moduleNamesAreDefined = getOpenAPIModelsModuleName().val() && getOpenAPIAlgorithmsModuleName().val();
+            let modelsPathDefined = false;
+            if (!modelsPathIsInput && getOpenAPIModelsModuleName().val()) {
+                modelsPathDefined = true;
+            }
+            let algorithmsPathDefined = false;
+            if (!algorithmsPathIsInput && getOpenAPIAlgorithmsModuleName().val()) {
+                algorithmsPathDefined = true;
+            }
+            if (modelsPathIsInput) {
+                modelsPathDefined = !!getOpenAPIModelsFilePath().val().trim();
+            }
+            if (algorithmsPathIsInput) {
+                algorithmsPathDefined = !!getOpenAPIAlgorithmsFilePath().val().trim();
+            }
+            let pathsDefined = modelsPathDefined && algorithmsPathDefined;
+            if (openApiFileUploaded && getOpenAPIProjectName().val() && moduleNamesAreDefined && pathsDefined && getOpenAPIRepository().val() !== "none") {
                 enableCreateButton(true, #{rich:element("submitOpenAPIFile")});
             } else {
                 enableCreateButton(false, #{rich:element("submitOpenAPIFile")});
@@ -775,6 +828,35 @@
             } else {
                 enableCreateButton(false, #{rich:element("importFromRepoForm:sbtRepo")});
             }
+        }
+
+        const defaultFolder = "rules/";
+        const defaultExtension = ".xlsx";
+
+        function initOpenAPIPanel() {
+            let modelsName = getOpenAPIModelsModuleName().val();
+            let algorithmsName = getOpenAPIAlgorithmsModuleName().val();
+            getOpenAPIModelsPathLink().text(defaultFolder + modelsName + defaultExtension);
+            getOpenAPIAlgorithmsPathLink().text(defaultFolder + algorithmsName + defaultExtension);
+
+            getOpenAPIModelsModuleName().on("keyup change", onModelsModuleNameChange);
+            getOpenAPIAlgorithmsModuleName().on("keyup change", onAlgorithmsModuleNameChange);
+        }
+
+        function onModelsModuleNameChange(event) {
+            if (!event) {
+                return;
+            }
+            let moduleName = getOpenAPIModelsModuleName().val();
+            getOpenAPIModelsPathLink().text(defaultFolder + moduleName + defaultExtension);
+        }
+
+        function onAlgorithmsModuleNameChange(event) {
+            if (!event) {
+                return;
+            }
+            let moduleName = getOpenAPIAlgorithmsModuleName().val();
+            getOpenAPIAlgorithmsPathLink().text(defaultFolder + moduleName + defaultExtension);
         }
 
         //]]>
