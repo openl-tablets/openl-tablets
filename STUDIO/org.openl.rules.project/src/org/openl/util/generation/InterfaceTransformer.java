@@ -67,7 +67,7 @@ public class InterfaceTransformer {
         if (!classToTransform.isInterface()) {
             for (Constructor<?> c : classToTransform.getDeclaredConstructors()) {
                 if ((Modifier.isPublic(c.getModifiers()) || Modifier.isProtected(c.getModifiers())) && c
-                        .getParameterCount() == 0) {
+                    .getParameterCount() == 0) {
                     superClassConstructor = c;
                     break;
                 }
@@ -85,14 +85,14 @@ public class InterfaceTransformer {
             superClass = Object.class;
         }
         classVisitor.visit(Opcodes.V1_8,
-                classToTransform.isInterface() ? classToTransform.getModifiers()
-                                               : classToTransform.getModifiers() | Modifier.ABSTRACT,
-                className.replace('.', '/'),
-                null,
-                superClass.getName().replace('.', '/'),
-                Arrays.stream(classToTransform.getInterfaces())
-                        .map(e -> e.getName().replace('.', '/'))
-                        .toArray(String[]::new));
+            classToTransform.isInterface() ? classToTransform.getModifiers()
+                                           : classToTransform.getModifiers() | Modifier.ABSTRACT,
+            className.replace('.', '/'),
+            null,
+            superClass.getName().replace('.', '/'),
+            Arrays.stream(classToTransform.getInterfaces())
+                .map(e -> e.getName().replace('.', '/'))
+                .toArray(String[]::new));
 
         for (Annotation annotation : classToTransform.getAnnotations()) {
             AnnotationVisitor av = classVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
@@ -100,59 +100,68 @@ public class InterfaceTransformer {
         }
 
         for (Field field : classToTransform.getDeclaredFields()) {
-            try {
-                field.setAccessible(true);
-                FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
+            if (!field.isSynthetic()) {
+                try {
+                    field.setAccessible(true);
+                    FieldVisitor fieldVisitor = classVisitor.visitField(field.getModifiers(),
                         field.getName(),
                         Type.getDescriptor(field.getType()),
                         null,
                         isConstantField(field) ? field.get(null) : null);
-                if (fieldVisitor != null) {
-                    for (Annotation annotation : field.getAnnotations()) {
-                        AnnotationVisitor av = fieldVisitor
+                    if (fieldVisitor != null) {
+                        for (Annotation annotation : field.getAnnotations()) {
+                            AnnotationVisitor av = fieldVisitor
                                 .visitAnnotation(Type.getDescriptor(annotation.annotationType()), true);
-                        processAnnotation(annotation, av);
+                            processAnnotation(annotation, av);
+                        }
                     }
+                } catch (Exception e) {
+                    log.error("Failed to process field '{}'.", field.getName(), e);
                 }
-            } catch (Exception e) {
-                log.error("Failed to process field '{}'.", field.getName(), e);
             }
         }
 
         for (Method method : classToTransform.getDeclaredMethods()) {
-            String ruleName = method.getName();
-            MethodVisitor methodVisitor = classVisitor.visitMethod(
+            if (!method.isSynthetic()) {
+                String ruleName = method.getName();
+                MethodVisitor methodVisitor = classVisitor.visitMethod(
                     classToTransform.isInterface() ? method.getModifiers() : method.getModifiers() | Modifier.ABSTRACT,
                     ruleName,
                     Type.getMethodDescriptor(method),
                     null,
                     null);
-            processAnnotationsOnExecutable(methodVisitor, method);
-            if (methodVisitor != null) {
-                methodVisitor.visitEnd();
+                processAnnotationsOnExecutable(methodVisitor, method);
+                if (methodVisitor != null) {
+                    methodVisitor.visitEnd();
+                }
             }
         }
 
         if (!classToTransform.isInterface()) {
             for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
-                GeneratorAdapter mg = new GeneratorAdapter(constructor
-                        .getModifiers(), org.objectweb.asm.commons.Method.getMethod(constructor), null, null, classVisitor);
-                processAnnotationsOnExecutable(mg, constructor);
-                mg.visitCode();
-                mg.loadThis();
-                mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
+                if (!constructor.isSynthetic()) {
+                    GeneratorAdapter mg = new GeneratorAdapter(constructor.getModifiers(),
+                        org.objectweb.asm.commons.Method.getMethod(constructor),
+                        null,
+                        null,
+                        classVisitor);
+                    processAnnotationsOnExecutable(mg, constructor);
+                    mg.visitCode();
+                    mg.loadThis();
+                    mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
                         org.objectweb.asm.commons.Method.getMethod(superClassConstructor));
-                mg.visitInsn(Opcodes.RETURN);
-                int i = 1;
-                for (Class<?> paramType : constructor.getParameterTypes()) {
-                    if (long.class == paramType || double.class == paramType) {
-                        i += 2;
-                    } else {
-                        i++;
+                    mg.visitInsn(Opcodes.RETURN);
+                    int i = 1;
+                    for (Class<?> paramType : constructor.getParameterTypes()) {
+                        if (long.class == paramType || double.class == paramType) {
+                            i += 2;
+                        } else {
+                            i++;
+                        }
                     }
+                    mg.visitMaxs(1, i);
+                    mg.visitEnd();
                 }
-                mg.visitMaxs(1, i);
-                mg.visitEnd();
             }
         }
     }
@@ -161,7 +170,7 @@ public class InterfaceTransformer {
         if (methodVisitor != null) {
             for (Annotation annotation : executable.getAnnotations()) {
                 AnnotationVisitor av = methodVisitor.visitAnnotation(Type.getDescriptor(annotation.annotationType()),
-                        true);
+                    true);
                 processAnnotation(annotation, av);
             }
             if (processParamAnnotation) {
