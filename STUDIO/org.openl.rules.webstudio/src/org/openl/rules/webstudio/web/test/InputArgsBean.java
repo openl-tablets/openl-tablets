@@ -36,6 +36,7 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.serialization.DefaultTypingMode;
 import org.openl.rules.serialization.JsonUtils;
+import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.ProjectModel;
@@ -177,7 +178,7 @@ public class InputArgsBean {
     private ObjectMapper configureObjectMapper() {
         RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
         ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
-        WebstudioJacksonObjectMapperFactoryBean objectMapperFactory = new WebstudioJacksonObjectMapperFactoryBean();
+        ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
         objectMapperFactory.setRulesDeploy(rulesDeploy);
         objectMapperFactory.setXlsModuleOpenClass(
             (XlsModuleOpenClass) WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass());
