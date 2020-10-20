@@ -1,6 +1,9 @@
 package org.openl.rules.types.impl;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -8,7 +11,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -136,6 +141,21 @@ public class DispatchingTest {
         invokeAndCheckForAmbiguous(method);
     }
 
+    @Test
+    public void testDatesDispatching() throws NoSuchMethodException, IllegalAccessException {
+        MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
+        Method method = MyRule.class.getMethod("myRule", Integer.class);
+        IRulesRuntimeContext context = initContext();
+        invokeAndCheckForAmbiguous(method, myRule,  13);
+
+        context = initContext();
+        Calendar cal = new GregorianCalendar();
+        cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
+        cal.set(Calendar.MILLISECOND, 0);
+        context.setCurrentDate(cal.getTime());
+        invokeAndCheckForAmbiguous(method, myRule, 13);
+    }
+
     public void calcBenchmark() {
         IRuntimeEnv runtimeEnv = ((IEngineWrapper) instance).getRuntimeEnv();
 
@@ -168,8 +188,12 @@ public class DispatchingTest {
     }
 
     private void invokeAndCheckForAmbiguous(Method method) throws IllegalAccessException {
+        invokeAndCheckForAmbiguous(method, instance);
+    }
+
+    private void invokeAndCheckForAmbiguous(Method method, Object target, Object... args) throws IllegalAccessException {
         try {
-            Object o = method.invoke(instance);
+            Object o = method.invoke(target, args);
             fail(NO_EXCEPTION + o);
         } catch (InvocationTargetException e) {
             assertNotNull(e);
@@ -199,5 +223,9 @@ public class DispatchingTest {
         int getAmbiguousPriority1();
 
         DoubleValue driverRiskScoreOverloadTest2(String driverRisk);
+    }
+
+    public interface MyRule {
+        Double myRule(Integer a);
     }
 }

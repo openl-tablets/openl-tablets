@@ -196,21 +196,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                             }
                         } else {
                             boolean moreConcreteMethod;
+                            boolean f;
                             if (!notNullPropertyNames.isEmpty()) {
                                 moreConcreteMethod = true;
+                                f = false;
                                 for (IOpenMethod m : mostPriority) {
                                     ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
                                     propsLoop: for (String propName : notNullPropertyNames) {
                                         switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
                                             case NESTED:
+                                            case EQUALS:
+                                                f = true;
                                                 break;
                                             case CONTAINS:
-                                                moreConcreteMethod = false;
-                                                break propsLoop;
-                                            case EQUALS:
-                                                break;
                                             case NO_INTERSECTION:
                                             case PARTLY_INTERSECTS:
+                                                f = true;
                                                 moreConcreteMethod = false;
                                                 break propsLoop;
                                         }
@@ -218,8 +219,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                                 }
                             } else {
                                 moreConcreteMethod = false;
+                                f = false;
                             }
-                            if (moreConcreteMethod) {
+                            if (moreConcreteMethod && f) {
                                 notPriorMethods.addAll(mostPriority);
                                 mostPriority.clear();
                                 mostPriority.add(candidate);

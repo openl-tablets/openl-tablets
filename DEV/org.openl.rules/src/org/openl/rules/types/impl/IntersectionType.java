@@ -5,5 +5,6 @@ public enum IntersectionType {
     EQUALS,
     NESTED,
     CONTAINS,
-    PARTLY_INTERSECTS
+    PARTLY_INTERSECTS,
+    UNKNOWN
 }
