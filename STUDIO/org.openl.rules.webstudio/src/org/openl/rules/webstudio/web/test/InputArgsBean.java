@@ -255,7 +255,7 @@ public class InputArgsBean {
                             .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
                     } else if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
                         parsedArguments[i] = JsonUtils.fromJSON(inputTextBean,
-                            argumentTreeNodes[i].getType().getInstanceClass());
+                            argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
                     }
                 } else {
                     parsedArguments[i] = argumentTreeNodes[i].getValueForced();
