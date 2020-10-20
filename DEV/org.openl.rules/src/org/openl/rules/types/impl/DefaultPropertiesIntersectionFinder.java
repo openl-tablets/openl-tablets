@@ -17,7 +17,7 @@ public class DefaultPropertiesIntersectionFinder {
         IntersectionConstraint<?> mc = constraints.get(propName);
 
         if (mc == null) {
-            return IntersectionType.EQUALS;
+            return IntersectionType.UNKNOWN;
         }
 
         return mc.match(props1, props2);
