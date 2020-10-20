@@ -60,6 +60,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thoughtworks.xstream.io.StreamException;
 
 @Service
 @ViewScope
@@ -176,23 +177,27 @@ public class InputArgsBean {
     }
 
     private ObjectMapper configureObjectMapper() {
-        RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
-        ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
-        ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
-        objectMapperFactory.setRulesDeploy(rulesDeploy);
-        objectMapperFactory.setXlsModuleOpenClass(
-            (XlsModuleOpenClass) WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass());
-        objectMapperFactory.setClassLoader(classLoader);
-        // Default values from webservices. TODO this should be configurable
-        objectMapperFactory.setPolymorphicTypeValidation(true);
-        objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
-        objectMapperFactory.setCaseInsensitiveProperties(false);
-        objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
-        objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
         try {
+            RulesDeploy rulesDeploy = getCurrentProjectRulesDeploy();
+            ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
+            ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
+            objectMapperFactory.setRulesDeploy(rulesDeploy);
+            objectMapperFactory.setXlsModuleOpenClass(
+                (XlsModuleOpenClass) WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass());
+            objectMapperFactory.setClassLoader(classLoader);
+            // Default values from webservices. TODO this should be configurable
+            objectMapperFactory.setPolymorphicTypeValidation(true);
+            objectMapperFactory.setDefaultDateFormatAsString("yyyy-MM-dd'T'HH:mm:ss.SSS");
+            objectMapperFactory.setCaseInsensitiveProperties(false);
+            objectMapperFactory.setDefaultTypingMode(DefaultTypingMode.JAVA_LANG_OBJECT);
+            objectMapperFactory.setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
+
             return objectMapperFactory.createJacksonObjectMapper();
         } catch (ClassNotFoundException e) {
-            throw new Message(constructJsonExceptionMessage(e));
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Invalid rules deploy configuration: " + e.getMessage());
+            }
+            throw new Message("Invalid rules deploy configuration.");
         }
     }
 
@@ -214,8 +219,10 @@ public class InputArgsBean {
                             .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper));
                     }
                 }
-            } catch (IOException e) {
+            } catch (JsonParseException e) {
                 throw new Message(constructJsonExceptionMessage(e));
+            } catch (IOException e) {
+                throw new Message("Input parameters are wrong.");
             }
         }
     }
@@ -231,8 +238,10 @@ public class InputArgsBean {
                 if (stringStringMap.isEmpty()) {
                     validateFirstJsonSymbol(inputTextBean);
                 }
-            } catch (IOException e) {
+            } catch (JsonParseException e) {
                 throw new Message(constructJsonExceptionMessage(e));
+            } catch (IOException e) {
+                throw new Message("Input parameters are wrong.");
             }
         }
         Object[] parsedArguments = new Object[argumentTreeNodes.length];
@@ -252,14 +261,18 @@ public class InputArgsBean {
                     parsedArguments[i] = argumentTreeNodes[i].getValueForced();
                 }
             }
+        } catch (Message e) {
+            throw e;
+        } catch (JsonParseException e) {
+            throw new Message(constructJsonExceptionMessage(e));
+        } catch (IOException e) {
+            throw new Message("Input parameters are wrong.");
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
                 throw new Message("Input parameters are wrong.");
             } else {
                 throw e;
             }
-        } catch (IOException e) {
-            throw new Message(constructJsonExceptionMessage(e));
         }
         return parsedArguments;
     }
@@ -271,14 +284,11 @@ public class InputArgsBean {
         }
     }
 
-    private String constructJsonExceptionMessage(Exception e) {
-        if (e instanceof JsonParseException) {
-            return String.format("%s</br>[line: %s, column: %s]",
-                ((JsonParseException) e).getOriginalMessage(),
-                ((JsonParseException) e).getLocation().getLineNr(),
-                ((JsonParseException) e).getLocation().getColumnNr());
-        }
-        return "Input parameters are wrong.";
+    private String constructJsonExceptionMessage(JsonParseException e) {
+        return String.format("%s</br>[line: %s, column: %s]",
+            e.getOriginalMessage(),
+            e.getLocation().getLineNr(),
+            e.getLocation().getColumnNr());
     }
 
     public void initObject() {
@@ -306,14 +316,14 @@ public class InputArgsBean {
     }
 
     public void initCollection() {
-        ParameterDeclarationTreeNode currentnode = getCurrentNode();
-        IOpenClass fieldType = currentnode.getType();
+        ParameterDeclarationTreeNode currentNode = getCurrentNode();
+        IOpenClass fieldType = currentNode.getType();
 
         IAggregateInfo info = fieldType.getAggregateInfo();
 
         Object ary = info.makeIndexedAggregate(info.getComponentType(fieldType), 0);
 
-        currentnode.setValueForced(ary);
+        currentNode.setValueForced(ary);
     }
 
     public void disposeObject() {
@@ -463,22 +473,27 @@ public class InputArgsBean {
     }
 
     private RulesDeploy getCurrentProjectRulesDeploy() {
-        RulesDeploy rulesDeploy = null;
         try {
             RulesProject currentProject = WebStudioUtils.getWebStudio().getCurrentProject();
             if (currentProject.hasArtefact(DeployUtils.RULES_DEPLOY_XML)) {
-                AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
-                if (artefact instanceof AProjectResource) {
-                    try (InputStream content = ((AProjectResource) artefact).getContent()) {
-                        IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
-                        rulesDeploy = rulesDeploySerializer.deserialize(content);
+                try {
+                    AProjectArtefact artefact = currentProject.getArtefact(DeployUtils.RULES_DEPLOY_XML);
+                    if (artefact instanceof AProjectResource) {
+                        try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                            IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+                            return rulesDeploySerializer.deserialize(content);
+                        }
                     }
+                } catch (ProjectException ignore) {
                 }
             }
-        } catch (ProjectException | IOException e) {
-            log.error("Error during getting project rules deploy", e);
+            return null;
+        } catch (IOException | StreamException e) {
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Invalid Rules Deploy Configuration: " + e.getMessage());
+            }
+            throw new Message("Invalid Rules Deploy Configuration.");
         }
-        return rulesDeploy;
     }
 
     public InputTestCaseType getInputTestCaseType() {
