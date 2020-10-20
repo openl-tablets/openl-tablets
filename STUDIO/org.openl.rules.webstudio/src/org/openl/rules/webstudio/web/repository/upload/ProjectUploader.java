@@ -11,7 +11,6 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
-import org.openl.util.formatters.FileNameFormatter;
 
 public class ProjectUploader {
     private final String projectName;
@@ -93,16 +92,14 @@ public class ProjectUploader {
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
                 String fileName = file.getName();
                 if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
-                    String normalizedAlgorithmPath = FileNameFormatter.normalizePath(algorithmsPath);
-                    String normalizedModelPath = FileNameFormatter.normalizePath(modelsPath);
                     projectCreator = new OpenAPIProjectCreator(file,
                         repositoryId,
                         projectName,
                         projectFolder,
                         userWorkspace,
                         comment,
-                        normalizedModelPath,
-                        normalizedAlgorithmPath,
+                        modelsPath,
+                        algorithmsPath,
                         modelsModuleName,
                         algorithmsModuleName);
                 } else if (FileTypeHelper.isZipFile(fileName)) {

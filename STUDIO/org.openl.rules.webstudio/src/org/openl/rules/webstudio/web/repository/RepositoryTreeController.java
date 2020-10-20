@@ -5,8 +5,6 @@ import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
 import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
-import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_ALGORITHMS_PATH;
-import static org.openl.rules.webstudio.web.util.OpenAPIConstants.DEFAULT_MODELS_PATH;
 import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
@@ -90,6 +88,7 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.util.OpenAPIEditorUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceUserImpl;
@@ -201,8 +200,10 @@ public class RepositoryTreeController {
 
     private String modelsModuleName = "Models";
     private String algorithmsModuleName = "Algorithms";
-    private String modelsPath = DEFAULT_MODELS_PATH;
-    private String algorithmsPath = DEFAULT_ALGORITHMS_PATH;
+    private String modelsPath;
+    private String algorithmsPath;
+    private boolean editModelsPath = false;
+    private boolean editAlgorithmsPath = false;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -837,18 +838,20 @@ public class RepositoryTreeController {
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-
-                String comment;
-                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                    comment = archiveProjectComment;
-                    if (!isValidComment(project, comment)) {
-                        return null;
+                userWorkspace.refresh();
+                if (userWorkspace.hasProject(project.getRepository().getId(), project.getName())) {
+                    String comment;
+                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                        comment = archiveProjectComment;
+                        if (!isValidComment(project, comment)) {
+                            return null;
+                        }
+                    } else {
+                        Comments comments = getComments(project);
+                        comment = comments.archiveProject(project.getName());
                     }
-                } else {
-                    Comments comments = getComments(project);
-                    comment = comments.archiveProject(project.getName());
+                    project.delete(comment);
                 }
-                project.delete(comment);
             } else {
                 projectArtefact.delete();
             }
@@ -1941,7 +1944,8 @@ public class RepositoryTreeController {
                 } else {
                     comment = getDesignRepoComments().createProject(projectName);
                 }
-
+                String pathForModels = extractPath(modelsModuleName, editModelsPath, modelsPath);
+                String pathForAlgorithms = extractPath(algorithmsModuleName, editAlgorithmsPath, algorithmsPath);
                 ProjectUploader projectUploader = new ProjectUploader(repositoryId,
                     uploadedItem,
                     projectName,
@@ -1950,8 +1954,8 @@ public class RepositoryTreeController {
                     comment,
                     zipFilter,
                     zipCharsetDetector,
-                    modelsPath,
-                    algorithmsPath,
+                    pathForModels,
+                    pathForAlgorithms,
                     modelsModuleName,
                     algorithmsModuleName);
                 errorMessage = validateCreateProjectParams(comment);
@@ -1993,6 +1997,16 @@ public class RepositoryTreeController {
         }
 
         return errorMessage;
+    }
+
+    private String extractPath(String moduleName, boolean editorWasEnabled, String current) {
+        String pathForModels;
+        if (StringUtils.isNotBlank(moduleName) && !editorWasEnabled) {
+            pathForModels = OpenAPIEditorUtils.generatePath(moduleName);
+        } else {
+            pathForModels = current;
+        }
+        return pathForModels;
     }
 
     public void clearUploadedFiles() {
@@ -2483,6 +2497,18 @@ public class RepositoryTreeController {
         return msg;
     }
 
+    public void enableModelsFilePathInput() {
+        setEditModelsPath(true);
+        setModelsPath(OpenAPIEditorUtils.generatePath(modelsModuleName));
+        setAlgorithmsPath(OpenAPIEditorUtils.generatePath(algorithmsModuleName));
+    }
+
+    public void enableAlgorithmsFilePathInput() {
+        setEditAlgorithmsPath(true);
+        setAlgorithmsPath(OpenAPIEditorUtils.generatePath(algorithmsModuleName));
+        setModelsPath(OpenAPIEditorUtils.generatePath(modelsModuleName));
+    }
+
     public boolean getEraseFromRepository() {
         return eraseFromRepository;
     }
@@ -2508,7 +2534,7 @@ public class RepositoryTreeController {
     }
 
     public String getModelsPath() {
-        return modelsPath;
+        return OpenAPIEditorUtils.generatePath(modelsModuleName);
     }
 
     public void setModelsPath(String modelsPath) {
@@ -2516,10 +2542,26 @@ public class RepositoryTreeController {
     }
 
     public String getAlgorithmsPath() {
-        return algorithmsPath;
+        return OpenAPIEditorUtils.generatePath(algorithmsModuleName);
     }
 
     public void setAlgorithmsPath(String algorithmsPath) {
         this.algorithmsPath = algorithmsPath;
+    }
+
+    public boolean isEditModelsPath() {
+        return editModelsPath;
+    }
+
+    public void setEditModelsPath(boolean editModelsPath) {
+        this.editModelsPath = editModelsPath;
+    }
+
+    public boolean isEditAlgorithmsPath() {
+        return editAlgorithmsPath;
+    }
+
+    public void setEditAlgorithmsPath(boolean editAlgorithmsPath) {
+        this.editAlgorithmsPath = editAlgorithmsPath;
     }
 }

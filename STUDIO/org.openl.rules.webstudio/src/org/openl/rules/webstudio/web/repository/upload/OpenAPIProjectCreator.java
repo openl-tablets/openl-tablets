@@ -31,6 +31,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.StringUtils;
+import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,39 +76,41 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (StringUtils.isBlank(modelsPath)) {
             throw new ProjectException("Error creating the project, path for module with Data Types is not provided.");
         }
-        if (modelsPath.startsWith("/")) {
-            throw new ProjectException("Path for Data Types cannot start with '/'");
-        }
-        if (algorithmsPath.startsWith("/")) {
-            throw new ProjectException("Path for Rules cannot start with '/'");
-        }
-
-        if (modelsPath.endsWith("/")) {
-            modelsPath = modelsPath.substring(0, modelsPath.length() - 1);
-        }
-
-        if (algorithmsPath.endsWith("/")) {
-            algorithmsPath = algorithmsPath.substring(0, algorithmsPath.length() - 1);
-        }
-
         if (StringUtils.isBlank(algorithmsModuleName)) {
             throw new ProjectException("Error creating the project, module name for Rules is not provided.");
         }
         if (StringUtils.isBlank(algorithmsPath)) {
             throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
         }
-        if (!FileTypeHelper.isExcelFile(algorithmsPath)) {
+        if (modelsPath.startsWith("/")) {
+            throw new ProjectException("Path for Data Types cannot start with '/'");
+        }
+        if (algorithmsPath.startsWith("/")) {
+            throw new ProjectException("Path for Rules cannot start with '/'");
+        }
+        String normalizedAlgorithmsPath = FileNameFormatter.normalizePath(algorithmsPath);
+        String normalizedModelsPath = FileNameFormatter.normalizePath(modelsPath);
+
+        if (normalizedAlgorithmsPath.endsWith("/")) {
+            normalizedAlgorithmsPath = normalizedAlgorithmsPath.substring(0, normalizedAlgorithmsPath.length() - 1);
+        }
+
+        if (normalizedModelsPath.endsWith("/")) {
+            normalizedModelsPath = normalizedModelsPath.substring(0, normalizedModelsPath.length() - 1);
+        }
+
+        if (!FileTypeHelper.isExcelFile(normalizedAlgorithmsPath)) {
             throw new ProjectException("Error creating the project, unsupported file extension for module with Rules.");
         }
-        if (!FileTypeHelper.isExcelFile(modelsPath)) {
+        if (!FileTypeHelper.isExcelFile(normalizedModelsPath)) {
             throw new ProjectException(
                 "Error creating the project, unsupported file extension for module with Data Types.");
         }
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
         this.projectName = projectName;
-        this.modelsPath = modelsPath;
-        this.algorithmsPath = algorithmsPath;
+        this.modelsPath = normalizedModelsPath;
+        this.algorithmsPath = normalizedAlgorithmsPath;
         this.modelsModuleName = modelsModuleName;
         this.algorithmsModuleName = algorithmsModuleName;
     }

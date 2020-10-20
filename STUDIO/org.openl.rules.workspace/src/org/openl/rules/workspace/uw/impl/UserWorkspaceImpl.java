@@ -1,14 +1,5 @@
 package org.openl.rules.workspace.uw.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -31,6 +22,9 @@ import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.util.*;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -262,19 +256,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void syncProjects(){
+    public void syncProjects() {
         for (RulesProject rPr : getProjects()) {
             String designFolderName = rPr.getDesignFolderName();
-            String masterProjectName = designFolderName.substring(designFolderName.lastIndexOf('/') + 1,designFolderName.lastIndexOf(':'));
-            if(rPr.isOpened() && !rPr.getLocalFolderName().equals(masterProjectName)){
-                try {
-                    rPr.close();
-                    rPr.setLocalFolderName(null);
-                    rPr.open();
-                } catch (ProjectException e) {
-                    log.warn("Could not reopen the project '{}' because of error: {}",
-                            rPr.getName(),
-                            e.getMessage());
+            if (designFolderName != null && designTimeRepository.getRepository(rPr.getRepository().getId()).supports().mappedFolders()) {
+                String masterProjectName = designFolderName.substring(designFolderName.lastIndexOf('/') + 1, designFolderName.lastIndexOf(':'));
+                if (rPr.isOpened() && !rPr.getLocalFolderName().equals(masterProjectName)) {
+                    try {
+                        rPr.close();
+                        rPr.setLocalFolderName(null);
+                        rPr.open();
+                    } catch (ProjectException e) {
+                        log.warn("Could not reopen the project '{}' because of error: {}",
+                                rPr.getName(),
+                                e.getMessage());
+                    }
                 }
             }
         }

@@ -208,9 +208,7 @@ public class MergeConflictBean {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
-
-        // Shouldn't occur. Bit if occurred return commit;
-        log.warn("Can't find author and date for a commit {}", commit);
+        // Occur if the file in which the conflict did not exist in the checked commit. In this case return commit;
         return commit;
     }
 
