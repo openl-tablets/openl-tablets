@@ -838,18 +838,20 @@ public class RepositoryTreeController {
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-
-                String comment;
-                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                    comment = archiveProjectComment;
-                    if (!isValidComment(project, comment)) {
-                        return null;
+                userWorkspace.refresh();
+                if (userWorkspace.hasProject(project.getRepository().getId(), project.getName())) {
+                    String comment;
+                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                        comment = archiveProjectComment;
+                        if (!isValidComment(project, comment)) {
+                            return null;
+                        }
+                    } else {
+                        Comments comments = getComments(project);
+                        comment = comments.archiveProject(project.getName());
                     }
-                } else {
-                    Comments comments = getComments(project);
-                    comment = comments.archiveProject(project.getName());
+                    project.delete(comment);
                 }
-                project.delete(comment);
             } else {
                 projectArtefact.delete();
             }
