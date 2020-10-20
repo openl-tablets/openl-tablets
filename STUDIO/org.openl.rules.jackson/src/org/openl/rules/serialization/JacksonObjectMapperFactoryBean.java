@@ -159,6 +159,10 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
     public ObjectMapper createJacksonObjectMapper() throws ClassNotFoundException {
         ObjectMapper mapper = getObjectMapperFactory().createObjectMapper();
 
+        TypeFactory typeFactory =
+                TypeFactory.defaultInstance().withClassLoader(getClassLoader());
+        mapper.setTypeFactory(typeFactory);
+
         mapper.enable(MapperFeature.IGNORE_DUPLICATE_MODULE_REGISTRATIONS);
         mapper.registerModule(new ParameterNamesModule())
             .registerModule(new Jdk8Module())
