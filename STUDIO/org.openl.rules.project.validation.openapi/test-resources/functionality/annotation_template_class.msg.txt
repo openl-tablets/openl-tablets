@@ -3,3 +3,4 @@ ERROR: OpenAPI Reconciliation: Expected operation 'POST' is not found for path '
 ERROR: OpenAPI Reconciliation: Return type of method 'BankRatingCalculation' must be compatible with OpenAPI schema 'BankRatingCalculation'.
 ERROR: OpenAPI Reconciliation: Expected method is not found for path '/ProfitDynamicScore'.
 ERROR: OpenAPI Reconciliation: Unexpected method 'extraMethod' is found for path '/extraMethod'.
+ERROR: OpenAPI Reconciliation: Unexpected method 'ProfitDynamicScore' is found for path '/ProfitDynamicScore/{runtimeContext}/{profitDynamic}/{profit}'.

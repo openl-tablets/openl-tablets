@@ -275,6 +275,44 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private void validateOpenAPI(Context context) {
+        if (context.getActualOpenAPI().getPaths() != null) {
+            for (Map.Entry<String, PathItem> entry : context.getActualOpenAPI().getPaths().entrySet()) {
+                try {
+                    context.setActualPath(entry.getKey());
+                    context.setActualPathItem(entry.getValue());
+                    Pair<String, PathItem> expectedPath = findPathItem(context.getExpectedOpenAPI().getPaths(),
+                        entry.getKey());
+                    Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
+                    if (method == null) {
+                        continue;
+                    }
+                    IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
+                        context.getMethodMap().get(method),
+                        context.isProvideRuntimeContext(),
+                        context.isProvideVariations());
+                    if (expectedPath != null && expectedPath.getRight() != null) {
+                        context.setExpectedPath(expectedPath.getKey());
+                        context.setExpectedPathItem(expectedPath.getValue());
+                        context.setMethod(method);
+                        context.setOpenMethod(openMethod);
+                        validatePathItem(context);
+                    } else {
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                            String.format(
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
+                                openMethod != null ? openMethod.getName() : method.getName(),
+                                entry.getKey()));
+                    }
+                } finally {
+                    context.setOpenMethod(null);
+                    context.setMethod(null);
+                    context.setActualPathItem(null);
+                    context.setExpectedPathItem(null);
+                    context.setExpectedPath(null);
+                    context.setActualPath(null);
+                }
+            }
+        }
         if (context.getExpectedOpenAPI().getPaths() != null) {
             for (Map.Entry<String, PathItem> entry : context.getExpectedOpenAPI().getPaths().entrySet()) {
                 PathItem expectedPathItem = entry.getValue();
@@ -284,21 +322,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     if (context.getActualOpenAPI().getPaths() != null) {
                         Pair<String, PathItem> actualPath = findPathItem(context.getActualOpenAPI().getPaths(),
                             entry.getKey());
-                        if (actualPath != null && actualPath.getRight() != null) {
-                            context.setActualPath(actualPath.getKey());
-                            context.setActualPathItem(actualPath.getValue());
-                            Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
-                            if (method == null) {
-                                continue;
-                            }
-                            IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
-                                context.getMethodMap().get(method),
-                                context.isProvideRuntimeContext(),
-                                context.isProvideVariations());
-                            context.setMethod(method);
-                            context.setOpenMethod(openMethod);
-                            validatePathItem(context);
-                        } else {
+                        if (actualPath == null) {
                             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                                 String.format(
                                     OPEN_API_VALIDATION_MSG_PREFIX + "Expected method is not found for path '%s'.",
@@ -306,44 +330,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         }
                     }
                 } finally {
-                    context.setOpenMethod(null);
-                    context.setActualPathItem(null);
-                    context.setExpectedPathItem(null);
                     context.setExpectedPath(null);
-                    context.setActualPath(null);
-                    context.setMethod(null);
-                }
-            }
-        }
-        if (context.getActualOpenAPI().getPaths() != null) {
-            for (Map.Entry<String, PathItem> entry : context.getActualOpenAPI().getPaths().entrySet()) {
-                try {
-                    context.setActualPath(entry.getKey());
-                    context.setActualPathItem(entry.getValue());
-                    Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
-                    if (method == null) {
-                        continue;
-                    }
-                    IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
-                        context.getMethodMap().get(method),
-                        context.isProvideRuntimeContext(),
-                        context.isProvideVariations());
-                    context.setMethod(method);
-                    context.setOpenMethod(openMethod);
-                    Pair<String, PathItem> expectedPath = findPathItem(context.getExpectedOpenAPI().getPaths(),
-                        entry.getKey());
-                    if (expectedPath == null) {
-                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                            String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
-                                openMethod != null ? openMethod.getName() : method.getName(),
-                                entry.getKey()));
-                    }
-                } finally {
-                    context.setOpenMethod(null);
-                    context.setActualPathItem(null);
-                    context.setActualPath(null);
-                    context.setMethod(null);
+                    context.setExpectedPathItem(null);
                 }
             }
         }
@@ -385,30 +373,33 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         }
     }
 
+    private String normalizePath(String path) {
+        String s = path;
+        if (s == null) {
+            s = "/";
+        }
+        s = s.replaceAll("\\{[^}]*}", "{}");
+        while (!Objects.equals(s, s.replaceAll("//", "/"))) {
+            s = s.replaceAll("//", "/");
+        }
+        if (s.length() == 0 || !s.startsWith("/")) {
+            s = "/" + s;
+        }
+        if (s.endsWith("/")) {
+            s = s.substring(0, s.length() - 1);
+        }
+        return s;
+    }
+
     private Method findMethodByPath(Class<?> serviceClass, String path) {
+        path = normalizePath(path);
         Path classPathAnnotation = serviceClass.getAnnotation(Path.class);
         for (Method method : serviceClass.getMethods()) {
             Path pathAnnotation = method.getAnnotation(Path.class);
             if (pathAnnotation != null) {
                 String methodPath = (classPathAnnotation != null ? classPathAnnotation.value() : "") + pathAnnotation
                     .value();
-                StringBuilder sb = new StringBuilder();
-                boolean f = false;
-                for (char c : methodPath.toCharArray()) {
-                    if (c != '/') {
-                        sb.append(c);
-                        f = false;
-                    } else {
-                        if (!f) {
-                            sb.append(c);
-                            f = true;
-                        }
-                    }
-                }
-                methodPath = sb.toString();
-                if (methodPath.length() == 0 || !methodPath.startsWith("/")) {
-                    methodPath = "/" + methodPath;
-                }
+                methodPath = normalizePath(methodPath);
                 if (Objects.equals(methodPath, path)) {
                     return method;
                 }
