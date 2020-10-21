@@ -30,7 +30,8 @@ class Context {
     private boolean provideRuntimeContext;
     private boolean provideVariations;
 
-    private String path;
+    private String actualPath;
+    private String expectedPath;
     private String operationType;
     private PathItem expectedPathItem;
     private PathItem actualPathItem;
@@ -45,7 +46,7 @@ class Context {
     private Method method;
     private IOpenMethod openMethod;
     private ObjectMapper objectMapper;
-    BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate;
+    private BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate;
 
     private final OpenClassPropertiesResolver openClassPropertiesResolver = new OpenClassPropertiesResolver(this);
     private OpenAPIResolver actualOpenAPIResolver;
@@ -112,12 +113,20 @@ class Context {
         this.provideVariations = provideVariations;
     }
 
-    public String getPath() {
-        return path;
+    public String getActualPath() {
+        return actualPath;
     }
 
-    public void setPath(String path) {
-        this.path = path;
+    public void setActualPath(String actualPath) {
+        this.actualPath = actualPath;
+    }
+
+    public String getExpectedPath() {
+        return expectedPath;
+    }
+
+    public void setExpectedPath(String expectedPath) {
+        this.expectedPath = expectedPath;
     }
 
     public PathItem getExpectedPathItem() {

@@ -325,7 +325,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
             Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
             if (originalMethod == null) {
-                throw new IllegalStateException("Method is not found in the original class.");
+                throw new IllegalStateException("Method is not found in the original class");
             }
 
             MethodVisitor mv;
