@@ -10,6 +10,7 @@ public class SpreadsheetModel implements Model {
     private List<InputParameter> parameters;
     private String type;
     private List<StepModel> steps = new ArrayList<>();
+    private PathInfo pathInfo;
 
     public SpreadsheetModel() {
         // empty constructor
@@ -47,6 +48,14 @@ public class SpreadsheetModel implements Model {
         this.steps = steps;
     }
 
+    public PathInfo getPathInfo() {
+        return pathInfo;
+    }
+
+    public void setPathInfo(PathInfo pathInfo) {
+        this.pathInfo = pathInfo;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -67,7 +76,10 @@ public class SpreadsheetModel implements Model {
         if (!Objects.equals(type, that.type)) {
             return false;
         }
-        return Objects.equals(steps, that.steps);
+        if (!Objects.equals(steps, that.steps)) {
+            return false;
+        }
+        return Objects.equals(pathInfo, that.pathInfo);
     }
 
     @Override
@@ -76,6 +88,7 @@ public class SpreadsheetModel implements Model {
         result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
         result = 31 * result + (type != null ? type.hashCode() : 0);
         result = 31 * result + (steps != null ? steps.hashCode() : 0);
+        result = 31 * result + (pathInfo != null ? pathInfo.hashCode() : 0);
         return result;
     }
 }

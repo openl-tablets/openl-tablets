@@ -10,6 +10,7 @@ import java.util.List;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
+import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
 
@@ -130,6 +131,38 @@ public class SpreadsheetModelTest {
         assertNotEquals(first.hashCode(), third.hashCode());
 
         assertEquals(first, first);
+    }
+
+    @Test
+    public void testSprWithPathInfo() {
+        PathInfo xyzInfo = new PathInfo("/xyz", "xyz", "GET", "String", "application/json", "text/plain");
+        PathInfo xyInfo = new PathInfo("/xyz/xy/{far}", "xyzxy", "GET", "String", "application/json", "text/plain");
+
+        SpreadsheetModel spr = new SpreadsheetModel();
+        spr.setName(SPR_NAME);
+        spr.setType(STRING);
+        spr.setSteps(Collections.emptyList());
+        spr.setPathInfo(xyzInfo);
+
+        SpreadsheetModel secondSpr = new SpreadsheetModel();
+        secondSpr.setName(SPR_NAME);
+        secondSpr.setType(STRING);
+        secondSpr.setSteps(Collections.emptyList());
+        secondSpr.setPathInfo(xyzInfo);
+
+        assertEquals(spr, secondSpr);
+        assertEquals(spr.hashCode(), secondSpr.hashCode());
+        assertEquals(spr.getPathInfo(), secondSpr.getPathInfo());
+
+        SpreadsheetModel thirdSpr = new SpreadsheetModel();
+        secondSpr.setName(SPR_NAME);
+        secondSpr.setType(STRING);
+        secondSpr.setSteps(Collections.emptyList());
+        secondSpr.setPathInfo(xyInfo);
+
+        assertNotEquals(spr, thirdSpr);
+        assertNotEquals(spr.hashCode(), thirdSpr.hashCode());
+        assertNotEquals(spr.getPathInfo(), thirdSpr.getPathInfo());
     }
 
 }

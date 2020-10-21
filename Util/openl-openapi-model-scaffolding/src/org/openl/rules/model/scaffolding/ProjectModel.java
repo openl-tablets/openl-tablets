@@ -10,7 +10,6 @@ public class ProjectModel {
     private boolean isRuntimeContextProvided;
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
     private List<SpreadsheetModel> spreadsheetModels = new ArrayList<>();
-    private List<PathInfo> pathInfos = new ArrayList<>();
     /*
      * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
      * spreadsheets don't have it.
@@ -24,13 +23,11 @@ public class ProjectModel {
             boolean isRuntimeContextProvided,
             List<DatatypeModel> datatypeModels,
             List<SpreadsheetModel> spreadsheetModels,
-            List<PathInfo> pathInfos,
             List<SpreadsheetModel> modelsForInterface) {
         this.name = name;
         this.isRuntimeContextProvided = isRuntimeContextProvided;
         this.datatypeModels = datatypeModels;
         this.spreadsheetModels = spreadsheetModels;
-        this.pathInfos = pathInfos;
         this.notOpenLModels = modelsForInterface;
     }
 
@@ -52,10 +49,6 @@ public class ProjectModel {
 
     public boolean isRuntimeContextProvided() {
         return isRuntimeContextProvided;
-    }
-
-    public List<PathInfo> getPathInfo() {
-        return pathInfos;
     }
 
     public List<SpreadsheetModel> getModelsToClass() {
@@ -82,9 +75,6 @@ public class ProjectModel {
         if (!Objects.equals(datatypeModels, that.datatypeModels)) {
             return false;
         }
-        if (!Objects.equals(pathInfos, that.pathInfos)) {
-            return false;
-        }
         if (!Objects.equals(spreadsheetModels, that.spreadsheetModels)) {
             return false;
         }
@@ -98,7 +88,6 @@ public class ProjectModel {
         result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
         result = 31 * result + (spreadsheetModels != null ? spreadsheetModels.hashCode() : 0);
         result = 31 * result + (notOpenLModels != null ? notOpenLModels.hashCode() : 0);
-        result = 31 * result + (pathInfos != null ? pathInfos.hashCode() : 0);
         return result;
     }
 }

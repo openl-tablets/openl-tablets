@@ -5,17 +5,21 @@ import java.util.Objects;
 public class PathInfo {
     private String originalPath;
     private String formattedPath;
+    private String consumes;
+    private String produces;
     private String operation;
     private String returnType;
 
     public PathInfo() {
     }
 
-    public PathInfo(String originalPath, String formattedPath, String operation, String returnType) {
+    public PathInfo(String originalPath, String formattedPath, String operation, String returnType, String consumes, String produces) {
         this.originalPath = originalPath;
         this.formattedPath = formattedPath;
         this.operation = operation;
         this.returnType = returnType;
+        this.consumes = consumes;
+        this.produces = produces;
     }
 
     public String getOriginalPath() {
@@ -50,6 +54,22 @@ public class PathInfo {
         this.returnType = returnType;
     }
 
+    public String getConsumes() {
+        return consumes;
+    }
+
+    public void setConsumes(String consumes) {
+        this.consumes = consumes;
+    }
+
+    public String getProduces() {
+        return produces;
+    }
+
+    public void setProduces(String produces) {
+        this.produces = produces;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -70,6 +90,12 @@ public class PathInfo {
         if (!Objects.equals(operation, pathInfo.operation)) {
             return false;
         }
+        if (!Objects.equals(consumes, pathInfo.consumes)) {
+            return false;
+        }
+        if (!Objects.equals(produces, pathInfo.produces)) {
+            return false;
+        }
         return Objects.equals(returnType, pathInfo.returnType);
     }
 
@@ -79,6 +105,8 @@ public class PathInfo {
         result = 31 * result + (formattedPath != null ? formattedPath.hashCode() : 0);
         result = 31 * result + (operation != null ? operation.hashCode() : 0);
         result = 31 * result + (returnType != null ? returnType.hashCode() : 0);
+        result = 31 * result + (produces != null ? produces.hashCode() : 0);
+        result = 31 * result + (consumes != null ? consumes.hashCode() : 0);
         return result;
     }
 }

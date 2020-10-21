@@ -10,7 +10,6 @@ import java.util.Collections;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
-import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 
@@ -44,17 +43,14 @@ public class ProjectModelTest {
             true,
             Collections.emptyList(),
             Collections.emptyList(),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.emptyList(),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
             false,
-            Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -77,19 +73,16 @@ public class ProjectModelTest {
             true,
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
             true,
             Collections.emptyList(),
             Collections.singletonList(firstSpr),
-            Collections.emptyList(),
             Collections.emptyList());
 
         assertEquals(bankRating, bankRatingCopy);
@@ -109,18 +102,15 @@ public class ProjectModelTest {
             true,
             Arrays.asList(dm, oneMoreDm),
             Collections.emptyList(),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
             Arrays.asList(dm, oneMoreDm),
             Collections.emptyList(),
-            Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
             true,
             Collections.singletonList(oneMoreDm),
-            Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
 
@@ -133,35 +123,4 @@ public class ProjectModelTest {
         assertEquals(1, bankRatingWithOneDataType.getDatatypeModels().size());
     }
 
-    @Test
-    public void testProjectModelWithPathInfo() {
-        PathInfo xyzInfo = new PathInfo("/xyz", "xyz", "GET", "String");
-        PathInfo xyInfo = new PathInfo("/xyz/xy/{far}", "xyzxy", "GET", "String");
-        ProjectModel bankRating = new ProjectModel(BANK_RATING,
-            true,
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Arrays.asList(xyInfo, xyzInfo),
-            Collections.emptyList());
-        ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
-            true,
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Arrays.asList(xyInfo, xyzInfo),
-            Collections.emptyList());
-        ProjectModel bankRatingWithOnePath = new ProjectModel(BANK_RATING,
-            true,
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.singletonList(xyInfo),
-            Collections.emptyList());
-
-        assertEquals(bankRating, bankRatingCopy);
-        assertEquals(bankRating.hashCode(), bankRatingCopy.hashCode());
-        assertEquals(bankRating, bankRating);
-        assertNotEquals(bankRating, bankRatingWithOnePath);
-        assertNotEquals(bankRating.hashCode(), bankRatingWithOnePath.hashCode());
-        assertEquals(2, bankRating.getPathInfo().size());
-        assertEquals(1, bankRatingWithOnePath.getPathInfo().size());
-    }
 }
