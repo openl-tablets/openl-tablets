@@ -1,10 +1,7 @@
 package org.openl.rules.project.validation.openapi;
 
-import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -125,19 +122,12 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             OpenAPIParser openApiParser = new OpenAPIParser();
             ParseOptions options = new ParseOptions();
             options.setResolve(true);
-            options.setFlatten(true);
-            try {
-                String content = new String(Files.readAllBytes(Paths.get(projectResource.getFile())));
-                OpenAPI openAPI = openApiParser.readContents(content, null, options).getOpenAPI();
-                if (openAPI == null) {
-                    validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(
-                        String.format(OPEN_API_VALIDATION_MSG_PREFIX + "File '%s' format is invalid.", openApiFile)));
-                }
-                return openAPI;
-            } catch (IOException e) {
+            OpenAPI openAPI = openApiParser.readLocation(projectResource.getFile(), null, options).getOpenAPI();
+            if (openAPI == null) {
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(
                     String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to read file '%s'.", openApiFile)));
             }
+            return openAPI;
         }
         return null;
     }

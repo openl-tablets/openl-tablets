@@ -1,0 +1,1129 @@
+{
+  "BalanceDynamicIndexCalculationRequest": {
+    "properties": {
+      "currentFinancialData": {
+        "$ref": "#/FinancialData"
+      },
+      "previousFinancialData": {
+        "$ref": "#/FinancialData"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "BalanceQualityIndexCalculation": {
+    "properties": {
+      "Description_BalanceQualityIndex": {
+        "type": "string"
+      },
+      "Description_CapitalAdequacy": {
+        "type": "string"
+      },
+      "Description_CapitalAdequacyScore": {
+        "type": "string"
+      },
+      "Description_ClaimsOnCustomerRatio": {
+        "type": "string"
+      },
+      "Description_ClaimsOnCustomerRatioScore": {
+        "type": "string"
+      },
+      "Description_CreditPortfolioQuality": {
+        "type": "string"
+      },
+      "Description_CreditPortfolioQualityScore": {
+        "type": "string"
+      },
+      "Description_HighLiquidityRatio": {
+        "type": "string"
+      },
+      "Description_HighLiquidityRatioScore": {
+        "type": "string"
+      },
+      "Description_LiabilitiesToCustomersOnDemandRatio": {
+        "type": "string"
+      },
+      "Description_LiabilitiesToCustomersOnDemandRatioScore": {
+        "type": "string"
+      },
+      "Description_LiquidityRatio": {
+        "type": "string"
+      },
+      "Description_LiquidityRatioScore": {
+        "type": "string"
+      },
+      "Description_NetMoneyMarketLiabilities": {
+        "type": "string"
+      },
+      "Description_NetMoneyMarketLiabilitiesScore": {
+        "type": "string"
+      },
+      "Description_OtherAssetsRatio": {
+        "type": "string"
+      },
+      "Description_OtherAssetsRatioScore": {
+        "type": "string"
+      },
+      "Description_QuickRatio": {
+        "type": "string"
+      },
+      "Description_QuickRatioScore": {
+        "type": "string"
+      },
+      "Description_SecuredByPropertyChargesClaimsRatio": {
+        "type": "string"
+      },
+      "Description_SecuredByPropertyChargesClaimsRatioScore": {
+        "type": "string"
+      },
+      "Value_BalanceQualityIndex": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_CapitalAdequacy": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_CapitalAdequacyScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_ClaimsOnCustomerRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_ClaimsOnCustomerRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_CreditPortfolioQuality": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_CreditPortfolioQualityScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_HighLiquidityRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_HighLiquidityRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_LiabilitiesToCustomersOnDemandRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_LiabilitiesToCustomersOnDemandRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_LiquidityRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_LiquidityRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_NetMoneyMarketLiabilities": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_NetMoneyMarketLiabilitiesScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_OtherAssetsRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_OtherAssetsRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_QuickRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_QuickRatioScore": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_SecuredByPropertyChargesClaimsRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_SecuredByPropertyChargesClaimsRatioScore": {
+        "format": "double",
+        "type": "number"
+      }
+    },
+    "type": "object"
+  },
+  "BalanceQualityIndexCalculationRequest": {
+    "properties": {
+      "currentFinancialData": {
+        "$ref": "#/FinancialData"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "Bank": {
+    "properties": {
+      "bankFullName": {
+        "type": "string"
+      },
+      "bankID": {
+        "type": "string"
+      },
+      "bankRatings": {
+        "items": {
+          "$ref": "#/Rating"
+        },
+        "type": "array"
+      },
+      "countryCode": {
+        "default": "DE",
+        "type": "string"
+      },
+      "currentFinancialData": {
+        "$ref": "#/FinancialData"
+      },
+      "previousFinancialData": {
+        "$ref": "#/FinancialData"
+      },
+      "qualityIndicators": {
+        "$ref": "#/QualityIndicators"
+      }
+    },
+    "type": "object"
+  },
+  "BankLimitIndexRequest": {
+    "properties": {
+      "bank": {
+        "$ref": "#/Bank"
+      },
+      "bankRatingGroup": {
+        "type": "string"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "BankQualitativeIndexCalculationRequest": {
+    "properties": {
+      "bank": {
+        "$ref": "#/Bank"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "BankRatingCalculation": {
+    "properties": {
+      "Description_BalanceDynamicIndexCalculation": {
+        "type": "string"
+      },
+      "Description_BankQualitativeIndexCalculation": {
+        "type": "string"
+      },
+      "Description_BankRating": {
+        "type": "string"
+      },
+      "Description_BankRatingGroup": {
+        "type": "string"
+      },
+      "Description_IsAdequateNormativeIndexCalculation": {
+        "type": "string"
+      },
+      "Description_Limit": {
+        "type": "string"
+      },
+      "Description_LimitIndex": {
+        "type": "string"
+      },
+      "Value_BalanceDynamicIndexCalculation": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_BalanceQualityIndexCalculation": {
+        "$ref": "#/BalanceQualityIndexCalculation"
+      },
+      "Value_BankQualitativeIndexCalculation": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_BankRating": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_BankRatingGroup": {
+        "type": "string"
+      },
+      "Value_IsAdequateNormativeIndexCalculation": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_Limit": {
+        "format": "double",
+        "type": "number"
+      },
+      "Value_LimitIndex": {
+        "format": "double",
+        "type": "number"
+      }
+    },
+    "type": "object"
+  },
+  "BankRatingCalculationRequest": {
+    "properties": {
+      "bank": {
+        "$ref": "#/Bank"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "BankRatingGroupRequest": {
+    "properties": {
+      "bankRating": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "CapitalAdequacyScoreRequest": {
+    "properties": {
+      "capitalAdequacy": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "CapitalDynamicScoreRequest": {
+    "properties": {
+      "capitalDynamic": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "ClaimsOnCustomerRatioScoreRequest": {
+    "properties": {
+      "claimsOnCustomerRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "CreditPortfolioQualityScoreRequest": {
+    "properties": {
+      "creditPortfolioQuality": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "DefaultRulesRuntimeContext": {
+    "properties": {
+      "caProvince": {
+        "enum": [
+          "AB",
+          "BC",
+          "PE",
+          "MB",
+          "NB",
+          "NS",
+          "NU",
+          "ON",
+          "QC",
+          "SK",
+          "NL",
+          "YT",
+          "NT"
+        ],
+        "type": "string"
+      },
+      "caRegion": {
+        "enum": [
+          "QC",
+          "HQ"
+        ],
+        "type": "string"
+      },
+      "country": {
+        "enum": [
+          "AL",
+          "DZ",
+          "AR",
+          "AU",
+          "AT",
+          "BH",
+          "BY",
+          "BE",
+          "BO",
+          "BA",
+          "BR",
+          "BG",
+          "CA",
+          "CL",
+          "CN",
+          "CO",
+          "CR",
+          "HR",
+          "CY",
+          "CZ",
+          "DK",
+          "DO",
+          "EC",
+          "EG",
+          "SV",
+          "EE",
+          "FI",
+          "FR",
+          "DE",
+          "GR",
+          "GT",
+          "HN",
+          "HK",
+          "HU",
+          "IS",
+          "IN",
+          "ID",
+          "IQ",
+          "IE",
+          "IL",
+          "IT",
+          "JP",
+          "JO",
+          "KW",
+          "LV",
+          "LB",
+          "LT",
+          "LU",
+          "MK",
+          "MY",
+          "MT",
+          "MX",
+          "MA",
+          "NL",
+          "NZ",
+          "NI",
+          "NO",
+          "OM",
+          "PA",
+          "PY",
+          "PE",
+          "PH",
+          "PL",
+          "PT",
+          "PR",
+          "QA",
+          "RO",
+          "RU",
+          "SA",
+          "CS",
+          "SG",
+          "SK",
+          "SI",
+          "ZA",
+          "ES",
+          "SD",
+          "SE",
+          "CH",
+          "SY",
+          "TW",
+          "TH",
+          "TN",
+          "TR",
+          "UA",
+          "AE",
+          "GB",
+          "US",
+          "UY",
+          "VE",
+          "VN",
+          "YE"
+        ],
+        "type": "string"
+      },
+      "currency": {
+        "enum": [
+          "ALL",
+          "DZD",
+          "ARS",
+          "AUD",
+          "BHD",
+          "BYR",
+          "BOB",
+          "BAM",
+          "BRL",
+          "CAD",
+          "CLP",
+          "CNY",
+          "COP",
+          "CRC",
+          "HRK",
+          "CZK",
+          "DKK",
+          "DOP",
+          "EGP",
+          "EUR",
+          "GTQ",
+          "HNL",
+          "HKD",
+          "HUF",
+          "ISK",
+          "INR",
+          "IDR",
+          "IQD",
+          "ILS",
+          "JPY",
+          "JOD",
+          "KWD",
+          "LVL",
+          "LBP",
+          "LTL",
+          "MKD",
+          "MYR",
+          "MXN",
+          "MAD",
+          "NZD",
+          "NIO",
+          "NOK",
+          "OMR",
+          "PAB",
+          "PYG",
+          "PEN",
+          "PHP",
+          "PLN",
+          "QAR",
+          "RON",
+          "RUB",
+          "SAR",
+          "RSD",
+          "SGD",
+          "ZAR",
+          "SDG",
+          "SEK",
+          "CHF",
+          "SYP",
+          "TWD",
+          "TND",
+          "TRY",
+          "UAH",
+          "AED",
+          "GBP",
+          "USD",
+          "UYU",
+          "VEF",
+          "VND",
+          "YER"
+        ],
+        "type": "string"
+      },
+      "currentDate": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "lang": {
+        "enum": [
+          "ALB",
+          "ARA",
+          "BEL",
+          "BUL",
+          "CAT",
+          "CHI",
+          "SCR",
+          "CZE",
+          "DAN",
+          "DUT",
+          "ENG",
+          "FIN",
+          "FRE",
+          "GER",
+          "GRE",
+          "HEB",
+          "HIN",
+          "HUN",
+          "IND",
+          "GLE",
+          "ITA",
+          "JPN",
+          "LAV",
+          "LIT",
+          "MAC",
+          "MAY",
+          "MLT",
+          "NOR",
+          "POL",
+          "POR",
+          "RUM",
+          "RUS",
+          "SCC",
+          "SLO",
+          "SPA",
+          "THA",
+          "TUR",
+          "UKR",
+          "VIE"
+        ],
+        "type": "string"
+      },
+      "lob": {
+        "type": "string"
+      },
+      "nature": {
+        "type": "string"
+      },
+      "region": {
+        "enum": [
+          "NCSA",
+          "EU",
+          "EMEA",
+          "APJ"
+        ],
+        "type": "string"
+      },
+      "requestDate": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "usRegion": {
+        "enum": [
+          "MW",
+          "NE",
+          "SE",
+          "SW",
+          "W"
+        ],
+        "type": "string"
+      },
+      "usState": {
+        "enum": [
+          "AL",
+          "AK",
+          "AZ",
+          "AR",
+          "CA",
+          "CO",
+          "CT",
+          "DC",
+          "DE",
+          "FL",
+          "GA",
+          "HI",
+          "ID",
+          "IL",
+          "IN",
+          "IA",
+          "KS",
+          "KY",
+          "LA",
+          "ME",
+          "MD",
+          "MA",
+          "MI",
+          "MN",
+          "MS",
+          "MO",
+          "MT",
+          "NE",
+          "NV",
+          "NH",
+          "NJ",
+          "NM",
+          "NY",
+          "NC",
+          "ND",
+          "OH",
+          "OK",
+          "OR",
+          "PA",
+          "PR",
+          "RI",
+          "SC",
+          "SD",
+          "TN",
+          "TX",
+          "UT",
+          "VT",
+          "VA",
+          "WA",
+          "WV",
+          "WI",
+          "WY"
+        ],
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "DowngradesOfBankRatingScoreRequest": {
+    "properties": {
+      "downgradesOfBankRating": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "EquityScoreRequest": {
+    "properties": {
+      "countryCode": {
+        "type": "string"
+      },
+      "equity": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "FinancialData": {
+    "properties": {
+      "capital": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "claimsOnBanks": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "claimsOnCustomers": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "claimsOnDemand": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "claimsSecuredByPropertyCharges": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "claimsUpTo3Months": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "consolidatedProfit": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "equity": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "liabilities": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "liabilitiesOnDemand": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "liabilitiesToBanks": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "liabilitiesToCustomers": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      },
+      "liabilitiesToCustomersOnDemand": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "loanLossProvisionsForClaimsOnCustomers": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "otherAssets": {
+        "default": 0,
+        "format": "double",
+        "type": "number"
+      },
+      "reportDate": {
+        "format": "date-time",
+        "type": "string"
+      },
+      "totalAssets": {
+        "default": 0.0001,
+        "format": "double",
+        "type": "number"
+      }
+    },
+    "type": "object"
+  },
+  "HighLiquidityRatioScoreRequest": {
+    "properties": {
+      "highLiquidityRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "IsAdequateCoreCapitalRatioScoreRequest": {
+    "properties": {
+      "isAdequateCoreCapitalRatio": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "IsAdequateLiquidityRatioScoreRequest": {
+    "properties": {
+      "isAdequateLiquidityRatio": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "IsAdequateMaxCreditRiskScoreRequest": {
+    "properties": {
+      "countryCode": {
+        "type": "string"
+      },
+      "isAdequateMaxCreditRisk": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "IsAdequateNormativeIndexCalculationRequest": {
+    "properties": {
+      "bank": {
+        "$ref": "#/Bank"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "JAXRSErrorResponse": {
+    "properties": {
+      "details": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "message": {
+        "type": "string"
+      },
+      "type": {
+        "enum": [
+          "USER_ERROR",
+          "RULES_RUNTIME",
+          "COMPILATION",
+          "SYSTEM",
+          "BAD_REQUEST",
+          "VALIDATION"
+        ],
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "LiabilitiesToCustomersDynamicScoreRequest": {
+    "properties": {
+      "LiabToCustDynamic": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "LiabilitiesToCustomersOnDemandRatioScoreRequest": {
+    "properties": {
+      "liabilitiesToCustOnDemand": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "LiquidityDynamicScoreRequest": {
+    "properties": {
+      "liquidityDynamic": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "LiquidityRatioScoreRequest": {
+    "properties": {
+      "liquidityRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "LossesInThisYearScoreRequest": {
+    "properties": {
+      "lossesInThisYear": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "NegativeHistoryRelationsScoreRequest": {
+    "properties": {
+      "negativeHistoryRelations": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "NegativeInfoShareHoldersOrManagementScoreRequest": {
+    "properties": {
+      "negativeManagInfo": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "NegativeMassMediaScoreRequest": {
+    "properties": {
+      "negativeMassMedia": {
+        "type": "boolean"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "NetMoneyMarketLiabilitiesScoreRequest": {
+    "properties": {
+      "netMoneyMarketLiabilities": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "OtherAssetsRatioScoreRequest": {
+    "properties": {
+      "otherAssetsRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "ProfitDynamicScoreRequest": {
+    "properties": {
+      "profit": {
+        "format": "double",
+        "type": "number"
+      },
+      "profitDynamic": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "QualityIndicators": {
+    "properties": {
+      "downgradesOfBankRating": {
+        "default": false,
+        "type": "boolean"
+      },
+      "isAdequateCoreCapitalRatio": {
+        "default": true,
+        "type": "boolean"
+      },
+      "isAdequateLiquidityRatio": {
+        "default": true,
+        "type": "boolean"
+      },
+      "isAdequateMaxCreditRisk": {
+        "default": true,
+        "type": "boolean"
+      },
+      "lossesInThisYear": {
+        "default": false,
+        "type": "boolean"
+      },
+      "negativeHistoryRelations": {
+        "default": false,
+        "type": "boolean"
+      },
+      "negativeInfoShareHoldersOrManagement": {
+        "default": false,
+        "type": "boolean"
+      },
+      "negativeMassMedia": {
+        "default": false,
+        "type": "boolean"
+      },
+      "reportDate": {
+        "format": "date-time",
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "QuickRatioScoreRequest": {
+    "properties": {
+      "quickRatio": {
+        "format": "double",
+        "type": "number"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "Rating": {
+    "properties": {
+      "rating": {
+        "type": "string"
+      },
+      "ratingAgency": {
+        "type": "string"
+      }
+    },
+    "type": "object"
+  },
+  "SecuredByPropertyChargesClaimsRatioScoreRequest": {
+    "properties": {
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      },
+      "securedClaimsRatio": {
+        "format": "double",
+        "type": "number"
+      }
+    },
+    "type": "object"
+  },
+  "SetNonZeroValuesRequest": {
+    "properties": {
+      "financialData": {
+        "$ref": "#/FinancialData"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      }
+    },
+    "type": "object"
+  },
+  "TotalBalanceScoreRequest": {
+    "properties": {
+      "countryCode": {
+        "type": "string"
+      },
+      "runtimeContext": {
+        "$ref": "#/DefaultRulesRuntimeContext"
+      },
+      "totalBalance": {
+        "format": "double",
+        "type": "number"
+      }
+    },
+    "type": "object"
+  }
+}
