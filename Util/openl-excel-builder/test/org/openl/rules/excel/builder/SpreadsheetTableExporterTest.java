@@ -49,7 +49,6 @@ public class SpreadsheetTableExporterTest {
             false,
             Collections.emptyList(),
             Collections.singletonList(resultModel),
-            Collections.emptyList(),
             Collections.emptyList());
 
         ExcelFileBuilder.generateProject(projectModel);

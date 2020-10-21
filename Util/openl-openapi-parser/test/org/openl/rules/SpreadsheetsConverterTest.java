@@ -2,6 +2,7 @@ package org.openl.rules;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -45,11 +46,10 @@ public class SpreadsheetsConverterTest {
         String formattedName = model.get().getName();
         assertEquals("myRule", formattedName);
 
-        List<PathInfo> pathInfos = projectModel.getPathInfo();
-        assertEquals(1, pathInfos.size());
-        PathInfo pp = pathInfos.iterator().next();
-        assertEquals("/myRule/{bla}/xyz", pp.getOriginalPath());
-        assertEquals("myRulexyz", pp.getFormattedPath());
+        PathInfo pathInfo = projectModel.getSpreadsheetResultModels().iterator().next().getPathInfo();
+        assertNotNull(pathInfo);
+        assertEquals("/myRule/{bla}/xyz", pathInfo.getOriginalPath());
+        assertEquals("myRulexyz", pathInfo.getFormattedPath());
 
     }
 
@@ -658,6 +658,40 @@ public class SpreadsheetsConverterTest {
         InputParameter next = parameters.iterator().next();
         assertEquals("WrapperObject", next.getType());
         assertEquals("wrapperObject", next.getName());
+    }
+
+    @Test
+    public void modifiedPathTest() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
+
+        Optional<SpreadsheetModel> apiBlaOptional = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("apiBla"))
+            .findFirst();
+        assertTrue(apiBlaOptional.isPresent());
+        SpreadsheetModel apiBlaModel = apiBlaOptional.get();
+        PathInfo apiBlaModelPathInfo = apiBlaModel.getPathInfo();
+        assertEquals("/api/Bla", apiBlaModelPathInfo.getOriginalPath());
+        assertEquals("apiBla", apiBlaModelPathInfo.getFormattedPath());
+        assertEquals("application/json", apiBlaModelPathInfo.getConsumes());
+        assertEquals("text/plain", apiBlaModelPathInfo.getProduces());
+        assertEquals("POST", apiBlaModelPathInfo.getOperation());
+        assertEquals("Object", apiBlaModelPathInfo.getReturnType());
+
+        Optional<SpreadsheetModel> apiTodoOptional = spreadsheetResultModels.stream()
+                .filter(x -> x.getName().equals("apiTodo"))
+                .findFirst();
+        assertTrue(apiTodoOptional.isPresent());
+        SpreadsheetModel apiTodoModel = apiTodoOptional.get();
+        PathInfo apiTodoModelPathInfo = apiTodoModel.getPathInfo();
+        assertEquals("/api/Todo", apiTodoModelPathInfo.getOriginalPath());
+        assertEquals("apiTodo", apiTodoModelPathInfo.getFormattedPath());
+        assertEquals("text/csv", apiTodoModelPathInfo.getConsumes());
+        assertEquals("text/html", apiTodoModelPathInfo.getProduces());
+        assertEquals("POST", apiTodoModelPathInfo.getOperation());
+        assertEquals("Integer", apiTodoModelPathInfo.getReturnType());
+
     }
 
 }
