@@ -43,13 +43,13 @@ public class Migrator {
         HashMap<String, String> props = new HashMap<>();
 
         Object fromVersion = settings.getProperty(".version");
-        if (fromVersion != null) {
-            String stringFromVersion = fromVersion.toString();
-            if (fromVersion.toString().compareTo(OpenLVersion.getVersion()) < 0) {
-                migrateTo5_24(settings, props, stringFromVersion);
-                // add subsequent migrations in order of priority
-            }
+        String stringFromVersion = fromVersion == null ? "5.23.1" : fromVersion.toString();
+
+        if (stringFromVersion.compareTo(OpenLVersion.getVersion()) < 0) {
+            migrateTo5_24(settings, props, stringFromVersion);
+            // add subsequent migrations in order of priority
         }
+
 
         props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         try {
@@ -75,7 +75,7 @@ public class Migrator {
                     props.put("repository.design.local-repository-path", designRepo);
                 }
 
-                migratePropsTo5_24(settings, props, fromVersion);
+                migratePropsTo5_24(settings, props);
 
                 // migrate branches and project properties to branches.yaml if repoType is Git
                 Map<String, String> nonFlatProjectPaths = migrateProjectProps(designRepo);
@@ -92,7 +92,7 @@ public class Migrator {
         }
     }
 
-    private static void migratePropsTo5_24(DynamicPropertySource settings, HashMap<String, String> props, String fromVersion) {
+    private static void migratePropsTo5_24(DynamicPropertySource settings, HashMap<String, String> props) {
         if (Props.bool("project.history.unlimited")) {
             props.put("project.history.count", ""); // Define unlimited
         }
