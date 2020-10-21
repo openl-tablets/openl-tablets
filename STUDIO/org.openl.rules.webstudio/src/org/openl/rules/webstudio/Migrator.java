@@ -8,7 +8,6 @@ import org.openl.rules.webstudio.web.admin.RepositoryType;
 import org.openl.rules.workspace.dtr.impl.ProjectIndex;
 import org.openl.rules.workspace.dtr.impl.ProjectInfo;
 import org.openl.spring.env.DynamicPropertySource;
-import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -47,7 +46,6 @@ public class Migrator {
         if (fromVersion != null) {
             String stringFromVersion = fromVersion.toString();
             if (fromVersion.toString().compareTo(OpenLVersion.getVersion()) < 0) {
-                migrateTo5_23_5(settings, props, stringFromVersion);
                 migrateTo5_24(settings, props, stringFromVersion);
                 // add subsequent migrations in order of priority
             }
@@ -59,23 +57,6 @@ public class Migrator {
             settings.reloadIfModified();
         } catch (IOException e) {
             LOG.error("Migration of properties failed.", e);
-        }
-    }
-
-    // 5.23.5
-    private static void migrateTo5_23_5(DynamicPropertySource settings, HashMap<String, String> props, String fromVersion) {
-        //clarify version
-        if (fromVersion.compareTo("5.24.0") < 0) {
-            if (Props.bool("project.history.unlimited")) {
-                props.put("project.history.count", ""); // Define unlimited
-            }
-            Object runTestParallel = settings.getProperty("test.run.parallel");
-            if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel.toString())) {
-                props.put("test.run.thread.count", "1");
-            }
-            props.put("project.history.unlimited", null); // Remove
-            props.put("test.run.parallel", null); // Remove
-            props.put("project.history.home", null); // Remove
         }
     }
 
@@ -94,16 +75,7 @@ public class Migrator {
                     props.put("repository.design.local-repository-path", designRepo);
                 }
 
-                // migrate deploy-config
-                if (settings.getProperty("repository.deploy-config.separate-repository") == null) {
-                    props.put("repository.deploy-config.use-repository", "design");
-                }
-
-                // migrate deploy-config
-                if (settings.getProperty("repository.production.local-repository-path") == null) {
-                    props.put("repository.production.local-repository-path",
-                            Props.text("openl.home") + "/production-repository");
-                }
+                migratePropsTo5_24(settings, props, fromVersion);
 
                 // migrate branches and project properties to branches.yaml if repoType is Git
                 Map<String, String> nonFlatProjectPaths = migrateProjectProps(designRepo);
@@ -117,6 +89,30 @@ public class Migrator {
             } catch (IOException e) {
                 LOG.error("Migration failed.", e);
             }
+        }
+    }
+
+    private static void migratePropsTo5_24(DynamicPropertySource settings, HashMap<String, String> props, String fromVersion) {
+        if (Props.bool("project.history.unlimited")) {
+            props.put("project.history.count", ""); // Define unlimited
+        }
+        Object runTestParallel = settings.getProperty("test.run.parallel");
+        if (runTestParallel != null && !Boolean.parseBoolean(runTestParallel.toString())) {
+            props.put("test.run.thread.count", "1");
+        }
+        props.put("project.history.unlimited", null); // Remove
+        props.put("test.run.parallel", null); // Remove
+        props.put("project.history.home", null); // Remove
+
+        // migrate deploy-config
+        if (settings.getProperty("repository.deploy-config.separate-repository") == null) {
+            props.put("repository.deploy-config.use-repository", "design");
+        }
+
+        // migrate deploy-config
+        if (settings.getProperty("repository.production.local-repository-path") == null) {
+            props.put("repository.production.local-repository-path",
+                    Props.text("openl.home") + "/production-repository");
         }
     }
 
@@ -237,37 +233,33 @@ public class Migrator {
     }
 
     private static void migrateLocks(Map<String, String> projectPathMap, String homePath) throws IOException {
-        File projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules")
-                .toFile();
-        String lockPath = homePath + "/user-workspace/.locks/rules/branches/";
-        if (projectLocks.exists() && projectLocks.isDirectory()) {
-            Files.walkFileTree(projectLocks.toPath(), new SimpleFileVisitor<Path>() {
+        Path projectLocks = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME), ".locks", "rules");
+        Path lockBranchPath = Paths.get(homePath + "/user-workspace/.locks/rules/branches");
+        int lockBranchPathLength = lockBranchPath.toString().length() + 1;
+        if (Files.exists(projectLocks)) {
+            Files.walkFileTree(projectLocks, new SimpleFileVisitor<Path>() {
                 @Override
                 public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-                    File lock = file.toFile();
-                    if (lock.isFile()) {
-                        String lockName = lock.getName();
-                        String branchName = "";
-                        //if lockPath does not exist - repository has no branches
-                        if (new File(lockPath).exists()) {
-                            branchName = lock.getPath()
-                                    .substring((lockPath + lockName).length() + 1, lock.getPath().length() - lockName.length() - 1);
-                            if (!branchName.isEmpty()) {
-                                branchName = "[branches]/" + branchName;
-                            }
+                    String lockName = file.getFileName().toString();
+                    String branchName = "";
+                    //if lockPath does not contains lockBranchPath - repository has no branches
+                    if (file.startsWith(lockBranchPath)) {
+                        branchName = file.toString()
+                                .substring(lockBranchPathLength + lockName.length() + 1, file.toString().length() - lockName.length() - 1);
+                        if (!branchName.isEmpty()) {
+                            branchName = "[branches]/" + branchName;
                         }
-                        String fileName = lock.getName();
-                        String projectName = projectPathMap.get(fileName) != null ? projectPathMap.get(fileName)
-                                : "/DESIGN/rules/" + fileName;
-                        Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
-                                ".locks",
-                                "projects",
-                                "design",
-                                projectName,
-                                branchName,
-                                "ready.lock");
-                        FileUtils.copy(lock, newLock.toFile());
                     }
+                    String projectName = projectPathMap.getOrDefault(lockName, "/DESIGN/rules/" + lockName);
+                    Path newLock = Paths.get(Props.text(AdministrationSettings.USER_WORKSPACE_HOME),
+                            ".locks",
+                            "projects",
+                            "design",
+                            projectName,
+                            branchName,
+                            "ready.lock");
+                    newLock.getParent().toFile().mkdirs();
+                    Files.copy(file, newLock);
                     return super.visitFile(file, attrs);
                 }
             });
