@@ -222,6 +222,9 @@ public class InputArgsBean {
             } catch (JsonParseException e) {
                 throw new Message(constructJsonExceptionMessage(e));
             } catch (IOException e) {
+                if (StringUtils.isNotBlank(e.getMessage())) {
+                    throw new Message("Input parameters are wrong. " + e.getMessage());
+                }
                 throw new Message("Input parameters are wrong.");
             }
         }
@@ -241,6 +244,9 @@ public class InputArgsBean {
             } catch (JsonParseException e) {
                 throw new Message(constructJsonExceptionMessage(e));
             } catch (IOException e) {
+                if (StringUtils.isNotBlank(e.getMessage())) {
+                    throw new Message("Input parameters are wrong. " + e.getMessage());
+                }
                 throw new Message("Input parameters are wrong.");
             }
         }
@@ -254,8 +260,8 @@ public class InputArgsBean {
                         parsedArguments[i] = JsonUtils
                             .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
                     } else if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
-                        parsedArguments[i] = JsonUtils.fromJSON(inputTextBean,
-                            argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
+                        parsedArguments[i] = JsonUtils
+                            .fromJSON(inputTextBean, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
                     }
                 } else {
                     parsedArguments[i] = argumentTreeNodes[i].getValueForced();
@@ -263,9 +269,10 @@ public class InputArgsBean {
             }
         } catch (Message e) {
             throw e;
-        } catch (JsonParseException e) {
-            throw new Message(constructJsonExceptionMessage(e));
         } catch (IOException e) {
+            if (StringUtils.isNotBlank(e.getMessage())) {
+                throw new Message("Input parameters are wrong. " + e.getMessage());
+            }
             throw new Message("Input parameters are wrong.");
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
