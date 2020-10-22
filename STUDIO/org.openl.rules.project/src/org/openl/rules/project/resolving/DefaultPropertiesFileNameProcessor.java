@@ -5,7 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -17,13 +16,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 import org.openl.exception.OpenlNotCheckedException;
-import org.openl.rules.enumeration.CaProvincesEnum;
-import org.openl.rules.enumeration.CaRegionsEnum;
-import org.openl.rules.enumeration.CountriesEnum;
-import org.openl.rules.enumeration.CurrenciesEnum;
-import org.openl.rules.enumeration.LanguagesEnum;
-import org.openl.rules.enumeration.RegionsEnum;
-import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.table.properties.ITableProperties;
@@ -43,20 +35,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private static final String STATE_PROPERTY_NAME = "state";
     private static final String CW_STATE_VALUE = "CW";
     private static final String ALL_KEYWORD = "Any";
-    private static final Map<String, Class<?>> PROP_SUPPORT_ALL_KEY;
-
-    static {
-        Map<String, Class<?>> map = new HashMap<>();
-        map.put("caProvinces", CaProvincesEnum.class);
-        map.put("caRegions", CaRegionsEnum.class);
-        map.put("country", CountriesEnum.class);
-        map.put("currency", CurrenciesEnum.class);
-        map.put("lang", LanguagesEnum.class);
-        map.put("region", RegionsEnum.class);
-        map.put(STATE_PROPERTY_NAME, UsStatesEnum.class);
-        map.put("usregion", UsRegionsEnum.class);
-        PROP_SUPPORT_ALL_KEY = Collections.unmodifiableMap(map);
-    }
 
     @Override
     public ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
@@ -298,10 +276,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             if (STATE_PROPERTY_NAME.equals(propertyName) && CW_STATE_VALUE.equals(value)) {
                 return UsStatesEnum.values();
             }
-            Class<?> type = PROP_SUPPORT_ALL_KEY.get(propertyName);
-            if (type != null && ALL_KEYWORD.equals(value)) {
-                return type.getEnumConstants();
-            }
             Class<?> returnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
             return getObject(propertyName, value, returnType);
         }
@@ -325,7 +299,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 if (componentClass.isArray()) {
                     throw new OpenlNotCheckedException("Two dim arrays are not supported.");
                 }
-                propValue = toArray(propertyName, value, componentClass);
+                propValue = ALL_KEYWORD.equals(value) && componentClass.isEnum()
+                        ? componentClass.getEnumConstants()
+                        : toArray(propertyName, value, componentClass);
             } else {
                 throw new OpenlNotCheckedException(String.format("Unsupported data type '%s'.", clazz.getTypeName()));
             }
