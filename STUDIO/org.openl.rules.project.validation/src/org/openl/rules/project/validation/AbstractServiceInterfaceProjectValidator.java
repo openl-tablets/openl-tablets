@@ -127,7 +127,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                 Class<?> annotationTemplateClass = resolveServiceClassLoader.loadClass(annotationTemplateClassName);
                 if (annotationTemplateClass.isInterface()) {
                     serviceClass = DynamicInterfaceAnnotationEnhancerHelper
-                        .decorate(serviceClass, annotationTemplateClass, resolveServiceClassLoader);
+                        .decorate(serviceClass, annotationTemplateClass, rulesInstantiationStrategy.compile().getOpenClassWithErrors(), resolveServiceClassLoader);
                 } else {
                     validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                         "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
