@@ -77,18 +77,25 @@ public final class RuleServiceInstantiationFactoryHelper {
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
             for (Method method : methodsToRemove) {
-                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
+                if (name.equals(method.getName()) && descriptor.equals(Type.getMethodDescriptor(method))) {
                     return null;
                 }
             }
-
             for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
                 Method method = entry.getKey();
-                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
+                if (name.equals(method.getName()) && descriptor.equals(Type.getMethodDescriptor(method))) {
                     Class<?> newRetType = entry.getValue().getKey();
-                    MethodVisitor mv = super.visitMethod(arg0, arg1, convertReturnType(arg2, newRetType), arg3, arg4);
+                    MethodVisitor mv = super.visitMethod(access,
+                        name,
+                        Type.getMethodDescriptor(Type.getType(newRetType), Type.getArgumentTypes(descriptor)),
+                        signature,
+                        exceptions);
                     if (!entry.getValue().getValue()) {
                         AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class),
                             true);
@@ -104,12 +111,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                 }
             }
 
-            return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
-        }
-
-        private String convertReturnType(String arg2, Class<?> newType) {
-            int index = arg2.lastIndexOf(')');
-            return arg2.substring(0, index + 1) + Type.getDescriptor(newType);
+            return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
     }
 
@@ -311,7 +313,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     return dim > 0 ? Array.newInstance(t, dim).getClass() : t;
                 } else if (type instanceof SpreadsheetResultOpenClass) {
                     Class<?> t;
-                    //Check: custom spreadsheet is enabled
+                    // Check: custom spreadsheet is enabled
                     if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                         t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                             .toCustomSpreadsheetResultOpenClass()
@@ -403,7 +405,7 @@ public final class RuleServiceInstantiationFactoryHelper {
                     ret.put(method, Pair.of(t, Boolean.FALSE));
                 } else if (type instanceof SpreadsheetResultOpenClass) {
                     XlsModuleOpenClass module = (XlsModuleOpenClass) openClass;
-                    //Check: custom spreadsheet is enabled
+                    // Check: custom spreadsheet is enabled
                     if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
                         Class<?> t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes()
                             .toCustomSpreadsheetResultOpenClass()

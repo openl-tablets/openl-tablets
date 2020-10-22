@@ -30,8 +30,13 @@ public class DatatypeOpenClassMixInAnnotationsWriter extends ClassVisitor {
     }
 
     @Override
-    public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-        super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+    public void visit(final int version,
+            final int access,
+            final String name,
+            final String signature,
+            final String superName,
+            final String[] interfaces) {
+        super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         if (!originalMixInClass.isAnnotationPresent(JsonInclude.class)) {
             AnnotationVisitor av = cv.visitAnnotation(Type.getDescriptor(JsonInclude.class), true);
             av.visitEnum("value", Type.getDescriptor(JsonInclude.Include.class), JsonInclude.Include.NON_EMPTY.name());

@@ -178,14 +178,23 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         }
 
         @Override
-        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        public void visit(final int version,
+                final int access,
+                final String name,
+                final String signature,
+                final String superName,
+                final String[] interfaces) {
+            super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            super.visitMethod(arg0, arg1, addVariationToSignature(arg2), arg3, arg4);
-            return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            super.visitMethod(access, name, addVariationToSignature(descriptor), signature, exceptions);
+            return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
 
         private String addVariationToSignature(String signature) {
@@ -209,15 +218,24 @@ public final class VariationInstantiationStrategyEnhancerHelper {
         }
 
         @Override
-        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        public void visit(final int version,
+                final int access,
+                final String name,
+                final String signature,
+                final String superName,
+                final String[] interfaces) {
+            super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
             // write only undecorated method
-            if (!isDecoratedMethod(arg2)) {
-                return super.visitMethod(arg0, arg1, arg2, arg3, arg4);
+            if (!isDecoratedMethod(descriptor)) {
+                return super.visitMethod(access, name, descriptor, signature, exceptions);
             } else {
                 return null;// null means skip this method
             }

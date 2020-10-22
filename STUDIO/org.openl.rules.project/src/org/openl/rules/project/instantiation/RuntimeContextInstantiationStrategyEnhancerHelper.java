@@ -141,17 +141,26 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
         }
 
         @Override
-        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        public void visit(final int version,
+                final int access,
+                final String name,
+                final String signature,
+                final String superName,
+                final String[] interfaces) {
+            super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            return super.visitMethod(arg0, arg1, addRuntimeContextFromSignature(arg2), arg3, arg4);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            return super.visitMethod(access, name, addRuntimeContextToDescription(descriptor), signature, exceptions);
         }
 
-        private String addRuntimeContextFromSignature(String signature) {
-            return "(" + RUNTIME_CONTEXT + signature.substring(1);
+        private String addRuntimeContextToDescription(String descriptor) {
+            return "(" + RUNTIME_CONTEXT + descriptor.substring(1);
         }
     }
 
@@ -170,18 +179,31 @@ public final class RuntimeContextInstantiationStrategyEnhancerHelper {
         }
 
         @Override
-        public void visit(int arg0, int arg1, String arg2, String arg3, String arg4, String[] arg5) {
-            super.visit(arg0, arg1, className.replace('.', '/'), arg3, arg4, arg5);
+        public void visit(final int version,
+                final int access,
+                final String name,
+                final String signature,
+                final String superName,
+                final String[] interfaces) {
+            super.visit(version, access, className.replace('.', '/'), signature, superName, interfaces);
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            return super.visitMethod(arg0, arg1, removeRuntimeContextFromSignature(arg2), arg3, arg4);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            return super.visitMethod(access,
+                name,
+                removeRuntimeContextFromDescriptor(descriptor),
+                signature,
+                exceptions);
         }
 
-        private String removeRuntimeContextFromSignature(String signature) {
-            if (signature.startsWith("(" + RUNTIME_CONTEXT)) {
-                return "(" + signature.substring(RUNTIME_CONTEXT.length() + 1);
+        private String removeRuntimeContextFromDescriptor(String descriptor) {
+            if (descriptor.startsWith("(" + RUNTIME_CONTEXT)) {
+                return "(" + descriptor.substring(RUNTIME_CONTEXT.length() + 1);
             } else {
                 throw new IllegalArgumentException("IRulesRuntimeContext is expected in signature.");
             }

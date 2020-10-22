@@ -175,13 +175,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private String changeArgumentTypes(String signature, Method originalMethod) throws Exception {
-            Class<?> argumentWrapperClass = generateWrapperClass(originalMethod);
-
-            int index = signature.lastIndexOf(')');
-            int indexb = signature.lastIndexOf('(');
-            return signature.substring(0, indexb + 1) + Type.getDescriptor(argumentWrapperClass) + signature
-                .substring(index);
+        private String changedParameterTypesDescription(String descriptor, Method originalMethod) throws Exception {
+            Class<?> parameterWrapperClass = generateWrapperClass(originalMethod);
+            return Type.getMethodDescriptor(Type.getReturnType(descriptor), Type.getType(parameterWrapperClass));
         }
 
         private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
@@ -322,8 +318,12 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         @Override
-        public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            Method originalMethod = ASMUtils.getMethod(originalClass, name, descriptor);
             if (originalMethod == null) {
                 throw new IllegalStateException("Method is not found in the original class");
             }
@@ -331,8 +331,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             MethodVisitor mv;
             Class<?> returnType = extractOriginalType(originalMethod.getReturnType());
             boolean hasResponse = returnType == Response.class;
-            arg2 = hasResponse ? arg2
-                               : arg2.substring(0, arg2.lastIndexOf(')') + 1) + Type.getDescriptor(Response.class);
+            descriptor = hasResponse ? descriptor
+                                     : Type.getMethodDescriptor(Type.getType(Response.class),
+                                         Type.getArgumentTypes(descriptor));
 
             boolean allParametersIsPrimitive = true;
             Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
@@ -349,7 +350,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             sb.append("/").append(getPath(originalMethod));
             if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
                 .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
-                mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
                 addGetAnnotation(mv, originalMethod);
@@ -411,14 +412,17 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 try {
                     if (numOfParameters > 1) {
                         if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
-                            String changeArgumentTypes = changeArgumentTypes(arg2, originalMethod);
-                            mv = super.visitMethod(arg0, methodName, changeArgumentTypes, arg3, arg4);
+                            mv = super.visitMethod(access,
+                                name,
+                                changedParameterTypesDescription(descriptor, originalMethod),
+                                signature,
+                                exceptions);
                         } else {
-                            mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                            mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                             processAnnotationsOnMethodParameters(originalMethod, mv);
                         }
                     } else {
-                        mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+                        mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                         processAnnotationsOnMethodParameters(originalMethod, mv);
                     }
                     if (!hasResponse) {
