@@ -110,6 +110,8 @@ public class WebStudio implements DesignTimeRepositoryListener {
     private final Logger log = LoggerFactory.getLogger(WebStudio.class);
 
     private static final Comparator<Module> MODULES_COMPARATOR = Comparator.comparing(Module::getName);
+    private static final Comparator<ProjectDescriptor> PROJECT_DESCRIPTOR_COMPARATOR = (o1, o2) ->
+            o1.getName().compareToIgnoreCase(o2.getName());
 
     private final RulesTreeView typeView = new TypeView();
     private final RulesTreeView fileView = new FileView();
@@ -489,6 +491,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public synchronized List<ProjectDescriptor> getAllProjects() {
         List<ProjectDescriptor> allProjects = new ArrayList<>();
         getProjects().values().forEach(allProjects::addAll);
+        allProjects.sort(PROJECT_DESCRIPTOR_COMPARATOR);
         return allProjects;
     }
 
