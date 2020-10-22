@@ -1,0 +1,11 @@
+<project>
+  <name>EPBDS-10586_ambiguous_pattern</name>
+  <modules>
+    <module>
+      <name>Rules</name>
+      <rules-root path="Product-*.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>.*-%lob%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%</properties-file-name-pattern>
+  <properties-file-name-pattern>.*-%lob%-%effectiveDate,startRequestDate:ddMMyyyy%-%currency%</properties-file-name-pattern>
+</project>
