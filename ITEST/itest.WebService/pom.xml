@@ -32,6 +32,11 @@
             <type>pom</type>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.openl.itest</groupId>
             <artifactId>server-core</artifactId>
             <scope>test</scope>

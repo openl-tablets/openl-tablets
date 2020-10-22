@@ -1,0 +1,7 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <annotationTemplateClassName>org.example.services.EPBDS10595Service</annotationTemplateClassName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

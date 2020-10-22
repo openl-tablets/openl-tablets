@@ -76,12 +76,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 final String[] exceptions) {
             if (templateClass != null) {
                 Method templateMethod = null;
-                Type[] methodParameterTypes = null;
                 for (Method method : templateClass.getMethods()) {
                     if (name.equals(method.getName())) {
                         Type[] typesInTemplateMethod = Type.getArgumentTypes(method);
                         Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
-                        Type[] typesInResultMethod = Type.getArgumentTypes(descriptor);
                         if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
                             boolean isCompatible = true;
                             for (int i = 0; i < typesInCurrentMethod.length; i++) {
@@ -100,13 +98,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                                 }
                                             }
                                         } else if (annotation instanceof RulesType) {
-                                            RulesType rulesType = (RulesType) annotation;
-                                            String typeName = rulesType.value();
-                                            Class<?> type = findOrLoadType(typeName);
+                                            Class<?> type = findOrLoadType((RulesType) annotation);
                                             if (Objects.equals(Type.getType(type), typesInCurrentMethod[i])) {
                                                 isCompatibleParameter = true;
                                             }
-                                            typesInResultMethod[i] = Type.getType(type);
                                         }
                                     }
                                     if (!isCompatibleParameter) {
@@ -118,10 +113,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                             if (isCompatible) {
                                 if (templateMethod == null) {
                                     templateMethod = method;
-                                    methodParameterTypes = typesInResultMethod;
                                 } else {
-                                    throw new InstantiationException(
-                                        "Annotation template class is wrong. It is a non-obvious choice of method. Please, check the annotation template class.");
+                                    throw new InstantiationException(String.format(
+                                        "Failed to apply annotation template class to the service class. It is a non-obvious choice of '%s' method.",
+                                        MethodUtil.printMethod(method.getName(), method.getParameterTypes())));
                                 }
                             }
                         }
@@ -132,11 +127,19 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     Type returnType;
                     RulesType rulesType = templateMethod.getAnnotation(RulesType.class);
                     if (rulesType != null) {
-                        String typeName = rulesType.value();
-                        Class<?> type = findOrLoadType(typeName);
+                        Class<?> type = findOrLoadType(rulesType);
                         returnType = Type.getType(type);
                     } else {
                         returnType = Type.getReturnType(descriptor);
+                    }
+                    final Type[] methodParameterTypes = Type.getArgumentTypes(descriptor);
+                    for (int i = 0; i < templateMethod.getParameterCount(); i++) {
+                        for (Annotation annotation : templateMethod.getParameterAnnotations()[i]) {
+                            if (annotation instanceof RulesType) {
+                                Class<?> type = findOrLoadType((RulesType) annotation);
+                                methodParameterTypes[i] = Type.getType(type);
+                            }
+                        }
                     }
                     MethodVisitor mv = super.visitMethod(access,
                         name,
@@ -166,7 +169,8 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
 
-        private Class<?> findOrLoadType(String typeName) {
+        private Class<?> findOrLoadType(RulesType rulesType) {
+            String typeName = rulesType.value();
             try {
                 return classLoader.loadClass(typeName);
             } catch (ClassNotFoundException e) {
@@ -175,7 +179,8 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                         return type.getInstanceClass();
                     }
                 }
-                throw new InstantiationException("Annotation template class is wrong. Type '%s' is not found.");
+                throw new InstantiationException(
+                    "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.");
             }
         }
     }
@@ -197,7 +202,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             IOpenClass openClass,
             ClassLoader classLoader) throws Exception {
         if (!templateClass.isInterface()) {
-            throw new InstantiationException("Interface is expected.");
+            throw new InstantiationException("Only interface is supported");
         }
         final String enhancedClassName = originalClass
             .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
@@ -222,7 +227,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         final Logger log = LoggerFactory.getLogger(DynamicInterfaceAnnotationEnhancerHelper.class);
         if (log.isWarnEnabled()) {
             for (Method method : dynamicInterfaceAnnotationEnhancerClassVisitor.getMissedMethods()) {
-                log.warn("Annotation template method '{}' is not found in the service class.",
+                log.warn("Method '{}' from annotation template interface is not found in the service class.",
                     MethodUtil.printQualifiedMethodName(method));
             }
         }

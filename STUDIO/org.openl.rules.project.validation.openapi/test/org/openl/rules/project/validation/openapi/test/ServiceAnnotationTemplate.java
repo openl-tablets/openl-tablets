@@ -7,7 +7,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 
-import org.openl.rules.ruleservice.core.interceptors.AnyType;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
 public interface ServiceAnnotationTemplate {
     @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
@@ -38,20 +38,20 @@ public interface ServiceAnnotationTemplate {
     Integer addWrongHere2(@QueryParam("x") String a, @QueryParam("b") Integer b);
 
     @Path("/method1")
-    Integer method1(@QueryParam("x") Integer a, @AnyType Object myDatatype);
+    Integer method1(@QueryParam("x") Integer a, @RulesType("MyDatatype") Object myDatatype);
 
     @Path("/method2")
-    Integer method2(@QueryParam("x") Integer a, @AnyType Object myDatatype);
+    Integer method2(@QueryParam("x") Integer a, @RulesType("MyDatatype") Object myDatatype);
 
     @Path("/method3")
-    Integer method3(@QueryParam("x") Integer a, @AnyType Object myDatatype);
+    Integer method3(@QueryParam("x") Integer a, @RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m1")
-    Object m1(@AnyType Object myDatatype);
+    Object m1(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m2")
-    Object m2(@AnyType Object myDatatype);
+    Object m2(@RulesType("MyDatatype") Object myDatatype);
 
     @Path("/m3")
-    Object m3(@AnyType Object myDatatype);
+    Object m3(@RulesType("MyDatatype") Object myDatatype);
 }

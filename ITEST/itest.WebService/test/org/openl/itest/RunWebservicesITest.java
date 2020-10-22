@@ -600,4 +600,10 @@ public class RunWebservicesITest {
             "/EPBDS-10557/EPBDS-10557_myRule1.req.json",
             "/EPBDS-10557/EPBDS-10557_myRule1.resp.json");
     }
+
+    @Test
+    public void EPBDS_10595() {
+        client.get("/EPBDS-10595/EPBDS-10595/swagger.json", "/EPBDS-10595/EPBDS-10595_swagger.resp.json");
+        client.get("/EPBDS-10595/EPBDS-10595/openapi.json", "/EPBDS-10595/EPBDS-10595_openapi.resp.json");
+    }
 }
