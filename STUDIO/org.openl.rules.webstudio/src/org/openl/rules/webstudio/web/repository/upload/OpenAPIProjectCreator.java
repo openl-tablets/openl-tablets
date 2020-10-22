@@ -26,10 +26,12 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
@@ -79,6 +81,13 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (StringUtils.isBlank(algorithmsModuleName)) {
             throw new ProjectException("Error creating the project, module name for Rules is not provided.");
         }
+        if (!NameChecker.checkName(modelsModuleName) || !NameChecker.checkName(algorithmsModuleName)) {
+            throw new ProjectException("Error creating the project, Module " + NameChecker.BAD_NAME_MSG);
+        }
+        if (!NameChecker.checkName(FileUtils.getName(projectFile.getName()))) {
+            throw new ProjectException("Error creating the project, OpenAPI File " + NameChecker.BAD_NAME_MSG);
+        }
+
         if (StringUtils.isBlank(algorithmsPath)) {
             throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
         }
