@@ -80,11 +80,11 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.8.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.3.4.RELEASE</org.springsecurity.version>
+        <org.springframework.version>5.2.9.RELEASE</org.springframework.version>
+        <org.springsecurity.version>5.3.5.RELEASE</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.3.9</org.mojarra.version>
-        <asm.version>8.0.1</asm.version>
+        <asm.version>9.0</asm.version>
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.4.0</kafka.version>
         <kafka-junit.version>2.4.0</kafka-junit.version>
@@ -98,14 +98,13 @@
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.62</org.bouncycastle.version>
-        <com.fasterxml.jackson.version>2.11.2</com.fasterxml.jackson.version>
+        <org.bouncycastle.version>1.66</org.bouncycastle.version>
+        <com.fasterxml.jackson.version>2.11.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.31.v20200723</jetty.server.version>
-        <awaitility.version>3.1.6</awaitility.version>
+        <jetty.server.version>9.4.32.v20200930</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
-        <elasticsearch.version>6.8.12</elasticsearch.version>
+        <elasticsearch.version>6.8.13</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
@@ -615,13 +614,13 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13</version>
+                <version>4.13.1</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
-                <version>${awaitility.version}</version>
+                <version>4.0.3</version>
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
@@ -664,14 +663,14 @@
             <dependency>
                 <groupId>commons-codec</groupId>
                 <artifactId>commons-codec</artifactId>
-                <version>1.14</version>
+                <version>1.15</version>
             </dependency>
             <!-- The Commons IO library contains utility classes, stream implementations, file filters,
             file comparators, endian transformation classes, and much more. -->
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.7</version>
+                <version>2.8.0</version>
             </dependency>
             <!-- Spring Framework -->
             <!-- Core utilities used by other modules. Define this if you use Spring
@@ -977,10 +976,10 @@
                 <version>${org.apache.cxf.version}</version>
             </dependency>
             <dependency>
-                <!-- for cxf-rt-frontend-jaxrs -->
+                <!-- for CXF to resolve duplicated dependencies of javax.activation:activation -->
                 <groupId>org.jvnet.staxex</groupId>
                 <artifactId>stax-ex</artifactId>
-                <version>1.8.1</version>
+                <version>1.8.3</version>
             </dependency>
             <!-- Apache CXF JAX-RS Extensions: Providers -->
             <dependency>
@@ -1031,7 +1030,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.31.1</version>
+                <version>3.35.2</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1083,7 +1082,13 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-
+            <dependency>
+                <!-- Date and time library to replace JDK date handling -->
+                <!-- to remove dependency duplication from the elasticsearc -->
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>2.10.7</version>
+            </dependency>
             <dependency>
                 <groupId>org.codelibs</groupId>
                 <artifactId>elasticsearch-cluster-runner</artifactId>
@@ -1125,6 +1130,7 @@
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <!-- to remove dependency duplication from the cassandra driver -->
                 <groupId>com.github.jnr</groupId>
                 <artifactId>jnr-ffi</artifactId>
                 <version>2.1.10</version>
@@ -1161,19 +1167,13 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.12</version>
+                <version>1.4.13</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
                 <groupId>org.jgrapht</groupId>
                 <artifactId>jgrapht-core</artifactId>
                 <version>0.9.0</version>
-            </dependency>
-            <!-- Date and time library to replace JDK date handling -->
-            <dependency>
-                <groupId>joda-time</groupId>
-                <artifactId>joda-time</artifactId>
-                <version>2.10.6</version>
             </dependency>
             <!-- standards-based cache for boosting performance -->
             <dependency>
@@ -1184,7 +1184,7 @@
             <dependency>
                 <groupId>org.cache2k</groupId>
                 <artifactId>cache2k-jcache</artifactId>
-                <version>1.2.4.Final</version>
+                <version>1.6.0.Final</version>
             </dependency>
             <!-- Java library which deep-clones objects. -->
             <dependency>
@@ -1247,7 +1247,7 @@
             <dependency>
                 <groupId>org.apache.httpcomponents</groupId>
                 <artifactId>httpclient</artifactId>
-                <version>4.5.12</version>
+                <version>4.5.13</version>
             </dependency>
             <!-- HikariCP - A high-performance JDBC connection pool. -->
             <dependency>
@@ -1259,7 +1259,7 @@
             <dependency>
                 <groupId>com.microsoft.sqlserver</groupId>
                 <artifactId>mssql-jdbc</artifactId>
-                <version>7.2.2.jre8</version>
+                <version>8.4.1.jre8</version>
             </dependency>
             <!-- the Java in-memory SQL DB -->
             <dependency>
@@ -1367,7 +1367,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.26</version>
+                <version>1.27</version>
             </dependency>
             <!-- OpenAPI -->
             <dependency>
