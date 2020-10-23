@@ -106,7 +106,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                         props.setFieldValue(propertyName, value);
                     } catch (Exception e) {
                         throw new NoMatchFileNameException(String.format(
-                                "Module '%s' does not match file name pattern '%s'.%n Invalid property: %s.%n Message: %s.",
+                                "Module '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
                                 fileName,
                                 fileNamePattern,
                                 propertyName,
