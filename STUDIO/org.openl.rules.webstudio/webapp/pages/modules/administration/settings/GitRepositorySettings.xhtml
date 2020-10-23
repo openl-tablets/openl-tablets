@@ -89,9 +89,9 @@
         <h:message for="#{prependId}gitLocalRepositoryPath" styleClass="error"/>
         <h:outputText value=""/>
 
-        <h:outputText value="Branch:" styleClass="required" rendered="#{settings.remoteRepository}"/>
+        <h:outputText value="Branch:" rendered="#{settings.remoteRepository}"/>
         <h:inputText value="#{settings.branch}" title="The main branch to commit changes."
-                     id="#{prependId}gitBranch" validator="#{validators.branch}"
+                     id="#{prependId}gitBranch"
                      rendered="#{settings.remoteRepository}"/>
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;"
                 class="imageButton" onclick="showShowInfo('#{prependId}branchShowInfo');return false;" title="Details"
