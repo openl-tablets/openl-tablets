@@ -17,7 +17,7 @@ import org.openl.itest.service.internal.ResponseInterceptor;
 import org.openl.itest.service.internal.VirtualMethodHandler;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
-import org.openl.rules.ruleservice.core.interceptors.AnyType;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 
@@ -27,10 +27,10 @@ public interface MyService {
 
     @ServiceCallBeforeInterceptor({ InputInterceptor.class })
     @ServiceCallAfterInterceptor({ OutputInterceptor.class })
-    MyType parse1(@AnyType Object p); // will be skipped because of such method does not exist in rules
+    MyType parse1(@RulesType("java.lang.String") Object p); // will be skipped because of such method does not exist in rules
 
     @ServiceCallAfterInterceptor({ ResponseInterceptor.class })
-    Response parse2(@AnyType Object p);
+    Response parse2(@RulesType("java.lang.String") Object p);
 
     @GET
     @Path("parse/{num}")

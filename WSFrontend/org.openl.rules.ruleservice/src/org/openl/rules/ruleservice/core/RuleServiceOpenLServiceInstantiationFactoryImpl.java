@@ -171,7 +171,10 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             Class<?> serviceClass,
             Object serviceTarget,
             ClassLoader serviceClassLoader) {
-        Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription, serviceClass, serviceClassLoader);
+        Class<?> annotatedClass = processAnnotatedTemplateClass(serviceDescription,
+            serviceClass,
+            openClass,
+            serviceClassLoader);
         return RuleServiceInstantiationFactoryHelper
             .buildInterfaceForService(serviceDescription, openClass, annotatedClass, serviceTarget, serviceClassLoader);
 
@@ -179,6 +182,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
 
     private Class<?> processAnnotatedTemplateClass(ServiceDescription serviceDescription,
             Class<?> serviceClass,
+            IOpenClass openClass,
             ClassLoader classLoader) {
         String annotationTemplateClassName = serviceDescription.getAnnotationTemplateClassName();
         if (annotationTemplateClassName != null) {
@@ -186,7 +190,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName.trim());
                 if (annotationTemplateClass.isInterface()) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
-                        .decorate(serviceClass, annotationTemplateClass, classLoader);
+                        .decorate(serviceClass, annotationTemplateClass, openClass, classLoader);
                     log.info("Annotation template class '{}' has been used for service: {}.",
                         annotationTemplateClassName,
                         serviceDescription.getName());
