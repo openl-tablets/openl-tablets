@@ -5,7 +5,6 @@ import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
-import org.eclipse.jgit.api.errors.RefNotAdvertisedException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
@@ -96,7 +95,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         if (isEmpty()) {
             return Collections.emptyList();
         }
-        return iterate(path, new ListCommand(resolveBranchId()));
+        ObjectId objectId = resolveBranchId();
+        if (objectId == null) {
+            return Collections.emptyList();
+        }
+        return iterate(path, new ListCommand(objectId));
     }
 
     @Override
@@ -794,11 +797,10 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     private ObjectId resolveBranchId() throws IOException {
-        ObjectId branchId = git.getRepository().resolve(branch);
-        if (branchId == null) {
-            throw new IOException(String.format("Cannot find branch '%s'", branch));
+        if (git.getRepository().findRef(branch) != null) {
+            return git.getRepository().resolve(branch);
         }
-        return branchId;
+        return null;
     }
 
     private FileData createFileData(TreeWalk dirWalk, RevCommit fileCommit) {
@@ -995,11 +997,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             if (r == null) {
-                throw new RefNotAdvertisedException(MessageFormat
-                        .format(JGitText.get().couldNotGetAdvertisedRef, Constants.DEFAULT_REMOTE_NAME, branch));
+                return;
             }
 
             String mergeMessage = getMergeMessage(mergeAuthor, r);
+
             MergeResult mergeResult = git.merge()
                     .include(r.getObjectId())
                     .setStrategy(MergeStrategy.RECURSIVE)
@@ -1128,7 +1130,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         try {
             remoteRepoLock.lock();
-
             PushCommand push;
 
             if (git.getRepository().findRef(branch) != null) {
@@ -1310,11 +1311,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private void reset(String commitToDiscard) {
         try {
             String fullBranch = git.getRepository().getFullBranch();
-//            if(git.getRepository().findRef(fullBranch)==null){
-//                git.commit().setAllowEmpty(true).setMessage("init").call();
-//                pushBranch(new RefSpec().setSource(branch).setDestination(Constants.R_HEADS + branch));
-//                return;
-//            }
             if (ObjectId.isId(fullBranch)) {
                 // Detached HEAD. Just checkout to current branch and reset working dir.
                 log.debug("Found detached HEAD: {}.", fullBranch);
