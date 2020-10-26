@@ -8,11 +8,13 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.tuple.Pair;
@@ -213,10 +215,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         return true;
     }
 
-    private static void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
-            LinkedHashMap<String, FieldDescription> parentFields) {
+    private void extractParentFields(DatatypeTableBoundNode datatypeTableBoundNode,
+            LinkedHashMap<String, FieldDescription> parentFields,
+            Set<DatatypeTableBoundNode> used) {
         if (datatypeTableBoundNode.parentDatatypeTableBoundNode != null) {
-            extractParentFields(datatypeTableBoundNode.parentDatatypeTableBoundNode, parentFields);
+            if (used.contains(datatypeTableBoundNode.parentDatatypeTableBoundNode)) {
+                return;
+            }
+            used.add(datatypeTableBoundNode.parentDatatypeTableBoundNode);
+            extractParentFields(datatypeTableBoundNode.parentDatatypeTableBoundNode, parentFields, used);
             parentFields.putAll(datatypeTableBoundNode.parentDatatypeTableBoundNode.getFields());
         } else {
             if (datatypeTableBoundNode.dataType.getSuperClass() != null) {
@@ -241,7 +248,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             beanBuilder.setParentType(new TypeDescription(superOpenClass.getJavaName()));
             if (superOpenClass instanceof DatatypeOpenClass) {
                 LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>();
-                extractParentFields(this, parentFields);
+                extractParentFields(this, parentFields, new HashSet<>());
                 for (Entry<String, FieldDescription> field : parentFields.entrySet()) {
                     beanBuilder.addParentField(field.getKey(), field.getValue());
                 }
@@ -729,8 +736,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     public void generateByteCode(IBindingContext bindingContext) throws Exception {
         if (!generated) {
             if (generatingInProcess) {
-                throw new OpenLCompilationException(
-                    String.format("Cyclic inheritance involving '%s'", parentClassName));
+                throw new OpenLCompilationException(String
+                    .format("Circular dependency with respect to inheritance '%s' is detected.", parentClassName));
             }
             generatingInProcess = true;
             try {
