@@ -263,9 +263,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         private String dateFormatToPattern(String format) {
-            String pattern = format.replaceAll("([ydDwWHkmsSuF])(?!\\1)", "%"); // pattern for the latest digits
-            pattern = pattern.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
-            pattern = pattern.replaceAll("%", "\\\\d+"); // restore pattern
+            String pattern = format.replaceAll("[ydDwWHkmsSuF]", "\\\\d");
             pattern = pattern.replaceAll("MMM+", "\\\\p{Alpha}+");
             pattern = pattern.replaceAll("MM", "\\\\d{2}");
             pattern = pattern.replaceAll("M", "\\\\d{1,2}");
