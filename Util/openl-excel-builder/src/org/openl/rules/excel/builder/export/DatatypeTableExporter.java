@@ -1,11 +1,8 @@
 package org.openl.rules.excel.builder.export;
 
-import java.math.BigDecimal;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.time.OffsetDateTime;
+import static org.openl.rules.excel.builder.export.DefaultValueCellWriter.writeDefaultValueToCell;
+
 import java.util.Collection;
-import java.util.Date;
 import java.util.Iterator;
 
 import org.apache.poi.ss.usermodel.Cell;
@@ -25,7 +22,7 @@ import org.slf4j.LoggerFactory;
 
 public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeModel> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(DatatypeTableExporter.class);
+    private final Logger LOGGER = LoggerFactory.getLogger(DatatypeTableExporter.class);
 
     public static final String DATATYPES_SHEET = "Datatypes";
 
@@ -36,6 +33,7 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         Cursor endPosition = null;
         TableStyle style = getTableStyle();
         for (DatatypeModel model : models) {
+            LOGGER.debug("Writing data type with name {}", model.getName());
             Cursor startPosition = nextFreePosition(endPosition);
             endPosition = exportTable(model, startPosition, style, sheet);
         }
@@ -101,81 +99,9 @@ public class DatatypeTableExporter extends AbstractOpenlTableExporter<DatatypeMo
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 
-    private void writeDefaultValueToCell(DatatypeModel model,
-            FieldModel field,
-            Cell valueCell,
-            CellStyle dateStyle,
-            CellStyle dateTimeStyle) {
-        if (field.getDefaultValue() == null) {
-            valueCell.setCellValue("");
-        } else {
-            try {
-                setDefaultValue(field, valueCell, dateStyle, dateTimeStyle);
-            } catch (ParseException e) {
-                LOGGER
-                    .error("Error is occurred on writing field: {}, model: {} .", field.getName(), model.getName(), e);
-            }
-        }
-    }
-
     @Override
     protected String getExcelSheetName() {
         return DATATYPES_SHEET;
-    }
-
-    private static void setDefaultValue(FieldModel model,
-            Cell valueCell,
-            CellStyle dateStyle,
-            CellStyle dateTimeStyle) throws ParseException {
-        Object defaultValue = model.getDefaultValue();
-        String valueAsString = defaultValue.toString();
-        switch (model.getType()) {
-            case "Integer":
-            case "BigInteger":
-                Number casted = NumberFormat.getInstance().parse(valueAsString);
-                if (casted.longValue() <= Integer.MAX_VALUE) {
-                    valueCell.setCellValue(Integer.parseInt(valueAsString));
-                } else {
-                    valueCell.setCellValue(Long.parseLong(valueAsString));
-                }
-                break;
-            case "Long":
-                valueCell.setCellValue(Long.parseLong(valueAsString));
-                break;
-            case "Double":
-                valueCell.setCellValue(Double.parseDouble(valueAsString));
-                break;
-            case "Float":
-                valueCell.setCellValue(new BigDecimal(valueAsString).doubleValue());
-                break;
-            case "BigDecimal":
-                valueCell.setCellValue(valueAsString);
-                break;
-            case "String":
-                if (StringUtils.isBlank(valueAsString)) {
-                    valueCell.setCellValue(DEFAULT_STRING_VALUE);
-                } else {
-                    valueCell.setCellValue(valueAsString);
-                }
-                break;
-            case "Boolean":
-                valueCell.setCellValue(Boolean.parseBoolean(valueAsString));
-                break;
-            case "Date":
-                if (defaultValue instanceof Date) {
-                    Date dateValue = (Date) defaultValue;
-                    valueCell.setCellValue(dateValue);
-                    valueCell.setCellStyle(dateStyle);
-                } else {
-                    OffsetDateTime dateValue = (OffsetDateTime) defaultValue;
-                    valueCell.setCellValue(new Date((dateValue).toInstant().toEpochMilli()));
-                    valueCell.setCellStyle(dateTimeStyle);
-                }
-                break;
-            default:
-                valueCell.setCellValue("");
-                break;
-        }
     }
 
 }

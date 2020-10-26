@@ -3,8 +3,13 @@ package org.openl.rules.excel.builder;
 import org.apache.poi.ss.util.CellRangeAddress;
 
 public class CellRangeSettings {
-    private int height;
-    private int width;
+    private final int height;
+    private final int width;
+
+    public CellRangeSettings(int height, int width) {
+        this.height = height;
+        this.width = width;
+    }
 
     public CellRangeSettings(CellRangeAddress cellRangeAddress) {
         this.height = cellRangeAddress.getLastRow() - cellRangeAddress.getFirstRow();

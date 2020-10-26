@@ -15,6 +15,7 @@ import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -137,9 +138,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             ProjectModel projectModel = getProjectModel(projectBuilder, converter);
             List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
+            List<DataModel> dataModels = projectModel.getDataModels();
             EnvironmentModel environmentModel = null;
             boolean dataTypesArePresented = CollectionUtils.isNotEmpty(datatypeModels);
             boolean spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
+            boolean dataTablesArePresented = CollectionUtils.isNotEmpty(dataModels);
 
             if (!dataTypesArePresented && !spreadsheetsArePresented) {
                 throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
@@ -156,9 +159,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                     modelsPath,
                     "Error uploading dataTypes file.");
             }
-            if (spreadsheetsArePresented) {
+            if (spreadsheetsArePresented || dataTablesArePresented) {
                 addFile(projectBuilder,
-                    generateSpreadsheetsFile(spreadsheetModels, environmentModel),
+                    generateAlgorithmsModule(spreadsheetModels, dataModels, environmentModel),
                     algorithmsPath,
                     "Error uploading spreadsheets file.");
             }
@@ -210,10 +213,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return new ByteArrayInputStream(dtBytes);
     }
 
-    private InputStream generateSpreadsheetsFile(List<SpreadsheetModel> spreadsheetModels,
+    private InputStream generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
+            List<DataModel> dataModels,
             EnvironmentModel environmentModel) {
         ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetModels, sos, environmentModel);
+        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
         byte[] sprBytes = sos.toByteArray();
         return new ByteArrayInputStream(sprBytes);
     }

@@ -14,6 +14,7 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
@@ -28,8 +29,10 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel(JSON_FILE_NAME);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        List<DataModel> dataModels = projectModel.getDataModels();
         assertEquals(4, datatypeModels.size());
-        assertEquals(39, spreadsheetModels.size());
+        assertEquals(14, dataModels.size());
+        assertEquals(25, spreadsheetModels.size());
     }
 
     @Test
@@ -39,8 +42,10 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        List<DataModel> dataModels = projectModel.getDataModels();
         assertEquals(6, datatypeModels.size());
-        assertEquals(37, spreadsheetModels.size());
+        assertEquals(4, dataModels.size());
+        assertEquals(33, spreadsheetModels.size());
         assertTrue(projectModel.isRuntimeContextProvided());
     }
 

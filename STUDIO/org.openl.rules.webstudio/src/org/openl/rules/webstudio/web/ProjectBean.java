@@ -25,6 +25,7 @@ import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -737,7 +738,8 @@ public class ProjectBean {
             throw new Message("Failed to add data types file.");
         }
 
-        try (InputStream spreadsheets = generateSpreadsheetsFile(projectModel.getSpreadsheetResultModels(),
+        try (InputStream spreadsheets = generateAlgorithmsFile(projectModel.getSpreadsheetResultModels(),
+            projectModel.getDataModels(),
             getEnvironmentModel(currentModelModuleName))) {
             currentProject.addResource(rulesFilePath, spreadsheets);
         } catch (IOException | ProjectException e) {
@@ -792,10 +794,11 @@ public class ProjectBean {
         return new ByteArrayInputStream(dtBytes);
     }
 
-    private InputStream generateSpreadsheetsFile(List<SpreadsheetModel> spreadsheetModels,
+    private InputStream generateAlgorithmsFile(List<SpreadsheetModel> spreadsheetModels,
+            List<DataModel> dataModels,
             EnvironmentModel environmentModel) {
         ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateSpreadsheetsWithEnvironment(spreadsheetModels, sos, environmentModel);
+        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
         byte[] sprBytes = sos.toByteArray();
         return new ByteArrayInputStream(sprBytes);
     }

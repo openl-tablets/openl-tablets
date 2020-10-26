@@ -80,6 +80,7 @@ public class DatatypeTableExporterTest {
             false,
             Arrays.asList(dt, oneMoreModel),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
         ExcelFileBuilder.generateProject(projectModel);
 

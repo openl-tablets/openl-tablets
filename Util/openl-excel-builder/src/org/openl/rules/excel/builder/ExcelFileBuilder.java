@@ -1,5 +1,6 @@
 package org.openl.rules.excel.builder;
 
+import static org.openl.rules.excel.builder.export.DataTableExporter.DATA_SHEET;
 import static org.openl.rules.excel.builder.export.DatatypeTableExporter.DATATYPES_SHEET;
 import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
@@ -14,6 +15,7 @@ import java.util.Map;
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.openl.rules.excel.builder.export.DataTableExporter;
 import org.openl.rules.excel.builder.export.DatatypeTableExporter;
 import org.openl.rules.excel.builder.export.EnvironmentTableExporter;
 import org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter;
@@ -22,7 +24,9 @@ import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +75,10 @@ public class ExcelFileBuilder {
         writeDataTypes(datatypeModels, outputStream);
     }
 
+    public static void generateDataTables(List<DataModel> dataModels, OutputStream outputStream) {
+        writeDataTables(dataModels, outputStream);
+    }
+
     /**
      * Generate spreadsheets to the output stream.
      * 
@@ -87,10 +95,11 @@ public class ExcelFileBuilder {
      * @param spreadsheetModels - spreadsheet models.
      * @param outputStream - output stream with models.
      */
-    public static void generateSpreadsheetsWithEnvironment(List<SpreadsheetModel> spreadsheetModels,
+    public static void generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
+            List<DataModel> dataModels,
             OutputStream outputStream,
             EnvironmentModel model) {
-        writeSpreadsheetsWithEnvironment(spreadsheetModels, outputStream, model);
+        writeAlgorithmsModule(spreadsheetModels, dataModels, outputStream, model);
     }
 
     /**
@@ -113,6 +122,27 @@ public class ExcelFileBuilder {
             workbook.write(outputStream);
         } catch (IOException e) {
             LOGGER.error("Error on generating DataTypes workbook occurred.", e);
+        } finally {
+            if (tempWorkbook != null) {
+                tempWorkbook.dispose();
+            }
+        }
+    }
+
+    private static void writeDataTables(List<DataModel> dataModels, OutputStream outputStream) {
+        SXSSFWorkbook tempWorkbook = null;
+        try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
+            Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
+            SXSSFSheet dtSheet = workbook.createSheet(DATA_SHEET);
+            TableStyle datatypeStyles = stylesMap.get(DATA_SHEET);
+            DataTableExporter dataTableExporter = new DataTableExporter();
+            dataTableExporter.setTableStyle(datatypeStyles);
+            dataTableExporter.export(dataModels, dtSheet);
+            dtSheet.validateMergedRegions();
+            autoSizeSheets(workbook);
+            workbook.write(outputStream);
+        } catch (IOException e) {
+            LOGGER.error("Error on generating Data tables workbook occurred.", e);
         } finally {
             if (tempWorkbook != null) {
                 tempWorkbook.dispose();
@@ -146,6 +176,9 @@ public class ExcelFileBuilder {
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
             SXSSFWorkbook workbook,
             TableStyle tableStyle) {
+        if (CollectionUtils.isEmpty(spreadsheetModels)) {
+            return;
+        }
         SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
         SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
         sprTableExporter.setTableStyle(tableStyle);
@@ -153,7 +186,19 @@ public class ExcelFileBuilder {
         sprSheet.validateMergedRegions();
     }
 
-    private static void writeSpreadsheetsWithEnvironment(List<SpreadsheetModel> spreadsheetModels,
+    private static void writeDataTables(List<DataModel> dataModels, SXSSFWorkbook workbook, TableStyle tableStyle) {
+        if (CollectionUtils.isEmpty(dataModels)) {
+            return;
+        }
+        SXSSFSheet dataTableSheet = workbook.createSheet(DATA_SHEET);
+        DataTableExporter dtExporter = new DataTableExporter();
+        dtExporter.setTableStyle(tableStyle);
+        dtExporter.export(dataModels, dataTableSheet);
+        dataTableSheet.validateMergedRegions();
+    }
+
+    private static void writeAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
+            List<DataModel> dataModels,
             OutputStream outputStream,
             EnvironmentModel environmentModel) {
         SXSSFWorkbook tempWorkbook = null;
@@ -161,8 +206,10 @@ public class ExcelFileBuilder {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);
             TableStyle sprStyle = stylesMap.get(SPR_RESULT_SHEET);
             TableStyle envStyle = stylesMap.get(ENV_SHEET);
+            TableStyle dataTableStyle = stylesMap.get(DATA_SHEET);
             writeSpreadsheets(spreadsheetModels, workbook, sprStyle);
             writeEnvironment(environmentModel, workbook, envStyle);
+            writeDataTables(dataModels, workbook, dataTableStyle);
             autoSizeSheets(workbook);
             workbook.write(outputStream);
         } catch (IOException e) {
@@ -198,8 +245,10 @@ public class ExcelFileBuilder {
 
             SXSSFSheet dtSheet = workbook.createSheet(DATATYPES_SHEET);
             SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
+            SXSSFSheet dataSheet = workbook.createSheet(DATA_SHEET);
             TableStyle datatypeStyles = stylesMap.get(DATATYPES_SHEET);
             TableStyle sprStyles = stylesMap.get(SPR_RESULT_SHEET);
+            TableStyle dataStyles = stylesMap.get(DATA_SHEET);
 
             DatatypeTableExporter datatypeTableExporter = new DatatypeTableExporter();
             datatypeTableExporter.setTableStyle(datatypeStyles);
@@ -207,10 +256,15 @@ public class ExcelFileBuilder {
             SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
             sprTableExporter.setTableStyle(sprStyles);
 
+            DataTableExporter dataTableExporter = new DataTableExporter();
+            dataTableExporter.setTableStyle(dataStyles);
+
             datatypeTableExporter.export(projectModel.getDatatypeModels(), dtSheet);
             sprTableExporter.export(projectModel.getSpreadsheetResultModels(), sprSheet);
+            dataTableExporter.export(projectModel.getDataModels(), dataSheet);
             dtSheet.validateMergedRegions();
             sprSheet.validateMergedRegions();
+            dataSheet.validateMergedRegions();
             autoSizeSheets(workbook);
             workbook.write(fos);
         } catch (IOException e) {
