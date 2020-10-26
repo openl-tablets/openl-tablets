@@ -656,6 +656,14 @@ public class RepositoryTreeController {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
             } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
+            } else {
+                Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+                if (repository.supports().mappedFolders()) {
+                    String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
+                    if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
+                        return "Cannot create the project because a project with such path already exists but it's not imported into WebStudio. Try to import that project from repository.";
+                    }
+                }
             }
             return msg;
         } catch (Exception e) {
@@ -839,17 +847,20 @@ public class RepositoryTreeController {
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
                 userWorkspace.refresh();
-                String comment;
-                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                    comment = archiveProjectComment;
-                    if (!isValidComment(project, comment)) {
-                        return null;
+                if (project instanceof ADeploymentProject || userWorkspace.hasProject(project.getRepository().getId(),
+                    project.getName())) {
+                    String comment;
+                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                        comment = archiveProjectComment;
+                        if (!isValidComment(project, comment)) {
+                            return null;
+                        }
+                    } else {
+                        Comments comments = getComments(project);
+                        comment = comments.archiveProject(project.getName());
                     }
-                } else {
-                    Comments comments = getComments(project);
-                    comment = comments.archiveProject(project.getName());
+                    project.delete(comment);
                 }
-                project.delete(comment);
             } else {
                 projectArtefact.delete();
             }
