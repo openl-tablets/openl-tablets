@@ -59,7 +59,7 @@ public class DefaultPropertyFileNameProcessorTest {
         assertEquals(props.getStartRequestDate(), new Date(117, 05, 21, 0, 0, 0));
 
         props = processor.process("AL,BL-CL,GL-CA-20072019-21062020",
-            "%lob%-%state%-%effectiveDate:ddMMyy%-%startRequestDate:ddMMyyyy%");
+            "%lob%-%state%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%");
         assertArrayEquals(props.getLob(), new String[] { "AL", "BL-CL", "GL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.CA });
         assertNull(props.getNature());
