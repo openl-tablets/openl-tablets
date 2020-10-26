@@ -2,6 +2,8 @@ package org.openl.rules.util;
 
 import static org.junit.Assert.*;
 
+import java.math.BigInteger;
+
 import org.junit.Test;
 
 public class BooleansTest {
@@ -304,5 +306,101 @@ public class BooleansTest {
         assertFalse(Booleans.anyFalse(new Boolean[] { null, true }));
         assertTrue(Booleans.anyFalse(new Boolean[] { false, null }));
         assertFalse(Booleans.anyFalse(new Boolean[] { true, null }));
+    }
+
+    @Test
+    public void toBooleanTest() {
+        //null
+        assertNull(Booleans.toBoolean((Byte) null));
+        assertNull(Booleans.toBoolean((Short)null));
+        assertNull(Booleans.toBoolean((Integer) null));
+        assertNull(Booleans.toBoolean((Long) null));
+        assertNull(Booleans.toBoolean((Character) null));
+        assertNull(Booleans.toBoolean((String) null));
+        assertNull(Booleans.toBoolean((BigInteger) null));
+        assertNull(Booleans.toBoolean(""));
+        assertNull(Booleans.toBoolean("foo"));
+        assertNull(Booleans.toBoolean("y "));
+        assertNull(Booleans.toBoolean("false "));
+        assertNull(Booleans.toBoolean((Character) 'b'));
+        assertNull(Booleans.toBoolean('b'));
+        assertNull(Booleans.toBoolean((byte) 10));
+        assertNull(Booleans.toBoolean((short) 10));
+        assertNull(Booleans.toBoolean(10));
+        assertNull(Booleans.toBoolean(10L));
+        assertNull(Booleans.toBoolean((Byte) (byte) 10));
+        assertNull(Booleans.toBoolean((Short) (short) 10));
+        assertNull(Booleans.toBoolean((Integer) 10));
+        assertNull(Booleans.toBoolean((Long) 10L));
+        assertNull(Booleans.toBoolean(new BigInteger("10")));
+        assertNull(Booleans.toBoolean((byte) -10));
+        assertNull(Booleans.toBoolean((short) -10));
+        assertNull(Booleans.toBoolean(-10));
+        assertNull(Booleans.toBoolean(-10L));
+        assertNull(Booleans.toBoolean((Byte) (byte) -10));
+        assertNull(Booleans.toBoolean((Short) (short) -10));
+        assertNull(Booleans.toBoolean((Integer) (-10)));
+        assertNull(Booleans.toBoolean((Long) (-10L)));
+        assertNull(Booleans.toBoolean(new BigInteger("-10")));
+
+        //TRUE
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("y"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("Y"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("1"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("yes"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("YES"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("yEs"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("true"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("TRUE"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("TrUe"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("on"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("ON"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean("On"));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((byte) 1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((short) 1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean(1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean(1L));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean('1'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Byte) (byte) 1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Short) (short) 1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Integer) 1));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Long) 1L));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean(new BigInteger("1")));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean('1'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean('Y'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean('y'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) '1'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) 'y'));
+        assertEquals(Boolean.TRUE, Booleans.toBoolean((Character) 'Y'));
+
+        //FALSE
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("n"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("N"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("0"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("no"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("NO"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("nO"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("false"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("FALSE"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("fAlSe"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("off"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("OFF"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean("oFf"));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((byte) 0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((short) 0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean(0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean(0L));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean('0'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Byte) (byte) 0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Short) (short) 0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Integer) 0));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Long) 0L));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean(new BigInteger("0")));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean('0'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean('n'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean('N'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Character) '0'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Character) 'n'));
+        assertEquals(Boolean.FALSE, Booleans.toBoolean((Character) 'N'));
     }
 }

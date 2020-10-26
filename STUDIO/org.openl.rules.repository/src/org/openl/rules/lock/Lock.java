@@ -41,7 +41,7 @@ public class Lock {
 
     Lock(Path locksLocation, String lockId) {
         this.locksLocation = locksLocation;
-        this.lockPath = locksLocation.resolve(lockId);
+        this.lockPath = locksLocation.resolve(lockId.replaceAll(":", ""));
     }
 
     public boolean tryLock(String lockedBy) {
