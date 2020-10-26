@@ -81,7 +81,7 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
         <org.springframework.version>5.2.9.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.3.5.RELEASE</org.springsecurity.version>
+        <org.springsecurity.version>5.4.1</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.3.9</org.mojarra.version>
         <asm.version>9.0</asm.version>
@@ -102,7 +102,7 @@
         <com.fasterxml.jackson.version>2.11.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.32.v20200930</jetty.server.version>
+        <jetty.server.version>9.4.33.v20201020</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.13</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
