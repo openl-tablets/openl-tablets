@@ -1157,7 +1157,10 @@ public class GitRepositoryTest {
 
     @Test
     public void testResetUncommittedChanges() throws IOException {
-        File parent = repo.getClosableGit().getRepository().getDirectory().getParentFile();
+        File parent;
+        try (Git git = repo.getClosableGit()) {
+            parent = git.getRepository().getDirectory().getParentFile();
+        }
         File existingFile = new File(parent, "file-in-master");
         assertTrue(existingFile.exists());
 
