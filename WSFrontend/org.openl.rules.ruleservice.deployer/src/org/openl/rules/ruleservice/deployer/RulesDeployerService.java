@@ -180,7 +180,7 @@ public class RulesDeployerService implements Closeable {
             throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
         }
 
-        String deploymentName = getDeploymentName(zipEntries);
+        String deploymentName = getDeploymentName(originalName, zipEntries);
         String name = originalName != null ? originalName : DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
         if (deploymentName == null) {
             FileData dest = createFileData(zipEntries, null, name, overridable);
@@ -248,8 +248,9 @@ public class RulesDeployerService implements Closeable {
         return fileItems;
     }
 
-    private String getDeploymentName(Map<String, byte[]> zipEntries) {
-        String deploymentName = DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
+    private String getDeploymentName(String givenName, Map<String, byte[]> zipEntries) {
+        final String deploymentName = Optional.ofNullable(givenName)
+                .orElse(DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis());
         if (zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null) {
             return deploymentName;
         } else {
