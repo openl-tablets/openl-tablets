@@ -39,15 +39,6 @@
         <constructor-arg name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 
-    <bean id="unpackClasspathAutoJarToDirectoryBean"
-          class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean">
-        <property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
-        <property name="unpackAllJarsInOneDeployment"
-                  value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
-        <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars}}"/>
-    </bean>
-
     <!-- Data source storage that provides information about deployments, projects
         and their properties and version -->
     <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
@@ -58,7 +49,7 @@
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
-        <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars}}"/>
+        <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
+        <property name="enabled" value="${ruleservice.datasource.deploy.classpath.jars}"/>
     </bean>
 </beans>

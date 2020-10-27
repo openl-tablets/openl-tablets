@@ -19,6 +19,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
+import org.openl.rules.repository.LocalRepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -44,7 +45,6 @@ public class RulesDeployerService implements Closeable {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
     static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
-    private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
 
     private final Logger log = LoggerFactory.getLogger(getClass());
 
@@ -53,7 +53,12 @@ public class RulesDeployerService implements Closeable {
 
     public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
-        this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+        if (repository instanceof LocalRepositoryFactory) {
+            //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            this.deployPath = "";
+        } else {
+            this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+        }
     }
 
     /**
@@ -62,9 +67,6 @@ public class RulesDeployerService implements Closeable {
      * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
-        String deployPath = properties.getProperty("production-repository.base.path");
-        this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
-
         Map<String, String> params = new HashMap<>();
         params.put("id", "production-repository");
         params.put("uri", properties.getProperty("production-repository.uri"));
@@ -88,6 +90,14 @@ public class RulesDeployerService implements Closeable {
 
         this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
             params);
+
+        if (deployRepo instanceof LocalRepositoryFactory) {
+            //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            this.deployPath = "";
+        } else {
+            String deployPath = properties.getProperty("production-repository.base.path");
+            this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+        }
     }
 
     /**
@@ -231,20 +241,20 @@ public class RulesDeployerService implements Closeable {
 
     private String getDeploymentName(Map<String, byte[]> zipEntries) {
         String deploymentName = DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
-        if (zipEntries.get(DEPLOYMENT_DESCRIPTOR_FILE_NAME + ".xml") != null) {
+        if (zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null) {
             return deploymentName;
         } else {
-            byte[] bytes = zipEntries.get(DEPLOYMENT_DESCRIPTOR_FILE_NAME + ".yaml");
+            byte[] bytes = zipEntries.get(DeploymentDescriptor.YAML.getFileName());
             if (bytes == null) {
                 return null;
             }
             try (InputStream fileStream = new ByteArrayInputStream(bytes)) {
                 Yaml yaml = new Yaml();
-                Map properties = yaml.loadAs(fileStream, Map.class);
-                return Optional.ofNullable(properties.get("name"))
-                    .map(Object::toString)
-                    .filter(StringUtils::isNotBlank)
-                    .orElse(deploymentName);
+                return Optional.ofNullable(yaml.loadAs(fileStream, Map.class))
+                        .map(prop -> prop.get("name"))
+                        .map(Object::toString)
+                        .filter(StringUtils::isNotBlank)
+                        .orElse(deploymentName);
             } catch (IOException e) {
                 log.debug(e.getMessage(), e);
                 return deploymentName;
