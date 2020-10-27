@@ -349,7 +349,7 @@
                     </tr>
                     <tr>
                         <td>Description:</td>
-                        <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:150px"/>
+                        <td><h:inputTextarea id="projectDescription" value="#{project.comment}" style="height:50px"/>
                         </td>
                     </tr>
                     <tr>
@@ -386,7 +386,7 @@
                             </a4j:outputPanel></td>
                         </tr>
                         <tr>
-                            <td>Properties pattern for a file name:</td>
+                            <td>Properties patterns for a file name:</td>
                             <td class="aligned-property">
                                 <h:inputTextarea id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePatterns}"
                                              validator="#{projectBean.validatePropertiesFileNamePattern}"/>
