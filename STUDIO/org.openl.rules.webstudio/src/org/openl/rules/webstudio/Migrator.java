@@ -121,16 +121,28 @@ public class Migrator {
         props.put("project.history.home", null); // Remove
 
         // migrate deploy-config
-        if (settings.getProperty("repository.deploy-config.separate-repository") == null) {
+        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository"))) {
+            props.put("repository.deploy-config.separate-repository", null);
+            props.put("repository.deploy-config.use-repository", null);
+
+            // migrate local repo path if have default value, since the default has changed on 5.24.0
+            // null means this property have default value from previous OpenL version
+            Object depConfRepo = settings.getProperty("repository.deploy-config.factory");
+            if (settings.getProperty(
+                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "org.openl.rules.repository.git.GitRepository"
+                    .equals(depConfRepo))) {
+                props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
+            }
+        } else {
             props.put("repository.deploy-config.use-repository", "design");
         }
 
-        // migrate local repo path if have default value, since the default has changed on 5.24.0
-        // null means this property have default value from previous OpenL version
+        // migrate design repository path
+        Object desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty(
-            "repository.design.local-repository-path") == null && "org.openl.rules.repository.git.GitRepository"
-                .equals(settings.getProperty("repository.design.factory"))) {
-            props.put("repository.design.local-repository-path", "{openl.home}/design-repository");
+            "repository.design.local-repository-path") == null && (desRepo == null || "org.openl.rules.repository.git.GitRepository"
+                .equals(desRepo))) {
+            props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
         // migrate deployment repository path
@@ -152,7 +164,8 @@ public class Migrator {
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     Path version = dir.resolve(".studioProps/.version");
                     if (Files.isRegularFile(version)) {
-                        String projectPath = nonFlatProjectPaths.get(dir.getFileName().toString());
+                        String prName = dir.getFileName().toString();
+                        String projectPath = nonFlatProjectPaths.getOrDefault(prName, "DESIGN/rules/" + prName);
                         Files.write(version,
                             ("\npath-in-repository=" + projectPath + "\n").getBytes(),
                             StandardOpenOption.APPEND);
