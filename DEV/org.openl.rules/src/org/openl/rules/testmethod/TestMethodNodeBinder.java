@@ -178,14 +178,17 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         if (bestCaseTestMethodBoundNode != null) {
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             bestCaseTestMethodBoundNode.setTable(bestDataTable);
 
             DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, bestTestMethodOpenClass);
+
+            tableSyntaxNode.clearErrors();
             if (bestCaseErrors != null) {
                 Arrays.stream(bestCaseErrors).forEach(tableSyntaxNode::addError);
+            } else {
+                Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             }
+
             if (bestMessages != null) {
                 bestMessages.forEach(bindingContext::addMessage);
             }
