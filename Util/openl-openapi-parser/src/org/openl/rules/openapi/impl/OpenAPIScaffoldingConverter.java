@@ -29,6 +29,7 @@ import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -158,6 +159,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
+        List<DataModel> dataModels = extractDataModels(spreadsheetModels, openAPI);
         Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
             .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
         List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
@@ -184,8 +186,37 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
             dts,
+            dataModels,
             isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
+    }
+
+    private List<DataModel> extractDataModels(List<SpreadsheetModel> spreadsheetModels, OpenAPI openAPI) {
+        List<SpreadsheetModel> potentialDataModels = spreadsheetModels.stream()
+            .filter(x -> CollectionUtils.isEmpty(x.getParameters()) || containsOnlyRuntimeContext(x.getParameters()))
+            .collect(Collectors.toList());
+        List<DataModel> dataModels = new ArrayList<>();
+        for (SpreadsheetModel potentialDataModel : potentialDataModels) {
+            String originalType = potentialDataModel.getType();
+            String type = ARRAY_MATCHER.matcher(originalType).replaceAll("");
+            if (!OpenAPITypeUtils.isCustomType(type)) {
+                continue;
+            }
+            String operationMethod = potentialDataModel.getPathInfo().getOperation();
+            // if get operation without parameters or post with only runtime context
+            List<InputParameter> parameters = potentialDataModel.getParameters();
+            boolean parametersNotEmpty = CollectionUtils.isNotEmpty(parameters);
+            if (parameters.isEmpty() && operationMethod.equals(PathItem.HttpMethod.GET
+                .name()) || parametersNotEmpty && operationMethod.equals(PathItem.HttpMethod.POST.name())) {
+                spreadsheetModels.remove(potentialDataModel);
+                String dataTableName = formatTableName(potentialDataModel.getName());
+                dataModels.add(new DataModel(dataTableName,
+                    type,
+                    potentialDataModel.getPathInfo(),
+                    createModel(openAPI, type, getSchemas(openAPI).get(type))));
+            }
+        }
+        return dataModels;
     }
 
     private void findNotCalledPotentialDataTypes(List<SpreadsheetParserModel> spreadsheetParserModels) {
@@ -288,7 +319,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
-        return inputParameters.stream().anyMatch(x -> x.getType().equals(DEFAULT_RUNTIME_CONTEXT));
+        return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.stream()
+            .anyMatch(x -> x.getType().equals(DEFAULT_RUNTIME_CONTEXT));
+    }
+
+    public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {
+        return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.size() == 1 && inputParameters.stream()
+            .anyMatch(x -> x.getType().equals(DEFAULT_RUNTIME_CONTEXT));
     }
 
     private List<SpreadsheetParserModel> extractSprModels(OpenAPI openAPI,
@@ -506,7 +543,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     if (c.containsKey(APPLICATION_JSON)) {
                         produces = APPLICATION_JSON;
                     } else if (c.containsKey(TEXT_PLAIN)) {
-                            produces = TEXT_PLAIN;
+                        produces = TEXT_PLAIN;
                     } else {
                         produces = c.keySet().iterator().next();
                     }
@@ -617,6 +654,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private String makeCall(String type, String value) {
         return type + "(" + value + ")";
+    }
+
+    private String formatTableName(final String name) {
+        String value = name.replaceFirst("^get", "");
+        return name.equals(value) ? value : StringUtils.capitalize(value);
     }
 
     private String extractReturnType(PathType type, String usedSchemaInResponse) {

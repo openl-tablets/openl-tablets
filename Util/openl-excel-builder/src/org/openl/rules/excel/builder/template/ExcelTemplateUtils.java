@@ -1,5 +1,6 @@
 package org.openl.rules.excel.builder.template;
 
+import static org.openl.rules.excel.builder.export.DataTableExporter.DATA_SHEET;
 import static org.openl.rules.excel.builder.export.DatatypeTableExporter.DATATYPES_SHEET;
 import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
@@ -41,7 +42,9 @@ public class ExcelTemplateUtils {
 
     public static final byte LEFT_MARGIN = 1;
     public static final byte TOP_MARGIN = 2;
-    public static final String DATATYPE_DEFINITON = "{datatype.name}";
+    public static final String DATATYPE_DEFINITION = "{datatype.name}";
+    public static final String DATA_TABLE_NAME = "{table.name}";
+    public static final String DATA_TABLE_TYPE = "{returnType}";
     public static final short DATE_TIME_FORMAT = (short) BuiltinFormats.getBuiltinFormat("m/d/yy h:mm");
     public static final short DATE_FORMAT = (short) BuiltinFormats
         .getBuiltinFormat(FormatConstants.DEFAULT_XLS_DATE_FORMAT);
@@ -53,7 +56,7 @@ public class ExcelTemplateUtils {
         ClassLoader classLoader = ExcelTemplateUtils.class.getClassLoader();
         XSSFWorkbook template = new XSSFWorkbook(classLoader.getResourceAsStream("template.xlsx"));
         int sheets = template.getNumberOfSheets();
-        for(int i = 0; i < sheets; i++) {
+        for (int i = 0; i < sheets; i++) {
             template.removeSheetAt(0);
         }
         return new CustomizedSXSSFWorkbook(template);
@@ -88,6 +91,14 @@ public class ExcelTemplateUtils {
             }
             TableStyle envStyle = extractEnvStyle(environmentSheet, targetWorkbook);
             templateStyles.put(ENV_SHEET, envStyle);
+
+            Sheet dataSheet = wb.getSheet(DATA_SHEET);
+            if (dataSheet == null) {
+                logger.error("Data table template wasn't found.");
+            }
+            TableStyle dataStyle = extractDataTableStyle(dataSheet, targetWorkbook);
+            templateStyles.put(DATA_SHEET, dataStyle);
+
         } catch (InvalidFormatException e) {
             logger.error("Invalid format exception occurred.", e);
         } catch (IOException e) {
@@ -166,27 +177,18 @@ public class ExcelTemplateUtils {
 
         RichTextString headerValueString = datatypeHeaderCell.getRichStringCellValue();
         String headerText = headerValueString.getString();
-        int start = headerText.indexOf(DATATYPE_DEFINITON);
+        int start = headerText.indexOf(DATATYPE_DEFINITION);
         XSSFFont datatypeFont = ((XSSFRichTextString) headerValueString).getFontAtIndex(start);
 
-        Font targetFont = targetWorkbook.createFont();
-        targetFont.setBold(datatypeFont.getBold());
-        targetFont.setFontHeight(datatypeFont.getFontHeight());
-        targetFont.setColor(datatypeFont.getColor());
-        targetFont.setFontName(datatypeFont.getFontName());
-        targetFont.setItalic(datatypeFont.getItalic());
+        Font targetFont = copyFont(targetWorkbook, datatypeFont);
 
         Row datatypeFieldRow = dataTypeSheet.getRow(TOP_MARGIN + 1);
 
         Cell dtFieldClass = datatypeFieldRow.getCell(LEFT_MARGIN);
         CellStyle targetClassStyle = copyCellStyle(targetWorkbook, dtFieldClass);
 
-        String datatypeFieldValueTemplate = dtFieldClass.getStringCellValue();
-
         Cell dtFieldName = datatypeFieldRow.getCell(LEFT_MARGIN + 1);
         CellStyle targetNameStyle = copyCellStyle(targetWorkbook, dtFieldName);
-
-        String datatypeNameTemplate = dtFieldName.getStringCellValue();
 
         Cell datatypeDefaultValueCell = datatypeFieldRow.getCell(LEFT_MARGIN + 2);
         CellStyle dvStyle = datatypeDefaultValueCell.getCellStyle();
@@ -196,8 +198,6 @@ public class ExcelTemplateUtils {
 
         CellStyle dateTimeStyle = copyStyle(targetWorkbook, dvStyle);
         dateTimeStyle.setDataFormat(DATE_TIME_FORMAT);
-
-        String datatypeDefaultTemplate = datatypeDefaultValueCell.getStringCellValue();
 
         DataTypeRowStyle rowStyle = new DataTypeTableRowStyleImpl(targetClassStyle,
             targetNameStyle,
@@ -228,6 +228,16 @@ public class ExcelTemplateUtils {
 
     }
 
+    private static Font copyFont(Workbook targetWorkbook, Font sourceFont) {
+        Font targetFont = targetWorkbook.createFont();
+        targetFont.setBold(sourceFont.getBold());
+        targetFont.setFontHeight(sourceFont.getFontHeight());
+        targetFont.setColor(sourceFont.getColor());
+        targetFont.setFontName(sourceFont.getFontName());
+        targetFont.setItalic(sourceFont.getItalic());
+        return targetFont;
+    }
+
     private static TableStyle extractEnvStyle(Sheet envSheet, Workbook targetWorkbook) {
         Cell envHeaderCell = extractTableHeader(envSheet);
         CellStyle targetTableHeaderStyle = copyCellStyle(targetWorkbook, envHeaderCell);
@@ -250,6 +260,50 @@ public class ExcelTemplateUtils {
             headerSettings,
             regularRowStyle,
             lastRowStyle);
+    }
+
+    private static TableStyle extractDataTableStyle(Sheet dataSheet, Workbook targetWorkbook) {
+        Cell dataTableHeader = extractTableHeader(dataSheet);
+        CellStyle targetHeaderStyle = copyCellStyle(targetWorkbook, dataTableHeader);
+
+        CellRangeAddress headerRegion = dataSheet.getMergedRegion(0);
+        CellRangeSettings headerSettings = new CellRangeSettings(headerRegion);
+
+        XSSFRichTextString headerText = (XSSFRichTextString) dataTableHeader.getRichStringCellValue();
+        String headerTextString = headerText.getString();
+        Font sourceTypeFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_TYPE));
+        Font sourceTableNameFont = headerText.getFontAtIndex(headerTextString.indexOf(DATA_TABLE_NAME));
+
+        Font typeFont = copyFont(targetWorkbook, sourceTypeFont);
+        Font tableNameFont = copyFont(targetWorkbook, sourceTableNameFont);
+
+        Row subheaderRow = dataSheet.getRow(TOP_MARGIN + 1);
+        Cell subheaderCell = subheaderRow.getCell(LEFT_MARGIN);
+        CellStyle targetSubheaderStyle = copyCellStyle(targetWorkbook, subheaderCell);
+
+        Row columnHeaderRow = dataSheet.getRow(TOP_MARGIN + 2);
+        Cell columnHeaderCell = columnHeaderRow.getCell(LEFT_MARGIN);
+        CellStyle columnHeaderStyle = copyCellStyle(targetWorkbook, columnHeaderCell);
+
+        Row valueRow = dataSheet.getRow(TOP_MARGIN + 3);
+        Cell valueCell = valueRow.getCell(LEFT_MARGIN);
+        CellStyle valueCellStyle = copyCellStyle(targetWorkbook, valueCell);
+
+        CellStyle dateFieldStyle = copyStyle(targetWorkbook, valueCellStyle);
+        dateFieldStyle.setDataFormat(DATE_FORMAT);
+        CellStyle dateTimeFieldStyle = copyStyle(targetWorkbook, valueCellStyle);
+        dateFieldStyle.setDataFormat(DATE_TIME_FORMAT);
+
+        return new DataTableStyleImpl(headerText,
+            targetHeaderStyle,
+            headerSettings,
+            typeFont,
+            tableNameFont,
+            targetSubheaderStyle,
+            columnHeaderStyle,
+            new NameValueRowStyleImpl(valueCellStyle, valueCellStyle),
+            dateFieldStyle,
+            dateTimeFieldStyle);
     }
 
     private static NameValueRowStyle extractRowStyle(Workbook targetWorkbook, Row regularRow) {

@@ -4,12 +4,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.model.scaffolding.data.DataModel;
+
 public class ProjectModel {
 
     private String name;
     private boolean isRuntimeContextProvided;
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
     private List<SpreadsheetModel> spreadsheetModels = new ArrayList<>();
+    private List<DataModel> dataModels = new ArrayList<>();
     /*
      * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
      * spreadsheets don't have it.
@@ -22,11 +25,13 @@ public class ProjectModel {
     public ProjectModel(String name,
             boolean isRuntimeContextProvided,
             List<DatatypeModel> datatypeModels,
+            List<DataModel> dataModels,
             List<SpreadsheetModel> spreadsheetModels,
             List<SpreadsheetModel> modelsForInterface) {
         this.name = name;
         this.isRuntimeContextProvided = isRuntimeContextProvided;
         this.datatypeModels = datatypeModels;
+        this.dataModels = dataModels;
         this.spreadsheetModels = spreadsheetModels;
         this.notOpenLModels = modelsForInterface;
     }
@@ -51,8 +56,12 @@ public class ProjectModel {
         return isRuntimeContextProvided;
     }
 
-    public List<SpreadsheetModel> getModelsToClass() {
+    public List<SpreadsheetModel> getNotOpenLModels() {
         return notOpenLModels;
+    }
+
+    public List<DataModel> getDataModels() {
+        return dataModels;
     }
 
     @Override
@@ -75,6 +84,9 @@ public class ProjectModel {
         if (!Objects.equals(datatypeModels, that.datatypeModels)) {
             return false;
         }
+        if (!Objects.equals(dataModels, that.dataModels)) {
+            return false;
+        }
         if (!Objects.equals(spreadsheetModels, that.spreadsheetModels)) {
             return false;
         }
@@ -86,6 +98,7 @@ public class ProjectModel {
         int result = name != null ? name.hashCode() : 0;
         result = 31 * result + (isRuntimeContextProvided ? 1 : 0);
         result = 31 * result + (datatypeModels != null ? datatypeModels.hashCode() : 0);
+        result = 31 * result + (dataModels != null ? dataModels.hashCode() : 0);
         result = 31 * result + (spreadsheetModels != null ? spreadsheetModels.hashCode() : 0);
         result = 31 * result + (notOpenLModels != null ? notOpenLModels.hashCode() : 0);
         return result;
