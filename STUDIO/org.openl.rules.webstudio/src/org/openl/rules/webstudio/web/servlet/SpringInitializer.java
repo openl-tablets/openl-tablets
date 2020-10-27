@@ -1,9 +1,8 @@
 package org.openl.rules.webstudio.web.servlet;
 
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.concurrent.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -12,6 +11,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 import javax.servlet.annotation.WebListener;
+import javax.servlet.http.HttpSession;
 
 import org.openl.rules.webstudio.Migrator;
 import org.openl.rules.webstudio.web.Props;
@@ -33,6 +33,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     private final ReadWriteLock rwl = new ReentrantReadWriteLock();
     private final Lock read = rwl.readLock();
     private final Lock write = rwl.writeLock();
+    private final Map<String, HttpSession> cache = new ConcurrentHashMap<>();
 
     private XmlWebApplicationContext applicationContext;
     private ScheduledExecutorService scheduledPool;
@@ -41,6 +42,15 @@ public final class SpringInitializer implements Runnable, ServletContextListener
     public static ApplicationContext getApplicationContext(ServletContext sc) {
         return ((SpringInitializer) sc.getAttribute(THIS)).applicationContext;
     }
+
+    public static void addSessionCache(HttpSession session) {
+        ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.put(session.getId(), session);
+    }
+
+    public static void removeSessionCache(HttpSession session) {
+        ((SpringInitializer) session.getServletContext().getAttribute(THIS)).cache.remove(session.getId());
+    }
+
 
     @Override
     public void contextInitialized(ServletContextEvent sce) {
@@ -54,7 +64,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
 
         // Register a WEB context path for easy access from Spring beans
         applicationContext.addBeanFactoryPostProcessor(
-            bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
+                bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
 
         // Register Utility 'Props' class
         Props.setEnvironment(applicationContext.getEnvironment());
@@ -68,6 +78,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
+
         startTimer();
     }
 
@@ -124,12 +135,12 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         write.lock();
         try {
             applicationContext.refresh();
-            SessionCache sessionCache = SessionListener.getSessionCache(applicationContext.getServletContext());
-            if (sessionCache != null) {
-                sessionCache.invalidateAll();
+            for (HttpSession session : new ArrayList<>(cache.values())) {
+                session.invalidate();
             }
         } finally {
             write.unlock();
         }
     }
+
 }
