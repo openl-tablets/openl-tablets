@@ -83,7 +83,7 @@
         <org.springframework.version>5.2.9.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.4.1</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
-        <org.mojarra.version>2.3.9</org.mojarra.version>
+        <org.mojarra.version>2.4.0</org.mojarra.version>
         <asm.version>9.0</asm.version>
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.5.1</kafka.version>
@@ -843,6 +843,12 @@
                 <groupId>org.glassfish</groupId>
                 <artifactId>javax.faces</artifactId>
                 <version>${org.mojarra.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>javax.el</groupId>
+                        <artifactId>javax.el-api</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>javax.enterprise</groupId>
