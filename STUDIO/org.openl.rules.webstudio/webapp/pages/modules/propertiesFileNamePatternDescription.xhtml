@@ -1,44 +1,94 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="showPropertiesFileNamePatternDescription" minWidth="510" autosized="true">
+    <rich:popupPanel id="showPropertiesFileNamePatternDescription" minWidth="530" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Properties file name pattern description" />
+            <h:outputText value="Properties file name pattern description"/>
         </f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
-                            onclick="ws.ui.hide('showPropertiesFileNamePatternDescription')" alt="Close" />
+                            onclick="ws.ui.hide('showPropertiesFileNamePatternDescription')" alt="Close"/>
         </f:facet>
 
-        <h:form prependId="false" id="showPropertiesFileNamePatternDescriptionForm">
-            <h:panelGroup id="showPropertiesFileNamePatternDescriptionData">
-                <h:outputText escape="false" value="#{projectBean.propertiesFileNamePatternDescription}" />
+        <div>
+            <div>Table properties can be defined for all tables of a module (module level properties) in a file name of the
+                module. The file name pattern can include:
+            </div>
+            <ul>
+                <li>text symbols;</li>
+                <li>table property names enclosed in '%' marks. Possible property names:
+                    <b>effectiveDate</b>,
+                    <b>expirationDate</b>,
+                    <b>startRequestDate</b>,
+                    <b>endRequestDate</b>,
+                    <b>lob</b>,
+                    <b>usregion</b>,
+                    <b>country</b>,
+                    <b>currency</b>,
+                    <b>lang</b>,
+                    <b>state</b>,
+                    <b>region</b>,
+                    <b>origin</b>,
+                    <b>caProvinces</b>,
+                    <b>caRegions</b>;
+                </li>
+                <li>if a table property value is supposed to be Date then <a
+                        href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html"
+                        target="_blank">Date format</a> should be also specified right after the
+                    property name and colon:
+                    <pre>%effectiveDate:yyyyMMdd%</pre>
+                </li>
+                <li>several properies names can be defined separating them via comma:
+                    <pre>%effectiveDate,startRequestDate:yyyyMMdd%</pre>
+                </li>
+                <li>Several different patterns can be defined each from the new line:
+                    <pre>
+%state%-%startRequestDate:yyyyMMdd%
+%state%-%startRequestDate:yyyyMMdd%-%effectiveDate:yyyyMMdd%
+Common-%startRequestDate,effectiveDate:yyyyMMdd%</pre>
+                </li>
+            </ul>
 
-                <div>
-                    <h:outputText value="#{projectBean.propertiesPatternWarnings}" />
-                </div>
-            </h:panelGroup>
+            <div>For example, for a pattern <b>AUTO-%state%-%effectiveDate:MMddyyyy%</b> a user can specify values for
+                properties <b>US State</b> and <b>Effective date</b> via a file name for a whole module.<br/>
+                <br/>
+                For instance, for the module with file name <b>AUTO-FL-01022014.xlsx</b> the following module
+                properties: <br/>
+                <b>US State= 'Florida'</b>,
+                <b>Effective date = 02 Jan 2014</b> - will be retrieved and inherited by module tables.<br/>
+                <br/>
+                For defining several values for the property, the values should be separated by
+                <b>comma</b>.<br/>
+                <b>AUTO-FL,NY-01022014.xlsx</b> will be determined as: <br/>
+                <b>US States= 'Florida', 'New York'</b>, <b>Effective date = 02 Jan 2014</b><br/>
+                <br/>
+                <b>Any</b> keyword in the file name means that all enumerable values will be set.<br/>
+                <b>AUTO-Any-01022020.xlsx</b> will be determined as: <br/>
+                <b>US States= 'Alabama' ... 'Wyoming'</b>, <b>Effective date = 02 Jan 2020</b>.
+            </div>
 
-            <footer>
-                <input type="button" value="Close" onclick="ws.ui.hide('showPropertiesFileNamePatternDescription');" />
-            </footer>
+            <br/>
 
-            <a4j:jsFunction name="showPatternInfo" render="showPropertiesFileNamePatternDescriptionData"
-                            oncomplete="ws.ui.show('showPropertiesFileNamePatternDescription');">
-                <a4j:param name="processorClass" assignTo="${projectBean.propertiesFileNameProcessor}" />
-            </a4j:jsFunction>
-        </h:form>
+            <div>If a file name doesn't match the patterns then module properties are not defined.</div>
+
+        </div>
+
+        <footer>
+            <input type="button" value="Close" onclick="ws.ui.hide('showPropertiesFileNamePatternDescription');"/>
+        </footer>
     </rich:popupPanel>
 
     <script>
-    //<![CDATA[
+        //<![CDATA[
+        function showPatternInfo(processorClass) {
+            ws.ui.show('showPropertiesFileNamePatternDescription');
+        }
 
-    //]]>
+        //]]>
     </script>
 
 </ui:composition>
