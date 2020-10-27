@@ -1,5 +1,0 @@
-<rules-deploy>
-  <isProvideRuntimeContext>true</isProvideRuntimeContext>
-  <isProvideVariations>true</isProvideVariations>
-  <serviceName>openl-project</serviceName>
-</rules-deploy>

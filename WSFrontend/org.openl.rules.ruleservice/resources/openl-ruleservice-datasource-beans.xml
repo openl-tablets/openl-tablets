@@ -52,7 +52,6 @@
         <property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
         <property name="unpackAllJarsInOneDeployment"
                   value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
-        <property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
         <property name="enabled"
                   value="#{${ruleservice.datasource.deploy.classpath.jars}}"/>
     </bean>

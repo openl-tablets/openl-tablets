@@ -36,10 +36,7 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private boolean createDestinationDirectory = true;
 
     private boolean unpackAllJarsInOneDeployment = true;
-    private boolean supportDeploymentVersion = false;
     private boolean enabled = true;
-
-    private String deploymentVersionSuffix = "_v0.0.1";
 
     public boolean isUnpackAllJarsInOneDeployment() {
         return unpackAllJarsInOneDeployment;
@@ -47,14 +44,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     public void setUnpackAllJarsInOneDeployment(boolean unpackAllJarsInOneDeployment) {
         this.unpackAllJarsInOneDeployment = unpackAllJarsInOneDeployment;
-    }
-
-    public String getDeploymentVersionSuffix() {
-        return deploymentVersionSuffix;
-    }
-
-    public void setDeploymentVersionSuffix(String deploymentVersionSuffix) {
-        this.deploymentVersionSuffix = deploymentVersionSuffix;
     }
 
     /**
@@ -88,14 +77,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
      */
     public void setDestinationDirectory(String destinationDirectory) {
         this.destinationDirectory = Objects.requireNonNull(destinationDirectory, "destinationDirectory cannot be null");
-    }
-
-    public boolean isSupportDeploymentVersion() {
-        return supportDeploymentVersion;
-    }
-
-    public void setSupportDeploymentVersion(boolean supportDeploymentVersion) {
-        this.supportDeploymentVersion = supportDeploymentVersion;
     }
 
     private static boolean checkOrCreateFolder(File location) {
@@ -136,9 +117,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 File d = desFile;
                 if (!isUnpackAllJarsInOneDeployment()) {
                     String folderName = FileUtils.getBaseName(name);
-                    if (isSupportDeploymentVersion()) {
-                        folderName = folderName + getDeploymentVersionSuffix();
-                    }
                     d = new File(desFile, folderName);
                     d.mkdirs();
                 }
@@ -229,9 +207,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             File d = desFile;
             if (!isUnpackAllJarsInOneDeployment()) {
                 String folderName = FileUtils.getBaseName(file.getCanonicalPath());
-                if (isSupportDeploymentVersion()) {
-                    folderName = folderName + getDeploymentVersionSuffix();
-                }
                 d = new File(desFile, folderName);
                 recreateFolderIfExists(d);
             }
@@ -271,9 +246,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
                 }
 
                 String folderName = FileUtils.getBaseName(file.getCanonicalPath());
-                if (isSupportDeploymentVersion()) {
-                    folderName = folderName + getDeploymentVersionSuffix();
-                }
 
                 File d = new File(desFile, folderName);
                 recreateFolderIfExists(d);
