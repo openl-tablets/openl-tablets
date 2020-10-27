@@ -344,7 +344,7 @@ public class SpreadsheetsConverterTest {
         assertFalse(projectModel.isRuntimeContextProvided());
         List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
         assertEquals(2, sprModels.size());
-        assertEquals(0, projectModel.getModelsToClass().size());
+        assertEquals(0, projectModel.getNotOpenLModels().size());
 
         ProjectModel projectModelWithDRC = converter
             .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided.json");
@@ -358,7 +358,7 @@ public class SpreadsheetsConverterTest {
 
         ProjectModel projectModelWithNotAllDRC = converter
             .extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context_provided_partially.json");
-        List<SpreadsheetModel> modelsToClass = projectModelWithNotAllDRC.getModelsToClass();
+        List<SpreadsheetModel> modelsToClass = projectModelWithNotAllDRC.getNotOpenLModels();
         List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
@@ -680,8 +680,8 @@ public class SpreadsheetsConverterTest {
         assertEquals("Object", apiBlaModelPathInfo.getReturnType());
 
         Optional<SpreadsheetModel> apiTodoOptional = spreadsheetResultModels.stream()
-                .filter(x -> x.getName().equals("apiTodo"))
-                .findFirst();
+            .filter(x -> x.getName().equals("apiTodo"))
+            .findFirst();
         assertTrue(apiTodoOptional.isPresent());
         SpreadsheetModel apiTodoModel = apiTodoOptional.get();
         PathInfo apiTodoModelPathInfo = apiTodoModel.getPathInfo();

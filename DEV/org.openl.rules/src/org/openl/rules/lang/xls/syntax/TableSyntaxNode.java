@@ -77,6 +77,7 @@ public class TableSyntaxNode extends NaryNode {
         ErrorKey key = new ErrorKey(error);
         if (errors.get(key) != null) {
             log.error("Skip duplicated message: {}" + error.getMessage(), error);
+            assert false : "Message duplication has been detected";
         }
         errors.put(key, error);
     }

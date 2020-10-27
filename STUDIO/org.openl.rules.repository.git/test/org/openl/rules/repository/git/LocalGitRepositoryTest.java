@@ -11,7 +11,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.Constants;
 import org.junit.After;
 import org.junit.Before;
@@ -99,6 +101,28 @@ public class LocalGitRepositoryTest {
         assertContains(files, "rules/project1/new-path/file4");
         assertContains(files, "rules/project1/file2");
         assertEquals(2, files.size());
+    }
+
+    @Test
+    public void testCreatePackFolderAfterGC() throws IOException {
+        File packDirectory;
+        try (Git git = repo.getClosableGit()) {
+            packDirectory = ((ObjectDirectory) git.getRepository().getObjectDatabase()).getPackDirectory();
+        }
+        assertTrue(packDirectory.delete());
+        assertFalse(packDirectory.exists());
+
+        List<FileItem> changes = Collections.singletonList(new FileItem("rules/project1/file2",
+            IOUtils.toInputStream("Modified")));
+
+        FileData folderData = new FileData();
+        folderData.setName("rules/project1");
+        folderData.setAuthor("John Smith");
+
+        // git.gc() is invoked inside repo.save()
+        FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
+        assertNotNull(savedData);
+        assertTrue(packDirectory.exists());
     }
 
     @Test

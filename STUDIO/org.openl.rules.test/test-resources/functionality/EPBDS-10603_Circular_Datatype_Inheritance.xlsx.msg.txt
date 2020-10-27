@@ -1,0 +1,4 @@
+ERROR: Circular dependency with respect to inheritance 'childDatatype2' is detected.
+ERROR: Failed to generate a class for datatype 'org.openl.generated.beans.subchild'.
+ERROR: Type 'childDatatype2' is defined with errors.
+ERROR: Type 'childDatatype2' is defined with errors.

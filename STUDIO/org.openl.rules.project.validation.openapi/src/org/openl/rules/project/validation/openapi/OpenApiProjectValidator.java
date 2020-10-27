@@ -1119,13 +1119,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private static class Key {
         private final IOpenClass openClass;
-        private final IOpenField openField;
-        private final Schema<?> expectedSchema;
+        private final IOpenClass openFieldType;
+        private final String expectedSchemaRef;
 
-        public Key(IOpenClass openClass, IOpenField openField, Schema<?> expectedSchema) {
+        public Key(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
             this.openClass = openClass;
-            this.openField = openField;
-            this.expectedSchema = expectedSchema;
+            this.openFieldType = openFieldType;
+            this.expectedSchemaRef = expectedSchemaRef;
         }
 
         @Override
@@ -1136,19 +1136,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 return false;
 
             Key key = (Key) o;
-
-            if (openClass != key.openClass)
+            if (!Objects.equals(openClass, key.openClass))
                 return false;
-            if (openField != key.openField)
+            if (!Objects.equals(openFieldType, key.openFieldType))
                 return false;
-            return expectedSchema.equals(key.expectedSchema);
+            return Objects.equals(expectedSchemaRef, key.expectedSchemaRef);
         }
 
         @Override
         public int hashCode() {
-            int result = openClass.hashCode();
-            result = 31 * result + openField.hashCode();
-            result = 31 * result + expectedSchema.hashCode();
+            int result = openClass != null ? openClass.hashCode() : 0;
+            result = 31 * result + (openFieldType != null ? openFieldType.hashCode() : 0);
+            result = 31 * result + (expectedSchemaRef != null ? expectedSchemaRef.hashCode() : 0);
             return result;
         }
     }
@@ -1268,14 +1267,22 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         if (openField != null) {
                             BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate = (e1, f) -> {
                                 try {
-                                    Key key = new Key(openClass, openField, expectedSchema);
-                                    if (!validatedSchemas.contains(key)) {
-                                        validatedSchemas.add(key);
-                                        try {
-                                            validateType(context, e1, entry.getValue(), f.getType(), validatedSchemas);
-                                        } finally {
-                                            validatedSchemas.remove(key);
+                                    if (expectedSchema.get$ref() != null) {
+                                        Key key = new Key(openClass, openField.getType(), expectedSchema.get$ref());
+                                        if (!validatedSchemas.contains(key)) {
+                                            validatedSchemas.add(key);
+                                            try {
+                                                validateType(context,
+                                                    e1,
+                                                    entry.getValue(),
+                                                    f.getType(),
+                                                    validatedSchemas);
+                                            } finally {
+                                                validatedSchemas.remove(key);
+                                            }
                                         }
+                                    } else {
+                                        validateType(context, e1, entry.getValue(), f.getType(), validatedSchemas);
                                     }
                                     return false;
                                 } catch (DifferentTypesException e2) {

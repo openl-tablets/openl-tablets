@@ -24,6 +24,10 @@ public class Cursor {
         return new Cursor(column, row + y);
     }
 
+    public Cursor moveUp(int y) {
+        return new Cursor(column, row - y);
+    }
+
     public int getColumn() {
         return column;
     }

@@ -35,11 +35,14 @@ public class EnvironmentTableExporterTest {
             false,
             Collections.emptyList(),
             Collections.emptyList(),
+            Collections.emptyList(),
             Collections.emptyList());
 
         ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder
-            .generateSpreadsheetsWithEnvironment(projectModel.getSpreadsheetResultModels(), sos, environmentModel);
+        ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
+            Collections.emptyList(),
+            sos,
+            environmentModel);
         byte[] bytes = sos.toByteArray();
         try (InputStream spr = new ByteArrayInputStream(bytes); XSSFWorkbook wb = new XSSFWorkbook(spr)) {
             XSSFSheet dtsSheet = wb.getSheet(ENVIRONMENT);
