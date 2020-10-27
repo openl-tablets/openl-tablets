@@ -29,7 +29,6 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
 import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -42,18 +41,18 @@ public class TableSyntaxNode extends NaryNode {
 
     private ILogicalTable table;
 
-    private final HeaderSyntaxNode headerNode;
+    private HeaderSyntaxNode headerNode;
 
     private ITableProperties tableProperties;
 
     private IOpenMember member;
 
-    private final Map<String, ILogicalTable> subTables = new HashMap<>();
+    private Map<String, ILogicalTable> subTables = new HashMap<>();
 
     /**
      * Map with errors in the order in which they were inserted
      */
-    private final LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
+    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
 
     private Object validationResult;
 
@@ -77,11 +76,8 @@ public class TableSyntaxNode extends NaryNode {
     public void addError(SyntaxNodeException error) {
         ErrorKey key = new ErrorKey(error);
         if (errors.get(key) != null) {
-            if (StringUtils.isNotBlank(error.getMessage())) {
-                log.error("Skip duplicated message: {}", error.getMessage(), error);
-            } else {
-                log.error("Skip duplicated message.", error);
-            }
+            log.error("Skip duplicated message: {}" + error.getMessage(), error);
+            assert false : "Message duplication has been detected";
         }
         errors.put(key, error);
     }

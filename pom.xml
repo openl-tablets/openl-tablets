@@ -349,7 +349,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>${jacoco.argLine} ${surefire.argLine}</argLine>
+                    <argLine>-ea ${jacoco.argLine} ${surefire.argLine}</argLine>
                 </configuration>
             </plugin>
         </plugins>
