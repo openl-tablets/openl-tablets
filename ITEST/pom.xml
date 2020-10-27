@@ -43,6 +43,7 @@
         <module>itest.EPBDS-8076</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.executionModeCompilation</module>
+        <module>itest.unpackClasspathJar</module>
     </modules>
 
     <dependencyManagement>
