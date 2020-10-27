@@ -28,6 +28,8 @@
                 <entry key="connectionTimeout" value="${production-repository.connection-timeout}"/>
                 <!-- AWS S3 and Git specific -->
                 <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
+                <!-- Local File System specific -->
+                <entry key="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
             </map>
         </constructor-arg>
     </bean>
@@ -53,7 +55,7 @@
         <property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
         <property name="clearDestinationDirectory" value="${ruleservice.datasource.deploy.clean.datasource}"/>
         <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+                  value="#{${ruleservice.datasource.deploy.classpath.jars}}"/>
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects
@@ -67,6 +69,6 @@
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
         <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+                  value="#{${ruleservice.datasource.deploy.classpath.jars}}"/>
     </bean>
 </beans>

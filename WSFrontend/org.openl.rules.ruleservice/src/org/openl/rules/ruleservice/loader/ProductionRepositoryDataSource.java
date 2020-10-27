@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -12,6 +13,7 @@ import javax.annotation.PreDestroy;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.repository.LocalRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -31,31 +33,28 @@ public class ProductionRepositoryDataSource implements DataSource {
     private Repository repository;
     private String deployPath;
 
+    private String getDeployPath() {
+        if (repository instanceof LocalRepositoryFactory) {
+            //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            return "";
+        }
+        return deployPath;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Collection<Deployment> getDeployments() {
-        Collection<FileData> fileDatas;
-        try {
-            if (repository.supports().folders()) {
-                // All deployments
-                fileDatas = ((FolderRepository) repository).listFolders(deployPath);
-            } else {
-                // Projects inside all deployments
-                fileDatas = repository.list(deployPath);
-            }
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
+        List<FileData> fileDatas = getDeploymentList();
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
         for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
+            String deploymentFolderName = fileData.getName().substring(getDeployPath().length()).split("/")[0];
 
             String version = fileData.getVersion();
             CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0.0.0" : version);
 
-            String folderPath = deployPath + deploymentFolderName;
+            String folderPath = getDeployPath() + deploymentFolderName;
 
             boolean folderStructure = isFolderStructure(folderPath);
 
@@ -67,6 +66,20 @@ public class ProductionRepositoryDataSource implements DataSource {
         }
 
         return deployments.values();
+    }
+
+    private List<FileData> getDeploymentList() {
+        try {
+            if (repository.supports().folders()) {
+                // All deployments
+                return ((FolderRepository) repository).listFolders(getDeployPath());
+            } else {
+                // Projects inside all deployments
+                return repository.list(getDeployPath());
+            }
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
     }
 
     /**
@@ -81,7 +94,7 @@ public class ProductionRepositoryDataSource implements DataSource {
             deploymentName,
             deploymentVersion.getVersionName());
 
-        String folderPath = deployPath + deploymentName;
+        String folderPath = getDeployPath() + deploymentName;
         boolean folderStructure = isFolderStructure(folderPath);
         return new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
     }

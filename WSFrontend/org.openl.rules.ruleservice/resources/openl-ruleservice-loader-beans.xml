@@ -10,7 +10,6 @@
 	</bean>
 
 	<bean id="datasourceConfigurerFactoryBean" class="org.openl.rules.ruleservice.conf.DatasourceConfigurerFactoryBean">
-		<property name="fileSystemDatasource" value="#{'${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
 		<property name="singleton" value="false"/>
 	</bean>
 
