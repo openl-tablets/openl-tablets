@@ -243,11 +243,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.2.0</version>
                     <configuration>
@@ -577,7 +572,9 @@
                                 // See :org.openl.spring artifact.
                                 Resource[] resources = prpr.getResources("classpath*:openl-default.properties");
 
-                                def out = new File(project.build.directory, "application.properties");
+                                def targetDir = new File(project.build.directory);
+                                targetDir.mkdirs();
+                                def out = new File(targetDir, "application.properties");
                                 out.write("### This file was generated!\n\r\n\r")
                                 def write = {
                                     String text -&gt;
@@ -1591,6 +1588,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.kafka</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
