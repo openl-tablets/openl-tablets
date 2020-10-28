@@ -11,7 +11,6 @@ import java.util.Objects;
 
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
@@ -35,7 +34,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     private String destinationDirectory;
 
     private boolean createDestinationDirectory = true;
-    private boolean clearDestinationDirectory = true;
 
     private boolean unpackAllJarsInOneDeployment = true;
     private boolean supportDeploymentVersion = false;
@@ -81,14 +79,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
 
     public void setCreateDestinationDirectory(boolean createDestinationDirectory) {
         this.createDestinationDirectory = createDestinationDirectory;
-    }
-
-    public boolean isClearDestinationDirectory() {
-        return clearDestinationDirectory;
-    }
-
-    public void setClearDestinationDirectory(boolean clearDestinationDirectory) {
-        this.clearDestinationDirectory = clearDestinationDirectory;
     }
 
     /**
@@ -209,12 +199,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
             }
         }
 
-        if (isClearDestinationDirectory()) {
-            if (!FolderHelper.clearFolder(new File(destDirectory))) {
-                log.error("Failed to clean a folder. Path: '{}'", destDirectory);
-            }
-        }
-
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         Resource[] resources = prpr.getResources(
             ResourcePatternResolver.CLASSPATH_ALL_URL_PREFIX + ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
@@ -302,11 +286,6 @@ public class UnpackClasspathJarToDirectoryBean implements InitializingBean {
     }
 
     private void recreateFolderIfExists(File d) {
-        if (!isClearDestinationDirectory() && d.exists()) {
-            if (!FolderHelper.deleteFolder(d)) {
-                log.error("Failed to remove a folder. Path: '{}'", d.getAbsolutePath());
-            }
-        }
         d.mkdirs();
     }
 }
