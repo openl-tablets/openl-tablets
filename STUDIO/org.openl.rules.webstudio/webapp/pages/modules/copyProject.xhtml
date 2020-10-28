@@ -28,6 +28,8 @@
                     <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}"
                                              onclick="updateSeparateProjectState()">
                     </h:selectBooleanCheckbox>
+                    <h:outputLabel for="currentBranchName" value="Current Branch:"/>
+                    <h:outputText id="currentBranchName" value="#{copyBean.currentBranchName}" />
                     <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"/>
                     <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
                                  validator="#{copyBean.newBranchNameValidator}"/>
@@ -211,7 +213,8 @@
         }
 
         var confirmSwitchingToNewBranch = function (required) {
-            if (!required) {
+            var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+            if (!required || $separateProjectCheckbox.is(':checked')) {
                 return true;
             }
             return confirm("#{msg['ws.project.warning.other.branch']}");
