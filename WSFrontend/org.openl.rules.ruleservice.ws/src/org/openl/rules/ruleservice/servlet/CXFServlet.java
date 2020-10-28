@@ -5,6 +5,7 @@ import javax.servlet.annotation.WebInitParam;
 import javax.servlet.annotation.WebServlet;
 
 import org.apache.cxf.Bus;
+import org.apache.cxf.resource.ResourceManager;
 import org.apache.cxf.transport.servlet.CXFNonSpringServlet;
 import org.springframework.context.ApplicationContext;
 
@@ -20,5 +21,7 @@ public class CXFServlet extends CXFNonSpringServlet {
         ApplicationContext ac = SpringInitializer.getApplicationContext(servletConfig.getServletContext());
         Bus cxf = ac.getBean("cxf", Bus.class);
         setBus(cxf);
+        ResourceManager resourceManager = cxf.getExtension(ResourceManager.class);
+        resourceManager.addResourceResolver(new StaticResourceResolver("static"));
     }
 }
