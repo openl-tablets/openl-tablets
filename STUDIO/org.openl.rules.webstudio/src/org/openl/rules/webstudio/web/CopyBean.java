@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -22,7 +19,6 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
@@ -45,6 +41,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
+
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
@@ -59,7 +58,7 @@ public class CopyBean {
     private final RepositoryTreeState repositoryTreeState;
 
     private final ApplicationContext applicationContext = FacesContextUtils
-        .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
+            .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
 
     private String repositoryId;
     private String toRepositoryId;
@@ -69,6 +68,7 @@ public class CopyBean {
     private String newProjectName;
     private String projectFolder;
     private boolean separateProject;
+    private String currentBranchName;
     private String newBranchName;
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
@@ -86,6 +86,10 @@ public class CopyBean {
 
     public String getCurrentProjectName() {
         return currentProjectName;
+    }
+
+    public String getCurrentBranchName() {
+        return currentBranchName;
     }
 
     public String getBusinessName() {
@@ -241,11 +245,11 @@ public class CopyBean {
                 designProject.setResourceTransformer(null);
 
                 RulesProject copiedProject = new RulesProject(userWorkspace.getUser(),
-                    userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
-                    null,
-                    designRepository,
-                    designProject.getFileData(),
-                    userWorkspace.getProjectsLockEngine());
+                        userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
+                        null,
+                        designRepository,
+                        designProject.getFileData(),
+                        userWorkspace.getProjectsLockEngine());
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
@@ -273,7 +277,7 @@ public class CopyBean {
                 return;
             }
             TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getRepository().getId(),
-                selectedProject.getName());
+                    selectedProject.getName());
             selectedProject = repositoryTreeState.getProject(node);
             WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -305,10 +309,10 @@ public class CopyBean {
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
-                .getSubmittedValue()
-                .toString();
+                    .getSubmittedValue()
+                    .toString();
             WebStudioUtils.validate(!userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName),
-                "Project with such name already exists.");
+                    "Project with such name already exists.");
         } catch (WorkspaceException e) {
             LOG.error(e.getMessage(), e);
             WebStudioUtils.throwValidationError("Error during validation.");
@@ -323,7 +327,7 @@ public class CopyBean {
         String newBranchName = StringUtils.trim((String) value);
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         WebStudioUtils.validate(newBranchName.matches("[\\w\\-/]+"),
-            "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
+                "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
@@ -331,16 +335,16 @@ public class CopyBean {
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository(repositoryId);
             WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
-                "Invalid branch name. It should not contain reserved words or symbols.");
+                    "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
-                "Branch " + newBranchName + " already exists.");
+                    "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
                 String message = "Can't create the branch '" +
-                    newBranchName + "' because the branch '" +
-                    branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " +
-                    "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" +
-                    "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': " +
-                    "the file with such name already exists.";
+                        newBranchName + "' because the branch '" +
+                        branch + "' already exists.\n" + "Explanation: for example a branch 'foo/bar'exists. " +
+                        "That branch can be considered as a file 'bar' located in the folder 'foo'.\n" +
+                        "So you can't create a branch 'foo/bar/baz' because you can't create the folder 'foo/bar': " +
+                        "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
         } catch (WorkspaceException | IOException e) {
@@ -364,7 +368,7 @@ public class CopyBean {
 
     private static Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
-            .getValue();
+                .getValue();
     }
 
     public void setRepositoryId(String repositoryId) {
@@ -394,12 +398,14 @@ public class CopyBean {
             separateProject = false;
             errorMessage = null;
             if (isSupportsBranches()) {
+                RulesProject project = getCurrentProject();
+                currentBranchName = project.getBranch();
                 // Remove restricted symbols
                 String simplifiedProjectName = getBusinessName().replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()
-                    .getProperty("repository.design.new-branch-pattern");
+                        .getProperty("repository.design.new-branch-pattern");
                 Objects.requireNonNull(pattern);
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
