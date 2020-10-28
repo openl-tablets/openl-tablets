@@ -35,12 +35,6 @@
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
                     <useResultFile>false</useResultFile>
-                    <ignoredDependencies>
-                        <dependency> <!-- IBM Java library ignore -->
-                            <groupId>jakarta-regexp</groupId>
-                            <artifactId>jakarta-regexp</artifactId>
-                        </dependency>
-                    </ignoredDependencies>
                     <exceptions>
                         <exception>
                             <conflictingDependencies>
@@ -61,12 +55,9 @@
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
-                        <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
-                        <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
-                        <ignoredResourcePattern>changelog.txt</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
