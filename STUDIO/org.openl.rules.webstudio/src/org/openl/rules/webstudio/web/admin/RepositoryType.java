@@ -4,7 +4,8 @@ public enum RepositoryType {
     DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
     JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
     AWS_S3(org.openl.rules.repository.aws.S3Repository.class),
-    GIT(org.openl.rules.repository.git.GitRepository.class);
+    GIT(org.openl.rules.repository.git.GitRepository.class),
+    LOCAL(org.openl.rules.repository.LocalRepositoryFactory.class);
 
     public static RepositoryType findByAccessType(String accessType) {
         for (RepositoryType repositoryType : values()) {

@@ -264,6 +264,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                         String relativePath = file.getCanonicalPath().substring(rootPathLength);
                         data.setName(relativePath.replace('\\', '/'));
                         data.setModifiedAt(new Date(file.lastModified()));
+                        data.setVersion(getVersion(file));
                         files.add(data);
                     } catch (Exception ex) {
                         log.warn("Folder cannot be resolved in the directory {}.", directory, ex);
@@ -272,6 +273,10 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             }
         }
         return files;
+    }
+
+    protected String getVersion(File file) {
+        return null;
     }
 
     @Override
