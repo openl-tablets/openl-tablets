@@ -47,6 +47,7 @@ public class RulesDeployerService implements Closeable {
 
     private final Repository deployRepo;
     private final String deployPath;
+    private boolean supportDeployments = true;
 
     public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
@@ -87,6 +88,10 @@ public class RulesDeployerService implements Closeable {
         this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
             params);
 
+        if (StringUtils.isNotBlank(params.get("supportDeployments"))) {
+            this.supportDeployments = Boolean.parseBoolean(params.get("supportDeployments")) || !(deployRepo instanceof LocalRepositoryFactory);
+        }
+
         if (deployRepo instanceof LocalRepositoryFactory) {
             //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
@@ -94,6 +99,10 @@ public class RulesDeployerService implements Closeable {
             String deployPath = properties.getProperty("production-repository.base.path");
             this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
         }
+    }
+
+    public void setSupportDeployments(boolean supportDeployments) {
+        this.supportDeployments = supportDeployments || !(deployRepo instanceof LocalRepositoryFactory);
     }
 
     /**
@@ -254,7 +263,11 @@ public class RulesDeployerService implements Closeable {
             return null;
         }
         FileData dest = new FileData();
-        dest.setName(deployPath + deploymentName + '/' + projectName);
+        String name = deployPath;
+        if (supportDeployments) {
+            name += deploymentName;
+        }
+        dest.setName(name + '/' + projectName);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
         return dest;
     }
