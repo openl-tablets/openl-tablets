@@ -79,6 +79,8 @@ public class RulesDeployerService implements Closeable {
         params.put("connection-timeout", properties.getProperty("production-repository.connection-timeout"));
         // AWS S3 and Git specific
         params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
+        // Local File System specific
+        params.put("supportDeployments", properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"));
 
         this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
             params);
