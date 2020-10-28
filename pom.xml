@@ -271,7 +271,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.4.0</version>
+                    <version>1.5.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -522,6 +522,25 @@
                 </property>
             </activation>
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <configuration>
+                                <webResources>
+                                    <resource>
+                                        <directory>target</directory>
+                                        <includes>
+                                            <include>application.properties</include>
+                                        </includes>
+                                        <targetPath>WEB-INF/classes</targetPath>
+                                    </resource>
+                                </webResources>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.gmaven</groupId>
@@ -564,7 +583,7 @@
                                 // See :org.openl.spring artifact.
                                 Resource[] resources = prpr.getResources("classpath*:openl-default.properties");
 
-                                def out = new File(project.build.outputDirectory, "application.properties");
+                                def out = new File(project.build.directory, "application.properties");
                                 out.write("### This file was generated!\n\r\n\r")
                                 def write = {
                                     String text -&gt;

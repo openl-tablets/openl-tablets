@@ -17,7 +17,7 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <generate-application.properties>process-resources</generate-application.properties>
+        <generate-application.properties>prepare-package</generate-application.properties>
     </properties>
     <build>
         <finalName>webservice</finalName>
@@ -39,12 +39,6 @@
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
                     <useResultFile>false</useResultFile>
-                    <ignoredDependencies>
-                        <dependency> <!-- IBM Java library ignore -->
-                            <groupId>jakarta-regexp</groupId>
-                            <artifactId>jakarta-regexp</artifactId>
-                        </dependency>
-                    </ignoredDependencies>
                     <exceptions>
                         <exception>
                             <conflictingDependencies>
@@ -97,11 +91,8 @@
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb
                         </ignoredResourcePattern>
-                        <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
-                        <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
-                        <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
