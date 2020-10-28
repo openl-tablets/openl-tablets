@@ -167,8 +167,11 @@ public class Migrator {
                         String prName = dir.getFileName().toString();
                         String projectPath = nonFlatProjectPaths.getOrDefault(prName, "DESIGN/rules/" + prName);
                         Files.write(version,
-                            ("\npath-in-repository=" + projectPath + "\n").getBytes(),
+                            ("\nrepository-id=design\n").getBytes(),
                             StandardOpenOption.APPEND);
+                        Files.write(version,
+                                ("path-in-repository=" + projectPath + "\n").getBytes(),
+                                StandardOpenOption.APPEND);
                     }
                     return FileVisitResult.CONTINUE;
                 }
