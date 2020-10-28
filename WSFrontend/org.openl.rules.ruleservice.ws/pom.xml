@@ -107,7 +107,6 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
                             <descriptors>
                                 <descriptor>assembly/assembly-jar.xml</descriptor>
                             </descriptors>
@@ -226,6 +225,7 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
             <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.sun.istack</groupId>
