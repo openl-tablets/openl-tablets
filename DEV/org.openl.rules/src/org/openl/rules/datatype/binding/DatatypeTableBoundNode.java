@@ -794,7 +794,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 syntaxNodeExceptionCollector.run(() -> {
                     IOpenField fieldInParent = superClass.getField(field.getName());
                     if (fieldInParent != null) {
-                        if (fieldInParent.getType().getInstanceClass().equals(field.getType().getInstanceClass())) {
+                        if (Objects.equals(fieldInParent.getType(), field.getType())) {
                             BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
                                 field.getName(),
                                 fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
