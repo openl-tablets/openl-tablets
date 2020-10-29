@@ -4,20 +4,6 @@
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:rich="http://richfaces.org/rich"
     template="/pages/layout/adminLayout.xhtml">
-                                                                            <f:selectItem itemValue="local" itemLabel="Local" />
-                                                                                <ui:param name="prependId"
-                                                                                          value="production"/>
-                                                                                <ui:param name="repository"
-                                                                                          value="#{repository}"/>
-                                                                                <ui:param name="repoType"
-                                                                                          value="PRODUCTION"/>
-                                                                                <ui:param name="isEditing" value="true"/>
-                                                                            </ui:include>
-                                                                        </h:panelGroup>
-                                                                        <h:panelGroup
-                                                                                rendered="#{repository.formType == 'local'}">
-                                                                            <ui:include
-                                                                                    src="/pages/modules/administration/settings/LocalRepositorySettings.xhtml">
 
     <ui:define name="content">
         <rich:tabPanel switchType="client">

@@ -9,37 +9,47 @@ import org.openl.util.StringUtils;
 public class LocalRepositorySettings extends RepositorySettings {
 
     private String uri;
+    private String homeDirectory;
 
     private final String uriProperty;
+    private final String baseDeployPathProperty;
+    private final String supportDeploymentsProperty;
     private final String configPathPrefix;
 
     public LocalRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
         this.configPathPrefix = configPrefix;
         this.uriProperty = configPrefix + ".uri";
+        this.baseDeployPathProperty = configPrefix + ".base.path";
+        this.supportDeploymentsProperty = configPrefix + ".support-deployments";
 
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
-        String type = RepositorySettings.getTypePrefix(configPathPrefix);
         String localPath = properties.getProperty(uriProperty);
-        uri = localPath != null ? localPath
-                                : properties.getProperty(
-                                    DynamicPropertySource.OPENL_HOME) + File.separator + type + "-repository";
+        uri = localPath != null ? localPath : getDefaultPath();
+        homeDirectory = properties.getProperty(DynamicPropertySource.OPENL_HOME);
+    }
+
+    private String getDefaultPath() {
+        String type = RepositorySettings.getTypePrefix(configPathPrefix);
+        return homeDirectory + File.separator + type + "-repository";
     }
 
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
         propertiesHolder.setProperty(uriProperty, uri);
+        propertiesHolder.setProperty(supportDeploymentsProperty, true);
+        propertiesHolder.setProperty(baseDeployPathProperty, "");
     }
 
     @Override
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(uriProperty);
+        properties.revertProperties(uriProperty, supportDeploymentsProperty, baseDeployPathProperty);
         load(properties);
     }
 
@@ -50,6 +60,12 @@ public class LocalRepositorySettings extends RepositorySettings {
             LocalRepositorySettings otherSettings = (LocalRepositorySettings) other;
             setUri(otherSettings.getUri());
         }
+    }
+
+    @Override
+    protected void onTypeChanged(RepositoryType newRepositoryType) {
+        super.onTypeChanged(newRepositoryType);
+        uri = getDefaultPath();
     }
 
     public String getUri() {

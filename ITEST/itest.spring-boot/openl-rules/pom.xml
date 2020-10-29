@@ -9,18 +9,6 @@
     </parent>
 
     <artifactId>itest.spring-boot.openl-rules</artifactId>
-    <packaging>openl-jar</packaging>
     <name>ITEST - Spring Boot: Rules</name>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
