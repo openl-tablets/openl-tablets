@@ -1,0 +1,11 @@
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BalanceDynamicIndexCalculationRenamed'.
+ERROR: OpenAPI Reconciliation: Unexpected parameter 'runtimeContext' is found in method 'BalanceQualityIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Schema definition for the response in operation 'POST' with media type 'text/plain' for path '/BankLimitIndex' is not found.
+ERROR: OpenAPI Reconciliation: Return type of method 'BankRatingCalculation' must be compatible with OpenAPI schema 'FinancialData'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/CapitalAdequacyScore'.
+ERROR: OpenAPI Reconciliation: Unexpected parameter 'equity' is found in method 'EquityScore'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'extraHighLiquidityRatio' is not found in method 'HighLiquidityRatioScore'.
+ERROR: OpenAPI Reconciliation: Return type of method 'NegativeMassMediaScore' must be compatible with OpenAPI type 'string'.
+ERROR: OpenAPI Reconciliation: Unexpected method 'CapitalAdequacyScore' is found for path '/CapitalAdequacyScore1'.
+ERROR: OpenAPI Reconciliation: Unexpected method 'BalanceDynamicIndexCalculation' is found for path '/BalanceDynamicIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Unexpected method 'BankRatingGroup' is found for path '/BankRatingGroup1'.

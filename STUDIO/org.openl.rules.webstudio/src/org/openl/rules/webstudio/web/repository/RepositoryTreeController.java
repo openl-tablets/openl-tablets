@@ -690,6 +690,39 @@ public class RepositoryTreeController {
         }
     }
 
+    public boolean isOpenLProjectInFolder() {
+        if (StringUtils.isEmpty(repositoryId) || StringUtils.isEmpty(projectFolder)) {
+            return false;
+        }
+
+        Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+        if (!repository.supports().mappedFolders()) {
+            return false;
+        }
+
+        try {
+            String projectPath = projectFolder;
+
+            List<FileData> files = ((FolderMapper) repository).getDelegate().list(projectPath);
+            if (files.isEmpty()) {
+                return false;
+            }
+            return files.stream().anyMatch(fileData -> {
+                String name = fileData.getName();
+                if (name.equals(projectPath + "rules.xml")) {
+                    return true;
+                }
+                if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
+                    return name.startsWith(projectPath) && !name.substring(projectPath.length()).contains("/");
+                }
+                return false;
+            });
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
     /*
      * Because of renaming 'Deployment project' to 'Deploy Configuration' the method was renamed too.
      */
@@ -2455,6 +2488,12 @@ public class RepositoryTreeController {
 
     public void setFilterRepositoryId(String filterRepositoryId) {
         this.filterRepositoryId = filterRepositoryId;
+    }
+
+    public void tryImportFromRepo() {
+        if (isOpenLProjectInFolder()) {
+            importFromRepo();
+        }
     }
 
     public void importFromRepo() {

@@ -17,7 +17,7 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <generate-application.properties>process-resources</generate-application.properties>
+        <generate-application.properties>prepare-package</generate-application.properties>
         <sonar.sources>src,webapp</sonar.sources>
     </properties>
     <build>
@@ -45,10 +45,6 @@
                         <dependency>
                             <groupId>org.apache.poi</groupId>
                             <artifactId>poi-ooxml-schemas</artifactId>
-                        </dependency>
-                        <dependency> <!-- IBM Java library ignore -->
-                            <groupId>jakarta-regexp</groupId>
-                            <artifactId>jakarta-regexp</artifactId>
                         </dependency>
                     </ignoredDependencies>
                     <exceptions>
@@ -87,13 +83,8 @@
                     </exceptions>
                     <ignoredResourcePatterns>
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
-                        <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                     </ignoredResourcePatterns>
-                    <ignoredClassPatterns>
-                        <!-- See https://github.com/basepom/duplicate-finder-maven-plugin/issues/33 -->
-                        <ignoredClassPattern>META-INF\.versions\.\d+\.module-info</ignoredClassPattern>
-                    </ignoredClassPatterns>
                 </configuration>
             </plugin>
             <plugin>

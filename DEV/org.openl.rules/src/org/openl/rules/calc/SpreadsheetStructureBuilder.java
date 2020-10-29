@@ -254,17 +254,22 @@ public class SpreadsheetStructureBuilder {
             try {
                 IOpenMethod method;
                 if (header.getType() == null) {
-
-                    method = OpenLManager.makeMethodWithUnknownType(openl, srcCode, name, signature, declaringClass, columnBindingContext);
+                    method = OpenLManager.makeMethodWithUnknownType(openl,
+                        srcCode,
+                        name,
+                        signature,
+                        declaringClass,
+                        columnBindingContext);
                     spreadsheetCell.setType(method.getType());
                 } else {
-
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {
                 spreadsheetCell.setTypeUnknown(true);
-                componentsBuilder.getTableSyntaxNode().addError(e);
+                if (!SyntaxNodeExceptionUtils.isErrorPresented(e, componentsBuilder.getTableSyntaxNode().getErrors())) {
+                    componentsBuilder.getTableSyntaxNode().addError(e);
+                }
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);

@@ -122,7 +122,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             OpenAPIParser openApiParser = new OpenAPIParser();
             ParseOptions options = new ParseOptions();
             options.setResolve(true);
-            OpenAPI openAPI = openApiParser.readLocation(projectResource.getFile(), null, options).getOpenAPI();
+            OpenAPI openAPI = openApiParser.readLocation(projectResource.getUrl().toString(), null, options).getOpenAPI();
             if (openAPI == null) {
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(
                     String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to read file '%s'.", openApiFile)));
