@@ -8,19 +8,7 @@
         <version>5.23.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>openl-rules</artifactId>
-    <packaging>openl-jar</packaging>
+    <artifactId>itest.spring-boot.openl-rules</artifactId>
     <name>ITEST - Spring Boot: Rules</name>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openl.rules</groupId>
-                <artifactId>openl-maven-plugin</artifactId>
-                <version>${project.version}</version>
-                <extensions>true</extensions>
-            </plugin>
-        </plugins>
-    </build>
 
 </project>
