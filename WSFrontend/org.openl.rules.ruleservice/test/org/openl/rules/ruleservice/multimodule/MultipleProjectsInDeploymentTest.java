@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.multimodule;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -8,11 +10,8 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
-
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = {"ruleservice.datasource.dir=test-resources/MultipleProjectsInDeploymentTest",
-        "ruleservice.datasource.deploy.clean.datasource=false"})
+@TestPropertySource(properties = {"ruleservice.datasource.dir=test-resources/MultipleProjectsInDeploymentTest" })
 @ContextConfiguration({"classpath:openl-ruleservice-beans.xml"})
 public class MultipleProjectsInDeploymentTest {
 

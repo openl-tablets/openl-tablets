@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
+
+    <ui:param name="settings" value="#{repository.settings}" />
+    <ui:param name="validators" value="#{settings.validators}" />
+
+    <h:panelGrid id="#{prependId}LocalRepoSettings" columns="2" columnClasses="titleColumn">
+        <h:outputText value="Local path:" styleClass="required" />
+        <h:inputText value="#{settings.uri}" id="#{prependId}LocalUri" validator="#{validators.url}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}LocalUri" styleClass="error"/>
+    </h:panelGrid>
+
+</ui:composition>

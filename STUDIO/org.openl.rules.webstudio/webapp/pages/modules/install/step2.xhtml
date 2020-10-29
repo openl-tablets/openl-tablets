@@ -225,6 +225,7 @@
                                                             <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
                                                             <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
                                                             <f:selectItem itemValue="git" itemLabel="Git" />
+                                                            <f:selectItem itemValue="local" itemLabel="Local" />
                                                         </h:selectOneMenu>
                                                     </h:panelGrid>
                                                     <h:panelGroup id="productionParameters">
@@ -244,6 +245,13 @@
                                                         </h:panelGroup>
                                                         <h:panelGroup rendered="#{repository.formType == 'git'}">
                                                             <ui:include src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
+                                                                <ui:param name="prependId" value="production"/>
+                                                                <ui:param name="repository" value="#{repository}" />
+                                                                <ui:param name="repoType" value="PRODUCTION" />
+                                                            </ui:include>
+                                                        </h:panelGroup>
+                                                        <h:panelGroup rendered="#{repository.formType == 'local'}">
+                                                            <ui:include src="/pages/modules/administration/settings/LocalRepositorySettings.xhtml">
                                                                 <ui:param name="prependId" value="production"/>
                                                                 <ui:param name="repository" value="#{repository}" />
                                                                 <ui:param name="repoType" value="PRODUCTION" />

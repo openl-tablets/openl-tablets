@@ -23,9 +23,14 @@ public class RunUnpackClasspathJarsTest {
     }
 
     @Test
-    public void test() {
+    public void testSingleProjectDeploymentFromClasspath() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
+    }
+
+    @Test
+    public void testMultiProjectDeploymentFromClasspath() {
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
+        client.post("/yaml-project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
     }
 
 }
