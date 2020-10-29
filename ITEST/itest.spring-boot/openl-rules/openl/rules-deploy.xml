@@ -1,0 +1,8 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <serviceName>openl-rules</serviceName>
+    <url>openl-rules-rs</url>
+    <publishers>
+        <publisher>restful</publisher>
+    </publishers>
+</rules-deploy>
