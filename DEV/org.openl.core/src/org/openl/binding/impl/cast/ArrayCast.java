@@ -6,9 +6,9 @@ import org.openl.types.IOpenClass;
 
 final class ArrayCast implements IOpenCast {
 
-    private IOpenClass toComponentType;
-    private IOpenCast openCast;
-    private int distance;
+    private final IOpenClass toComponentType;
+    private final IOpenCast openCast;
+    private final int distance;
 
     ArrayCast(IOpenClass to, IOpenCast openCast) {
         this.toComponentType = to;
