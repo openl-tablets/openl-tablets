@@ -8,7 +8,7 @@
         <version>5.23.8-SNAPSHOT</version>
     </parent>
 
-    <artifactId>openl-rules</artifactId>
+    <artifactId>itest.spring-boot.openl-rules</artifactId>
     <packaging>openl-jar</packaging>
     <name>ITEST - Spring Boot: Rules</name>
 
