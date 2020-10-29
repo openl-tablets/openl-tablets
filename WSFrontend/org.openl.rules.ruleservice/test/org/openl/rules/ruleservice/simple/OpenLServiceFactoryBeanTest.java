@@ -4,17 +4,16 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import javax.annotation.Resource;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import javax.annotation.Resource;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesFrontendTest",
-        "ruleservice.datasource.deploy.clean.datasource=false",
         "ruleservice.isProvideRuntimeContext=false" })
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:OpenLServiceFactoryBeanTest.xml" })
 public class OpenLServiceFactoryBeanTest {

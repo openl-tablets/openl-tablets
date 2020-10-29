@@ -15,6 +15,9 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <properties>
+        <generate-application.properties>prepare-package</generate-application.properties>
+    </properties>
     <build>
         <finalName>webservice-all</finalName>
         <plugins>
@@ -63,103 +66,46 @@
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-war-plugin</artifactId>
-                <configuration>
-                    <warSourceDirectory>${project.build.directory}/unpack/${project.build.finalName}</warSourceDirectory>
-                    <attachClasses>false</attachClasses>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
                     <execution>
-                        <id>unpack-storelog-cassandra</id>
-                        <phase>generate-sources</phase>
+                        <id>unpack</id>
+                        <phase>prepare-package</phase>
                         <goals>
                             <goal>unpack</goal>
                         </goals>
                         <configuration>
                             <artifactItems>
                                 <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
+                                    <groupId>org.openl.rules</groupId>
+                                    <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.cassandra</outputDirectory>
-                                </artifactItem>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</outputDirectory>
+                                    <outputDirectory>${project.build.directory}/webservice-all/WEB-INF/classes</outputDirectory>
                                 </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
                     <execution>
-                        <id>unpack-war</id>
-                        <phase>generate-sources</phase>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
                         <goals>
-                            <goal>unpack</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
                         <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>${project.groupId}</groupId>
-                                    <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-                                    <type>war</type>
-                                    <overWrite>true</overWrite>
-                                    <outputDirectory>${project.build.directory}/unpack/${project.build.finalName}</outputDirectory>
-                                </artifactItem>
-                            </artifactItems>
+                            <outputDirectory>${project.build.directory}/webservice-all/WEB-INF/lib</outputDirectory>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>concat</id>
-                        <phase>prepare-package</phase>
-                        <configuration>
-                            <target>
-                                <concat destfile="${project.build.directory}/unpack/${project.build.finalName}/WEB-INF/classes/application.properties" append="yes" fixlastline="yes">
-                                    <header trimleading="yes">
-                                        ###
-                                        ### From: org.openl.rules.ruleservice.ws.storelogdata.cassandra-${project.version}.jar!/openl-default.properties
-                                        ###
-                                    </header>
-                                    <fileset file="${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.cassandra/openl-default.properties" />
-                                    <filterchain>
-                                        <tokenfilter>
-                                            <replaceregex pattern="^(\w+.*)$" replace="#\1" flags="gi" />
-                                        </tokenfilter>
-                                    </filterchain>
-                                </concat>
-                                <concat destfile="${project.build.directory}/unpack/${project.build.finalName}/WEB-INF/classes/application.properties" append="yes" fixlastline="yes">
-                                    <header trimleading="yes">
-                                        ###
-                                        ### From: org.openl.rules.ruleservice.ws.storelogdata.elasticsearch-${project.version}.jar!/openl-default.properties
-                                        ###
-                                    </header>
-                                    <fileset file="${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.elasticsearch/openl-default.properties" />
-                                    <filterchain>
-                                        <tokenfilter>
-                                            <replaceregex pattern="^(\w+.*)$" replace="#\1" flags="gi" />
-                                        </tokenfilter>
-                                    </filterchain>
-                                </concat>
-                            </target>
-                        </configuration>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <packagingExcludes>
+                        WEB-INF/lib/org.openl.rules.ruleservice.ws-5.*.jar
+                    </packagingExcludes>
+                </configuration>
             </plugin>
         </plugins>
     </build>
@@ -167,7 +113,6 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws</artifactId>
-            <type>war</type>
         </dependency>
         <!-- Cassandra Dependencies -->
         <dependency>
@@ -177,6 +122,12 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>jakarta.activation</groupId>
