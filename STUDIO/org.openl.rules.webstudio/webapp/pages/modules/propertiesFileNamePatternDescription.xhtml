@@ -16,11 +16,11 @@
 
         <div>
             <div>Table properties can be defined for all tables of a module (module level properties) in a file name of the
-                module. The file name pattern can include:
+                module. File name pattern can include:
             </div>
             <ul>
                 <li>text symbols;</li>
-                <li>table property names enclosed in '%' marks. Possible property names:
+                <li>table property names enclosed in '%' marks and separated by '-'. Possible property names:
                     <b>effectiveDate</b>,
                     <b>expirationDate</b>,
                     <b>startRequestDate</b>,
@@ -36,32 +36,32 @@
                     <b>caProvinces</b>,
                     <b>caRegions</b>;
                 </li>
-                <li>if a table property value is supposed to be Date then <a
+                <li>date format if table property value is of a date datatype. <a
                         href="https://docs.oracle.com/javase/8/docs/api/java/text/SimpleDateFormat.html"
-                        target="_blank">Date format</a> should be also specified right after the
+                        target="_blank">Date format</a> should be specified right after the
                     property name and colon:
                     <pre>%effectiveDate:yyyyMMdd%</pre>
                 </li>
-                <li>several properies names can be defined separating them via comma:
+                <li>several properties names separated by comma if these properties are of the same datatype:
                     <pre>%effectiveDate,startRequestDate:yyyyMMdd%</pre>
                 </li>
-                <li>Several different patterns can be defined each from the new line:
+                <li>several different patterns, each one defined from a new line when different behaviors are expected:
                     <pre>
 %state%-%startRequestDate:yyyyMMdd%
 %state%-%startRequestDate:yyyyMMdd%-%effectiveDate:yyyyMMdd%
 Common-%startRequestDate,effectiveDate:yyyyMMdd%</pre>
                 </li>
             </ul>
-
-            <div>For example, for a pattern <b>AUTO-%state%-%effectiveDate:MMddyyyy%</b> a user can specify values for
-                properties <b>US State</b> and <b>Effective date</b> via a file name for a whole module.<br/>
+            <div>For example, for a pattern
+                <b>AUTO-%state%-%effectiveDate:MMddyyyy%</b> a user can specify values for the
+                properties <b>US State</b> and <b>Effective date</b> via file name for the whole module.<br/>
                 <br/>
-                For instance, for the module with file name <b>AUTO-FL-01022014.xlsx</b> the following module
-                properties: <br/>
+                The following module properties: <br/>
                 <b>US State= 'Florida'</b>,
-                <b>Effective date = 02 Jan 2014</b> - will be retrieved and inherited by module tables.<br/>
+                <b>Effective date = 02 Jan 2014</b> will be retrieved and inherited by module rules tables for a module with the file name
+                <b>AUTO-FL-01022014.xlsx</b> <br/>
                 <br/>
-                For defining several values for the property, the values should be separated by
+                To define several values for a property, the values should be separated by
                 <b>comma</b>.<br/>
                 <b>AUTO-FL,NY-01022014.xlsx</b> will be determined as: <br/>
                 <b>US States= 'Florida', 'New York'</b>, <b>Effective date = 02 Jan 2014</b><br/>
@@ -70,11 +70,8 @@ Common-%startRequestDate,effectiveDate:yyyyMMdd%</pre>
                 <b>AUTO-Any-01022020.xlsx</b> will be determined as: <br/>
                 <b>US States= 'Alabama' ... 'Wyoming'</b>, <b>Effective date = 02 Jan 2020</b>.
             </div>
-
             <br/>
-
-            <div>If a file name doesn't match the patterns then module properties are not defined.</div>
-
+            <div>If a file name doesn't match any of the patterns then module properties are not defined for this module.</div>
         </div>
 
         <footer>
