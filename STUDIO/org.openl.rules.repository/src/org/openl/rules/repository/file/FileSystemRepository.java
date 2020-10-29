@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 public class FileSystemRepository implements FolderRepository, RRepositoryFactory, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileSystemRepository.class);
 
+    private String uri;
     private File root;
     private int rootPathLength;
     private ChangesMonitor monitor;
