@@ -795,15 +795,15 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                     IOpenField fieldInParent = superClass.getField(field.getName());
                     if (fieldInParent != null) {
                         if (Objects.equals(fieldInParent.getType(), field.getType())) {
-                            BindHelper.processWarn(String.format("Field [%s] has been already defined in class '%s'",
-                                field.getName(),
-                                fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
+                            BindHelper.processWarn(String.format("Field '%s' is already declared in parent class '%s'.",
+                                    field.getName(),
+                                    fieldInParent.getDeclaringClass().getDisplayName(0)), tableSyntaxNode, cxt);
                         } else {
                             throw SyntaxNodeExceptionUtils.createError(
-                                String.format("Field [%s] has been already defined in class '%s' with another type",
-                                    field.getName(),
-                                    fieldInParent.getDeclaringClass().getDisplayName(0)),
-                                tableSyntaxNode);
+                                    String.format("Field '%s' is already declared in class '%s' with another type.",
+                                            field.getName(),
+                                            fieldInParent.getDeclaringClass().getDisplayName(0)),
+                                    tableSyntaxNode);
                         }
                     }
                 });
