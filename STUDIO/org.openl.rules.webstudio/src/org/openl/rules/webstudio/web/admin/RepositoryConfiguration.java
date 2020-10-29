@@ -91,6 +91,9 @@ public class RepositoryConfiguration {
             case GIT:
                 newSettings = new GitRepositorySettings(properties, configPrefix);
                 break;
+            case LOCAL:
+                newSettings = new LocalRepositorySettings(properties, configPrefix);
+                break;
             default:
                 newSettings = new CommonRepositorySettings(properties, configPrefix, repositoryType);
                 break;
