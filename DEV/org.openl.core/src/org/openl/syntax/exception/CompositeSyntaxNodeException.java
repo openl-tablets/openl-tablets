@@ -24,12 +24,12 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
     /**
      * Exception message.
      */
-    private String message;
+    private final String message;
 
     /**
      * Syntax errors.
      */
-    private SyntaxNodeException[] errors;
+    private final SyntaxNodeException[] errors;
 
     /**
      * Constructs new instance of the class.
@@ -63,8 +63,8 @@ public class CompositeSyntaxNodeException extends OpenlNotCheckedException {
         }
 
         if (errors != null) {
-            for (int i = 0; i < errors.length; ++i) {
-                printWriter.print(errors[i]);
+            for (SyntaxNodeException error : errors) {
+                printWriter.print(error);
                 printWriter.print("\r\n");
             }
         }

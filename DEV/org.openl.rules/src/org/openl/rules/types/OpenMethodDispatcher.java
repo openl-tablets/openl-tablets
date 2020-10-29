@@ -10,7 +10,6 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.openl.binding.MethodUtil;
-import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
@@ -20,8 +19,6 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -283,24 +280,9 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 }
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
-                try {
-                    candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
-                    candidates.set(i, candidate);
-                    candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
-                } catch (DuplicatedMethodException e) {
-                    if (!candidateKeys.contains(candidateKey)) {
-                        if (candidate instanceof IMemberMetaInfo) {
-                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) candidate;
-                            if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                                SyntaxNodeException error = SyntaxNodeExceptionUtils
-                                    .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
-                                ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
-                            }
-                        }
-                        candidateKeys.add(candidateKey);
-                    }
-                    throw e;
-                }
+                candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
+                candidates.set(i, candidate);
+                candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
             }
         } else {
             // Throw appropriate exception.

@@ -16,7 +16,9 @@ import java.util.Set;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -34,7 +36,6 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.properties.ITableProperties;
@@ -48,9 +49,6 @@ import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -372,10 +370,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (existingMethod != null) {
 
             if (!existingMethod.getType().equals(m.getType())) {
-                String message = String.format(
-                    "Method '%s' with return type '%s' is already defined with another return type ('%s')",
-                    m.getName(),
-                    m.getType().getDisplayName(0),
+                String message = String.format("Method '%s' is already defined with another return type '%s'.",
+                    MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existingMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existingMethod, method);
             }
@@ -390,48 +386,20 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            try {
-                if (existingMethod instanceof OpenMethodDispatcher) {
-                    OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
-                    decorator.addMethod(unwrapOpenMethod(m));
-                } else {
-                    if (!m.equals(existingMethod)) {
-                        // Create decorator for existed method.
-                        //
-                        OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
+            if (existingMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
+                decorator.addMethod(unwrapOpenMethod(m));
+            } else {
+                if (!m.equals(existingMethod)) {
+                    // Create decorator for existed method.
+                    //
+                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
 
-                        IOpenMethod openMethod = wrapOpenMethod(dispatcher);
+                    IOpenMethod openMethod = wrapOpenMethod(dispatcher);
 
-                        overrideMethod(openMethod);
+                    overrideMethod(openMethod);
 
-                        dispatcher.addMethod(unwrapOpenMethod(m));
-                    }
-                }
-            } catch (DuplicatedMethodException e) {
-                SyntaxNodeException error = null;
-                if (m instanceof IMemberMetaInfo) {
-                    IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) m;
-                    if (memberMetaInfo.getSyntaxNode() != null) {
-                        if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                            error = SyntaxNodeExceptionUtils
-                                .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
-                            ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
-                        }
-                    }
-                }
-                boolean f = false;
-                for (Throwable t : getErrors()) {
-                    if (t.getMessage().equals(e.getMessage())) {
-                        f = true;
-                        break;
-                    }
-                }
-                if (!f) {
-                    if (error != null) {
-                        addError(error);
-                    } else {
-                        addError(e);
-                    }
+                    dispatcher.addMethod(unwrapOpenMethod(m));
                 }
             }
         } else {

@@ -83,7 +83,6 @@ public class ProjectBean {
     private String[] propertiesFileNamePatterns;
 
     private UIInput propertiesFileNameProcessorInput;
-    private String propertiesFileNameProcessor;
 
     private String currentModuleName;
 
@@ -668,68 +667,12 @@ public class ProjectBean {
         this.propertiesFileNameProcessorInput = propertiesFileNameProcessorInput;
     }
 
-    public String getPropertiesFileNameProcessor() {
-        return propertiesFileNameProcessor;
-    }
-
-    public void setPropertiesFileNameProcessor(String propertiesFileNameProcessor) {
-        this.propertiesFileNameProcessor = propertiesFileNameProcessor;
-    }
-
     public String getCurrentModuleName() {
         return currentModuleName;
     }
 
     public void setCurrentModuleName(String currentModuleName) {
         this.currentModuleName = currentModuleName;
-    }
-
-    public String getPropertiesFileNamePatternDescription() {
-        ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
-        projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
-        PropertiesFileNameProcessor processor;
-        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
-        try {
-            processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-
-            Class<? extends PropertiesFileNameProcessor> processorClass = processor.getClass();
-            String fileName = "/" + processorClass.getName().replace(".", "/") + ".info";
-
-            try {
-                InputStream inputStream = processorClass.getResourceAsStream(fileName);
-                if (inputStream == null) {
-                    throw new FileNotFoundException(String.format("File '%s' is not found.", fileName));
-                }
-                return IOUtils.toStringAndClose(inputStream);
-            } catch (FileNotFoundException e) {
-                return "Description file " + fileName + " is absent";
-            } catch (IOException e) {
-                log.error(e.getMessage(), e);
-                return "Cannot load the file " + fileName;
-            }
-        } catch (InvalidFileNameProcessorException e) {
-            return "Incorrect file name processor class '" + propertiesFileNameProcessor + "'";
-        } finally {
-            propertiesFileNameProcessorBuilder.destroy();
-        }
-    }
-
-    public String getPropertiesPatternWarnings() {
-        ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
-        projectDescriptor.setPropertiesFileNameProcessor(propertiesFileNameProcessor);
-        PropertiesFileNameProcessor processor;
-        PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
-        try {
-            processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            if (!(processor instanceof FileNamePatternValidator)) {
-                return "Validation is not supported";
-            }
-        } catch (InvalidFileNameProcessorException ignored) {
-        } finally {
-            propertiesFileNameProcessorBuilder.destroy();
-        }
-
-        return "";
     }
 
     public List<Module> getModulesWithWildcard() {
