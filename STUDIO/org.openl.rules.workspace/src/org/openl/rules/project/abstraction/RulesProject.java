@@ -232,8 +232,13 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
-        return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
+        try {
+            String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
+            return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return LockInfo.NO_LOCK;
+        }
     }
 
     @Override
