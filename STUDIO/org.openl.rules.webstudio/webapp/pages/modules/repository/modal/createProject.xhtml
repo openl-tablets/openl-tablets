@@ -547,6 +547,7 @@
                         <h:panelGroup>
                             <h:inputText id="projectFolderImport" size="35"
                                          styleClass="with-button-select"
+                                         onchange="onProjectFolderImportChanged();"
                                          value="#{repositoryTreeController.projectFolder}"/>
 
                             <input type="button" value="..."
@@ -558,9 +559,11 @@
 
                     <footer>
                         <h:commandButton id="sbtRepo" value="Import" action="#{repositoryTreeController.importFromRepo}"
+                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder isn\'t OpenL project. Are you sure?')) return false;"
                                          styleClass="button-primary"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
+                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo"/>
                 </h:form>
             </rich:tab>
 
