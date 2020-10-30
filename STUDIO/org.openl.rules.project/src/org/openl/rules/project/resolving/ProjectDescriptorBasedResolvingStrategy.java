@@ -2,7 +2,6 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -77,43 +76,14 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                             projectDescriptor.getPropertiesFileNamePatterns());
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
-                        String moduleFileName = FilenameExtractorUtil.extractFileNameFromModule(module);
-                        String defaultMessage;
-                        if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
-                            if (projectDescriptor.getPropertiesFileNamePatterns().length == 1) {
-                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name pattern is: %s",
-                                        moduleFileName,
-                                        projectDescriptor.getPropertiesFileNamePatterns()[0]);
-                            } else {
-                                defaultMessage = String.format("Module file name '%s' does not match file name pattern! File name patterns are: %s",
-                                        moduleFileName,
-                                        Arrays.toString(projectDescriptor.getPropertiesFileNamePatterns()));
-                            }
+                        if (processor instanceof DefaultPropertiesFileNameProcessor) {
+                            moduleWarnMessages.add(e.getMessage());
                         } else {
-                            defaultMessage = "Module file name '" + moduleFileName + "' does not match file name pattern.";
-                        }
-
-                        if (e.getMessage() == null) {
-                            moduleWarnMessages.add(defaultMessage);
-                        } else {
-                            if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleWarnMessages.add(
-                                    "Module file name '" + moduleFileName + "' does not match to file name pattern! " + e
-                                        .getMessage());
-                            } else {
-                                moduleWarnMessages.add(e.getMessage());
-                            }
+                            moduleWarnMessages.add("Module file name '" + module
+                                .getName() + "' does not match to file name pattern! " + e.getMessage());
                         }
                     } catch (InvalidFileNamePatternException e) {
-                        if (e.getMessage() == null) {
-                            moduleErrorMessages.add("Wrong file name pattern.");
-                        } else {
-                            if (!(processor instanceof DefaultPropertiesFileNameProcessor)) {
-                                moduleErrorMessages.add("Wrong file name pattern! " + e.getMessage());
-                            } else {
-                                moduleErrorMessages.add(e.getMessage());
-                            }
-                        }
+                        moduleErrorMessages.add(e.getMessage());
                     } catch (Exception | LinkageError e) {
                         LOG.warn("Failed to load custom file name processor.", e);
                         moduleErrorMessages.add("Failed to load custom file name processor.");
