@@ -1117,38 +1117,33 @@ public class RepositoryTreeController {
             synchronized (userWorkspace) {
                 Repository mainRepo = userWorkspace.getDesignTimeRepository()
                     .getRepository(project.getRepository().getId());
-                if (project instanceof RulesProject && isDeleteBranch(project)) {
-                    // Delete secondary branch
-                    ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
-                } else {
-                    String comment;
-                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                        comment = eraseProjectComment;
-                        if (!isValidComment(project, comment)) {
-                            return null;
-                        }
-                    } else {
-                        Comments comments = getComments(project);
-                        comment = comments.eraseProject(project.getBusinessName());
+                String comment;
+                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                    comment = eraseProjectComment;
+                    if (!isValidComment(project, comment)) {
+                        return null;
                     }
-                    try {
-                        Repository designRepository = project.getDesignRepository();
-                        boolean mappedFolders = designRepository.supports().mappedFolders();
-                        if (!mappedFolders || eraseFromRepository) {
-                            project.erase(userWorkspace.getUser(), comment);
-                        } else {
-                            ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
-                        }
-                    } catch (ProjectException e) {
-                        Throwable cause = e.getCause();
-                        if (cause instanceof MergeConflictException) {
-                            log.debug("Failed to erase the project because of merge conflict.", cause);
-                            // Try to erase second time. It should resolve the issue if conflict in
-                            // openl-projects.properties file.
-                            project.erase(userWorkspace.getUser(), comment);
-                        } else {
-                            throw e;
-                        }
+                } else {
+                    Comments comments = getComments(project);
+                    comment = comments.eraseProject(project.getBusinessName());
+                }
+                try {
+                    Repository designRepository = project.getDesignRepository();
+                    boolean mappedFolders = designRepository.supports().mappedFolders();
+                    if (!mappedFolders || eraseFromRepository) {
+                        project.erase(userWorkspace.getUser(), comment);
+                    } else {
+                        ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
+                    }
+                } catch (ProjectException e) {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof MergeConflictException) {
+                        log.debug("Failed to erase the project because of merge conflict.", cause);
+                        // Try to erase second time. It should resolve the issue if conflict in
+                        // openl-projects.properties file.
+                        project.erase(userWorkspace.getUser(), comment);
+                    } else {
+                        throw e;
                     }
                 }
             }
@@ -1169,14 +1164,36 @@ public class RepositoryTreeController {
         return null;
     }
 
-    public boolean isDeleteBranch(UserWorkspaceProject project) {
-        if (project == null) {
-            return false;
+    public void deleteBranch() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (!(project instanceof RulesProject)) {
+            return;
         }
+        try {
+            String branch = project.getBranch();
 
-        Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository(project.getRepository().getId());
-        return mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
-            .equals(project.getBranch());
+            Repository mainRepo = userWorkspace.getDesignTimeRepository()
+                .getRepository(project.getRepository().getId());
+            if (mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
+                .equals(branch)) {
+                studio.getModel().clearModuleInfo(); // Release resources like jars
+                project.close();
+
+                // Delete secondary branch
+                ((BranchRepository) mainRepo).deleteBranch(null, branch);
+                workspaceManager.refreshWorkspaces();
+
+                repositoryTreeState.invalidateTree();
+                repositoryTreeState.invalidateSelection();
+
+                resetStudioModel();
+                WebStudioUtils.addInfoMessage("Branch '" + branch + "' was deleted successfully.");
+            }
+        } catch (Exception e) {
+            String msg = "Cannot delete the branch '" + project.getBranch() + "'.";
+            log.error(msg, e);
+            WebStudioUtils.addErrorMessage(msg);
+        }
     }
 
     public String exportProjectVersion() {
@@ -2120,7 +2137,7 @@ public class RepositoryTreeController {
         this.openDependencies = openDependencies;
     }
 
-    private UserWorkspaceProject getSelectedProject() {
+    public UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
         if (artefact instanceof UserWorkspaceProject) {
             return (UserWorkspaceProject) artefact;
@@ -2621,5 +2638,26 @@ public class RepositoryTreeController {
 
     public void setEditAlgorithmsPath(boolean editAlgorithmsPath) {
         this.editAlgorithmsPath = editAlgorithmsPath;
+    }
+
+    public boolean isMergedIntoMain(UserWorkspaceProject project) {
+        if (project == null || !project.getDesignRepository().supports().branches()) {
+            return false;
+        }
+
+        try {
+            BranchRepository repository = ((BranchRepository) project.getDesignRepository());
+            return repository.isMergedInto(project.getBranch(), repository.getBaseBranch());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getMainBranch(UserWorkspaceProject project) {
+        if (project == null || !project.getDesignRepository().supports().branches()) {
+            return null;
+        }
+        return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
     }
 }

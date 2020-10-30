@@ -1279,7 +1279,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             try (RevWalk walk = new RevWalk(repository)) {
-                RevCommit commit = walk.parseCommit(resolveBranchId());
+                ObjectId branchId = resolveBranchId();
+                if (branchId == null) {
+                    return command.apply(repository, null, path);
+                }
+                RevCommit commit = walk.parseCommit(branchId);
                 RevTree tree = commit.getTree();
 
                 // Create TreeWalk for root folder
