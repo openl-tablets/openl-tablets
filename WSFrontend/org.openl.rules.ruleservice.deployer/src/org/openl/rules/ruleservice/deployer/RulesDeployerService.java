@@ -19,7 +19,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.rules.repository.LocalRepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -72,10 +71,10 @@ public class RulesDeployerService implements Closeable {
 
         if (StringUtils.isNotBlank(properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"))) {
             this.supportDeployments = Boolean.parseBoolean(properties.getProperty(
-                "ruleservice.datasource.filesystem.supportDeployments")) || !(deployRepo instanceof LocalRepositoryFactory);
+                "ruleservice.datasource.filesystem.supportDeployments")) || !deployRepo.supports().isLocal();
         }
 
-        if (deployRepo instanceof LocalRepositoryFactory) {
+        if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
         } else {
@@ -85,7 +84,7 @@ public class RulesDeployerService implements Closeable {
     }
 
     public void setSupportDeployments(boolean supportDeployments) {
-        this.supportDeployments = supportDeployments || !(deployRepo instanceof LocalRepositoryFactory);
+        this.supportDeployments = supportDeployments || !deployRepo.supports().isLocal();
     }
 
     /**
