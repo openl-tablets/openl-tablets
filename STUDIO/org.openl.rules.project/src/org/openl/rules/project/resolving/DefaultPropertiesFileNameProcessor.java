@@ -22,6 +22,7 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.util.BooleanUtils;
+import org.openl.util.FileUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
 
@@ -39,7 +40,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     @Override
     public ITableProperties process(Module module, String... fileNamePatterns) throws NoMatchFileNameException,
                                                                                InvalidFileNamePatternException {
-        String fileName = FilenameExtractorUtil.extractFileNameFromModule(module);
+        String path = module.getRulesRootPath().getPath();
+        String fileName = FileUtils.getBaseName(path);
         return process(fileName, fileNamePatterns);
     }
 
