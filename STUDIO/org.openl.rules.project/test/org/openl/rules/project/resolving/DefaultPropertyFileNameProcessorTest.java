@@ -1,6 +1,9 @@
 package org.openl.rules.project.resolving;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,7 +18,6 @@ import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
-import org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor.PatternModel;
 import org.openl.rules.table.properties.ITableProperties;
 
 public class DefaultPropertyFileNameProcessorTest {
@@ -31,7 +33,7 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void unknownPropertyTest() {
         try {
-            new PatternModel("%unknownProperty%");
+            new DefaultPropertiesFileNameProcessor("%unknownProperty%");
         } catch (InvalidFileNamePatternException e) {
             assertEquals("Found unsupported property 'unknownProperty' in file name pattern.", e.getMessage());
             return;
@@ -41,26 +43,27 @@ public class DefaultPropertyFileNameProcessorTest {
 
     @Test
     public void lobTest() throws Exception {
-        DefaultPropertiesFileNameProcessor processor = new DefaultPropertiesFileNameProcessor();
-
-        ITableProperties props = processor.process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03",
-            "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%");
+        ITableProperties props = new DefaultPropertiesFileNameProcessor(
+            "%lob%-%nature%-%state%-%effectiveDate:yyyy-MM-dd%-%startRequestDate:yyyy-MM-dd%")
+                .process("AL-BL-CL-GL-NY-2018-07-01-2018-05-03");
         assertArrayEquals(props.getLob(), new String[] { "AL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.NY });
         assertEquals(props.getNature(), "BL-CL-GL");
         assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
         assertEquals(props.getStartRequestDate(), new Date(118, 04, 03, 0, 0, 0));
 
-        props = processor.process("AL,BL-CL,GL-DE,OH-20180701-20170621",
-            "%lob%-%nature%-%state%-%effectiveDate:yyyyMMdd%-%startRequestDate:yyyyMMdd%");
+        props = new DefaultPropertiesFileNameProcessor(
+            "%lob%-%nature%-%state%-%effectiveDate:yyyyMMdd%-%startRequestDate:yyyyMMdd%")
+                .process("AL,BL-CL,GL-DE,OH-20180701-20170621");
         assertArrayEquals(props.getLob(), new String[] { "AL", "BL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.DE, UsStatesEnum.OH });
         assertEquals(props.getNature(), "CL,GL");
         assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
         assertEquals(props.getStartRequestDate(), new Date(117, 05, 21, 0, 0, 0));
 
-        props = processor.process("AL,BL-CL,GL-CA-20072019-21062020",
-            "%lob%-%state%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%");
+        props = new DefaultPropertiesFileNameProcessor(
+            "%lob%-%state%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%")
+                .process("AL,BL-CL,GL-CA-20072019-21062020");
         assertArrayEquals(props.getLob(), new String[] { "AL", "BL-CL", "GL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.CA });
         assertNull(props.getNature());
@@ -122,10 +125,11 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testMultiPatterns0() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-CW-20160101"),
-                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            "%lob%-%state%-%startRequestDate%",
+            "AUTO-%lob%-%startRequestDate%");
 
         assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
-        assertArrayEquals( UsStatesEnum.values(), properties.getState());
+        assertArrayEquals(UsStatesEnum.values(), properties.getState());
 
         assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
     }
@@ -133,10 +137,11 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testMultiPatterns() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-Any-20160101"),
-                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            "%lob%-%state%-%startRequestDate%",
+            "AUTO-%lob%-%startRequestDate%");
 
         assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
-        assertArrayEquals( UsStatesEnum.values(), properties.getState());
+        assertArrayEquals(UsStatesEnum.values(), properties.getState());
 
         assertEquals(dateFormat.parse("01012016"), properties.getStartRequestDate());
     }
@@ -144,7 +149,8 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testMultiPatterns1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-FL,ME-20160101"),
-                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            "%lob%-%state%-%startRequestDate%",
+            "AUTO-%lob%-%startRequestDate%");
 
         assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
         assertArrayEquals(new UsStatesEnum[] { UsStatesEnum.FL, UsStatesEnum.ME }, properties.getState());
@@ -155,7 +161,8 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testMultiPatterns2() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-PMT-20160101"),
-                "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            "%lob%-%state%-%startRequestDate%",
+            "AUTO-%lob%-%startRequestDate%");
 
         assertArrayEquals(new String[] { "PMT" }, properties.getLob());
         assertArrayEquals(null, properties.getState());
@@ -166,11 +173,11 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testMultiPatterns3() throws InvalidFileNamePatternException {
         try {
-            processor.process(mockModule("Tests"),
-                    "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
+            processor.process(mockModule("Tests"), "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
             fail("Ooops...");
         } catch (NoMatchFileNameException e) {
-            assertEquals("Module 'Tests' does not match any file name pattern: '[%lob%-%state%-%startRequestDate%, AUTO-%lob%-%startRequestDate%]'.", e.getMessage());
+            assertEquals("Module 'Tests' does not match file name pattern 'AUTO-%lob%-%startRequestDate%'.",
+                e.getMessage());
         }
     }
 
@@ -178,42 +185,40 @@ public class DefaultPropertyFileNameProcessorTest {
     public void testPropertyGroupsWrongDatePattern() throws InvalidFileNamePatternException {
         try {
             processor.process(mockModule("AUTO-FL,ME-20160101"),
-                    "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%");
+                "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%");
             fail("Ooops...");
         } catch (NoMatchFileNameException e) {
-            assertEquals("Module 'AUTO-FL,ME-20160101' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..", e.getMessage());
+            assertEquals(
+                "Module 'AUTO-FL,ME-20160101' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..",
+                e.getMessage());
         }
     }
 
     @Test
     public void testPropertyGroupsNegative() throws NoMatchFileNameException {
         try {
-            processor.process(mockModule("AUTO-FL,ME-20160101"),
-                    "%lob%-%state%-%effectiveDate,lob%");
+            processor.process(mockModule("AUTO-FL,ME-20160101"), "%lob%-%state%-%effectiveDate,lob%");
             fail("Ooops...");
         } catch (InvalidFileNamePatternException e) {
             assertEquals("Incompatible properties in the group: [effectiveDate, lob].", e.getMessage());
         }
 
         try {
-            processor.process(mockModule("AUTO-FL,ME-20160101"),
-                    "%lob,nature%-%state%-%effectiveDate%");
+            processor.process(mockModule("AUTO-FL,ME-20160101"), "%lob,nature%-%state%-%effectiveDate%");
             fail("Ooops...");
         } catch (InvalidFileNamePatternException e) {
             assertEquals("Incompatible properties in the group: [lob, nature].", e.getMessage());
         }
 
         try {
-            processor.process(mockModule("AUTO-FL,ME-20160101"),
-                    "%lob%-%state,lang%-%effectiveDate%");
+            processor.process(mockModule("AUTO-FL,ME-20160101"), "%lob%-%state,lang%-%effectiveDate%");
             fail("Ooops...");
         } catch (InvalidFileNamePatternException e) {
             assertEquals("Incompatible properties in the group: [state, lang].", e.getMessage());
         }
 
         try {
-            processor.process(mockModule("AUTO-FL,ME-20160101"),
-                    "%lob%-%state,foo%-%effectiveDate%");
+            processor.process(mockModule("AUTO-FL,ME-20160101"), "%lob%-%state,foo%-%effectiveDate%");
             fail("Ooops...");
         } catch (InvalidFileNamePatternException e) {
             assertEquals("Found unsupported property 'foo' in file name pattern.", e.getMessage());
@@ -223,7 +228,7 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testPropertyGroups() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-FL,ME-20160101"),
-                "%lob%-%state%-%effectiveDate,startRequestDate%");
+            "%lob%-%state%-%effectiveDate,startRequestDate%");
         assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
         assertArrayEquals(new UsStatesEnum[] { UsStatesEnum.FL, UsStatesEnum.ME }, properties.getState());
         Date date = dateFormat.parse("01012016");
@@ -234,7 +239,7 @@ public class DefaultPropertyFileNameProcessorTest {
     @Test
     public void testPropertyGroups1() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
         ITableProperties properties = processor.process(mockModule("AUTO-FL,ME-01012016"),
-                "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%");
+            "%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%");
         assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
         assertArrayEquals(new UsStatesEnum[] { UsStatesEnum.FL, UsStatesEnum.ME }, properties.getState());
         Date date = dateFormat.parse("01012016");
@@ -242,11 +247,10 @@ public class DefaultPropertyFileNameProcessorTest {
         assertEquals(date, properties.getEffectiveDate());
     }
 
-
     private static Module mockModule(String moduleName) {
         Module module = mock(Module.class);
         when(module.getName()).thenReturn(moduleName);
-        when(module.getRulesRootPath()).thenReturn(new PathEntry(moduleName+".xlsx"));
+        when(module.getRulesRootPath()).thenReturn(new PathEntry(moduleName + ".ext"));
         return module;
     }
 
