@@ -9,9 +9,6 @@ public final class FilenameExtractorUtil {
     }
 
     public static String extractFileNameFromModule(Module module) {
-        if (module.getRulesRootPath() == null) {
-            return module.getName();
-        }
         String path = module.getRulesRootPath().getPath();
         return FileUtils.getBaseName(path);
     }
