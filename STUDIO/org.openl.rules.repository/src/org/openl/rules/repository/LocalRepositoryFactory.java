@@ -9,6 +9,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.file.FileSystemRepository;
 
@@ -94,5 +96,10 @@ public class LocalRepositoryFactory extends FileSystemRepository {
         }
         //should never happen
         throw new IllegalStateException(String.format("Illegal state for LocalRepository. Unable to get list of folders from %s path.", path));
+    }
+
+    @Override
+    public Features supports() {
+        return new FeaturesBuilder(this).setVersions(false).setLocal(true).build();
     }
 }

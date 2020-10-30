@@ -13,7 +13,6 @@ import javax.annotation.PreDestroy;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.Deployment;
-import org.openl.rules.repository.LocalRepositoryFactory;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
@@ -34,7 +33,7 @@ public class ProductionRepositoryDataSource implements DataSource {
     private String deployPath;
 
     private String getDeployPath() {
-        if (repository instanceof LocalRepositoryFactory) {
+        if (repository.supports().isLocal()) {
             //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             return "";
         }
