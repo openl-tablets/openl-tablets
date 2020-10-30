@@ -14,6 +14,7 @@ import org.junit.Test;
 import org.openl.rules.enumeration.CurrenciesEnum;
 import org.openl.rules.enumeration.UsStatesEnum;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.resolving.DefaultPropertiesFileNameProcessor.PatternModel;
 import org.openl.rules.table.properties.ITableProperties;
 
@@ -245,6 +246,7 @@ public class DefaultPropertyFileNameProcessorTest {
     private static Module mockModule(String moduleName) {
         Module module = mock(Module.class);
         when(module.getName()).thenReturn(moduleName);
+        when(module.getRulesRootPath()).thenReturn(new PathEntry(moduleName+".xlsx"));
         return module;
     }
 

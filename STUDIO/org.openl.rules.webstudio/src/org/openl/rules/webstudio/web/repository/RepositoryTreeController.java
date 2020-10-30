@@ -91,6 +91,7 @@ import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
 import org.openl.rules.webstudio.web.util.OpenAPIEditorUtils;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.openl.rules.workspace.lw.LocalWorkspaceManager;
@@ -130,6 +131,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private RepositoryTreeState repositoryTreeState;
+
+    @Autowired
+    private MultiUserWorkspaceManager workspaceManager;
 
     private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
@@ -654,14 +658,15 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
+            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)
+                || userWorkspace.getLocalWorkspace().hasProject(null, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
             } else {
                 Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
                 if (repository.supports().mappedFolders()) {
                     String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
                     if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
-                        return "Cannot create the project because a project with such path already exists but it's not imported into WebStudio. Try to import that project from repository.";
+                        return "Cannot create the project because a project with such path already exists but it's not imported into WebStudio. Try to import that project from repository or create with another path.";
                     }
                 }
             }
@@ -870,6 +875,11 @@ public class RepositoryTreeController {
             String nodeType = selectedNode.getType();
             unregisterSelectedNodeInProjectDescriptor();
             if (projectArtefact instanceof RulesProject) {
+                RulesProject project = (RulesProject) projectArtefact;
+                if (!userWorkspace.hasProject(project.getRepository().getId(), project.getName())) {
+                    WebStudioUtils.addInfoMessage("Project was already deleted before.");
+                    return null;
+                }
                 if (projectArtefact.isLocked() && !((RulesProject) projectArtefact).isLockedByMe()) {
                     WebStudioUtils.addErrorMessage("Project is locked by other user. Cannot archive it.");
                     return null;
@@ -879,21 +889,17 @@ public class RepositoryTreeController {
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-                userWorkspace.refresh();
-                if (project instanceof ADeploymentProject || userWorkspace.hasProject(project.getRepository().getId(),
-                    project.getName())) {
-                    String comment;
-                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                        comment = archiveProjectComment;
-                        if (!isValidComment(project, comment)) {
-                            return null;
-                        }
-                    } else {
-                        Comments comments = getComments(project);
-                        comment = comments.archiveProject(project.getName());
+                String comment;
+                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                    comment = archiveProjectComment;
+                    if (!isValidComment(project, comment)) {
+                        return null;
                     }
-                    project.delete(comment);
+                } else {
+                    Comments comments = getComments(project);
+                    comment = comments.archiveProject(project.getName());
                 }
+                project.delete(comment);
             } else {
                 projectArtefact.delete();
             }
@@ -921,6 +927,9 @@ public class RepositoryTreeController {
             }
 
             activeProjectNode = null;
+            if (projectArtefact instanceof UserWorkspaceProject) {
+                workspaceManager.refreshWorkspaces();
+            }
             resetStudioModel();
 
             String nodeTypeName;
@@ -1143,7 +1152,7 @@ public class RepositoryTreeController {
                     }
                 }
             }
-            userWorkspace.refresh();
+            workspaceManager.refreshWorkspaces();
 
             repositoryTreeState.deleteSelectedNodeFromTree();
             repositoryTreeState.invalidateTree();
@@ -1773,6 +1782,7 @@ public class RepositoryTreeController {
             }
             project.undelete(userWorkspace.getUser(), comment);
             repositoryTreeState.refreshSelectedNode();
+            workspaceManager.refreshWorkspaces();
             resetStudioModel();
         } catch (Exception e) {
             String msg = "Cannot undelete project '" + project.getBusinessName() + "'.";
@@ -2519,7 +2529,7 @@ public class RepositoryTreeController {
 
             ((FolderMapper) mappedRepo).addMapping(projectFolder);
 
-            userWorkspace.refresh();
+            workspaceManager.refreshWorkspaces();
             repositoryTreeState.invalidateTree();
             resetStudioModel();
 
