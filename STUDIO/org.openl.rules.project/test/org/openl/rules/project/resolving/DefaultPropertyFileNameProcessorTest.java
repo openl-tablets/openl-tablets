@@ -1,5 +1,7 @@
 package org.openl.rules.project.resolving;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.StringStartsWith.startsWith;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -26,8 +28,8 @@ public class DefaultPropertyFileNameProcessorTest {
     private DefaultPropertiesFileNameProcessor processor;
 
     @Before
-    public void setUp() {
-        processor = new DefaultPropertiesFileNameProcessor();
+    public void setUp() throws InvalidFileNamePatternException {
+        processor = new DefaultPropertiesFileNameProcessor("");
     }
 
     @Test
@@ -176,7 +178,7 @@ public class DefaultPropertyFileNameProcessorTest {
             processor.process(mockModule("Tests"), "%lob%-%state%-%startRequestDate%", "AUTO-%lob%-%startRequestDate%");
             fail("Ooops...");
         } catch (NoMatchFileNameException e) {
-            assertEquals("Module 'Tests' does not match file name pattern 'AUTO-%lob%-%startRequestDate%'.",
+            assertEquals("File 'Tests.ext' does not match file name pattern 'AUTO-%lob%-%startRequestDate%'.",
                 e.getMessage());
         }
     }
@@ -189,7 +191,7 @@ public class DefaultPropertyFileNameProcessorTest {
             fail("Ooops...");
         } catch (NoMatchFileNameException e) {
             assertEquals(
-                "Module 'AUTO-FL,ME-20160101' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..",
+                "File 'AUTO-FL,ME-20160101.ext' does not match file name pattern '%lob%-%state%-%effectiveDate,startRequestDate:ddMMyyyy%'.\r\n Invalid property: effectiveDate.\r\n Message: Failed to parse a date '20160101'..",
                 e.getMessage());
         }
     }
@@ -245,6 +247,79 @@ public class DefaultPropertyFileNameProcessorTest {
         Date date = dateFormat.parse("01012016");
         assertEquals(date, properties.getStartRequestDate());
         assertEquals(date, properties.getEffectiveDate());
+    }
+
+    @Test
+    public void testFolder() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor("%lob%-%state%-%startRequestDate%");
+        assertMatch(processor1, "AUTO-NY-20200712");
+        assertMatch(processor1, "AUTO-NY-20200712.xlsx");
+        assertMatch(processor1, "rules/AUTO-NY-20200712");
+        assertMatch(processor1, "rules/AUTO-NY-20200712.ext");
+        assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712");
+        assertMatch(processor1, "rules/AUTO/AUTO-NY-20200712.txt");
+
+        DefaultPropertiesFileNameProcessor processor2 = new DefaultPropertiesFileNameProcessor("%lob%/%state%/*%startRequestDate%");
+        assertMatch(processor2, "AUTO/NY/UP.20200712");
+        assertMatch(processor2, "AUTO/NY/UP-20200712");
+        assertMatch(processor2, "AUTO/NY/UP.20200712.ext");
+        assertMatch(processor2, "AUTO/NY/UP-20200712.ext");
+        assertMatch(processor2, "rules/AUTO/NY/UP.20200712");
+        assertMatch(processor2, "rules/AUTO/NY/UP-20200712");
+        assertMatch(processor2, "rules/AUTO/NY/UP.20200712.ext");
+        assertMatch(processor2, "rules/AUTO/NY/UP-20200712.ext");
+
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/*%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/??.%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/??.%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/*/%state%/*%startRequestDate%"), "AUTO/AL/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"), "AUTO/AL/AL/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"), "AUTO/AL/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/UP/**/%state%/*%startRequestDate%"), "AUTO/UP/NY/20200712.xlsx");
+    }
+
+    @Test
+    public void testFolderNoMatch() throws NoMatchFileNameException, InvalidFileNamePatternException, ParseException {
+        DefaultPropertiesFileNameProcessor processor1 = new DefaultPropertiesFileNameProcessor("%lob%-%state%-%startRequestDate%");
+        assertNotMatch(processor1, "AUTO--20200712");
+        assertNotMatch(processor1, "AUTO-NY-20200712/test");
+        assertNotMatch(processor1, "AUTO-NY-20200712/test.xlsx");
+        assertNotMatch(processor1, "AUTO/-NY-20200712");
+        assertNotMatch(processor1, "AUTO-/NY-20200712");
+
+        DefaultPropertiesFileNameProcessor processor2 = new DefaultPropertiesFileNameProcessor("%lob%/%state%/*%startRequestDate%");
+        assertNotMatch(processor2, "AUTO/NY-20200712");
+        assertNotMatch(processor2, "AUTO/ALNY/20200712");
+        assertNotMatch(processor2, "AUTO/NY/UP/20200712.ext");
+        assertNotMatch(processor2, "AUTO/NY/UP-/20200712.ext");
+
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/*/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("test/%lob%/%state%/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("les/%lob%/%state%/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("rules/%lob%/%state%/*%startRequestDate%"), "les/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/...%startRequestDate%"), "AUTO/NY/UP.20200712");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/?.%startRequestDate%"), "AUTO/NY/UP.20200712");
+    }
+
+    private void assertNotMatch(DefaultPropertiesFileNameProcessor processor, String file) {
+        try {
+            ITableProperties process = processor.process(file);
+            fail("Ooops...\n" + process);
+        } catch (NoMatchFileNameException e) {
+            assertThat(e.getMessage(), startsWith("File '" + file + "' does not match file name pattern"));
+        }
+    }
+
+    private void assertMatch(DefaultPropertiesFileNameProcessor processor, String fileName) throws NoMatchFileNameException, ParseException {
+        ITableProperties properties = processor.process(fileName);
+
+        assertArrayEquals(new String[] { "AUTO" }, properties.getLob());
+        assertArrayEquals(new UsStatesEnum[] { UsStatesEnum.NY }, properties.getState());
+        assertEquals(dateFormat.parse("12072020"), properties.getStartRequestDate());
     }
 
     private static Module mockModule(String moduleName) {
