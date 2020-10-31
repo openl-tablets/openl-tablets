@@ -1,19 +1,37 @@
 package org.openl.rules.ruleservice.loader;
 
+import java.io.Closeable;
 import java.io.File;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+
+import javax.annotation.PreDestroy;
 
 import org.openl.rules.common.CommonVersion;
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
+import org.openl.rules.repository.LocalRepositoryFactory;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
+import org.openl.rules.workspace.lw.impl.FolderHelper;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,85 +44,40 @@ import org.slf4j.LoggerFactory;
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
-    private DataSource dataSource;
-
     private ProjectResolver projectResolver;
 
-    private LocalTemporaryDeploymentsStorage storage;
+    private String directoryToLoadDeploymentsIn;
+    private Map<String, Deployment> cacheForGetDeployment = new HashMap<>();
+    private Repository tempFolder;
+    private Repository repository;
+    private String deployPath;
 
     /**
      * Construct a new RulesLoader for bean usage.
-     * <p>
-     * Note: The dataSource, storage and projectResolver have to be set before using the instance.
-     * </p>
-     *
-     * @see #setDataSource, #setProjectResolver
      */
-    public RuleServiceLoaderImpl() {
+    public RuleServiceLoaderImpl(String directoryToLoadDeploymentsIn) {
+        this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
+        initTempRepo(directoryToLoadDeploymentsIn);
+        this.projectResolver = ProjectResolver.instance();
     }
 
-    /**
-     * Construct a new RulesLoader for bean usage.
-     *
-     * @see #setDataSource, #setProjectResolver
-     */
-    public RuleServiceLoaderImpl(DataSource dataSource,
-            LocalTemporaryDeploymentsStorage storage,
-            ProjectResolver projectResolver) {
-        this.dataSource = Objects.requireNonNull(dataSource, "dataSource cannot be null");
-        this.storage = Objects.requireNonNull(storage, "storage cannot be null");
-        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver cannot be null");
-    }
-
-    @Override
-    public void setListener(DataSourceListener dataSourceListener) {
-        dataSource.setListener(dataSourceListener);
-    }
-
-    /**
-     * Sets data source.
-     */
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = Objects.requireNonNull(dataSource, "dataSource cannot be null");
-
-    }
-
-    /**
-     * Gets rules project resolver.
-     */
-    public ProjectResolver getProjectResolver() {
-        return projectResolver;
-    }
-
-    /**
-     * Sets rules project resolver. Spring bean configuration property.
-     *
-     * @param projectResolver
-     */
-    public void setProjectResolver(ProjectResolver projectResolver) {
-        this.projectResolver = Objects.requireNonNull(projectResolver, "projectResolver cannot be null");
-    }
-
-    /**
-     * Gets storage.
-     */
-    public LocalTemporaryDeploymentsStorage getStorage() {
-        return storage;
-    }
-
-    /**
-     * Sets storage. Spring bean configuration property.
-     */
-    public void setStorage(LocalTemporaryDeploymentsStorage storage) {
-        this.storage = Objects.requireNonNull(storage, "storage cannot be null");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Collection<Deployment> getDeployments() {
-        return dataSource.getDeployments();
+    void initTempRepo(String directoryToLoadDeploymentsIn) {
+        File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
+        folderToLoadDeploymentsIn.mkdirs();
+        if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
+            log.error("Failed to clear a folder '{}'.", folderToLoadDeploymentsIn.getAbsolutePath());
+        } else {
+            log.info("Local temporary folder for downloading deployments has been cleared.");
+        }
+        log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
+        FileSystemRepository localRepository = new FileSystemRepository();
+        localRepository.setRoot(folderToLoadDeploymentsIn);
+        try {
+            localRepository.initialize();
+        } catch (RRepositoryException e) {
+            log.error("Failed to initialize local tempFolder: {}", e.getMessage(), e);
+        }
+        this.tempFolder = localRepository;
     }
 
     /**
@@ -129,7 +102,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new RuleServiceRuntimeException(
                 String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
-        String artifactPath = storage.getDirectoryToLoadDeploymentsIn() + project.getArtefactPath().getStringValue();
+        String artifactPath = directoryToLoadDeploymentsIn + project.getArtefactPath().getStringValue();
         File projectFolder = new File(artifactPath);
         List<Module> result = Collections.emptyList();
         try {
@@ -146,11 +119,165 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        Deployment localDeployment = storage.getDeployment(deploymentName, deploymentVersion);
+        Deployment localDeployment = getDeploymentFromCache(deploymentName, deploymentVersion);
         if (localDeployment == null) {
-            Deployment deployment = dataSource.getDeployment(deploymentName, deploymentVersion);
-            localDeployment = storage.loadDeployment(deployment);
+            String folderPath = getDeployPath() + deploymentName;
+            boolean folderStructure = isFolderStructure(folderPath);
+            Deployment deployment = new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
+            localDeployment = loadDeployment(deployment);
         }
         return localDeployment;
+    }
+
+    /**
+     * Generates folder name for deployment by given deployment name and common version.
+     *
+     * @return folder name
+     */
+    private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
+        return deploymentName + "_v" + version.getVersionName();
+    }
+
+    /**
+     * Gets deployment from storage. If deployment does not exists in storage returns null.
+     *
+     * @return deployment from storage or null if doens't exists
+     */
+    Deployment getDeploymentFromCache(String deploymentName, CommonVersion version) {
+        log.debug("Getting deployment with name='{}' and version='{}'", deploymentName, version.getVersionName());
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        return cacheForGetDeployment.get(deploymentFolderName);
+    }
+
+    /**
+     * Loads deployment to local file system from tempFolder.
+     *
+     * @return loaded deployment
+     */
+    Deployment loadDeployment(Deployment deployment) {
+        Objects.requireNonNull(deployment, "deployment cannot be null");
+
+        String deploymentName = deployment.getDeploymentName();
+        CommonVersion version = deployment.getCommonVersion();
+        String versionName = deployment.getVersion().getVersionName();
+        log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
+
+        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
+        Deployment loadedDeployment = new Deployment(tempFolder, deploymentFolderName, deploymentName, version, true);
+        try {
+            loadedDeployment.update(deployment, null);
+            loadedDeployment.refresh();
+        } catch (ProjectException e) {
+            log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
+                deploymentName,
+                versionName,
+                e);
+            throw new RuleServiceRuntimeException(e);
+        }
+
+        cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
+
+        log.debug("Deployment with name='{}' and version='{}' has been made on local storage and put to cache.",
+            deploymentName,
+            versionName);
+        return loadedDeployment;
+    }
+
+    /**
+     * Check to existing deployment in local temporary folder.
+     *
+     * @return true if and only if the deployment exists; false otherwise
+     */
+    boolean containsDeployment(String deploymentName, CommonVersion version) {
+        return cacheForGetDeployment.containsKey(getDeploymentFolderName(deploymentName, version));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Collection<Deployment> getDeployments() {
+        List<FileData> fileDatas;
+        try {
+            if (repository.supports().folders()) {
+                // All deployments
+                fileDatas = ((FolderRepository) repository).listFolders(getDeployPath());
+            } else {
+                // Projects inside all deployments
+                fileDatas = repository.list(getDeployPath());
+            }
+        } catch (IOException ex) {
+            throw RuntimeExceptionWrapper.wrap(ex);
+        }
+        ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
+        for (FileData fileData : fileDatas) {
+            String deploymentFolderName = fileData.getName().substring(getDeployPath().length()).split("/")[0];
+
+            String version = fileData.getVersion();
+            CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0.0.0" : version);
+
+            String folderPath = getDeployPath() + deploymentFolderName;
+
+            boolean folderStructure = isFolderStructure(folderPath);
+
+            Deployment deployment = new Deployment(repository,
+                folderPath,
+                deploymentFolderName,
+                commonVersion,
+                folderStructure);
+            deployments.putIfAbsent(deploymentFolderName, deployment);
+        }
+
+        return deployments.values();
+    }
+
+    @Override
+    public void setListener(DataSourceListener dataSourceListener) {
+        if (dataSourceListener == null) {
+            repository.setListener(null);
+        } else {
+            repository.setListener(dataSourceListener::onDeploymentAdded);
+        }
+    }
+
+    /**
+     * For Spring framework
+     */
+    @PreDestroy
+    public void destroy() throws Exception {
+        log.debug("Data source releasing");
+        if (repository instanceof Closeable) {
+            ((Closeable) repository).close();
+        }
+    }
+
+    public void setRepository(Repository repository) {
+        this.repository = repository;
+    }
+
+    public void setDeployPath(String deployPath) {
+        this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+    }
+
+    private boolean isFolderStructure(String deploymentFolderPath) {
+        boolean folderStructure;
+        try {
+            if (repository.supports().folders()) {
+                folderStructure = !((FolderRepository) repository).listFolders(deploymentFolderPath + "/").isEmpty();
+            } else {
+                folderStructure = false;
+            }
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+        return folderStructure;
+    }
+
+    private String getDeployPath() {
+        if (repository instanceof LocalRepositoryFactory) {
+            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            return "";
+        }
+        return deployPath;
     }
 }

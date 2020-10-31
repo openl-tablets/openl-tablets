@@ -39,19 +39,21 @@
         <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
     </bean>
 
-    <!-- Data source storage that provides information about deployments, projects
-        and their properties and version -->
-    <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
-          depends-on="deployClasspathJarsBean">
-        <property name="repository" ref="repository"/>
-        <property name="deployPath" value="${production-repository.base.path}"/>
-    </bean>
-
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
         <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
         <property name="enabled" value="${ruleservice.datasource.deploy.classpath.jars}"/>
         <!-- Workaround to allow projects overrides in LocalRepository after application startup -->
         <property name="overrideable" value="#{'${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+    </bean>
+
+    <!-- Data source storage that provides information about deployments, projects
+        and their properties and version -->
+    <!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
+    Contains own storage for all projects that is used in services. -->
+    <bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl" depends-on="deployClasspathJarsBean">
+        <constructor-arg value="${ruleservice.tmp.dir}"/>
+        <property name="repository" ref="repository"/>
+        <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 </beans>
