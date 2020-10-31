@@ -228,7 +228,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     private synchronized Path enterZipArchive(Path path) throws IOException {
         FileSystem fileSystem = openedFileSystems.get(path);
         if (fileSystem == null) {
-            fileSystem = FileSystems.newFileSystem(path, null);
+            fileSystem = FileSystems.newFileSystem(path, Thread.currentThread().getContextClassLoader());
             openedFileSystems.put(path, fileSystem);
         }
         return fileSystem.getPath(PATH_SEPARATOR);
