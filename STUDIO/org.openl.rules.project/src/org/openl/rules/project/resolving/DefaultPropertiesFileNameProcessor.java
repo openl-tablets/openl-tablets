@@ -21,12 +21,11 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.util.BooleanUtils;
-import org.openl.util.FileUtils;
 
 public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor {
 
     private static final String ARRAY_SEPARATOR = ",";
-    private static final String DEFAULT_PATTERN = ".+?";
+    private static final String DEFAULT_PATTERN = "[^/]+?";
     private static final Pattern PATTERN = Pattern.compile("(%[^%]+%)");
     private static final String STATE_PROPERTY_NAME = "state";
     private static final String CW_STATE_VALUE = "CW";
@@ -90,13 +89,12 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     @Override
-    public ITableProperties process(String path) throws NoMatchFileNameException {
-        String fileName = FileUtils.getBaseName(path);
+    public ITableProperties process(String fileName) throws NoMatchFileNameException {
 
         Matcher fileNameMatcher = fileNameRegexpPattern.matcher(fileName);
         if (!fileNameMatcher.matches()) {
             throw new NoMatchFileNameException(
-                String.format("Module '%s' does not match file name pattern '%s'.", fileName, pattern));
+                String.format("File '%s' does not match file name pattern '%s'.", fileName, pattern));
         }
         TableProperties props = new TableProperties();
         int n = fileNameMatcher.groupCount();
@@ -109,9 +107,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     props.setFieldValue(propertyName, value);
                 } catch (Exception e) {
                     throw new NoMatchFileNameException(String.format(
-                        "Module '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
+                        "File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
                         fileName,
-                            pattern,
+                        pattern,
                         propertyName,
                         e.getMessage()));
                 }
@@ -124,7 +122,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
         Matcher matcher = PATTERN.matcher(fileNamePattern);
         int start = 0;
-        String fileNameRegexpPattern = fileNamePattern;
+        String fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff').replace('.', '\ufffe').replace('?', '\ufffd');
         while (start < fileNamePattern.length()) {
             if (matcher.find(start)) {
                 String propertyMatch = matcher.group();
@@ -166,8 +164,19 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 start = fileNamePattern.length();
             }
         }
+        if (fileNameRegexpPattern.startsWith("/")) {
+            fileNameRegexpPattern = fileNameRegexpPattern.replaceFirst("^/", "^");
+        } else {
+            fileNameRegexpPattern = "^(?:[^/]+/)*" + fileNameRegexpPattern;
+        }
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff/", "[^/]+/"); // Ant /*/
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff\uffff/", "(?:[^/]+/)*"); //Ant /**/
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe\uffff", "[^/]*");// Regexp .*
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe", "\\."); // File .
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
 
-        return fileNameRegexpPattern;
+        return fileNameRegexpPattern + "(?:\\.[^.]*)??$";
     }
 
     private String getPattern(String propertyName, String format, Class<?> returnType) {
