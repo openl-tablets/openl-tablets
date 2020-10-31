@@ -89,6 +89,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             throw new ProjectException("Error creating the project, OpenAPI File " + NameChecker.BAD_NAME_MSG);
         }
 
+        if (modelsModuleName.equalsIgnoreCase(algorithmsModuleName)) {
+            throw new ProjectException("Error creating the project, module names cannot be the same.");
+        }
+
         if (StringUtils.isBlank(algorithmsPath)) {
             throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
         }
@@ -241,20 +245,20 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private ProjectDescriptor defineDescriptor(boolean dataTypesArePresented, boolean spreadsheetsArePresented) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         OpenAPI openAPI = new OpenAPI();
-        openAPI.setAlgorithmModuleName(algorithmsModuleName);
-        openAPI.setModelModuleName(modelsModuleName);
         descriptor.setName(projectName);
         List<Module> modules = new ArrayList<>();
         if (spreadsheetsArePresented) {
             Module rulesModule = new Module();
             rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
             rulesModule.setName(algorithmsModuleName);
+            openAPI.setAlgorithmModuleName(algorithmsModuleName);
             modules.add(rulesModule);
         }
         if (dataTypesArePresented) {
             Module modelsModule = new Module();
             modelsModule.setName(modelsModuleName);
             modelsModule.setRulesRootPath(new PathEntry(modelsPath));
+            openAPI.setModelModuleName(modelsModuleName);
             modules.add(modelsModule);
         }
         openAPI.setPath(uploadedOpenAPIFile.getName());

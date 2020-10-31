@@ -658,8 +658,9 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)
-                || userWorkspace.getLocalWorkspace().hasProject(null, projectName)) {
+            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName) || userWorkspace
+                .getLocalWorkspace()
+                .hasProject(null, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
             } else {
                 Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
@@ -813,19 +814,36 @@ public class RepositoryTreeController {
             } finally {
                 IOUtils.closeQuietly(content);
             }
+            List<String> removedModuleNames = new ArrayList<>();
+            for (String modulePath : modulePaths) {
+                projectDescriptor.getModules().removeIf(module -> {
+                    boolean contains = modulePath.equals(module.getRulesRootPath().getPath());
+                    if (contains) {
+                        removedModuleNames.add(module.getName());
+                    }
+                    return contains;
+                });
+            }
+
             OpenAPI openAPI = projectDescriptor.getOpenapi();
             final FileData fileData = aProjectArtefact.getFileData();
-            if (openAPI != null && fileData != null) {
-                final String name = fileData.getName();
-                final String rootName = projectDescriptor.getName();
-                String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
-                if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
-                    openAPI.setPath(null);
+            if (openAPI != null) {
+                final String algorithmModuleName = openAPI.getAlgorithmModuleName();
+                final String modelsModuleName = openAPI.getModelModuleName();
+                if (removedModuleNames.contains(algorithmModuleName)) {
+                    openAPI.setAlgorithmModuleName(null);
                 }
-            }
-            for (String modulePath : modulePaths) {
-                projectDescriptor.getModules()
-                    .removeIf(module -> modulePath.equals(module.getRulesRootPath().getPath()));
+                if (removedModuleNames.contains(modelsModuleName)) {
+                    openAPI.setModelModuleName(null);
+                }
+                if (fileData != null) {
+                    final String name = fileData.getName();
+                    final String rootName = projectDescriptor.getName();
+                    String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
+                    if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
+                        projectDescriptor.setOpenapi(null);
+                    }
+                }
             }
             String xmlString = serializer.serialize(projectDescriptor);
             InputStream newContent = IOUtils.toInputStream(xmlString);
@@ -1115,8 +1133,6 @@ public class RepositoryTreeController {
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                Repository mainRepo = userWorkspace.getDesignTimeRepository()
-                    .getRepository(project.getRepository().getId());
                 String comment;
                 if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                     comment = eraseProjectComment;
