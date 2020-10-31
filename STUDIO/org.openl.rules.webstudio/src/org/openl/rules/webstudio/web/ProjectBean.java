@@ -34,12 +34,10 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.FileNamePatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
@@ -167,13 +165,13 @@ public class ProjectBean {
 
             ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
             projectDescriptor.setPropertiesFileNameProcessor(className);
-            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
-                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                WebStudioUtils.validate(processor != null, "Cannot find class " + className);
+                propertiesFileNameProcessorBuilder.build(projectDescriptor);
             } catch (InvalidFileNameProcessorException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
+            } catch (InvalidFileNamePatternException ignore) {
+                // Ignore
             } finally {
                 propertiesFileNameProcessorBuilder.destroy();
             }
@@ -185,18 +183,12 @@ public class ProjectBean {
         String[] patterns = StringUtils.toLines((String) value);
 
         if (patterns != null) {
-            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePatterns(patterns);
-                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                if (processor instanceof FileNamePatternValidator) {
-                    for(String pattern: patterns) {
-                        ((FileNamePatternValidator) processor).validate(pattern);
-                    }
-                }
+                propertiesFileNameProcessorBuilder.build(projectDescriptor);
             } catch (InvalidFileNamePatternException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
@@ -788,16 +780,11 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
 
-        Module module = new Module();
-        int indexOfSlash = newFileName.lastIndexOf("/");
-        module.setName(indexOfSlash < 0 ? newFileName : newFileName.substring(indexOfSlash + 1));
-        module.setRulesRootPath(new PathEntry(newFileName));
-
         Boolean fileNameMatched = null;
         try {
             String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
             if (patterns != null) {
-                builder.build(projectDescriptor).process(module, patterns);
+                builder.build(projectDescriptor).process(newFileName);
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {

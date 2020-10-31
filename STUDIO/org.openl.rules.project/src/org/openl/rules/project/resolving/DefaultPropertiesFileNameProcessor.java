@@ -21,8 +21,9 @@ import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.TableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.util.BooleanUtils;
+import org.openl.util.FileUtils;
 
-public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor, FileNamePatternValidator {
+public class DefaultPropertiesFileNameProcessor implements PropertiesFileNameProcessor {
 
     private static final String ARRAY_SEPARATOR = ",";
     private static final String DEFAULT_PATTERN = ".+?";
@@ -89,7 +90,8 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     @Override
-    public ITableProperties process(String fileName) throws NoMatchFileNameException {
+    public ITableProperties process(String path) throws NoMatchFileNameException {
+        String fileName = FileUtils.getBaseName(path);
 
         Matcher fileNameMatcher = fileNameRegexpPattern.matcher(fileName);
         if (!fileNameMatcher.matches()) {
@@ -117,11 +119,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         }
 
         return props;
-    }
-
-    @Override
-    public void validate(String pattern) throws InvalidFileNamePatternException {
-        new DefaultPropertiesFileNameProcessor(pattern);
     }
 
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {

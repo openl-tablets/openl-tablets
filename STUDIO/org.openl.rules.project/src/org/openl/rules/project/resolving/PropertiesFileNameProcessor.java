@@ -13,11 +13,10 @@ public interface PropertiesFileNameProcessor {
     @Deprecated
     default ITableProperties process(Module module, String fileNamePattern) throws NoMatchFileNameException,
                                                                             InvalidFileNamePatternException {
-        String path = module.getRulesRootPath().getPath();
-        String fileName = FileUtils.getBaseName(path);
         try {
             PropertiesFileNameProcessor pfnp = getClass().getConstructor(String.class).newInstance(fileNamePattern);
-            return pfnp.process(fileName);
+            String path = module.getRulesRootPath().getPath();
+            return pfnp.process(path);
         } catch (InvocationTargetException e) {
             Throwable targetException = e.getTargetException();
             if (targetException instanceof InvalidFileNamePatternException) {
@@ -64,6 +63,7 @@ public interface PropertiesFileNameProcessor {
         try {
             Module module = new Module();
             module.setRulesRootPath(new PathEntry(modulePath));
+            module.setName(FileUtils.getBaseName(modulePath));
             return process(module, "");
         } catch (InvalidFileNamePatternException e) {
             throw new IllegalStateException(e);
