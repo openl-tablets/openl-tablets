@@ -36,13 +36,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private final Pattern fileNameRegexpPattern;
     private final String pattern;
 
-    public DefaultPropertiesFileNameProcessor() {
-        propertyNames = null;
-        dateFormats = null;
-        fileNameRegexpPattern = null;
-        pattern = null;
-    }
-
     public DefaultPropertiesFileNameProcessor(String pattern) throws InvalidFileNamePatternException {
         this.propertyNames = new ArrayList<>();
         this.dateFormats = new HashMap<>();
