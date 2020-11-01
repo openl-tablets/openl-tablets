@@ -83,27 +83,27 @@ public class RulesLoaderTest {
     @Test
     public void testContainsDeloymentAndLoadDeployment() throws Exception {
         RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertFalse(storage.containsDeployment(deployment.getDeploymentName()));
         storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertTrue(storage.containsDeployment(deployment.getDeploymentName()));
     }
 
     @Test
     public void testLoadDeployment() throws Exception {
         RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertNull(storage.getDeploymentFromCache(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertFalse(storage.containsDeployment(deployment.getDeploymentName()));
         storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertTrue(storage.containsDeployment(deployment.getDeploymentName()));
     }
 
     @Test
     public void testGetDeployment() throws Exception {
         RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertNull(storage.getDeploymentFromCache(deployment.getDeploymentName(), deployment.getCommonVersion()));
-        assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertFalse(storage.containsDeployment(deployment.getDeploymentName()));
         storage.loadDeployment(deployment);
-        assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
+        assertTrue(storage.containsDeployment(deployment.getDeploymentName()));
         Deployment deployment1 = storage.getDeploymentFromCache(deployment.getDeploymentName(),
             deployment.getCommonVersion());
         assertNotNull(deployment1);
@@ -118,7 +118,7 @@ public class RulesLoaderTest {
         CommonVersionImpl version = new CommonVersionImpl("3");
 
         RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
-        assertFalse(storage.containsDeployment(deploymentName, version));
+        assertFalse(storage.containsDeployment(deploymentName));
 
         Map<String, String> params = new HashMap<>();
         params.put("uri", "jdbc:h2:mem:temp;DB_CLOSE_DELAY=-1");
