@@ -53,8 +53,7 @@
     <!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
     Contains own storage for all projects that is used in services. -->
     <bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl" depends-on="deployClasspathJarsBean">
-        <constructor-arg value="${ruleservice.tmp.dir}"/>
-        <property name="repository" ref="repository"/>
+        <constructor-arg name="repository" ref="repository"/>
         <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 </beans>

@@ -56,9 +56,8 @@ public class RulesLoaderTest {
 
     @Before
     public void setDataSource() throws Exception {
-        rulesLoader = new RuleServiceLoaderImpl("target/openl-deploy2");
+        rulesLoader = new RuleServiceLoaderImpl(repository);
         ((RuleServiceLoaderImpl) rulesLoader).setDeployPath(DEPLOY_PATH);
-        ((RuleServiceLoaderImpl) rulesLoader).setRepository(repository);
         Collection<Deployment> deployments = rulesLoader.getDeployments();
         assertTrue(!deployments.isEmpty());
         deployment = deployments.iterator().next();
@@ -82,16 +81,16 @@ public class RulesLoaderTest {
     }
 
     @Test
-    public void testContainsDeloymentAndLoadDeployment() {
-        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl("target/openl-deploy");
+    public void testContainsDeloymentAndLoadDeployment() throws Exception {
+        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
         assertTrue(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
     }
 
     @Test
-    public void testLoadDeployment() {
-        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl("target/openl-deploy");
+    public void testLoadDeployment() throws Exception {
+        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertNull(storage.getDeploymentFromCache(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
@@ -99,8 +98,8 @@ public class RulesLoaderTest {
     }
 
     @Test
-    public void testGetDeployment() {
-        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl("target/openl-deploy");
+    public void testGetDeployment() throws Exception {
+        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertNull(storage.getDeploymentFromCache(deployment.getDeploymentName(), deployment.getCommonVersion()));
         assertFalse(storage.containsDeployment(deployment.getDeploymentName(), deployment.getCommonVersion()));
         storage.loadDeployment(deployment);
@@ -114,11 +113,11 @@ public class RulesLoaderTest {
     }
 
     @Test
-    public void testSkipDeletedProjects() throws IOException {
+    public void testSkipDeletedProjects() throws Exception {
         String deploymentName = "deployment1";
         CommonVersionImpl version = new CommonVersionImpl("3");
 
-        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl("target/openl-deploy");
+        RuleServiceLoaderImpl storage = new RuleServiceLoaderImpl(repository);
         assertFalse(storage.containsDeployment(deploymentName, version));
 
         Map<String, String> params = new HashMap<>();

@@ -105,8 +105,7 @@ public class ArtefactPathImpl implements ArtefactPath {
         if (stringValue == null) {
             StringBuilder result = new StringBuilder();
 
-            result.append(SEGMENT_DELIMITER);
-
+            // All paths should be relative. See ArtefactPathImpl(String pathAsString) constructor
             for (Iterator<String> i = segments.iterator(); i.hasNext();) {
                 String segment = i.next();
                 result.append(segment);

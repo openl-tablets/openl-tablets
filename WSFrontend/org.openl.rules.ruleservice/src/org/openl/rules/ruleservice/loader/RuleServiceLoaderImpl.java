@@ -3,6 +3,8 @@ package org.openl.rules.ruleservice.loader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,10 +32,10 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
-import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 /**
  * Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
@@ -46,38 +48,23 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private ProjectResolver projectResolver;
 
-    private String directoryToLoadDeploymentsIn;
     private Map<String, Deployment> cacheForGetDeployment = new HashMap<>();
-    private Repository tempFolder;
     private Repository repository;
     private String deployPath;
+    private FileSystemRepository tempRepo;
+    private Path tempPath;
 
     /**
      * Construct a new RulesLoader for bean usage.
      */
-    public RuleServiceLoaderImpl(String directoryToLoadDeploymentsIn) {
-        this.directoryToLoadDeploymentsIn = directoryToLoadDeploymentsIn;
-        initTempRepo(directoryToLoadDeploymentsIn);
+    public RuleServiceLoaderImpl(Repository repository) throws IOException, RRepositoryException {
+        tempPath = Files.createTempDirectory("rules-deploy_");
+        log.info("Local temporary folder location is: {}", tempPath);
+        tempRepo = new FileSystemRepository();
+        tempRepo.setUri(tempPath.toString());
+        tempRepo.initialize();
         this.projectResolver = ProjectResolver.getInstance();
-    }
-
-    void initTempRepo(String directoryToLoadDeploymentsIn) {
-        File folderToLoadDeploymentsIn = new File(directoryToLoadDeploymentsIn);
-        folderToLoadDeploymentsIn.mkdirs();
-        if (!FolderHelper.clearFolder(folderToLoadDeploymentsIn)) {
-            log.error("Failed to clear a folder '{}'.", folderToLoadDeploymentsIn.getAbsolutePath());
-        } else {
-            log.info("Local temporary folder for downloading deployments has been cleared.");
-        }
-        log.info("Local temporary folder location is: {}", directoryToLoadDeploymentsIn);
-        FileSystemRepository localRepository = new FileSystemRepository();
-        localRepository.setRoot(folderToLoadDeploymentsIn);
-        try {
-            localRepository.initialize();
-        } catch (RRepositoryException e) {
-            log.error("Failed to initialize local tempFolder: {}", e.getMessage(), e);
-        }
-        this.tempFolder = localRepository;
+        this.repository = repository;
     }
 
     /**
@@ -102,8 +89,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new RuleServiceRuntimeException(
                 String.format("Project '%s' is not found in deployment '%s'.", projectName, deploymentName));
         }
-        String artifactPath = directoryToLoadDeploymentsIn + project.getArtefactPath().getStringValue();
-        File projectFolder = new File(artifactPath);
+        String stringValue = project.getArtefactPath().getStringValue();
+        File projectFolder = tempPath.resolve(stringValue).toFile();
         List<Module> result = Collections.emptyList();
         try {
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
@@ -123,7 +110,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         if (localDeployment == null) {
             String folderPath = getDeployPath() + deploymentName;
             boolean folderStructure = isFolderStructure(folderPath);
-            Deployment deployment = new Deployment(repository, folderPath, deploymentName, deploymentVersion, folderStructure);
+            Deployment deployment = new Deployment(repository,
+                folderPath,
+                deploymentName,
+                deploymentVersion,
+                folderStructure);
             localDeployment = loadDeployment(deployment);
         }
         return localDeployment;
@@ -150,7 +141,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     /**
-     * Loads deployment to local file system from tempFolder.
+     * Loads deployment to local file system from tempRepo.
      *
      * @return loaded deployment
      */
@@ -163,7 +154,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
 
         String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        Deployment loadedDeployment = new Deployment(tempFolder, deploymentFolderName, deploymentName, version, true);
+        Deployment loadedDeployment = new Deployment(tempRepo, deploymentFolderName, deploymentName, version, true);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
@@ -249,10 +240,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         if (repository instanceof Closeable) {
             ((Closeable) repository).close();
         }
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
+        tempRepo.close();
+        FileSystemUtils.deleteRecursively(tempPath);
     }
 
     public void setDeployPath(String deployPath) {
