@@ -126,7 +126,7 @@ class HttpData {
                     assertArrayEquals("Body: ", expected.body, this.body);
             }
         } catch (Exception | AssertionError ex) {
-            log(expected.resource, firstLine, headers, body);
+            log(expected != null ? expected.resource : resource, firstLine, headers, body);
             throw new RuntimeException(ex);
         }
     }

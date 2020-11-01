@@ -107,26 +107,19 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
         Deployment localDeployment = getDeploymentFromCache(deploymentName, deploymentVersion);
-        if (localDeployment == null) {
-            String folderPath = getDeployPath() + deploymentName;
-            boolean folderStructure = isFolderStructure(folderPath);
-            Deployment deployment = new Deployment(repository,
-                folderPath,
-                deploymentName,
-                deploymentVersion,
-                folderStructure);
-            localDeployment = loadDeployment(deployment);
-        }
-        return localDeployment;
-    }
 
-    /**
-     * Generates folder name for deployment by given deployment name and common version.
-     *
-     * @return folder name
-     */
-    private String getDeploymentFolderName(String deploymentName, CommonVersion version) {
-        return deploymentName + "_v" + version.getVersionName();
+        if (localDeployment != null && localDeployment.getCommonVersion().equals(deploymentVersion)) {
+            return localDeployment;
+        }
+
+        String folderPath = getDeployPath() + deploymentName;
+        boolean folderStructure = isFolderStructure(folderPath);
+        Deployment deployment = new Deployment(repository,
+            folderPath,
+            deploymentName,
+            deploymentVersion,
+            folderStructure);
+        return loadDeployment(deployment);
     }
 
     /**
@@ -135,9 +128,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      * @return deployment from storage or null if doens't exists
      */
     Deployment getDeploymentFromCache(String deploymentName, CommonVersion version) {
-        log.debug("Getting deployment with name='{}' and version='{}'", deploymentName, version.getVersionName());
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        return cacheForGetDeployment.get(deploymentFolderName);
+        log.debug("Getting deployment with name='{}' and version='{}'", deploymentName);
+        return cacheForGetDeployment.get(deploymentName);
     }
 
     /**
@@ -153,8 +145,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         String versionName = deployment.getVersion().getVersionName();
         log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
 
-        String deploymentFolderName = getDeploymentFolderName(deploymentName, version);
-        Deployment loadedDeployment = new Deployment(tempRepo, deploymentFolderName, deploymentName, version, true);
+        Deployment loadedDeployment = new Deployment(tempRepo, deploymentName, deploymentName, version, true);
         try {
             loadedDeployment.update(deployment, null);
             loadedDeployment.refresh();
@@ -166,7 +157,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             throw new RuleServiceRuntimeException(e);
         }
 
-        cacheForGetDeployment.put(deploymentFolderName, loadedDeployment);
+        cacheForGetDeployment.put(deploymentName, loadedDeployment);
 
         log.debug("Deployment with name='{}' and version='{}' has been made on local storage and put to cache.",
             deploymentName,
@@ -179,8 +170,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      *
      * @return true if and only if the deployment exists; false otherwise
      */
-    boolean containsDeployment(String deploymentName, CommonVersion version) {
-        return cacheForGetDeployment.containsKey(getDeploymentFolderName(deploymentName, version));
+    boolean containsDeployment(String deploymentName) {
+        return cacheForGetDeployment.containsKey(deploymentName);
     }
 
     /**
