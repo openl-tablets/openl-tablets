@@ -32,6 +32,7 @@ public final class SpringInitializer implements ServletContextListener {
         new PropertySourcesLoader().initialize(applicationContext, servletContext);
         applicationContext.addBeanFactoryPostProcessor(bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
         applicationContext.refresh();
+        applicationContext.registerShutdownHook();
         servletContext.setAttribute(THIS, this);
     }
 
