@@ -210,20 +210,22 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectModel;
     }
 
-    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-        byte[] dtBytes = bos.toByteArray();
-        return new ByteArrayInputStream(dtBytes);
+    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+            byte[] dtBytes = bos.toByteArray();
+            return new ByteArrayInputStream(dtBytes);
+        }
     }
 
     private InputStream generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
             List<DataModel> dataModels,
-            EnvironmentModel environmentModel) {
-        ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-        byte[] sprBytes = sos.toByteArray();
-        return new ByteArrayInputStream(sprBytes);
+            EnvironmentModel environmentModel) throws IOException {
+        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
+            byte[] sprBytes = sos.toByteArray();
+            return new ByteArrayInputStream(sprBytes);
+        }
     }
 
     private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
@@ -236,10 +238,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private InputStream generateRulesFile(boolean dataTypesArePresented,
             boolean spreadsheetsArePresented) throws IOException, ValidationException {
         ProjectDescriptor descriptor = defineDescriptor(dataTypesArePresented, spreadsheetsArePresented);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        projectDescriptorManager.writeDescriptor(descriptor, baos);
-        byte[] descriptorBytes = baos.toByteArray();
-        return new ByteArrayInputStream(descriptorBytes);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            projectDescriptorManager.writeDescriptor(descriptor, baos);
+            byte[] descriptorBytes = baos.toByteArray();
+            return new ByteArrayInputStream(descriptorBytes);
+        }
     }
 
     private ProjectDescriptor defineDescriptor(boolean dataTypesArePresented, boolean spreadsheetsArePresented) {

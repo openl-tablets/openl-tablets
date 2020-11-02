@@ -251,7 +251,6 @@ public class DatatypeTableExporterTest {
 
     @Test
     public void writeDataTypes() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DatatypeModel dt = new DatatypeModel("Test");
 
         FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
@@ -262,9 +261,11 @@ public class DatatypeTableExporterTest {
         FieldModel customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
 
-        ExcelFileBuilder.generateDataTypes(Collections.singletonList(dt), bos);
-        try (OutputStream fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
-            fos.write(bos.toByteArray());
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTypes(Collections.singletonList(dt), bos);
+            try (OutputStream fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
+                fos.write(bos.toByteArray());
+            }
         }
 
         try (XSSFWorkbook wb = new XSSFWorkbook(

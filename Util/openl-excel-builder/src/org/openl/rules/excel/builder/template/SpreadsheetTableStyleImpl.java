@@ -9,7 +9,7 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
 
     private final NameValueRowStyle headerRowStyle;
     private final String stepHeaderText;
-    private final String valueHeaderText;
+    private String valueHeaderText;
     private final NameValueRowStyle rowStyle;
     private final NameValueRowStyle lastRowStyle;
     private final CellStyle dateFieldStyle;
@@ -45,6 +45,10 @@ public class SpreadsheetTableStyleImpl extends DefaultTableStyleImpl implements 
 
     public String getValueHeaderText() {
         return valueHeaderText;
+    }
+
+    public void setValueHeaderText(String valueHeaderText) {
+        this.valueHeaderText = valueHeaderText;
     }
 
     public NameValueRowStyle getRowStyle() {

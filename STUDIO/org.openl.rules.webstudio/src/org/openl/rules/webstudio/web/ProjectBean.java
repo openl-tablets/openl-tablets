@@ -793,9 +793,9 @@ public class ProjectBean {
     }
 
     private void configureRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
-        try (ByteArrayInputStream rulesDeployOutputStream = generateRulesDeployFile(projectModel);) {
+        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel);) {
             configureSerializer();
-            currentProject.addResource(RULES_DEPLOY_XML, rulesDeployOutputStream);
+            currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
         } catch (ProjectException | IOException e) {
             log.error("Can't add rules deploy file to the project.");
             throw new Message("Failed to add rules deploy xml file.");
@@ -872,20 +872,22 @@ public class ProjectBean {
         return environmentModel;
     }
 
-    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-        byte[] dtBytes = bos.toByteArray();
-        return new ByteArrayInputStream(dtBytes);
+    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+            byte[] dtBytes = bos.toByteArray();
+            return new ByteArrayInputStream(dtBytes);
+        }
     }
 
     private InputStream generateAlgorithmsFile(List<SpreadsheetModel> spreadsheetModels,
             List<DataModel> dataModels,
-            EnvironmentModel environmentModel) {
-        ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-        byte[] sprBytes = sos.toByteArray();
-        return new ByteArrayInputStream(sprBytes);
+            EnvironmentModel environmentModel) throws IOException {
+        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
+            byte[] sprBytes = sos.toByteArray();
+            return new ByteArrayInputStream(sprBytes);
+        }
     }
 
     public boolean isOpenAPIGeneratedFilesExist() {
