@@ -76,8 +76,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
                         moduleWarnMessages.add(e.getMessage());
-                    } catch (Exception e) {
-                        moduleErrorMessages.add(e.getMessage());
+                    } catch (Exception | LinkageError e) {
+                        moduleErrorMessages.add("Failed to load custom file name processor due " + e.getClass() + ": " + e.getMessage());
                     }
                 }
                 params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
