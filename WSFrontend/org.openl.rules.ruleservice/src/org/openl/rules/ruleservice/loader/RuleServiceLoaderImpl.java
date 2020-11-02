@@ -197,7 +197,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             ((Closeable) repository).close();
         }
         tempRepo.close();
-        FileSystemUtils.deleteRecursively(tempPath);
+        try {
+            FileSystemUtils.deleteRecursively(tempPath);
+        } catch (Exception e) {
+            log.error("Cannot delete temporary directory", e);
+        }
     }
 
     public void setDeployPath(String deployPath) {
