@@ -104,6 +104,13 @@
                                     <overWrite>true</overWrite>
                                     <outputDirectory>${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</outputDirectory>
                                 </artifactItem>
+                                <artifactItem>
+                                    <groupId>${project.groupId}</groupId>
+                                    <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
+                                    <type>jar</type>
+                                    <overWrite>true</overWrite>
+                                    <outputDirectory>${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.hive</outputDirectory>
+                                </artifactItem>
                             </artifactItems>
                         </configuration>
                     </execution>
@@ -162,6 +169,19 @@
                                         </tokenfilter>
                                     </filterchain>
                                 </concat>
+                                <concat destfile="${project.build.directory}/unpack/${project.build.finalName}/WEB-INF/classes/application.properties" append="yes" fixlastline="yes">
+                                    <header trimleading="yes">
+                                        ###
+                                        ### From: org.openl.rules.ruleservice.ws.storelogdata.hive-${project.version}.jar!/openl-default.properties
+                                        ###
+                                    </header>
+                                    <fileset file="${project.build.directory}/unpack/org.openl.rules.ruleservice.ws.storelogdata.hive/openl-default.properties" />
+                                    <filterchain>
+                                        <tokenfilter>
+                                            <replaceregex pattern="^(\w+.*)$" replace="#\1" flags="gi" />
+                                        </tokenfilter>
+                                    </filterchain>
+                                </concat>
                             </target>
                         </configuration>
                         <goals>
@@ -186,6 +206,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.activation</groupId>

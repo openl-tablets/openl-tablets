@@ -1714,6 +1714,16 @@
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
                 <version>${project.version}</version>
             </dependency>
