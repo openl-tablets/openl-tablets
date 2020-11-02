@@ -95,7 +95,7 @@
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.66</org.bouncycastle.version>
+        <org.bouncycastle.version>1.67</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.11.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
@@ -1033,7 +1033,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.35.2</version>
+                <version>3.36.1</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
