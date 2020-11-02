@@ -115,7 +115,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     }
 
     @Override
-    public void close() throws IOException {
+    public void close() {
         openedFileSystems.values().forEach(IOUtils::closeQuietly);
     }
 
@@ -285,6 +285,22 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     }
 
     @Override
+    public FileData checkHistory(String name, String version) throws IOException {
+        if (version == null) {
+            return check(name);
+        }
+        return null;
+    }
+
+    @Override
+    public FileItem readHistory(String name, String version) throws IOException {
+        if (version == null) {
+            return read(name);
+        }
+        return null;
+    }
+
+    @Override
     public Features supports() {
         return new FeaturesBuilder(this).setVersions(false).setLocal(true).build();
     }
@@ -321,16 +337,6 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     @Override
     public List<FileData> listHistory(String name) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public FileData checkHistory(String name, String version) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public FileItem readHistory(String name, String version) {
         throw new UnsupportedOperationException();
     }
 
