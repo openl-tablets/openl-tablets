@@ -15,7 +15,7 @@
                             onclick="RichFaces.$('modalDeleteBranch').hide();" alt="Close"/>
         </f:facet>
 
-        <h:form id="deleteBranchForm">
+        <h:form id="deleteBranchForm" style="max-width: 550px">
             <ui:param name="project" value="#{repositoryTreeController.selectedProject}"/>
             <h:panelGroup id="modalDeleteBranchData" rendered="#{not empty project}">
 
@@ -23,8 +23,8 @@
                     <h:outputText value="Are you sure you want to delete the branch '#{project.branch}'?"/>
                 </div>
                 <h:panelGroup layout="block" rendered="#{not repositoryTreeController.isMergedIntoMain(project)}">
-                    Warning: The branch '#{project.branch}' is not merged into #{repositoryTreeController.getMainBranch(project)}.
-                    All not merged commits will be lost and can't be restored.
+                    <p><b>Attention!</b> The branch '#{project.branch}' is not merged into '#{repositoryTreeController.getMainBranch(project)}'.
+                        All not merged commits will be lost and can't be restored.</p>
                 </h:panelGroup>
             </h:panelGroup>
 
