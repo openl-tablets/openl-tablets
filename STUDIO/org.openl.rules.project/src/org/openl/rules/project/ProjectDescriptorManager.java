@@ -160,11 +160,11 @@ public class ProjectDescriptorManager {
     }
 
     private boolean isNotTemporaryFile(Path file) throws IOException {
-        if (file.getFileName().startsWith("~$") && Files.isHidden(file)) {
+        if (file.getFileName().startsWith("~$") || Files.isHidden(file)) {
             OutputStream os = null;
             try {
                 os = Files.newOutputStream(file, StandardOpenOption.APPEND);
-            } catch (FileNotFoundException unused) {
+            } catch (Exception unused) {
                 return false;
             } finally {
                 IOUtils.closeQuietly(os);
