@@ -1,7 +1,18 @@
 package org.openl.rules.ruleservice.management;
 
+import java.io.Closeable;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
@@ -43,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author PUdalau
  */
-public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
+public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean, Closeable {
     private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
@@ -203,23 +214,19 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         try {
             this.openLServiceInProcess = service;
             this.serviceDescriptionInProcess = serviceDescription;
-            try {
-                undeploy(serviceName);
-            } finally {
-                cleanDeploymentResources(serviceDescription);
-                ClassLoader classloader = null;
-                try {
-                    classloader = service.getClassLoader();
-                } catch (RuleServiceInstantiationException ignored) {
-                }
-                OpenClassUtil.releaseClassLoader(classloader);
-            }
+            undeploy(serviceName);
             log.info("Service '{}' has been undeployed successfully.", serviceName);
         } finally {
             this.openLServiceInProcess = null;
             this.serviceDescriptionInProcess = null;
             startDates.remove(serviceName);
             services.remove(serviceName);
+            try {
+                ClassLoader classloader = service.getClassLoader();
+                OpenClassUtil.releaseClassLoader(classloader);
+            } catch (RuleServiceInstantiationException ignored) {
+            }
+            cleanDeploymentResources(serviceDescription);
         }
     }
 
@@ -460,6 +467,17 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 throw new BeanInitializationException(
                     String.format("Default publisher with id '%s' is not found in the map of supported publishers.",
                         defPublisher));
+            }
+        }
+    }
+
+    @Override
+    public void close() {
+        for (ServiceDescription serviceDescription : services.values()) {
+            try {
+                undeploy(serviceDescription);
+            } catch (RuleServiceUndeployException e) {
+                log.error("Failing to undeploy {}", serviceDescription.getName(), e);
             }
         }
     }
