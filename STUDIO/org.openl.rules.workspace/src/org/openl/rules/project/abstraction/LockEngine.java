@@ -7,5 +7,7 @@ public interface LockEngine {
 
     void unlock(String repoId, String branch, String projectName);
 
+    void forceUnlock(String repoId, String branch, String projectName);
+
     LockInfo getLockInfo(String repoId, String branch, String projectName);
 }

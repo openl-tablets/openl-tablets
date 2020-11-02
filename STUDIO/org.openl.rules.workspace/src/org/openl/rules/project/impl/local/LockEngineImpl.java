@@ -40,6 +40,12 @@ public class LockEngineImpl implements LockEngine {
     }
 
     @Override
+    public void forceUnlock(String repoId, String branch, String projectName) {
+        String lockId = getId(repoId, branch, projectName);
+        lockManager.getLock(lockId).forceUnlock();
+    }
+
+    @Override
     public synchronized LockInfo getLockInfo(String repoId, String branch, String projectName) {
         String lockId = getId(repoId, branch, projectName);
         return lockManager.getLock(lockId).info();

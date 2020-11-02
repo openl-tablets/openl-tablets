@@ -1025,7 +1025,7 @@ public class RepositoryTreeController {
                 // It was deleted by other user
                 return null;
             }
-            project.unlock();
+            project.forceUnlock();
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
             closeProjectForAllUsers(workspacesRoot, project);
             resetStudioModel();
