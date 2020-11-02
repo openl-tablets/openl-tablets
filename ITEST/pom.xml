@@ -25,6 +25,7 @@
         <module>itest.smoke</module>
         <module>itest.spring-boot</module>
         <module>itest.kafka.smoke</module>
+        <module>itest.local-zip-repository</module>
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>

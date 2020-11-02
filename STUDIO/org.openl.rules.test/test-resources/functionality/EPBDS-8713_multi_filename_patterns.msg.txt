@@ -1,5 +1,5 @@
-WARN: Module 'Product-CRV,MTH,STR-rules-01012018-01012018-WRONG' does not match file name pattern '.*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%'.
- Invalid property: currency.
+WARN: File 'Product-CRV,MTH,STR-rules-01012018-01012018-UT,WRONG.xlsx' does not match file name pattern '.*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%'.
+WARN: File 'Product-CRV,MTH,STR-rules-01012018-01012018-WRONG.xlsx' does not match file name pattern '.*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%'.
 WARN: Ambiguous definition of properties values. Details: (state={}, currency={BYR, RUB}) and (state={OK, PR}, currency={})
 WARN: Ambiguous definition of properties values. Details: (state={}, currency={BYR, RUB}) and (state={OK, PR}, currency={})
 WARN: Ambiguous definition of properties values. Details: (state={}, currency={BYR, RUB}) and (state={OK, PR}, currency={})

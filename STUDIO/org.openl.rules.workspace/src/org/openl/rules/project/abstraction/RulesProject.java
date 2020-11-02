@@ -250,6 +250,11 @@ public class RulesProject extends UserWorkspaceProject {
         lockEngine.unlock(getDesignRepository().getId(), getBranch(), getRealPath());
     }
 
+    //for ability to unlock project if something went wrong
+    public void forceUnlock() {
+        lockEngine.forceUnlock(getDesignRepository().getId(), getBranch(), getRealPath());
+    }
+
     /**
      * Try to lock the project if it's not locked already. Does not overwrite lock info if the user was locked already.
      *
@@ -310,7 +315,7 @@ public class RulesProject extends UserWorkspaceProject {
             return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
-            subPath += "/";
+            subPath = "/" + subPath;
         }
         String fullPath = getFolderPath() + subPath;
         try {

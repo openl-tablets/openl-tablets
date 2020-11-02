@@ -54,7 +54,7 @@ public class RulesDeployerService implements Closeable {
 
     public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
-        if (repository instanceof LocalRepositoryFactory) {
+        if (deployRepo.supports().isLocal()) {
             //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
         } else {

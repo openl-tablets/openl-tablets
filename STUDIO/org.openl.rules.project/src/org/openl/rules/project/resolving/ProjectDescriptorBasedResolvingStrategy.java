@@ -2,6 +2,8 @@ package org.openl.rules.project.resolving;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -15,8 +17,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesLoader;
-import org.openl.util.CollectionUtils;
-import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,49 +49,40 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
         try {
             ProjectDescriptor projectDescriptor = descriptorManager.readDescriptor(descriptorFile);
             PropertiesFileNameProcessor processor = null;
-            if (StringUtils.isNotBlank(projectDescriptor.getPropertiesFileNameProcessor())) {
-                try {
-                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                } catch (InvalidFileNameProcessorException e1) {
-                    String message = e1.getMessage();
-                    LOG.warn(message);
-                    globalErrorMessages.add(message);
-                }
-            } else {
-                if (CollectionUtils.isNotEmpty(projectDescriptor.getPropertiesFileNamePatterns())) {
-                    processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                }
+            try {
+                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
+            } catch (Exception e) {
+                globalErrorMessages.add(e.getMessage());
             }
-            if (processor != null) {
-                Set<String> globalWarnMessages = new LinkedHashSet<>();
-                if (processor instanceof CWPropertyFileNameProcessor) {
-                    globalWarnMessages.add("CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property was moved to the default property processor. Delete declaration of this class from rules.xml");
-                }
-                for (Module module : projectDescriptor.getModules()) {
-                    Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
-                    Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
-                    Map<String, Object> params = new HashMap<>();
+
+            Set<String> globalWarnMessages = new LinkedHashSet<>();
+            if ("org.openl.rules.project.resolving.CWPropertyFileNameProcessor"
+                .equals(projectDescriptor.getPropertiesFileNameProcessor())) {
+                globalWarnMessages.add(
+                    "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property was moved to the default property processor. Delete declaration of this class from rules.xml");
+            }
+            Path rootProjectPath = projectDescriptor.getProjectFolder().toPath();
+            for (Module module : projectDescriptor.getModules()) {
+                Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
+                Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
+                Map<String, Object> params = new HashMap<>();
+                if (processor != null) {
                     try {
-                        ITableProperties tableProperties = processor.process(module,
-                            projectDescriptor.getPropertiesFileNamePatterns());
+                        Path rulesFullPath = Paths.get(module.getRulesRootPath().getPath());
+
+                        String relativePath = rootProjectPath.relativize(rulesFullPath).toString().replace("\\", "/");
+
+                        ITableProperties tableProperties = processor.process(relativePath);
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {
-                        if (processor instanceof DefaultPropertiesFileNameProcessor) {
-                            moduleWarnMessages.add(e.getMessage());
-                        } else {
-                            moduleWarnMessages.add("Module file name '" + module
-                                .getName() + "' does not match to file name pattern! " + e.getMessage());
-                        }
-                    } catch (InvalidFileNamePatternException e) {
-                        moduleErrorMessages.add(e.getMessage());
+                        moduleWarnMessages.add(e.getMessage());
                     } catch (Exception | LinkageError e) {
-                        LOG.warn("Failed to load custom file name processor.", e);
-                        moduleErrorMessages.add("Failed to load custom file name processor.");
+                        moduleErrorMessages.add("Failed to load custom file name processor due " + e.getClass() + ": " + e.getMessage());
                     }
-                    params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
-                    params.put(OpenLCompileManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
-                    module.setProperties(params);
                 }
+                params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
+                params.put(OpenLCompileManager.ADDITIONAL_WARN_MESSAGES_KEY, moduleWarnMessages);
+                module.setProperties(params);
             }
             return projectDescriptor;
         } catch (ValidationException ex) {

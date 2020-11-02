@@ -47,10 +47,10 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
     }
 
     private Cursor writeData(Sheet sheet,
-                             EnvironmentTableStyleImpl style,
-                             Cursor endPosition,
-                             Iterator<String> importIterator,
-                             String anImport) {
+            EnvironmentTableStyleImpl style,
+            Cursor endPosition,
+            Iterator<String> importIterator,
+            String anImport) {
         while (importIterator.hasNext()) {
             boolean lastRow = false;
             String dpd = importIterator.next();
@@ -70,9 +70,9 @@ public class EnvironmentTableExporter extends AbstractOpenlTableExporter<Environ
             valueCell
                 .setCellStyle(lastRow ? style.getLastRowStyle().getValueStyle() : style.getRowStyle().getValueStyle());
 
-            endPosition = next.moveLeft(2);
+            endPosition = next.moveLeft(1);
         }
-        return endPosition;
+        return endPosition.moveLeft(1);
     }
 
     @Override

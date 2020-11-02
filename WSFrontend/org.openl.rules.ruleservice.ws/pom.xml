@@ -21,6 +21,22 @@
     </properties>
     <build>
         <finalName>webservice</finalName>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>banner.txt</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>banner.txt</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.basepom.maven</groupId>

@@ -10,4 +10,6 @@ public interface SpreadsheetTableStyle extends TableStyle {
 
     NameValueRowStyle getHeaderRowStyle();
 
+    void setValueHeaderText(String value);
+
 }

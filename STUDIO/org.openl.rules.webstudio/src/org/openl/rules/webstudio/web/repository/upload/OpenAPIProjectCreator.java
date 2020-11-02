@@ -89,6 +89,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             throw new ProjectException("Error creating the project, OpenAPI File " + NameChecker.BAD_NAME_MSG);
         }
 
+        if (modelsModuleName.equalsIgnoreCase(algorithmsModuleName)) {
+            throw new ProjectException("Error creating the project, module names cannot be the same.");
+        }
+
         if (StringUtils.isBlank(algorithmsPath)) {
             throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
         }
@@ -206,20 +210,22 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectModel;
     }
 
-    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-        byte[] dtBytes = bos.toByteArray();
-        return new ByteArrayInputStream(dtBytes);
+    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+            byte[] dtBytes = bos.toByteArray();
+            return new ByteArrayInputStream(dtBytes);
+        }
     }
 
     private InputStream generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
             List<DataModel> dataModels,
-            EnvironmentModel environmentModel) {
-        ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-        byte[] sprBytes = sos.toByteArray();
-        return new ByteArrayInputStream(sprBytes);
+            EnvironmentModel environmentModel) throws IOException {
+        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
+            byte[] sprBytes = sos.toByteArray();
+            return new ByteArrayInputStream(sprBytes);
+        }
     }
 
     private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
@@ -232,29 +238,30 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private InputStream generateRulesFile(boolean dataTypesArePresented,
             boolean spreadsheetsArePresented) throws IOException, ValidationException {
         ProjectDescriptor descriptor = defineDescriptor(dataTypesArePresented, spreadsheetsArePresented);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        projectDescriptorManager.writeDescriptor(descriptor, baos);
-        byte[] descriptorBytes = baos.toByteArray();
-        return new ByteArrayInputStream(descriptorBytes);
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            projectDescriptorManager.writeDescriptor(descriptor, baos);
+            byte[] descriptorBytes = baos.toByteArray();
+            return new ByteArrayInputStream(descriptorBytes);
+        }
     }
 
     private ProjectDescriptor defineDescriptor(boolean dataTypesArePresented, boolean spreadsheetsArePresented) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         OpenAPI openAPI = new OpenAPI();
-        openAPI.setAlgorithmModuleName(algorithmsModuleName);
-        openAPI.setModelModuleName(modelsModuleName);
         descriptor.setName(projectName);
         List<Module> modules = new ArrayList<>();
         if (spreadsheetsArePresented) {
             Module rulesModule = new Module();
             rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
             rulesModule.setName(algorithmsModuleName);
+            openAPI.setAlgorithmModuleName(algorithmsModuleName);
             modules.add(rulesModule);
         }
         if (dataTypesArePresented) {
             Module modelsModule = new Module();
             modelsModule.setName(modelsModuleName);
             modelsModule.setRulesRootPath(new PathEntry(modelsPath));
+            openAPI.setModelModuleName(modelsModuleName);
             modules.add(modelsModule);
         }
         openAPI.setPath(uploadedOpenAPIFile.getName());

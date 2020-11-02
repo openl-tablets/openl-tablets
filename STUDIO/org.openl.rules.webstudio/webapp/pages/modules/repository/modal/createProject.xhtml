@@ -337,9 +337,8 @@
                                          noDuplicate="true"
                                          onclear="openApiFileUploaded=false; onClearFile(event); checkCreateOnOpenApiPanel();"
                                          ontyperejected="showMessagePopup('Only JSON and YML/YAML files are accepted');"
-                                         render="projectName commentOpenAPI"
+                                         render="commentOpenAPI"
                                          acceptedTypes="json, yml, yaml" maxFilesQuantity="1"/>
-
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
                         <h:inputText id="projectName" size="35"
                                      maxlength="70"
@@ -347,7 +346,7 @@
                                      onkeyup="checkCreateOnOpenApiPanel();"
                                      onchange="checkCreateOnOpenApiPanel(); createProjectFormOpenAPICommentHandler.generateTemplate(this.value.trim(), #{rich:element('openAPIProjectForm:commentOpenAPI')});"/>
                     </h:panelGrid>
-                    <h:panelGrid id="openAPIModulesAndPaths" columns="2" styleClass="formfields" cellspacing="1"
+                    <h:panelGrid id="openAPIModelModule" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
                         <h:outputLabel styleClass="required" for="modelsModuleName"
                                        value="Module Name for Data Types:"/>
@@ -361,12 +360,15 @@
                                      onkeyup="checkCreateOnOpenApiPanel();"
                                      rendered="#{repositoryTreeController.editModelsPath}"/>
                         <a4j:commandLink id="modelsFilePathLink" styleClass="expandable-link-path"
-                                         render="openAPIModulesAndPaths"
+                                         render="openAPIModelModule"
                                          oncomplete="modelsPathIsInput = true;initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
                                          action="#{repositoryTreeController.enableModelsFilePathInput}"
                                          rendered="#{not repositoryTreeController.editModelsPath}">
                             <h:outputText id="modelsFilePathLinkText"/>
                         </a4j:commandLink>
+                    </h:panelGrid>
+                    <h:panelGrid id="openAPIAlgoModule" columns="2" styleClass="formfields" cellspacing="1"
+                                 columnClasses="label,">
                         <h:outputLabel styleClass="required" for="algorithmsModuleName"
                                        value="Module Name for Rules:"/>
                         <h:inputText id="algorithmsModuleName" size="35" maxlength="70"
@@ -379,7 +381,7 @@
                                      value="#{repositoryTreeController.algorithmsPath}"
                                      onkeyup="checkCreateOnOpenApiPanel();"/>
                         <a4j:commandLink id="algorithmsFilePathLink" styleClass="expandable-link-path"
-                                         render="openAPIModulesAndPaths"
+                                         render="openAPIAlgoModule"
                                          oncomplete="algorithmsPathIsInput = true; initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
                                          action="#{repositoryTreeController.enableAlgorithmsFilePathInput}"
                                          rendered="#{not repositoryTreeController.editAlgorithmsPath}">
