@@ -310,7 +310,7 @@ public class RulesProject extends UserWorkspaceProject {
             return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
-            subPath += "/";
+            subPath = "/" + subPath;
         }
         String fullPath = getFolderPath() + subPath;
         try {
