@@ -7,9 +7,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -48,7 +46,6 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private ProjectResolver projectResolver;
 
-    private Map<String, Deployment> cacheForGetDeployment = new HashMap<>();
     private Repository repository;
     private String deployPath = "";
     private FileSystemRepository tempRepo;
@@ -106,36 +103,31 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     @Override
     public Deployment getDeployment(String deploymentName, CommonVersion version) {
-        Deployment localDeployment = cacheForGetDeployment.get(deploymentName);
-
-        if (localDeployment != null && localDeployment.getCommonVersion().equals(version)) {
-            return localDeployment;
-        }
-
-        String folderPath = getDeployPath() + deploymentName;
-        boolean folderStructure = isFolderStructure(folderPath);
-        Deployment deployment = new Deployment(repository, folderPath, deploymentName, version, folderStructure);
-
         String versionName = version.getVersionName();
-        log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
+        Deployment loadedDeployment = new Deployment(tempRepo,
+            deploymentName + "_v" + versionName,
+            deploymentName,
+            version,
+            true);
 
-        Deployment loadedDeployment = new Deployment(tempRepo, deploymentName, deploymentName, version, true);
-        try {
-            loadedDeployment.update(deployment, null);
-            loadedDeployment.refresh();
-        } catch (ProjectException e) {
-            log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
-                deploymentName,
-                versionName,
-                e);
-            throw new RuleServiceRuntimeException(e);
+        if (loadedDeployment.getProjects().isEmpty()) {
+            log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
+            String folderPath = getDeployPath() + deploymentName;
+            boolean folderStructure = isFolderStructure(folderPath);
+            Deployment deployment = new Deployment(repository, folderPath, deploymentName, version, folderStructure);
+
+            try {
+                loadedDeployment.update(deployment, null);
+                loadedDeployment.refresh();
+            } catch (ProjectException e) {
+                log.warn("Exception occurs on loading deployment with name='{}' and version='{}' from data source.",
+                    deploymentName,
+                    versionName,
+                    e);
+                throw new RuleServiceRuntimeException(e);
+            }
         }
 
-        cacheForGetDeployment.put(deploymentName, loadedDeployment);
-
-        log.debug("Deployment with name='{}' and version='{}' has been made on local storage and put to cache.",
-            deploymentName,
-            versionName);
         return loadedDeployment;
     }
 
