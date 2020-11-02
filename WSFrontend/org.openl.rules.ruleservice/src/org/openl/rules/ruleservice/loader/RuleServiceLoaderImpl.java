@@ -50,7 +50,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
     private Map<String, Deployment> cacheForGetDeployment = new HashMap<>();
     private Repository repository;
-    private String deployPath;
+    private String deployPath = "";
     private FileSystemRepository tempRepo;
     private Path tempPath;
 
@@ -105,44 +105,18 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     @Override
-    public Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion) {
-        Deployment localDeployment = getDeploymentFromCache(deploymentName, deploymentVersion);
+    public Deployment getDeployment(String deploymentName, CommonVersion version) {
+        Deployment localDeployment = cacheForGetDeployment.get(deploymentName);
 
-        if (localDeployment != null && localDeployment.getCommonVersion().equals(deploymentVersion)) {
+        if (localDeployment != null && localDeployment.getCommonVersion().equals(version)) {
             return localDeployment;
         }
 
         String folderPath = getDeployPath() + deploymentName;
         boolean folderStructure = isFolderStructure(folderPath);
-        Deployment deployment = new Deployment(repository,
-            folderPath,
-            deploymentName,
-            deploymentVersion,
-            folderStructure);
-        return loadDeployment(deployment);
-    }
+        Deployment deployment = new Deployment(repository, folderPath, deploymentName, version, folderStructure);
 
-    /**
-     * Gets deployment from storage. If deployment does not exists in storage returns null.
-     *
-     * @return deployment from storage or null if doens't exists
-     */
-    Deployment getDeploymentFromCache(String deploymentName, CommonVersion version) {
-        log.debug("Getting deployment with name='{}' and version='{}'", deploymentName);
-        return cacheForGetDeployment.get(deploymentName);
-    }
-
-    /**
-     * Loads deployment to local file system from tempRepo.
-     *
-     * @return loaded deployment
-     */
-    Deployment loadDeployment(Deployment deployment) {
-        Objects.requireNonNull(deployment, "deployment cannot be null");
-
-        String deploymentName = deployment.getDeploymentName();
-        CommonVersion version = deployment.getCommonVersion();
-        String versionName = deployment.getVersion().getVersionName();
+        String versionName = version.getVersionName();
         log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
 
         Deployment loadedDeployment = new Deployment(tempRepo, deploymentName, deploymentName, version, true);
@@ -163,15 +137,6 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             deploymentName,
             versionName);
         return loadedDeployment;
-    }
-
-    /**
-     * Check to existing deployment in local temporary folder.
-     *
-     * @return true if and only if the deployment exists; false otherwise
-     */
-    boolean containsDeployment(String deploymentName) {
-        return cacheForGetDeployment.containsKey(deploymentName);
     }
 
     /**
@@ -196,7 +161,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             String deploymentFolderName = fileData.getName().substring(getDeployPath().length()).split("/")[0];
 
             String version = fileData.getVersion();
-            CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0.0.0" : version);
+            CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0" : version);
 
             String folderPath = getDeployPath() + deploymentFolderName;
 
