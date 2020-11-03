@@ -44,7 +44,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.rules.types.UriMemberHelper;
+import org.openl.rules.types.DuplicateMemberThrowExceptionHelper;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -319,10 +319,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     ((ConstantOpenField) existedField).getValue())) {
                     return;
                 }
-
-                throw new DuplicatedFieldException("", openField.getName());
             }
-            UriMemberHelper.validateFieldDuplication(openField, existedField);
+            throw new DuplicatedFieldException("", openField.getName());
         }
         fieldMap().put(openField.getName(), openField);
         addFieldToLowerCaseMap(openField);
@@ -371,7 +369,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         if (existingMethod != null) {
             if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
-                UriMemberHelper.validateMethodDuplication(method, existingMethod);
+                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method, existingMethod);
                 return;
             }
 
@@ -417,7 +415,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Just wrap original method with dispatcher functionality.
             //
 
-            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && dimensionalPropertyPresented(m)) {
+            if (dispatchingValidationEnabled && !(m instanceof TestSuiteMethod) && isDimensionalPropertyPresented(m)) {
                 // Create dispatcher for existed method.
                 //
                 OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
@@ -432,7 +430,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
-    private boolean dimensionalPropertyPresented(IOpenMethod m) {
+    private boolean isDimensionalPropertyPresented(IOpenMethod m) {
         List<TablePropertyDefinition> dimensionalPropertiesDef = TablePropertyDefinitionUtils
             .getDimensionalTableProperties();
         ITableProperties propertiesFromMethod = PropertiesHelper.getTableProperties(m);
