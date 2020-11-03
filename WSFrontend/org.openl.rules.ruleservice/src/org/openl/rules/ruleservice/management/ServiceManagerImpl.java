@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.management;
 
-import java.io.Closeable;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,6 +15,8 @@ import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
@@ -53,7 +54,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author PUdalau
  */
-public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean, Closeable {
+public class ServiceManagerImpl implements ServiceManager, DataSourceListener, ServiceInfoProvider, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(ServiceManagerImpl.class);
     private RuleServiceInstantiationFactory ruleServiceInstantiationFactory;
     private ServiceConfigurer serviceConfigurer;
@@ -450,8 +451,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         }
     }
 
-    @Override
-    public void close() {
+    @PreDestroy
+    public void destroy() throws Exception {
         for (ServiceDescription serviceDescription : services.values()) {
             try {
                 undeploy(serviceDescription);
