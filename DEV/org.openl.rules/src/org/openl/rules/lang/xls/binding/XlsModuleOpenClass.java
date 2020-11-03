@@ -369,6 +369,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         //
         IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
         if (existingMethod != null) {
+            if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
+                UriMemberHelper.validateMethodDuplication(method, existingMethod);
+                return;
+            }
 
             if (!existingMethod.getType().equals(m.getType())) {
                 String message = String.format("Method '%s' is already defined with another return type '%s'.",
