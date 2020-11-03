@@ -26,7 +26,7 @@
             <h:outputText value="Project name in rules.xml is '#{studio.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 
-          <h:outputText value="Current Revision:" />
+          <h:outputText value="Current Revision Id:" />
           <h:panelGroup>
             <ui:param name="revisionNo" value="#{artefact.version.versionName}" />
             <ui:param name="shortRevisionNo" value="#{artefact.version.shortVersion}" />
