@@ -478,7 +478,10 @@ public final class DecisionTableHelper {
                         writeReturnMetaInfo(tableSyntaxNode,
                             cell,
                             sb.toString(),
-                            declaredReturn.getMatchedDefinition().getDtColumnsDefinition().getUri());
+                            declaredReturn.getMatchedDefinition()
+                                .getDtColumnsDefinition()
+                                .getTableSyntaxNode()
+                                .getUri());
                     }
                     break;
                 }
@@ -957,7 +960,7 @@ public final class DecisionTableHelper {
                         parameterNames.toArray(new String[] {}),
                         declaredDtHeader.getStatement(),
                         typeOfColumns.toArray(IOpenClass.EMPTY),
-                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getTableSyntaxNode().getUri());
                 } else if (declaredDtHeader.isCondition()) {
                     writeMetaInfoForVCondition(originalTable,
                         decisionTable,
@@ -967,7 +970,7 @@ public final class DecisionTableHelper {
                         parameterNames.toArray(new String[] {}),
                         declaredDtHeader.getStatement(),
                         typeOfColumns.toArray(IOpenClass.EMPTY),
-                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
+                        declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getTableSyntaxNode().getUri());
                 }
             }
         }

@@ -28,11 +28,6 @@ public final class DataOpenFieldLazyWrapper extends DataOpenField {
     }
 
     @Override
-    public String getUri() {
-        return delegate.getUri();
-    }
-
-    @Override
     public IOpenClass getDeclaringClass() {
         return delegate.getDeclaringClass();
     }

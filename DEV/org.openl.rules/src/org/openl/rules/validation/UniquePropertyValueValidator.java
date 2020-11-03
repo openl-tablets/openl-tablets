@@ -71,7 +71,7 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 //
                 if (values.containsKey(value)) {
                     ExecutableRulesMethod existingMethod = values.get(value);
-                    if (!Objects.equals(existingMethod.getUri(), method.getUri())) {
+                    if (!Objects.equals(existingMethod, method)) {
                         TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
 
                         Severity errorSeverity = null;

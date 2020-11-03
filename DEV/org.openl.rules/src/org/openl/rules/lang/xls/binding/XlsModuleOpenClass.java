@@ -36,7 +36,6 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.table.OpenLArgumentsCloner;
@@ -45,8 +44,8 @@ import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.DuplicateMemberThrowExceptionHelper;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -303,18 +302,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return (XlsMetaInfo) metaInfo;
     }
 
-    protected IOpenMethod unwrapOpenMethod(IOpenMethod method) {
-        if (method instanceof IRulesMethodWrapper) {
-            IRulesMethodWrapper wrapper = (IRulesMethodWrapper) method;
-            return wrapper.getDelegate();
-        }
-        return method;
-    }
-
-    protected IOpenMethod wrapOpenMethod(IOpenMethod method) {
-        return WrapperLogic.wrapOpenMethod(method, this);
-    }
-
     @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
@@ -356,7 +343,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             return;
         }
-        IOpenMethod m = wrapOpenMethod(method);
+        IOpenMethod m = WrapperLogic.wrapOpenMethod(method, this);
 
         // Workaround needed to set the module name in the method while compile
         if (m instanceof AMethod && ((AMethod) m).getModuleName() == null) {
@@ -377,7 +364,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         if (existingMethod != null) {
             if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
-                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method, existingMethod);
+                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method,
+                    existingMethod);
                 return;
             }
 
@@ -405,18 +393,18 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             //
             if (existingMethod instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
-                decorator.addMethod(unwrapOpenMethod(m));
+                decorator.addMethod(WrapperLogic.unwrapOpenMethod(m));
             } else {
                 if (!m.equals(existingMethod)) {
                     // Create decorator for existed method.
                     //
                     OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
 
-                    IOpenMethod openMethod = wrapOpenMethod(dispatcher);
+                    IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this);
 
                     overrideMethod(openMethod);
 
-                    dispatcher.addMethod(unwrapOpenMethod(m));
+                    dispatcher.addMethod(WrapperLogic.unwrapOpenMethod(m));
                 }
             }
         } else {
@@ -428,7 +416,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 //
                 OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(m);
 
-                IOpenMethod openMethod = wrapOpenMethod(dispatcher);
+                IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this);
 
                 super.addMethod(openMethod);
 
@@ -453,7 +441,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private OpenMethodDispatcher getOpenMethodDispatcher(IOpenMethod method) {
         OpenMethodDispatcher decorator;
-        IOpenMethod decorated = unwrapOpenMethod(method);
+        IOpenMethod decorated = WrapperLogic.unwrapOpenMethod(method);
         if (useDecisionTableDispatcher) {
             decorator = new OverloadedMethodsDispatcherTable(decorated, this);
         } else {
