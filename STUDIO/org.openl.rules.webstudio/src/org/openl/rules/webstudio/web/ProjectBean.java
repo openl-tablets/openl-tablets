@@ -229,6 +229,7 @@ public class ProjectBean {
 
         if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
             WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
+            WebStudioUtils.validate(!NameChecker.isReservedName(name), String.format("'%s' is a reserved word.", name));
             WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
         }
     }
