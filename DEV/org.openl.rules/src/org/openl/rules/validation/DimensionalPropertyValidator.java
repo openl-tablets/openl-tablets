@@ -19,7 +19,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.validation.IOpenLValidator;
 import org.openl.validation.ValidationResult;
 
-public class DimentionalPropertyValidator implements IOpenLValidator {
+public class DimensionalPropertyValidator implements IOpenLValidator {
     enum OverlapState {
         OVERLAP,
         INCLUDE_TO_A,
@@ -35,7 +35,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         for (IOpenMethod method : openClass.getMethods()) {
             if (method instanceof OpenMethodDispatcher) {
                 OpenMethodDispatcher openMethodDispatcher = (OpenMethodDispatcher) method;
-                IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(new IOpenMethod[]{});
+                IOpenMethod[] methods = openMethodDispatcher.getCandidates().toArray(IOpenMethod.EMPTY_ARRAY);
                 for (int i = 0; i < methods.length - 1; i++) {
                     ITableProperties propsA = PropertiesHelper.getTableProperties(methods[i]);
                     Map<String, Object> propertiesA = propsA.getAllDimensionalProperties();
@@ -77,11 +77,11 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                                 Object valueA = propertiesA.get(pKey);
                                 Object valueB = propertiesB.get(pKey);
                                 sb.append("(");
-                                writeMessageforProperty(sb, pKey, valueA);
+                                writeMessageForProperty(sb, pKey, valueA);
                                 sb.append(")");
                                 sb.append(" and ");
                                 sb.append("(");
-                                writeMessageforProperty(sb, pKey, valueB);
+                                writeMessageForProperty(sb, pKey, valueB);
                                 sb.append(")");
                             } else {
                                 String pKey1 = vResult[0];
@@ -91,15 +91,15 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                                 Object value2A = propertiesA.get(pKey2);
                                 Object value2B = propertiesB.get(pKey2);
                                 sb.append("(");
-                                writeMessageforProperty(sb, pKey1, value1A);
+                                writeMessageForProperty(sb, pKey1, value1A);
                                 sb.append(", ");
-                                writeMessageforProperty(sb, pKey2, value2A);
+                                writeMessageForProperty(sb, pKey2, value2A);
                                 sb.append(")");
                                 sb.append(" and ");
                                 sb.append("(");
-                                writeMessageforProperty(sb, pKey1, value1B);
+                                writeMessageForProperty(sb, pKey1, value1B);
                                 sb.append(", ");
-                                writeMessageforProperty(sb, pKey2, value2B);
+                                writeMessageForProperty(sb, pKey2, value2B);
                                 sb.append(")");
                             }
                             addValidationWarn(messages, sb.toString(), methods[i]);
@@ -195,14 +195,12 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
                 vResult[2] = propKey;
             }
         } else {
-            if (prop.equals(p)) {
-                return overlapState;
-            } else {
+            if (!prop.equals(p)) {
                 overlapState = OverlapState.NOT_OVERLAP; // Skip
                 // other
                 // properties
-                return overlapState;
             }
+            return overlapState;
         }
         return overlapState;
     }
@@ -215,7 +213,7 @@ public class DimentionalPropertyValidator implements IOpenLValidator {
         return set;
     }
 
-    private void writeMessageforProperty(StringBuilder sb, String pKey, Object value) {
+    private void writeMessageForProperty(StringBuilder sb, String pKey, Object value) {
         sb.append(pKey);
         sb.append("={");
         if (value != null) {

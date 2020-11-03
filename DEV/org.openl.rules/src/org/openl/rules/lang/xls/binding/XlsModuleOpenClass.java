@@ -19,7 +19,6 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.exception.ConflictsMethodException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -315,8 +314,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             IOpenField existedField = fields.get(openField.getName());
             if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
                 // Ignore constants with the same values
-                if (openField.getType().equals(existedField.getType()) && Objects
-                    .equals(((ConstantOpenField) openField).getValue(), ((ConstantOpenField) existedField).getValue())) {
+                if (openField.getType().equals(existedField.getType()) && Objects.equals(
+                    ((ConstantOpenField) openField).getValue(),
+                    ((ConstantOpenField) existedField).getValue())) {
                     return;
                 }
 
@@ -376,18 +376,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     existingMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existingMethod, method);
             }
-
-
-           for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
-                if (!Objects.equals(existingMethod.getSignature().getParameterName(i),
-                    m.getSignature().getParameterName(i))) {
-                    String message = String.format(
-                            "Method '%s' conflicts with another method '%s', because parameter names are different.",
-                            MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
-                            MethodUtil.printSignature(m, INamedThing.REGULAR));
-                    throw new ConflictsMethodException(message);
-                }
-           }
 
             // Checks the instance of existed method. If it's the
             // OpenMethodDecorator then just add the method-candidate to
