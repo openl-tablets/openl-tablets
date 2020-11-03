@@ -10,7 +10,7 @@ public enum DecisionTableColumnHeaders {
     COLLECT_RETURN("CRET"),
     KEY("KEY"),;
 
-    private String key;
+    private final String key;
 
     DecisionTableColumnHeaders(String key) {
         this.key = key;
