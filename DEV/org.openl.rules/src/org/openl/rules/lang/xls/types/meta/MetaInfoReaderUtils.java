@@ -53,7 +53,7 @@ public class MetaInfoReaderUtils {
         List<NodeUsage> nodeUsages = new ArrayList<>(
             MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(), sourceString, startIndex));
         FieldUsageSearcher.findAllFields(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
-        Collections.sort(nodeUsages, new NodeUsageComparator());
+        nodeUsages.sort(new NodeUsageComparator());
         return nodeUsages;
     }
 
