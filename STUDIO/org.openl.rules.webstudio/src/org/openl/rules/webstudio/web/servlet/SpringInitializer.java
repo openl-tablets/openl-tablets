@@ -74,7 +74,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         Migrator.migrate();
 
         applicationContext.refresh();
-
+        applicationContext.registerShutdownHook();
         // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);
