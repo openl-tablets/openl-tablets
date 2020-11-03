@@ -1,0 +1,15 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <url>EPBDS-10642</url>
+    <serviceName>EPBDS-10642</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>jackson.defaultDateFormat</string>
+            <string>yyyy-MM-dd'T'HH:mm:ss.SSS'Z'</string>
+        </entry>
+    </configuration>
+</rules-deploy>

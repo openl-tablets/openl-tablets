@@ -2,6 +2,11 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -83,6 +88,11 @@ public final class JAXRSOpenLServiceEnhancer {
         TEXT_MEDIA_TYPE_SET.add(Enum.class);
         TEXT_MEDIA_TYPE_SET.add(String.class);
         TEXT_MEDIA_TYPE_SET.add(Date.class);
+        TEXT_MEDIA_TYPE_SET.add(Instant.class);
+        TEXT_MEDIA_TYPE_SET.add(ZonedDateTime.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalDateTime.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalDate.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalTime.class);
     }
 
     private static class ParamAnnotationValue {
