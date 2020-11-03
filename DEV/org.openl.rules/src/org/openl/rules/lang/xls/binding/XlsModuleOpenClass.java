@@ -327,8 +327,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         .equals(existedField.getType())) {
                     return;
                 }
+
+                throw new DuplicatedFieldException("", openField.getName());
             }
-            throw new DuplicatedFieldException("", openField.getName());
+            DuplicateMemberThrowExceptionHelper.throwDuplicateFieldExceptionIfFieldsAreNotTheSame(openField, existedField);
         }
         fieldMap().put(openField.getName(), openField);
         addFieldToLowerCaseMap(openField);

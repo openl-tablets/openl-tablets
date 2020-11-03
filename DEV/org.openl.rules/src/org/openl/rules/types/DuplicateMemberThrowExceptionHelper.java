@@ -6,9 +6,11 @@ import java.util.Objects;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IModuleInfo;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
 public final class DuplicateMemberThrowExceptionHelper {
@@ -16,11 +18,37 @@ public final class DuplicateMemberThrowExceptionHelper {
     private DuplicateMemberThrowExceptionHelper() {
     }
 
+    private static boolean isNotTheSameByUri(IUriMember uriMember1, IUriMember uriMember2) {
+        return !uriMember1.getUri().equals(uriMember2.getUri());
+    }
+
     /**
      * Throw the error with the right message for the case when the methods are equal
      */
     public static void throwDuplicateMethodExceptionIfMethodsAreNotTheSame(IOpenMethod newOpenMethod,
             IOpenMethod existedOpenMethod) {
+        if (newOpenMethod instanceof IUriMember && existedOpenMethod instanceof IUriMember) {
+            if (isNotTheSameByUri((IUriMember) newOpenMethod, (IUriMember) existedOpenMethod)) {
+                String message = buildDuplicatedMethodMessage(newOpenMethod, existedOpenMethod);
+                throw new DuplicatedMethodException(message, existedOpenMethod, newOpenMethod);
+            }
+        } else {
+            throw new IllegalStateException("The implementation supports only IUriMember.");
+        }
+    }
+
+    public static void throwDuplicateFieldExceptionIfFieldsAreNotTheSame(IOpenField newOpenField,
+            IOpenField existedOpenField) {
+        if (newOpenField instanceof IUriMember && existedOpenField instanceof IUriMember) {
+            if (isNotTheSameByUri((IUriMember) newOpenField, (IUriMember) existedOpenField)) {
+                throw new DuplicatedFieldException("", newOpenField.getName());
+            }
+        } else {
+            throw new IllegalStateException("The implementation supports only IUriMember.");
+        }
+    }
+
+    private static String buildDuplicatedMethodMessage(IOpenMethod newOpenMethod, IOpenMethod existedOpenMethod) {
         if (existedOpenMethod.getSignature().getNumberOfParameters() != existedOpenMethod.getSignature()
             .getNumberOfParameters()) {
             throw new IllegalStateException("Method signatures are not the same");
@@ -89,7 +117,6 @@ public final class DuplicateMemberThrowExceptionHelper {
                 }
             }
         }
-        throw new DuplicatedMethodException(message, existedOpenMethod, newOpenMethod);
+        return message;
     }
-
 }

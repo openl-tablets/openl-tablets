@@ -1,12 +1,13 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
@@ -22,6 +23,8 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.Invokable;
+import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -40,10 +43,24 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     private IOpenMethod delegate;
 
     /**
+     * Method key. Used for method signatures comparison.
+     */
+    private MethodKey delegateKey;
+
+    /**
      * List of method candidates.
      */
     private final List<IOpenMethod> candidates = new ArrayList<>();
     private final Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
+
+    private final Set<MethodKey> candidateKeys = new HashSet<>();
+
+    private final Invokable invokeInner = new Invokable() {
+        @Override
+        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
+            return invokeInner(target, params, env);
+        }
+    };
 
     protected OpenMethodDispatcher() {
     }
@@ -53,6 +70,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // about method info such as signature, name, etc.
         //
         this.delegate = Objects.requireNonNull(delegate, "Method cannot be null");
+
+        // Evaluate method key.
+        //
+        this.delegateKey = new MethodKey(delegate);
 
         // First method candidate is himself.
         //
@@ -138,7 +159,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(this::invokeInner, target, params, env, this);
+        return Tracer.invoke(invokeInner, target, params, env, this);
     }
 
     /**
@@ -194,25 +215,25 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Invokes appropriate method using runtime context.
      */
-    private <R> R invokeInner(Object target, Object[] params, IRuntimeEnv env) {
+    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod method = findMatchingMethod(env);
         Tracer.put(this, "rule", method);
-        return (R) method.invoke(target, params, env);
+        return method.invoke(target, params, env);
     }
 
     /**
      * In case we have several versions of one table we should add only the newest or active version of table.
      *
-     * @param existedMethod The existing method.
      * @param newMethod The methods that we are trying to add.
+     * @param key Method key of these methods based on signature.
+     * @param existedMethod The existing method.
      */
-    private IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod) {
+    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
-        } else if (compareResult == 0 && !newMethod.equals(existedMethod)) {
-            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod,
-                existedMethod);
+        } else if (compareResult == 0) {
+            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod, existedMethod);
         }
         return existedMethod;
     }
@@ -234,12 +255,17 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
+
+        // Evaluate the candidate method key.
+        //
+
+        MethodKey candidateKey = new MethodKey(candidate);
+
         // Check that candidate has the same method signature and list of
         // parameters as a delegate. If they different then is two different
         // methods and delegate cannot be overloaded by candidate.
         //
-        if (delegate.getName().equals(candidate.getName()) && Arrays.equals(delegate.getSignature().getParameterTypes(),
-            candidate.getSignature().getParameterTypes())) {
+        if (delegateKey.equals(candidateKey)) {
             int i = -1;
             DimensionPropertiesMethodKey dimensionMethodKey = null;
             if (candidate instanceof ITablePropertiesMethod) {
@@ -254,7 +280,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 }
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
-                candidate = useActiveOrNewerVersion(existedMethod, candidate);
+                candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
                 candidates.set(i, candidate);
                 candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
             }
