@@ -157,17 +157,20 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 start = fileNamePattern.length();
             }
         }
+
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff/", "[^/]+/"); // Ant /*/
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff\uffff/", "(?:[^/]+/)*"); //Ant /**/
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("\ufffe\uffff$", "\\.[^/]*");// File .*
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe\uffff", "[^/]*");// Regexp .*
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe", "\\."); // File .
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
+
         if (fileNameRegexpPattern.startsWith("/")) {
             fileNameRegexpPattern = fileNameRegexpPattern.replaceFirst("^/", "^");
         } else {
             fileNameRegexpPattern = "^(?:[^/]+/)*" + fileNameRegexpPattern;
         }
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff/", "[^/]+/"); // Ant /*/
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff\uffff/", "(?:[^/]+/)*"); //Ant /**/
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe\uffff", "[^/]*");// Regexp .*
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe", "\\."); // File .
-        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
 
         return fileNameRegexpPattern + "(?:\\.[^.]*)??$";
     }

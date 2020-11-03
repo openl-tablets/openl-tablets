@@ -418,6 +418,7 @@ public class ProjectBean {
             module = new Module();
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
+            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
@@ -516,6 +517,7 @@ public class ProjectBean {
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
+            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
         }
