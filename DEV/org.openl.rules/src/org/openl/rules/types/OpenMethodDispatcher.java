@@ -233,7 +233,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
-            UriMemberHelper.validateMethodDuplication(newMethod, existedMethod);
+            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod, existedMethod);
         }
         return existedMethod;
     }
