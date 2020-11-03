@@ -420,25 +420,36 @@ public final class DecisionTableHelper {
                     List<IParameterDeclaration> localParameters = dtColumnsDefinition.getLocalParameters(title);
                     List<String> localParameterNames = new ArrayList<>();
                     List<IOpenClass> typeOfColumns = new ArrayList<>();
+                    int totalColumnsUnder = getTotalColumnsUnder(originalTable, c);
                     int column = c;
-                    for (IParameterDeclaration param : localParameters) {
+                    for (int localParamIndex = 0; localParamIndex < localParameters.size(); localParamIndex++) {
+                        IParameterDeclaration param = localParameters.get(localParamIndex);
+                        IOpenClass paramType;
                         if (param != null) {
                             String paramName = declaredReturn.getMatchedDefinition()
                                 .getLocalParameterName(param.getName());
                             localParameterNames.add(paramName);
                             String value = param.getType().getName() + (paramName != null ? " " + paramName : "");
                             grid.setCellValue(column, 2, value);
-                            typeOfColumns.add(param.getType());
+                            paramType = param.getType();
                         } else {
-                            typeOfColumns.add(declaredReturn.getCompositeMethod().getType());
+                            paramType = declaredReturn.getCompositeMethod().getType();
                         }
-
+                        typeOfColumns.add(paramType);
                         int h = originalTable.getSource().getCell(column, 0).getHeight();
                         int w1 = originalTable.getSource().getCell(column, h).getWidth();
+                        if (paramType != null && paramType.isArray()) {
+                            // If we have more columns than parameters use excess columns for array typed parameter
+                            int tmpC = column;
+                            for (int i = 0; i < totalColumnsUnder - localParameters.size(); i++) {
+                                int w2 = originalTable.getSource().getCell(tmpC, h).getWidth();
+                                w1 = w1 + w2;
+                                tmpC = tmpC + w2;
+                            }
+                        }
                         if (w1 > 1) {
                             grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                         }
-
                         column = column + w1;
                     }
                     if (!bindingContext.isExecutionMode()) {
@@ -470,6 +481,18 @@ public final class DecisionTableHelper {
                     new GridRegion(row, declaredReturn.getColumn(), row, originalTable.getSource().getWidth() - 1));
             }
         }
+    }
+
+    private static int getTotalColumnsUnder(ILogicalTable originalTable, int c) {
+        int column = c;
+        int totalColumnsUnder = 0;
+        int maxColumn = c + originalTable.getSource().getCell(column, 0).getWidth();
+        while (column < maxColumn) {
+            int h = originalTable.getSource().getCell(column, 0).getHeight();
+            column = column + originalTable.getSource().getCell(column, h).getWidth();
+            totalColumnsUnder++;
+        }
+        return totalColumnsUnder;
     }
 
     private static final String FUZZY_RET_VARIABLE_NAME = "$R$E$T$U$R$N";
@@ -804,7 +827,7 @@ public final class DecisionTableHelper {
         }
 
         int retNum = 1;
-        int cretNum = 1;
+        int cRetNum = 1;
         int i = 0;
         int collectParameterIndex = 0;
         int keyNum = 1;
@@ -816,7 +839,7 @@ public final class DecisionTableHelper {
                         originalTable,
                         grid,
                         (DeclaredDTHeader) dtHeader,
-                        isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
+                        isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cRetNum++
                                   : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++,
                         bindingContext);
                 } else if (dtHeader instanceof SimpleReturnDTHeader || dtHeader instanceof FuzzyDTHeader && ((FuzzyDTHeader) dtHeader)
@@ -829,7 +852,7 @@ public final class DecisionTableHelper {
                         header = DecisionTableColumnHeaders.KEY.getHeaderKey() + keyNum++;
                         isKey = true;
                     } else {
-                        header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cretNum++
+                        header = isCollect ? DecisionTableColumnHeaders.COLLECT_RETURN.getHeaderKey() + cRetNum++
                                            : DecisionTableColumnHeaders.RETURN.getHeaderKey() + retNum++;
                     }
                     SimpleReturnDTHeader simpleDTReturnHeader;
@@ -2457,9 +2480,9 @@ public final class DecisionTableHelper {
         List<DTHeader> dtHeaders = new ArrayList<>();
         int i = 0;
         int column = 0;
-        while (column < lastColumn) {
-            int w = originalTable.getSource().getCell(column, 0).getWidth();
-            if (isSmart) {
+        if (isSmart) {
+            while (column < lastColumn) {
+                int w = originalTable.getSource().getCell(column, 0).getWidth();
                 matchWithDtColumnsDefinitions(decisionTable,
                     originalTable,
                     column,
@@ -2468,9 +2491,10 @@ public final class DecisionTableHelper {
                     dtHeaders,
                     firstColumnHeight,
                     bindingContext);
+
+                column = column + w;
+                i++;
             }
-            column = column + w;
-            i++;
         }
         List<DTHeader> strongDtHeaders = findStrongDtHeaders(originalTable, dtHeaders);
         i = 0;
@@ -2677,7 +2701,7 @@ public final class DecisionTableHelper {
             int i = 0;
             int x = column;
             IParameterDeclaration[][] columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
-            while (titles.contains(title) && numberOfColumnsUnderTitle == definition.getLocalParameters(title)
+            while (titles.contains(title) && numberOfColumnsUnderTitle >= definition.getLocalParameters(title)
                 .size() && x < originalTable.getSource().getWidth()) {
                 titles.remove(title);
                 for (String s : definition.getTitles()) {
