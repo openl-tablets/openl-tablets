@@ -4,17 +4,17 @@ import static org.junit.Assert.*;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.rules.validation.DimentionalPropertyValidator.OverlapState;
+import org.openl.rules.validation.DimensionalPropertyValidator.OverlapState;
 
-public class DimentionalPropertyValidatorTest {
+public class DimensionalPropertyValidator2Test {
 
-    private DimentionalPropertyValidator validator;
+    private DimensionalPropertyValidator validator;
     private OverlapState startState;
     private String[] vResult;
 
     @Before
     public void setUp() {
-        validator = new DimentionalPropertyValidator();
+        validator = new DimensionalPropertyValidator();
         startState = OverlapState.UNKNOWN;
         vResult = new String[3];
     }

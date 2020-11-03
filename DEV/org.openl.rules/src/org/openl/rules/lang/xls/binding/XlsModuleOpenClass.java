@@ -396,17 +396,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             }
 
-            for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
-                if (!Objects.equals(existingMethod.getSignature().getParameterName(i),
-                    m.getSignature().getParameterName(i))) {
-                    String message = String.format(
-                        "Method '%s' conflicts with another method '%s', because parameter names are different.",
-                        MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
-                        MethodUtil.printSignature(m, INamedThing.REGULAR));
-                    throw new ConflictsMethodException(message);
-                }
-            }
-
             if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
                 UriMemberHelper.validateMethodDuplication(method, existingMethod);
                 return;

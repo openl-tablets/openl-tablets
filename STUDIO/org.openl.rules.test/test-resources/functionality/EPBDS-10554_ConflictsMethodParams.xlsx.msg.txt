@@ -1,1 +1,2 @@
-ERROR: Method 'mySpr(Integer myParam, Double anotherParam)' conflicts with another method 'mySpr(Integer helloParam, Double ololoParam)', because parameter names are different.
+WARN: Method 'mySpr(Integer myParam, Double anotherParam)' conflicts with another method 'mySpr(Integer helloParam, Double ololoParam)', because parameter names are different.
+WARN: Method 'mySpr(Integer helloParam, Double ololoParam)' conflicts with another method 'mySpr(Integer myParam, Double anotherParam)', because parameter names are different.
