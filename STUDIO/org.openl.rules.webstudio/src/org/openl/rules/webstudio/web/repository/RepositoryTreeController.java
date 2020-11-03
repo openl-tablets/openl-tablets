@@ -491,7 +491,7 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty.";
         } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = String.format("Project name '%s' is invalid. %s", projectName, NameChecker.BAD_NAME_MSG);
+            errorMessage = String.format("Project name '%s' is invalid. %s", newProjectName, NameChecker.BAD_NAME_MSG);
         } else if (userWorkspace.hasDDProject(newProjectName)) {
             errorMessage = String.format("Deployment project '%s' already exists.", newProjectName);
         }

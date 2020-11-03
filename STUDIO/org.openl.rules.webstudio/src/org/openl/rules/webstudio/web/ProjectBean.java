@@ -339,6 +339,11 @@ public class ProjectBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
 
         WebStudioUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
+        try {
+            NameChecker.validatePath(path);
+        } catch (IOException e) {
+            WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
+        }
         File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
         WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists");
     }
