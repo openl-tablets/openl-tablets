@@ -272,6 +272,22 @@ public class DefaultPropertyFileNameProcessorTest {
         assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"), "AUTO/AL/NY/UP.20200712");
         assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/**/%state%/*%startRequestDate%"), "AUTO/NY/UP.20200712");
         assertMatch(new DefaultPropertiesFileNameProcessor("/%lob%/UP/**/%state%/*%startRequestDate%"), "AUTO/UP/NY/20200712.xlsx");
+
+        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UP/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UP/DOWN/Any/AUTO-NY/20200712.xlsx");
+
+        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "UP/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "DOWN/UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "Any/DOWN/UP/Any2/DOWN/AUTO-NY/20200712.xlsx");
+
+        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "A/UP/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "Я/UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "$/UP/Any/DOWN/AUTO-NY/20200712.xlsx");
+
+        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "./UP/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "./UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "./UP/Any/DOWN/AUTO-NY/20200712.xlsx");
     }
 
     @Test
@@ -297,6 +313,22 @@ public class DefaultPropertyFileNameProcessorTest {
         assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/*%startRequestDate%"), "rules/AUTO/NY/UP.20200712");
         assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/**/...%startRequestDate%"), "AUTO/NY/UP.20200712");
         assertNotMatch(new DefaultPropertiesFileNameProcessor("/%lob%/%state%/?.%startRequestDate%"), "AUTO/NY/UP.20200712");
+
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UPS/UP/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UPS/UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/*/UP/**/%lob%-%state%/%startRequestDate%"), "AUTO/UPS/UP/DOWN/Any/AUTO-NY/20200712.xlsx");
+
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "UPS/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "DOWN/UPS/DOWN/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/**/UP/**/%lob%-%state%/%startRequestDate%"), "Any/DOWN/UPS/Any2/DOWN/AUTO-NY/20200712.xlsx");
+
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "UP/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/?/UP/**/%lob%-%state%/%startRequestDate%"), "UP/Any/DOWN/AUTO-NY/20200712.xlsx");
+
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "A/UP/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "Я/UP/DOWN/AUTO-NY/20200712.xlsx");
+        assertNotMatch(new DefaultPropertiesFileNameProcessor("/./UP/**/%lob%-%state%/%startRequestDate%"), "$/UP/Any/DOWN/AUTO-NY/20200712.xlsx");
     }
 
     private void assertNotMatch(DefaultPropertiesFileNameProcessor processor, String file) {
