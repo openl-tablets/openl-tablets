@@ -12,5 +12,4 @@
     <import resource="classpath:openl-ruleservice-core-beans.xml" />
     <import resource="classpath:openl-ruleservice-publisher-beans.xml" />
     <import resource="classpath:openl-ruleservice-datasource-beans.xml" />
-    <import resource="classpath:openl-ruleservice-conf-beans.xml" />
 </beans>

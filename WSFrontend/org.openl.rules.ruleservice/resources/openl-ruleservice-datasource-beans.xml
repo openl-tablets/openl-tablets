@@ -4,8 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-lazy-init="true">
 
-    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
-          destroy-method="close">
+    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
         <constructor-arg name="factory" value="${production-repository.factory}"/>
         <constructor-arg name="params">
             <map>
