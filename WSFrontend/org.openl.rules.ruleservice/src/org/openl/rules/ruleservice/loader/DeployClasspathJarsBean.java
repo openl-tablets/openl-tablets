@@ -7,7 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.net.URLConnection;
 
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
@@ -52,14 +51,11 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
     private void deployJarForJboss(URL resourceURL) throws Exception {
         // This reflection implementation for JBoss vfs
-        URLConnection conn = resourceURL.openConnection();
-        Object content = conn.getContent();
-        Class<?> clazz = content.getClass();
+        String urlString = resourceURL.toString();
+        urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
+        Object jarFile = new URL(urlString).openConnection().getContent();
+        Class<?> clazz = jarFile.getClass();
         if ("org.jboss.vfs.VirtualFile".equals(clazz.getName())) {
-            String urlString = resourceURL.toString();
-            urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
-            Object jarFile = new URL(urlString).openConnection().getContent();
-
             Method getNameMethod = clazz.getMethod("getName");
             String jarName = (String) getNameMethod.invoke(jarFile);
 
