@@ -1,2 +1,4 @@
-WARN: Method 'mySpr(Integer myParam, Double anotherParam)' conflicts with another method 'mySpr(Integer helloParam, Double ololoParam)', because parameter names are different.
-WARN: Method 'mySpr(Integer helloParam, Double ololoParam)' conflicts with another method 'mySpr(Integer myParam, Double anotherParam)', because parameter names are different.
+WARN: Method 'mySpr(Integer myParam, Double anotherParam)' conflicts with another method 'mySpr(Integer helloParam, Double ololoParam)', because of parameter names are different.
+WARN: Method 'mySpr(Integer helloParam, Double ololoParam)' conflicts with another method 'mySpr(Integer myParam, Double anotherParam)', because of parameter names are different.
+WARN: Method 'calc(String input)' conflicts with another method 'calc(Vocabular input)', because of parameter types are different.
+WARN: Method 'calc(Vocabular input)' conflicts with another method 'calc(String input)', because of parameter types are different.
