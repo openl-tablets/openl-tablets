@@ -44,6 +44,7 @@ import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -147,12 +148,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
-        for (Map.Entry<String, ServiceDescription> svc : services.entrySet()) {
-            String serviceName = svc.getKey();
-            ServiceDescription service = svc.getValue();
+        for (String serviceName : services.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY)) {
             if (!newServices.containsKey(serviceName)) {
                 try {
-                    undeploy(service);
+                    undeploy(services.get(serviceName));
                 } catch (RuleServiceUndeployException e) {
                     log.error("Failed to undeploy service '{}'.", serviceName, e);
                 }
@@ -474,12 +473,6 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     @PreDestroy
     public void destroy() throws Exception {
-        for (ServiceDescription serviceDescription : services.values()) {
-            try {
-                undeploy(serviceDescription);
-            } catch (RuleServiceUndeployException e) {
-                log.error("Failing to undeploy {}", serviceDescription.getName(), e);
-            }
-        }
+        undeployUnnecessary(Collections.emptyMap());
     }
 }
