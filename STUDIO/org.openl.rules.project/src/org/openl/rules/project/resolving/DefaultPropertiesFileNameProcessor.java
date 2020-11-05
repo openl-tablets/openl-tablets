@@ -115,7 +115,12 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
         Matcher matcher = PATTERN.matcher(fileNamePattern);
         int start = 0;
-        String fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff').replace('.', '\ufffe').replace('?', '\ufffd');
+        String fileNameRegexpPattern = fileNamePattern
+                .replace('*', '\uffff')
+                .replace('.', '\ufffe')
+                .replace('?', '\ufffd')
+                .replace('+', '\ufffc')
+                .replace('^', '\ufffb');
         while (start < fileNamePattern.length()) {
             if (matcher.find(start)) {
                 String propertyMatch = matcher.group();
@@ -165,6 +170,9 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe", "\\."); // File .
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffc", "\\+"); // Just +
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffb", "\\^"); // Just ^
+        fileNameRegexpPattern = fileNameRegexpPattern.replace("$", "\\$"); // Just $
 
         if (fileNameRegexpPattern.startsWith("/")) {
             fileNameRegexpPattern = fileNameRegexpPattern.replaceFirst("^/", "^");

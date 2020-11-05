@@ -1,7 +1,6 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -234,37 +233,23 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
-        // Check that candidate has the same method signature and list of
-        // parameters as a delegate. If they different then is two different
-        // methods and delegate cannot be overloaded by candidate.
-        //
-        if (delegate.getName().equals(candidate.getName()) && Arrays.equals(delegate.getSignature().getParameterTypes(),
-            candidate.getSignature().getParameterTypes())) {
-            int i = -1;
-            DimensionPropertiesMethodKey dimensionMethodKey = null;
-            if (candidate instanceof ITablePropertiesMethod) {
-                dimensionMethodKey = new DimensionPropertiesMethodKey(candidate);
-                i = searchTheSameMethod(dimensionMethodKey);
-            }
-            if (i < 0) {
-                candidates.add(candidate);
-                if (dimensionMethodKey != null) {
-                    int idx = candidates.size() - 1;
-                    candidatesToDimensionKey.put(idx, dimensionMethodKey);
-                }
-            } else {
-                IOpenMethod existedMethod = candidates.get(i);
-                candidate = useActiveOrNewerVersion(existedMethod, candidate);
-                candidates.set(i, candidate);
-                candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
+        int i = -1;
+        DimensionPropertiesMethodKey dimensionMethodKey = null;
+        if (candidate instanceof ITablePropertiesMethod) {
+            dimensionMethodKey = new DimensionPropertiesMethodKey(candidate);
+            i = searchTheSameMethod(dimensionMethodKey);
+        }
+        if (i < 0) {
+            candidates.add(candidate);
+            if (dimensionMethodKey != null) {
+                int idx = candidates.size() - 1;
+                candidatesToDimensionKey.put(idx, dimensionMethodKey);
             }
         } else {
-            // Throw appropriate exception.
-            //
-            StringBuilder sb = new StringBuilder();
-            MethodUtil.printMethod(this, sb);
-
-            throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
+            IOpenMethod existedMethod = candidates.get(i);
+            candidate = useActiveOrNewerVersion(existedMethod, candidate);
+            candidates.set(i, candidate);
+            candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
         }
     }
 

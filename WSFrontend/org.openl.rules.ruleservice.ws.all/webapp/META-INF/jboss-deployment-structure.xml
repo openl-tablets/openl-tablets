@@ -1,0 +1,20 @@
+<jboss-deployment-structure>
+    <deployment>
+        <!-- Exclusions allow you to prevent the server from automatically adding some dependencies     -->
+        <!-- https://docs.jboss.org/author/display/AS7/Class+Loading+in+AS7 -->
+        <!-- https://docs.jboss.org/author/display/AS7/Implicit+module+dependencies+for+deployments -->
+        <exclusions>
+            <module name="org.slf4j" />
+            <module name="org.slf4j.impl" />
+            <!-- Resolve conflicts when the several applications are run on JBoss EAP 7.2 -->
+            <module name="org.hibernate.validator" />
+        </exclusions>
+        <exclude-subsystems>  
+            <subsystem name="jaxrs" />  
+        </exclude-subsystems>
+        <dependencies>
+            <module name="javax.jws.api" export="true" /><!-- Support JBoss EAP 7.1 -->
+            <module name="javax.xml.ws.api" export="true" />
+        </dependencies>
+    </deployment>
+</jboss-deployment-structure>
