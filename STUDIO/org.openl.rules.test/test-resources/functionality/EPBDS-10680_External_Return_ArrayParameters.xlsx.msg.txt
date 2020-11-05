@@ -1,0 +1,17 @@
+WARN: Ambiguous matching of column titles to DT conditions. Use more appropriate titles for condition columns.
+ERROR: Smart table has unmatched title 'Tapok'.
+ERROR: Smart table has unmatched title 'Result'.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Cannot parse cell value 'test'. Expected value of type 'Boolean'.
+ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
+ERROR: Failed to parse int range.
