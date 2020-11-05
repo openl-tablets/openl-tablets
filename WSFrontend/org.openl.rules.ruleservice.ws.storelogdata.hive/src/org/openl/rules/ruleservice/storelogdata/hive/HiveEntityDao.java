@@ -4,17 +4,22 @@ import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 
-public class HiveEntityDao {
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+public class HiveEntityDao {
+    private final Logger log = LoggerFactory.getLogger(HiveEntityDao.class);
     private final PreparedStatement preparedStatement;
     private final Field[] sortedFields;
 
     public HiveEntityDao(Connection connection, Class<?> entityClass) throws SQLException {
-        preparedStatement = new HiveQueryBuilder().withConnection(connection).withClass(entityClass).build();
+        preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
         sortedFields = entityClass.getDeclaredFields();
         Arrays.sort(sortedFields, Comparator.comparing(Field::getName));
         Arrays.stream(sortedFields).forEach(f -> f.setAccessible(true));
@@ -27,7 +32,7 @@ public class HiveEntityDao {
         preparedStatement.execute();
     }
 
-    private void setValue(int index, Field field, Object entity) throws IllegalAccessException {
+    private void setValue(int index, Field field, Object entity) throws IllegalAccessException, SQLException {
         try {
             if (Integer.class.equals(field.getType())) {
                 preparedStatement.setInt(index, field.getInt(entity));
@@ -44,13 +49,20 @@ public class HiveEntityDao {
             } else if (Float.class.equals(field.getType())) {
                 preparedStatement.setFloat(index, field.getFloat(entity));
             } else if (ZonedDateTime.class.equals(field.getType())) {
+                ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
                 preparedStatement.setTimestamp(index,
-                    java.sql.Timestamp.valueOf(((ZonedDateTime) field.get(entity)).toLocalDateTime()));
+                    zonedDateTime == null ? null : java.sql.Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
+            } else if (LocalDateTime.class.equals(field.getType())) {
+                LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
+                preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));
             } else {
                 preparedStatement.setObject(index, field.get(entity));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error(
+                String.format("Error occurs during setting value to insert statement for filed %s", field.getName()),
+                e);
+            throw e;
         }
     }
 

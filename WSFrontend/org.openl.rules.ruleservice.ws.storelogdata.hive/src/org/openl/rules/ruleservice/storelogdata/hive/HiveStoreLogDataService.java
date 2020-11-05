@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public class HiveStoreLogDataService implements StoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
-    private StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+    private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
     private HiveOperations hiveOperations;
     private boolean enabled = true;
 
@@ -81,8 +81,8 @@ public class HiveStoreLogDataService implements StoreLogDataService {
                     entities[i] = new DefaultHiveEntity();
                 } else {
                     try {
-                        entities[i] = entityClass.newInstance();
-                    } catch (InstantiationException | IllegalAccessException e) {
+                        entities[i] = entityClass.getDeclaredConstructor().newInstance();
+                    } catch (Exception e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
                                 "Failed to instantiate Hive entity %s. Please, check that class '%s' is not abstract and has a default constructor.",

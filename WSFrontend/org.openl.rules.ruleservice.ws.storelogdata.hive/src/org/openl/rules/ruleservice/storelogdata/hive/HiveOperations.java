@@ -27,28 +27,16 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
     private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
 
     private Connection connection;
-    private boolean schemaCreationEnabled = false;
+    private boolean createTableEnabled = false;
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
-    private final AtomicReference<Map<Class<?>, HiveEntitySaver>> entitySavers = new AtomicReference<>(
+    private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
     private boolean enabled;
     private String connectionURL;
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setConnectionURL(String connectionURL) {
-        this.connectionURL = connectionURL;
-    }
-
     @Override
-    public void afterPropertiesSet() throws Exception {
+    public void afterPropertiesSet() {
         if (isEnabled()) {
             try {
                 init();
@@ -105,20 +93,20 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
             return;
         }
         try {
-            createSchemaIfMissed(entity.getClass());
+            createTableIfNotExists(entity.getClass());
             getEntitySaver(entity.getClass()).insert(entity);
         } catch (SQLException| IllegalAccessException e) {
             log.error("Failed to save hive entity.", e);
         }
     }
 
-    private HiveEntitySaver getEntitySaver(Class<?> entityClass) throws SQLException {
-        HiveEntitySaver entitySaver = null;
-        Map<Class<?>, HiveEntitySaver> current;
-        Map<Class<?>, HiveEntitySaver> next;
+    private HiveEntityDao getEntitySaver(Class<?> entityClass) throws SQLException {
+        HiveEntityDao entitySaver = null;
+        Map<Class<?>, HiveEntityDao> current;
+        Map<Class<?>, HiveEntityDao> next;
         do {
             current = entitySavers.get();
-            HiveEntitySaver currentEntitySaver = current.get(entityClass);
+            HiveEntityDao currentEntitySaver = current.get(entityClass);
             if (currentEntitySaver != null) {
                 return currentEntitySaver;
             } else {
@@ -132,12 +120,12 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         return entitySaver;
     }
 
-    private HiveEntitySaver createEntitySaver(Class<?> entityClass) throws SQLException {
-        return new HiveEntitySaver(connection, entityClass);
+    private HiveEntityDao createEntitySaver(Class<?> entityClass) throws SQLException {
+        return new HiveEntityDao(connection, entityClass);
     }
 
-    public void createSchemaIfMissed(Class<?> entityClass) {
-        if (isEnabled() && isCreateSchemaEnabled()) {
+    public void createTableIfNotExists(Class<?> entityClass) {
+        if (isEnabled() && isCreateTableEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -158,24 +146,36 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                         connection.createStatement().execute(q.trim());
                     }
                 } catch (IOException|SQLException e) {
-                    throw new TableCreationException(
+                    throw new HiveTableCreationException(
                             String.format("Failed to extract a file with schema creation SQL for '%s'.",
                                     entityClass.getTypeName()),
                             e);
                 }
             } else {
-                throw new TableCreationException(String
+                throw new HiveTableCreationException(String
                         .format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
             }
         }
     }
 
-    public boolean isCreateSchemaEnabled() {
-        return schemaCreationEnabled;
+    public boolean isCreateTableEnabled() {
+        return createTableEnabled;
     }
 
-    public void setCreateSchemaEnabled(boolean schemaCreationEnabled) {
-        this.schemaCreationEnabled = schemaCreationEnabled;
+    public void setCreateTableEnabled(boolean createTableEnabled) {
+        this.createTableEnabled = createTableEnabled;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public void setConnectionURL(String connectionURL) {
+        this.connectionURL = connectionURL;
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {
@@ -185,9 +185,5 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         }
         return IOUtils.toStringAndClose(inputStream);
-    }
-
-    public void setSchemaCreationEnabled(boolean schemaCreationEnabled) {
-        this.schemaCreationEnabled = schemaCreationEnabled;
     }
 }

@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.storelogdata.hive;
 
 import java.time.ZonedDateTime;
 
+import org.openl.rules.ruleservice.storelogdata.RandomUUID;
 import org.openl.rules.ruleservice.storelogdata.annotation.*;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 import org.springframework.data.annotation.Id;

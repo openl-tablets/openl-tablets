@@ -2,23 +2,23 @@ package org.openl.rules.ruleservice.storelogdata.hive;
 
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 
-public class TableCreationException extends RuleServiceRuntimeException {
+public class HiveTableCreationException extends RuleServiceRuntimeException {
 
     private static final long serialVersionUID = -4405787184878140722L;
 
-    public TableCreationException() {
+    public HiveTableCreationException() {
         super();
     }
 
-    public TableCreationException(String message, Throwable cause) {
+    public HiveTableCreationException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    public TableCreationException(String message) {
+    public HiveTableCreationException(String message) {
         super(message);
     }
 
-    public TableCreationException(Throwable cause) {
+    public HiveTableCreationException(Throwable cause) {
         super(cause);
     }
 

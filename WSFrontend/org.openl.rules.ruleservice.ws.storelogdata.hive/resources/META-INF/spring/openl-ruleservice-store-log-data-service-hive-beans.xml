@@ -3,7 +3,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
     <bean id="hiveOperations" class="org.openl.rules.ruleservice.storelogdata.hive.HiveOperations" lazy-init="true">
-        <property name="createSchemaEnabled" value="${ruleservice.store.logs.hive.table.create}"/>
+        <property name="createTableEnabled" value="${ruleservice.store.logs.hive.table.create}"/>
         <property name="connectionURL" value="${hive.connection.url}"/>
         <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
