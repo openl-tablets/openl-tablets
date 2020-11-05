@@ -35,7 +35,7 @@ public class ZipCharsetDetector {
     private final Logger log = LoggerFactory.getLogger(ZipCharsetDetector.class);
     private final Charset[] charsets;
     private final PathFilter zipFilter;
-    private final IProjectDescriptorSerializer projectDescriptorSerializer = new XmlProjectDescriptorSerializer(false);
+    private final IProjectDescriptorSerializer projectDescriptorSerializer = new XmlProjectDescriptorSerializer();
 
     /**
      * Create zip charset detector.

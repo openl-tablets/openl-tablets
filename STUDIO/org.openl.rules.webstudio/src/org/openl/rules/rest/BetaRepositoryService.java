@@ -290,7 +290,7 @@ public class BetaRepositoryService {
             if (rules.exists()) {
                 // Change project name in rules.xml.
                 try {
-                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                    XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
                     ProjectDescriptor projectDescriptor = serializer.deserialize(new FileInputStream(rules));
                     projectDescriptor.setName(name);
                     String modifiedRules = serializer.serialize(projectDescriptor);
