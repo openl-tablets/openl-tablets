@@ -33,36 +33,29 @@ public class HiveEntityDao {
     }
 
     private void setValue(int index, Field field, Object entity) throws IllegalAccessException, SQLException {
-        try {
-            if (Integer.class.equals(field.getType())) {
-                preparedStatement.setInt(index, field.getInt(entity));
-            } else if (Long.class.equals(field.getType())) {
-                preparedStatement.setLong(index, field.getLong(entity));
-            } else if (Boolean.class.equals(field.getType())) {
-                preparedStatement.setBoolean(index, field.getBoolean(entity));
-            } else if (Short.class.equals(field.getType())) {
-                preparedStatement.setShort(index, field.getShort(entity));
-            } else if (Byte.class.equals(field.getType())) {
-                preparedStatement.setByte(index, field.getByte(entity));
-            } else if (Double.class.equals(field.getType())) {
-                preparedStatement.setDouble(index, field.getDouble(entity));
-            } else if (Float.class.equals(field.getType())) {
-                preparedStatement.setFloat(index, field.getFloat(entity));
-            } else if (ZonedDateTime.class.equals(field.getType())) {
-                ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
-                preparedStatement.setTimestamp(index,
-                    zonedDateTime == null ? null : java.sql.Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
-            } else if (LocalDateTime.class.equals(field.getType())) {
-                LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
-                preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));
-            } else {
-                preparedStatement.setObject(index, field.get(entity));
-            }
-        } catch (SQLException e) {
-            log.error(
-                String.format("Error occurs during setting value to insert statement for filed %s", field.getName()),
-                e);
-            throw e;
+        if (Integer.class.equals(field.getType()) || int.class.equals(field.getType())) {
+            preparedStatement.setInt(index, field.getInt(entity));
+        } else if (Long.class.equals(field.getType()) || long.class.equals(field.getType())) {
+            preparedStatement.setLong(index, field.getLong(entity));
+        } else if (Boolean.class.equals(field.getType()) || boolean.class.equals(field.getType())) {
+            preparedStatement.setBoolean(index, field.getBoolean(entity));
+        } else if (Short.class.equals(field.getType()) || short.class.equals(field.getType())) {
+            preparedStatement.setShort(index, field.getShort(entity));
+        } else if (Byte.class.equals(field.getType()) || byte.class.equals(field.getType())) {
+            preparedStatement.setByte(index, field.getByte(entity));
+        } else if (Double.class.equals(field.getType()) || double.class.equals(field.getType())) {
+            preparedStatement.setDouble(index, field.getDouble(entity));
+        } else if (Float.class.equals(field.getType()) || float.class.equals(field.getType())) {
+            preparedStatement.setFloat(index, field.getFloat(entity));
+        } else if (ZonedDateTime.class.equals(field.getType())) {
+            ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
+            preparedStatement.setTimestamp(index,
+                zonedDateTime == null ? null : java.sql.Timestamp.valueOf(zonedDateTime.toLocalDateTime()));
+        } else if (LocalDateTime.class.equals(field.getType())) {
+            LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
+            preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));
+        } else {
+            preparedStatement.setObject(index, field.get(entity));
         }
     }
 

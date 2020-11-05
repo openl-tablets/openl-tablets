@@ -8,16 +8,17 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
+import org.openl.util.StringUtils;
 
 public final class HiveStatementBuilder {
 
-    private static final String query = "INSERT INTO TABLE %s (%s) VALUES (%s)";
+    private static final String INSERT_QUERY = "INSERT INTO TABLE %s (%s) VALUES (%s)";
     private final Class<?> entityClass;
     private final Connection connection;
 
     public HiveStatementBuilder(Connection connection, Class<?> entityClass) {
-        this.connection = Objects.requireNonNull(connection, "connection can not be null");
-        this.entityClass = Objects.requireNonNull(entityClass, "entityClass can not be null");
+        this.connection = Objects.requireNonNull(connection, "connection cannot be null");
+        this.entityClass = Objects.requireNonNull(entityClass, "entityClass cannot be null");
         if (!entityClass.isAnnotationPresent(Entity.class)) {
             throw new IllegalArgumentException(
                 String.format("Expected class annotated with '%s'", Entity.class.getTypeName()));
@@ -29,12 +30,12 @@ public final class HiveStatementBuilder {
     }
 
     String buildQuery() {
-        return String.format(query, getTableName(), getFields(), getParameters());
+        return String.format(INSERT_QUERY, getTableName(), getFields(), getParameters());
     }
 
     String getTableName() {
         Entity entity = entityClass.getAnnotation(Entity.class);
-        return entity != null && !entity.value().isBlank() ? entity.value() : entityClass.getSimpleName();
+        return entity != null && StringUtils.isNotBlank(entity.value()) ? entity.value() : entityClass.getSimpleName();
     }
 
     private String getFields() {

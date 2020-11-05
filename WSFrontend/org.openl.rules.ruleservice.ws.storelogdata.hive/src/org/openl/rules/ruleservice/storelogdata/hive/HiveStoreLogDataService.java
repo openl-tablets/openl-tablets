@@ -55,13 +55,12 @@ public class HiveStoreLogDataService implements StoreLogDataService {
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     if (serviceMethod != null) {
-                        log.error(String.format("Failed to map '%s' hive entity for method '%s'.",
+                        log.error("Failed to populate hive entity '{}' for method '{}'.",
                             entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
-                    } else {
-                        log.error(
-                            String.format("Failed to map '%s' hive entity.", entity.getClass().getTypeName()),
+                            MethodUtil.printQualifiedMethodName(serviceMethod),
                             e);
+                    } else {
+                        log.error("Failed to populate hive entity '{}'.", entity.getClass().getTypeName(), e);
                     }
                 }
                 return;
@@ -85,7 +84,7 @@ public class HiveStoreLogDataService implements StoreLogDataService {
                     } catch (Exception e) {
                         if (log.isErrorEnabled()) {
                             log.error(String.format(
-                                "Failed to instantiate Hive entity %s. Please, check that class '%s' is not abstract and has a default constructor.",
+                                "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                                 serviceMethod != null ? " for method '" + MethodUtil
                                     .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
                                 entityClass.getTypeName()), e);
