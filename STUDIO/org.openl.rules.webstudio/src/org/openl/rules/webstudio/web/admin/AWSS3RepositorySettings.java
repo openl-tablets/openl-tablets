@@ -35,7 +35,7 @@ public class AWSS3RepositorySettings extends RepositorySettings {
         secretKey = properties.getProperty(secretKeyPath);
         listenerTimerPeriod = Integer.parseInt(
                 Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
-                        .orElse("0")
+                        .orElse(properties.getProperty("default.listener-timer-period"))
         );
     }
 
