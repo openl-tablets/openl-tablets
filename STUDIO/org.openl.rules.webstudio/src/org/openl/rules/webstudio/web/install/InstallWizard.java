@@ -35,7 +35,6 @@ import javax.servlet.ServletContext;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
-import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.repository.RepositoryInstatiator;
@@ -174,11 +173,11 @@ public class InstallWizard implements Serializable {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    validateConnectionToDesignRepo(designRepositoryConfiguration, ConfigNames.DESIGN_CONFIG);
+                    validateConnectionToDesignRepo(designRepositoryConfiguration, RepositoryMode.DESIGN.toString());
 
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, ConfigNames.DEPLOY_CONFIG);
+                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, RepositoryMode.DEPLOY_CONFIG.toString());
                     }
 
                     productionRepositoryEditor.validate();
@@ -192,12 +191,12 @@ public class InstallWizard implements Serializable {
             ++step;
             if (step == 2) {
                 // Get defaults
-                designRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DESIGN_CONFIG, properties);
+                designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.toString(), properties);
                 if (designRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(designRepositoryConfiguration.getErrorMessage());
                 }
 
-                deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG,
+                deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.toString(),
                     properties);
                 if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(deployConfigRepositoryConfiguration.getErrorMessage());
@@ -922,7 +921,7 @@ public class InstallWizard implements Serializable {
 
     public void setUseDesignRepo(boolean useDesignRepo) {
         // TODO: We should point specific design repository
-        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? ConfigNames.DESIGN_CONFIG : null);
+        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? RepositoryMode.DESIGN.toString() : null);
     }
 
     public FolderStructureSettings getDesignFolderStructure() {

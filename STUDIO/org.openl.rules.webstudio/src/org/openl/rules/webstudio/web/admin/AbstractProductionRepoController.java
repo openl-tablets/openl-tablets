@@ -7,8 +7,8 @@ import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
-import org.openl.config.ConfigNames;
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -73,7 +73,7 @@ public abstract class AbstractProductionRepoController {
             .filter(x -> x.getConfigName().equalsIgnoreCase(finalName))
             .findFirst();
         // If there is already config with the given name we need to modify it to avoid collision
-        if (first.isPresent() || ConfigNames.DEFAULT_CONFIGS.contains(name)) {
+        if (first.isPresent() || RepositoryMode.contains(name)) {
             name += "1";
         }
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties, repositoryConfiguration);
@@ -87,7 +87,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration rc = new RepositoryConfiguration(ConfigNames.PRODUCTION, properties);
+        RepositoryConfiguration rc = new RepositoryConfiguration(RepositoryMode.PRODUCTION.toString(), properties);
         rc.setType(RepositoryType.DB.name().toLowerCase());
         return rc;
     }

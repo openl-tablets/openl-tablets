@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
@@ -54,11 +55,11 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
-        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
+        String type = RepositoryMode.getTypePrefix(CONFIG_PREFIX).toString();
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
                                                     : properties.getProperty(
-                DynamicPropertySource.OPENL_HOME) + File.separator + type + "-repository";
+                DynamicPropertySource.OPENL_HOME) + File.separator + type;
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
@@ -68,8 +69,8 @@ public class GitRepositorySettings extends RepositorySettings {
         localRepositoryPath = defaultLocalPath;
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse("0"));
-        connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse("0"));
+        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse(properties.getProperty("default.listener-timer-period")));
+        connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse(properties.getProperty("default.connection-timeout")));
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
 
         remoteRepository = StringUtils.isNotBlank(uri);

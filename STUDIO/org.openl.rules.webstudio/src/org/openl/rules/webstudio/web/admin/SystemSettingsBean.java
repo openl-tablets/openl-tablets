@@ -8,7 +8,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.faces.context.FacesContext;
 
-import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.engine.OpenLSystemProperties;
@@ -71,7 +70,7 @@ public class SystemSettingsBean {
         properties = new InMemoryProperties(propertyResolver);
 
         try {
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration(ConfigNames.DEPLOY_CONFIG, properties);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.toString(), properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -300,19 +299,17 @@ public class SystemSettingsBean {
 
         switch (repositoryMode) {
             case DESIGN:
-                configName = ConfigNames.DESIGN_CONFIG;
                 accessType = RepositoryType.GIT.name().toLowerCase();
                 configurations = getDesignRepositoryConfigurations();
                 break;
             case PRODUCTION:
-                configName = ConfigNames.PRODUCTION;
                 accessType = RepositoryType.DB.name().toLowerCase();
                 configurations = getProductionRepositoryConfigurations();
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported repository mode " + repositoryMode);
         }
-
+        configName = repositoryMode.toString();
         RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
         templateConfig.setType(accessType);
         
