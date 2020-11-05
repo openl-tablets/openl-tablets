@@ -28,8 +28,7 @@ import com.datastax.oss.driver.api.core.DriverException;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
-public class CassandraOperations
-        implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
+public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraOperations.class);
 
     private CqlSession session;
@@ -125,13 +124,13 @@ public class CassandraOperations
             createSchemaIfMissed(entity.getClass());
             EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
             if (entitySupport == null) {
-                LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class {}.",
+                LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '{}'.",
                     entity.getClass().getTypeName());
             } else {
                 getEntitySaver(entity.getClass()).insert(entity);
             }
         } catch (ReflectiveOperationException | DaoCreationException e) {
-            LOG.error("Failed to save cassandra entity.", e);
+            LOG.error("Failed to save cassandra entity '{}'.", entity.getClass().getTypeName(), e);
         }
     }
 

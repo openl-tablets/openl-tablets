@@ -47,8 +47,8 @@ final class ConfigLoader {
     private static Properties getApplicationContextProperties(ApplicationContext applicationContext) {
         Environment env = applicationContext.getEnvironment();
         Properties props = new Properties();
-        MutablePropertySources propSrcs = ((AbstractEnvironment) env).getPropertySources();
-        StreamSupport.stream(propSrcs.spliterator(), false)
+        MutablePropertySources propSources = ((AbstractEnvironment) env).getPropertySources();
+        StreamSupport.stream(propSources.spliterator(), false)
             .filter(ps -> ps instanceof EnumerablePropertySource)
             .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
             .flatMap(Arrays::stream)
