@@ -55,6 +55,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AMethod;
+import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 
 import com.rits.cloning.Cloner;
@@ -377,8 +378,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
 
             for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
-                if (!Objects.equals(existingMethod.getSignature().getParameterType(i),
-                    m.getSignature().getParameterType(i))) {
+                IOpenClass existingParameterType = existingMethod.getSignature().getParameterType(i);
+                IOpenClass mParameterType = m.getSignature().getParameterType(i);
+                if ((existingParameterType instanceof DomainOpenClass || mParameterType instanceof DomainOpenClass) && !Objects
+                    .equals(existingParameterType, mParameterType)) {
                     String message = String.format("Method '%s' conflicts with another method '%s'.",
                         MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
                         MethodUtil.printSignature(m, INamedThing.REGULAR));
