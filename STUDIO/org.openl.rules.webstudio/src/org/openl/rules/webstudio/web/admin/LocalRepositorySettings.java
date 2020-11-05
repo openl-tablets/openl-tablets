@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.io.File;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
@@ -33,7 +34,7 @@ public class LocalRepositorySettings extends RepositorySettings {
     }
 
     private String getDefaultPath() {
-        String type = RepositorySettings.getTypePrefix(configPathPrefix);
+        String type = RepositoryMode.getTypePrefix(configPathPrefix).toString();
         return homeDirectory + File.separator + type + "-repository";
     }
 
