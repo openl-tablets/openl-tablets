@@ -154,7 +154,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                repo = MappedRepository.create(delegate, RepositoryMode.getTypePrefix(configName), baseFolder, repositorySettings);
+                repo = MappedRepository.create(delegate, RepositoryMode.getType(configName), baseFolder, repositorySettings);
             }
 
             return repo;

@@ -15,14 +15,18 @@ public enum RepositoryMode {
     public static RepositoryMode getTypePrefix(String configPrefix) {
         String[] prefixParts = configPrefix.split("\\.");
         if (prefixParts.length > 1) {
-            String clearPrefix = prefixParts[1];
-            for (RepositoryMode mode : values()) {
-                if (clearPrefix.startsWith(mode.toString())) {
-                    return mode;
-                }
-            }
+            return getType(prefixParts[1]);
         }
         throw new UnsupportedOperationException("Unsupported configuration prefix is using");
+    }
+
+    public static RepositoryMode getType(String clearPrefix) {
+        for (RepositoryMode mode : values()) {
+            if (clearPrefix.startsWith(mode.toString())) {
+                return mode;
+            }
+        }
+        throw new UnsupportedOperationException("Unsupported configuration is using");
     }
 
     public static boolean contains(String configName) {
