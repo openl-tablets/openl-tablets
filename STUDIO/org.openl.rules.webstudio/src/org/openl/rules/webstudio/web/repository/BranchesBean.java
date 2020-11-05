@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import javax.faces.model.SelectItem;
 
@@ -34,6 +33,8 @@ public class BranchesBean {
 
     private String currentProjectName;
 
+    private String businessName;
+
     private List<String> branches;
 
     private String currentRepositoryId;
@@ -46,6 +47,10 @@ public class BranchesBean {
 
     public String getCurrentProjectName() {
         return currentProjectName;
+    }
+
+    public String getBusinessName() {
+        return businessName;
     }
 
     public List<String> getBranches() {
@@ -236,6 +241,7 @@ public class BranchesBean {
             this.currentProjectName = currentProjectName;
 
             RulesProject project = getProject(currentProjectName);
+            this.businessName = project.getBusinessName();
             if (project != null) {
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
