@@ -29,11 +29,12 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     public boolean isRulesProject(File folder) {
         File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
         if (descriptorFile.exists()) {
-            LOG.debug("Project in {} folder has been resolved as Project descriptor based project.", folder.getPath());
+            LOG.debug("Project in folder '{}' has been resolved as project descriptor based project.",
+                folder.getPath());
             return true;
         } else {
             LOG.debug(
-                "Project descriptor based strategy has failed to resolve project folder {}: there is no file {} in folder.",
+                "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
                 folder.getPath(),
                 PROJECT_DESCRIPTOR_FILE_NAME);
             return false;
@@ -59,7 +60,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
             if ("org.openl.rules.project.resolving.CWPropertyFileNameProcessor"
                 .equals(projectDescriptor.getPropertiesFileNameProcessor())) {
                 globalWarnMessages.add(
-                    "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property was moved to the default property processor. Delete declaration of this class from rules.xml");
+                    "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property is moved to the default property processor. Remove declaration of this class from 'rules.xml'.");
             }
             Path rootProjectPath = projectDescriptor.getProjectFolder().toPath();
             for (Module module : projectDescriptor.getModules()) {
@@ -77,7 +78,8 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                     } catch (NoMatchFileNameException e) {
                         moduleWarnMessages.add(e.getMessage());
                     } catch (Exception | LinkageError e) {
-                        moduleErrorMessages.add("Failed to load custom file name processor due " + e.getClass() + ": " + e.getMessage());
+                        moduleErrorMessages.add("Failed to load custom file name processor class '" + e.getClass()
+                            .getTypeName() + "': " + e.getMessage());
                     }
                 }
                 params.put(OpenLCompileManager.ADDITIONAL_ERROR_MESSAGES_KEY, moduleErrorMessages);
@@ -91,7 +93,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 ex);
         } catch (FileNotFoundException e) {
             throw new ProjectResolvingException(
-                "Project descriptor is not found! Project must contain '" + PROJECT_DESCRIPTOR_FILE_NAME + "' file.",
+                "Project descriptor is not found. File '" + PROJECT_DESCRIPTOR_FILE_NAME + "' is missed.",
                 e);
         } catch (Exception e) {
             throw new ProjectResolvingException("Failed to read project descriptor.", e);

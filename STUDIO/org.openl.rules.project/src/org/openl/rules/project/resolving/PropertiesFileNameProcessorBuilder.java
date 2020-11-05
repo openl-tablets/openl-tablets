@@ -7,21 +7,22 @@ import java.net.URLClassLoader;
 
 import org.openl.classloader.ClassLoaderUtils;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.table.properties.ITableProperties;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
 public final class PropertiesFileNameProcessorBuilder {
+
+    private PropertiesFileNameProcessor processor;
+    private URLClassLoader classLoader;
+
     public PropertiesFileNameProcessorBuilder() {
     }
-
-    PropertiesFileNameProcessor processor;
 
     public PropertiesFileNameProcessor build(
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException,
                                                  InvalidFileNamePatternException {
         if (processor != null) {
-            throw new IllegalStateException("Processor has already built! Use a new builder.");
+            throw new IllegalStateException("Processor is already built! Use a new builder.");
         }
         String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
         String prcClass = projectDescriptor.getPropertiesFileNameProcessor();
@@ -38,12 +39,15 @@ public final class PropertiesFileNameProcessorBuilder {
                 String message = "Properties file name processor class '" + prcClass + "' is not found.";
                 throw new InvalidFileNameProcessorException(message, e);
             } catch (NoClassDefFoundError e) {
-                String message = "Properties file name processor class '" + prcClass + "' has not been load.";
+                String message = "Failed to instantiate file name processor class '" + prcClass + "'.";
                 throw new InvalidFileNameProcessorException(message, e);
             }
 
             if (!PropertiesFileNameProcessor.class.isAssignableFrom(clazz)) {
-                String message = "Properties file name processor class '" + prcClass + "' should implement org.openl.rules.project.resolving.PropertiesFileNameProcessor interface.";
+                String message = String.format(
+                    "Failed to instantiate file name processor class '%s', because it is not an implementation of '%s' interface.",
+                    prcClass,
+                    PropertiesFileNameProcessor.class.getTypeName());
                 throw new InvalidFileNameProcessorException(message);
             }
 
@@ -60,7 +64,7 @@ public final class PropertiesFileNameProcessorBuilder {
                     declaredConstructor = clazz.getDeclaredConstructor();
                     processor = newInstance(declaredConstructor);
                 } catch (NoSuchMethodException e1) {
-                    String message = "Properties file name processor class '" + prcClass + "' should have constructor with String argument or default constructor.";
+                    String message = "Failed to instantiate file name processor class '" + prcClass + "'. Constructor with 'String' argument or default constructor is not found.";
                     throw new InvalidFileNameProcessorException(message, e);
                 }
             }
@@ -68,27 +72,26 @@ public final class PropertiesFileNameProcessorBuilder {
         return processor;
     }
 
-
     static PropertiesFileNameProcessor buildDefault(String... patterns) throws InvalidFileNamePatternException {
         if (CollectionUtils.isNotEmpty(patterns)) {
-            PropertiesFileNameProcessor[] prcsrs = new PropertiesFileNameProcessor[patterns.length];
+            PropertiesFileNameProcessor[] processors = new PropertiesFileNameProcessor[patterns.length];
             for (int i = 0; i < patterns.length; i++) {
-                prcsrs[i] = new DefaultPropertiesFileNameProcessor(patterns[i]);
+                processors[i] = new DefaultPropertiesFileNameProcessor(patterns[i]);
             }
 
-            return wrapProcessors(prcsrs);
+            return wrapProcessors(processors);
         }
         return null;
     }
 
     private PropertiesFileNameProcessor buildCustom(Constructor<PropertiesFileNameProcessor> procConstructor,
             String... patterns) throws InvalidFileNamePatternException, InvalidFileNameProcessorException {
-        PropertiesFileNameProcessor[] prcsrs = new PropertiesFileNameProcessor[patterns.length];
+        PropertiesFileNameProcessor[] processors = new PropertiesFileNameProcessor[patterns.length];
         for (int i = 0; i < patterns.length; i++) {
-            prcsrs[i] = newInstance(procConstructor, patterns[i]);
+            processors[i] = newInstance(procConstructor, patterns[i]);
         }
 
-        return wrapProcessors(prcsrs);
+        return wrapProcessors(processors);
     }
 
     private PropertiesFileNameProcessor newInstance(Constructor<PropertiesFileNameProcessor> procConstructor,
@@ -104,23 +107,25 @@ public final class PropertiesFileNameProcessorBuilder {
             if (targetException instanceof RuntimeException) {
                 throw (RuntimeException) targetException;
             }
-            String message = "Failed to instantiate file name processor class '" + procConstructor + "'. Constructor should have InvalidFileNamePatternException declaration only.";
+            String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+                .getTypeName() + "'. Unexpected exception is thrown, only InvalidFileNamePatternException is supported.";
             throw new InvalidFileNameProcessorException(message, e);
         } catch (Exception e) {
-            String message = "Failed to instantiate file name processor class '" + procConstructor + "'.";
+            String message = "Failed to instantiate file name processor class '" + procConstructor.getDeclaringClass()
+                .getTypeName() + "'.";
             throw new InvalidFileNameProcessorException(message, e);
         }
         return prc;
     }
 
-    private static PropertiesFileNameProcessor wrapProcessors(PropertiesFileNameProcessor[] prcsrs) {
-        if (prcsrs.length == 1) {
-            return prcsrs[0];
+    private static PropertiesFileNameProcessor wrapProcessors(PropertiesFileNameProcessor[] processors) {
+        if (processors.length == 1) {
+            return processors[0];
         } else {
             return modulePath -> {
                 // choose the suitable pattern
                 NoMatchFileNameException error = null;
-                for (PropertiesFileNameProcessor prc : prcsrs) {
+                for (PropertiesFileNameProcessor prc : processors) {
                     try {
                         return prc.process(modulePath);
                     } catch (NoMatchFileNameException e) {
@@ -130,7 +135,6 @@ public final class PropertiesFileNameProcessorBuilder {
                         error = e;
                     }
                 }
-
                 throw error;
             };
         }
@@ -141,8 +145,6 @@ public final class PropertiesFileNameProcessorBuilder {
             ClassLoaderUtils.close(classLoader);
         }
     }
-
-    URLClassLoader classLoader;
 
     protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) {
         URL[] urls = projectDescriptor.getClassPathUrls();
