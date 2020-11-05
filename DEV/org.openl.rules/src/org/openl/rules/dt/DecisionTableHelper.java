@@ -2719,8 +2719,8 @@ public final class DecisionTableHelper {
             int i = 0;
             int x = column;
             IParameterDeclaration[][] columnParameters = new IParameterDeclaration[definition.getNumberOfTitles()][];
-            while (titles.contains(title) && numberOfColumnsUnderTitle >= definition.getLocalParameters(title)
-                .size() && x < originalTable.getSource().getWidth()) {
+            while (titles.contains(title) && isMatchedByUnderColumns(definition.getLocalParameters(title),
+                numberOfColumnsUnderTitle)) {
                 titles.remove(title);
                 for (String s : definition.getTitles()) {
                     if (s.equals(title)) {
@@ -2750,6 +2750,14 @@ public final class DecisionTableHelper {
                 }
             }
         }
+    }
+
+    private static boolean isMatchedByUnderColumns(List<IParameterDeclaration> localParameters,
+            int numberOfColumnsUnderTitle) {
+        boolean isAnyArrayTypePresented = localParameters.stream()
+            .anyMatch(e -> e != null && e.getType() != null && e.getType().isArray());
+        return isAnyArrayTypePresented ? numberOfColumnsUnderTitle >= localParameters.size()
+                                       : numberOfColumnsUnderTitle == localParameters.size();
     }
 
     private static Pair<Boolean, String[]> parsableAsArray(String src,
