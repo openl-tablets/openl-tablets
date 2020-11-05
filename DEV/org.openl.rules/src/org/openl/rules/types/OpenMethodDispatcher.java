@@ -1,13 +1,13 @@
 package org.openl.rules.types;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
@@ -22,6 +22,7 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -40,6 +41,11 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     private IOpenMethod delegate;
 
     /**
+     * Method key. Used for method signatures comparison.
+     */
+    private MethodKey delegateKey;
+
+    /**
      * List of method candidates.
      */
     private final List<IOpenMethod> candidates = new ArrayList<>();
@@ -53,6 +59,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         // about method info such as signature, name, etc.
         //
         this.delegate = Objects.requireNonNull(delegate, "Method cannot be null");
+
+        // Evaluate method key.
+        //
+        this.delegateKey = new MethodKey(delegate);
 
         // First method candidate is himself.
         //
@@ -234,12 +244,16 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
+        // Evaluate the candidate method key.
+        //
+
+        MethodKey candidateKey = new MethodKey(candidate);
+
         // Check that candidate has the same method signature and list of
         // parameters as a delegate. If they different then is two different
         // methods and delegate cannot be overloaded by candidate.
         //
-        if (delegate.getName().equals(candidate.getName()) && Arrays.equals(delegate.getSignature().getParameterTypes(),
-            candidate.getSignature().getParameterTypes())) {
+        if (delegateKey.equals(candidateKey)) {
             int i = -1;
             DimensionPropertiesMethodKey dimensionMethodKey = null;
             if (candidate instanceof ITablePropertiesMethod) {
@@ -259,12 +273,8 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
             }
         } else {
-            // Throw appropriate exception.
-            //
-            StringBuilder sb = new StringBuilder();
-            MethodUtil.printMethod(this, sb);
-
-            throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
+            throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
+                MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
     }
 
