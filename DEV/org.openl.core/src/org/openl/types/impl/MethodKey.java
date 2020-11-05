@@ -60,7 +60,7 @@ public final class MethodKey {
             break;
         }
 
-        if (firstParamToConvert == -1) {
+        if (firstParamToConvert < 0) {
             return originalParams;
         }
 
@@ -73,7 +73,7 @@ public final class MethodKey {
             IOpenClass param = originalParams[i];
             IOpenClass normParam = param;
 
-            if (param instanceof DomainOpenClass || param instanceof AOpenClass && param.getInstanceClass() != null) {
+            if (!(param instanceof JavaOpenClass) && param.getInstanceClass() != null) {
                 normParam = JavaOpenClass.getOpenClass(param.getInstanceClass());
             }
 
@@ -92,8 +92,7 @@ public final class MethodKey {
 
         MethodKey mk = (MethodKey) obj;
 
-        return Objects.equals(name, mk.name) && Arrays.equals(internalParameters,
-            mk.internalParameters);
+        return Objects.equals(name, mk.name) && Arrays.equals(internalParameters, mk.internalParameters);
     }
 
     @Override
