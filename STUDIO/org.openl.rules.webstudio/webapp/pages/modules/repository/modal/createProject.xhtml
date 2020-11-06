@@ -207,7 +207,7 @@
                                      maxlength="70"
                                      value="#{repositoryTreeController.projectName}"
                                      onkeyup="checkCreateOnExcelPanel()"
-                                     onchange="checkCreateOnExcelPanel(); createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel3')});"/>
+                                     onchange="checkCreateOnExcelPanel(); createProjectFormFilesCommentHandler.generateTemplate(this.value.trim(), #{rich:element('createProjectFormFiles:commentExcel')});"/>
                     </h:panelGrid>
                     <h:panelGrid id="excelPanelRepo" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -268,7 +268,7 @@
                                          onclear="zipFileUploaded = false; onClearFile(event); checkCreateOnZipPanel();"
                                          ontyperejected="showMessagePopup('Only zip files are accepted');"
                                          immediateUpload="true"
-                                         render="projectName zipPanelRepo:commentZip"
+                                         render="projectName commentZip"
                                          acceptedTypes="zip" maxFilesQuantity="1"/>
 
                         <h:outputLabel for="projectName" styleClass="required" value="Project Name:"/>
