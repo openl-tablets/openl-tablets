@@ -83,9 +83,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     @Override
     public String serialize(ProjectDescriptor source) {
         populateEmptyCollectionsWithNulls(source);
-        String ret = xstream.toXML(source);
-        populateNullsWithEmptyCollections(source);
-        return ret;
+        try {
+            return xstream.toXML(source);
+        } finally {
+            populateNullsWithEmptyCollections(source);
+        }
     }
 
     /**
