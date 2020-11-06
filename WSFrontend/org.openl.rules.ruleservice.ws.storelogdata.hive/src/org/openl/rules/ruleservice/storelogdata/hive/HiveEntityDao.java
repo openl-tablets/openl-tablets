@@ -1,14 +1,19 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
 import java.lang.reflect.Field;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.sql.Types;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Date;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,15 +30,17 @@ public class HiveEntityDao {
         Arrays.stream(sortedFields).forEach(f -> f.setAccessible(true));
     }
 
-    public void insert(Object entity) throws IllegalAccessException, SQLException {
+    public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
         for (int index = 0; index < sortedFields.length; index++) {
             setValue(index + 1, sortedFields[index], entity);
         }
         preparedStatement.execute();
     }
 
-    private void setValue(int index, Field field, Object entity) throws IllegalAccessException, SQLException {
-        if (Integer.class.equals(field.getType()) || int.class.equals(field.getType())) {
+    private void setValue(int index, Field field, Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+        if (String.class.equals(field.getType())) {
+            preparedStatement.setString(index, (String) field.get(entity));
+        } else if (Integer.class.equals(field.getType()) || int.class.equals(field.getType())) {
             preparedStatement.setInt(index, field.getInt(entity));
         } else if (Long.class.equals(field.getType()) || long.class.equals(field.getType())) {
             preparedStatement.setLong(index, field.getLong(entity));
@@ -47,6 +54,14 @@ public class HiveEntityDao {
             preparedStatement.setDouble(index, field.getDouble(entity));
         } else if (Float.class.equals(field.getType()) || float.class.equals(field.getType())) {
             preparedStatement.setFloat(index, field.getFloat(entity));
+        } else if (BigInteger.class.equals(field.getType())) {
+            BigInteger bigIntegerValue = (BigInteger) field.get(entity);
+            if (bigIntegerValue == null)
+                preparedStatement.setNull(index, Types.BIGINT);
+            else
+                preparedStatement.setLong(index, bigIntegerValue.longValue());
+        } else if (BigDecimal.class.equals(field.getType())) {
+            preparedStatement.setBigDecimal(index, (BigDecimal) field.get(entity));
         } else if (ZonedDateTime.class.equals(field.getType())) {
             ZonedDateTime zonedDateTime = (ZonedDateTime) field.get(entity);
             preparedStatement.setTimestamp(index,
@@ -54,8 +69,16 @@ public class HiveEntityDao {
         } else if (LocalDateTime.class.equals(field.getType())) {
             LocalDateTime localDateTime = (LocalDateTime) field.get(entity);
             preparedStatement.setTimestamp(index, localDateTime == null ? null : Timestamp.valueOf(localDateTime));
+        } else if (LocalDate.class.equals(field.getType())) {
+            LocalDate date = (LocalDate) field.get(entity);
+            preparedStatement.setDate(index, date == null ? null : java.sql.Date.valueOf(date));
+        } else if (Date.class.equals(field.getType())) {
+            Date date = (Date) field.get(entity);
+            preparedStatement.setDate(index,
+                date == null ? null : java.sql.Date.valueOf(LocalDate.parse(date.toString())));
         } else {
-            preparedStatement.setObject(index, field.get(entity));
+            throw new UnsupportedFieldTypeException(String
+                .format("Unsupported field type %s. Field %s can not be stored", field.getType(), field.getName()));
         }
     }
 
