@@ -150,7 +150,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         }
         ConcurrentMap<String, Deployment> deployments = new ConcurrentHashMap<>();
         for (FileData fileData : fileDatas) {
-            String deploymentFolderName = fileData.getName().substring(getDeployPath().length()).split("/")[0];
+            String name = fileData.getName();
+            String deployFolder = getDeployPath();
+            String deploymentPath = name.substring(deployFolder.length());
+            String[] pathEntries = deploymentPath.split("/");
+            String deploymentFolderName = pathEntries[0];
 
             String version = fileData.getVersion();
             CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0" : version);
