@@ -15,11 +15,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class HiveEntityDao {
-    private final Logger log = LoggerFactory.getLogger(HiveEntityDao.class);
     private final PreparedStatement preparedStatement;
     private final Field[] sortedFields;
 
@@ -37,7 +33,9 @@ public class HiveEntityDao {
         preparedStatement.execute();
     }
 
-    private void setValue(int index, Field field, Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+    private void setValue(int index, Field field, Object entity) throws IllegalAccessException,
+                                                                 SQLException,
+                                                                 UnsupportedFieldTypeException {
         if (String.class.equals(field.getType())) {
             preparedStatement.setString(index, (String) field.get(entity));
         } else if (Integer.class.equals(field.getType()) || int.class.equals(field.getType())) {
@@ -74,8 +72,7 @@ public class HiveEntityDao {
             preparedStatement.setDate(index, date == null ? null : java.sql.Date.valueOf(date));
         } else if (Date.class.equals(field.getType())) {
             Date date = (Date) field.get(entity);
-            preparedStatement.setDate(index,
-                date == null ? null : java.sql.Date.valueOf(LocalDate.parse(date.toString())));
+            preparedStatement.setDate(index, date == null ? null : new java.sql.Date(date.getTime()));
         } else {
             throw new UnsupportedFieldTypeException(String
                 .format("Unsupported field type %s. Field %s can not be stored", field.getType(), field.getName()));

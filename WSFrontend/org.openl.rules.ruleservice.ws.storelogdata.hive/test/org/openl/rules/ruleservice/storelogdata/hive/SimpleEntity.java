@@ -1,7 +1,9 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 
@@ -15,6 +17,8 @@ public class SimpleEntity {
     private byte byteValue;
     private ZonedDateTime zdtValue;
     private LocalDateTime ldtValue;
+    private LocalDate localDateValue;
+    private Date dateValue;
 
     public SimpleEntity() {
     }
@@ -81,5 +85,21 @@ public class SimpleEntity {
 
     public void setLdtValue(LocalDateTime ldtValue) {
         this.ldtValue = ldtValue;
+    }
+
+    public LocalDate getLocalDateValue() {
+        return localDateValue;
+    }
+
+    public void setLocalDateValue(LocalDate localDateValue) {
+        this.localDateValue = localDateValue;
+    }
+
+    public Date getDateValue() {
+        return dateValue;
+    }
+
+    public void setDateValue(Date dateValue) {
+        this.dateValue = dateValue;
     }
 }

@@ -5,8 +5,11 @@ import static org.mockito.Matchers.anyString;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.Date;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,10 +44,25 @@ public class HiveEntityDaoTest {
     }
 
     @Test
-    public void insertTest_simpleEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
+    public void insertTest_supportTypes() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, SimpleEntity.class);
         SimpleEntity simpleEntity = getSimpleEntity();
         hiveEntityDao.insert(simpleEntity);
+    }
+    @Test
+    public void insertTest_nullValue() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
+        DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
+        defaultHiveEntity.setOutcomingTime(null);
+        defaultHiveEntity.setId(null);
+        hiveEntityDao.insert(defaultHiveEntity);
+    }
+
+    @Test(expected = UnsupportedFieldTypeException.class)
+    public void insertTest_unsupportedType() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, WrongTypeEntity.class);
+        WrongTypeEntity entity = new WrongTypeEntity();
+        hiveEntityDao.insert(entity);
     }
 
     private DefaultHiveEntity getDefaultHiveEntity() {
@@ -71,6 +89,8 @@ public class HiveEntityDaoTest {
         simpleEntity.setLdtValue(LocalDateTime.now());
         simpleEntity.setZdtValue(ZonedDateTime.now());
         simpleEntity.setShortValue(Short.MAX_VALUE);
+        simpleEntity.setLocalDateValue(LocalDate.now());
+        simpleEntity.setDateValue(Date.from(Instant.now()));
         return simpleEntity;
     }
 }
