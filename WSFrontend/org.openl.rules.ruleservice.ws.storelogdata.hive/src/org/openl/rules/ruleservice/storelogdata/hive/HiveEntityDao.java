@@ -54,10 +54,11 @@ public class HiveEntityDao {
             preparedStatement.setFloat(index, field.getFloat(entity));
         } else if (BigInteger.class.equals(field.getType())) {
             BigInteger bigIntegerValue = (BigInteger) field.get(entity);
-            if (bigIntegerValue == null)
+            if (bigIntegerValue == null) {
                 preparedStatement.setNull(index, Types.BIGINT);
-            else
+            } else {
                 preparedStatement.setLong(index, bigIntegerValue.longValue());
+            }
         } else if (BigDecimal.class.equals(field.getType())) {
             preparedStatement.setBigDecimal(index, (BigDecimal) field.get(entity));
         } else if (ZonedDateTime.class.equals(field.getType())) {
@@ -75,7 +76,7 @@ public class HiveEntityDao {
             preparedStatement.setDate(index, date == null ? null : new java.sql.Date(date.getTime()));
         } else {
             throw new UnsupportedFieldTypeException(String
-                .format("Unsupported field type %s. Field %s can not be stored", field.getType(), field.getName()));
+                .format("Unsupported field type '%s'. Field %s can not be stored", field.getType(), field.getName()));
         }
     }
 
