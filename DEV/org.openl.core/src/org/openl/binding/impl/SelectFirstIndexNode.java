@@ -11,9 +11,9 @@ import org.openl.util.BooleanUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class SelectFirstIndexNode extends ABoundNode {
-    private ILocalVar tempVar;
-    private IBoundNode condition;
-    private IBoundNode targetNode;
+    private final ILocalVar tempVar;
+    private final IBoundNode condition;
+    private final IBoundNode targetNode;
 
     SelectFirstIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode condition, ILocalVar tempVar) {
         super(syntaxNode, targetNode, condition);

@@ -142,18 +142,24 @@ public class DispatchingTest {
     }
 
     @Test
-    public void testDatesDispatching() throws NoSuchMethodException, IllegalAccessException {
+    public void testDatesDispatching() {
         MyRule myRule = TestUtils.create("test/rules/dispatching/EPBDS-10367_dates_Dispatching.xlsx", MyRule.class);
-        Method method = MyRule.class.getMethod("myRule", Integer.class);
         IRulesRuntimeContext context = initContext();
-        invokeAndCheckForAmbiguous(method, myRule,  13);
+        assertEquals(myRule.myRule(13), (Double)7.0);
 
         context = initContext();
         Calendar cal = new GregorianCalendar();
         cal.set(2021, Calendar.OCTOBER, 4, 0, 0, 0);
         cal.set(Calendar.MILLISECOND, 0);
         context.setCurrentDate(cal.getTime());
-        invokeAndCheckForAmbiguous(method, myRule, 13);
+        assertEquals(myRule.myRule(13), (Double)7.0);
+
+        context = initContext();
+        Calendar cal2 = new GregorianCalendar();
+        cal2.set(2019, Calendar.OCTOBER, 4, 0, 0, 0);
+        cal2.set(Calendar.MILLISECOND, 0);
+        context.setCurrentDate(cal2.getTime());
+        assertEquals(myRule.myRule(13), (Double)7.0);
     }
 
     public void calcBenchmark() {

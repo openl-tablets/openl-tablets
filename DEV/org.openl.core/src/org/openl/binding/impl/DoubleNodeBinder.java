@@ -28,7 +28,7 @@ public class DoubleNodeBinder extends ANodeBinder {
         int len = s.length();
 
         if (Character.toUpperCase(s.charAt(len - 1)) == 'F') {
-            return new LiteralBoundNode(node, Double.valueOf(s.substring(0, len - 1)), JavaOpenClass.DOUBLE);
+            return new LiteralBoundNode(node, Float.valueOf(s.substring(0, len - 1)), JavaOpenClass.FLOAT);
         }
 
         Double doubleValue = Double.parseDouble(s);

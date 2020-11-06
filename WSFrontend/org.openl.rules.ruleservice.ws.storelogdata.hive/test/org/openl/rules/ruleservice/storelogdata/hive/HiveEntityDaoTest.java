@@ -25,14 +25,14 @@ public class HiveEntityDaoTest {
     }
 
     @Test
-    public void insertTest_defaultEntity() throws SQLException, IllegalAccessException {
+    public void insertTest_defaultEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
         hiveEntityDao.insert(defaultHiveEntity);
     }
 
     @Test
-    public void insertTest_defaultEntity_NullField() throws SQLException, IllegalAccessException {
+    public void insertTest_defaultEntity_NullField() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
         defaultHiveEntity.setId(null);
@@ -41,7 +41,7 @@ public class HiveEntityDaoTest {
     }
 
     @Test
-    public void insertTest_simpleEntity() throws SQLException, IllegalAccessException {
+    public void insertTest_simpleEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, SimpleEntity.class);
         SimpleEntity simpleEntity = getSimpleEntity();
         hiveEntityDao.insert(simpleEntity);
@@ -71,7 +71,6 @@ public class HiveEntityDaoTest {
         simpleEntity.setLdtValue(LocalDateTime.now());
         simpleEntity.setZdtValue(ZonedDateTime.now());
         simpleEntity.setShortValue(Short.MAX_VALUE);
-        simpleEntity.setRefValue(new Object());
         return simpleEntity;
     }
 }

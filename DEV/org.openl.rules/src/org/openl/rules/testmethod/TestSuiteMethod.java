@@ -1,18 +1,26 @@
 package org.openl.rules.testmethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContext;
 import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
-import org.openl.rules.data.*;
+import org.openl.rules.data.ColumnDescriptor;
+import org.openl.rules.data.DataTableBindHelper;
+import org.openl.rules.data.FieldChain;
+import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITableModel;
+import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.impl.IdentifierNode;
@@ -59,7 +67,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         this.runMethod = copy.isRunMethod();
         this.testObjects = copy.getTestObjects();
         this.dataModel = copy.getDataModel();
-        this.setUri(copy.getUri());
     }
 
     private TestDescription[] initTestsAndIndexes() {

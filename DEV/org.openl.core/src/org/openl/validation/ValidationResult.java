@@ -18,7 +18,7 @@ public class ValidationResult {
     /**
      * Validation status.
      */
-    private ValidationStatus status;
+    private final ValidationStatus status;
 
     /**
      * Messages of validation process.

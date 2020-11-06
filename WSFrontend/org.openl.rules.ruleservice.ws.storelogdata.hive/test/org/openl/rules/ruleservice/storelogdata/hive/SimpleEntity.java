@@ -15,7 +15,6 @@ public class SimpleEntity {
     private byte byteValue;
     private ZonedDateTime zdtValue;
     private LocalDateTime ldtValue;
-    private Object refValue;
 
     public SimpleEntity() {
     }
@@ -82,13 +81,5 @@ public class SimpleEntity {
 
     public void setLdtValue(LocalDateTime ldtValue) {
         this.ldtValue = ldtValue;
-    }
-
-    public Object getRefValue() {
-        return refValue;
-    }
-
-    public void setRefValue(Object refValue) {
-        this.refValue = refValue;
     }
 }

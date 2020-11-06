@@ -1,0 +1,1 @@
+WARN: Field 'scope' is already declared in parent class 'Behavior'.

@@ -1,10 +1,22 @@
 package org.openl.rules.ruleservice.management;
 
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
 import java.util.stream.Collectors;
+
+import javax.annotation.PreDestroy;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.CompiledOpenClass;
@@ -32,6 +44,7 @@ import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.servlet.ServiceInfo;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.util.CollectionUtils;
+import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.BeanInitializationException;
@@ -135,12 +148,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
-        for (Map.Entry<String, ServiceDescription> svc : services.entrySet()) {
-            String serviceName = svc.getKey();
-            ServiceDescription service = svc.getValue();
+        for (String serviceName : services.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY)) {
             if (!newServices.containsKey(serviceName)) {
                 try {
-                    undeploy(service);
+                    undeploy(services.get(serviceName));
                 } catch (RuleServiceUndeployException e) {
                     log.error("Failed to undeploy service '{}'.", serviceName, e);
                 }
@@ -203,23 +214,19 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         try {
             this.openLServiceInProcess = service;
             this.serviceDescriptionInProcess = serviceDescription;
-            try {
-                undeploy(serviceName);
-            } finally {
-                cleanDeploymentResources(serviceDescription);
-                ClassLoader classloader = null;
-                try {
-                    classloader = service.getClassLoader();
-                } catch (RuleServiceInstantiationException ignored) {
-                }
-                OpenClassUtil.releaseClassLoader(classloader);
-            }
+            undeploy(serviceName);
             log.info("Service '{}' has been undeployed successfully.", serviceName);
         } finally {
             this.openLServiceInProcess = null;
             this.serviceDescriptionInProcess = null;
             startDates.remove(serviceName);
             services.remove(serviceName);
+            try {
+                ClassLoader classloader = service.getClassLoader();
+                OpenClassUtil.releaseClassLoader(classloader);
+            } catch (RuleServiceInstantiationException ignored) {
+            }
+            cleanDeploymentResources(serviceDescription);
         }
     }
 
@@ -462,5 +469,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                         defPublisher));
             }
         }
+    }
+
+    @PreDestroy
+    public void destroy() throws Exception {
+        undeployUnnecessary(Collections.emptyMap());
     }
 }

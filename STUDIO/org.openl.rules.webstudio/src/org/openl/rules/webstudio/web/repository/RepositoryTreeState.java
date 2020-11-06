@@ -23,6 +23,7 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
@@ -556,12 +557,40 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 // any user can delete own local project
                 return true;
             }
-            return (!selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser())) && isGranted(
-                DELETE_PROJECTS);
+            boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
+            boolean mainBranch = isMainBranch(selectedProject);
+            return unlocked && isGranted(DELETE_PROJECTS) && mainBranch;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
+    }
+
+    public boolean getCanDeleteBranch() {
+        try {
+            UserWorkspaceProject selectedProject = getSelectedProject();
+            if (selectedProject.isLocalOnly()) {
+                return false;
+            }
+            boolean unlocked = !selectedProject.isLocked() || selectedProject.isLockedByUser(userWorkspace.getUser());
+            boolean mainBranch = isMainBranch(selectedProject);
+            return unlocked && isGranted(DELETE_PROJECTS) && !mainBranch;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private boolean isMainBranch(UserWorkspaceProject selectedProject) {
+        boolean mainBranch = true;
+        Repository designRepository = selectedProject.getDesignRepository();
+        if (designRepository.supports().branches()) {
+            String branch = selectedProject.getBranch();
+            if (!((BranchRepository) designRepository).getBaseBranch().equals(branch)) {
+                mainBranch = false;
+            }
+        }
+        return mainBranch;
     }
 
     public boolean getCanErase() {

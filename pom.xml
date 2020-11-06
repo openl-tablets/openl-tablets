@@ -80,7 +80,7 @@
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
-        <org.springframework.version>5.2.9.RELEASE</org.springframework.version>
+        <org.springframework.version>5.2.10.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.4.1</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
         <org.mojarra.version>2.4.0</org.mojarra.version>
@@ -98,7 +98,7 @@
         <log4j.version>2.13.3</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.66</org.bouncycastle.version>
+        <org.bouncycastle.version>1.67</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.11.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
@@ -113,7 +113,9 @@
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m</surefire.argLine.perf>
         <openl.home>${project.build.directory}/openl-test</openl.home>
+        <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
+        <hive.jdbc.version>2.3.7</hive.jdbc.version>
     </properties>
 
     <modules>
@@ -228,6 +230,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
+                            <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>
@@ -249,11 +252,6 @@
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-antrun-plugin</artifactId>
-                    <version>3.0.0</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-jar-plugin</artifactId>
                     <version>3.2.0</version>
                     <configuration>
@@ -271,7 +269,7 @@
                 <plugin>
                     <groupId>org.basepom.maven</groupId>
                     <artifactId>duplicate-finder-maven-plugin</artifactId>
-                    <version>1.4.0</version>
+                    <version>1.5.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
@@ -314,6 +312,10 @@
                             <systemProperty>
                                 <name>openl.info</name>
                                 <value>${openl.info}</value>
+                            </systemProperty>
+                            <systemProperty>
+                                <name>java.io.tmpdir</name>
+                                <value>${java.io.tmpdir}</value>
                             </systemProperty>
                         </systemProperties>
                     </configuration>
@@ -522,6 +524,25 @@
                 </property>
             </activation>
             <build>
+                <pluginManagement>
+                    <plugins>
+                        <plugin>
+                            <groupId>org.apache.maven.plugins</groupId>
+                            <artifactId>maven-war-plugin</artifactId>
+                            <configuration>
+                                <webResources>
+                                    <resource>
+                                        <directory>target</directory>
+                                        <includes>
+                                            <include>application.properties</include>
+                                        </includes>
+                                        <targetPath>WEB-INF/classes</targetPath>
+                                    </resource>
+                                </webResources>
+                            </configuration>
+                        </plugin>
+                    </plugins>
+                </pluginManagement>
                 <plugins>
                     <plugin>
                         <groupId>org.codehaus.gmaven</groupId>
@@ -564,7 +585,9 @@
                                 // See :org.openl.spring artifact.
                                 Resource[] resources = prpr.getResources("classpath*:openl-default.properties");
 
-                                def out = new File(project.build.outputDirectory, "application.properties");
+                                def targetDir = new File(project.build.directory);
+                                targetDir.mkdirs();
+                                def out = new File(targetDir, "application.properties");
                                 out.write("### This file was generated!\n\r\n\r")
                                 def write = {
                                     String text -&gt;
@@ -1042,7 +1065,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.35.2</version>
+                <version>3.36.1</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1667,6 +1690,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                 <type>war</type>
                 <scope>runtime</scope>
                 <version>${project.version}</version>
@@ -1747,6 +1775,13 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-excel-builder</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <!-- Hive -->
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.20</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

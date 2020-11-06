@@ -36,7 +36,6 @@ public class DataTableExporterTest {
 
     @Test
     public void writeDataTables() throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DatatypeModel dt = new DatatypeModel("Test");
 
         FieldModel stringField = new FieldModel("type", STRING_TYPE, "Hello, World");
@@ -57,10 +56,12 @@ public class DataTableExporterTest {
         secondModel.setFields(Arrays.asList(integerField, sumField, isOkField));
         PathInfo infoForNotOk = new PathInfo("/getMyModel", "/my/model", "POST", "Unknown", "text/plain", "text/html");
         DataModel myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);
-        ExcelFileBuilder.generateDataTables(Arrays.asList(dm, myModel), bos);
-        try (OutputStream fos = new FileOutputStream(DATA_TEST_PROJECT_NAME)) {
-            fos.write(bos.toByteArray());
 
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTables(Arrays.asList(dm, myModel), bos);
+            try (OutputStream fos = new FileOutputStream(DATA_TEST_PROJECT_NAME)) {
+                fos.write(bos.toByteArray());
+            }
         }
 
         try (XSSFWorkbook wb = new XSSFWorkbook(

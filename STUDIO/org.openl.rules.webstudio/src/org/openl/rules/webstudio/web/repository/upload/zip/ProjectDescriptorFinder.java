@@ -7,7 +7,7 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.XmlProjectDescriptorSerializer;
 
 public class ProjectDescriptorFinder extends DefaultZipEntryCommand {
-    private final XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+    private final XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
     private ProjectDescriptor projectDescriptor;
 
     @Override

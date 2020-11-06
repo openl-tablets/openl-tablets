@@ -232,8 +232,13 @@ public class RulesProject extends UserWorkspaceProject {
 
     @Override
     public LockInfo getLockInfo() {
-        String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
-        return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
+        try {
+            String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
+            return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return LockInfo.NO_LOCK;
+        }
     }
 
     @Override
@@ -243,6 +248,11 @@ public class RulesProject extends UserWorkspaceProject {
             return;
         }
         lockEngine.unlock(getDesignRepository().getId(), getBranch(), getRealPath());
+    }
+
+    //for ability to unlock project if something went wrong
+    public void forceUnlock() {
+        lockEngine.forceUnlock(getDesignRepository().getId(), getBranch(), getRealPath());
     }
 
     /**
@@ -305,7 +315,7 @@ public class RulesProject extends UserWorkspaceProject {
             return getLastHistoryVersion() != null;
         }
         if (!subPath.startsWith("/")) {
-            subPath += "/";
+            subPath = "/" + subPath;
         }
         String fullPath = getFolderPath() + subPath;
         try {

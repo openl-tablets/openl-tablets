@@ -25,6 +25,15 @@ public final class SpringInitializer implements ServletContextListener {
         servletContext.log("Initializing Spring root ApplicationContext");
         applicationContext = new ClassPathXmlApplicationContext();
         applicationContext.setId("OpenL_RuleService");
+
+        // If not define classloader at this time, then CXF bus will get random classloader from the current thread
+        // because of CXF bus can be initialized much later lazily. And at that time the classloader in the thread can
+        // be set in one of instances of org.openl.classloader.OpenLBundleClassLoader
+        // So to prevent it we set current classloader which is usually a Web application root class loader.
+        // We don't use classloader of this class because of this class can be packaged outside of the application.
+        // e.g. as a common dependency for the Spring Boot application.
+        applicationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+
         applicationContext.setConfigLocations("classpath:openl-ruleservice-beans.xml",
             "classpath:openl-ruleservice-validation-beans.xml",
             "classpath:openl-ruleservice-store-log-data-beans.xml",
@@ -34,6 +43,7 @@ public final class SpringInitializer implements ServletContextListener {
         applicationContext.addBeanFactoryPostProcessor(
             bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
         applicationContext.refresh();
+        applicationContext.registerShutdownHook();
         servletContext.setAttribute(THIS, this);
     }
 

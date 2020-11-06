@@ -60,6 +60,15 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         applicationContext.setServletContext(servletContext);
         applicationContext.setId("OpenL_WebStudio");
         applicationContext.setConfigLocations("/WEB-INF/spring/webstudio.xml");
+
+        // If not define classloader at this time, then CXF bus will get random classloader from the current thread
+        // because of CXF bus can be initialized much later lazily. And at that time the classloader in the thread can
+        // be set in one of instances of org.openl.classloader.OpenLBundleClassLoader
+        // So to prevent it we set current classloader which is usually a Web application root class loader.
+        // We don't use classloader of this class because of this class can be packaged outside of the application.
+        // e.g. as a common dependency for the Spring Boot application.
+        applicationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
+
         new PropertySourcesLoader().initialize(applicationContext, servletContext);
 
         // Register a WEB context path for easy access from Spring beans
@@ -74,7 +83,7 @@ public final class SpringInitializer implements Runnable, ServletContextListener
         Migrator.migrate();
 
         applicationContext.refresh();
-
+        applicationContext.registerShutdownHook();
         // Store Spring context object for accessing from code.
         servletContext.setAttribute(THIS, this);
         servletContext.setAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, applicationContext);

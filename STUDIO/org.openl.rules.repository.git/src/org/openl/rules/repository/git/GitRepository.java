@@ -1254,7 +1254,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                         throw new IOException(
                                 "Remote ref update was rejected, because old object id on remote repository wasn't the same as defined expected old object.");
                     case REJECTED_OTHER_REASON:
-                        throw new IOException(remoteUpdate.getMessage());
+                        String message = remoteUpdate.getMessage();
+                        if ("pre-receive hook declined".equals(message)) {
+                            message = "Remote git server rejected your commit because of pre-receive hook. Contact remote git administrator for details.";
+                        }
+                        throw new IOException(message);
                     case AWAITING_REPORT:
                         throw new IOException(
                                 "Push process is awaiting update report from remote repository. This is a temporary state or state after critical error in push process.");
@@ -1279,7 +1283,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             try (RevWalk walk = new RevWalk(repository)) {
-                RevCommit commit = walk.parseCommit(resolveBranchId());
+                ObjectId branchId = resolveBranchId();
+                if (branchId == null) {
+                    return command.apply(repository, null, path);
+                }
+                RevCommit commit = walk.parseCommit(branchId);
                 RevTree tree = commit.getTree();
 
                 // Create TreeWalk for root folder

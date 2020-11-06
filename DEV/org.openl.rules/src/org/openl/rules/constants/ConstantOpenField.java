@@ -1,19 +1,17 @@
 package org.openl.rules.constants;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.types.IUriMember;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class ConstantOpenField extends AOpenField implements IUriMember {
+public class ConstantOpenField extends AOpenField {
 
     private final ModuleOpenClass declaringClass;
     private final Object value;
     private final String valueAsString;
     private IMemberMetaInfo memberMetaInfo;
-    private final String uri;
 
     public ConstantOpenField(String name,
             Object value,
@@ -26,16 +24,10 @@ public class ConstantOpenField extends AOpenField implements IUriMember {
         this.value = value;
         this.valueAsString = valueAsString;
         this.memberMetaInfo = memberMetaInfo;
-        this.uri = memberMetaInfo.getSourceUrl();
     }
 
     public String getValueAsString() {
         return valueAsString;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
     }
 
     @Override

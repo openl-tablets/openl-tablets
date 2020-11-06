@@ -63,6 +63,14 @@ public final class WrapperLogic {
         return method;
     }
 
+    public static IOpenMethod unwrapOpenMethod(IOpenMethod method) {
+        if (method instanceof IRulesMethodWrapper) {
+            IRulesMethodWrapper wrapper = (IRulesMethodWrapper) method;
+            return wrapper.getDelegate();
+        }
+        return method;
+    }
+
     public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
         IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];

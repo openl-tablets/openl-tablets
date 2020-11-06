@@ -1,5 +1,14 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
@@ -22,9 +31,6 @@ import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.*;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -106,7 +112,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 .user(getUser())
                 .lockEngine(deploymentsLockEngine)
                 .build();
-        userDProjects.put(name, ddProject);
+        userDProjects.put(name.toLowerCase(), ddProject);
         return ddProject;
     }
 
@@ -115,7 +121,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
         refreshDeploymentProjects();
         ADeploymentProject deploymentProject;
         synchronized (userDProjects) {
-            deploymentProject = userDProjects.get(name);
+            deploymentProject = userDProjects.get(name.toLowerCase());
         }
         if (deploymentProject == null) {
             throw new ProjectException("Cannot find deployment project ''{0}''", null, name);
@@ -216,7 +222,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
             }
         }
         synchronized (userDProjects) {
-            if (userDProjects.get(name) != null) {
+            if (userDProjects.get(name.toLowerCase()) != null) {
                 return true;
             }
         }
@@ -292,7 +298,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 String name = ddp.getName();
                 dtrProjectsMap.put(name, ddp);
 
-                ADeploymentProject userDProject = userDProjects.get(name);
+                ADeploymentProject userDProject = userDProjects.get(name.toLowerCase());
 
                 if (userDProject == null || ddp.isDeleted() != userDProject.isDeleted()) {
                     userDProject = new ADeploymentProject(user,
@@ -308,7 +314,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
                         }
                     }
 
-                    userDProjects.put(name, userDProject);
+                    userDProjects.put(name.toLowerCase(), userDProject);
                 } else {
                     userDProject.refresh();
                 }

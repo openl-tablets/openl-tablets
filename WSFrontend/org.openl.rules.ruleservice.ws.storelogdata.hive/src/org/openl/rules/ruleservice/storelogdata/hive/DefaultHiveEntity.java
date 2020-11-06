@@ -3,15 +3,21 @@ package org.openl.rules.ruleservice.storelogdata.hive;
 import java.time.ZonedDateTime;
 
 import org.openl.rules.ruleservice.storelogdata.RandomUUID;
-import org.openl.rules.ruleservice.storelogdata.annotation.*;
+import org.openl.rules.ruleservice.storelogdata.annotation.IncomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.MethodName;
+import org.openl.rules.ruleservice.storelogdata.annotation.OutcomingTime;
+import org.openl.rules.ruleservice.storelogdata.annotation.Publisher;
+import org.openl.rules.ruleservice.storelogdata.annotation.Request;
+import org.openl.rules.ruleservice.storelogdata.annotation.Response;
+import org.openl.rules.ruleservice.storelogdata.annotation.ServiceName;
+import org.openl.rules.ruleservice.storelogdata.annotation.Url;
+import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConverter;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
-import org.springframework.data.annotation.Id;
 
 @Entity("openl_log_data")
 public class DefaultHiveEntity {
 
     @WithStoreLogDataConverter(converter = RandomUUID.class)
-    @Id
     private String id;
 
     @IncomingTime

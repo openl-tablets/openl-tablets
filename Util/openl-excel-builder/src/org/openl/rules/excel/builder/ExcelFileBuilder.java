@@ -8,9 +8,12 @@ import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporte
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.poi.xssf.streaming.SXSSFRow;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
@@ -20,10 +23,12 @@ import org.openl.rules.excel.builder.export.DatatypeTableExporter;
 import org.openl.rules.excel.builder.export.EnvironmentTableExporter;
 import org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter;
 import org.openl.rules.excel.builder.template.ExcelTemplateUtils;
+import org.openl.rules.excel.builder.template.SpreadsheetTableStyle;
 import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.util.CollectionUtils;
@@ -181,9 +186,34 @@ public class ExcelFileBuilder {
         }
         SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
         SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
+        Set<String> reservedWords = spreadsheetModels.stream()
+            .map(SpreadsheetModel::getSteps)
+            .flatMap(Collection::stream)
+            .map(StepModel::getName)
+            .collect(Collectors.toSet());
+        editTextIfNeeded((SpreadsheetTableStyle) tableStyle, reservedWords);
         sprTableExporter.setTableStyle(tableStyle);
         sprTableExporter.export(spreadsheetModels, sprSheet);
         sprSheet.validateMergedRegions();
+    }
+
+    private static void editTextIfNeeded(SpreadsheetTableStyle tableStyle, Set<String> reservedWords) {
+        String defaultValueHeader = tableStyle.getValueHeaderText();
+        if (defaultValueHeader == null) {
+            return;
+        }
+        String valueHeaderText = makeName(defaultValueHeader, reservedWords);
+        if (!defaultValueHeader.equals(valueHeaderText)) {
+            tableStyle.setValueHeaderText(valueHeaderText);
+        }
+    }
+
+    private static String makeName(String text, Set<String> reservedWords) {
+        if (CollectionUtils.isNotEmpty(reservedWords) && reservedWords.contains(text)) {
+            text = text + "1";
+            return makeName(text, reservedWords);
+        }
+        return text;
     }
 
     private static void writeDataTables(List<DataModel> dataModels, SXSSFWorkbook workbook, TableStyle tableStyle) {

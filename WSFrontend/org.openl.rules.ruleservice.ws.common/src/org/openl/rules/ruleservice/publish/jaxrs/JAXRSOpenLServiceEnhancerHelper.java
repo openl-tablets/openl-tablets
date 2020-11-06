@@ -2,6 +2,11 @@ package org.openl.rules.ruleservice.publish.jaxrs;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
@@ -13,7 +18,18 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.ws.rs.*;
+import javax.ws.rs.BeanParam;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HeaderParam;
+import javax.ws.rs.MatrixParam;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -59,6 +75,11 @@ public class JAXRSOpenLServiceEnhancerHelper {
         TEXT_MEDIA_TYPE_SET.add(Enum.class);
         TEXT_MEDIA_TYPE_SET.add(String.class);
         TEXT_MEDIA_TYPE_SET.add(Date.class);
+        TEXT_MEDIA_TYPE_SET.add(Instant.class);
+        TEXT_MEDIA_TYPE_SET.add(ZonedDateTime.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalDateTime.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalDate.class);
+        TEXT_MEDIA_TYPE_SET.add(LocalTime.class);
     }
 
     private static class JAXRSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {

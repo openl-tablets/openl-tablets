@@ -2,6 +2,7 @@ package org.openl.rules.excel.builder;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.openl.rules.excel.builder.export.SpreadsheetResultTableExporter.SPR_RESULT_SHEET;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -55,7 +56,7 @@ public class SpreadsheetTableExporterTest {
         ExcelFileBuilder.generateProject(projectModel);
 
         try (XSSFWorkbook wb = new XSSFWorkbook(new FileInputStream("../openl-excel-builder/spr_test_project.xlsx"))) {
-            XSSFSheet dtsSheet = wb.getSheet("SpreadsheetResults");
+            XSSFSheet dtsSheet = wb.getSheet(SPR_RESULT_SHEET);
             assertNotNull(dtsSheet);
             XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
             assertNotNull(headerRow);

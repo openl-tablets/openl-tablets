@@ -6,8 +6,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
 import java.nio.channels.ClosedByInterruptException;
+import java.nio.file.AccessDeniedException;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -52,7 +56,7 @@ public class Lock {
             LOG.info("Log retrieving is interrupted. Don't create a lock.", e);
             return false;
         } catch (IOException e) {
-            LOG.error("Failed to retrieve lock info.", e);
+            //Failed to retrieve lock info.
             return false;
         }
         if (info.isLocked()) {
@@ -64,20 +68,15 @@ public class Lock {
             Path prepareLock = null;
             try {
                 prepareLock = createLockFile(lockedBy);
-                lockAcquired = finishLockCreating(prepareLock);
-                if (!lockAcquired) {
-                    // Delete because of it loos lock
-                    Files.delete(prepareLock);
-                    deleteEmptyParentFolders();
+                if (prepareLock != null) {
+                    lockAcquired = finishLockCreating(prepareLock);
                 }
-            } catch (ClosedByInterruptException e) {
-                LOG.info("Another thread interrupted IO operation. Cancel lock '{}'.", lockPath);
+            } catch (Exception e) {
+                LOG.info("Failure of lock creation. Cancel lock '{}'.", lockPath);
+            }
+            if (!lockAcquired) {
+                // Delete because of it loos lock
                 deleteLockAndFolders(prepareLock);
-                lockAcquired = false;
-            } catch (IOException e) {
-                LOG.error("Failure of lock creation.", e);
-                deleteLockAndFolders(prepareLock);
-                lockAcquired = false;
             }
         }
         return lockAcquired;
@@ -130,7 +129,7 @@ public class Lock {
                         info.getLockedBy(),
                         timeToLive,
                         unit);
-                unlock();
+                forceUnlock();
             }
             result = tryLock(lockedBy, timeToWait, unit);
         }
@@ -161,8 +160,20 @@ public class Lock {
     }
 
     public void unlock() {
+        unlock(false);
+    }
+
+    public void forceUnlock() {
+        unlock(true);
+    }
+
+    private void unlock(boolean force) {
         try {
-            FileUtils.delete(lockPath.toFile());
+            if (force) {
+                FileUtils.delete(lockPath.toFile());
+            } else {
+                Files.deleteIfExists(lockPath.resolve(READY_LOCK));
+            }
             deleteEmptyParentFolders();
         } catch (FileNotFoundException ignored) {
             // Ignored
@@ -174,8 +185,8 @@ public class Lock {
 
     private void deleteEmptyParentFolders() {
         File file = lockPath.toFile();
-        while (!(file = file.getParentFile()).equals(locksLocation.toFile()) && file.delete()) {
-            // Delete empty parent folders
+        while (!file.equals(locksLocation.toFile()) && file.delete()) {
+            file = file.getParentFile();
         }
     }
 
@@ -211,23 +222,34 @@ public class Lock {
                 }
             }
             return new LockInfo(date, userName);
+        } catch (NoSuchFileException e) {
+            //Lock can be deleted in another thread
+            return LockInfo.NO_LOCK;
         }
     }
 
     Path createLockFile(String userName) throws IOException {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
-        Files.createDirectories(lockPath);
-        Path lock = lockPath.resolve(userNameHash + ".lock");
-        try (Writer os = Files.newBufferedWriter(lock)) {
-            os.write("#Lock info\n");
-            os.append("user=").append(userName).write('\n');
-            os.append("date=").append(Instant.now().toString()).write('\n');
+        try {
+            Files.createDirectories(lockPath);
+            Path lock = lockPath.resolve(userNameHash + ".lock");
+            try (Writer os = Files.newBufferedWriter(lock, StandardOpenOption.CREATE_NEW)) {
+                os.write("#Lock info\n");
+                os.append("user=").append(userName).write('\n');
+                os.append("date=").append(Instant.now().toString()).write('\n');
+            } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
+                //Can't create lock file
+                return null;
+            } catch (Exception e) {
+                //Lock file was create but with error. So delete it.
+                LOG.info("Can't create lock file '{}'. Delete it.", lock);
+                deleteLockAndFolders(lock);
+                return null;
+            }
+            return lock;
         } catch (Exception e) {
-            LOG.info("Can't create lock file '{}'. Delete it.", lock);
-            deleteLockAndFolders(lock);
-            throw e;
+            return null;
         }
-        return lock;
     }
 
     boolean finishLockCreating(Path lock) throws IOException {
@@ -237,16 +259,19 @@ public class Lock {
             // So, if there is an empty folder, then unlock is happened, and the lock file has been deleted.
             return false;
         }
-        Path lockName = lock.getFileName();
-        FileTime current = Files.getLastModifiedTime(lock);
-        for (File file : files) {
-            Path anotherName = file.toPath().getFileName();
-            FileTime another = Files.getLastModifiedTime(file.toPath());
-
-            if (current
-                    .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
-                return false;
+        try {
+            Path lockName = lock.getFileName();
+            FileTime current = Files.getLastModifiedTime(lock);
+            for (File file : files) {
+                Path anotherName = file.toPath().getFileName();
+                FileTime another = Files.getLastModifiedTime(file.toPath());
+                if (current
+                        .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
+                    return false;
+                }
             }
+        } catch (IOException e) {
+            return false;
         }
         Files.move(lock, lockPath.resolve(READY_LOCK));
         return true;
@@ -257,7 +282,6 @@ public class Lock {
             if (lock != null) {
                 Files.delete(lock);
             }
-            FileUtils.delete(lockPath.toFile());
             deleteEmptyParentFolders();
         } catch (Exception ex) {
             LOG.error(ex.getMessage(), ex);

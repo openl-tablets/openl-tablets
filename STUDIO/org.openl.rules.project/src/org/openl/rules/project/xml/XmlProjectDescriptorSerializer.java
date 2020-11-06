@@ -36,21 +36,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     private final XStream xstream;
 
-    private final boolean postProcess;
-
-    /**
-     * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
-     */
-    public XmlProjectDescriptorSerializer() {
-        this(true);
-    }
-
     /**
      * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      *
-     * @param postProcess is post processing of project descriptor is needed
      */
-    public XmlProjectDescriptorSerializer(boolean postProcess) {
+    public XmlProjectDescriptorSerializer() {
         xstream = new XStream(new DomDriver());
         xstream.addPermission(NoTypePermission.NONE);
         xstream.allowTypeHierarchy(Module.class);
@@ -88,14 +78,16 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasField("openapi", ProjectDescriptor.class, "openapi");
         xstream.aliasField("model-module-name", OpenAPI.class, "modelModuleName");
         xstream.aliasField("algorithm-module-name", OpenAPI.class, "algorithmModuleName");
-
-        this.postProcess = postProcess;
     }
 
     @Override
     public String serialize(ProjectDescriptor source) {
-        clean(source);
-        return xstream.toXML(source);
+        populateEmptyCollectionsWithNulls(source);
+        try {
+            return xstream.toXML(source);
+        } finally {
+            populateNullsWithEmptyCollections(source);
+        }
     }
 
     /**
@@ -104,23 +96,21 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     @Override
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
-        if (postProcess) {
-            postProcess(descriptor);
-        }
+        populateNullsWithEmptyCollections(descriptor);
         return descriptor;
     }
 
-    private void postProcess(ProjectDescriptor descriptor) {
+    private void populateNullsWithEmptyCollections(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
-            descriptor.setClasspath(new ArrayList<PathEntry>());
+            descriptor.setClasspath(new ArrayList<>());
         }
 
         if (descriptor.getModules() == null) {
-            descriptor.setModules(new ArrayList<Module>());
+            descriptor.setModules(new ArrayList<>());
         }
     }
 
-    private void clean(ProjectDescriptor descriptor) {
+    private void populateEmptyCollectionsWithNulls(ProjectDescriptor descriptor) {
         if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
             descriptor.setClasspath(null);
         }

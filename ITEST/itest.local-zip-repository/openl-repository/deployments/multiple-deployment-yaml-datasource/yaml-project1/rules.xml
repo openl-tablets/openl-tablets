@@ -1,0 +1,14 @@
+<project>
+	<name>yaml-project1</name>
+	<modules>
+		<module>
+			<rules-root path="*.xlsx"/>
+		</module>
+	</modules>
+	<dependencies>
+		<dependency>
+			<name>yaml-project2</name>
+			<autoIncluded>true</autoIncluded>
+		</dependency>
+	</dependencies>
+</project>

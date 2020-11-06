@@ -336,7 +336,7 @@ public final class RuleRowHelper {
     public static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
             .getName() + " = " + constantOpenField.getValueAsString();
-        return new SimpleNodeUsage(start, end, description, constantOpenField.getUri(), NodeType.OTHER);
+        return new SimpleNodeUsage(start, end, description, constantOpenField.getMemberMetaInfo().getSourceUrl(), NodeType.OTHER);
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {

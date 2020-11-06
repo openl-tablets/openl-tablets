@@ -90,6 +90,14 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
+    public void test_multideploy_without_name() throws Exception {
+        try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
+            deployer.deploy("customName-deployment", is, true);
+        }
+        assertMultipleDeployment(DEPLOY_PATH + "customName-deployment/project");
+    }
+
+    @Test
     public void test_deploy_singleDeployment_whenNotOverridable() throws Exception {
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
@@ -130,10 +138,10 @@ public class RulesDeployerServiceTest {
         try (InputStream is = getResourceAsStream(MULTIPLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
-        assertMultipleDeployment();
+        assertMultipleDeployment(DEPLOY_PATH + "yaml_project/project");
     }
 
-    private void assertMultipleDeployment() throws IOException {
+    private void assertMultipleDeployment(String expectedName) throws IOException {
         Class<List<FileItem>> listClass = (Class) List.class;
         ArgumentCaptor<List<FileItem>> captor = ArgumentCaptor.forClass(listClass);
 
@@ -146,7 +154,6 @@ public class RulesDeployerServiceTest {
             assertNotNull(actualFileData);
             assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor());
             assertTrue("Content size must be greater thar 0", actualFileData.getSize() > 0);
-            final String expectedName = DEPLOY_PATH + "yaml_project/project";
             assertTrue(actualFileData.getName().startsWith(expectedName));
             assertEquals(expectedName.length() + 1, actualFileData.getName().length());
         }

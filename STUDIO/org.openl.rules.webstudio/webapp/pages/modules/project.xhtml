@@ -398,6 +398,12 @@
                             <td><h:inputText id="projectName" value="#{project.name}"
                                              validator="#{projectBean.validateProjectName}"/></td>
                         </tr>
+                        <tr>
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="projectName" styleClass="error"/>
+                            </a4j:outputPanel></td>
+                        </tr>
                     </ui:fragment>
                     <tr>
                         <td></td>
@@ -591,16 +597,19 @@
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel styleClass="required" for="openAPIPath" value="OpenAPI file path:"/>
                     <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPIPath}"
-                                 validator="#{projectBean.validateOpenAPIPath}"/>
+                                 validator="#{projectBean.validateOpenAPIPath}"
+                                 onkeyup="checkForm();"/>
                     <h:outputLabel styleClass="required" for="openAPIAlgorithmModuleName"
                                    value="Module Name for Rules:"/>
                     <h:inputText id="openAPIAlgorithmModuleName" size="35" maxlength="70"
                                  value="#{projectBean.algorithmModuleName}"
+                                 onkeyup="checkForm();"
                                  validator="#{projectBean.validateAlgorithmModuleName}"/>
                     <h:outputLabel styleClass="required" for="openAPIModelModuleName"
                                    value="Module Name for Data Types:"/>
                     <h:inputText id="openAPIModelModuleName" size="35" maxlength="70"
                                  value="#{projectBean.modelModuleName}"
+                                 onkeyup="checkForm();"
                                  validator="#{projectBean.validateModelModuleName}"/>
                 </h:panelGrid>
                 <a4j:outputPanel ajaxRendered="true">
@@ -789,35 +798,33 @@
                 })
             }
 
-            function manageOpenAPI() {
-                if (!canOverwriteRevision()) {
-                    return false;
-                }
+            function checkForm(){
                 const editBtn = $j("#editOpenAPIBtn");
                 const editAndRegenerateBtn = $j("#regenerateOpenAPIBtn");
 
                 editBtn.prop("disabled", true);
                 editAndRegenerateBtn.prop("disabled", true);
+                let openAPIPathVal = $j("#openAPIPath").val();
+                let modelModuleVal = $j("#openAPIModelModuleName").val();
+                let algoModuleNameVal = $j("#openAPIAlgorithmModuleName").val();
+                let valueNotChanged = openAPIPathVal === initialOpenAPIPath
+                    && modelModuleVal === initialModelModuleName
+                    && algoModuleNameVal === initialAlgorithmsModuleName;
+                let isEmpty = !openAPIPathVal || !modelModuleVal || !algoModuleNameVal;
+                let isInvalid = valueNotChanged || isEmpty;
+                editBtn.prop("disabled", isInvalid);
+                editAndRegenerateBtn.prop("disabled", isEmpty);
+            }
 
+            function manageOpenAPI() {
+                if (!canOverwriteRevision()) {
+                    return false;
+                }
                 $j("#openAPIPath").val(initialOpenAPIPath);
                 $j("#openAPIModelModuleName").val(initialModelModuleName);
                 $j("#openAPIAlgorithmModuleName").val(initialAlgorithmsModuleName);
-
+                checkForm();
                 ws.ui.show("manageOpenAPIPopup");
-
-                $j("#openAPIPath, #openAPIModelModuleName, #openAPIAlgorithmModuleName").on("keyup", function () {
-                    let openAPIPathVal = $j("#openAPIPath").val();
-                    let modelModuleVal = $j("#openAPIModelModuleName").val();
-                    let algoModuleNameVal = $j("#openAPIAlgorithmModuleName").val();
-                    let valueNotChanged = openAPIPathVal === initialOpenAPIPath
-                        && modelModuleVal === initialModelModuleName
-                        && algoModuleNameVal === initialAlgorithmsModuleName;
-                    let isEmpty = !openAPIPathVal || !modelModuleVal || !algoModuleNameVal;
-                    let isInvalid = valueNotChanged || isEmpty;
-                    editBtn.prop("disabled", isInvalid);
-                    editAndRegenerateBtn.prop("disabled", isInvalid);
-                })
-
             }
 
             function initExpandableLink(divWithLink, divToShow) {

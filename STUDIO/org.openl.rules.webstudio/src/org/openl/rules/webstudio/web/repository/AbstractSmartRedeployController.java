@@ -126,7 +126,7 @@ public abstract class AbstractSmartRedeployController {
 
         if (deployRepo.supports().folders()) {
             folderStructure = !((FolderRepository) deployRepo)
-                .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName) + "/")
+                .listFolders(deploymentManager.repositoryFactoryProxy.getBasePath(repositoryConfigName))
                 .isEmpty();
         } else {
             folderStructure = false;

@@ -15,7 +15,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  * @author Aleh Bykhavets
  */
 public final class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']' };
+    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']', '|', '\"' };
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name cannot contain forbidden characters (" + NameChecker
         .getForbiddenCharacters() + "), start with space, end with space or dot.";
@@ -108,10 +108,14 @@ public final class NameChecker {
                 throw new IOException(BAD_NAME_MSG);
             }
 
-            if (RESERVED_WORDS.contains(name)) {
+            if (isReservedName(name)) {
                 throw new IOException(String.format("'%s' is a reserved word.", name));
             }
         }
+    }
+
+    public static boolean isReservedName(String name) {
+        return RESERVED_WORDS.contains(name);
     }
 
     protected static boolean checkSpecialChars(String artefactName) {

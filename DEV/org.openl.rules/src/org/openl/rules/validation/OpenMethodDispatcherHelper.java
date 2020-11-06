@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -32,7 +33,7 @@ class OpenMethodDispatcherHelper {
             if (method instanceof OpenMethodDispatcher) {
                 extractMethods(((OpenMethodDispatcher) method).getCandidates(), result);
             } else {
-                result.add(method);
+                result.add(WrapperLogic.unwrapOpenMethod(method));
             }
         }
     }

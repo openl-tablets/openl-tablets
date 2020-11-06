@@ -87,7 +87,7 @@ public class ProjectDescriptorManagerTest {
     @Test
     public void testIsCoveredByWildcardModule() throws IOException {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+        XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
         final ProjectDescriptor descriptor = serializer.deserialize(new FileInputStream("test-resources/descriptor/rules-wildcard.xml"));
 
         Module newModule = new Module();

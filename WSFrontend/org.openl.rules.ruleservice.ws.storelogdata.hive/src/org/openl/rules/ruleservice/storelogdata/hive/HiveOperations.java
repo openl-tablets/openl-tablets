@@ -95,7 +95,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         try {
             createTableIfNotExists(entity.getClass());
             getEntitySaver(entity.getClass()).insert(entity);
-        } catch (SQLException| IllegalAccessException e) {
+        } catch (Exception e) {
             log.error("Failed to save hive entity.", e);
         }
     }

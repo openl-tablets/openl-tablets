@@ -28,7 +28,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     private ElasticsearchOperations elasticsearchOperations;
 
-    private StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+    private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
     public ElasticsearchOperations getElasticsearchOperations() {
         return elasticsearchOperations;
@@ -97,11 +97,14 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     if (serviceMethod != null) {
-                        log.error(String.format("Failed to map '%s' Elasticsearch index for method '%s'.",
+                        log.error("Failed to populate Elasticsearch index related to method '{}' in class '{}'.",
+                            MethodUtil.printQualifiedMethodName(serviceMethod),
                             entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                            e);
                     } else {
-                        log.error(String.format("Failed to map '%s'.", entity.getClass().getTypeName()), e);
+                        log.error("Failed to populate Elasticsearch index related to class '{}'.",
+                            entity.getClass().getTypeName(),
+                            e);
                     }
                 }
                 return;
@@ -138,12 +141,14 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
         for (Field f : entity.getClass().getDeclaredFields()) {
             Id[] annotationsByType = f.getAnnotationsByType(Id.class);
-            if (annotationsByType != null && annotationsByType.length != 0) {
+            if (annotationsByType.length != 0) {
                 try {
                     f.setAccessible(true);
                     existingId = (String) f.get(entity);
                 } catch (IllegalAccessException e) {
-                    log.error("Failed on ElasticSearch entity extract ID operation.", e);
+                    log.error("Failed on ElasticSearch entity '{}' extract ID operation.",
+                        entity.getClass().getTypeName(),
+                        e);
                 }
             }
         }
