@@ -115,6 +115,7 @@
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
+        <hive.jdbc.version>2.3.7</hive.jdbc.version>
     </properties>
 
     <modules>
@@ -1774,6 +1775,13 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>openl-excel-builder</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <!-- Hive -->
+            <!-- https://mvnrepository.com/artifact/org.apache.commons/commons-compress -->
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-compress</artifactId>
+                <version>1.20</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
