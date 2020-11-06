@@ -198,6 +198,19 @@ public class RunRestRulesDeploymentTest {
         client.delete("/admin/delete/EPBDS-10068");
     }
 
+    @Test
+    public void test_EPBDS_10157() {
+        client.put("/admin/deploy/EPBDS-10157", "/EPBDS-10157/EPBDS-10157.zip", 201);
+        client.get("/EPBDS-10157/EPBDS-10157/doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
+        client.put("/admin/deploy/EPBDS-10157_2", "/EPBDS-10157/EPBDS-10157_2.zip", 201);
+        client.get("/ /doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
+        client.put("/admin/deploy/EPBDS-9902", "/EPBDS-10157/EPBDS-9902.zip", 201);
+        client.get("/EPBDS-9902/EPBDS-9902/doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
+        client.delete("/admin/delete/EPBDS-10157_EPBDS-10157");
+        client.delete("/admin/delete/ ");
+        client.delete("/admin/delete/EPBDS-9902_EPBDS-9902");
+    }
+
     private void checkServiceInfo(ServiceInfoResponse service,
             String expectedName,
             String expectedSoap,
