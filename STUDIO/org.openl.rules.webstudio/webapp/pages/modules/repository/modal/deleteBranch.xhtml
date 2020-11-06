@@ -20,17 +20,24 @@
             <h:panelGroup id="modalDeleteBranchData" rendered="#{not empty project}">
 
                 <div>
-                    <h:outputText value="Are you sure you want to delete the branch '#{project.branch}'?"/>
+                    <h:outputText value="Are you sure you want to delete branch '#{project.branch}'?"/>
                 </div>
                 <h:panelGroup layout="block" rendered="#{not repositoryTreeController.isMergedIntoMain(project)}">
-                    <p><b>Attention!</b> The branch '#{project.branch}' is not merged into '#{repositoryTreeController.getMainBranch(project)}'.
-                        All not merged commits will be lost and can't be restored.</p>
+                    <p>
+                        <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>
+                        <span class="attention-text">WARNING!</span> Branch '#{project.branch}' is not merged into the '#{repositoryTreeController.getMainBranch(project)}' branch.
+                        All unmerged changes will be lost and cannot be restored.</p>
                 </h:panelGroup>
             </h:panelGroup>
 
             <footer>
                 <h:commandButton value="Delete" action="#{repositoryTreeController.deleteBranch}"
+                                 rendered="#{repositoryTreeController.isMergedIntoMain(project)}"
                                  styleClass="button-primary"/>
+                <h:commandButton value="I understand the consequences, delete this branch"
+                                 action="#{repositoryTreeController.deleteBranch}"
+                                 rendered="#{not repositoryTreeController.isMergedIntoMain(project)}"
+                                 styleClass="button-warning"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalDeleteBranch').hide();"/>
             </footer>
 
