@@ -58,8 +58,8 @@ public class GitRepositorySettings extends RepositorySettings {
         String type = RepositoryMode.getTypePrefix(CONFIG_PREFIX).toString();
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
         String defaultLocalPath = localPath != null ? localPath
-                                                    : properties.getProperty(
-                DynamicPropertySource.OPENL_HOME) + File.separator + type;
+                : properties.getProperty(
+                DynamicPropertySource.OPENL_HOME) + File.separator + "repositories" + File.separator + type;
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
