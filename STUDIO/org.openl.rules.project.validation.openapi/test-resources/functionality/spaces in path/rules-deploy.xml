@@ -1,0 +1,8 @@
+<rules-deploy>
+  <isProvideRuntimeContext>true</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <annotationTemplateClassName>org.openl.rules.project.validation.openapi.test.Service2</annotationTemplateClassName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

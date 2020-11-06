@@ -3,12 +3,11 @@ package org.openl.rules.types;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
@@ -23,7 +22,6 @@ import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.Invokable;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -52,15 +50,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     private final List<IOpenMethod> candidates = new ArrayList<>();
     private final Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
-
-    private final Set<MethodKey> candidateKeys = new HashSet<>();
-
-    private final Invokable invokeInner = new Invokable() {
-        @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return invokeInner(target, params, env);
-        }
-    };
 
     protected OpenMethodDispatcher() {
     }
@@ -159,7 +148,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(invokeInner, target, params, env, this);
+        return Tracer.invoke(this::invokeInner, target, params, env, this);
     }
 
     /**
@@ -215,25 +204,25 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Invokes appropriate method using runtime context.
      */
-    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
+    private <R> R invokeInner(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod method = findMatchingMethod(env);
         Tracer.put(this, "rule", method);
-        return method.invoke(target, params, env);
+        return (R) method.invoke(target, params, env);
     }
 
     /**
      * In case we have several versions of one table we should add only the newest or active version of table.
      *
-     * @param newMethod The methods that we are trying to add.
-     * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
+     * @param newMethod The methods that we are trying to add.
      */
-    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) {
+    private IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod) {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
-        } else if (compareResult == 0) {
-            UriMemberHelper.validateMethodDuplication(newMethod, existedMethod);
+        } else if (compareResult == 0 && !newMethod.equals(existedMethod)) {
+            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod,
+                existedMethod);
         }
         return existedMethod;
     }
@@ -255,7 +244,6 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
-
         // Evaluate the candidate method key.
         //
 
@@ -280,17 +268,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 }
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
-                candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
+                candidate = useActiveOrNewerVersion(existedMethod, candidate);
                 candidates.set(i, candidate);
                 candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
             }
         } else {
-            // Throw appropriate exception.
-            //
-            StringBuilder sb = new StringBuilder();
-            MethodUtil.printMethod(this, sb);
-
-            throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
+            throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
+                MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
     }
 

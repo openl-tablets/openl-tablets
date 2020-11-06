@@ -29,6 +29,13 @@
             <scope>system</scope>
             <systemPath>${basedir}/libs/multiple-deployment-datasource.jar</systemPath>
         </dependency>
+        <dependency>
+            <groupId>itest.openl.projects</groupId>
+            <artifactId>multiple-deployment-yaml-datasource</artifactId>
+            <version>1.0</version>
+            <scope>system</scope>
+            <systemPath>${basedir}/libs/multiple-deployment-yaml-datasource.jar</systemPath>
+        </dependency>
 
         <!-- Integration Tests-->
         <dependency>

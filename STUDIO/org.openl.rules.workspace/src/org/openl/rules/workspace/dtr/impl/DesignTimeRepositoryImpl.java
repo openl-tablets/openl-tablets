@@ -16,7 +16,6 @@ import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.config.ConfigNames;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
@@ -129,7 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((FolderMapper) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(ConfigNames.DEPLOY_CONFIG,
+                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.toString(),
                     flatDeployConfig, deploymentConfigurationLocation);
             }
 
@@ -155,16 +154,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-
-                RepositoryMode repositoryMode = null;
-                if (configName.startsWith(ConfigNames.DEPLOY_CONFIG)) {
-                    repositoryMode = RepositoryMode.DEPLOY_CONFIG;
-                } else if (configName.startsWith(ConfigNames.DESIGN_CONFIG)) {
-                    repositoryMode = RepositoryMode.DESIGN;
-                } else if (configName.startsWith(ConfigNames.PRODUCTION)) {
-                    repositoryMode = RepositoryMode.PRODUCTION;
-                }
-                repo = MappedRepository.create(delegate, repositoryMode, baseFolder, repositorySettings);
+                repo = MappedRepository.create(delegate, RepositoryMode.getType(configName), baseFolder, repositorySettings);
             }
 
             return repo;

@@ -4,18 +4,17 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.types.IUriMember;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
-public class DTColumnsDefinition implements IUriMember {
+public class DTColumnsDefinition {
 
     private final Map<String, List<IParameterDeclaration>> localParameters;
     private final IOpenMethodHeader header;
     private final CompositeMethod compositeMethod;
     private final DTColumnsDefinitionType type;
-    private final String uri;
+    private final TableSyntaxNode tableSyntaxNode;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
             Map<String, List<IParameterDeclaration>> localParameters,
@@ -26,7 +25,11 @@ public class DTColumnsDefinition implements IUriMember {
         this.compositeMethod = compositeMethod;
         this.header = header;
         this.type = type;
-        this.uri = tableSyntaxNode.getUri();
+        this.tableSyntaxNode = tableSyntaxNode;
+    }
+
+    public TableSyntaxNode getTableSyntaxNode() {
+        return tableSyntaxNode;
     }
 
     public CompositeMethod getCompositeMethod() {
@@ -76,10 +79,5 @@ public class DTColumnsDefinition implements IUriMember {
 
     public boolean isReturn() {
         return DTColumnsDefinitionType.RETURN == type;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
     }
 }

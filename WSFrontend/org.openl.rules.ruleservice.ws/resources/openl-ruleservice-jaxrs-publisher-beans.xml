@@ -68,8 +68,12 @@
     <bean id="jaxrsOpenApiObjectMapper" factory-bean="jaxrsOpenApiObjectMapperFactory"
           factory-method="createJacksonObjectMapper" scope="prototype"/>
 
-    <bean id="jaxrsTextPlainDateMessageBodyWriter"
-          class="org.openl.rules.ruleservice.databinding.TextPlainDateMessageBodyWriter"/>
+    <bean id="jaxrsTextPlainDateMessageBodyWriter" scope="prototype"
+          class="org.openl.rules.ruleservice.databinding.TextPlainDateMessageProvider">
+        <property name="objectMapper">
+            <bean factory-bean="jaxrsProjectJacksonObjectMapperFactoryBean" factory-method="createJacksonObjectMapper"/>
+        </property>
+    </bean>
 
     <bean id="jaxrsJSONProvider" class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider" scope="prototype">
         <constructor-arg>

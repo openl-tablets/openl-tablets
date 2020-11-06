@@ -127,7 +127,7 @@
                 <ui:param name="testFailed" value="#{test.numberOfFailures > 0}" />
                 <div class="test">
                     <h1>
-                        <h:outputLink value="#{studio.url('table', test.testSuite.testSuiteMethod.uri)}"
+                        <h:outputLink value="#{studio.url('table', test.testSuite.testSuiteMethod.syntaxNode.uri)}"
                             styleClass="#{testFailed ? 'testError' : 'testSuccess'}">
                             <f:param name="id" value="#{testBean.getTestTableId(test)}" />
                             <h:outputText value="#{testBean.getTestTableName(test)}" />

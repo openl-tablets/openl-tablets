@@ -25,7 +25,7 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /** Manager of Local Workspaces */
     private LocalWorkspaceManager localWorkspaceManager;
     /** Cache for User Workspaces */
-    private Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
+    private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
 
     private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
         LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
@@ -73,5 +73,9 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     public void workspaceReleased(UserWorkspace workspace) {
         workspace.removeWorkspaceListener(this);
         userWorkspaces.remove(workspace.getUser().getUserId());
+    }
+
+    public void refreshWorkspaces() {
+        userWorkspaces.values().forEach(UserWorkspace::refresh);
     }
 }

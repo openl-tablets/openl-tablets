@@ -4,8 +4,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd"
        default-lazy-init="true">
 
-    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository"
-          destroy-method="close">
+    <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
         <constructor-arg name="factory" value="${production-repository.factory}"/>
         <constructor-arg name="params">
             <map>
@@ -28,6 +27,8 @@
                 <entry key="connectionTimeout" value="${production-repository.connection-timeout}"/>
                 <!-- AWS S3 and Git specific -->
                 <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
+                <!-- Local File System specific -->
+                <entry key="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
             </map>
         </constructor-arg>
     </bean>
@@ -35,38 +36,23 @@
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
         <constructor-arg name="repository" ref="repository"/>
         <constructor-arg name="deployPath" value="${production-repository.base.path}"/>
-    </bean>
-
-    <!-- Data source storage that provides information about deployments, projects and their properties and version -->
-    <bean id="fileSystemDataSource" class="org.openl.rules.ruleservice.loader.FileSystemDataSource"
-          depends-on="unpackClasspathAutoJarToDirectoryBean">
-        <constructor-arg name="loadDeploymentsFromDirectory" value="${ruleservice.datasource.dir}"/>
         <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
-        <property name="supportVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
-    </bean>
-
-    <bean id="unpackClasspathAutoJarToDirectoryBean"
-          class="org.openl.rules.ruleservice.loader.UnpackClasspathJarToDirectoryBean">
-        <property name="destinationDirectory" value="${ruleservice.datasource.dir}"/>
-        <property name="unpackAllJarsInOneDeployment"
-                  value="#{!${ruleservice.datasource.filesystem.supportDeployments}}"/>
-        <property name="supportDeploymentVersion" value="${ruleservice.datasource.filesystem.supportVersion}"/>
-        <property name="clearDestinationDirectory" value="${ruleservice.datasource.deploy.clean.datasource}"/>
-        <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
-    </bean>
-
-    <!-- Data source storage that provides information about deployments, projects
-        and their properties and version -->
-    <bean id="productionRepositoryDataSource" class="org.openl.rules.ruleservice.loader.ProductionRepositoryDataSource"
-          depends-on="deployClasspathJarsBean">
-        <property name="repository" ref="repository"/>
-        <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
-        <property name="enabled"
-                  value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' ne 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+        <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
+        <property name="enabled" value="${ruleservice.datasource.deploy.classpath.jars}"/>
+        <!-- Workaround to allow projects overrides in LocalRepository after application startup -->
+        <property name="overrideable" value="#{'${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+    </bean>
+
+    <!-- Data source storage that provides information about deployments, projects
+        and their properties and version -->
+    <!-- Wrapper on data source that gives access to data source and resolves the OpenL projects/modules inside the projects.
+    Contains own storage for all projects that is used in services. -->
+    <bean id="ruleServiceLoader" class="org.openl.rules.ruleservice.loader.RuleServiceLoaderImpl" depends-on="deployClasspathJarsBean">
+        <constructor-arg name="repository" ref="repository"/>
+        <property name="deployPath" value="${production-repository.base.path}"/>
     </bean>
 </beans>

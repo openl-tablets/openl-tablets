@@ -13,8 +13,6 @@ import org.slf4j.LoggerFactory;
 public final class FolderHelper {
 
     public static final String PROPERTIES_FOLDER = ".studioProps";
-    public static final String FOLDER_PROPERTIES_FILE = "..studioProps.folder";
-    public static final String RESOURCE_PROPERTIES_EXT = ".props";
     public static final String HISTORY_FOLDER = ".history";
 
     private FolderHelper() {
@@ -67,7 +65,7 @@ public final class FolderHelper {
      * @param folder the folder, that will be deleted
      * @return true if the folder is deleted and false if the folder cannot be deleted.
      */
-    public static boolean deleteFolder(File folder) {
+    private static boolean deleteFolder(File folder) {
         final Logger log = LoggerFactory.getLogger(FolderHelper.class);
         log.debug("Deleting folder ''{}''", folder);
 
@@ -104,9 +102,5 @@ public final class FolderHelper {
         }
 
         return !failures;
-    }
-
-    public static boolean isParent(File parent, File child) {
-        return child != null && (child.equals(parent) || isParent(parent, child.getParentFile()));
     }
 }

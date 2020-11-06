@@ -15,13 +15,7 @@
 
     <h:form id="eraseProjectForm">
       <h:panelGroup id="eraseProjectData">
-        <ui:param name="deleteBranch" value="#{repositoryTreeController.isDeleteBranch(repositoryTreeState.selectedProject)}"/>
-
-        <h:panelGroup rendered="#{deleteBranch}">
-          <h:outputText value="Are you sure you want to delete the branch '#{repositoryTreeState.selectedProject.branch}'?" />
-        </h:panelGroup>
-
-        <h:panelGroup rendered="#{not deleteBranch}">
+        <h:panelGroup>
           <h:outputText value="Are you sure you want to erase the project?" />
 
           <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />

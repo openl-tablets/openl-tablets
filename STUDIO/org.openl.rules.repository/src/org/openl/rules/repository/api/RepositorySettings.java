@@ -41,7 +41,7 @@ public class RepositorySettings implements Closeable {
     }
 
     public void unlock(String fileName) {
-        lockManager.getLock(fileName).unlock();
+        lockManager.getLock(fileName).forceUnlock();
     }
 
     @Override

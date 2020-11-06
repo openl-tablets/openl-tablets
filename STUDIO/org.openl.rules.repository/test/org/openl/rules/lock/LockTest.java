@@ -8,10 +8,12 @@ import static org.junit.Assert.fail;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.After;
 import org.junit.Before;
@@ -83,6 +85,50 @@ public class LockTest {
         lock.unlock();
         lockInfo = lock.info();
         assertFalse(lockInfo.isLocked());
+    }
+
+    @Test
+    public void testSimultaneousMultiThreadsForDifferentUsers() throws InterruptedException {
+        testSimultaneousMultiThreads(true);
+        testSimultaneousMultiThreads(false);
+    }
+
+    private void testSimultaneousMultiThreads(boolean diffUsers) throws InterruptedException {
+        int streaming = 10;
+        AtomicBoolean passed = new AtomicBoolean(true);
+        AtomicInteger testedValue = new AtomicInteger(0);
+        CountDownLatch countDown = new CountDownLatch(streaming);
+        for (int i = 0; i < streaming; i++) {
+            int finalI = i;
+            Thread thread = new Thread(() -> {
+                for (int j = 0; j < 100; j++) {
+                    try {
+                        String userName = diffUsers ? "user" + finalI : "";
+                        if (lock.tryLock(userName)) {
+                            testedValue.set(31);
+                            for (int k = 0; k <= 1000; k++) {
+                                int i1 = testedValue.get();
+                                testedValue.set(i1 + k);
+                                Thread.yield();
+                            }
+                            //Test that more than one thread does not receive locks at the same time and do not interfere with calculations
+                            if (testedValue.get() != 500531) {
+                                passed.set(false);
+                                break;
+                            }
+                            lock.unlock();
+                        }
+                    } catch (Exception e) {
+                        passed.set(false);
+                        break;
+                    }
+                }
+                countDown.countDown();
+            });
+            thread.start();
+        }
+        countDown.await();
+        assertTrue(passed.get());
     }
 
     @Test

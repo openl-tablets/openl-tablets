@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
 import org.openl.util.StringUtils;
 
 public class CommonRepositorySettings extends RepositorySettings {
@@ -72,7 +73,7 @@ public class CommonRepositorySettings extends RepositorySettings {
     }
 
     private String getDefaultPath(RepositoryType repositoryType) {
-        String type = RepositorySettings.getTypePrefix(configPathPrefix);
+        String type = RepositoryMode.getTypePrefix(configPathPrefix).toString();
         switch (repositoryType) {
             case DB:
                 return "jdbc:mysql://localhost:3306/" + type + "-repository";

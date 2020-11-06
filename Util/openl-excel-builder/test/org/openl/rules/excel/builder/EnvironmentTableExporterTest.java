@@ -1,7 +1,9 @@
 package org.openl.rules.excel.builder;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.openl.rules.excel.builder.export.EnvironmentTableExporter.ENV_SHEET;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -16,13 +18,13 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
+import org.openl.util.CollectionUtils;
 
 public class EnvironmentTableExporterTest {
 
     public static final String TEST_PROJECT = "env_test_project";
     public static final int TOP_MARGIN = 2;
     public static final String MODEL = "Model";
-    public static final String ENVIRONMENT = "Environment";
     public static final String IMPORTED_VALUE = "org.openl.import.test.Test";
 
     @Test
@@ -38,19 +40,22 @@ public class EnvironmentTableExporterTest {
             Collections.emptyList(),
             Collections.emptyList());
 
-        ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
-            Collections.emptyList(),
-            sos,
-            environmentModel);
-        byte[] bytes = sos.toByteArray();
+        byte[] bytes;
+        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateAlgorithmsModule(projectModel.getSpreadsheetResultModels(),
+                Collections.emptyList(),
+                sos,
+                environmentModel);
+            bytes = sos.toByteArray();
+        }
+        assertFalse(CollectionUtils.isEmpty(bytes));
         try (InputStream spr = new ByteArrayInputStream(bytes); XSSFWorkbook wb = new XSSFWorkbook(spr)) {
-            XSSFSheet dtsSheet = wb.getSheet(ENVIRONMENT);
+            XSSFSheet dtsSheet = wb.getSheet(ENV_SHEET);
             assertNotNull(dtsSheet);
             XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN);
             assertNotNull(headerRow);
             String headerText = headerRow.getCell(1).getStringCellValue();
-            assertEquals(ENVIRONMENT, headerText);
+            assertEquals(ENV_SHEET, headerText);
 
             XSSFRow dependencyRow = dtsSheet.getRow(TOP_MARGIN + 1);
             assertNotNull(dependencyRow);

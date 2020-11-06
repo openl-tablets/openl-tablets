@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -24,12 +25,13 @@ public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
     @Override
     protected DTColumnsDefinition createDefinition(Map<String, List<IParameterDeclaration>> localParameters,
             IOpenMethodHeader header,
-            CompositeMethod compositeMethod) {
+            CompositeMethod compositeMethod,
+            IBindingContext bindingContext) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.RETURN,
             localParameters,
             header,
             compositeMethod,
-            getTableSyntaxNode());
+            bindingContext.isExecutionMode() ? null : getTableSyntaxNode());
     }
 
     @Override

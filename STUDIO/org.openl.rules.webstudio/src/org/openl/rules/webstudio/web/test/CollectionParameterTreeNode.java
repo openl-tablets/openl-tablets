@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -170,12 +171,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         return ParameterTreeBuilder.createNode(childConfig);
     }
 
+    @SuppressWarnings("unchecked")
     private void saveChildNodesToValue() {
         IOpenClass arrayType = getType();
         IAggregateInfo info = arrayType.getAggregateInfo();
         Object newCollection = info.makeIndexedAggregate(arrayType.getComponentClass(), getChildren().size());
         IOpenIndex index = info.getIndex(arrayType);
-
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
             Object key = getKeyFromElementNum(i);
@@ -184,11 +185,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 value = getNullableValue();
             }
             if (key != null) {
-                index.setValue(newCollection, key, value);
+                if(index!=null){
+                    index.setValue(newCollection, key, value);
+                }else if(newCollection instanceof Collection){
+                    ((Collection<Object>) newCollection).add(value);
+                }
             }
             i++;
         }
-
         setValue(newCollection);
     }
 

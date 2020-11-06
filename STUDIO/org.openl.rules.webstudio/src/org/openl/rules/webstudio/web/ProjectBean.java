@@ -45,12 +45,10 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
-import org.openl.rules.project.resolving.FileNamePatternValidator;
 import org.openl.rules.project.resolving.InvalidFileNamePatternException;
 import org.openl.rules.project.resolving.InvalidFileNameProcessorException;
 import org.openl.rules.project.resolving.NoMatchFileNameException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
-import org.openl.rules.project.resolving.PropertiesFileNameProcessor;
 import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
@@ -231,6 +229,7 @@ public class ProjectBean {
 
         if (!studio.getCurrentProjectDescriptor().getName().equals(name)) {
             WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_PROJECT_NAME_MSG);
+            WebStudioUtils.validate(!NameChecker.isReservedName(name), String.format("'%s' is a reserved word.", name));
             WebStudioUtils.validate(!studio.isProjectExists(name), "Project with such name already exists");
         }
     }
@@ -243,13 +242,13 @@ public class ProjectBean {
 
             ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
             projectDescriptor.setPropertiesFileNameProcessor(className);
-            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
-                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                WebStudioUtils.validate(processor != null, "Cannot find class " + className);
+                propertiesFileNameProcessorBuilder.build(projectDescriptor);
             } catch (InvalidFileNameProcessorException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
+            } catch (InvalidFileNamePatternException ignore) {
+                // Ignore
             } finally {
                 propertiesFileNameProcessorBuilder.destroy();
             }
@@ -261,18 +260,12 @@ public class ProjectBean {
         String[] patterns = StringUtils.toLines((String) value);
 
         if (patterns != null) {
-            PropertiesFileNameProcessor processor;
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 ProjectDescriptor projectDescriptor = cloneProjectDescriptor(studio.getCurrentProjectDescriptor());
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePatterns(patterns);
-                processor = propertiesFileNameProcessorBuilder.build(projectDescriptor);
-                if (processor instanceof FileNamePatternValidator) {
-                    for (String pattern : patterns) {
-                        ((FileNamePatternValidator) processor).validate(pattern);
-                    }
-                }
+                propertiesFileNameProcessorBuilder.build(projectDescriptor);
             } catch (InvalidFileNamePatternException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
@@ -346,6 +339,11 @@ public class ProjectBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
 
         WebStudioUtils.validate(!(path.contains("*") || path.contains("?")), "Path cannot contain wildcard symbols");
+        try {
+            NameChecker.validatePath(path);
+        } catch (IOException e) {
+            WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
+        }
         File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
         WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists");
     }
@@ -368,7 +366,8 @@ public class ProjectBean {
         final String possibleAlgorithmModuleName = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(possibleAlgorithmModuleName),
             "Module Name for Rules must not be empty");
-        Module algoModule = studio.getModule(studio.getCurrentProjectDescriptor(), possibleAlgorithmModuleName);
+        ProjectDescriptor currentDescriptor = studio.resolveProject(studio.getCurrentProjectDescriptor());
+        Module algoModule = studio.getModule(currentDescriptor, possibleAlgorithmModuleName);
         WebStudioUtils.validate(algoModule != null,
             "Rules Module with name " + possibleAlgorithmModuleName + " does not exist.");
     }
@@ -377,7 +376,8 @@ public class ProjectBean {
         final String possibleModelModuleName = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(possibleModelModuleName),
             "Module Name for Data Types must not be empty");
-        Module modelsModule = studio.getModule(studio.getCurrentProjectDescriptor(), possibleModelModuleName);
+        ProjectDescriptor currentDescriptor = studio.resolveProject(studio.getCurrentProjectDescriptor());
+        Module modelsModule = studio.getModule(currentDescriptor, possibleModelModuleName);
         WebStudioUtils.validate(modelsModule != null,
             "Data Types Module with name " + possibleModelModuleName + " does not exist.");
     }
@@ -424,6 +424,7 @@ public class ProjectBean {
             module = new Module();
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
+            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
@@ -522,6 +523,7 @@ public class ProjectBean {
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
+            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
         }
@@ -548,6 +550,7 @@ public class ProjectBean {
 
         List<Module> modules = newProjectDescriptor.getModules();
         Module removed = modules.remove(Integer.parseInt(toRemove));
+        String removedModuleName = removed.getName();
 
         if (StringUtils.isEmpty(leaveExcelFile)) {
             ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
@@ -579,6 +582,16 @@ public class ProjectBean {
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
             if (rulesXmlFile.exists()) {
                 clean(newProjectDescriptor);
+                OpenAPI openAPI = newProjectDescriptor.getOpenapi();
+                if (openAPI != null) {
+                    String definedAlgoModuleName = openAPI.getAlgorithmModuleName();
+                    String definedModelsName = openAPI.getModelModuleName();
+                    if (definedAlgoModuleName.equalsIgnoreCase(removedModuleName)) {
+                        openAPI.setAlgorithmModuleName(null);
+                    } else if (definedModelsName.equalsIgnoreCase(removedModuleName)) {
+                        openAPI.setModelModuleName(null);
+                    }
+                }
                 save(newProjectDescriptor);
             } else {
                 RulesProject currentProject = studio.getCurrentProject();
@@ -689,11 +702,11 @@ public class ProjectBean {
         AProjectArtefact algorithmFile = null;
         AProjectArtefact modelFile = null;
 
-        Module algoModule = studio.getModule(projectDescriptor, currentAlgorithmModuleName);
-        Module modelsModule = studio.getModule(projectDescriptor, currentModelModuleName);
+        Module existingAlgoModule = studio.getModule(projectDescriptor, currentAlgorithmModuleName);
+        Module existingModelsModule = studio.getModule(projectDescriptor, currentModelModuleName);
 
-        final String rulesFilePath = getArtefactPath(currentProject, algoModule, OpenAPIModuleType.ALGORITHM);
-        final String dataTypesFilePath = getArtefactPath(currentProject, modelsModule, OpenAPIModuleType.MODEL);
+        final String rulesFilePath = getArtefactPath(currentProject, existingAlgoModule, OpenAPIModuleType.ALGORITHM);
+        final String dataTypesFilePath = getArtefactPath(currentProject, existingModelsModule, OpenAPIModuleType.MODEL);
 
         try {
             openAPIFile = currentProject.getArtefactByPath(new ArtefactPathImpl(currentOpenAPIPath));
@@ -722,12 +735,40 @@ public class ProjectBean {
         String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
 
-        ProjectModel projectModel;
-        try {
-            projectModel = converter.extractProjectModel(workspacePath + internalOpenAPIPath);
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            throw new Message("OpenAPI file is corrupted.");
+        ProjectModel projectModel = getProjectModel(workspacePath, internalOpenAPIPath, converter);
+
+        List<Module> modules = projectDescriptor.getModules();
+
+        boolean moduleInfoChanged = false;
+
+        if (CollectionUtils.isNotEmpty(projectModel.getSpreadsheetResultModels()) && modules.stream()
+            .noneMatch(x -> x.getName().equalsIgnoreCase(currentAlgorithmModuleName))) {
+            Module rulesModule = new Module();
+            rulesModule.setRulesRootPath(new PathEntry(rulesFilePath));
+            rulesModule.setName(currentAlgorithmModuleName);
+            modules.add(rulesModule);
+            moduleInfoChanged = true;
+        }
+
+        if (CollectionUtils.isNotEmpty(projectModel.getDataModels()) && modules.stream()
+            .noneMatch(x -> x.getName().equalsIgnoreCase(currentModelModuleName))) {
+            Module modelsModule = new Module();
+            modelsModule.setRulesRootPath(new PathEntry(dataTypesFilePath));
+            modelsModule.setName(currentModelModuleName);
+            modules.add(modelsModule);
+            moduleInfoChanged = true;
+        }
+
+        if (moduleInfoChanged) {
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+            clean(newProjectDescriptor);
+            save(newProjectDescriptor);
+        }
+
+        if (currentProject.hasArtefact(RULES_DEPLOY_XML)) {
+            editRulesDeploy(currentProject, projectModel);
+        } else {
+            configureRulesDeploy(currentProject, projectModel);
         }
 
         try (InputStream dataTypes = generateDataTypesFile(projectModel.getDatatypeModels())) {
@@ -747,6 +788,59 @@ public class ProjectBean {
         }
 
         refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+    }
+
+    private void editRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
+        try {
+            configureSerializer();
+            modifyRulesDeploy(currentProject, projectModel);
+        } catch (ProjectException | IOException e) {
+            log.error("Can't modify rules deploy file to the project.");
+            throw new Message("Failed to modify rules deploy xml file.");
+        }
+    }
+
+    private void configureRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
+        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel);) {
+            configureSerializer();
+            currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
+        } catch (ProjectException | IOException e) {
+            log.error("Can't add rules deploy file to the project.");
+            throw new Message("Failed to add rules deploy xml file.");
+        }
+    }
+
+    private ProjectModel getProjectModel(String workspacePath,
+            String internalOpenAPIPath,
+            OpenAPIModelConverter converter) {
+        ProjectModel projectModel;
+        try {
+            projectModel = converter.extractProjectModel(workspacePath + internalOpenAPIPath);
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            throw new Message("OpenAPI file is corrupted.");
+        }
+        return projectModel;
+    }
+
+    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
+        RulesDeploy rd = new RulesDeploy();
+        rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
+        return new ByteArrayInputStream(rulesDeploySerializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
+    }
+
+    private void modifyRulesDeploy(RulesProject currentProject, ProjectModel projectModel) throws ProjectException,
+                                                                                           IOException {
+        AProjectResource artifact;
+        artifact = (AProjectResource) currentProject.getArtefact(RULES_DEPLOY_XML);
+        try (InputStream rulesDeployContent = artifact.getContent();) {
+            RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
+                .deserialize(rulesDeployContent);
+            rulesDeploy.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+            artifact.setContent(new ByteArrayInputStream(
+                rulesDeploySerializer.serialize(rulesDeploy).getBytes(StandardCharsets.UTF_8)));
+        }
     }
 
     private void removePreviouslyGeneratedFile(AProjectArtefact file, String errorMessage) {
@@ -786,20 +880,22 @@ public class ProjectBean {
         return environmentModel;
     }
 
-    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-        byte[] dtBytes = bos.toByteArray();
-        return new ByteArrayInputStream(dtBytes);
+    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) throws IOException {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
+            byte[] dtBytes = bos.toByteArray();
+            return new ByteArrayInputStream(dtBytes);
+        }
     }
 
     private InputStream generateAlgorithmsFile(List<SpreadsheetModel> spreadsheetModels,
             List<DataModel> dataModels,
-            EnvironmentModel environmentModel) {
-        ByteArrayOutputStream sos = new ByteArrayOutputStream();
-        ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-        byte[] sprBytes = sos.toByteArray();
-        return new ByteArrayInputStream(sprBytes);
+            EnvironmentModel environmentModel) throws IOException {
+        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
+            ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
+            byte[] sprBytes = sos.toByteArray();
+            return new ByteArrayInputStream(sprBytes);
+        }
     }
 
     public boolean isOpenAPIGeneratedFilesExist() {
@@ -812,23 +908,29 @@ public class ProjectBean {
             return false;
         }
 
-        final String rulesFilePath = getArtefactPath(currentProject, algoModule, OpenAPIModuleType.ALGORITHM);
-        final String dataTypesFilePath = getArtefactPath(currentProject, modelsModule, OpenAPIModuleType.MODEL);
-
         boolean algorithmsFileExists = false;
         boolean modelsFileExists = false;
-        try {
-            currentProject.getArtefactByPath(new ArtefactPathImpl(rulesFilePath));
-            algorithmsFileExists = true;
-        } catch (ProjectException e) {
-            log.debug("OpenAPI generated files with Rules was not found", e);
+
+        if (algoModule != null) {
+            try {
+                final String rulesFilePath = getArtefactPath(algoModule.getRulesRootPath().getPath(),
+                    currentProject.getFolderPath());
+                currentProject.getArtefactByPath(new ArtefactPathImpl(rulesFilePath));
+                algorithmsFileExists = true;
+            } catch (ProjectException e) {
+                log.debug("OpenAPI generated files with Rules was not found", e);
+            }
         }
 
-        try {
-            currentProject.getArtefactByPath(new ArtefactPathImpl(dataTypesFilePath));
-            modelsFileExists = true;
-        } catch (ProjectException e) {
-            log.debug("OpenAPI generated files with Data Types was not found", e);
+        if (modelsModule != null) {
+            try {
+                final String dataTypesFilePath = getArtefactPath(modelsModule.getRulesRootPath().getPath(),
+                    currentProject.getFolderPath());
+                currentProject.getArtefactByPath(new ArtefactPathImpl(dataTypesFilePath));
+                modelsFileExists = true;
+            } catch (ProjectException e) {
+                log.debug("OpenAPI generated files with Data Types was not found", e);
+            }
         }
 
         return algorithmsFileExists || modelsFileExists;
@@ -1095,16 +1197,11 @@ public class ProjectBean {
         ProjectDescriptor projectDescriptor = getOriginalProjectDescriptor();
         PropertiesFileNameProcessorBuilder builder = new PropertiesFileNameProcessorBuilder();
 
-        Module module = new Module();
-        int indexOfSlash = newFileName.lastIndexOf("/");
-        module.setName(indexOfSlash < 0 ? newFileName : newFileName.substring(indexOfSlash + 1));
-        module.setRulesRootPath(new PathEntry(newFileName));
-
         Boolean fileNameMatched = null;
         try {
             String[] patterns = projectDescriptor.getPropertiesFileNamePatterns();
             if (patterns != null) {
-                builder.build(projectDescriptor).process(module, patterns);
+                builder.build(projectDescriptor).process(newFileName);
                 fileNameMatched = true;
             }
         } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {
@@ -1172,9 +1269,7 @@ public class ProjectBean {
         if (methodFilter.getExcludes() != null) {
             ArrayList<String> excludes = new ArrayList<>(methodFilter.getExcludes());
             excludes.removeAll(Arrays.asList("", null));
-            if (!excludes.isEmpty()) {
-                return false;
-            }
+            return excludes.isEmpty();
         }
 
         return true;

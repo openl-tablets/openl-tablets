@@ -1,0 +1,16 @@
+<project>
+    <!-- Project name. -->
+    <name>openl-rules</name>
+
+    <!-- OpenL project includes one or more modules.  -->
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx" />
+        </module>
+    </modules>
+
+    <properties-file-name-pattern>%state%-%lob%-%effectiveDate%-%startRequestDate%</properties-file-name-pattern>
+    <classpath>
+        <entry path="lib/*.jar" />
+    </classpath>
+</project>

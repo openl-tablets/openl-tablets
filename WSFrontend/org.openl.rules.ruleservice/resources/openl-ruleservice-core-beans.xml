@@ -46,6 +46,14 @@
 	<bean id="rulesDeployInProcess" factory-bean="serviceManager" factory-method="getRulesDeployInProcess" scope="prototype"/>
 	<bean id="serviceDescriptionInProcess" factory-bean="serviceManager" factory-method="getServiceDescriptionInProcess" scope="prototype"/>
 
+	<!-- Determines the services that should be exposed using RulesLoader. -->
+	<bean id="serviceConfigurer" class="org.openl.rules.ruleservice.conf.LastVersionProjectsServiceConfigurer">
+		<property name="provideRuntimeContext" value="${ruleservice.isProvideRuntimeContext}"/>
+		<property name="supportVariations" value="${ruleservice.isSupportVariations}" />
+		<property name="supportedGroups" value="${ruleservice.datasource.groups}"/>
+		<property name="datasourceDeploymentPatterns" value="${ruleservice.datasource.deployments}"/>
+	</bean>
+
 	<bean id="serviceManagerStarter" class="org.openl.rules.ruleservice.conf.ServiceManagerStarterBean" depends-on="serviceManager" lazy-init="false">
 		<property name="serviceManager" ref="serviceManager"/>
 	</bean>

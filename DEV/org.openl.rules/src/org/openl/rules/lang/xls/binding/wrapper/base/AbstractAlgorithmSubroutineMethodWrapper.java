@@ -72,11 +72,6 @@ public abstract class AbstractAlgorithmSubroutineMethodWrapper extends Algorithm
     }
 
     @Override
-    public String getUri() {
-        return delegate.getUri();
-    }
-
-    @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         return delegate.invoke(target, params, env);
     }

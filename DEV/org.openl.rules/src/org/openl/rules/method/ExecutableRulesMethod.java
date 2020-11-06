@@ -9,7 +9,6 @@ import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.types.IUriMember;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
@@ -23,40 +22,19 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IUriMember {
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod {
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be
     // ATableBoundNode due to TestSuiteMethod instance of
     // ExecutableRulesMethod(but test table is firstly data table)
     private ATableBoundNode boundNode;
-
-    private String uri;
-
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypesCasts;
-
-    @Override
-    public String getUri() {
-        if (this.uri == null) {
-            throw new IllegalStateException("Table uri is not defined in the method.");
-        }
-        return uri;
-    }
-
-    /**
-     * Must be invoked from inherited class constructor only
-     */
-    protected final void setUri(String uri) {
-        this.uri = uri;
-    }
 
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;
-        if (this.boundNode != null) {
-            uri = boundNode.getTableSyntaxNode().getTable().getSource().getUri();
-        }
         hasAliasTypeParams = false;
         if (header != null) {
             int i = 0;

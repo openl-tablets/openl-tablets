@@ -53,7 +53,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
     private String tableName;
-    private OpenL openl;
+    private final OpenL openl;
     private XlsModuleOpenClass xlsModuleOpenClass;
 
     public ADtColumnsDefinitionTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
@@ -126,12 +126,14 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     protected abstract DTColumnsDefinition createDefinition(
             Map<String, List<IParameterDeclaration>> parameterDeclarations,
             IOpenMethodHeader header,
-            CompositeMethod compositeMethod);
+            CompositeMethod compositeMethod,
+            IBindingContext bindingContext);
 
     protected final void createAndAddDefinition(Map<String, List<IParameterDeclaration>> parameterDeclarations,
             IOpenMethodHeader header,
-            CompositeMethod compositeMethod) {
-        DTColumnsDefinition definition = createDefinition(parameterDeclarations, header, compositeMethod);
+            CompositeMethod compositeMethod,
+            IBindingContext bindingContext) {
+        DTColumnsDefinition definition = createDefinition(parameterDeclarations, header, compositeMethod, bindingContext);
         getXlsModuleOpenClass().getXlsDefinitions().addDtColumnsDefinition(definition);
     }
 
@@ -369,7 +371,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     addMetaInfoForExpression(compositeMethod, expressionCell);
                 }
 
-                createAndAddDefinition(localParameters, header, compositeMethod);
+                createAndAddDefinition(localParameters, header, compositeMethod, cxt);
             });
 
             i = i + d;

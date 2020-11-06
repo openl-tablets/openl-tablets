@@ -3,11 +3,17 @@ package org.openl.rules.project;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardOpenOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -109,21 +115,6 @@ public class ProjectDescriptorManager {
         return false;
     }
 
-    private void check(File folder, List<File> matched, String pathPattern, File rootFolder) {
-        File[] files = folder.listFiles();
-        for (File file : files) {
-            if (file.isDirectory()) {
-                check(file, matched, pathPattern, rootFolder);
-            } else {
-                String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
-                relativePath = relativePath.replace("\\", "/");
-                if (pathMatcher.match(pathPattern, relativePath)) {
-                    matched.add(file);
-                }
-            }
-        }
-    }
-
     public boolean isCoveredByWildcardModule(ProjectDescriptor descriptor, Module otherModule) {
         for (Module module : descriptor.getModules()) {
             final PathEntry otherModuleRootPath = otherModule.getRulesRootPath();
@@ -142,38 +133,44 @@ public class ProjectDescriptorManager {
             String pathPattern) throws IOException {
         List<Module> modules = new ArrayList<>();
 
-        List<File> files = new ArrayList<>();
-        check(descriptor.getProjectFolder(), files, pathPattern.trim(), descriptor.getProjectFolder());
+        String ptrn = pathPattern.trim();
+        Path rootPath = descriptor.getProjectFolder().toPath();
 
-        for (File file : files) {
-            if (isTemporaryFile(file)) {
-                continue;
+        Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
+            @Override
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
+                if (isNotTemporaryFile(file) && pathMatcher.match(ptrn, relativePath)) {
+                    String moduleFile = file.toAbsolutePath().toString();
+                    Module m = new Module();
+                    m.setProject(descriptor);
+                    m.setRulesRootPath(new PathEntry(moduleFile));
+                    m.setName(FileUtils.getBaseName(moduleFile));
+                    m.setMethodFilter(module.getMethodFilter());
+                    m.setWildcardRulesRootPath(pathPattern);
+                    m.setWildcardName(module.getName());
+                    m.setExtension(module.getExtension());
+                    modules.add(m);
+                }
+                return FileVisitResult.CONTINUE;
             }
-            Module m = new Module();
-            m.setProject(descriptor);
-            m.setRulesRootPath(new PathEntry(file.getCanonicalPath()));
-            m.setName(FileUtils.getBaseName(file.getName()));
-            m.setMethodFilter(module.getMethodFilter());
-            m.setWildcardRulesRootPath(pathPattern);
-            m.setWildcardName(module.getName());
-            m.setExtension(module.getExtension());
-            modules.add(m);
-        }
+        });
+
         return modules;
     }
 
-    private boolean isTemporaryFile(File file) {
-        if (file.getName().startsWith("~$") && file.isHidden()) {
+    private boolean isNotTemporaryFile(Path file) throws IOException {
+        if (file.getFileName().startsWith("~$") || Files.isHidden(file)) {
             OutputStream os = null;
             try {
-                os = new FileOutputStream(file, true);
-            } catch (FileNotFoundException unused) {
-                return true;
+                os = Files.newOutputStream(file, StandardOpenOption.APPEND);
+            } catch (Exception unused) {
+                return false;
             } finally {
                 IOUtils.closeQuietly(os);
             }
         }
-        return false;
+        return true;
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, File projectRoot) {

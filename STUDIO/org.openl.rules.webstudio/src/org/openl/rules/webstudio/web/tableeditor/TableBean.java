@@ -38,7 +38,6 @@ import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUtils;
-import org.openl.rules.types.IUriMember;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
@@ -401,9 +400,8 @@ public class TableBean {
         }
         List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
         for (IOpenMethod test : allTests) {
-            String tableUri = ((IUriMember) test).getUri();
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
-            tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
+            tableDescriptions.add(new TableDescription(syntaxNode.getUri(), syntaxNode.getId(), getTestName(test)));
         }
         tableDescriptions.sort(Comparator.comparing(TableDescription::getName));
         return tableDescriptions.toArray(new TableDescription[0]);

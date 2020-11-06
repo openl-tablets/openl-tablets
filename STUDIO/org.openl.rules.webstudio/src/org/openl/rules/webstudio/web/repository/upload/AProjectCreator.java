@@ -118,7 +118,7 @@ public abstract class AProjectCreator {
             ByteArrayInputStream copy = new ByteArrayInputStream(outputStream.toByteArray());
 
             try {
-                XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer(false);
+                XmlProjectDescriptorSerializer serializer = new XmlProjectDescriptorSerializer();
                 ProjectDescriptor projectDescriptor = serializer.deserialize(copy);
                 projectDescriptor.setName(getProjectName());
                 return IOUtils.toInputStream(serializer.serialize(projectDescriptor));

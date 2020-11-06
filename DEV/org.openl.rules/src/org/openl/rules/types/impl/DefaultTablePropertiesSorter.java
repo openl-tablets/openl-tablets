@@ -57,6 +57,22 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
                 return MIN(propertyValue1, propertyValue2);
             }
         });
+        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("effectiveDate") {
+            @Override
+            public String getOperationName() {
+                return "MAX";
+            }
+
+            @Override
+            public java.util.Date getPropertyValue(ITableProperties properties) {
+                return properties.getEffectiveDate();
+            }
+
+            @Override
+            public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
+                return MAX(propertyValue1, propertyValue2);
+            }
+        });
         maxMinPriorityRules.add(new ASimplePriorityRule<org.openl.rules.enumeration.OriginsEnum>("origin") {
             @Override
             public String getOperationName() {

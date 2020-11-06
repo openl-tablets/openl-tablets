@@ -2,18 +2,16 @@ package org.openl.rules.data;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.types.IUriMember;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DataOpenField extends AOpenField implements IUriMember {
+public class DataOpenField extends AOpenField {
 
     private ITable table;
     private Object data;
     private ModuleOpenClass declaringClass;
-    private String uri;
     private XlsNodeTypes nodeType;
 
     public DataOpenField() {
@@ -26,15 +24,9 @@ public class DataOpenField extends AOpenField implements IUriMember {
             table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
 
         this.table = table;
-        this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();
         data = table.getDataArray();
         this.nodeType = table.getTableSyntaxNode().getNodeType();
         this.declaringClass = declaringClass;
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
     }
 
     @Override
