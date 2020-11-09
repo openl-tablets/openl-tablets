@@ -361,29 +361,29 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+        IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
 
-        if (existingMethod != null) {
-            if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
+        if (existedMethod != null) {
+            if (method instanceof TestSuiteMethod) {
                 DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method,
-                    existingMethod);
+                    existedMethod);
                 return;
             }
 
-            if (!existingMethod.getType().equals(m.getType())) {
+            if (!existedMethod.getType().equals(m.getType())) {
                 String message = String.format("Method '%s' is already defined with another return type '%s'.",
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
-                    existingMethod.getType().getDisplayName(0));
-                throw new DuplicatedMethodException(message, existingMethod, method);
+                    existedMethod.getType().getDisplayName(0));
+                throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
-            for (int i = 0; i < existingMethod.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass existingParameterType = existingMethod.getSignature().getParameterType(i);
+            for (int i = 0; i < existedMethod.getSignature().getNumberOfParameters(); i++) {
+                IOpenClass existedParameterType = existedMethod.getSignature().getParameterType(i);
                 IOpenClass mParameterType = m.getSignature().getParameterType(i);
-                if ((existingParameterType instanceof DomainOpenClass || mParameterType instanceof DomainOpenClass) && !Objects
-                    .equals(existingParameterType, mParameterType)) {
+                if ((existedParameterType instanceof DomainOpenClass || mParameterType instanceof DomainOpenClass) && !Objects
+                    .equals(existedParameterType, mParameterType)) {
                     String message = String.format("Method '%s' conflicts with another method '%s'.",
-                        MethodUtil.printSignature(existingMethod, INamedThing.REGULAR),
+                        MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
                         MethodUtil.printSignature(m, INamedThing.REGULAR));
                     throw new ConflictsMethodException(message);
                 }
@@ -394,14 +394,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            if (existingMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
+            if (existedMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
                 decorator.addMethod(WrapperLogic.unwrapOpenMethod(m));
             } else {
-                if (!m.equals(existingMethod)) {
+                if (!m.equals(existedMethod)) {
                     // Create decorator for existed method.
                     //
-                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
+                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
 
                     IOpenMethod openMethod = WrapperLogic.wrapOpenMethod(dispatcher, this);
 
