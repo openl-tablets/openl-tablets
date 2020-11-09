@@ -34,9 +34,9 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     private CqlSession session;
     private boolean schemaCreationEnabled;
     private ApplicationContext applicationContext;
-    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
+    private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
-    private AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
+    private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
     private boolean enabled;
 
@@ -115,7 +115,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     public void save(Object entity) {
         if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save cassandra entity. Feature is not enabled.");
+            throw new IllegalStateException("Failed to save an entity to Cassandra. Feature is not enabled.");
         }
         if (entity == null) {
             return;
