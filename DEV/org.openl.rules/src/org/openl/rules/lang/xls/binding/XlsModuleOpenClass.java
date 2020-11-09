@@ -365,19 +365,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
         //
-        IOpenMethod existingMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
+        IOpenMethod existedMethod = getDeclaredMethod(m.getName(), m.getSignature().getParameterTypes());
 
-        if (existingMethod != null) {
-            if (!m.equals(existingMethod) && method instanceof TestSuiteMethod) {
-                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method, existingMethod);
+        if (existedMethod != null) {
+            if (method instanceof TestSuiteMethod) {
+                DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(method, existedMethod);
                 return;
             }
 
-            if (!existingMethod.getType().equals(m.getType())) {
+            if (!existedMethod.getType().equals(m.getType())) {
                 String message = String.format("Method '%s' is already defined with another return type '%s'.",
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
-                    existingMethod.getType().getDisplayName(0));
-                throw new DuplicatedMethodException(message, existingMethod, method);
+                    existedMethod.getType().getDisplayName(0));
+                throw new DuplicatedMethodException(message, existedMethod, method);
             }
 
             // Checks the instance of existed method. If it's the
@@ -385,14 +385,14 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // decorator; otherwise - replace existed method with new instance
             // of OpenMethodDecorator for existed method and add new one.
             //
-            if (existingMethod instanceof OpenMethodDispatcher) {
-                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existingMethod;
+            if (existedMethod instanceof OpenMethodDispatcher) {
+                OpenMethodDispatcher decorator = (OpenMethodDispatcher) existedMethod;
                 decorator.addMethod(unwrapOpenMethod(m));
             } else {
-                if (!m.equals(existingMethod)) {
+                if (!m.equals(existedMethod)) {
                     // Create decorator for existed method.
                     //
-                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existingMethod);
+                    OpenMethodDispatcher dispatcher = getOpenMethodDispatcher(existedMethod);
 
                     IOpenMethod openMethod = wrapOpenMethod(dispatcher);
 

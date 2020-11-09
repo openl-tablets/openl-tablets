@@ -7,6 +7,7 @@ import java.util.Objects;
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenMethod;
@@ -21,6 +22,12 @@ public final class DuplicateMemberThrowExceptionHelper {
      */
     public static void throwDuplicateMethodExceptionIfMethodsAreNotTheSame(IOpenMethod newOpenMethod,
             IOpenMethod existedOpenMethod) {
+        newOpenMethod = WrapperLogic.extractMethod(newOpenMethod);
+        existedOpenMethod = WrapperLogic.extractMethod(existedOpenMethod);
+
+        if (newOpenMethod.equals(existedOpenMethod)) {
+            return;
+        }
         if (existedOpenMethod.getSignature().getNumberOfParameters() != existedOpenMethod.getSignature()
             .getNumberOfParameters()) {
             throw new IllegalStateException("Method signatures are not the same");
