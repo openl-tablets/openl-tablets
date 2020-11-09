@@ -424,7 +424,6 @@ public class ProjectBean {
             module = new Module();
             module.setProject(newProjectDescriptor);
             newProjectDescriptor.getModules().add(module);
-            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             // Edit current Module
             if (!StringUtils.isBlank(oldName)) {
@@ -523,7 +522,6 @@ public class ProjectBean {
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
-            WebStudioUtils.getWebStudio().resetProjects();
         } else {
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
         }
@@ -735,7 +733,9 @@ public class ProjectBean {
         String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
 
-        ProjectModel projectModel = getProjectModel(workspacePath, internalOpenAPIPath, converter);
+        ProjectModel projectModel = getProjectModel(FileNameFormatter.normalizePath(workspacePath),
+            internalOpenAPIPath,
+            converter);
 
         List<Module> modules = projectDescriptor.getModules();
 
@@ -815,7 +815,7 @@ public class ProjectBean {
             OpenAPIModelConverter converter) {
         ProjectModel projectModel;
         try {
-            projectModel = converter.extractProjectModel(workspacePath + internalOpenAPIPath);
+            projectModel = converter.extractProjectModel(workspacePath + "/" + internalOpenAPIPath);
         } catch (IOException e) {
             log.error(e.getMessage(), e);
             throw new Message("OpenAPI file is corrupted.");
@@ -983,6 +983,7 @@ public class ProjectBean {
         } finally {
             IOUtils.closeQuietly(rulesDeployContent);
         }
+        WebStudioUtils.getWebStudio().resetProjects();
         // postProcess(descriptor);
     }
 

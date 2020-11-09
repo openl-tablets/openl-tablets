@@ -55,7 +55,7 @@ public class RulesDeployerService implements Closeable {
     public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
         if (deployRepo.supports().isLocal()) {
-            //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
         } else {
             this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
@@ -87,17 +87,19 @@ public class RulesDeployerService implements Closeable {
         // AWS S3 and Git specific
         params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
         // Local File System specific
-        params.put("supportDeployments", properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"));
+        params.put("supportDeployments",
+            properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"));
 
         this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
             params);
 
         if (StringUtils.isNotBlank(params.get("supportDeployments"))) {
-            this.supportDeployments = Boolean.parseBoolean(params.get("supportDeployments")) || !(deployRepo instanceof LocalRepositoryFactory);
+            this.supportDeployments = Boolean
+                .parseBoolean(params.get("supportDeployments")) || !(deployRepo instanceof LocalRepositoryFactory);
         }
 
         if (deployRepo instanceof LocalRepositoryFactory) {
-            //NOTE deployment path isn't required for LocalRepository. It must be specified within URI
+            // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
         } else {
             String deployPath = properties.getProperty("production-repository.base.path");
@@ -250,7 +252,7 @@ public class RulesDeployerService implements Closeable {
 
     private String getDeploymentName(String givenName, Map<String, byte[]> zipEntries) {
         final String deploymentName = Optional.ofNullable(givenName)
-                .orElse(DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis());
+            .orElse(DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis());
         if (zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null) {
             return deploymentName;
         } else {
@@ -261,10 +263,10 @@ public class RulesDeployerService implements Closeable {
             try (InputStream fileStream = new ByteArrayInputStream(bytes)) {
                 Yaml yaml = new Yaml();
                 return Optional.ofNullable(yaml.loadAs(fileStream, Map.class))
-                        .map(prop -> prop.get("name"))
-                        .map(Object::toString)
-                        .filter(StringUtils::isNotBlank)
-                        .orElse(deploymentName);
+                    .map(prop -> prop.get("name"))
+                    .map(Object::toString)
+                    .filter(StringUtils::isNotBlank)
+                    .orElse(deploymentName);
             } catch (IOException e) {
                 log.debug(e.getMessage(), e);
                 return deploymentName;
@@ -279,7 +281,7 @@ public class RulesDeployerService implements Closeable {
 
         String serviceName = readServiceName(zipEntries.get(RULES_DEPLOY_XML));
         String projectName = readProjectName(zipEntries.get(RULES_XML),
-            serviceName != null ? serviceName : defaultName);
+            StringUtils.isBlank(serviceName) ? defaultName : serviceName);
         String apiVersion = readApiVersion(zipEntries.get(RULES_DEPLOY_XML));
 
         String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;

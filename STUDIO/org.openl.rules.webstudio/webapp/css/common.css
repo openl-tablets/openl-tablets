@@ -137,7 +137,8 @@ input[type='button']:disabled, button:disabled,
 }
 
 .button-primary,
-.button-secondary {
+.button-secondary,
+.button-warning {
     color: #fff !important;
     box-shadow: none !important;
 }
@@ -145,6 +146,11 @@ input[type='button']:disabled, button:disabled,
 .button-primary {
     background: #8c2 !important;
     border-color: #8c2 !important;
+}
+
+.button-warning {
+    background: red !important;
+    border-color: red !important;
 }
 
 .button-secondary {
@@ -617,6 +623,7 @@ ul.enum li {
     font-size: 110%;
 }
 
+.attention-text,
 .codeerror {
     color: red;
     font-weight: bold;

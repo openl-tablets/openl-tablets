@@ -10,7 +10,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.openl.rules.table.OpenLArgumentsCloner;
@@ -36,8 +35,7 @@ public class TestDescriptionTest {
 
     @Test
     public void testNotModifyInputParameters() {
-
-        TestDescription description = new TestDescription(createTestMethodMock(), arguments, null);
+        TestDescription description = new TestDescription(createTestMethodMock(), null, arguments, null);
 
         testRunner.runTest(description, target, env, cloner, 1);
         assertEquals("test", arguments[0].value);
@@ -52,16 +50,13 @@ public class TestDescriptionTest {
 
         when(method.getSignature()).thenReturn(signature);
 
-        when(method.invoke(any(), any(Object[].class), any(IRuntimeEnv.class))).thenAnswer(new Answer<Void>() {
-            @Override
-            public Void answer(InvocationOnMock invocation) throws Throwable {
-                Object[] params = (Object[]) invocation.getArguments()[1];
+        when(method.invoke(any(), any(Object[].class), any(IRuntimeEnv.class))).thenAnswer((Answer<Void>) invocation -> {
+            Object[] params = (Object[]) invocation.getArguments()[1];
 
-                // Modify method input parameters
-                SomeArgument someArgument = (SomeArgument) params[0];
-                someArgument.value = "modified" + someArgument.value;
-                return null;
-            }
+            // Modify method input parameters
+            SomeArgument someArgument = (SomeArgument) params[0];
+            someArgument.value = "modified" + someArgument.value;
+            return null;
         });
 
         return method;
@@ -71,12 +66,7 @@ public class TestDescriptionTest {
         IMethodSignature signature = mock(IMethodSignature.class);
         when(signature.getNumberOfParameters()).thenReturn(arguments.length);
 
-        when(signature.getParameterName(anyInt())).thenAnswer(new Answer<String>() {
-            @Override
-            public String answer(InvocationOnMock invocation) throws Throwable {
-                return "param" + invocation.getArguments()[0];
-            }
-        });
+        when(signature.getParameterName(anyInt())).thenAnswer((Answer<String>) invocation -> "param" + invocation.getArguments()[0]);
 
         return signature;
     }

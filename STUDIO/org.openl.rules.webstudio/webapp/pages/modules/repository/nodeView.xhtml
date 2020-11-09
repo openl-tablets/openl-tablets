@@ -30,7 +30,7 @@
     </h:panelGroup>
 
     <c:set var="deleteMessage" value="Archive project"/>
-    <c:set var="deleteBranchMessage" value="Delete branch"/>
+    <c:set var="deleteBranchMessage" value="Delete Branch"/>
     <c:set var="addFolderMessage" value="Create a new folder in the project"/>
     <c:set var="uploadFileMessage" value="Upload a file to the project folder"/>
     <c:set var="undeleteMessage" value="Restore the project in Repository"/>
@@ -126,7 +126,7 @@
                         <h:commandButton id="deleteId2" rendered="#{repositoryTreeState.canDelete}" value="Delete"
                                          onclick="#{rich:component('modalDeleteNode')}.show();return false;"
                                          title="#{deleteMessage}"/>
-                        <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete branch"
+                        <h:commandButton id="deleteBranchId" rendered="#{repositoryTreeState.canDeleteBranch}" value="Delete Branch"
                                          onclick="openDeleteBranchDialog();return false;"
                                          title="#{deleteBranchMessage}"/>
 
