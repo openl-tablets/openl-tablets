@@ -59,10 +59,8 @@ public class HiveEntityDaoTest {
     }
 
     @Test(expected = UnsupportedFieldTypeException.class)
-    public void insertTest_unsupportedType() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, WrongTypeEntity.class);
-        WrongTypeEntity entity = new WrongTypeEntity();
-        hiveEntityDao.insert(entity);
+    public void insertTest_unsupportedType() throws SQLException, UnsupportedFieldTypeException {
+        new HiveEntityDao(connection, WrongTypeEntity.class);
     }
 
     private DefaultHiveEntity getDefaultHiveEntity() {

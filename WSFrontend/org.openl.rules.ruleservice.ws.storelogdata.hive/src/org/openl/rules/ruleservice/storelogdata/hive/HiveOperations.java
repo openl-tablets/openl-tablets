@@ -100,7 +100,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         }
     }
 
-    private HiveEntityDao getEntitySaver(Class<?> entityClass) throws SQLException {
+    private HiveEntityDao getEntitySaver(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
         HiveEntityDao entitySaver = null;
         Map<Class<?>, HiveEntityDao> current;
         Map<Class<?>, HiveEntityDao> next;
@@ -120,7 +120,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         return entitySaver;
     }
 
-    private HiveEntityDao createEntitySaver(Class<?> entityClass) throws SQLException {
+    private HiveEntityDao createEntitySaver(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
         return new HiveEntityDao(connection, entityClass);
     }
 

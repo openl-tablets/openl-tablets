@@ -2,28 +2,64 @@ package org.openl.rules.ruleservice.storelogdata.hive;
 
 import java.lang.reflect.Field;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class HiveEntityDao {
     private final PreparedStatement preparedStatement;
     private final Field[] sortedFields;
+    private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
+        byte.class,
+        Short.class,
+        short.class,
+        Integer.class,
+        int.class,
+        Long.class,
+        long.class,
+        Float.class,
+        float.class,
+        Double.class,
+        double.class,
+        BigDecimal.class,
+        Boolean.class,
+        boolean.class,
+        String.class,
+        LocalDateTime.class,
+        LocalDate.class,
+        ZonedDateTime.class,
+        Date.class));
 
-    public HiveEntityDao(Connection connection, Class<?> entityClass) throws SQLException {
+    public HiveEntityDao(Connection connection, Class<?> entityClass) throws SQLException,
+                                                                      UnsupportedFieldTypeException {
+        checkTypes(entityClass);
         preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
         sortedFields = entityClass.getDeclaredFields();
         Arrays.sort(sortedFields, Comparator.comparing(Field::getName));
         Arrays.stream(sortedFields).forEach(f -> f.setAccessible(true));
+    }
+
+    private void checkTypes(Class<?> entityClass) throws UnsupportedFieldTypeException {
+        for (Field field : entityClass.getDeclaredFields()) {
+            if (!supportedTypes.contains(field.getType())) {
+                throw new UnsupportedFieldTypeException(String.format(
+                    "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed classes are '{%s}'.",
+                    entityClass.getTypeName(),
+                    field.getName(),
+                    field.getType().getTypeName(),
+                    supportedTypes.stream().map(Class::getName).collect(Collectors.joining(", "))));
+            }
+        }
     }
 
     public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
@@ -52,13 +88,6 @@ public class HiveEntityDao {
             preparedStatement.setDouble(index, field.getDouble(entity));
         } else if (Float.class.equals(field.getType()) || float.class.equals(field.getType())) {
             preparedStatement.setFloat(index, field.getFloat(entity));
-        } else if (BigInteger.class.equals(field.getType())) {
-            BigInteger bigIntegerValue = (BigInteger) field.get(entity);
-            if (bigIntegerValue == null) {
-                preparedStatement.setNull(index, Types.BIGINT);
-            } else {
-                preparedStatement.setLong(index, bigIntegerValue.longValue());
-            }
         } else if (BigDecimal.class.equals(field.getType())) {
             preparedStatement.setBigDecimal(index, (BigDecimal) field.get(entity));
         } else if (ZonedDateTime.class.equals(field.getType())) {
