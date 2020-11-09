@@ -182,9 +182,6 @@ public class RepositoryTreeController {
     private String newProjectName;
     private String version;
 
-    private String filterString;
-    private boolean hideDeleted;
-
     private boolean openDependencies = true;
     private AProject currentProject;
 
@@ -199,7 +196,6 @@ public class RepositoryTreeController {
     private String archiveProjectComment;
     private String restoreProjectComment;
     private String eraseProjectComment;
-    private String filterRepositoryId;
     private boolean eraseFromRepository;
 
     private String modelsModuleName = "Models";
@@ -1363,33 +1359,15 @@ public class RepositoryTreeController {
     }
 
     public boolean isHideDeleted() {
-        hideDeleted = repositoryTreeState.isHideDeleted();
-        return hideDeleted;
+        return repositoryTreeState.isHideDeleted();
     }
 
     public void setHideDeleted(boolean hideDeleted) {
-        this.hideDeleted = hideDeleted;
+        repositoryTreeState.setHideDeleted(hideDeleted);
     }
 
-    public String filter() {
-        IFilter<AProjectArtefact> filter = null;
-        if (StringUtils.isNotBlank(filterString)) {
-            filter = new RepositoryFileExtensionFilter(filterString);
-        }
-        IFilter<AProjectArtefact> repositoryFilter = null;
-        if (StringUtils.isNotBlank(filterRepositoryId)) {
-            repositoryFilter = new RepositoryFilter(filterRepositoryId);
-        }
-        if (repositoryFilter != null) {
-            if (filter != null) {
-                filter = new AndFilterIfSupport(repositoryFilter, filter);
-            } else {
-                filter = repositoryFilter;
-            }
-        }
-        repositoryTreeState.setFilter(filter);
-        repositoryTreeState.setHideDeleted(hideDeleted);
-        return null;
+    public void filter() {
+        repositoryTreeState.filter();
     }
 
     public String getDeploymentProjectName() {
@@ -1411,7 +1389,7 @@ public class RepositoryTreeController {
     }
 
     public String getFilterString() {
-        return filterString;
+        return repositoryTreeState.getFilterString();
     }
 
     public String getFolderName() {
@@ -1721,7 +1699,7 @@ public class RepositoryTreeController {
     }
 
     public void setFilterString(String filterString) {
-        this.filterString = filterString;
+        repositoryTreeState.setFilterString(filterString);
     }
 
     public void setFolderName(String folderName) {
@@ -2526,11 +2504,11 @@ public class RepositoryTreeController {
     }
 
     public String getFilterRepositoryId() {
-        return filterRepositoryId;
+        return repositoryTreeState.getFilterRepositoryId();
     }
 
     public void setFilterRepositoryId(String filterRepositoryId) {
-        this.filterRepositoryId = filterRepositoryId;
+        repositoryTreeState.setFilterRepositoryId(filterRepositoryId);
     }
 
     public void tryImportFromRepo() {
