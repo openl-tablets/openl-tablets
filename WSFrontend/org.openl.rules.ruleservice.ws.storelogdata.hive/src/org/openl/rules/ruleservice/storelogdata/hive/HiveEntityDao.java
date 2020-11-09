@@ -53,7 +53,7 @@ public class HiveEntityDao {
         for (Field field : entityClass.getDeclaredFields()) {
             if (!supportedTypes.contains(field.getType())) {
                 throw new UnsupportedFieldTypeException(String.format(
-                    "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed classes are '{%s}'.",
+                    "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed types are '%s'.",
                     entityClass.getTypeName(),
                     field.getName(),
                     field.getType().getTypeName(),

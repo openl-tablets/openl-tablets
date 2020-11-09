@@ -87,21 +87,21 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
 
     public void save(Object entity) {
         if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save entity. Feature is not enabled.");
+            throw new IllegalStateException("Failed to save an entity to Hive. Feature is not enabled.");
         }
         if (entity == null) {
             return;
         }
         try {
             createTableIfNotExists(entity.getClass());
-            getEntitySaver(entity.getClass()).insert(entity);
+            getHiveEntityDao(entity.getClass()).insert(entity);
         } catch (Exception e) {
             log.error("Failed to save hive entity.", e);
         }
     }
 
-    private HiveEntityDao getEntitySaver(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
-        HiveEntityDao entitySaver = null;
+    private HiveEntityDao getHiveEntityDao(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
+        HiveEntityDao hiveEntityDao = null;
         Map<Class<?>, HiveEntityDao> current;
         Map<Class<?>, HiveEntityDao> next;
         do {
@@ -110,18 +110,14 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
             if (currentEntitySaver != null) {
                 return currentEntitySaver;
             } else {
-                if (entitySaver == null) {
-                    entitySaver = createEntitySaver(entityClass);
+                if (hiveEntityDao == null) {
+                    hiveEntityDao = new HiveEntityDao(connection, entityClass);
                 }
                 next = new HashMap<>(current);
-                next.put(entityClass, entitySaver);
+                next.put(entityClass, hiveEntityDao);
             }
         } while (!entitySavers.compareAndSet(current, Collections.unmodifiableMap(next)));
-        return entitySaver;
-    }
-
-    private HiveEntityDao createEntitySaver(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
-        return new HiveEntityDao(connection, entityClass);
+        return hiveEntityDao;
     }
 
     public void createTableIfNotExists(Class<?> entityClass) {
@@ -145,15 +141,15 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                     for (String q : queries) {
                         connection.createStatement().execute(q.trim());
                     }
-                } catch (IOException|SQLException e) {
+                } catch (IOException | SQLException e) {
                     throw new HiveTableCreationException(
-                            String.format("Failed to extract a file with schema creation SQL for '%s'.",
-                                    entityClass.getTypeName()),
-                            e);
+                        String.format("Failed to extract a file with schema creation SQL for '%s'.",
+                            entityClass.getTypeName()),
+                        e);
                 }
             } else {
-                throw new HiveTableCreationException(String
-                        .format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
+                throw new HiveTableCreationException(
+                    String.format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
             }
         }
     }
@@ -180,7 +176,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
-                .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
+            .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         }
