@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.test;
 
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.TestDescription;
@@ -25,6 +26,7 @@ public class RunTestHelper {
     // but now it placed to session bean due to WebStudio navigation specific
     // TODO move this object to the correct place
     private Object[] params = new Object[0];
+    private IRulesRuntimeContext runtimeContext;
 
     public ITracerObject getTraceObject() {
         catchParams();
@@ -49,7 +51,9 @@ public class RunTestHelper {
     }
 
     public void catchParams() {
-        this.params = ((InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean")).getParams();
+        InputArgsBean bean = (InputArgsBean) WebStudioUtils.getBackingBean("inputArgsBean");
+        this.params = bean.getParams();
+        this.runtimeContext = bean.getRuntimeContext();
     }
 
     public void fillBean() {
@@ -95,10 +99,11 @@ public class RunTestHelper {
                 // View expired
                 return null;
             }
-            testSuite = new TestSuite(new TestDescription(method, params, db));
+            testSuite = new TestSuite(new TestDescription(method, runtimeContext, params, db));
         }
 
         params = new Object[0]; // Reset caught params
+        runtimeContext = null;
         return testSuite;
     }
 }
