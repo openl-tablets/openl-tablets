@@ -1,16 +1,8 @@
 <project>
-  <name>EPBDS-10699_TestSuiteMethod_Compilation</name>
-  <modules>
-    <module>
-      <rules-root path="rules/*.xlsx"/>
-      <method-filter>
-        <includes>
-          <value>.*DeterminePolicyPremiumDXP.*</value>
-          <value>.*DeterminePolicyPremium.*</value>
-        </includes>
-      </method-filter>
-    </module>
-  </modules>
-  <properties-file-name-pattern>.*-%effectiveDate:MMddyyyy%-%startRequestDate:MMddyyyy%</properties-file-name-pattern>
-  <properties-file-name-processor>org.openl.rules.project.resolving.CWPropertyFileNameProcessor</properties-file-name-processor>
+    <name>EPBDS-10699_TestSuiteMethod_Compilation</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
 </project>
