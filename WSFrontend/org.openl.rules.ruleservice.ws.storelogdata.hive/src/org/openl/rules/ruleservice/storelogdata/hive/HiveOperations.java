@@ -140,8 +140,8 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
             Entity entity = entityClass.getAnnotation(Entity.class);
             if (entity != null) {
                 try {
-                    String cqlQuery = extractSqlQueryForEntity(entityClass);
-                    String[] queries = cqlQuery.split(";");
+                    String sqlQuery = extractSqlQueryForEntity(entityClass);
+                    String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
                         connection.createStatement().execute(q.trim());
                     }

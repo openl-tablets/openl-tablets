@@ -6,20 +6,12 @@ public class HiveTableCreationException extends RuleServiceRuntimeException {
 
     private static final long serialVersionUID = -4405787184878140722L;
 
-    public HiveTableCreationException() {
-        super();
-    }
-
     public HiveTableCreationException(String message, Throwable cause) {
         super(message, cause);
     }
 
     public HiveTableCreationException(String message) {
         super(message);
-    }
-
-    public HiveTableCreationException(Throwable cause) {
-        super(cause);
     }
 
 }
