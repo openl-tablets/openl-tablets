@@ -13,7 +13,7 @@ import org.openl.types.*;
  */
 public abstract class AMethod implements IOpenMethod, IModuleInfo {
 
-    private IOpenMethodHeader header;
+    private final IOpenMethodHeader header;
 
     private String dependencyName;
 

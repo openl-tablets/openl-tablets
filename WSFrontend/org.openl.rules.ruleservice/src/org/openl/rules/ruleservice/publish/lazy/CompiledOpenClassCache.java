@@ -89,7 +89,7 @@ public final class CompiledOpenClassCache {
             RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(module, true, dependencyManager, classLoader);
             rulesInstantiationStrategy.setServiceClass(EmptyInterface.class);
-            Map<String, Object> parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
+            Map<String, Object> parameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
                 dependencyManager.getExternalParameters(),
                 Collections.singleton(module));
             rulesInstantiationStrategy.setExternalParameters(parameters);

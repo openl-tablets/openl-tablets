@@ -51,7 +51,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         RulesInstantiationStrategy instantiationStrategy = instantiationStrategyFactory.getStrategy(serviceDescription,
             dependencyManager);
         Map<String, Object> parameters = ProjectExternalDependenciesHelper
-            .getExternalParamsWithProjectDependencies(externalParameters, service.getModules());
+            .buildExternalParamsWithProjectDependencies(externalParameters, service.getModules());
         instantiationStrategy.setExternalParameters(parameters);
 
         if (service.isProvideVariations()) {

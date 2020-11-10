@@ -1,8 +1,8 @@
 package org.openl.rules.types;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
@@ -46,7 +46,7 @@ public final class DuplicateMemberThrowExceptionHelper {
             }
         }
         String message;// Modules to which methods belongs to
-        List<String> modules = new ArrayList<>();
+        Set<String> modules = new HashSet<>();
         if (newOpenMethod instanceof IModuleInfo) {
             // Get the name of the module for the newOpenMethod
             String moduleName = ((IModuleInfo) newOpenMethod).getModuleName();
@@ -62,7 +62,7 @@ public final class DuplicateMemberThrowExceptionHelper {
             }
         }
 
-        boolean canBeDispatched = !(existedOpenMethod instanceof TestSuiteMethod);
+        boolean canBeDispatched = !(existedOpenMethod instanceof TestSuiteMethod) && !(newOpenMethod instanceof TestSuiteMethod);
 
         if (modules.isEmpty()) {
             // Case module names where not set to the methods
@@ -76,30 +76,30 @@ public final class DuplicateMemberThrowExceptionHelper {
             }
         } else {
             // Case when the module names where set to the methods
-            String modulesString = modules.get(0);
             if (modules.size() > 1) {
+                String[] moduleNames = modules.stream().sorted().toArray(String[]::new);
                 if (canBeDispatched) {
                     message = String.format(
                         "Method '%s' is already used in modules '%s' and '%s' with the same version, active status, properties set.",
                         MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        modulesString,
-                        modules.get(1));
+                        moduleNames[0],
+                        moduleNames[1]);
                 } else {
                     message = String.format("Method '%s' is already used in modules '%s' and '%s'.",
                         existedOpenMethod.getName(),
-                        modulesString,
-                        modules.get(1));
+                        moduleNames[0],
+                        moduleNames[1]);
                 }
             } else {
                 if (canBeDispatched) {
                     message = String.format(
                         "Method '%s' is already used in module '%s' with the same version, active status, properties set.",
                         MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        modulesString);
+                        modules.iterator().next());
                 } else {
                     message = String.format("Method '%s' is already used in module '%s'.",
                         MethodUtil.printSignature(existedOpenMethod, INamedThing.REGULAR),
-                        modulesString);
+                        modules.iterator().next());
                 }
             }
         }

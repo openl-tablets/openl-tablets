@@ -34,7 +34,7 @@ public abstract class AOpenClass implements IOpenClass {
     protected static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.emptyMap());
     private IOpenField indexField;
 
-    protected IMetaInfo metaInfo;
+    protected IMetaInfo xlsMetaInfo;
     protected Map<String, IOpenField> uniqueLowerCaseFieldMap = null;
 
     protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap = null;
@@ -177,7 +177,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public IMetaInfo getMetaInfo() {
-        return metaInfo;
+        return xlsMetaInfo;
     }
 
     @Override
@@ -400,7 +400,7 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
+        this.xlsMetaInfo = metaInfo;
     }
 
     @Override

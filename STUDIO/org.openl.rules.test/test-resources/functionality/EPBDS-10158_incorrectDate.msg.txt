@@ -4,5 +4,5 @@ WARN: File 'Module-01092018-55666777.xlsx' does not match file name pattern 'Mod
 ERROR: There can be only one active table.
 ERROR: There can be only one active table.
 ERROR: There can be only one active table.
-ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-550092018' and 'Module-01092018-010092018' with the same version, active status, properties set.
-ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-55666777' and 'Module-01092018-010092018' with the same version, active status, properties set.
+ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-010092018' and 'Module-01092018-550092018' with the same version, active status, properties set.
+ERROR: Method 'MyRule2(String param)' is already used in modules 'Module-01092018-010092018' and 'Module-01092018-55666777' with the same version, active status, properties set.

@@ -23,7 +23,7 @@ public final class ProjectExternalDependenciesHelper {
         return VIRTUAL_MODULE_PREFIX + projectName + VIRTUAL_MODULE_SUFFIX;
     }
 
-    public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
+    public static Map<String, Object> buildExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
             Collection<Module> modules) {
         Map<String, Object> parameters = new HashMap<>();
         if (externalParams != null) {
