@@ -17,13 +17,20 @@ public final class DuplicateMemberThrowExceptionHelper {
     private DuplicateMemberThrowExceptionHelper() {
     }
 
+    private static IOpenMethod extractOriginalMethod(IOpenMethod method) {
+        if (method instanceof TestSuiteMethod) {
+            method = ((TestSuiteMethod) method).getOriginalTestSuiteMethod();
+        }
+        return WrapperLogic.unwrapOpenMethod(method);
+    }
+
     /**
      * Throw the error with the right message for the case when the methods are equal
      */
     public static void throwDuplicateMethodExceptionIfMethodsAreNotTheSame(IOpenMethod newOpenMethod,
             IOpenMethod existedOpenMethod) {
-        newOpenMethod = WrapperLogic.extractMethod(newOpenMethod);
-        existedOpenMethod = WrapperLogic.extractMethod(existedOpenMethod);
+        newOpenMethod = extractOriginalMethod(newOpenMethod);
+        existedOpenMethod = extractOriginalMethod(existedOpenMethod);
 
         if (newOpenMethod.equals(existedOpenMethod)) {
             return;
