@@ -48,9 +48,7 @@ import org.openl.rules.types.DuplicateMemberThrowExceptionHelper;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
-import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
@@ -92,25 +90,43 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
+    // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
+    // be different if the module name is not matched to the java naming restrictions.
+    private final String moduleName;
+
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
+    }
+
+    private static String makeJavaIdentifier(String src) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if (i == 0) {
+                buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
+            } else {
+                buf.append(Character.isJavaIdentifierPart(c) ? c : '_');
+            }
+        }
+
+        return buf.toString();
     }
 
     /**
      * Constructor for module with dependent modules
      *
      */
-    public XlsModuleOpenClass(String name,
-            XlsMetaInfo metaInfo,
+    public XlsModuleOpenClass(String moduleName,
+            XlsMetaInfo xlsMetaInfo,
             OpenL openl,
             IDataBase dbase,
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             IBindingContext bindingContext) {
-        super(name, openl);
-
+        super(makeJavaIdentifier(moduleName), openl);
+        this.moduleName = moduleName;
         this.dataBase = dbase;
-        this.metaInfo = metaInfo;
+        this.xlsMetaInfo = xlsMetaInfo;
         this.useDecisionTableDispatcher = OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams());
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
@@ -128,7 +144,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             setDependencies(usingModules);
             initDependencies();
         }
-        initImports(metaInfo.getXlsModuleNode());
+        initImports(xlsMetaInfo.getXlsModuleNode());
     }
 
     public ITableProperties getGlobalTableProperties() {
@@ -300,7 +316,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     public XlsMetaInfo getXlsMetaInfo() {
-        return (XlsMetaInfo) metaInfo;
+        return (XlsMetaInfo) xlsMetaInfo;
     }
 
     @Override
@@ -348,13 +364,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
         // Workaround needed to set the module name in the method while compile
         if (m instanceof AMethod && ((AMethod) m).getModuleName() == null) {
-            XlsMetaInfo metaInfo = getXlsMetaInfo();
-            if (metaInfo != null) {
-                IOpenSourceCodeModule sourceCodeModule = metaInfo.getXlsModuleNode().getModule();
-                if (sourceCodeModule instanceof IModuleInfo) {
-                    ((AMethod) m).setModuleName(((IModuleInfo) sourceCodeModule).getModuleName());
-                }
-            }
+            ((AMethod) m).setModuleName(moduleName);
         }
 
         // Checks that method already exists in the class. If it already

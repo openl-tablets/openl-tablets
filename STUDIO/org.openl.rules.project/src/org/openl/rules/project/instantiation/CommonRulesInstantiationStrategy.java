@@ -18,7 +18,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
      * Flag indicating is it execution mode or not. In execution mode all meta info that is not used in rules running is
      * being cleaned.
      */
-    private boolean executionMode;
+    private final boolean executionMode;
 
     /**
      * <code>ClassLoader</code> that is used in strategy to compile and instantiate Openl rules.
@@ -28,7 +28,7 @@ public abstract class CommonRulesInstantiationStrategy implements RulesInstantia
     /**
      * {@link IDependencyManager} for projects that have dependent modules.
      */
-    private IDependencyManager dependencyManager;
+    private final IDependencyManager dependencyManager;
 
     private Map<String, Object> externalParameters;
 
