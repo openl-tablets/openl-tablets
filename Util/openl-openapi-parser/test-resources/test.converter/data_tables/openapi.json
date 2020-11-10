@@ -1,0 +1,968 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "validationTest_validationTest",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/validationTest/validationTest",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/CircleDatatype2": {
+      "get": {
+        "summary": "CircleDatatype2 CircleDatatype2()",
+        "description": "Rules method: org.openl.generated.beans.CircleDatatype2 CircleDatatype2()",
+        "operationId": "CircleDatatype2",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleDatatype2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Mymethod": {
+      "get": {
+        "summary": "MyDatatype Mymethod()",
+        "description": "Rules method: org.openl.generated.beans.MyDatatype Mymethod()",
+        "operationId": "Mymethod",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyDatatype"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MyDatatype3": {
+      "get": {
+        "summary": "MyDatatype3 MyDatatype3()",
+        "description": "Rules method: org.openl.generated.beans.MyDatatype3 MyDatatype3()",
+        "operationId": "MyDatatype3",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyDatatype3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/childDatatype2": {
+      "get": {
+        "summary": "childDatatype2 childDatatype2()",
+        "description": "Rules method: org.openl.generated.beans.childDatatype2 childDatatype2()",
+        "operationId": "childDatatype2",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/childDatatype2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/childDatatype1": {
+      "get": {
+        "summary": "childDatatype1 childDatatype1()",
+        "description": "Rules method: org.openl.generated.beans.childDatatype1 childDatatype1()",
+        "operationId": "childDatatype1",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/childDatatype1"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CircleDatatype3": {
+      "get": {
+        "summary": "CircleDatatype3 CircleDatatype3()",
+        "description": "Rules method: org.openl.generated.beans.CircleDatatype3 CircleDatatype3()",
+        "operationId": "CircleDatatype3",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CircleDatatype3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MyDatatypeArr": {
+      "get": {
+        "summary": "MyDatatypeArr MyDatatypeArr()",
+        "description": "Rules method: org.openl.generated.beans.MyDatatypeArr MyDatatypeArr()",
+        "operationId": "MyDatatypeArr",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyDatatypeArr"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "CircleDatatype1": {
+        "type": "object",
+        "properties": {
+          "someField1": {
+            "type": "string"
+          },
+          "someField2": {
+            "$ref": "#/components/schemas/CircleDatatype2"
+          }
+        }
+      },
+      "CircleDatatype2": {
+        "type": "object",
+        "properties": {
+          "anotheField1": {
+            "type": "string"
+          },
+          "anotheField2": {
+            "$ref": "#/components/schemas/CircleDatatype1"
+          }
+        }
+      },
+      "DoubleRange": {
+        "type": "object",
+        "properties": {
+          "lowerBound": {
+            "type": "number",
+            "format": "double"
+          },
+          "upperBound": {
+            "type": "number",
+            "format": "double"
+          },
+          "lowerBoundType": {
+            "type": "string",
+            "enum": [
+              "INCLUDING",
+              "EXCLUDING"
+            ]
+          },
+          "upperBoundType": {
+            "type": "string",
+            "enum": [
+              "INCLUDING",
+              "EXCLUDING"
+            ]
+          }
+        }
+      },
+      "IntRange": {
+        "type": "object",
+        "properties": {
+          "min": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "max": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "MyDatatype": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field2": {
+            "type": "number",
+            "format": "double"
+          },
+          "field3": {
+            "type": "number",
+            "format": "float"
+          },
+          "field4": {
+            "type": "string"
+          },
+          "field5": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field6": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "field7": {
+            "type": "string",
+            "format": "byte"
+          },
+          "field8": {
+            "type": "boolean"
+          },
+          "field9": {
+            "type": "boolean"
+          },
+          "field10": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "field11": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field12": {
+            "type": "number",
+            "format": "float"
+          },
+          "field13": {
+            "type": "string"
+          },
+          "field14": {
+            "type": "number",
+            "format": "double"
+          },
+          "field15": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field16": {
+            "type": "string"
+          },
+          "field17": {
+            "type": "number"
+          },
+          "field18": {
+            "type": "integer"
+          },
+          "field19": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field20": {
+            "type": "number",
+            "format": "double"
+          },
+          "field21": {
+            "type": "number"
+          },
+          "field22": {
+            "type": "integer"
+          },
+          "field23": {
+            "type": "string",
+            "format": "byte"
+          },
+          "field24": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "field25": {
+            "$ref": "#/components/schemas/DoubleRange"
+          },
+          "field26": {
+            "$ref": "#/components/schemas/StringRange"
+          },
+          "field27": {
+            "$ref": "#/components/schemas/IntRange"
+          },
+          "field28": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "field29": {
+            "type": "object"
+          }
+        }
+      },
+      "NumericComparableString": {
+        "type": "object",
+        "properties": {
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "StringRange": {
+        "type": "object",
+        "properties": {
+          "lowerBound": {
+            "$ref": "#/components/schemas/NumericComparableString"
+          },
+          "upperBound": {
+            "$ref": "#/components/schemas/NumericComparableString"
+          },
+          "lowerBoundType": {
+            "type": "string",
+            "enum": [
+              "INCLUDING",
+              "EXCLUDING"
+            ]
+          },
+          "upperBoundType": {
+            "type": "string",
+            "enum": [
+              "INCLUDING",
+              "EXCLUDING"
+            ]
+          }
+        }
+      },
+      "MyDatatype1": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "string"
+          },
+          "field2": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyDatatype2": {
+        "type": "object",
+        "properties": {
+          "field11": {
+            "type": "string"
+          },
+          "field22": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MyDatatype3": {
+        "type": "object",
+        "properties": {
+          "param1": {
+            "$ref": "#/components/schemas/MyDatatype1"
+          },
+          "param2": {
+            "$ref": "#/components/schemas/MyDatatype2"
+          },
+          "param3": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyDatatype1"
+            }
+          }
+        }
+      },
+      "childDatatype1": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/parentDatatype1"
+          }
+        ]
+      },
+      "childDatatype2": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/parentDatatype1"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "testField": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "parentDatatype1": {
+        "required": [
+          "@class"
+        ],
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "string"
+          },
+          "field2": {
+            "type": "number",
+            "format": "double"
+          },
+          "@class": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "@class"
+        }
+      },
+      "subchild": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/childDatatype2"
+          }
+        ]
+      },
+      "CircleDatatype3": {
+        "type": "object",
+        "properties": {
+          "anotheField1": {
+            "type": "string"
+          },
+          "anotheField2": {
+            "$ref": "#/components/schemas/CircleDatatype3"
+          }
+        }
+      },
+      "MyDatatypeArr": {
+        "type": "object",
+        "properties": {
+          "field1": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "field2": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "field3": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "field4": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "field5": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "field6": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "field7": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "field8": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "field9": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "field10": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            }
+          },
+          "field11": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "field12": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "float"
+            }
+          },
+          "field13": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "field14": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "field15": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "field16": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "field17": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "field18": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "field19": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "field20": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "field21": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          },
+          "field22": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "field23": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "field24": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "date-time"
+            }
+          },
+          "field25": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DoubleRange"
+            }
+          },
+          "field26": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StringRange"
+            }
+          },
+          "field27": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/IntRange"
+            }
+          },
+          "field28": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      }
+    }
+  }
+}
