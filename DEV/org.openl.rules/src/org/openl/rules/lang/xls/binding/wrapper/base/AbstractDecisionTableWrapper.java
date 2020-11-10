@@ -225,8 +225,8 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
-    public void setModuleName(String dependencyName) {
-        delegate.setModuleName(dependencyName);
+    public void setModuleName(String moduleName) {
+        delegate.setModuleName(moduleName);
     }
 
     @Override

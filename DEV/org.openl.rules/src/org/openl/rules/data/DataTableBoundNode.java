@@ -16,12 +16,16 @@ import org.openl.vm.IRuntimeEnv;
 public class DataTableBoundNode extends ATableBoundNode implements IMemberBoundNode {
 
     private DataOpenField field;
-    private XlsModuleOpenClass module;
+    private final XlsModuleOpenClass module;
     private ITable table;
 
     public DataTableBoundNode(TableSyntaxNode tableSyntaxNode, XlsModuleOpenClass module) {
         super(tableSyntaxNode);
         this.module = module;
+    }
+
+    protected XlsModuleOpenClass getModule() {
+        return module;
     }
 
     public DataOpenField getField() {

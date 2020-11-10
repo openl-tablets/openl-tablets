@@ -67,6 +67,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     @Override
     public void addTo(ModuleOpenClass openClass) {
         method = createMethodShell();
+        method.setModuleName(module.getModuleName());
         openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
         if (hasAliasName()) {

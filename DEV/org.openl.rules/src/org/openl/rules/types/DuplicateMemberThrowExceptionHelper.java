@@ -47,19 +47,11 @@ public final class DuplicateMemberThrowExceptionHelper {
         }
         String message;// Modules to which methods belongs to
         Set<String> modules = new HashSet<>();
-        if (newOpenMethod instanceof IModuleInfo) {
-            // Get the name of the module for the newOpenMethod
-            String moduleName = ((IModuleInfo) newOpenMethod).getModuleName();
-            if (moduleName != null) {
-                modules.add(moduleName);
-            }
+        if (extractModuleName(newOpenMethod) != null) {
+            modules.add(extractModuleName(newOpenMethod));
         }
-        if (existedOpenMethod instanceof IModuleInfo) {
-            // Get the name of the module for the existedOpenMethod
-            String moduleName = ((IModuleInfo) existedOpenMethod).getModuleName();
-            if (moduleName != null) {
-                modules.add(moduleName);
-            }
+        if (extractModuleName(existedOpenMethod) != null) {
+            modules.add(extractModuleName(existedOpenMethod));
         }
 
         boolean canBeDispatched = !(existedOpenMethod instanceof TestSuiteMethod) && !(newOpenMethod instanceof TestSuiteMethod);
@@ -104,6 +96,14 @@ public final class DuplicateMemberThrowExceptionHelper {
             }
         }
         throw new DuplicatedMethodException(message, existedOpenMethod, newOpenMethod);
+    }
+
+    private static String extractModuleName(IOpenMethod openMethod) {
+        if (openMethod instanceof IModuleInfo) {
+            // Get the name of the module for the newOpenMethod
+            return ((IModuleInfo) openMethod).getModuleName();
+        }
+        return null;
     }
 
 }

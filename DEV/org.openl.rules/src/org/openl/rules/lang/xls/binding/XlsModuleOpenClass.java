@@ -52,7 +52,6 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 
@@ -90,26 +89,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
-    // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
-    // be different if the module name is not matched to the java naming restrictions.
-    private final String moduleName;
-
     public RulesModuleBindingContext getRulesModuleBindingContext() {
         return rulesModuleBindingContext;
-    }
-
-    private static String makeJavaIdentifier(String src) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
-            if (i == 0) {
-                buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
-            } else {
-                buf.append(Character.isJavaIdentifierPart(c) ? c : '_');
-            }
-        }
-
-        return buf.toString();
     }
 
     /**
@@ -123,8 +104,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             Set<CompiledDependency> usingModules,
             ClassLoader classLoader,
             IBindingContext bindingContext) {
-        super(makeJavaIdentifier(moduleName), openl);
-        this.moduleName = moduleName;
+        super(moduleName, openl);
         this.dataBase = dbase;
         this.xlsMetaInfo = xlsMetaInfo;
         this.useDecisionTableDispatcher = OpenLSystemProperties.isDTDispatchingMode(bindingContext.getExternalParams());
@@ -362,11 +342,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
         IOpenMethod m = WrapperLogic.wrapOpenMethod(method, this);
 
-        // Workaround needed to set the module name in the method while compile
-        if (m instanceof AMethod && ((AMethod) m).getModuleName() == null) {
-            ((AMethod) m).setModuleName(moduleName);
-        }
-
         // Checks that method already exists in the class. If it already
         // exists then "overload" it using decorator; otherwise - just add to
         // the class.
@@ -507,15 +482,12 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     protected void addTestSuiteMethodsFromDependencies() {
         for (CompiledDependency dependency : this.getDependencies()) {
-            for (IOpenMethod depMethod : dependency.getCompiledOpenClass().getOpenClassWithErrors().getMethods()) {
-                if (depMethod instanceof TestSuiteMethod) {
-                    TestSuiteMethod testSuiteMethod = (TestSuiteMethod) depMethod;
+            for (IOpenMethod dependencyMethod : dependency.getCompiledOpenClass()
+                .getOpenClassWithErrors()
+                .getMethods()) {
+                if (dependencyMethod instanceof TestSuiteMethod) {
+                    TestSuiteMethod testSuiteMethod = (TestSuiteMethod) dependencyMethod;
                     try {
-                        // Workaround for set dependency names in method while
-                        // compile
-                        if (testSuiteMethod.getModuleName() == null) {
-                            testSuiteMethod.setModuleName(dependency.getDependencyName());
-                        }
                         TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);
                     } catch (OpenlNotCheckedException e) {

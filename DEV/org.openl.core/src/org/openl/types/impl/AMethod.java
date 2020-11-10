@@ -11,20 +11,9 @@ import org.openl.types.*;
 /**
  * @author snshor
  */
-public abstract class AMethod implements IOpenMethod, IModuleInfo {
+public abstract class AMethod implements IOpenMethod {
 
     private final IOpenMethodHeader header;
-
-    private String dependencyName;
-
-    @Override
-    public String getModuleName() {
-        return dependencyName;
-    }
-
-    public void setModuleName(String dependencyName) {
-        this.dependencyName = dependencyName;
-    }
 
     public AMethod(IOpenMethodHeader header) {
         this.header = header;

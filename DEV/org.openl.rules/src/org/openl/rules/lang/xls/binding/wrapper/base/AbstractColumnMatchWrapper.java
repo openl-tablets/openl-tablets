@@ -174,8 +174,8 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
     }
 
     @Override
-    public void setModuleName(String dependencyName) {
-        delegate.setModuleName(dependencyName);
+    public void setModuleName(String moduleName) {
+        delegate.setModuleName(moduleName);
     }
 
     @Override
