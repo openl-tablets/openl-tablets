@@ -199,7 +199,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         for (SpreadsheetModel potentialDataModel : potentialDataModels) {
             String originalType = potentialDataModel.getType();
             String type = ARRAY_MATCHER.matcher(originalType).replaceAll("");
-            if (!OpenAPITypeUtils.isCustomType(type)) {
+            if (!originalType.endsWith("[]") && !OpenAPITypeUtils.isCustomType(type)) {
                 continue;
             }
             String operationMethod = potentialDataModel.getPathInfo().getOperation();
