@@ -47,9 +47,9 @@ try {
     def lines = new File(folder, 'build.log').readLines('UTF-8')
     assert lines.any { it.contains('OpenL Plugin: Multiple deployment .................. SUCCESS') }
     assert lines.any { it.contains('OpenL Plugin: Child Project ........................ SUCCESS') }
-    assert lines.any { it.contains('Running sayHelloTest from the module Child-Test') }
+    assert lines.any { it.contains("Running 'sayHelloTest' from module 'Child-Test'...") }
     assert lines.any { it.contains('OpenL Plugin: Parent Project ....................... SUCCESS') }
-    assert lines.any { it.contains('Running spr from the module Parent-Test') }
+    assert lines.any { it.contains("Running 'spr' from module 'Parent-Test'...") }
 
     return true
 } catch(Throwable e) {
