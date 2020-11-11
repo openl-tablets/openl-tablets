@@ -16,9 +16,6 @@ import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.base.INamedThing;
 import org.openl.dependency.CompiledDependency;
-import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -35,18 +32,17 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
+import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
-import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
@@ -498,20 +494,11 @@ public class ProjectModel {
         return xlsModuleSyntaxNode;
     }
 
-    private XlsModuleSyntaxNode findXlsModuleSyntaxNode(IDependencyManager dependencyManager) {
-        try {
-            Dependency dependency = new Dependency(DependencyType.MODULE,
-                new IdentifierNode(null, null, moduleInfo.getName(), null));
-
-            XlsMetaInfo xmi = (XlsMetaInfo) dependencyManager.loadDependency(dependency)
-                .getCompiledOpenClass()
+    private XlsModuleSyntaxNode findXlsModuleSyntaxNode(CompiledOpenClass compiledOpenClass) {
+        XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass
                 .getOpenClassWithErrors()
                 .getMetaInfo();
-            return xmi == null ? null : xmi.getXlsModuleNode();
-        } catch (OpenLCompilationException e) {
-            throw new OpenlNotCheckedException(e);
-        }
-
+        return xmi == null ? null : xmi.getXlsModuleNode();
     }
 
     /**
@@ -860,6 +847,7 @@ public class ProjectModel {
                 // falls through
             case RELOAD:
                 if (webStudioWorkspaceDependencyManager != null) {
+                    webStudioWorkspaceDependencyManager.shutdown();
                     webStudioWorkspaceDependencyManager.resetAll();
                 }
                 webStudioWorkspaceDependencyManager = null;
@@ -921,6 +909,7 @@ public class ProjectModel {
         compiledOpenClass = null;
 
         if (webStudioWorkspaceDependencyManager != null) {
+            webStudioWorkspaceDependencyManager.shutdown();
             webStudioWorkspaceDependencyManager.resetAll();
         }
         webStudioWorkspaceDependencyManager = null;
@@ -935,18 +924,14 @@ public class ProjectModel {
     }
 
     private void addAllSyntaxNodes() {
-        for (Collection<IDependencyLoader> collectionDependencyLoaders : webStudioWorkspaceDependencyManager
-            .getDependencyLoaders()
-            .values()) {
-            for (IDependencyLoader dl : collectionDependencyLoaders) {
-                CompiledDependency compiledDependency = dl.getRefToCompiledDependency();
-                if (compiledDependency != null) {
-                    XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
-                    if (metaInfo != null) {
-                        allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-                    }
+        for (IDependencyLoader dl : webStudioWorkspaceDependencyManager.getAllDependencyLoaders()) {
+            CompiledDependency compiledDependency = dl.getRefToCompiledDependency();
+            if (compiledDependency != null) {
+                XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
+                    .getOpenClassWithErrors()
+                    .getMetaInfo();
+                if (metaInfo != null) {
+                    allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
                 }
             }
         }
@@ -986,14 +971,6 @@ public class ProjectModel {
         // Create instantiation strategy for opened module
 
         List<Module> modules = this.moduleInfo.getProject().getModules();
-        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(modules,
-            webStudioWorkspaceDependencyManager,
-            false);
-
-        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-            .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
-
-        instantiationStrategy.setExternalParameters(externalParameters);
 
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
@@ -1003,15 +980,16 @@ public class ProjectModel {
         try {
             WorkbookLoaders.setCurrentFactory(factory);
 
+            CompiledOpenClass thisModuleCompiledOpenClass = webStudioWorkspaceDependencyManager
+                    .loadDependency(new Dependency(DependencyType.MODULE,
+                            new IdentifierNode(DependencyType.MODULE.name(), null, moduleInfo.getName(), null)))
+                    .getCompiledOpenClass();
+
             // Find all dependent XlsModuleSyntaxNode-s
-            compiledOpenClass = instantiationStrategy.compile();
-
-            compiledOpenClass = validate(instantiationStrategy);
-
             addAllSyntaxNodes();
 
-            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
-
+            xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
+            compiledOpenClass = thisModuleCompiledOpenClass;
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
             List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
@@ -1025,10 +1003,29 @@ public class ProjectModel {
             // table syntax nodes.
             // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
             // That's why we should add virtual module to allXlsModuleSyntaxNodes.
-            XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+            XlsMetaInfo xmi = (XlsMetaInfo) thisModuleCompiledOpenClass.getOpenClassWithErrors().getMetaInfo();
             allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
 
             WorkbookLoaders.resetCurrentFactory();
+
+            webStudioWorkspaceDependencyManager
+                .loadDependencyAsync(
+                    new Dependency(DependencyType.MODULE,
+                        new IdentifierNode(DependencyType.MODULE.name(),
+                            null,
+                            SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
+                            null)),
+                    (e) -> {
+                        this.compiledOpenClass = e.getCompiledOpenClass();
+                        try {
+                            this.compiledOpenClass = this.validate(new SimpleMultiModuleInstantiationStrategy(modules,
+                                webStudioWorkspaceDependencyManager,
+                                false));
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+                            allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                        } catch (RulesInstantiationException ignored) {
+                        }
+                    });
         } catch (Throwable t) {
             log.error("Failed to load.", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -1071,6 +1068,7 @@ public class ProjectModel {
                 }
             }
             if (!found) {
+                webStudioWorkspaceDependencyManager.shutdown();
                 webStudioWorkspaceDependencyManager.resetAll();
                 webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                     .getDependencyManager(this.moduleInfo);
@@ -1093,6 +1091,10 @@ public class ProjectModel {
     public synchronized TableEditorModel getTableEditorModel(String tableUri) {
         IOpenLTable table = getTable(tableUri);
         return getTableEditorModel(table);
+    }
+
+    public WebStudioWorkspaceRelatedDependencyManager getWebStudioWorkspaceDependencyManager() {
+        return webStudioWorkspaceDependencyManager;
     }
 
     public synchronized TableEditorModel getTableEditorModel(IOpenLTable table) {

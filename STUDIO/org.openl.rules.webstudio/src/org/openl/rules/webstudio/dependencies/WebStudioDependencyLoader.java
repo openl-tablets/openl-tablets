@@ -16,16 +16,26 @@ import org.openl.types.NullOpenClass;
 
 final class WebStudioDependencyLoader extends SimpleDependencyLoader {
 
+    private final WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceRelatedDependencyManager;
+
     public WebStudioDependencyLoader(ProjectDescriptor project,
             Module module,
             WebStudioWorkspaceRelatedDependencyManager dependencyManager) {
         super(project, module, false, dependencyManager);
+        this.webStudioWorkspaceRelatedDependencyManager = dependencyManager;
     }
 
     @Override
     protected CompiledDependency onCompilationFailure(Exception ex, AbstractDependencyManager dependencyManager) {
         ClassLoader classLoader = dependencyManager.getExternalJarsClassLoader(getProject());
         return createFailedCompiledDependency(getDependencyName(), classLoader, ex);
+    }
+
+    @Override
+    protected boolean isActualDependency() {
+        final Long currentThreadVersion = webStudioWorkspaceRelatedDependencyManager.getThreadVersion().get();
+        final Long version = webStudioWorkspaceRelatedDependencyManager.getVersion().get();
+        return currentThreadVersion >= version;
     }
 
     private CompiledDependency createFailedCompiledDependency(String dependencyName,

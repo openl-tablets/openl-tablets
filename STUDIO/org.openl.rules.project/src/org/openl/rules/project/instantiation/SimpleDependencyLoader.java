@@ -73,12 +73,20 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public final CompiledDependency getCompiledDependency() throws OpenLCompilationException {
-        if (compiledDependency != null) {
+        CompiledDependency cachedDependency = compiledDependency;
+        if (cachedDependency != null) {
             log.debug("Compiled dependency '{}' is used from cache.", dependencyName);
-            return compiledDependency;
+            return cachedDependency;
         }
         log.debug("Dependency '{}' is not found in cache.", dependencyName);
-        return compileDependency(dependencyName, dependencyManager);
+        synchronized (dependencyManager) {
+            cachedDependency = compiledDependency;
+            if (cachedDependency != null) {
+                log.debug("Compiled dependency '{}' is used from cache.", dependencyName);
+                return cachedDependency;
+            }
+            return compileDependency(dependencyName, dependencyManager);
+        }
     }
 
     protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
@@ -86,6 +94,10 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
         openLClassLoader.addClassLoader(projectClassLoader);
         return openLClassLoader;
+    }
+
+    protected boolean isActualDependency() {
+        return true;
     }
 
     protected CompiledDependency compileDependency(String dependencyName,
@@ -109,15 +121,16 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         Map<String, Object> parameters = configureExternalParameters(dependencyManager);
 
         rulesInstantiationStrategy.setExternalParameters(parameters);
-        rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
-        // interface
-        // generation
+        rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent interface generation
         boolean oldValidationState = ValidationManager.isValidationEnabled();
         try {
             ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
-            compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
-            log.debug("Dependency '{}' is saved in cache.", dependencyName);
+            CompiledDependency compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
+            if (isActualDependency()) {
+                this.compiledDependency = compiledDependency;
+                log.debug("Dependency '{}' is saved in cache.", dependencyName);
+            }
             return compiledDependency;
         } catch (Exception ex) {
             log.error(ex.getMessage(), ex);
@@ -141,8 +154,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     @Override
     public void reset() {
-        if (compiledDependency != null) {
-            OpenClassUtil.release(compiledDependency.getCompiledOpenClass());
+        CompiledDependency compiledDependency1 = compiledDependency;
+        if (compiledDependency1 != null) {
+            OpenClassUtil.release(compiledDependency1.getCompiledOpenClass());
         }
         compiledDependency = null;
     }

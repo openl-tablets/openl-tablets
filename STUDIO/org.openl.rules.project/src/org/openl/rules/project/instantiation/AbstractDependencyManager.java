@@ -19,39 +19,38 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDependencyManager implements IDependencyManager {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractDependencyManager.class);
+    private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
     private volatile Map<String, Collection<IDependencyLoader>> dependencyLoaders;
-    private final LinkedHashSet<DependencyReference> dependencyReferences = new LinkedHashSet<>();
+    private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<String>> compilationStackThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
     private final Map<String, ClassLoader> externalJarsClassloaders = new HashMap<>();
     private final ClassLoader rootClassLoader;
     protected boolean executionMode;
     private Map<String, Object> externalParameters;
 
-    public static class DependencyReference {
-        String reference;
+    public static class DependencyRelation {
+        String dependOnThisDependency;
         String dependency;
 
-        public DependencyReference(String dependency, String reference) {
+        public DependencyRelation(String dependency, String dependOnThisDependency) {
             this.dependency = dependency;
-            this.reference = reference;
+            this.dependOnThisDependency = dependOnThisDependency;
         }
 
         public String getDependency() {
             return dependency;
         }
 
-        public String getReference() {
-            return reference;
+        public String getDependOnThisDependency() {
+            return dependOnThisDependency;
         }
 
         @Override
         public int hashCode() {
-            final int PRIME = 31;
             int result = 1;
-            result = PRIME * result + (reference == null ? 0 : reference.hashCode());
-            result = PRIME * result + (dependency == null ? 0 : dependency.hashCode());
+            result = 31 * result + (dependOnThisDependency == null ? 0 : dependOnThisDependency.hashCode());
+            result = 31 * result + (dependency == null ? 0 : dependency.hashCode());
             return result;
         }
 
@@ -66,12 +65,12 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             if (getClass() != obj.getClass()) {
                 return false;
             }
-            DependencyReference other = (DependencyReference) obj;
-            if (reference == null) {
-                if (other.reference != null) {
+            DependencyRelation other = (DependencyRelation) obj;
+            if (dependOnThisDependency == null) {
+                if (other.dependOnThisDependency != null) {
                     return false;
                 }
-            } else if (!reference.equals(other.reference)) {
+            } else if (!dependOnThisDependency.equals(other.dependOnThisDependency)) {
                 return false;
             }
             if (dependency == null) {
@@ -83,7 +82,9 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
         @Override
         public String toString() {
-            return String.format("DependencyReference [reference=%s, dependency=%s]", reference, dependency);
+            return String.format("DependencyReference [dependOnThisDependency=%s, dependency=%s]",
+                dependOnThisDependency,
+                dependency);
         }
 
     }
@@ -135,32 +136,22 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
 
     // Disable cache. if cache required it should be used in loaders.
     @Override
-    public CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+    public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
+        final IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
         final String dependencyName = dependency.getNode().getIdentifier();
-        Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
-        if (loaders == null || loaders.isEmpty()) {
-            throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
-                null,
-                dependency.getNode().getSourceLocation(),
-                dependency.getNode().getModule());
-        }
-        if (loaders.size() > 1) {
-            throw new OpenLCompilationException(
-                String.format("Found more than one module with the same name '%s'.", dependencyName));
-        }
-        IDependencyLoader dependencyLoader = loaders.iterator().next();
         Deque<String> compilationStack = getCompilationStack();
         try {
-            if (LOG.isDebugEnabled()) {
-                LOG.debug(
-                    compilationStack.contains(dependencyName) ? "Dependency '{}' in compilation stack."
-                                                              : "Dependency '{}' is not found in compilation stack.",
+            if (log.isDebugEnabled()) {
+                log.debug(
+                    compilationStack
+                        .contains(dependencyName) ? "Dependency '{}' in the compilation stack."
+                                                  : "Dependency '{}' is not found in the compilation stack.",
                     dependencyName);
             }
             boolean isCircularDependency = !dependencyLoader.isProject() && compilationStack.contains(dependencyName);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
-                DependencyReference dr = new DependencyReference(getCompilationStack().getFirst(), dependencyName);
-                this.addDependencyReference(dr);
+                DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyName);
+                this.addDependencyRelation(dr);
             }
 
             if (isCircularDependency) {
@@ -171,11 +162,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             CompiledDependency compiledDependency;
             try {
                 compilationStack.push(dependencyName);
-                LOG.debug("Dependency '{}' is added to compilation stack.", dependencyName);
+                log.debug("Dependency '{}' is added to the compilation stack.", dependencyName);
                 compiledDependency = dependencyLoader.getCompiledDependency();
             } finally {
                 compilationStack.poll();
-                LOG.debug("Dependency '{}' is removed from compilation stack.", dependencyName);
+                log.debug("Dependency '{}' is removed from the compilation stack.", dependencyName);
             }
 
             if (compiledDependency == null) {
@@ -191,6 +182,21 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 compilationStackThreadLocal.remove(); // Clean thread
             }
         }
+    }
+
+    protected IDependencyLoader findDependencyLoader(IDependency dependency) throws OpenLCompilationException {
+        final String dependencyName = dependency.getNode().getIdentifier();
+        Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
+        if (loaders == null || loaders.isEmpty()) {
+            throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
+                null,
+                dependency.getNode().getSourceLocation());
+        }
+        if (loaders.size() > 1) {
+            throw new OpenLCompilationException(
+                String.format("Multiple modules with the same name '%s' are found.", dependencyName));
+        }
+        return loaders.iterator().next();
     }
 
     private static String buildCircularDependencyDetails(String dependencyName, Deque<String> compilationStack) {
@@ -237,7 +243,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 }
             }
         }
-
         externalJarsClassloaders.put(project.getName(), externalJarsClassloader);
         return externalJarsClassloader;
     }
@@ -251,42 +256,76 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    private void reset(IDependency dependency, Set<String> doNotDoTheSameResetTwice) {
-        final String dependencyName = dependency.getNode().getIdentifier();
-        if (doNotDoTheSameResetTwice.contains(dependencyName)) {
+    @Override
+    public synchronized void resetOthers(IDependency... dependencies) {
+        if (dependencies == null || dependencies.length == 0) {
             return;
         }
-        doNotDoTheSameResetTwice.add(dependencyName);
-
-        List<DependencyReference> dependenciesToReset = new ArrayList<>();
-        List<DependencyReference> dependenciesReferencesToClear = new ArrayList<>();
-        for (DependencyReference dependencyReference : dependencyReferences) {
-            if (dependencyReference.getReference().equals(dependencyName)) {
-                dependenciesToReset.add(dependencyReference);
-            }
-            if (dependencyReference.getDependency().equals(dependencyName)) {
-                dependenciesReferencesToClear.add(dependencyReference);
+        Set<String> dependenciesToKeep = new HashSet<>();
+        Deque<String> queue = new ArrayDeque<>();
+        for (IDependency dependency : dependencies) {
+            if (dependency != null) {
+                queue.add(dependency.getNode().getIdentifier());
+                dependenciesToKeep.add(dependency.getNode().getIdentifier());
             }
         }
-
-        for (DependencyReference dependencyReference : dependenciesToReset) {
-            reset(new Dependency(DependencyType.MODULE,
-                new IdentifierNode(dependency.getNode().getType(), null, dependencyReference.getDependency(), null)),
-                doNotDoTheSameResetTwice);
+        while (!queue.isEmpty()) {
+            String depName = queue.poll();
+            for (DependencyRelation dependencyReference : dependencyRelations) {
+                if (dependencyReference.getDependency().equals(depName)) {
+                    if (dependenciesToKeep.add(dependencyReference.getDependOnThisDependency())) {
+                        queue.add(dependencyReference.getDependOnThisDependency());
+                    }
+                }
+            }
         }
-
-        Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
-        if (loaders != null) {
-            loaders.forEach(IDependencyLoader::reset);
-            for (DependencyReference dependencyReference : dependenciesReferencesToClear) {
-                dependencyReferences.remove(dependencyReference);
+        for (String depName : getAllDependencies()) {
+            if (!dependenciesToKeep.contains(depName)) {
+                reset(new Dependency(DependencyType.MODULE,
+                    new IdentifierNode(DependencyType.MODULE.name(), null, depName, null)));
             }
         }
     }
 
     @Override
     public synchronized void reset(IDependency dependency) {
-        reset(dependency, new HashSet<>());
+        if (dependency == null) {
+            return;
+        }
+        final String dependencyName = dependency.getNode().getIdentifier();
+        Set<String> dependenciesToReset = new HashSet<>();
+        Set<DependencyRelation> dependenciesReferencesToRemove = new HashSet<>();
+        Deque<String> queue = new ArrayDeque<>();
+        queue.add(dependencyName);
+        dependenciesToReset.add(dependencyName);
+        while (!queue.isEmpty()) {
+            String depName = queue.poll();
+            for (DependencyRelation dependencyReference : dependencyRelations) {
+                if (dependencyReference.getDependOnThisDependency().equals(depName)) {
+                    if (dependenciesToReset.add(dependencyReference.getDependency())) {
+                        queue.add(dependencyReference.getDependency());
+                    }
+                }
+                if (dependencyReference.getDependency().equals(depName)) {
+                    dependenciesReferencesToRemove.add(dependencyReference);
+                }
+            }
+        }
+        for (String dependencyNameToReset : dependenciesToReset) {
+            Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyNameToReset);
+            if (loaders != null) {
+                for (IDependencyLoader loader : loaders) {
+                    if (loader.getRefToCompiledDependency() != null) {
+                        log.debug("Dependency '{}' is reset.", dependencyNameToReset);
+                    }
+                    loader.reset();
+                }
+                loaders.forEach(IDependencyLoader::reset);
+            }
+        }
+        for (DependencyRelation dependencyReference : dependenciesReferencesToRemove) {
+            dependencyRelations.remove(dependencyReference);
+        }
     }
 
     @Override
@@ -298,10 +337,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         for (Collection<IDependencyLoader> loaders : getDependencyLoaders().values()) {
             loaders.forEach(IDependencyLoader::reset);
         }
+        dependencyRelations.clear();
     }
 
-    protected synchronized void addDependencyReference(DependencyReference dr) {
-        dependencyReferences.add(dr);
+    protected synchronized void addDependencyRelation(DependencyRelation dependencyRelation) {
+        dependencyRelations.add(dependencyRelation);
     }
 
     /**
