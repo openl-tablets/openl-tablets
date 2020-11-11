@@ -11,6 +11,27 @@
     }
   ],
   "paths": {
+    "/PrimitiveDatatype": {
+      "get": {
+        "summary": "Primitive dataType test",
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/CircleDatatype2": {
       "get": {
         "summary": "CircleDatatype2 CircleDatatype2()",
