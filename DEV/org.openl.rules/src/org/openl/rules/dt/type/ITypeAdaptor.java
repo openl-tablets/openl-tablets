@@ -423,7 +423,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
         @Override
         public Integer convert(Date date) {
 
-            return (int) (date.getTime() / MS_IN_DAY);
+            return date == null ? null : (int) (date.getTime() / MS_IN_DAY);
         }
 
         @Override
