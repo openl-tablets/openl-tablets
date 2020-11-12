@@ -54,6 +54,8 @@
                                   value="They have all your updates. Nothing to send to '#{branchesBean.branchToMerge}'."
                                   styleClass="success"/>
                 </h:panelGroup>
+
+                <input id="newUrlAfterMerge" type="hidden" value="#{studio.url()}"/>
             </h:panelGroup>
 
             <footer>
@@ -105,7 +107,8 @@
 
         function showMessageAfterMerge(wasMerged) {
             if (wasMerged) {
-                goToNewProject();
+                let newUrl = $j("#newUrlAfterMerge").val();
+                ws.nav.go(newUrl, true);
                 ws.ui.success('Branches were merged successfully.');
             }
         }

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import javax.faces.model.SelectItem;
 
@@ -132,6 +133,8 @@ public class BranchesBean {
                 String repoId = designRepository.getId();
                 String realPath = project.getRealPath();
                 boolean opened = project.isOpened();
+                String nameBeforeMerge = project.getName();
+                String nameAfterMerge = nameBeforeMerge;
 
                 String userId = getUserWorkspace().getUser().getUserId();
                 ((BranchRepository) designRepository).forBranch(branchToMergeTo).merge(branchToMergeFrom, userId, null);
@@ -140,12 +143,30 @@ public class BranchesBean {
                     if (project.isDeleted()) {
                         project.close();
                     } else {
-                        project.open();
+                        // Project can be renamed after merge, so we close it before opening to ensure that
+                        // project folder name in editor is up to date.
+                        project.close();
+                        String currentBranch = project.getBranch();
+
+                        Optional<RulesProject> refreshedProject = getUserWorkspace().getProjects(false)
+                            .stream()
+                            .filter(p -> repoId.equals(p.getDesignRepository()
+                                .getId()) && realPath.equals(p.getRealPath()))
+                            .findFirst();
+                        if (refreshedProject.isPresent()) {
+                            RulesProject mergedProject = refreshedProject.get();
+                            mergedProject.setBranch(currentBranch);
+                            mergedProject.open();
+                            nameAfterMerge = mergedProject.getName();
+                        }
                     }
                 }
                 getUserWorkspace().refresh();
                 WebStudioUtils.getWebStudio().reset();
                 setWasMerged(true);
+                if (!nameAfterMerge.equals(nameBeforeMerge)) {
+                    WebStudioUtils.getWebStudio().init(repoId, currentBranch, nameAfterMerge, null);
+                }
             }
         } catch (MergeConflictException e) {
             MergeConflictInfo info = new MergeConflictInfo(e,
@@ -241,8 +262,8 @@ public class BranchesBean {
             this.currentProjectName = currentProjectName;
 
             RulesProject project = getProject(currentProjectName);
-            this.businessName = project.getBusinessName();
             if (project != null) {
+                this.businessName = project.getBusinessName();
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
                     ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());

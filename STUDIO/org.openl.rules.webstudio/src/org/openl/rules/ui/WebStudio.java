@@ -165,6 +165,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
      * can affect their modified status.
      */
     private final Set<String> frozenProjects = new HashSet<>();
+    private boolean needRedirect;
 
     public WebStudio(HttpSession session) {
         model = new ProjectModel(this, WebStudioUtils.getBean(TestSuiteExecutor.class));
@@ -577,6 +578,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 moduleName);
             currentRepositoryId = repositoryId;
             ProjectDescriptor project = getProjectByName(currentRepositoryId, projectName);
+            needRedirect = false;
             if (StringUtils.isNotBlank(projectName) && project == null) {
                 // Not empty project name is requested but it's not found
                 WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -585,7 +587,12 @@ public class WebStudio implements DesignTimeRepositoryListener {
             }
             // switch current project branch to the selected
             if (branchName != null && project != null) {
-                setProjectBranch(project, branchName);
+                String newProjectName = setProjectBranch(project, branchName);
+                if (newProjectName != null) {
+                    projectName = newProjectName;
+                    needRedirect = true;
+                }
+
                 // reload project descriptor. Because it might be changed
                 project = getProjectByName(currentRepositoryId, projectName);
                 if (StringUtils.isNotBlank(projectName) && project == null) {
@@ -628,6 +635,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
             WebStudioUtils.getExternalContext().setResponseStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
             FacesContext.getCurrentInstance().responseComplete();
         }
+    }
+
+    public boolean isNeedRedirect() {
+        return needRedirect;
     }
 
     public Module getModule(ProjectDescriptor project, final String moduleName) {
@@ -1295,7 +1306,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return externalProperties;
     }
 
-    private void setProjectBranch(ProjectDescriptor descriptor, String branch) {
+    private String setProjectBranch(ProjectDescriptor descriptor, String branch) {
         try {
             String projectFolder = descriptor.getProjectFolder().getName();
             RulesProject project = getProject(currentRepositoryId, projectFolder);
@@ -1320,12 +1331,18 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         project.open();
                     }
 
+                    String actualName = rulesUserSession.getUserWorkspace().getActualName(project);
+
                     resetProjects();
+
+                    return actualName.equals(descriptor.getName()) ? null : actualName;
                 }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
         }
+
+        return null;
     }
 
     public List<String> getProjectBranches() {
@@ -1389,16 +1406,29 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public void setProjectVersion(String version) {
         try {
+            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+
             RulesProject project = getCurrentProject();
+            AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
+            if (userWorkspace.isOpenedOtherProject(historic)) {
+                throw new ValidationException(
+                    "WebStudio can't open two projects with the same name. Please close another project and open it again.");
+            }
+
             if (project.isOpened()) {
                 getModel().clearModuleInfo();
                 project.releaseMyLock();
             }
 
             project.openVersion(version);
+            String repositoryId = project.getRepository().getId();
+            String branch = project.getBranch();
+            String actualName = userWorkspace.getActualName(project);
             resetProjects();
-            currentModule = null;
-        } catch (ProjectException e) {
+            init(repositoryId, branch, actualName, null);
+        } catch (ValidationException e) {
+            throw e;
+        } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
             throw new ValidationException(msg);

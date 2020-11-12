@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -19,6 +20,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
@@ -114,7 +116,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
             IFilter<AProjectArtefact> filter = this.filter;
-            for (AProject project : rulesProjects) {
+            for (RulesProject project : rulesProjects) {
                 if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
                     addRulesProjectToTree(project);
                 }
@@ -267,7 +269,21 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         TreeNode currentNode = getRulesRepository();
         while (currentNode != null && it.hasNext()) {
             String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
+            TreeNode parentNode = currentNode;
             currentNode = (TreeNode) currentNode.getChild(id);
+
+            if (currentNode == null) {
+                if (artefact instanceof AProject) {
+                    String actualPath = ((AProject) artefact).getRealPath();
+                    currentNode = parentNode.getChildNodes().stream().filter(child -> {
+                        AProjectArtefact data = child.getData();
+                        if (data instanceof AProject) {
+                            return actualPath.equals(((AProject) data).getRealPath());
+                        }
+                        return false;
+                    }).findFirst().orElse(null);
+                }
+            }
 
             if (branch != null && currentNode != null) {
                 // If currentNode is a project, update its branch.
@@ -329,8 +345,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
-    public void addRulesProjectToTree(AProject project) {
-        String name = project.getBusinessName();
+    void addRulesProjectToTree(RulesProject project) {
+        String name = project.getMainBusinessName();
         String id = RepositoryUtils.getTreeNodeId(project);
         if (!project.isDeleted() || !hideDeleted) {
             TreeProject prj = new TreeProject(id, name, filter, projectDescriptorResolver);
