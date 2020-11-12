@@ -2,6 +2,7 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,10 +31,13 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     private final ProjectDescriptor project;
     private final Module module;
 
-    protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
-        Map<String, Object> params = dependencyManager.getExternalParameters();
+    protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
+        Map<String, Object> params;
         if (!singleModuleMode) {
-            params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules());
+            params = ProjectExternalDependenciesHelper
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+        } else {
+            params = new HashMap<>(dependencyManager.getExternalParameters());
         }
         return params;
     }
@@ -112,7 +116,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                 executionMode);
         }
 
-        Map<String, Object> parameters = configureParameters(dependencyManager);
+        Map<String, Object> parameters = configureExternalParameters(dependencyManager);
 
         rulesInstantiationStrategy.setExternalParameters(parameters);
         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent

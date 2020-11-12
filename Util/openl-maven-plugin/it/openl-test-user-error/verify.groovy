@@ -9,7 +9,7 @@ try {
     assert !lines.any { it.contains('Caused by:') }
 
     // Check that all tests are run
-    assert lines.any { it.contains('Running halfTest from the module Simple Rules') }
+    assert lines.any { it.contains("Running 'halfTest' from module 'Simple Rules'...") }
 
     // Check total tests statistics
     assert lines.any { it.contains('Total tests run: 2, Failures: 0, Errors: 0') }

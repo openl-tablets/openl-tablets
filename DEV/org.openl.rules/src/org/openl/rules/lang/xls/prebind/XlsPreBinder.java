@@ -43,12 +43,7 @@ public class XlsPreBinder extends XlsBinder {
     protected void finalizeBind(IMemberBoundNode memberBoundNode,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        if (memberBoundNode instanceof DatatypeTableBoundNode
-                || memberBoundNode instanceof AliasDatatypeBoundNode
-                || memberBoundNode instanceof PropertyTableBoundNode
-                || memberBoundNode instanceof ConstantsTableBoundNode
-                || memberBoundNode instanceof ADtColumnsDefinitionTableBoundNode
-                || memberBoundNode instanceof SpreadsheetBoundNode) {
+        if (memberBoundNode instanceof DatatypeTableBoundNode || memberBoundNode instanceof AliasDatatypeBoundNode || memberBoundNode instanceof PropertyTableBoundNode || memberBoundNode instanceof ConstantsTableBoundNode || memberBoundNode instanceof ADtColumnsDefinitionTableBoundNode || memberBoundNode instanceof SpreadsheetBoundNode) {
             try {
                 memberBoundNode.finalizeBind(rulesModuleBindingContext);
             } catch (SyntaxNodeException error) {

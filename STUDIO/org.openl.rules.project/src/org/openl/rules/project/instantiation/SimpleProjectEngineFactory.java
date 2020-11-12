@@ -372,7 +372,7 @@ public class SimpleProjectEngineFactory<T> implements ProjectEngineFactory<T> {
 
             Map<String, Object> parameters = new HashMap<>(getExternalParameters());
             if (!isSingleModuleMode()) {
-                parameters = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(
+                parameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
                     getExternalParameters(),
                     getProjectDescriptor().getModules());
             }

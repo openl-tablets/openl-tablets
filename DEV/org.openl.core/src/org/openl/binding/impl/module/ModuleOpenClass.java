@@ -26,7 +26,6 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.AMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,8 +63,31 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     private volatile Collection<IOpenField> dependencyFields = null;
 
-    public ModuleOpenClass(String name, OpenL openl) {
-        super(name, openl);
+    // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
+    // be different if the module name is not matched to the java naming restrictions.
+    private final String moduleName;
+
+    public ModuleOpenClass(String moduleName, OpenL openl) {
+        super(makeJavaIdentifier(moduleName), openl);
+        this.moduleName = moduleName;
+    }
+
+    private static String makeJavaIdentifier(String src) {
+        StringBuilder buf = new StringBuilder();
+        for (int i = 0; i < src.length(); i++) {
+            char c = src.charAt(i);
+            if (i == 0) {
+                buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
+            } else {
+                buf.append(Character.isJavaIdentifierPart(c) ? c : '_');
+            }
+        }
+
+        return buf.toString();
+    }
+
+    public String getModuleName() {
+        return moduleName;
     }
 
     /**
@@ -93,20 +115,13 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     protected void addMethods(CompiledDependency dependency) throws DuplicatedMethodException {
         CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenMethod depMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
+        for (IOpenMethod dependencyMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
             // filter constructor and getOpenClass methods of dependency modules
             //
-            if (!depMethod.isConstructor() && !(depMethod instanceof GetOpenClass)) {
+            if (!dependencyMethod.isConstructor() && !(dependencyMethod instanceof GetOpenClass)) {
                 try {
-                    // Workaround for set dependency names in method while compile
-                    if (depMethod instanceof AMethod) {
-                        AMethod methodDependencyInfo = (AMethod) depMethod;
-                        if (methodDependencyInfo.getModuleName() == null) {
-                            methodDependencyInfo.setModuleName(dependency.getDependencyName());
-                        }
-                    }
-                    if (isDependencyMethodInheritable(depMethod)) {
-                        addMethod(depMethod);
+                    if (isDependencyMethodInheritable(dependencyMethod)) {
+                        addMethod(dependencyMethod);
                     }
                 } catch (OpenlNotCheckedException e) {
                     if (log.isDebugEnabled()) {

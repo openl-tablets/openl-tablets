@@ -46,9 +46,6 @@ public final class WrapperLogic {
     }
 
     public static IOpenMethod extractMethod(IOpenMethod method) {
-        if (method instanceof TestSuiteMethod) {
-            method = ((TestSuiteMethod) method).getOriginalTestSuiteMethod();
-        }
         if (method instanceof IRulesMethodWrapper) {
             IRulesMethodWrapper rulesMethodWrapper = (IRulesMethodWrapper) method;
             if (rulesMethodWrapper.getDelegate() instanceof ILazyMethod) {

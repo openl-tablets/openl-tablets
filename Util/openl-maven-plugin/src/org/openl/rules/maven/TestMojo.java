@@ -140,9 +140,8 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary runAllTests(String sourcePath, boolean hasDependencies) throws IOException,
-                                                                            RulesInstantiationException,
-                                                                            ProjectResolvingException {
+    private Summary runAllTests(String sourcePath,
+            boolean hasDependencies) throws IOException, RulesInstantiationException, ProjectResolvingException {
 
         String testSourcePath = sourcePath;
         String mainSourcePath = null;
@@ -164,16 +163,16 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary executeAllAtOnce(String testSourcePath,
-                                     String mainSourcePath,
-                                     boolean hasDependencies)
-            throws MalformedURLException, RulesInstantiationException, ProjectResolvingException {
+            String mainSourcePath,
+            boolean hasDependencies) throws MalformedURLException,
+                                     RulesInstantiationException,
+                                     ProjectResolvingException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
             classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
-                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -194,9 +193,10 @@ public final class TestMojo extends BaseOpenLMojo {
     }
 
     private Summary executeModuleByModule(String testSourcePath,
-                                          String mainSourcePath,
-                                          boolean hasDependencies)
-            throws MalformedURLException, RulesInstantiationException, ProjectResolvingException {
+            String mainSourcePath,
+            boolean hasDependencies) throws MalformedURLException,
+                                     RulesInstantiationException,
+                                     ProjectResolvingException {
         ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
@@ -230,8 +230,7 @@ public final class TestMojo extends BaseOpenLMojo {
             try {
                 classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
-                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
-                        new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
                 if (mainSourcePath != null) {
                     builder.setProjectDependencies(mainSourcePath);
                 }
@@ -245,7 +244,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     .setExternalParameters(externalParameters)
                     .build();
 
-                info("Searching tests in the module '", module.getName(), "'...");
+                info("Searching tests in module '", module.getName(), "'...");
                 CompiledOpenClass openLRules = factory.getCompiledOpenClass();
                 Summary summary = executeTests(openLRules);
 
@@ -297,8 +296,8 @@ public final class TestMojo extends BaseOpenLMojo {
                 String moduleName = test.getModuleName();
                 try {
                     info("");
-                    String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
-                    info("Running ", test.getName(), moduleInfo);
+                    String moduleInfo = moduleName == null ? "" : String.format(" from module '%s'", moduleName);
+                    info("Running ", String.format("'%s'", test.getName()), moduleInfo, "...");
                     TestUnitsResults result;
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                     try {

@@ -107,7 +107,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         rulesInstantiationStrategy.setServiceClass(LazyRuleServiceDependencyLoaderInterface.class);// Prevent
         // generation interface and Virtual module duplicate (instantiate method). Improve performance.
         final Map<String, Object> parameters = ProjectExternalDependenciesHelper
-            .getExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), modules);
+            .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), modules);
         rulesInstantiationStrategy.setExternalParameters(parameters);
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {

@@ -291,14 +291,19 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         if (service == null) {
             return null;
         }
-        Collection<OpenLMessage> messages = service.getCompiledOpenClass().getMessages();
-        Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-        List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
-        if (errors.isEmpty()) {
-            Throwable exception = service.getException();
-            errors.add(exception.toString());
+        CompiledOpenClass openClass = service.getCompiledOpenClass();
+        if (openClass != null) {
+            Collection<OpenLMessage> messages = openClass.getMessages();
+            Collection<OpenLMessage> openLMessages = OpenLMessagesUtils.filterMessagesBySeverity(messages,
+                Severity.ERROR);
+            List<String> errors = openLMessages.stream().map(OpenLMessage::getSummary).collect(Collectors.toList());
+            if (!errors.isEmpty()) {
+                return errors;
+            }
+
         }
-        return errors;
+        Throwable exception = service.getException();
+        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
     }
 
     @Override

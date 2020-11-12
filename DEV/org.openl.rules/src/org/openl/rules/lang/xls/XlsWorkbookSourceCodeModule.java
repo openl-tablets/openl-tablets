@@ -28,11 +28,11 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     protected IOpenSourceCodeModule src;
 
-    private WorkbookLoader workbookLoader;
+    private final WorkbookLoader workbookLoader;
 
-    private Set<Short> wbColors = new TreeSet<>();
+    private final Set<Short> wbColors = new TreeSet<>();
 
-    private Collection<XlsWorkbookListener> listeners = new ArrayList<>();
+    private final Collection<XlsWorkbookListener> listeners = new ArrayList<>();
 
     private Map<String, Object> params;
 

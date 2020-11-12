@@ -13,6 +13,7 @@ import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -22,7 +23,7 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod {
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IModuleInfo {
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be
@@ -31,6 +32,17 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
     private ATableBoundNode boundNode;
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypesCasts;
+
+    private String moduleName;
+
+    @Override
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
 
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
