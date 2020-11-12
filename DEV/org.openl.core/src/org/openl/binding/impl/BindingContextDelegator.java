@@ -88,29 +88,30 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
-        if (openClass == null) {
-            return null;
-        }
         return findOpenClass(openClass);
-    }
-
-    private IOpenClass findOpenClass(IOpenClass openClass) {
-        int dim = 0;
-        while (openClass.isArray()) {
-            openClass = openClass.getComponentClass();
-            dim++;
-        }
-        openClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, openClass.getName());
-        return dim > 0 ? openClass.getArrayType(dim) : openClass;
     }
 
     @Override
     public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
         IOpenClass openClass = delegate.findParentClass(openClass1, openClass2);
+        return findOpenClass(openClass);
+    }
+
+    private IOpenClass findOpenClass(IOpenClass openClass) {
         if (openClass == null) {
             return null;
         }
-        return findOpenClass(openClass);
+        IOpenClass componentOpenClass = openClass;
+        int dim = 0;
+        while (componentOpenClass.isArray()) {
+            componentOpenClass = componentOpenClass.getComponentClass();
+            dim++;
+        }
+        IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, componentOpenClass.getName());
+        if (thisContextOpenClass != null) {
+            return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
+        }
+        return openClass;
     }
 
     public IBindingContext getDelegate() {

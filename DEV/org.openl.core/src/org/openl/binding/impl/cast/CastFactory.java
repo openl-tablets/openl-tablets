@@ -114,11 +114,61 @@ public class CastFactory implements ICastFactory {
             IOpenClass openClass2,
             ICastFactory casts,
             Iterable<IOpenMethod> methods) {
+        if (openClass1 == null) {
+            throw new IllegalArgumentException("openClass1 cannot be null");
+        }
+        if (openClass2 == null) {
+            throw new IllegalArgumentException("openClass2 cannot be null");
+        }
+
         if (NullOpenClass.the.equals(openClass1)) {
             return getWrapperIfPrimitive(openClass2);
         }
         if (NullOpenClass.the.equals(openClass2)) {
             return getWrapperIfPrimitive(openClass1);
+        }
+
+        if (ThrowableVoid.class.equals(openClass1.getInstanceClass())) {
+            return openClass2;
+        }
+        if (ThrowableVoid.class.equals(openClass2.getInstanceClass())) {
+            return openClass1;
+        }
+
+        if (openClass1 instanceof DomainOpenClass) {
+            return findClosestClass(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()),
+                openClass2,
+                casts,
+                methods);
+        }
+        if (openClass2 instanceof DomainOpenClass) {
+            return findClosestClass(openClass1,
+                JavaOpenClass.getOpenClass(openClass2.getInstanceClass()),
+                casts,
+                methods);
+        }
+
+        IOpenCast cast1To2 = casts.getCast(openClass1, openClass2);
+        IOpenCast cast2To1 = casts.getCast(openClass2, openClass1);
+        if (cast1To2 != null && cast2To1 != null) {
+
+            if (!cast1To2.isImplicit() && cast2To1.isImplicit()) {
+                return openClass1;
+            }
+            if (!cast2To1.isImplicit() && cast1To2.isImplicit()) {
+                return openClass2;
+            }
+            // For example NoCast
+            if (cast1To2.isImplicit() && cast2To1.isImplicit()) {
+                return cast1To2.getDistance() < cast2To1.getDistance() ? openClass2 : openClass1;
+            }
+        }
+
+        int dim = 0;
+        while (openClass1.isArray() && openClass2.isArray()) {
+            openClass1 = openClass1.getComponentClass();
+            openClass2 = openClass2.getComponentClass();
+            dim++;
         }
 
         // Use java classes only because wa can't find cast method with OpenL types
@@ -160,7 +210,11 @@ public class CastFactory implements ICastFactory {
         IOpenClass ret = chooseClosest(casts, openClass1Candidates);
 
         if (ret == null) {
-            return casts.findParentClass(openClass1, openClass2);
+            IOpenClass c = casts.findParentClass(openClass1, openClass2);
+            if (c == null) {
+                c = JavaOpenClass.OBJECT;
+            }
+            return dim > 0 ? JavaOpenClass.getArrayType(c, dim) : c;
         }
 
         // If one class is not primitive we use wrapper for prevent NPE
@@ -172,7 +226,7 @@ public class CastFactory implements ICastFactory {
             }
         }
 
-        return ret;
+        return dim > 0 ? JavaOpenClass.getArrayType(ret, dim) : ret;
     }
 
     @Override
@@ -181,6 +235,12 @@ public class CastFactory implements ICastFactory {
     }
 
     public static IOpenClass findParentClass1(IOpenClass openClass1, IOpenClass openClass2) {
+        if (openClass1 == null) {
+            throw new IllegalArgumentException("openClass1 cannot be null");
+        }
+        if (openClass2 == null) {
+            throw new IllegalArgumentException("openClass2 cannot be null");
+        }
         IOpenClass t1 = openClass1;
         IOpenClass t2 = openClass2;
         if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
@@ -214,9 +274,9 @@ public class CastFactory implements ICastFactory {
         if (class1.isArray() && class2.isArray()) {
             int dim = 0;
             while (class1.isArray() && class2.isArray()) {
-                dim++;
                 class1 = class1.getComponentClass();
                 class2 = class2.getComponentClass();
+                dim++;
             }
             IOpenClass parentClass = findParentClassNoPrimitives(class1, class2);
             if (parentClass == null) {
