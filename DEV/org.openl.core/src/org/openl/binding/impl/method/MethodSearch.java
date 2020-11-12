@@ -75,11 +75,7 @@ public final class MethodSearch {
                     if (genericTypes.containsKey(typeNames[i])) {
                         IOpenClass existedType = genericTypes.get(typeNames[i]);
                         IOpenClass clazz = castFactory.findClosestClass(t, existedType);
-                        if (clazz != null) {
-                            genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
-                        } else {
-                            return NO_MATCH;
-                        }
+                        genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
                     } else {
                         genericTypes.put(typeNames[i], t);
                     }

@@ -444,7 +444,7 @@
           "format": "double"
         },
         "Value_Step2": {
-          "$ref": "#/definitions/AnySpreadsheetResult"
+          "type": "object"
         },
         "Value_Step5": {
           "type": "object"

@@ -154,7 +154,7 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public SyntaxNodeException[] getErrors() {
-        return errors.isEmpty() ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
+        return errors.isEmpty() ? NO_ERRORS : errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
     }
 
     @Override

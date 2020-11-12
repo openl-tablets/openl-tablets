@@ -3571,7 +3571,8 @@
         ],
         "Value_Step1": 1.0,
         "Value_Step2": {
-          "Value_Step1": 1.0
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
         },
         "Value_Step5": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -3782,7 +3783,8 @@
         ],
         "Value_Step1": 1.0,
         "Value_Step2": {
-          "Value_Step1": 1.0
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
         },
         "Value_Step5": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -3995,7 +3997,8 @@
         ],
         "Value_Step1": 1.0,
         "Value_Step2": {
-          "Value_Step1": 1.0
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
         },
         "Value_Step5": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4206,7 +4209,8 @@
         ],
         "Value_Step1": 1.0,
         "Value_Step2": {
-          "Value_Step1": 1.0
+          "@class": "org.openl.generated.spreadsheetresults.Spr1",
+          "Step1": 1.0
         },
         "Value_Step5": [
           "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4420,7 +4424,8 @@
       ],
       "Value_Step1": 1.0,
       "Value_Step2": {
-        "Value_Step1": 1.0
+        "@class": "org.openl.generated.spreadsheetresults.Spr1",
+        "Step1": 1.0
       },
       "Value_Step5": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",
@@ -4631,7 +4636,8 @@
       ],
       "Value_Step1": 1.0,
       "Value_Step2": {
-        "Value_Step1": 1.0
+        "@class": "org.openl.generated.spreadsheetresults.Spr1",
+        "Step1": 1.0
       },
       "Value_Step5": [
         "[Lorg.openl.generated.spreadsheetresults.Spr1;",

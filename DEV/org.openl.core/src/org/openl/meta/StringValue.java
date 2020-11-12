@@ -190,10 +190,16 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     public static StringValue autocast(String x, StringValue y) {
+        if (x == null) {
+            return null;
+        }
         return new StringValue(x);
     }
 
-    public static String autocast(StringValue x, String y) {
+    public static String cast(StringValue x, String y) {
+        if (x == null) {
+            return null;
+        }
         return x.getValue();
     }
 }

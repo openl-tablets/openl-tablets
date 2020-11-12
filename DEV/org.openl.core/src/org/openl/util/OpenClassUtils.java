@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Queue;
 import java.util.Set;
-import java.util.stream.StreamSupport;
 
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -17,6 +16,12 @@ public final class OpenClassUtils {
     }
 
     public static IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        if (openClass1 == null) {
+            throw new IllegalArgumentException("openClass1 cannot be null");
+        }
+        if (openClass2 == null) {
+            throw new IllegalArgumentException("openClass2 cannot be null");
+        }
         IOpenClass t1 = openClass1;
         IOpenClass t2 = openClass2;
         if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
@@ -50,9 +55,9 @@ public final class OpenClassUtils {
         if (class1.isArray() && class2.isArray()) {
             int dim = 0;
             while (class1.isArray() && class2.isArray()) {
-                dim++;
                 class1 = class1.getComponentClass();
                 class2 = class2.getComponentClass();
+                dim++;
             }
             IOpenClass parentClass = findParentClassNoPrimitives(class1, class2);
             if (parentClass == null) {
@@ -62,7 +67,10 @@ public final class OpenClassUtils {
         }
 
         if (class1.getInstanceClass() == null && class2.getInstanceClass() == null) {
-            return class1;
+            if (class1.equals(class2)) {
+                return class1;
+            }
+            return null;
         }
 
         // If class1 is NULL literal
@@ -128,7 +136,7 @@ public final class OpenClassUtils {
         while (!queue.isEmpty()) {
             Set<IOpenClass> queue1 = new LinkedHashSet<>();
             for (IOpenClass oc : queue) {
-                StreamSupport.stream(oc.superClasses().spliterator(), false)
+                oc.superClasses().stream()
                     .filter(IOpenClass::isInterface)
                     .filter(e -> !interfaces.contains(e))
                     .forEach(e -> {
@@ -150,7 +158,7 @@ public final class OpenClassUtils {
                 if (oc.getInstanceClass().getTypeParameters().length == 0 && interfaces.contains(oc)) {
                     return oc;
                 }
-                StreamSupport.stream(oc.superClasses().spliterator(), false)
+                oc.superClasses().stream()
                     .filter(IOpenClass::isInterface)
                     .filter(e -> !interfaces.contains(e))
                     .forEach(queue1::add);

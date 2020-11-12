@@ -93,13 +93,13 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return javaCastComponents;
     }
 
-    private Map<Key, IOpenClass> closestClassCache = new HashMap<>();
-    private ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
+    private final Map<Key, IOpenClass> closestClassCache = new HashMap<>();
+    private final ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         Key key = new Key(openClass1, openClass2);
-        IOpenClass closestClass = null;
+        IOpenClass closestClass;
         Lock readlock = closestClassCacheLock.readLock();
         try {
             readlock.lock();
