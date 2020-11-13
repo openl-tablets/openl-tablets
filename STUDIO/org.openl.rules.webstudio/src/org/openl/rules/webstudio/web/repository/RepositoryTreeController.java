@@ -2643,7 +2643,7 @@ public class RepositoryTreeController {
     }
 
     public boolean isMergedIntoMain(UserWorkspaceProject project) {
-        if (project == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
             return false;
         }
 
@@ -2657,7 +2657,7 @@ public class RepositoryTreeController {
     }
 
     public String getMainBranch(UserWorkspaceProject project) {
-        if (project == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
             return null;
         }
         return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
