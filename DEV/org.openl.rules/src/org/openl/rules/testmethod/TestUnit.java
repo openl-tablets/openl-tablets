@@ -103,7 +103,7 @@ public class TestUnit extends BaseTestUnit {
 
     public static class Builder implements ITestResultBuilder {
 
-        private static Builder instance = new Builder();
+        private static final Builder instance = new Builder();
 
         private Builder() {
             /* NON */ }

@@ -1,9 +1,12 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +37,10 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 
 public class SwaggerSupportConverter implements ModelConverter {
+
+    private static final Set<Class<?>> INTERFACES_TO_OBJECT = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList(Serializable.class, Comparable.class, Cloneable.class)));
+
     private final ObjectMapper objectMapper;
 
     public SwaggerSupportConverter(ObjectMapper objectMapper) {
@@ -72,13 +79,13 @@ public class SwaggerSupportConverter implements ModelConverter {
         if (model instanceof ModelImpl && t != null) {
             ModelImpl impl = (ModelImpl) model;
             if (StringUtils.isNotBlank(impl.getDiscriminator()) && (impl
-                    .getProperties() == null || !impl.getProperties().containsKey(impl.getDiscriminator()))) {
+                .getProperties() == null || !impl.getProperties().containsKey(impl.getDiscriminator()))) {
                 boolean f;
                 if (t.getSuperclass() == null) {
                     f = true;
                 } else {
                     final BeanDescription superBeanDesc = objectMapper.getSerializationConfig()
-                            .introspect(TypeFactory.defaultInstance().constructType(t.getSuperclass()));
+                        .introspect(TypeFactory.defaultInstance().constructType(t.getSuperclass()));
                     JsonSubTypes jsonSubTypes = superBeanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
                     f = jsonSubTypes == null;
                     XmlSeeAlso xmlSeeAlso = superBeanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
@@ -94,7 +101,7 @@ public class SwaggerSupportConverter implements ModelConverter {
                 }
             }
             final BeanDescription beanDesc = objectMapper.getSerializationConfig()
-                    .introspect(TypeFactory.defaultInstance().constructType(t));
+                .introspect(TypeFactory.defaultInstance().constructType(t));
             JsonSubTypes jsonSubTypes = beanDesc.getClassInfo().getAnnotation(JsonSubTypes.class);
             XmlSeeAlso xmlSeeAlso = beanDesc.getClassInfo().getAnnotation(XmlSeeAlso.class);
             if (jsonSubTypes != null || xmlSeeAlso != null) {
@@ -114,12 +121,12 @@ public class SwaggerSupportConverter implements ModelConverter {
                         String customPropertyName = null;
                         XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
                         if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
-                                .equals(xmlAttributeAnn.name())) {
+                            .equals(xmlAttributeAnn.name())) {
                             customPropertyName = xmlAttributeAnn.name();
                         }
                         XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
                         if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
-                                .equals(xmlElementAnn.name())) {
+                            .equals(xmlElementAnn.name())) {
                             customPropertyName = xmlElementAnn.name();
                         }
                         String getterMethod = ClassUtils.getter(prop.getName());
@@ -160,6 +167,8 @@ public class SwaggerSupportConverter implements ModelConverter {
                 if (javaType.containedType(0) == null) {
                     return context.resolveProperty(Object.class, annotations);
                 }
+            } else if (INTERFACES_TO_OBJECT.stream().anyMatch(e -> e == javaType.getRawClass())) {
+                return context.resolveProperty(Object.class, annotations);
             } else {
                 Class<?> valueType = JAXBUtils
                     .extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());
