@@ -545,11 +545,16 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
-    public void setLocalFolderName(String localFolderName) {
-        this.localFolderName = localFolderName;
-    }
-
     public String getLocalFolderName() {
         return localFolderName;
+    }
+
+    public String getMainBusinessName() {
+        String folderPath = getDesignFolderName();
+        Repository repository = getDesignRepository();
+        if (repository.supports().mappedFolders()) {
+            folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
+        }
+        return folderPath.substring(folderPath.lastIndexOf('/') + 1);
     }
 }

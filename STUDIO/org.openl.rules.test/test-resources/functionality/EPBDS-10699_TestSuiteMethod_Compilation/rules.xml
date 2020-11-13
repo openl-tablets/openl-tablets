@@ -1,0 +1,8 @@
+<project>
+  <name>EPBDS-10699_TestSuiteMethod_Compilation</name>
+  <modules>
+    <module>
+      <rules-root path="rules/*.xlsx"/>
+    </module>
+  </modules>
+</project>

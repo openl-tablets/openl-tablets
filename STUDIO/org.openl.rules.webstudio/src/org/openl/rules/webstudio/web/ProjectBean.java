@@ -400,6 +400,15 @@ public class ProjectBean {
 
         clean(newProjectDescriptor);
         save(newProjectDescriptor);
+
+        try {
+            String repositoryId = currentProject.getRepository().getId();
+            String branch = currentProject.getBranch();
+            studio.init(repositoryId, branch, newProjectDescriptor.getName(), null);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new Message("Error while project renaming");
+        }
     }
 
     public void editModule() {
@@ -801,7 +810,7 @@ public class ProjectBean {
     }
 
     private void configureRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
-        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel);) {
+        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel)) {
             configureSerializer();
             currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
         } catch (ProjectException | IOException e) {
@@ -834,7 +843,7 @@ public class ProjectBean {
                                                                                            IOException {
         AProjectResource artifact;
         artifact = (AProjectResource) currentProject.getArtefact(RULES_DEPLOY_XML);
-        try (InputStream rulesDeployContent = artifact.getContent();) {
+        try (InputStream rulesDeployContent = artifact.getContent()) {
             RulesDeploy rulesDeploy = rulesDeploySerializerFactory.getSerializer(SupportedVersion.getLastVersion())
                 .deserialize(rulesDeployContent);
             rulesDeploy.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());

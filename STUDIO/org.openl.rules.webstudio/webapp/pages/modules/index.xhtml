@@ -960,6 +960,10 @@
 
         $j(function () {
             fixRichFaces();
+            const needRedirect = #{studio.needRedirect};
+            if (needRedirect) {
+                ws.nav.go("#{studio.url()}", true);
+            }
         });
 
         function checkModification() {

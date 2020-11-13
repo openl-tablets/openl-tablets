@@ -4,6 +4,7 @@ import static org.openl.rules.excel.builder.export.DefaultValueCellWriter.writeD
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -19,6 +20,7 @@ import org.openl.rules.excel.builder.template.TableStyle;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.table.xls.PoiExcelHelper;
+import org.openl.util.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,7 +64,8 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
         String dataHeaderText = dataTableHeaderTemplate.getString().replace(DATA_TYPE_NAME, type);
         dataHeaderText = dataHeaderText.replace(DATA_TABLE_NAME, model.getName());
 
-        int width = model.getDatatypeModel().getFields().size() - 1;
+        List<FieldModel> fields = model.getDatatypeModel().getFields();
+        int width = CollectionUtils.isEmpty(fields) ? 0 : fields.size() - 1;
         addMergedHeader(sheet, startPosition, headerStyle, new CellRangeSettings(headerSettings.getHeight(), width));
 
         Cell topLeftCell = PoiExcelHelper.getOrCreateCell(startPosition.getColumn(), startPosition.getRow(), sheet);
@@ -76,32 +79,35 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
 
         Cursor endPosition = startPosition;
 
-        for (FieldModel fm : model.getDatatypeModel().getFields()) {
-            String fieldName = fm.getName();
-            String formattedName = formatName(fieldName);
+        if (CollectionUtils.isNotEmpty(fields)) {
+            for (FieldModel fm : fields) {
+                String fieldName = fm.getName();
+                String formattedName = formatName(fieldName);
 
-            Cursor next = endPosition.moveDown(1);
-            Cell subheaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            subheaderCell.setCellValue(fieldName);
-            subheaderCell.setCellStyle(subheaderStyle);
+                Cursor next = endPosition.moveDown(1);
+                Cell subheaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
+                subheaderCell.setCellValue(fieldName);
+                subheaderCell.setCellStyle(subheaderStyle);
 
-            next = next.moveDown(1);
-            Cell columnHeaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            columnHeaderCell.setCellValue(formattedName);
-            columnHeaderCell.setCellStyle(style.getColumnHeaderStyle());
+                next = next.moveDown(1);
+                Cell columnHeaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
+                columnHeaderCell.setCellValue(formattedName);
+                columnHeaderCell.setCellStyle(style.getColumnHeaderStyle());
 
-            next = next.moveDown(1);
-            Cell rowCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
-            writeDefaultValueToCell(model, fm, rowCell, dateStyle, dateTimeStyle);
-            CellStyle styleAfterWrite = rowCell.getCellStyle();
-            if (styleAfterWrite.getDataFormat() == 0) {
-                rowCell.setCellStyle(style.getRowStyle().getValueStyle());
+                next = next.moveDown(1);
+                Cell rowCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
+                writeDefaultValueToCell(model, fm, rowCell, dateStyle, dateTimeStyle);
+                CellStyle styleAfterWrite = rowCell.getCellStyle();
+                if (styleAfterWrite.getDataFormat() == 0) {
+                    rowCell.setCellStyle(style.getRowStyle().getValueStyle());
+                }
+
+                endPosition = next.moveUp(ROWS_COUNT).moveRight(1);
             }
-
-            endPosition = next.moveUp(ROWS_COUNT).moveRight(1);
         }
-        endPosition = endPosition.moveDown(ROWS_COUNT).moveLeft(width + 1);
-
+        if (width > 0) {
+            endPosition = endPosition.moveDown(ROWS_COUNT).moveLeft(width + 1);
+        }
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
 

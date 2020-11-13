@@ -2,7 +2,11 @@ package org.openl.rules.lang.xls;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.syntax.HeaderSyntaxNode;
@@ -15,6 +19,7 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
+import org.openl.types.IModuleInfo;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInterval;
 import org.slf4j.Logger;
@@ -66,47 +71,36 @@ public final class XlsHelper {
     }
 
     public static String getModuleName(XlsModuleSyntaxNode node) {
+        if (node.getModule() instanceof IModuleInfo) {
+            return ((IModuleInfo) node.getModule()).getModuleName();
+        }
 
         String uri = node.getModule().getUri();
 
         try {
             URL url = new URL(uri);
-            String file = url.getFile();
-            int index = file.lastIndexOf('/');
+            String fileName = url.getFile();
+            int index = fileName.lastIndexOf('/');
 
-            file = index < 0 ? file : file.substring(index + 1);
+            fileName = index < 0 ? fileName : fileName.substring(index + 1);
 
-            index = file.lastIndexOf('.');
+            index = fileName.lastIndexOf('.');
 
             if (index > 0) {
-                file = file.substring(0, index);
+                fileName = fileName.substring(0, index);
             }
 
-            return makeJavaIdentifier(file);
+            return fileName;
 
         } catch (MalformedURLException e) {
             if (VirtualSourceCodeModule.SOURCE_URI.equals(uri)) {
                 return "VirtualModule";
             } else {
                 final Logger log = LoggerFactory.getLogger(XlsHelper.class);
-                log.error("Failed URI convertation to module name.", e);
+                log.error("Failed URI conversation to module name.", e);
                 return "UndefinedXlsType";
             }
         }
-    }
-
-    private static String makeJavaIdentifier(String src) {
-        StringBuilder buf = new StringBuilder();
-        for (int i = 0; i < src.length(); i++) {
-            char c = src.charAt(i);
-            if (i == 0) {
-                buf.append(Character.isJavaIdentifierStart(c) ? c : '_');
-            } else {
-                buf.append(Character.isJavaIdentifierPart(c) ? c : '_');
-            }
-        }
-
-        return buf.toString();
     }
 
     public static TableSyntaxNode createTableSyntaxNode(IGridTable table,

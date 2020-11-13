@@ -3,6 +3,7 @@ package org.openl.rules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
@@ -12,9 +13,11 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
+import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
+import org.openl.util.CollectionUtils;
 
 public class DataTableTest {
 
@@ -44,5 +47,17 @@ public class DataTableTest {
         assertEquals("id", fm.getName());
         assertEquals("Long", fm.getType());
         assertNull(fm.getDefaultValue());
+    }
+
+    @Test
+    public void testSpreadsheetResultFiltering() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapi.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+        List<DataModel> dataModels = pm.getDataModels();
+        List<DatatypeModel> datatypeModels = pm.getDatatypeModels();
+        assertEquals(8, spreadsheetResultModels.size());
+        assertTrue(CollectionUtils.isEmpty(dataModels));
+        assertEquals(14, datatypeModels.size());
     }
 }

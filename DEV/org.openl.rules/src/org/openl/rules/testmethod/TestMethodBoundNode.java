@@ -28,7 +28,7 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     @Override
     public void addTo(ModuleOpenClass openClass) {
         super.addTo(openClass);
-
+        testSuiteMethod.setModuleName(getModule().getModuleName());
         openClass.addMethod(testSuiteMethod);
     }
 

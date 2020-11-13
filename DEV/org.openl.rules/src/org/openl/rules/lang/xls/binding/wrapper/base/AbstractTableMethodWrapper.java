@@ -105,8 +105,8 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
     }
 
     @Override
-    public void setModuleName(String dependencyName) {
-        delegate.setModuleName(dependencyName);
+    public void setModuleName(String moduleName) {
+        delegate.setModuleName(moduleName);
     }
 
     @Override

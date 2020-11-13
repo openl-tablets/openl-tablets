@@ -1235,6 +1235,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private void validatePushResults(Iterable<PushResult> results) throws IOException {
         for (PushResult result : results) {
+            log.debug(result.getMessages());
+
             Collection<RemoteRefUpdate> remoteUpdates = result.getRemoteUpdates();
             for (RemoteRefUpdate remoteUpdate : remoteUpdates) {
                 RemoteRefUpdate.Status status = remoteUpdate.getStatus();
@@ -1256,7 +1258,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     case REJECTED_OTHER_REASON:
                         String message = remoteUpdate.getMessage();
                         if ("pre-receive hook declined".equals(message)) {
-                            message = "Remote git server rejected your commit because of pre-receive hook. Contact remote git administrator for details.";
+                            message = "Remote git server rejected your commit because of pre-receive hook. Details:\n" + result.getMessages();
                         }
                         throw new IOException(message);
                     case AWAITING_REPORT:

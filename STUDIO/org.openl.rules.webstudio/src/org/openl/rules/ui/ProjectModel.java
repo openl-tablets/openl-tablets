@@ -929,7 +929,7 @@ public class ProjectModel {
                 false);
 
             externalParameters = ProjectExternalDependenciesHelper
-                .getExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);

@@ -16,6 +16,9 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
+
+import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT;
+
 public class OpenAPITypeUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
@@ -242,7 +245,7 @@ public class OpenAPITypeUtils {
     }
 
     public static boolean isCustomType(String type) {
-        return !isSimpleType(type);
+        return !isSimpleType(type) && !type.equals(SPREADSHEET_RESULT);
     }
 
     private static boolean isComposedSchema(Schema<?> schema) {

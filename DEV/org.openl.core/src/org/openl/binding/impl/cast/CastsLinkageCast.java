@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public final class CastsLinkageCast implements IOpenCast {
 
-    private IOpenCast[] casts;
+    private final IOpenCast[] casts;
     private int distance;
 
     public CastsLinkageCast(IOpenCast... casts) {

@@ -48,25 +48,30 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private DynamicObject[] testObjects;
     private final IDataBase db;
     private ITableModel dataModel;
+    private TestSuiteMethod originalTestSuiteMethod;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
 
-        db = boundNode.getDataBase();
+        this.db = boundNode.getDataBase();
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
         runMethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
     }
 
-    public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod copy) {
-        super(copy.getHeader(), copy.getBoundNode());
-
-        db = copy.db;
+    public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod target) {
+        super(target.getHeader(), target.getBoundNode());
+        this.db = target.db;
         this.testedMethod = testedMethod;
-        initProperties(copy.getMethodProperties());
-        this.runMethod = copy.isRunMethod();
-        this.testObjects = copy.getTestObjects();
-        this.dataModel = copy.getDataModel();
+        initProperties(target.getMethodProperties());
+        this.runMethod = target.isRunMethod();
+        this.testObjects = target.getTestObjects();
+        this.dataModel = target.getDataModel();
+        this.originalTestSuiteMethod = target.originalTestSuiteMethod != null ? target.originalTestSuiteMethod : target;
+    }
+
+    public TestSuiteMethod getOriginalTestSuiteMethod() {
+        return originalTestSuiteMethod != null ? originalTestSuiteMethod : this;
     }
 
     private TestDescription[] initTestsAndIndexes() {

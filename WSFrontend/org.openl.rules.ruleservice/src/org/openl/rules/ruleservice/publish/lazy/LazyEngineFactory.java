@@ -57,8 +57,8 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
     private CompiledOpenClass compiledOpenClass;
     private Class<T> interfaceClass;
     private final Collection<Module> modules;
-    private RuleServiceDependencyManager dependencyManager;
-    private Map<String, Object> externalParameters;
+    private final RuleServiceDependencyManager dependencyManager;
+    private final Map<String, Object> externalParameters;
     private final DeploymentDescription deployment;
 
     public DeploymentDescription getDeployment() {
@@ -106,8 +106,7 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
                 interfaceClass = (Class<T>) interfaceClassGenerator
                     .generateInterface(className, openClass, getCompiledOpenClass().getClassLoader());
             } catch (Exception e) {
-                String errorMessage = String.format("Failed to create interface: %s", className);
-                LOG.error(errorMessage, e);
+                String errorMessage = String.format("Failed to create interface '%s'.", className);
                 throw new OpenlNotCheckedException(errorMessage, e);
             }
         }

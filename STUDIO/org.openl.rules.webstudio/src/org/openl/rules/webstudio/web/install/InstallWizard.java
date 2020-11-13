@@ -37,6 +37,7 @@ import org.flywaydb.core.api.FlywayException;
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
+import org.openl.info.OpenLVersion;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
@@ -412,6 +413,7 @@ public class InstallWizard implements Serializable {
                 deployConfigRepositoryConfiguration.commit();
             }
             properties.setProperty("webstudio.configured", true);
+            properties.setProperty(".version", OpenLVersion.getVersion());
             DynamicPropertySource.get().save(properties.getConfig());
 
             destroyRepositoryObjects();

@@ -27,7 +27,7 @@
                     <xs:element minOccurs="0" name="Value_Step1" type="xs:anyType"/>
                     <xs:element minOccurs="0" name="Value1_Step2" type="xs:double"/>
                     <xs:element minOccurs="0" name="Value2_Step2" type="xs:double"/>
-                    <xs:element minOccurs="0" name="Value_Step2" type="tns:AnySpreadsheetResult"/>
+                    <xs:element minOccurs="0" name="Value_Step2" type="xs:anyType"/>
                     <xs:element minOccurs="0" name="Value_Step5" type="xs:anyType"/>
                     <xs:element minOccurs="0" name="Value_Step6" type="xs:anyType"/>
                     <xs:element minOccurs="0" name="Value_Step7" type="xs:anyType"/>

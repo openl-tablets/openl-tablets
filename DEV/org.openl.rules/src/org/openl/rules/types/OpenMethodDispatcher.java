@@ -220,7 +220,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
-        } else if (compareResult == 0 && !newMethod.equals(existedMethod)) {
+        } else if (compareResult == 0) {
             DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod,
                 existedMethod);
         }

@@ -1535,7 +1535,13 @@ public class RepositoryTreeController {
     public String openProjectVersion() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
-            if (userWorkspace.isOpenedOtherProject(repositoryProject)) {
+            boolean openedSimilarToHistoric = false;
+            if (repositoryProject instanceof RulesProject) {
+                RulesProject project = (RulesProject) repositoryProject;
+                AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
+                openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
+            }
+            if (userWorkspace.isOpenedOtherProject(repositoryProject) || openedSimilarToHistoric) {
                 WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
                 // To avoid unnecessary request for the version when it's not needed (from
                 // getHasDependenciesForVersion())
@@ -1825,7 +1831,7 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             try {
-                AProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
@@ -1870,7 +1876,7 @@ public class RepositoryTreeController {
                 WebStudioUtils.addErrorMessage(errorMessage);
             } else {
                 try {
-                    AProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                     resetStudioModel();
@@ -2247,6 +2253,8 @@ public class RepositoryTreeController {
                 selectedProject.releaseMyLock();
             }
 
+            String businessNameBeforeSwitch = selectedProject.getBusinessName();
+
             selectedProject.setBranch(branch);
             if (selectedProject.getLastHistoryVersion() == null) {
                 // move back to previous branch! Because the project is not present in new branch
@@ -2261,7 +2269,7 @@ public class RepositoryTreeController {
                     selectedProject.close();
                 } else {
                     // Update files
-                    ProjectHistoryService.deleteHistory(selectedProject.getBusinessName());
+                    ProjectHistoryService.deleteHistory(businessNameBeforeSwitch);
                     if (!userWorkspace.isOpenedOtherProject(selectedProject)) {
                         selectedProject.open();
                     }

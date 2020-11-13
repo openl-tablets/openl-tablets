@@ -84,7 +84,11 @@ public class ProjectDescriptorArtefactResolver {
                 e.getMessage(),
                 e);
         }
-        return pd != null ? pd.getName() : project.getBusinessName();
+        if (pd != null) {
+            return pd.getName();
+        }
+        String actualPath = project.getRealPath();
+        return actualPath.substring(actualPath.lastIndexOf('/') + 1);
     }
 
     public void deleteRevisionsFromCache(AProject project) {

@@ -1,0 +1,9 @@
+<project>
+  <name>EPBDS-10705_Methods_Conflict_Messages</name>
+  <modules>
+    <module>
+      <name>Module1</name>
+      <rules-root path="EPBDS-10705_Methods_Conflict_Messages.xlsx"/>
+    </module>
+  </modules>
+</project>

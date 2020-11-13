@@ -1,0 +1,9 @@
+<project>
+  <name>lazy-compilation</name>
+  <modules>
+    <module>
+      <rules-root path="*.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>Main-%lob%</properties-file-name-pattern>
+</project>

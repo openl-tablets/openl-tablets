@@ -1,6 +1,8 @@
 package org.openl.rules.workspace.uw.impl;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
@@ -9,13 +11,21 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
+
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -31,6 +41,7 @@ import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xml.sax.InputSource;
 
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
@@ -264,21 +275,56 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void syncProjects() {
         for (RulesProject rPr : getProjects()) {
-            String designFolderName = rPr.getDesignFolderName();
-            if (designFolderName != null && designTimeRepository.getRepository(rPr.getRepository().getId()).supports().mappedFolders()) {
-                String masterProjectName = designFolderName.substring(designFolderName.lastIndexOf('/') + 1, designFolderName.lastIndexOf(':'));
-                if (rPr.isOpened() && !rPr.getLocalFolderName().equals(masterProjectName)) {
+            if (designTimeRepository.getRepository(rPr.getRepository().getId()).supports().mappedFolders()) {
+                if (rPr.isOpened() && !rPr.isLocalOnly()) {
                     try {
-                        rPr.close();
-                        rPr.setLocalFolderName(null);
-                        rPr.open();
-                    } catch (ProjectException e) {
-                        log.warn("Could not reopen the project '{}' because of error: {}",
-                                rPr.getName(),
-                                e.getMessage());
+                        String realProjectName = getActualName(rPr);
+                        if (!rPr.getLocalFolderName().equals(realProjectName)) {
+                            // We can't close and then open a project in workspace, we should rename the folder
+                            // in file system directly. Otherwise we will lose unsaved user changes.
+                            LocalWorkspace localWorkspace = getLocalWorkspace();
+                            File repoRoot = localWorkspace.getRepository(rPr.getRepository().getId()).getRoot();
+                            String prevPath = rPr.getFolderPath();
+                            int index = prevPath.lastIndexOf('/');
+                            String newPath = prevPath.substring(0, index + 1) + realProjectName;
+                            boolean renamed = new File(repoRoot, prevPath).renameTo(new File(repoRoot, newPath));
+                            if (!renamed) {
+                                log.warn("Can't rename folder from " + prevPath + " to " + newPath);
+                            }
+                        }
+                    } catch (Exception e) {
+                        log.warn("Could not rename the project '{}' because of error: {}",
+                            rPr.getName(),
+                            e.getMessage());
                     }
                 }
             }
+        }
+    }
+
+    @Override
+    public String getActualName(AProject project) throws ProjectException, IOException {
+        if (project.hasArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)) {
+            AProjectArtefact artefact = project.getArtefact(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            if (artefact instanceof AProjectResource) {
+                try (InputStream content = ((AProjectResource) artefact).getContent()) {
+                    return getActualName(content);
+                }
+            }
+        }
+        String actualPath = project.getRealPath();
+        return actualPath.substring(actualPath.lastIndexOf('/') + 1);
+    }
+
+    private String getActualName(InputStream inputStream) {
+        try {
+            InputSource inputSource = new InputSource(inputStream);
+            XPathFactory factory = XPathFactory.newInstance();
+            XPath xPath = factory.newXPath();
+            XPathExpression xPathExpression = xPath.compile("/project/name");
+            return xPathExpression.evaluate(inputSource);
+        } catch (XPathExpressionException e) {
+            return null;
         }
     }
 
@@ -561,8 +607,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public boolean isOpenedOtherProject(AProject project) {
+        String name;
+        try {
+            name = getActualName(project);
+        } catch (ProjectException | IOException e) {
+            name = project.getBusinessName();
+        }
+        String actualName = name;
         return getProjects(false).stream()
-                .anyMatch(p -> p.isOpened() && project.getBusinessName()
+                .anyMatch(p -> p.isOpened() && actualName
                         .equals(p.getBusinessName()) && (!project.getRepository()
                         .getId()
                         .equals(p.getRepository().getId()) || !project.getRealPath().equals(p.getRealPath())));
