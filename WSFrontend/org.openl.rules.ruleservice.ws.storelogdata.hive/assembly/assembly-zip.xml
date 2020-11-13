@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assembly>
+    <id>assembly.zip</id>
+    <includeBaseDirectory>false</includeBaseDirectory>
+
+    <formats>
+        <format>zip</format>
+    </formats>
+
+    <dependencySets>
+        <dependencySet>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <useTransitiveFiltering>false</useTransitiveFiltering>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>${project.groupId}:${project.artifactId}*</include>
+            </includes>
+        </dependencySet>
+        <dependencySet>
+            <useTransitiveDependencies>true</useTransitiveDependencies>
+            <useTransitiveFiltering>true</useTransitiveFiltering>
+            <outputDirectory></outputDirectory>
+            <includes>
+                <include>org.apache.hive:hive-jdbc</include>
+                <include>com.fasterxml.jackson.core:jackson-databind</include>
+            </includes>
+            <excludes>
+                <exclude>aopalliance:aopalliance</exclude>
+                <exclude>com.github.joshelser:dropwizard-metrics-hadoop-metrics2-reporter</exclude>
+                <exclude>commons-lang:commons-lang</exclude>
+                <exclude>commons-logging:commons-logging</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-core</exclude>
+                <exclude>com.fasterxml.jackson.core:jackson-annotations</exclude>
+                <exclude>org.slf4j:slf4j-api</exclude>
+                <exclude>org.springframework:spring-aop</exclude>
+                <exclude>org.springframework:spring-context</exclude>
+                <exclude>org.springframework:spring-expression</exclude>
+                <exclude>org.apache.hive:hive-service</exclude>
+                <exclude>org.apache.hive:hive-serde</exclude>
+                <exclude>org.apache.hive:hive-metastore</exclude>
+                <exclude>org.apache.hive:hive-common</exclude>
+                <exclude>org.apache.hive:hive-shims</exclude>
+        </excludes>
+        </dependencySet>
+    </dependencySets>
+</assembly>

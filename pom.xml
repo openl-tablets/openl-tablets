@@ -115,6 +115,7 @@
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
+        <hive.jdbc.version>2.3.7</hive.jdbc.version>
     </properties>
 
     <modules>
@@ -1737,6 +1738,16 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.storelogdata.hive</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

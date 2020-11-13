@@ -21,7 +21,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConve
 import org.openl.rules.ruleservice.storelogdata.annotation.ZonedDataTimeToDateConvertor;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONRequest;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONResponse;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.RandomUUID;
+import org.openl.rules.ruleservice.storelogdata.RandomUUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
