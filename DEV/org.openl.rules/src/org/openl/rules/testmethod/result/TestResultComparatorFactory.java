@@ -1,5 +1,6 @@
 package org.openl.rules.testmethod.result;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 
@@ -35,7 +36,7 @@ public class TestResultComparatorFactory {
             return CollectionComparator.getInstance();
         } else if (ClassUtils.isAssignable(clazz, Map.class)) {
             return MapComparator.getInstance();
-        } else if (Object.class == clazz) {
+        } else if (Object.class == clazz || Serializable.class == clazz) {
             if (delta == null) {
                 return ObjectComparator.getInstance();
             } else {

@@ -20,6 +20,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.ADynamicClass;
+import org.openl.types.impl.ComponentTypeArrayOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
@@ -166,9 +167,14 @@ public class CastFactory implements ICastFactory {
             dim++;
         }
 
-        // Use java classes only because wa can't find cast method with OpenL types
-        openClass1 = JavaOpenClass.getOpenClass(openClass1.getInstanceClass());
-        openClass2 = JavaOpenClass.getOpenClass(openClass2.getInstanceClass());
+        // Use one element to array cast
+        if (openClass1.isArray() && !openClass1.getComponentClass().isArray() && !openClass2.isArray()) {
+            return findClosestClass(openClass1.getComponentClass(), openClass2, casts, methods);
+        }
+        if (openClass2.isArray() && !openClass2.getComponentClass().isArray() && !openClass1.isArray()) {
+            IOpenClass t = findClosestClass(openClass1, openClass2.getComponentClass(), casts, methods);
+            return ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(t, 1);
+        }
 
         Iterator<IOpenMethod> itr = methods.iterator();
         Set<IOpenClass> openClass1Candidates = new LinkedHashSet<>();
@@ -210,7 +216,7 @@ public class CastFactory implements ICastFactory {
             if (c == null) {
                 c = JavaOpenClass.OBJECT;
             }
-            return dim > 0 ? JavaOpenClass.getArrayType(c, dim) : c;
+            return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(c, dim) : c;
         }
 
         // If one class is not primitive we use wrapper for prevent NPE
@@ -222,7 +228,7 @@ public class CastFactory implements ICastFactory {
             }
         }
 
-        return dim > 0 ? JavaOpenClass.getArrayType(ret, dim) : ret;
+        return dim > 0 ? ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(ret, dim) : ret;
     }
 
     private static void checkAndAddToCandidates(IOpenMethod method,

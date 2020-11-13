@@ -1,5 +1,7 @@
 package org.openl.rules.testmethod.result;
 
+import java.util.Objects;
+
 import org.openl.rules.convertor.IString2DataConvertor;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 
@@ -23,30 +25,23 @@ class ObjectComparator extends GenericComparator<Object> {
     }
 
     @Override
-    boolean equals(Object expectedVal, Object actualVal) {
-        Class<?> clazz = expectedVal.getClass();
-        if (Object.class == clazz) {
-            return expectedVal.equals(actualVal);
-        }
-        Class<?> clazz2 = actualVal.getClass();
-        if (Object.class == clazz2) {
-            return expectedVal.equals(actualVal);
-        }
-        if (clazz != clazz2) {
-            if (String.class == clazz) {
-                clazz = clazz2;
+    boolean equals(Object expectedValue, Object actualValue) {
+        Class<?> expectedClass = expectedValue.getClass();
+        Class<?> actualClass = actualValue.getClass();
+        if (expectedClass != actualClass) {
+            if (String.class == expectedClass) {
                 try {
-                    IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(clazz2);
-                    expectedVal = convertor.parse((String) expectedVal, null);
-                } catch (Exception ex) {
-                    return false;
+                    IString2DataConvertor<?> convertor = String2DataConvertorFactory.getConvertor(actualClass);
+                    expectedValue = convertor.parse((String) expectedValue, null);
+                } catch (Exception ignored) {
                 }
-            } else {
-                return false;
+            }
+            TestResultComparator comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), delta);
+            if (comparator.getClass() != this.getClass()) {
+                return comparator.isEqual(expectedValue, actualValue);
             }
         }
-        TestResultComparator comparator = TestResultComparatorFactory.getComparator(clazz, delta);
-        return comparator.isEqual(expectedVal, actualVal);
+        return Objects.equals(expectedValue, actualValue);
     }
 
     public static TestResultComparator getInstance() {

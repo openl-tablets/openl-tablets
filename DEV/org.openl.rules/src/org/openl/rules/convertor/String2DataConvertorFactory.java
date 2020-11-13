@@ -6,16 +6,7 @@
 
 package org.openl.rules.convertor;
 
-import org.openl.binding.IBindingContext;
-import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.meta.BigDecimalValue;
-import org.openl.meta.DoubleValue;
-import org.openl.rules.helpers.CharRange;
-import org.openl.rules.helpers.DoubleRange;
-import org.openl.rules.helpers.IntRange;
-import org.openl.rules.helpers.StringRange;
-import org.openl.types.IOpenClass;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.Instant;
@@ -34,6 +25,16 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.openl.binding.IBindingContext;
+import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.meta.BigDecimalValue;
+import org.openl.meta.DoubleValue;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.StringRange;
+import org.openl.types.IOpenClass;
+
 /**
  * @author snshor
  */
@@ -42,15 +43,17 @@ public class String2DataConvertorFactory {
     /**
      * Strong reference to common converters
      */
-    private static HashMap<Class<?>, IString2DataConvertor<?>> convertors;
+    private static final HashMap<Class<?>, IString2DataConvertor<?>> convertors;
 
     @SuppressWarnings("rawtypes")
-    private static Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<>();
-    private static ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
+    private static final Map<Class<?>, IString2DataConvertor> convertorsCache = new WeakHashMap<>();
+    private static final ReadWriteLock convertorsLock = new ReentrantReadWriteLock();
 
     static {
         convertors = new HashMap<>();
         convertors.put(Object.class, new String2StringConvertor());
+        convertors.put(Serializable.class, new String2StringConvertor());
+        convertors.put(Comparable.class, new String2StringConvertor());
         convertors.put(int.class, new String2IntConvertor());
         convertors.put(double.class, new String2DoubleConvertor());
         convertors.put(char.class, new String2CharConvertor());

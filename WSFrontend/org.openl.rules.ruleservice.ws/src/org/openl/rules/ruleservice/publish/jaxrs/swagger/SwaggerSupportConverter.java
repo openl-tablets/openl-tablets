@@ -1,9 +1,12 @@
 package org.openl.rules.ruleservice.publish.jaxrs.swagger;
 
+import java.io.Serializable;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
@@ -34,6 +37,10 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.StringProperty;
 
 public class SwaggerSupportConverter implements ModelConverter {
+
+    private static final Set<Class<?>> INTERFACES_TO_OBJECT = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList(Serializable.class, Comparable.class, Cloneable.class)));
+
     private final ObjectMapper objectMapper;
 
     public SwaggerSupportConverter(ObjectMapper objectMapper) {
@@ -151,6 +158,8 @@ public class SwaggerSupportConverter implements ModelConverter {
                 if (javaType.containedType(0) == null) {
                     return context.resolveProperty(Object.class, annotations);
                 }
+            } else if (INTERFACES_TO_OBJECT.stream().anyMatch(e -> e == javaType.getRawClass())) {
+                return context.resolveProperty(Object.class, annotations);
             } else {
                 Class<?> valueType = JAXBUtils
                     .extractValueTypeIfAnnotatedWithXmlJavaTypeAdapter(javaType.getRawClass());

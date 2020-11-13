@@ -130,9 +130,6 @@
         }
       }
     },
-    "Comparable": {
-      "type": "object"
-    },
     "DefaultRulesRuntimeContext": {
       "type": "object",
       "properties": {
@@ -209,7 +206,7 @@
       "type": "object",
       "properties": {
         "comparableField": {
-          "$ref": "#/definitions/Comparable"
+          "type": "object"
         },
         "mapField": {
           "type": "object",
