@@ -8,7 +8,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataConverter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class JSONResponse implements StoreLogDataConverter<Object> {
+public final class JSONResponse implements StoreLogDataConverter<Object> {
 
     @Override
     public Object convert(StoreLogData storeLogData) {

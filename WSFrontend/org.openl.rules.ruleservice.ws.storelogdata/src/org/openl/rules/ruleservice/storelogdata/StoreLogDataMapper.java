@@ -6,8 +6,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
@@ -217,7 +222,7 @@ public class StoreLogDataMapper {
             return;
         }
 
-        Class<? extends Converter<?, ?>> converterClass = null;
+        Class<? extends Converter<?, ?>> converterClass;
         try {
             Method converterMethod = annotation.annotationType().getMethod("converter");
             converterClass = (Class<? extends Converter<?, ?>>) converterMethod.invoke(annotation);
@@ -227,11 +232,10 @@ public class StoreLogDataMapper {
                     annotation.getClass().getTypeName()));
         }
 
-        if (!(DefaultConverter.class == converterClass || DefaultStringConverter.class
-            == converterClass || DefaultDateConverter.class == converterClass)) {
+        if (!(DefaultConverter.class == converterClass || DefaultStringConverter.class == converterClass || DefaultDateConverter.class == converterClass)) {
             Converter<Object, Object> converter = null;
             try {
-                converter = (Converter<Object, Object>) converterClass.newInstance();
+                converter = (Converter<Object, Object>) converterClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
@@ -246,7 +250,7 @@ public class StoreLogDataMapper {
                 } catch (Exception e) {
                     if (log.isErrorEnabled()) {
                         log.error(String.format(
-                            "Failed on type convertation for annotated element '%s'! Null value is used as a result.",
+                            "Failed on type conversion for annotated element '%s'! Null value is used as a result.",
                             getAnnotatedElementRef(annotatedElement)), e);
                     }
                     value = null;
@@ -290,7 +294,7 @@ public class StoreLogDataMapper {
                         m.invoke(target, value);
                     }
                     return;
-                } catch (NoSuchMethodException e) {
+                } catch (NoSuchMethodException ignored) {
                 }
             }
             method.invoke(target, value);
@@ -316,37 +320,35 @@ public class StoreLogDataMapper {
         if (qualifyPublisherType == null || matchPublisherType(qualifyPublisherType.value(),
             storeLogData.getPublisherType())) {
             Class<? extends StoreLogDataConverter<?>> converterClass = withLogDataConverter.converter();
-            StoreLogDataConverter<Object> converter = null;
+            StoreLogDataConverter<Object> converter;
             try {
-                converter = (StoreLogDataConverter<Object>) converterClass.newInstance();
+                converter = (StoreLogDataConverter<Object>) converterClass.getDeclaredConstructor().newInstance();
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     log.error(String.format(
-                        "LogDataConverter instantiation is failed. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "LogDataConverter instantiation is failed. Please, check that class '%s' is not abstract and has a default constructor.",
                         converterClass.getTypeName()), e);
                 }
                 return;
             }
-            if (converter != null) {
-                Object convertedValue = null;
-                try {
-                    convertedValue = converter.convert(storeLogData);
-                } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format(
-                            "Failed on type convertation for annotated element '%s'! Null value is used as a result.",
-                            getAnnotatedElementRef(annotatedElement)), e);
-                    }
-                    convertedValue = null;
+            Object convertedValue;
+            try {
+                convertedValue = converter.convert(storeLogData);
+            } catch (Exception e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format(
+                        "Failed on type conversion for annotated element '%s'! Null value is used as a result.",
+                        getAnnotatedElementRef(annotatedElement)), e);
                 }
-                try {
-                    setValueWithAnnotatedElement(target, annotatedElement, convertedValue);
-                } catch (Exception e) {
-                    if (log.isErrorEnabled()) {
-                        log.error(String.format(
-                            "Failed on set a value! Please, check that the element '%s' is annotated correctly.",
-                            getAnnotatedElementRef(annotatedElement)), e);
-                    }
+                convertedValue = null;
+            }
+            try {
+                setValueWithAnnotatedElement(target, annotatedElement, convertedValue);
+            } catch (Exception e) {
+                if (log.isErrorEnabled()) {
+                    log.error(String.format(
+                        "Failed on set a value! Please, check that the element '%s' is annotated correctly.",
+                        getAnnotatedElementRef(annotatedElement)), e);
                 }
             }
         }
@@ -356,14 +358,14 @@ public class StoreLogDataMapper {
             PublisherType publisherType) {
         switch (publisherType) {
             case KAFKA:
-                return Arrays.stream(value)
-                    .anyMatch(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA::equals);
+                return Arrays.asList(value)
+                    .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.KAFKA);
             case WEBSERVICE:
-                return Arrays.stream(value)
-                    .anyMatch(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE::equals);
+                return Arrays.asList(value)
+                    .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.WEBSERVICE);
             case RESTFUL:
-                return Arrays.stream(value)
-                    .anyMatch(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL::equals);
+                return Arrays.asList(value)
+                    .contains(org.openl.rules.ruleservice.storelogdata.annotation.PublisherType.RESTFUL);
             default:
                 return false;
         }

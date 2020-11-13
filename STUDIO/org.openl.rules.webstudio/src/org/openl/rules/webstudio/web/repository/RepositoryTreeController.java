@@ -2643,7 +2643,7 @@ public class RepositoryTreeController {
     }
 
     public boolean isMergedIntoMain(UserWorkspaceProject project) {
-        if (project == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
             return false;
         }
 
@@ -2657,9 +2657,27 @@ public class RepositoryTreeController {
     }
 
     public String getMainBranch(UserWorkspaceProject project) {
-        if (project == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
             return null;
         }
         return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
+    }
+
+    public void checkBranchIsDeletable() {
+        UserWorkspaceProject project = getSelectedProject();
+        String message = "Branch can't be deleted: ";
+
+        if (project == null) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is absent.");
+        } else if (project.isLocalOnly()) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is local.");
+        } else if (project.isDeleted()) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is archived.");
+        }
+    }
+
+    public boolean isBranchDeletable() {
+        UserWorkspaceProject project = getSelectedProject();
+        return project != null && !project.isLocalOnly() && !project.isDeleted();
     }
 }
