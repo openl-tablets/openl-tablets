@@ -17,7 +17,7 @@
 
         <h:form id="deleteBranchForm" style="max-width: 550px">
             <ui:param name="project" value="#{repositoryTreeController.selectedProject}"/>
-            <h:panelGroup id="modalDeleteBranchData" rendered="#{not empty project}">
+            <h:panelGroup id="modalDeleteBranchData" rendered="#{repositoryTreeController.branchDeletable}">
 
                 <div>
                     <h:outputText value="Are you sure you want to delete branch '#{project.branch}'?"/>
@@ -41,7 +41,10 @@
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalDeleteBranch').hide();"/>
             </footer>
 
-            <a4j:jsFunction name="renderDeleteBranchForm" render="@form" oncomplete="showDeleteBranchDialog()"/>
+            <input id="branchDeletableState" type="hidden" value="#{repositoryTreeController.branchDeletable}"/>
+
+            <a4j:jsFunction name="renderDeleteBranchForm" render="@form projectTree nodeView" oncomplete="showDeleteBranchDialog()"
+                            action="#{repositoryTreeController.checkBranchIsDeletable}"/>
 
         </h:form>
 
@@ -55,7 +58,9 @@
         }
 
         function showDeleteBranchDialog() {
-            RichFaces.$("modalDeleteBranch").show();
+            if ($j('#branchDeletableState').val() === 'true') {
+                RichFaces.$("modalDeleteBranch").show();
+            }
         }
 
         //]]>
