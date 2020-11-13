@@ -550,8 +550,11 @@ public class RulesProject extends UserWorkspaceProject {
     }
 
     public String getMainBusinessName() {
-        String folderPath = getDesignFolderName();
         Repository repository = getDesignRepository();
+        if (repository == null) {
+            return getBusinessName();
+        }
+        String folderPath = getDesignFolderName();
         if (repository.supports().mappedFolders()) {
             folderPath = ((FolderMapper) repository).getBusinessName(folderPath);
         }
