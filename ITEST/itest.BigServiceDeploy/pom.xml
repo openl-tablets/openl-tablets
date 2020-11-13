@@ -9,7 +9,7 @@
     <parent>
         <groupId>org.openl.itest</groupId>
         <artifactId>itest</artifactId>
-        <version>5.23.8-SNAPSHOT</version>
+        <version>5.23.9-SNAPSHOT</version>
     </parent>
 
     <artifactId>itest.BigServiceDeploy</artifactId>

@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.23.8-SNAPSHOT</version>
+		<version>5.23.9-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra</artifactId>
 	<packaging>jar</packaging>

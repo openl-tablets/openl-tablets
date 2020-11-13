@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -31,19 +31,20 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private static final String CW_STATE_VALUE = "CW";
     private static final String ALL_KEYWORD = "Any";
 
-    private final List<String[]> propertyNames;
+    private Set<String> propertyNames = new LinkedHashSet<>(0);
     private final Map<String, SimpleDateFormat> dateFormats;
     private final Pattern fileNameRegexpPattern;
     private final String pattern;
 
     public DefaultPropertiesFileNameProcessor(String pattern) throws InvalidFileNamePatternException {
-        this.propertyNames = new ArrayList<>();
         this.dateFormats = new HashMap<>();
         this.pattern = pattern;
         try {
-            this.fileNameRegexpPattern = Pattern.compile(buildRegexpPattern(pattern));
+            String regex = buildRegexpPattern(pattern);
+            this.fileNameRegexpPattern = Pattern.compile(regex);
         } catch (PatternSyntaxException e) {
-            throw new InvalidFileNamePatternException("Invalid file name pattern at: " + pattern);
+            throw new InvalidFileNamePatternException(
+                "Invalid file name pattern at: " + pattern + "\n" + e.getMessage());
         }
 
         // Validate date formats
@@ -66,19 +67,6 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                     String.format("Invalid date format for property '%s'.", entry.getKey()));
             }
         }
-
-        // Check for duplicate property declarations
-        Set<String> duplicates = new HashSet<>();
-        for (String[] propertyGroup : propertyNames) {
-            for (String propertyName : propertyGroup) {
-                if (duplicates.contains(propertyName)) {
-                    throw new InvalidFileNamePatternException(String
-                        .format("Property '%s' is declared in pattern '%s' several times.", propertyName, pattern));
-                }
-                duplicates.add(propertyName);
-            }
-        }
-
     }
 
     @Override
@@ -90,22 +78,18 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 String.format("File '%s' does not match file name pattern '%s'.", fileName, pattern));
         }
         TableProperties props = new TableProperties();
-        int n = fileNameMatcher.groupCount();
-        for (int i = 0; i < n; i++) {
-            String group = fileNameMatcher.group(i + 1);
-            String[] propertyGroup = propertyNames.get(i);
-            for (String propertyName : propertyGroup) {
-                try {
-                    Object value = convert(propertyName, group);
-                    props.setFieldValue(propertyName, value);
-                } catch (Exception e) {
-                    throw new NoMatchFileNameException(String.format(
-                        "File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
-                        fileName,
-                        pattern,
-                        propertyName,
-                        e.getMessage()));
-                }
+        for (String propertyName : propertyNames) {
+            String group = fileNameMatcher.group(propertyName);
+            try {
+                Object value = convert(propertyName, group);
+                props.setFieldValue(propertyName, value);
+            } catch (Exception e) {
+                throw new NoMatchFileNameException(String.format(
+                    "File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
+                    fileName,
+                    pattern,
+                    propertyName,
+                    e.getMessage()));
             }
         }
 
@@ -115,12 +99,16 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private String buildRegexpPattern(String fileNamePattern) throws InvalidFileNamePatternException {
         Matcher matcher = PATTERN.matcher(fileNamePattern);
         int start = 0;
-        String fileNameRegexpPattern = fileNamePattern
-                .replace('*', '\uffff')
-                .replace('.', '\ufffe')
-                .replace('?', '\ufffd')
-                .replace('+', '\ufffc')
-                .replace('^', '\ufffb');
+        String fileNameRegexpPattern = fileNamePattern.replace('*', '\uffff')
+            .replace('.', '\ufffe')
+            .replace('?', '\ufffd')
+            .replace('+', '\ufffc')
+            .replace('^', '\ufffb')
+            .replace("(", "\\(")
+            .replace(")", "\\)")
+            .replace("[", "\\[")
+            .replace("]", "\\]");
+
         while (start < fileNamePattern.length()) {
             if (matcher.find(start)) {
                 String propertyMatch = matcher.group();
@@ -134,37 +122,45 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 final String[] propertyGroup = multyPropertyNames.split(",");
                 Class<?> returnType = null;
                 String pattern = null;
-                for (int i = 0; i < propertyGroup.length; i++) {
-                    String propertyName = propertyGroup[i];
+                String finalPattern = null;
+                for (String propertyName : propertyGroup) {
                     if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {
                         throw new InvalidFileNamePatternException(
                             String.format("Found unsupported property '%s' in file name pattern.", propertyName));
                     }
-                    Class<?> currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
-                    String currentPattern;
-                    try {
-                        currentPattern = getPattern(propertyName, format, currentReturnType);
-                    } catch (RuntimeException e) {
+                    if (!propertyNames.add(propertyName)) {
                         throw new InvalidFileNamePatternException(
-                            String.format("Invalid file name pattern at: %s.", propertyMatch));
+                            String.format("Property '%s' is declared in pattern '%s' several times.",
+                                propertyName,
+                                fileNamePattern));
                     }
-                    if (i > 0 && (currentReturnType != returnType || !currentPattern.equals(pattern))) {
+                    Class<?> currentReturnType = TablePropertyDefinitionUtils.getTypeByPropertyName(propertyName);
+                    if (returnType != null && (currentReturnType != returnType)) {
                         throw new InvalidFileNamePatternException(
                             String.format("Incompatible properties in the group: %s.", Arrays.toString(propertyGroup)));
                     }
                     returnType = currentReturnType;
-                    pattern = currentPattern;
+                    try {
+                        pattern = getPattern(propertyName, format, returnType);
+                    } catch (RuntimeException e) {
+                        throw new InvalidFileNamePatternException(
+                            String.format("Invalid file name pattern at: %s.", propertyMatch));
+                    }
+                    if (finalPattern == null) {
+                        finalPattern = pattern;
+                    }
+                    finalPattern = "(?<" + propertyName + ">" + finalPattern + ")";
                 }
-                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, "(" + pattern + ")");
-                propertyNames.add(propertyGroup);
+
+                fileNameRegexpPattern = fileNameRegexpPattern.replace(propertyMatch, finalPattern);
                 start = matcher.end();
             } else {
                 start = fileNamePattern.length();
             }
         }
 
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff/", "[^/]+/"); // Ant /*/
-        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?:(?<=/))\uffff\uffff/", "(?:[^/]+/)*"); //Ant /**/
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?<=/)\uffff/", "[^/]+/"); // Ant /*/
+        fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("(?<=/)\uffff\uffff/", "(?:[^/]+/)*"); // Ant /**/
         fileNameRegexpPattern = fileNameRegexpPattern.replaceAll("\ufffe\uffff$", "\\.[^/]*");// File .*
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffe\uffff", "[^/]*");// Regexp .*
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\uffff", "[^/]*"); // File *
@@ -172,6 +168,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffd", "[^/]"); // File ?
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffc", "\\+"); // Just +
         fileNameRegexpPattern = fileNameRegexpPattern.replace("\ufffb", "\\^"); // Just ^
+
         fileNameRegexpPattern = fileNameRegexpPattern.replace("$", "\\$"); // Just $
 
         if (fileNameRegexpPattern.startsWith("/")) {
