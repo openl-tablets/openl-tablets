@@ -264,46 +264,54 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             branch = ((UserWorkspaceProject) project).getBranch();
         }
 
-        String repoId = artefact.getRepository().getId();
-        Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
-        TreeNode currentNode = getRulesRepository();
-        while (currentNode != null && it.hasNext()) {
-            String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
-            TreeNode parentNode = currentNode;
+        TreeNode currentNode;
+
+        if (project instanceof ADeploymentProject) {
+            currentNode = getDeploymentRepository();
+            String id = RepositoryUtils.getTreeNodeId(project);
             currentNode = (TreeNode) currentNode.getChild(id);
+        } else {
+            String repoId = artefact.getRepository().getId();
+            Iterator<String> it = artefact.getArtefactPath().getSegments().iterator();
+            currentNode = getRulesRepository();
+            while (currentNode != null && it.hasNext()) {
+                String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
+                TreeNode parentNode = currentNode;
+                currentNode = (TreeNode) currentNode.getChild(id);
 
-            if (currentNode == null) {
-                if (artefact instanceof AProject) {
-                    String actualPath = ((AProject) artefact).getRealPath();
-                    currentNode = parentNode.getChildNodes().stream().filter(child -> {
-                        AProjectArtefact data = child.getData();
-                        if (data instanceof AProject) {
-                            return actualPath.equals(((AProject) data).getRealPath());
-                        }
-                        return false;
-                    }).findFirst().orElse(null);
-                }
-            }
-
-            if (branch != null && currentNode != null) {
-                // If currentNode is a project, update its branch.
-                AProjectArtefact currentArtefact = currentNode.getData();
-                if (currentArtefact instanceof UserWorkspaceProject) {
-                    UserWorkspaceProject newProject = (UserWorkspaceProject) currentArtefact;
-                    if (!branch.equals(newProject.getBranch())) {
-                        try {
-                            RulesProject rulesProject = (RulesProject) project;
-                            boolean containsBranch = ((BranchRepository) rulesProject.getDesignRepository())
-                                .getBranches(((RulesProject) project).getDesignFolderName())
-                                .contains(branch);
-                            if (containsBranch) {
-                                // Update branch for the project
-                                newProject.setBranch(branch);
-                                // Rebuild children for the node
-                                currentNode.refresh();
+                if (currentNode == null) {
+                    if (artefact instanceof AProject) {
+                        String actualPath = ((AProject) artefact).getRealPath();
+                        currentNode = parentNode.getChildNodes().stream().filter(child -> {
+                            AProjectArtefact data = child.getData();
+                            if (data instanceof AProject) {
+                                return actualPath.equals(((AProject) data).getRealPath());
                             }
-                        } catch (ProjectException | IOException e) {
-                            log.error("Cannot update selected node: {}", e.getMessage(), e);
+                            return false;
+                        }).findFirst().orElse(null);
+                    }
+                }
+
+                if (branch != null && currentNode != null) {
+                    // If currentNode is a project, update its branch.
+                    AProjectArtefact currentArtefact = currentNode.getData();
+                    if (currentArtefact instanceof UserWorkspaceProject) {
+                        UserWorkspaceProject newProject = (UserWorkspaceProject) currentArtefact;
+                        if (!branch.equals(newProject.getBranch())) {
+                            try {
+                                RulesProject rulesProject = (RulesProject) project;
+                                boolean containsBranch = ((BranchRepository) rulesProject.getDesignRepository())
+                                    .getBranches(((RulesProject) project).getDesignFolderName())
+                                    .contains(branch);
+                                if (containsBranch) {
+                                    // Update branch for the project
+                                    newProject.setBranch(branch);
+                                    // Rebuild children for the node
+                                    currentNode.refresh();
+                                }
+                            } catch (ProjectException | IOException e) {
+                                log.error("Cannot update selected node: {}", e.getMessage(), e);
+                            }
                         }
                     }
                 }
