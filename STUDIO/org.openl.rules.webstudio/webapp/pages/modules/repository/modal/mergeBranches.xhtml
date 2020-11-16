@@ -38,8 +38,8 @@
                 <ui:param name="mergedOrLocked" value="#{branchesBean.mergedOrLocked}"/>
                 <ui:param name="locked" value="#{branchesBean.locked}"/>
                 <ui:param name="projectLockedInAnotherBranch" value="#{branchesBean.projectLockedInAnotherBranch}"/>
-                <ui:param name="confirmExportMessage" value="There were updates in \'#{branchesBean.branchToMerge}\' after the last \'Receive their updates\' action. Are you sure it won\'t impact the project and everything will work?\n'+
-'If not, please use \'Receive their updates\' button and test that everything works."/>
+                <ui:param name="confirmExportMessage" value="There were updates in `#{branchesBean.branchToMerge}` after the last `Receive their updates` action. Are you sure it will not impact the project and everything will work?
+If not, please use `Receive their updates` button and test that everything works."/>
 
                 <h:panelGroup id="cannotImportMessage" layout="block">
                     <h:outputText rendered="#{theirBranchMerged}"
