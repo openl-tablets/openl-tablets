@@ -1,6 +1,9 @@
 package org.openl.rules.dt.index;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.BitSet;
+import java.util.Collections;
+import java.util.List;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.dt.DecisionTableRuleNode;
@@ -16,7 +19,8 @@ public class RangeAscIndex implements IRuleIndex {
     private final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
     private final DecisionTableRuleNode nextNode;
     private final IRangeAdaptor<IndexNode, ?> adaptor;
-    private final Set<Integer> emptyRules;
+    private final int[] emptyRules;
+    private final int rulesTotalSize;
 
     public RangeAscIndex(DecisionTableRuleNode nextNode,
             List<IndexNode> index,
@@ -25,12 +29,8 @@ public class RangeAscIndex implements IRuleIndex {
         this.index = Collections.unmodifiableList(index);
         this.adaptor = adaptor;
         this.nextNode = nextNode;
-
-        Set<Integer> emptyRuleSet = new HashSet<>();
-        for (int i : emptyRules) {
-            emptyRuleSet.add(i);
-        }
-        this.emptyRules = Collections.unmodifiableSet(emptyRuleSet);
+        this.emptyRules = emptyRules;
+        this.rulesTotalSize = nextNode.getRules().length;
     }
 
     private Pair<Integer, Integer> findIndexRange(Object value) {
@@ -62,47 +62,51 @@ public class RangeAscIndex implements IRuleIndex {
         return new RangeIndexDecisionTableRuleNode(findRules(value, prevResult), nextNode.getNextIndex());
     }
 
-    Set<Integer> findRules(Object value, DecisionTableRuleNode prevResult) {
+    BitSet findRules(Object value, DecisionTableRuleNode prevResult) {
         if (!(prevResult instanceof IDecisionTableRuleNodeV2)) {
             Pair<Integer, Integer> range = findIndexRange(value);
-            Set<Integer> result = new HashSet<>(emptyRules);
-            if (range != null) {
-                for (int i = range.getLeft(); i < range.getRight(); i++) {
-                    result.addAll(index.get(i).getRules());
-                }
-            }
-            return result;
+            return collectAllRules(range);
         }
         return getResultAndIntersect(value, (IDecisionTableRuleNodeV2) prevResult);
     }
 
-    private Set<Integer> getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
-        Set<Integer> prevRes = prevResult.getRuleSet();
+    private BitSet collectAllRules(Pair<Integer, Integer> range) {
+        BitSet bits = new BitSet();
+        for (int ruleN : emptyRules) {
+            bits.set(ruleN);
+        }
+        if (range != null) {
+            for (int i = range.getLeft(); i < range.getRight(); i++) {
+                for (int ruleN : index.get(i).getRules()) {
+                    bits.set(ruleN);
+                }
+            }
+        }
+        return bits;
+    }
+
+    private BitSet getResultAndIntersect(Object value, IDecisionTableRuleNodeV2 prevResult) {
+        BitSet prevRes = prevResult.getRuleSet();
         if (prevRes.isEmpty()) {
             return prevRes;
         }
         Pair<Integer, Integer> range = findIndexRange(value);
-        Set<Integer> result = new HashSet<>();
-        retainAll(emptyRules, prevRes, result);
+        BitSet result = new BitSet();
+        for (int ruleN : emptyRules) {
+            if (prevRes.get(ruleN)) {
+                result.set(ruleN);
+            }
+        }
         if (range != null) {
             for (int i = range.getLeft(); i < range.getRight(); i++) {
-                retainAll(index.get(i).getRules(), prevRes, result);
+                for (int ruleN : index.get(i).getRules()) {
+                    if (prevRes.get(ruleN)) {
+                        result.set(ruleN);
+                    }
+                }
             }
         }
         return result;
-    }
-
-    private void retainAll(Set<Integer> a, Set<Integer> b, Set<Integer> result) {
-        if (a.size() > b.size()) {
-            Set<Integer> tmp = a;
-            a = b;
-            b = tmp;
-        }
-        for (Integer ruleN : a) {
-            if (b.contains(ruleN)) {
-                result.add(ruleN);
-            }
-        }
     }
 
     @Override
@@ -117,15 +121,17 @@ public class RangeAscIndex implements IRuleIndex {
 
     @Override
     public int[] collectRules() {
-        List<Integer> rules = new ArrayList<>(emptyRules);
+        int[] result = new int[rulesTotalSize];
+        int k = 0;
         for (IndexNode indexNode : index) {
-            rules.addAll(indexNode.getRules());
+            for (int ruleN : indexNode.getRules()) {
+                result[k++] = ruleN;
+            }
         }
-        int[] result = new int[rules.size()];
-        int i = 0;
-        for (Integer ruleN : rules) {
-            result[i++] = ruleN;
+        for (int ruleN : emptyRules) {
+            result[k++] = ruleN;
         }
+        Arrays.sort(result);
         return result;
     }
 }

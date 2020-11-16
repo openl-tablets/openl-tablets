@@ -1,11 +1,14 @@
 package org.openl.rules.dt.algorithm.evaluator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.domain.IntRangeDomain;
+import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
@@ -102,14 +105,14 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
     List<IndexNode> mergeRulesByValue(List<IndexNode> nodes) {
         Collections.sort(nodes);
         final int length = nodes.size();
-        Set<Integer> rules = new HashSet<>();
+        DecisionTableRuleNodeBuilder builder = new DecisionTableRuleNodeBuilder();
         List<IndexNode> result = new ArrayList<>();
         for (int i = 0; i < length; i++) {
             IndexNode node = nodes.get(i);
-            rules.add(node.getRuleN());
+            builder.addRule(node.getRuleN());
             if (i == length - 1 || node.compareTo(nodes.get(i + 1)) != 0) {
-                result.add(new IndexNode(node.getValue(), new HashSet<>(rules)));
-                rules.clear();
+                result.add(new IndexNode(node.getValue(), builder.makeRulesAry()));
+                builder = new DecisionTableRuleNodeBuilder();
             }
         }
         return result;
@@ -168,17 +171,17 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
 
     public static class IndexNode implements Comparable<IndexNode> {
         private final Comparable<Object> value;
-        private Set<Integer> rules;
-        private Integer ruleN;
+        private int[] rules;
+        private int ruleN;
 
         IndexNode(Comparable<Object> value, int ruleN) {
             this.value = value;
             this.ruleN = ruleN;
         }
 
-        IndexNode(Comparable<Object> value, HashSet<Integer> rules) {
+        IndexNode(Comparable<Object> value, int[] rules) {
             this.value = value;
-            this.rules = Collections.unmodifiableSet(rules);
+            this.rules = rules;
         }
 
         IndexNode(Comparable<Object> value) {
@@ -189,11 +192,11 @@ public abstract class ARangeIndexEvaluator extends AConditionEvaluator implement
             return value;
         }
 
-        Integer getRuleN() {
+        int getRuleN() {
             return ruleN;
         }
 
-        public Set<Integer> getRules() {
+        public int[] getRules() {
             return rules;
         }
 

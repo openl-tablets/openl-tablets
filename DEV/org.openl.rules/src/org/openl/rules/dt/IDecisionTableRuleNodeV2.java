@@ -1,9 +1,9 @@
 package org.openl.rules.dt;
 
-import java.util.Set;
+import java.util.BitSet;
 
 public interface IDecisionTableRuleNodeV2 extends IDecisionTableRuleNode {
 
-    Set<Integer> getRuleSet();
+    BitSet getRuleSet();
 
 }
