@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.openl.domain.IIntIterator;
+import org.openl.rules.dt.DecisionTableRuleNode;
 import org.openl.rules.dt.DecisionTableRuleNodeBuilder;
 import org.openl.rules.dt.element.ConditionCasts;
 import org.openl.rules.dt.element.ICondition;
@@ -29,8 +30,9 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
         DecisionTableRuleNodeBuilder emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
         List<IndexNode> minIndexNodes = collectMinIndexNodes(condition, it, nextNodeBuilder, emptyRulesBuilder);
+        final DecisionTableRuleNode nextNode = nextNodeBuilder.makeNode();
         final RangeIndexNodeAdaptor indexNodeAdaptor = new RangeIndexNodeAdaptor(rangeAdaptor);
-        RangeAscIndex minIndex = new RangeAscIndex(null,
+        RangeAscIndex minIndex = new RangeAscIndex(nextNode,
             minIndexNodes,
             indexNodeAdaptor,
             emptyRulesBuilder.makeNode().getRules());
@@ -38,14 +40,14 @@ public class CombinedRangeIndexEvaluator extends ARangeIndexEvaluator {
         it.reset();
         emptyRulesBuilder = new DecisionTableRuleNodeBuilder();
         List<IndexNode> maxIndexNodes = collectMaxIndexNodes(condition, it, emptyRulesBuilder);
-        RangeDescIndex maxIndex = new RangeDescIndex(null,
+        RangeDescIndex maxIndex = new RangeDescIndex(nextNode,
             maxIndexNodes,
             indexNodeAdaptor,
             emptyRulesBuilder.makeNode().getRules());
 
         return new CombinedRangeIndex(minIndex,
             maxIndex,
-            nextNodeBuilder.makeNode(),
+            nextNode,
             nparams == 2 ? conditionCasts.getCastToConditionType() : null);
     }
 
