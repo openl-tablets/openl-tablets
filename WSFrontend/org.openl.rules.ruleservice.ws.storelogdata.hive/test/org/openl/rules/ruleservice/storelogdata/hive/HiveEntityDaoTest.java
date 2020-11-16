@@ -49,6 +49,7 @@ public class HiveEntityDaoTest {
         SimpleEntity simpleEntity = getSimpleEntity();
         hiveEntityDao.insert(simpleEntity);
     }
+
     @Test
     public void insertTest_nullValue() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
