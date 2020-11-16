@@ -15,7 +15,7 @@ import org.openl.rules.project.abstraction.AProjectFolder;
  * @author Aleh Bykhavets
  */
 public final class NameChecker {
-    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']' };
+    private static final char[] FORBIDDEN_CHARS = { '\\', '/', ':', ';', '<', '>', '?', '*', '%', '\'', '[', ']', '|', '\"' };
     private static String forbiddenChars;
     public static final String BAD_NAME_MSG = "Name cannot contain forbidden characters (" + NameChecker
         .getForbiddenCharacters() + "), start with space, end with space or dot.";

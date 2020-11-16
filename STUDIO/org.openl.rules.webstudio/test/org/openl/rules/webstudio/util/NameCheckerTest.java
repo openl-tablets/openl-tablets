@@ -14,6 +14,8 @@ public class NameCheckerTest extends TestCase {
                 "f;x",
                 "a<b",
                 "a>b",
+                "a|b",
+                "a\"b",
                 "a\tb",
                 "a\nv",
                 "a%b",
