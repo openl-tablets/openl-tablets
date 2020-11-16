@@ -38,6 +38,7 @@ import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.OpenLArgumentsCloner;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
@@ -509,6 +510,22 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
         return cloner;
+    }
+
+    public void removeDebugInformation() {
+        for (IOpenMethod openMethod : getMethods()) {
+            removeDebugInformation(openMethod);
+        }
+    }
+
+    private void removeDebugInformation(IOpenMethod openMethod) {
+        if (openMethod instanceof OpenMethodDispatcher) {
+            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+                removeDebugInformation(candidate);
+            }
+        } else if (openMethod instanceof ExecutableRulesMethod) {
+            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
+        }
     }
 
 }

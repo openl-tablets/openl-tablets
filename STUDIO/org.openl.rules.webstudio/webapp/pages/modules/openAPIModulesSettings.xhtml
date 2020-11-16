@@ -1,0 +1,402 @@
+<ui:composition
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+    <style>
+        #rulesContainer {
+            margin-top: 5%;
+            overflow: auto;
+        }
+
+        #dataContainer {
+            margin-top: 10%;
+            overflow: auto;
+        }
+
+        .moduleInfoMessage {
+            font-size: 12px;
+            text-align: center;
+            font-weight: bold;
+            margin-bottom: 12px;
+        }
+    </style>
+
+    <rich:popupPanel id="openAPIModulesSettings" minwidth="470" autosized="true">
+
+        <h:form prependId="true" id="generateOpenAPIForm" class="fields">
+            <div>
+                <h:inputHidden id="openAPIPath"/>
+                <h:inputHidden id="algorithmModuleName"/>
+                <h:inputHidden id="modelModuleName"/>
+                <h:inputHidden id="algorithmModulePath"/>
+                <h:inputHidden id="modelModulePath"/>
+            </div>
+            <div id="rulesContainer">
+                <div id="rulesModule">
+                    <div id="rulesModuleMessage" class="moduleInfoMessage">
+                    </div>
+                    <table id="openapiAlgorithmsModuleTable" class="properties properties-form wide">
+                        <tr>
+                            <td>
+                                <label class="field-description">Rules Module:</label>
+                            </td>
+                            <td>
+                                <span id="algorithmModuleDisplayName"/>
+                            </td>
+                        </tr>
+                        <tr class="algo-path-short">
+                            <td></td>
+                            <td>
+                                <span id="algoPath"/>
+                                <a href="javascript:void(0)" title="Edit" class="editable-link"
+                                   id="editAlgoPath"
+                                   style="display: none;"
+                                   onclick="editAlgoPath()"><img
+                                        src="#{request.contextPath}/webresource/images/edit.png"
+                                        style="opacity:0.4"/></a>
+                            </td>
+                        </tr>
+                        <tr class="algo-path-full">
+                            <td></td>
+                            <td>
+                                <h:inputText id="newAlgoPath" size="35" maxlength="70"
+                                             validator="#{projectBean.validateAlgorithmPath}"/>
+                                <a href="javascript:void(0)" title="Reset" class="editable-link"
+                                   id="resetAlgoPath"
+                                   onclick="resetAlgoPath()"><img
+                                        src="#{request.contextPath}/webresource/images/close.gif"
+                                        style="opacity:0.4"/></a>
+                            </td>
+                        </tr>
+                        <tr id="algo-error">
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="newAlgoPath" styleClass="error"/>
+                            </a4j:outputPanel></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <div id="dataContainer">
+                <div id="dataModule">
+                    <div id="dataModuleMessage" class="moduleInfoMessage">
+                    </div>
+                    <table id="openapiDataModuleTable" class="properties properties-form wide">
+                        <tr>
+                            <td>
+                                <label class="field-description">Data Module:</label>
+                            </td>
+                            <td>
+                                <span id="dataModuleDisplayName"/>
+                            </td>
+                        </tr>
+                        <tr class="data-path-short">
+                            <td></td>
+                            <td>
+                                <span id="dataPath"/>
+                                <a href="javascript:void(0)" title="Edit" class="editable-link"
+                                   style="display: none;"
+                                   id="editDataPath"
+                                   onclick="editDataPath()"><img
+                                        src="#{request.contextPath}/webresource/images/edit.png"
+                                        style="opacity:0.4"/></a>
+
+                            </td>
+                        </tr>
+                        <tr class="data-path-full">
+                            <td></td>
+                            <td>
+                                <h:inputText id="newDataPath" size="35" maxlength="70"
+                                             validator="#{projectBean.validateDataPath}"/>
+                                <a href="javascript:void(0)" title="Reset" class="editable-link"
+                                   id="resetDataPath"
+                                   onclick="resetDataPath()"><img
+                                        src="#{request.contextPath}/webresource/images/close.gif"
+                                        style="opacity:0.4"/></a>
+                            </td>
+                        </tr>
+                        <tr id="data-error">
+                            <td></td>
+                            <td><a4j:outputPanel ajaxRendered="true">
+                                <h:message for="newDataPath" styleClass="error"/>
+                            </a4j:outputPanel></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+            <footer>
+                <a4j:commandButton id="generateOpenAPIBtn" value="Import"
+                                   styleClass="button-primary"
+                                   action="#{projectBean.regenerateOpenAPI}"
+                                   oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('openAPIModulesSettings');}"/>
+                <input type="button" value="Cancel"
+                       onclick="ws.ui.hide('openAPIModulesSettings'); reOpenEditOpenAPI();"/>
+            </footer>
+
+            <a4j:jsFunction name="rerenderOpenAPIModulesSettings"
+                            render="openAPIPath modelModuleName algorithmModuleName"
+                            oncomplete="showModulesSettingsDialog();">
+                <a4j:param name="openAPIPath"/>
+                <a4j:param name="modelModuleName"/>
+                <a4j:param name="algorithmModuleName"/>
+                <a4j:param name="modelModulePath"/>
+                <a4j:param name="algorithmModulePath"/>
+            </a4j:jsFunction>
+
+        </h:form>
+    </rich:popupPanel>
+
+    <script>
+        let openAPIModifiedInfo;
+        let modelModuleName;
+        let algorithmModuleName;
+        let algorithmModulePath;
+        let modelModulePath;
+        let algorithmPathEditable = true;
+        let modelPathEditable = true;
+
+        let moduleExistsMessage = "#{msg['ws.module.exists']}";
+        let moduleWillBeCreatedMessage = "#{msg['ws.module.not.exists']}";
+
+
+        const RULES_TYPE = 'Algorithms';
+        const MODELS_TYPE = 'Models';
+        const DEFAULT_MODEL_MODULE_PATH = "#{environment.getProperty('openapi.default.data.module.path')}";
+        const DEFAULT_ALGORITHM_MODULE_PATH = "#{environment.getProperty('openapi.default.algorithm.module.path')}";
+
+        function openModulesSettings(importFormInfo) {
+            if (!canOverwriteRevision()) {
+                return false;
+            }
+            openAPIModifiedInfo = importFormInfo;
+            let modules = openAPIModifiedInfo.modules.filter(function (el) {
+                return el != null;
+            });
+            let rulesModule = modules.find(module => module.type === RULES_TYPE);
+            let modelsModule = modules.find(module => module.type === MODELS_TYPE);
+            modelModuleName = modelsModule ? modelsModule.name : openAPIModifiedInfo.modelModuleName;
+            algorithmModuleName = rulesModule ? rulesModule.name : openAPIModifiedInfo.algorithmModuleName;
+
+            if (modelsModule) {
+                modelModulePath = modelsModule.path;
+                modelPathEditable = false;
+            } else {
+                modelModulePath = DEFAULT_MODEL_MODULE_PATH;
+            }
+
+            if (rulesModule) {
+                algorithmModulePath = rulesModule.path;
+                algorithmPathEditable = false;
+            } else {
+                algorithmModulePath = DEFAULT_ALGORITHM_MODULE_PATH;
+            }
+
+            rerenderOpenAPIModulesSettings(importFormInfo.path, modelModuleName, algorithmModuleName, modelModulePath, algorithmModulePath);
+
+        }
+
+        let modulesSettings;
+
+        function showModulesSettingsDialog() {
+            modulesSettings = new ModulesSettings();
+
+            modulesSettings.fields.getOpenAPIPath().val(openAPIModifiedInfo.path);
+            modulesSettings.fields.getModelModuleName().val(modelModuleName);
+            modulesSettings.fields.getAlgorithmModuleName().val(algorithmModuleName);
+
+            modulesSettings.fields.getAlgorithmModuleDisplayName().text(algorithmModuleName);
+            modulesSettings.fields.getDataModuleDisplayName().text(modelModuleName);
+
+            modulesSettings.fields.getDataDisplayPath().text(modelModulePath);
+            modulesSettings.fields.getAlgoDisplayPath().text(algorithmModulePath);
+
+            modulesSettings.fields.getModelModulePath().val(modelModulePath);
+            modulesSettings.fields.getAlgorithmModulePath().val(algorithmModulePath);
+
+            $j("#openAPIModulesSettings span.error").remove();
+            modulesSettings.fields.getDataModuleMessage().empty();
+            modulesSettings.fields.getRulesModuleMessage().empty();
+            modulesSettings.initListeners();
+
+
+            if (algorithmPathEditable) {
+                modulesSettings.fields.getEditAlgoPathLink().show();
+                modulesSettings.fields.getRulesModuleMessage().append(moduleWillBeCreatedMessage);
+            } else {
+                modulesSettings.fields.getEditAlgoPathLink().hide();
+                modulesSettings.fields.getRulesModuleMessage().append(moduleExistsMessage);
+            }
+
+            if (modelPathEditable) {
+                modulesSettings.fields.getEditDataPathLink().show();
+                modulesSettings.fields.getDataModuleMessage().append(moduleWillBeCreatedMessage);
+            } else {
+                modulesSettings.fields.getEditDataPathLink().hide();
+                modulesSettings.fields.getDataModuleMessage().append(moduleExistsMessage);
+            }
+
+            modulesSettings.initExpandableInputs('.algo-path-short', '.algo-path-full');
+            modulesSettings.initExpandableInputs('.data-path-short', '.data-path-full');
+
+            resizePopupPanel("openAPIModulesSettings")
+
+            ws.ui.show('openAPIModulesSettings');
+
+        }
+
+        let ModulesSettings = function () {
+
+            let fields = {
+                getOpenAPIPath: function () {
+                    return $j("#generateOpenAPIForm\\:openAPIPath");
+                },
+
+                getAlgorithmModuleName: function () {
+                    return $j("#generateOpenAPIForm\\:algorithmModuleName");
+                },
+
+                getModelModuleName: function () {
+                    return $j("#generateOpenAPIForm\\:modelModuleName");
+                },
+
+                getAlgorithmModulePath: function () {
+                    return $j("#generateOpenAPIForm\\:algorithmModulePath");
+                },
+
+                getModelModulePath: function () {
+                    return $j("#generateOpenAPIForm\\:modelModulePath");
+                },
+
+                getEditableAlgorithmModulePath: function () {
+                    return $j("#generateOpenAPIForm\\:newAlgoPath");
+                },
+
+                getEditableDataModulePath: function () {
+                    return $j("#generateOpenAPIForm\\:newDataPath");
+                },
+
+                getAlgorithmModuleDisplayName: function () {
+                    return $j("#algorithmModuleDisplayName");
+
+                },
+
+                getDataModuleDisplayName: function () {
+                    return $j("#dataModuleDisplayName");
+
+                },
+
+                getAlgoDisplayPath: function () {
+                    return $j("#algoPath");
+                },
+
+                getDataDisplayPath: function () {
+                    return $j("#dataPath")
+                },
+
+                getEditAlgoPathLink: function () {
+                    return $j("#editAlgoPath");
+                },
+
+                getEditDataPathLink: function () {
+                    return $j("#editDataPath");
+                },
+
+                getDataModuleMessage: function () {
+                    return $j("#dataModuleMessage");
+                },
+
+                getRulesModuleMessage: function () {
+                    return $j("#rulesModuleMessage");
+                }
+            };
+
+            let onAlgorithmPathChange = function () {
+                let value = fields.getEditableAlgorithmModulePath().val();
+                fields.getAlgorithmModulePath().val(value);
+
+            };
+
+            let onDataPathChange = function () {
+                let value = fields.getEditableDataModulePath().val();
+                fields.getModelModulePath().val(value);
+            };
+
+            function Listeners() {
+
+                (function initListeners() {
+                    fields.getEditableAlgorithmModulePath().off().on('keyup change', onAlgorithmPathChange);
+                    fields.getEditableDataModulePath().off().on('keyup change', onDataPathChange);
+                })();
+            }
+
+            let listeners;
+
+            return {
+                fields: fields,
+
+                initListeners: function () {
+                    listeners = new Listeners();
+                },
+
+                initExpandableInputs: function (divToHide, divToShow) {
+                    $j(divToHide).show();
+                    $j(divToShow).hide();
+                    resizePopupPanel('openAPIModulesSettings');
+                },
+
+                resetDataPath: function () {
+                    $j("#data-error span.error").remove()
+                    fields.getModelModulePath().val(DEFAULT_MODEL_MODULE_PATH);
+                },
+
+                resetAlgoPath: function () {
+                    $j("#algo-error span.error").remove()
+                    fields.getAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
+                },
+
+                makeAlgoPathEditable() {
+                    $j("#algo-error span.error").remove()
+                    fields.getAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
+                    fields.getEditableAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
+                },
+
+                makeDataPathEditable() {
+                    $j("#data-error span.error").remove()
+                    fields.getModelModulePath().val(DEFAULT_MODEL_MODULE_PATH);
+                    fields.getEditableDataModulePath().val(DEFAULT_MODEL_MODULE_PATH);
+                }
+            }
+        }
+
+        function editAlgoPath() {
+            modulesSettings.makeAlgoPathEditable();
+            modulesSettings.initExpandableInputs('.algo-path-full', '.algo-path-short');
+        }
+
+        function editDataPath() {
+            modulesSettings.makeDataPathEditable();
+            modulesSettings.initExpandableInputs('.data-path-full', '.data-path-short');
+        }
+
+        function resetDataPath() {
+            modulesSettings.resetDataPath();
+            modulesSettings.initExpandableInputs('.data-path-short', '.data-path-full');
+        }
+
+        function resetAlgoPath() {
+            modulesSettings.resetAlgoPath();
+            modulesSettings.initExpandableInputs('.algo-path-short', '.algo-path-full');
+        }
+
+        function reOpenEditOpenAPI() {
+            editOpenAPI({
+                path: openAPIModifiedInfo.path,
+                modelModuleName: modelModuleName,
+                algorithmModuleName: algorithmModuleName
+            });
+        }
+
+    </script>
+
+</ui:composition>

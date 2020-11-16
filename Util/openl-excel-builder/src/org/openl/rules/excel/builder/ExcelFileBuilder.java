@@ -181,9 +181,6 @@ public class ExcelFileBuilder {
     private static void writeSpreadsheets(List<SpreadsheetModel> spreadsheetModels,
             SXSSFWorkbook workbook,
             TableStyle tableStyle) {
-        if (CollectionUtils.isEmpty(spreadsheetModels)) {
-            return;
-        }
         SXSSFSheet sprSheet = workbook.createSheet(SPR_RESULT_SHEET);
         SpreadsheetResultTableExporter sprTableExporter = new SpreadsheetResultTableExporter();
         Set<String> reservedWords = spreadsheetModels.stream()
@@ -217,9 +214,6 @@ public class ExcelFileBuilder {
     }
 
     private static void writeDataTables(List<DataModel> dataModels, SXSSFWorkbook workbook, TableStyle tableStyle) {
-        if (CollectionUtils.isEmpty(dataModels)) {
-            return;
-        }
         SXSSFSheet dataTableSheet = workbook.createSheet(DATA_SHEET);
         DataTableExporter dtExporter = new DataTableExporter();
         dtExporter.setTableStyle(tableStyle);

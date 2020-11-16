@@ -1,9 +1,8 @@
 package org.openl.rules.dt;
 
-import org.openl.rules.dt.index.IRuleIndex;
+import java.util.BitSet;
 
-import java.util.HashSet;
-import java.util.Set;
+import org.openl.rules.dt.index.IRuleIndex;
 
 public class EqualsIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
 
@@ -32,10 +31,10 @@ public class EqualsIndexDecisionTableRuleNode extends DecisionTableRuleNode impl
     }
 
     @Override
-    public Set<Integer> getRuleSet() {
-        Set<Integer> result = new HashSet<>();
+    public BitSet getRuleSet() {
+        BitSet result = new BitSet();
         for (int ruleN : rules) {
-            result.add(ruleN);
+            result.set(ruleN);
         }
         return result;
     }

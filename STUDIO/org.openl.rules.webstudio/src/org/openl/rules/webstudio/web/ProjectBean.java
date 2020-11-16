@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.webstudio.web.util.OpenAPIEditorUtils.DEFAULT_ALGORITHMS_PATH;
-import static org.openl.rules.webstudio.web.util.OpenAPIEditorUtils.DEFAULT_MODELS_PATH;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -53,15 +50,19 @@ import org.openl.rules.project.resolving.PropertiesFileNameProcessorBuilder;
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.project.xml.RulesDeploySerializerFactory;
 import org.openl.rules.project.xml.SupportedVersion;
+import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.ui.Message;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.util.ListItem;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
@@ -78,6 +79,7 @@ import org.springframework.web.context.annotation.RequestScope;
 public class ProjectBean {
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     public static final String CANNOT_BE_EMPTY_MESSAGE = "Cannot be empty";
+    public static final String RECONCILIATION = "reconciliation";
 
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
 
@@ -94,9 +96,8 @@ public class ProjectBean {
     private String sources;
     private String[] propertiesFileNamePatterns;
 
-    private String openAPIPath;
-    private String modelModuleName;
-    private String algorithmModuleName;
+    private final Formats formats = WebStudioFormats.getInstance();
+    private List<ModuleInfoDTO> modulesInfoList = new ArrayList<>();
 
     private UIInput propertiesFileNameProcessorInput;
 
@@ -182,11 +183,36 @@ public class ProjectBean {
         return openapi.getPath();
     }
 
+    public String getLastOpenAPIFileUploadDate() {
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
+        final OpenAPI openapi = projectDescriptor.getOpenapi();
+        if (openapi == null) {
+            return null;
+        }
+        String path = openapi.getPath();
+        if (path == null) {
+            return null;
+        }
+        AProjectArtefact openAPIFile;
+
+        try {
+            openAPIFile = studio.getCurrentProject().getArtefactByPath(new ArtefactPathImpl(path));
+        } catch (ProjectException e) {
+            log.debug("Error on reading OpenAPI file.", e);
+            return null;
+        }
+        FileData fileData = openAPIFile.getFileData();
+        if (fileData != null && fileData.getModifiedAt() != null) {
+            return formats.formatDateOrDateTime(fileData.getModifiedAt());
+        }
+        return null;
+    }
+
     public String getModelModuleName() {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         final OpenAPI openapi = currentProject.getOpenapi();
         if (openapi == null || openapi.getModelModuleName() == null) {
-            return "";
+            return null;
         }
         return openapi.getModelModuleName();
     }
@@ -195,21 +221,9 @@ public class ProjectBean {
         ProjectDescriptor currentProject = studio.getCurrentProjectDescriptor();
         final OpenAPI openapi = currentProject.getOpenapi();
         if (openapi == null || openapi.getAlgorithmModuleName() == null) {
-            return "";
+            return null;
         }
         return openapi.getAlgorithmModuleName();
-    }
-
-    public void setOpenAPIPath(String openAPIPath) {
-        this.openAPIPath = openAPIPath;
-    }
-
-    public void setModelModuleName(String modelModuleName) {
-        this.modelModuleName = modelModuleName;
-    }
-
-    public void setAlgorithmModuleName(String algorithmModuleName) {
-        this.algorithmModuleName = algorithmModuleName;
     }
 
     public String getPropertiesFileNamePatterns() {
@@ -351,6 +365,8 @@ public class ProjectBean {
     public void validateOpenAPIPath(FacesContext context, UIComponent uiComponent, Object value) {
         String pathToOpenAPIFile = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(pathToOpenAPIFile), "Path to openAPI file cannot be empty.");
+        WebStudioUtils.validate(FileTypeHelper.isPossibleOpenAPIFile(pathToOpenAPIFile),
+            "The OpenAPI file must have JSON, YAML(YML) extension.");
 
         boolean fileExists;
         try {
@@ -362,24 +378,78 @@ public class ProjectBean {
         WebStudioUtils.validate(fileExists, "OpenAPI file with path: " + pathToOpenAPIFile + " was not found.");
     }
 
+    public void validateAlgorithmPath(FacesContext context, UIComponent component, Object value) {
+        String path = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModulePath");
+        String algorithmModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModuleName");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Algorithm Module Path cannot be empty.");
+        validatePath(path, algorithmModuleNameParam);
+    }
+
+    private void validatePath(String path, String moduleName) {
+        try {
+            NameChecker.validatePath(path);
+        } catch (IOException e) {
+            WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
+        }
+        String fileName = FileUtils.getBaseName(path);
+        WebStudioUtils.validate(StringUtils.isNotBlank(fileName), "File name is not defined.");
+        String fileNameWithExtension = FileUtils.getName(path);
+        WebStudioUtils.validate(FileTypeHelper.isExcelFile(fileNameWithExtension),
+            "The generated file must have an Excel format.");
+
+        ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+        Module module = studio.getModule(currentProjectDescriptor, moduleName);
+        String folderPath = studio.getCurrentProject().getFolderPath();
+        if (module == null || (module
+            .getRulesRootPath() != null && !getArtefactPath(module.getRulesRootPath().getPath(), folderPath)
+                .equals(path))) {
+            File moduleFile = new File(currentProjectDescriptor.getProjectFolder(), path);
+            WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists.");
+        }
+
+    }
+
+    public void validateDataPath(FacesContext context, UIComponent component, Object value) {
+        String path = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModulePath");
+        String modelModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModuleName");
+        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Data Module Path cannot be empty.");
+        validatePath(path, modelModuleNameParam);
+    }
+
     public void validateAlgorithmModuleName(FacesContext context, UIComponent component, Object value) {
+        if (isReconciliationMode())
+            return;
         final String possibleAlgorithmModuleName = (String) value;
+        final String currentModelModuleName = WebStudioUtils.getRequestParameter("importOpenAPIForm:modelModuleName");
+        if (currentModelModuleName != null) {
+            WebStudioUtils.validate(!currentModelModuleName.equalsIgnoreCase(possibleAlgorithmModuleName),
+                "Module names cannot be the same.");
+        }
         WebStudioUtils.validate(StringUtils.isNotBlank(possibleAlgorithmModuleName),
-            "Module Name for Rules must not be empty");
-        ProjectDescriptor currentDescriptor = studio.resolveProject(studio.getCurrentProjectDescriptor());
-        Module algoModule = studio.getModule(currentDescriptor, possibleAlgorithmModuleName);
-        WebStudioUtils.validate(algoModule != null,
-            "Rules Module with name " + possibleAlgorithmModuleName + " does not exist.");
+            "Module Name for Rules must not be empty.");
+        WebStudioUtils.validate(NameChecker.checkName(possibleAlgorithmModuleName),
+            "Rules Module name contains illegal characters.");
     }
 
     public void validateModelModuleName(FacesContext context, UIComponent component, Object value) {
+        if (isReconciliationMode())
+            return;
         final String possibleModelModuleName = (String) value;
+        final String currentAlgorithmModuleName = WebStudioUtils
+            .getRequestParameter("importOpenAPIForm:algorithmModuleName");
+        if (currentAlgorithmModuleName != null) {
+            WebStudioUtils.validate(!currentAlgorithmModuleName.equalsIgnoreCase(possibleModelModuleName),
+                "Module names cannot be the same.");
+        }
         WebStudioUtils.validate(StringUtils.isNotBlank(possibleModelModuleName),
-            "Module Name for Data Types must not be empty");
-        ProjectDescriptor currentDescriptor = studio.resolveProject(studio.getCurrentProjectDescriptor());
-        Module modelsModule = studio.getModule(currentDescriptor, possibleModelModuleName);
-        WebStudioUtils.validate(modelsModule != null,
-            "Data Types Module with name " + possibleModelModuleName + " does not exist.");
+            "Module Name for Data Types must not be empty.");
+        WebStudioUtils.validate(NameChecker.checkName(possibleModelModuleName),
+            "Data Module name contains illegal characters.");
+    }
+
+    private boolean isReconciliationMode() {
+        String mode = WebStudioUtils.getRequestParameter("mode");
+        return mode.equals(RECONCILIATION);
     }
 
     public void editName() {
@@ -675,68 +745,116 @@ public class ProjectBean {
         save(newProjectDescriptor);
     }
 
-    public void editOpenAPI() {
+    public void reconcileOpenAPI() {
         tryLockProject();
-
         ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
         ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
         clean(newProjectDescriptor);
 
-        newProjectDescriptor.setOpenapi(new OpenAPI(openAPIPath, modelModuleName, algorithmModuleName));
+        String openAPIPathParam = FileNameFormatter
+            .normalizePath(WebStudioUtils.getRequestParameter("importOpenAPIForm:openAPIPath"));
 
+        OpenAPI openAPI = projectDescriptor.getOpenapi();
+        if (openAPI != null) {
+            String path = openAPI.getPath();
+            if (openAPIPathParam.equals(path)) {
+                return;
+            }
+            openAPI.setPath(openAPIPathParam);
+        } else {
+            openAPI = new OpenAPI(openAPIPathParam, null, null);
+        }
+        newProjectDescriptor.setOpenapi(openAPI);
         save(newProjectDescriptor);
     }
 
-    public void tryToRegenerateOpenAPI() {
-        editOpenAPI();
-        if (!isOpenAPIGeneratedFilesExist()) {
-            regenerateOpenAPI();
+    public void getModulesInfo() {
+        ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+        String algorithmModuleNameParam = WebStudioUtils.getRequestParameter("importOpenAPIForm:algorithmModuleName");
+        String modelsModuleNameParam = WebStudioUtils.getRequestParameter("importOpenAPIForm:modelModuleName");
+        Module algoModule = studio.getModule(currentProjectDescriptor, algorithmModuleNameParam);
+        Module modelsModule = studio.getModule(currentProjectDescriptor, modelsModuleNameParam);
+        ModuleInfoDTO rulesDTO = getModuleInfoDTO(algoModule, "Algorithms");
+        ModuleInfoDTO modelsDTO = getModuleInfoDTO(modelsModule, "Models");
+        modulesInfoList = Arrays.asList(rulesDTO, modelsDTO);
+    }
+
+    private ModuleInfoDTO getModuleInfoDTO(Module module, String type) {
+        ModuleInfoDTO result = null;
+        if (module != null) {
+            PathEntry rulesRootPath = module.getRulesRootPath();
+            result = new ModuleInfoDTO(module.getName(),
+                rulesRootPath != null ? getArtefactPath(rulesRootPath.getPath(),
+                    studio.getCurrentProject().getFolderPath()) : null,
+                type);
         }
+        return result;
     }
 
     public void regenerateOpenAPI() {
         tryLockProject();
 
-        ProjectDescriptor projectDescriptor = studio.resolveProject(studio.getCurrentProjectDescriptor());
+        ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
+        List<Module> modules = currentProjectDescriptor.getModules();
 
-        final OpenAPI openapi = projectDescriptor.getOpenapi();
-        final String currentOpenAPIPath = openapi.getPath();
-        final String currentModelModuleName = openapi.getModelModuleName();
-        final String currentAlgorithmModuleName = openapi.getAlgorithmModuleName();
+        String openAPIPathParam = FileNameFormatter
+            .normalizePath(WebStudioUtils.getRequestParameter("generateOpenAPIForm:openAPIPath"));
+        String algorithmModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModuleName");
+        String modelModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModuleName");
+        String algorithmModulePathParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModulePath");
+        String modelModulePathParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModulePath");
+        if (!NameChecker.checkName(algorithmModuleNameParam) || !NameChecker.checkName(modelModuleNameParam)) {
+            throw new Message("Module names are not correct.");
+        }
+        Module existingAlgorithmModule = studio.getModule(currentProjectDescriptor, algorithmModuleNameParam);
+        boolean isNewAlgorithmModule = existingAlgorithmModule == null;
+        Module existingModelModule = studio.getModule(currentProjectDescriptor, modelModuleNameParam);
+        boolean isNewDataModule = existingModelModule == null;
+
+        validatePaths(algorithmModulePathParam, modelModulePathParam, isNewAlgorithmModule, isNewDataModule);
+
+        boolean infoChanged;
+
+        final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
+        OpenAPI openAPI = new OpenAPI();
+        openAPI.setPath(openAPIPathParam);
+        if (existingOpenAPI == null || existingOpenAPI.getPath() == null) {
+            infoChanged = true;
+        } else {
+            infoChanged = !existingOpenAPI.getPath().equals(openAPIPathParam);
+        }
 
         RulesProject currentProject = studio.getCurrentProject();
-        AProjectArtefact openAPIFile;
-        AProjectArtefact algorithmFile = null;
-        AProjectArtefact modelFile = null;
 
-        Module existingAlgoModule = studio.getModule(projectDescriptor, currentAlgorithmModuleName);
-        Module existingModelsModule = studio.getModule(projectDescriptor, currentModelModuleName);
+        AProjectArtefact openAPIFile = getOpenAPIFile(openAPIPathParam, currentProject);
 
-        final String rulesFilePath = getArtefactPath(currentProject, existingAlgoModule, OpenAPIModuleType.ALGORITHM);
-        final String dataTypesFilePath = getArtefactPath(currentProject, existingModelsModule, OpenAPIModuleType.MODEL);
-
-        try {
-            openAPIFile = currentProject.getArtefactByPath(new ArtefactPathImpl(currentOpenAPIPath));
-        } catch (ProjectException e) {
-            log.error("Error on reading OpenAPI file.", e);
-            throw new Message("There is no openAPI file wasn't found with path " + currentOpenAPIPath + ".");
+        if (!isNewAlgorithmModule) {
+            removeExistingFile(existingAlgorithmModule,
+                currentProject,
+                "It's impossible to delete existing generated Rules file.");
+            openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
+        } else {
+            Module rulesModule = new Module();
+            rulesModule.setRulesRootPath(new PathEntry(algorithmModulePathParam));
+            rulesModule.setName(algorithmModuleNameParam);
+            modules.add(rulesModule);
+            openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
+            infoChanged = true;
         }
 
-        try {
-            algorithmFile = currentProject.getArtefactByPath(new ArtefactPathImpl(rulesFilePath));
-        } catch (ProjectException e) {
-            log.warn("Algorithms file wasn't found, for project {}", projectDescriptor.getName(), e);
+        if (!isNewDataModule) {
+            removeExistingFile(existingModelModule,
+                currentProject,
+                "It's impossible to delete existing generated Data Types file.");
+            openAPI.setModelModuleName(modelModuleNameParam);
+        } else {
+            Module modelsModule = new Module();
+            modelsModule.setRulesRootPath(new PathEntry(modelModulePathParam));
+            modelsModule.setName(modelModuleNameParam);
+            modules.add(modelsModule);
+            openAPI.setModelModuleName(modelModuleNameParam);
+            infoChanged = true;
         }
-
-        try {
-            modelFile = currentProject.getArtefactByPath(new ArtefactPathImpl(dataTypesFilePath));
-        } catch (ProjectException e) {
-            log.warn("Data Types file wasn't found, for project {}", projectDescriptor.getName(), e);
-        }
-
-        removePreviouslyGeneratedFile(algorithmFile, "It's impossible to delete existing generated Rules file.");
-
-        removePreviouslyGeneratedFile(modelFile, "It's impossible to delete existing generated Data Types file.");
 
         String workspacePath = studio.getWorkspacePath();
         String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
@@ -746,31 +864,10 @@ public class ProjectBean {
             internalOpenAPIPath,
             converter);
 
-        List<Module> modules = projectDescriptor.getModules();
-
-        boolean moduleInfoChanged = false;
-
-        if (CollectionUtils.isNotEmpty(projectModel.getSpreadsheetResultModels()) && modules.stream()
-            .noneMatch(x -> x.getName().equalsIgnoreCase(currentAlgorithmModuleName))) {
-            Module rulesModule = new Module();
-            rulesModule.setRulesRootPath(new PathEntry(rulesFilePath));
-            rulesModule.setName(currentAlgorithmModuleName);
-            modules.add(rulesModule);
-            moduleInfoChanged = true;
-        }
-
-        if (CollectionUtils.isNotEmpty(projectModel.getDataModels()) && modules.stream()
-            .noneMatch(x -> x.getName().equalsIgnoreCase(currentModelModuleName))) {
-            Module modelsModule = new Module();
-            modelsModule.setRulesRootPath(new PathEntry(dataTypesFilePath));
-            modelsModule.setName(currentModelModuleName);
-            modules.add(modelsModule);
-            moduleInfoChanged = true;
-        }
-
-        if (moduleInfoChanged) {
-            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(projectDescriptor);
+        if (infoChanged) {
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
             clean(newProjectDescriptor);
+            newProjectDescriptor.setOpenapi(openAPI);
             save(newProjectDescriptor);
         }
 
@@ -781,7 +878,7 @@ public class ProjectBean {
         }
 
         try (InputStream dataTypes = generateDataTypesFile(projectModel.getDatatypeModels())) {
-            currentProject.addResource(dataTypesFilePath, dataTypes);
+            currentProject.addResource(modelModulePathParam, dataTypes);
         } catch (IOException | ProjectException e) {
             log.error(e.getMessage(), e);
             throw new Message("Failed to add data types file.");
@@ -789,14 +886,59 @@ public class ProjectBean {
 
         try (InputStream spreadsheets = generateAlgorithmsFile(projectModel.getSpreadsheetResultModels(),
             projectModel.getDataModels(),
-            getEnvironmentModel(currentModelModuleName))) {
-            currentProject.addResource(rulesFilePath, spreadsheets);
+            getEnvironmentModel(modelModuleNameParam))) {
+            currentProject.addResource(algorithmModulePathParam, spreadsheets);
         } catch (IOException | ProjectException e) {
             log.error(e.getMessage(), e);
             throw new Message("Failed to add rules file.");
         }
 
         refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+
+    }
+
+    private void validatePaths(String algorithmModulePathParam,
+            String modelModulePathParam,
+            boolean isNewAlgorithmModule,
+            boolean isNewDataModule) {
+        if (isNewAlgorithmModule) {
+            checkPath(algorithmModulePathParam);
+        }
+        if (isNewDataModule) {
+            checkPath(modelModulePathParam);
+        }
+    }
+
+    private AProjectArtefact getOpenAPIFile(String openAPIPath, RulesProject currentProject) {
+        AProjectArtefact openAPIFile;
+        try {
+            openAPIFile = currentProject.getArtefactByPath(new ArtefactPathImpl(openAPIPath));
+        } catch (ProjectException e) {
+            log.error("Error on reading OpenAPI file.", e);
+            throw new Message("There is no openAPI file wasn't found with path " + openAPIPath + ".");
+        }
+        return openAPIFile;
+    }
+
+    private void removeExistingFile(Module existingModule, RulesProject currentProject, String errorMessage) {
+        AProjectArtefact file = null;
+        try {
+            if (existingModule.getRulesRootPath() != null) {
+                file = currentProject
+                    .getArtefactByPath(new ArtefactPathImpl(getArtefactPath(existingModule.getRulesRootPath().getPath(),
+                        studio.getCurrentProject().getFolderPath())));
+            }
+        } catch (ProjectException e) {
+            log.warn("Existing file wasn't found in module {}", existingModule.getName(), e);
+        }
+        removePreviouslyGeneratedFile(file, errorMessage);
+    }
+
+    private void checkPath(String path) {
+        File existingArtefact = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
+        if (existingArtefact.exists()) {
+            throw new Message("Artefact with the path " + path + " already exists.");
+        }
     }
 
     private void editRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
@@ -867,17 +1009,6 @@ public class ProjectBean {
         MODEL
     }
 
-    private String getArtefactPath(RulesProject currentProject, Module module, OpenAPIModuleType type) {
-        if (module == null || module.getRulesRootPath() == null) {
-            if (type.equals(OpenAPIModuleType.ALGORITHM)) {
-                return DEFAULT_ALGORITHMS_PATH;
-            } else {
-                return DEFAULT_MODELS_PATH;
-            }
-        }
-        return getArtefactPath(module.getRulesRootPath().getPath(), currentProject.getFolderPath());
-    }
-
     private String getArtefactPath(String filePath, String basePath) {
         return FileNameFormatter
             .normalizePath(filePath.substring(filePath.lastIndexOf(basePath) + basePath.length() + 1));
@@ -905,44 +1036,6 @@ public class ProjectBean {
             byte[] sprBytes = sos.toByteArray();
             return new ByteArrayInputStream(sprBytes);
         }
-    }
-
-    public boolean isOpenAPIGeneratedFilesExist() {
-        final ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
-        final RulesProject currentProject = studio.getCurrentProject();
-
-        Module algoModule = studio.getModule(projectDescriptor, algorithmModuleName);
-        Module modelsModule = studio.getModule(projectDescriptor, modelModuleName);
-        if (algoModule == null && modelsModule == null) {
-            return false;
-        }
-
-        boolean algorithmsFileExists = false;
-        boolean modelsFileExists = false;
-
-        if (algoModule != null) {
-            try {
-                final String rulesFilePath = getArtefactPath(algoModule.getRulesRootPath().getPath(),
-                    currentProject.getFolderPath());
-                currentProject.getArtefactByPath(new ArtefactPathImpl(rulesFilePath));
-                algorithmsFileExists = true;
-            } catch (ProjectException e) {
-                log.debug("OpenAPI generated files with Rules was not found", e);
-            }
-        }
-
-        if (modelsModule != null) {
-            try {
-                final String dataTypesFilePath = getArtefactPath(modelsModule.getRulesRootPath().getPath(),
-                    currentProject.getFolderPath());
-                currentProject.getArtefactByPath(new ArtefactPathImpl(dataTypesFilePath));
-                modelsFileExists = true;
-            } catch (ProjectException e) {
-                log.debug("OpenAPI generated files with Data Types was not found", e);
-            }
-        }
-
-        return algorithmsFileExists || modelsFileExists;
     }
 
     private void tryLockProject() {
@@ -1335,4 +1428,13 @@ public class ProjectBean {
     public Integer getCurrentModuleIndex() {
         return currentModuleIndex;
     }
+
+    public List<ModuleInfoDTO> getModulesInfoList() {
+        return modulesInfoList;
+    }
+
+    public void setModulesInfoList(List<ModuleInfoDTO> modulesInfoList) {
+        this.modulesInfoList = modulesInfoList;
+    }
+
 }
