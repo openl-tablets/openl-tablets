@@ -41,15 +41,18 @@ public class TestDescription {
         executionParams = initExecutionParams(testedMethod, testObject, db, dataModel);
     }
 
-    public TestDescription(IOpenMethod testedMethod, Object[] arguments, IDataBase db) {
+    public TestDescription(IOpenMethod testedMethod, IRulesRuntimeContext context, Object[] arguments, IDataBase db) {
         this.testedMethod = testedMethod;
-        this.testObject = createTestObject(testedMethod, arguments);
+        this.testObject = createTestObject(testedMethod, context, arguments);
         executionParams = initExecutionParams(testedMethod, testObject, db, null);
     }
 
-    private static DynamicObject createTestObject(IOpenMethod testedMethod, Object[] arguments) {
+    private static DynamicObject createTestObject(IOpenMethod testedMethod, IRulesRuntimeContext context, Object[] arguments) {
         // TODO should be created OpenClass like in TestSuiteMethod
         DynamicObject testObj = new DynamicObject();
+        if (context != null) {
+            testObj.setFieldValue(TestMethodHelper.CONTEXT_NAME, context);
+        }
         IMethodSignature signature = testedMethod.getSignature();
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String paramName = signature.getParameterName(i);
@@ -90,7 +93,7 @@ public class TestDescription {
                 try {
                     args[i] = cloner.deepClone(value);
                 } catch (RuntimeException e) {
-                    log.error("Failed to clone an argument '{0}'. Original argument will be used.",
+                    log.error("Failed to clone an argument '{}'. Original argument will be used.",
                         executionParams[i].getName());
                     args[i] = value;
                 }
