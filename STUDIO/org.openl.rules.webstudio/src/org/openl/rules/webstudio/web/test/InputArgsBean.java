@@ -38,6 +38,7 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
 import org.openl.rules.project.IRulesDeploySerializer;
@@ -81,6 +82,7 @@ public class InputArgsBean {
     private UITree currentTreeNode;
     private ParameterWithValueDeclaration[] arguments;
     private ParameterDeclarationTreeNode[] argumentTreeNodes;
+    private IRulesRuntimeContext runtimeContext;
     private String className;
     private Map<String, ComplexParameterTreeNode> complexParameters = new HashMap<>();
     private InputTestCaseType inputTestCaseType = InputTestCaseType.BEAN;
@@ -260,18 +262,27 @@ public class InputArgsBean {
         }
         Object[] parsedArguments = new Object[argumentTreeNodes.length];
         try {
-            for (int i = 0; i < argumentTreeNodes.length; i++) {
-                if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
-                    ObjectMapper objectMapper = configureObjectMapper();
-                    String field = stringStringMap.get(argumentTreeNodes[i].getName());
-                    if (field != null) {
-                        parsedArguments[i] = JsonUtils
-                            .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
-                    } else if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
-                        parsedArguments[i] = JsonUtils.fromJSON(inputTextBean,
-                            argumentTreeNodes[i].getType().getInstanceClass());
-                    }
+            if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
+                ObjectMapper objectMapper = configureObjectMapper();
+                if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
+                    parsedArguments[0] = JsonUtils.fromJSON(inputTextBean,
+                            argumentTreeNodes[0].getType().getInstanceClass());
                 } else {
+                    for (int i = 0; i < argumentTreeNodes.length; i++) {
+                        String field = stringStringMap.get(argumentTreeNodes[i].getName());
+                        if (field != null) {
+                            parsedArguments[i] = JsonUtils
+                                    .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
+                            stringStringMap.remove(argumentTreeNodes[i].getName());
+                        }
+                    }
+                    if (!stringStringMap.isEmpty() && isProvideRuntimeContext()) {
+                        String contextJson = stringStringMap.values().iterator().next();
+                        runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class);
+                    }
+                }
+            } else {
+                for (int i = 0; i < argumentTreeNodes.length; i++) {
                     parsedArguments[i] = argumentTreeNodes[i].getValueForced();
                 }
             }
@@ -518,5 +529,9 @@ public class InputArgsBean {
 
     public void setInputTextBean(String inputTextBean) {
         this.inputTextBean = inputTextBean;
+    }
+
+    public IRulesRuntimeContext getRuntimeContext() {
+        return runtimeContext;
     }
 }
