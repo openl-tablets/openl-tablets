@@ -8,9 +8,9 @@ import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
 public class NotResettableCredentialsProvider extends UsernamePasswordCredentialsProvider {
+
     private final int failedAuthorizationSeconds;
     private final int maxAuthorizationAttempts;
-    private final String repositoryName;
 
     //When authentication attempt was unsuccessful the next authentication attempt does not occur immediately,
     //but after the time specified in the properties.
@@ -18,9 +18,8 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
     private AtomicInteger attemptNumber = new AtomicInteger(0);
 
 
-    NotResettableCredentialsProvider(String username, String password, String repositoryName, int failedAuthorizationSeconds, int maxAuthorizationAttempts) {
+    NotResettableCredentialsProvider(String username, String password, int failedAuthorizationSeconds, int maxAuthorizationAttempts) {
         super(username, password);
-        this.repositoryName = repositoryName;
         this.failedAuthorizationSeconds = failedAuthorizationSeconds;
         this.maxAuthorizationAttempts = maxAuthorizationAttempts;
     }
@@ -37,7 +36,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
                 nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000);
             }
         }
-        throw new InvalidCredentialsException(String.format("Problem communicating with '%s' Git server, will retry automatically in %s", repositoryName, getNextAttemptTime()));
+        throw new InvalidCredentialsException(String.format("Problem communicating with Git server, will retry automatically in %s", getNextAttemptTime()));
     }
 
     void validateAuthorizationState() throws IOException {
@@ -60,7 +59,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
                 }
             } else {
                 // The time for the next try has not yet come
-                throw new IOException(String.format("Problem communicating with '%s' Git server, will retry automatically in %s", repositoryName, getNextAttemptTime()));
+                throw new IOException(String.format("Problem communicating with Git server, will retry automatically in %s", getNextAttemptTime()));
             }
         }
     }

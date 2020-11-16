@@ -497,7 +497,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             writeLock.lock();
 
             if (StringUtils.isNotBlank(login) && StringUtils.isNotBlank(password)) {
-                credentialsProvider = new NotResettableCredentialsProvider(login, password, name, failedAuthenticationSeconds, maxAuthenticationAttempts);
+                credentialsProvider = new NotResettableCredentialsProvider(login, password, failedAuthenticationSeconds, maxAuthenticationAttempts);
             }
 
             File local = new File(localRepositoryPath);
