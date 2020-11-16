@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.joining;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
-import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.stream.IntStream;
@@ -33,9 +32,6 @@ import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
 
 public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements ModuleSpecificType {
-
-    private static final Set<Class<?>> INTERFACES_TO_OBJECT = Collections
-            .unmodifiableSet(new HashSet<>(Arrays.asList(Serializable.class, Comparable.class, Cloneable.class)));
 
     private static final String[] EMPTY_STRING_ARRAY = new String[] {};
     private static final Comparator<String> FIELD_COMPARATOR = (o1, o2) -> {
@@ -658,8 +654,6 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         Class<?> instanceClass = field.getType().getInstanceClass();
                         if (instanceClass.isPrimitive()) {
                             typeName = ClassUtils.primitiveToWrapper(instanceClass).getName();
-                        } else if (INTERFACES_TO_OBJECT.stream().anyMatch(e -> e == instanceClass)) {
-                            typeName = Object.class.getName();
                         } else {
                             typeName = instanceClass.getName();
                         }
