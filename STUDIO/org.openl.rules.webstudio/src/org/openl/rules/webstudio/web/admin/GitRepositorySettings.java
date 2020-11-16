@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.io.File;
+import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.spring.env.DynamicPropertySource;
@@ -21,6 +22,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private int listenerTimerPeriod;
     private int connectionTimeout;
     private String settingsPath;
+    private int failedAuthenticationSeconds;
+    private int maxAuthenticationAttempts;
 
     private final String URI;
     private final String LOGIN;
@@ -35,6 +38,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String CONNECTION_TIMEOUT;
     private final String SETTINGS_PATH;
     private String CONFIG_PREFIX;
+    private final String FAILED_AUTHENTICATION_SECONDS;
+    private final String MAX_AUTHENTICATION_ATTEMPTS;
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
@@ -51,6 +56,8 @@ public class GitRepositorySettings extends RepositorySettings {
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
         SETTINGS_PATH = ".git-settings-path";
+        FAILED_AUTHENTICATION_SECONDS = configPrefix + ".failed-authentication-seconds";
+        MAX_AUTHENTICATION_ATTEMPTS = configPrefix + ".max-authentication-attempts";
 
         load(properties);
     }
@@ -74,6 +81,8 @@ public class GitRepositorySettings extends RepositorySettings {
         connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
         settingsPath = properties.getProperty(SETTINGS_PATH);
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
+        failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("default.failed-authentication-seconds")));
+        maxAuthenticationAttempts = Integer.parseInt(Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("default.max-authentication-attempts")));
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -182,6 +191,22 @@ public class GitRepositorySettings extends RepositorySettings {
         this.newBranchTemplate = newBranchTemplate;
     }
 
+    public int getFailedAuthenticationSeconds() {
+        return failedAuthenticationSeconds;
+    }
+
+    public void setFailedAuthenticationSeconds(int failedAuthenticationSeconds) {
+        this.failedAuthenticationSeconds = failedAuthenticationSeconds;
+    }
+
+    public int getMaxAuthenticationAttempts() {
+        return maxAuthenticationAttempts;
+    }
+
+    public void setMaxAuthenticationAttempts(int maxAuthenticationAttempts) {
+        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
+    }
+
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -212,6 +237,9 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
         propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
+        propertiesHolder.setProperty(FAILED_AUTHENTICATION_SECONDS, failedAuthenticationSeconds);
+        propertiesHolder.setProperty(MAX_AUTHENTICATION_ATTEMPTS, maxAuthenticationAttempts);
+
     }
 
     @Override
@@ -249,6 +277,8 @@ public class GitRepositorySettings extends RepositorySettings {
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setConnectionTimeout(otherSettings.getConnectionTimeout());
+            setFailedAuthenticationSeconds(otherSettings.getFailedAuthenticationSeconds());
+            setMaxAuthenticationAttempts(otherSettings.getMaxAuthenticationAttempts());
             setCommentTemplate(otherSettings.getCommentTemplate());
             setSettingsPath(otherSettings.getSettingsPath());
             setRemoteRepository(otherSettings.isRemoteRepository());
