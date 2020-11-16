@@ -355,17 +355,30 @@
                                      onkeyup="checkCreateOnOpenApiPanel();"/>
                         <h:outputLabel styleClass="required" for="modelsFilePath"
                                        value="Path for Module with Data Types:"/>
-                        <h:inputText id="modelsFilePath" size="35" maxlength="70"
-                                     value="#{repositoryTreeController.modelsPath}"
-                                     onkeyup="checkCreateOnOpenApiPanel();"
-                                     rendered="#{repositoryTreeController.editModelsPath}"/>
-                        <a4j:commandLink id="modelsFilePathLink" styleClass="expandable-link-path"
-                                         render="openAPIModelModule"
-                                         oncomplete="modelsPathIsInput = true;initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
-                                         action="#{repositoryTreeController.enableModelsFilePathInput}"
-                                         rendered="#{not repositoryTreeController.editModelsPath}">
-                            <h:outputText id="modelsFilePathLinkText"/>
-                        </a4j:commandLink>
+                        <h:panelGroup rendered="#{repositoryTreeController.editModelsPath}">
+                            <h:inputText id="modelsFilePath" size="35" maxlength="70"
+                                         value="#{repositoryTreeController.modelsPath}"
+                                         onkeyup="checkCreateOnOpenApiPanel();"/>
+                            <a4j:commandLink title="Reset" style="margin-left: 5px; text-decoration: none;"
+                                             id="resetDataPath"
+                                             render="openAPIModelModule"
+                                             oncomplete="modelsPathIsInput = false; showDefaultDataPath(); checkCreateOnOpenApiPanel();"
+                                             action="#{repositoryTreeController.changeModelsFilePathInputState}">
+                                <img src="#{request.contextPath}/webresource/images/close.gif"
+                                     style="opacity:0.4"/></a4j:commandLink>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not repositoryTreeController.editModelsPath}">
+                            <h:outputText id="modelsFileDisplayPath">
+                            </h:outputText>
+                            <a4j:commandLink title="Edit" styleClass="editable-link"
+                                             id="editDataPath"
+                                             style="margin-left: 5px; text-decoration: none;"
+                                             action="#{repositoryTreeController.changeModelsFilePathInputState}"
+                                             oncomplete="modelsPathIsInput = true; checkCreateOnOpenApiPanel();"
+                                             render="openAPIModelModule">
+                                <img src="#{request.contextPath}/webresource/images/edit.png"
+                                     style="opacity:0.4"/></a4j:commandLink>
+                        </h:panelGroup>
                     </h:panelGrid>
                     <h:panelGrid id="openAPIAlgoModule" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -376,17 +389,31 @@
                                      onkeyup="checkCreateOnOpenApiPanel();"/>
                         <h:outputLabel styleClass="required" for="algorithmsFilePath"
                                        value="Path for Module with Rules:"/>
-                        <h:inputText id="algorithmsFilePath" size="35" maxlength="70"
-                                     rendered="#{repositoryTreeController.editAlgorithmsPath}"
-                                     value="#{repositoryTreeController.algorithmsPath}"
-                                     onkeyup="checkCreateOnOpenApiPanel();"/>
-                        <a4j:commandLink id="algorithmsFilePathLink" styleClass="expandable-link-path"
-                                         render="openAPIAlgoModule"
-                                         oncomplete="algorithmsPathIsInput = true; initOpenAPIPanel(); checkCreateOnOpenApiPanel();"
-                                         action="#{repositoryTreeController.enableAlgorithmsFilePathInput}"
-                                         rendered="#{not repositoryTreeController.editAlgorithmsPath}">
-                            <h:outputText id="algorithmsFilePathLinkText"/>
-                        </a4j:commandLink>
+                        <h:panelGroup rendered="#{repositoryTreeController.editAlgorithmsPath}">
+                            <h:inputText id="algorithmsFilePath" size="35" maxlength="70"
+                                         value="#{repositoryTreeController.algorithmsPath}"
+                                         onkeyup="checkCreateOnOpenApiPanel();"/>
+                            <a4j:commandLink title="Reset" class="editable-link"
+                                             render="openAPIAlgoModule"
+                                             style="margin-left: 5px;text-decoration: none;"
+                                             id="resetAlgoPath"
+                                             action="#{repositoryTreeController.changeAlgorithmsFilePathInputState}"
+                                             oncomplete="algorithmsPathIsInput = false; showDefaultAlgoPath(); checkCreateOnOpenApiPanel();"><img
+                                    src="#{request.contextPath}/webresource/images/close.gif"
+                                    style="opacity:0.4"/></a4j:commandLink>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{not repositoryTreeController.editAlgorithmsPath}">
+                            <h:outputText id="algorithmsFileDisplayPath">
+                            </h:outputText>
+                            <a4j:commandLink title="Edit" class="editable-link"
+                                             id="editAlgoPath"
+                                             render="openAPIAlgoModule"
+                                             style="margin-left: 5px; text-decoration: none;"
+                                             action="#{repositoryTreeController.changeAlgorithmsFilePathInputState}"
+                                             oncomplete="algorithmsPathIsInput = true; checkCreateOnOpenApiPanel();">
+                                <img src="#{request.contextPath}/webresource/images/edit.png"
+                                     style="opacity:0.4"/></a4j:commandLink>
+                        </h:panelGroup>
                     </h:panelGrid>
                     <h:panelGrid id="openApiPanel" columns="2" styleClass="formfields" cellspacing="1"
                                  columnClasses="label,">
@@ -787,12 +814,12 @@
             return $j("#openAPIProjectForm\\:algorithmsFilePath");
         }
 
-        function getOpenAPIModelsPathLink() {
-            return $j("#openAPIProjectForm\\:modelsFilePathLinkText");
+        function getOpenAPIModelsDisplayPath() {
+            return $j("#openAPIProjectForm\\:modelsFileDisplayPath");
         }
 
-        function getOpenAPIAlgorithmsPathLink() {
-            return $j("#openAPIProjectForm\\:algorithmsFilePathLinkText");
+        function getOpenAPIAlgorithmsDisplayPath() {
+            return $j("#openAPIProjectForm\\:algorithmsFileDisplayPath");
         }
 
         function checkCreateOnOpenApiPanel() {
@@ -835,33 +862,24 @@
             }
         }
 
-        const defaultFolder = "rules/";
-        const defaultExtension = ".xlsx";
+        const DEFAULT_MODEL_MODULE_PATH = "#{environment.getProperty('openapi.default.data.module.path')}";
+        const DEFAULT_ALGORITHM_MODULE_PATH = "#{environment.getProperty('openapi.default.algorithm.module.path')}";
+        const DEFAULT_MODEL_MODULE_NAME = "#{environment.getProperty('openapi.default.data.module.name')}";
+        const DEFAULT_ALGORITHM_MODULE_NAME = "#{environment.getProperty('openapi.default.algorithm.module.name')}";
 
         function initOpenAPIPanel() {
-            let modelsName = getOpenAPIModelsModuleName().val();
-            let algorithmsName = getOpenAPIAlgorithmsModuleName().val();
-            getOpenAPIModelsPathLink().text(defaultFolder + modelsName + defaultExtension);
-            getOpenAPIAlgorithmsPathLink().text(defaultFolder + algorithmsName + defaultExtension);
-
-            getOpenAPIModelsModuleName().on("keyup change", onModelsModuleNameChange);
-            getOpenAPIAlgorithmsModuleName().on("keyup change", onAlgorithmsModuleNameChange);
+            getOpenAPIModelsModuleName().val(DEFAULT_MODEL_MODULE_NAME);
+            getOpenAPIAlgorithmsModuleName().val(DEFAULT_ALGORITHM_MODULE_NAME);
+            getOpenAPIModelsDisplayPath().text(DEFAULT_MODEL_MODULE_PATH);
+            getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_ALGORITHM_MODULE_PATH);
         }
 
-        function onModelsModuleNameChange(event) {
-            if (!event) {
-                return;
-            }
-            let moduleName = getOpenAPIModelsModuleName().val();
-            getOpenAPIModelsPathLink().text(defaultFolder + moduleName + defaultExtension);
+        function showDefaultDataPath(){
+            getOpenAPIModelsDisplayPath().text(DEFAULT_MODEL_MODULE_PATH);
         }
 
-        function onAlgorithmsModuleNameChange(event) {
-            if (!event) {
-                return;
-            }
-            let moduleName = getOpenAPIAlgorithmsModuleName().val();
-            getOpenAPIAlgorithmsPathLink().text(defaultFolder + moduleName + defaultExtension);
+        function showDefaultAlgoPath(){
+            getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_ALGORITHM_MODULE_PATH);
         }
 
         //]]>

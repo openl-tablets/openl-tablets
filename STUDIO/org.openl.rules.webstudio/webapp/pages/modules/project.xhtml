@@ -311,27 +311,25 @@
                         <span>OpenAPI</span>
                         <h:panelGroup rendered="#{editable}">
                             <a href="javascript:void(0)" title="Manage OpenAPI" class="editable-link"
-                               onclick="manageOpenAPI()"><img src="#{request.contextPath}/webresource/images/edit.png"
-                                                              style="opacity:0.4"/></a>
+                               onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">
+                                <img src="#{request.contextPath}/webresource/images/import.png"
+                                     height="16" width="16"
+                                     style="opacity:0.4"/></a>
                         </h:panelGroup>
                     </h3>
                     <div class="block-content">
                         <h:panelGroup rendered="#{editable and empty project.openapi.path}">
                             <a class="link-ref" href="javascript:void(0)"
-                               onclick="manageOpenAPI()">Click to add OpenAPI file</a>
+                               onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">Click to Import OpenAPI File</a>
                         </h:panelGroup>
                         <ul class="enum">
+                            <li style="display: #{not empty projectBean.lastOpenAPIFileUploadDate ? 'list-item' :'none'}">
+                                Last Import At:
+                                <h:outputText value="#{projectBean.lastOpenAPIFileUploadDate}"/>
+                            </li>
                             <li style="display: #{not empty project.openapi.path ? 'list-item' :'none'}">
-                                OpenAPI File Path:
+                                OpenAPI File:
                                 <h:outputText value="#{project.openapi.path}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
-                                Module Name for Rules:
-                                <h:outputText value="#{project.openapi.algorithmModuleName}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
-                                Module Name for Data Types:
-                                <h:outputText value="#{project.openapi.modelModuleName}"/>
                             </li>
                         </ul>
                     </div>
@@ -344,6 +342,8 @@
         <ui:include src="/pages/modules/editModule.xhtml"/>
         <ui:include src="/pages/modules/copyModule.xhtml"/>
         <ui:include src="/pages/modules/propertiesFileNamePatternDescription.xhtml"/>
+        <ui:include src="/pages/modules/editOpenAPI.xhtml"/>
+        <ui:include src="/pages/modules/openAPIModulesSettings.xhtml"/>
     </c:if>
 
     <h:panelGroup rendered="#{editable}">
@@ -585,72 +585,6 @@
             </h:form>
         </rich:popupPanel>
 
-        <rich:popupPanel id="manageOpenAPIPopup" minWidth="340" autosized="true">
-            <f:facet name="header">
-                <h:outputText value="Manage OpenAPI"/>
-            </f:facet>
-            <f:facet name="controls">
-                <h:graphicImage value="/images/close.gif" class="close"
-                                onclick="ws.ui.hide('manageOpenAPIPopup')" alt="Close"/>
-            </f:facet>
-            <h:form prependId="false" id="manageOpenAPIForm">
-                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                    <h:outputLabel styleClass="required" for="openAPIPath" value="OpenAPI file path:"/>
-                    <h:inputText id="openAPIPath" size="35" maxlength="70" value="#{projectBean.openAPIPath}"
-                                 validator="#{projectBean.validateOpenAPIPath}"
-                                 onkeyup="checkForm();"/>
-                    <h:outputLabel styleClass="required" for="openAPIAlgorithmModuleName"
-                                   value="Module Name for Rules:"/>
-                    <h:inputText id="openAPIAlgorithmModuleName" size="35" maxlength="70"
-                                 value="#{projectBean.algorithmModuleName}"
-                                 onkeyup="checkForm();"
-                                 validator="#{projectBean.validateAlgorithmModuleName}"/>
-                    <h:outputLabel styleClass="required" for="openAPIModelModuleName"
-                                   value="Module Name for Data Types:"/>
-                    <h:inputText id="openAPIModelModuleName" size="35" maxlength="70"
-                                 value="#{projectBean.modelModuleName}"
-                                 onkeyup="checkForm();"
-                                 validator="#{projectBean.validateModelModuleName}"/>
-                </h:panelGrid>
-                <a4j:outputPanel ajaxRendered="true">
-                    <h:message for="openAPIPath" styleClass="error"/><br/>
-                    <h:message for="openAPIAlgorithmModuleName" styleClass="error"/><br/>
-                    <h:message for="openAPIModelModuleName" styleClass="error"/>
-                </a4j:outputPanel>
-                <footer>
-                    <a4j:commandButton id="editOpenAPIBtn" value="Save" action="#{projectBean.editOpenAPI}"
-                                       styleClass="button-primary"
-                                       oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('manageOpenAPIPopup');ws.nav.reload();}"/>
-                    <a4j:commandButton id="regenerateOpenAPIBtn" value="Save and regenerate"
-                                       action="#{projectBean.tryToRegenerateOpenAPI}"
-                                       styleClass="button-primary"
-                                       oncomplete="if(!#{facesContext.validationFailed}){onOpenAPIEditComplete();}"/>
-                    <input type="button" value="Cancel" onclick="ws.ui.hide('manageOpenAPIPopup');"/>
-                </footer>
-            </h:form>
-
-            <rich:popupPanel id="confirmOpenAPIRegenerationPopup" minWidth="340" autosized="true">
-                <f:facet name="header">
-                    <h:outputText value="OpenAPI file replacement confirmation."/>
-                </f:facet>
-                <f:facet name="controls">
-                    <h:graphicImage value="/images/close.gif" class="close"
-                                    onclick="ws.ui.hide('confirmOpenAPIRegenerationPopup')" alt="Close"/>
-                </f:facet>
-                <h:form prependId="false" id="openAPIRegenerationForm">
-                    <h:panelGrid columns="1" styleClass="formfields">
-                        <h:outputText value="OpenAPI generated files already exist. Do you want to override them?"/>
-                    </h:panelGrid>
-                    <footer>
-                        <a4j:commandButton id="sumbitOpenAPIRegeneration" value="Yes"
-                                           action="#{projectBean.regenerateOpenAPI}"
-                                           styleClass="button-primary"
-                                           oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('confirmOpenAPIRegenerationPopup');ws.nav.reload();}"/>
-                        <input type="button" value="No" onclick="ws.ui.hide('confirmOpenAPIRegenerationPopup');"/>
-                    </footer>
-                </h:form>
-            </rich:popupPanel>
-        </rich:popupPanel>
 
         <script>
             //<![CDATA[
@@ -667,15 +601,6 @@
             var initPropertiesFileNameProcessor = $j("#propertiesFileNameProcessor").val(); // Плохо, очень плохо!!!
 
             var initSupportedVersion = $j("#supportedVersion").val();
-
-            function initOpenAPIValues() {
-                const initialOpenAPIPath = $j("#openAPIPath").val();
-                const initialModelModuleName = $j("#openAPIModelModuleName").val();
-                const initialAlgorithmsModuleName = $j("#openAPIAlgorithmModuleName").val();
-                return {initialOpenAPIPath, initialModelModuleName, initialAlgorithmsModuleName};
-            }
-
-            const {initialOpenAPIPath, initialModelModuleName, initialAlgorithmsModuleName} = initOpenAPIValues();
 
             function onPropertiesFileNameProcessorCheckboxClick() {
                 $j('.propertiesFileNameProcessorSettings').toggle($j("#customPropertiesFileNameProcessor").is(':checked'))
@@ -798,35 +723,6 @@
                 })
             }
 
-            function checkForm(){
-                const editBtn = $j("#editOpenAPIBtn");
-                const editAndRegenerateBtn = $j("#regenerateOpenAPIBtn");
-
-                editBtn.prop("disabled", true);
-                editAndRegenerateBtn.prop("disabled", true);
-                let openAPIPathVal = $j("#openAPIPath").val();
-                let modelModuleVal = $j("#openAPIModelModuleName").val();
-                let algoModuleNameVal = $j("#openAPIAlgorithmModuleName").val();
-                let valueNotChanged = openAPIPathVal === initialOpenAPIPath
-                    && modelModuleVal === initialModelModuleName
-                    && algoModuleNameVal === initialAlgorithmsModuleName;
-                let isEmpty = !openAPIPathVal || !modelModuleVal || !algoModuleNameVal;
-                let isInvalid = valueNotChanged || isEmpty;
-                editBtn.prop("disabled", isInvalid);
-                editAndRegenerateBtn.prop("disabled", isEmpty);
-            }
-
-            function manageOpenAPI() {
-                if (!canOverwriteRevision()) {
-                    return false;
-                }
-                $j("#openAPIPath").val(initialOpenAPIPath);
-                $j("#openAPIModelModuleName").val(initialModelModuleName);
-                $j("#openAPIAlgorithmModuleName").val(initialAlgorithmsModuleName);
-                checkForm();
-                ws.ui.show("manageOpenAPIPopup");
-            }
-
             function initExpandableLink(divWithLink, divToShow) {
                 $j(divWithLink).show();
                 $j(divToShow).hide();
@@ -842,25 +738,6 @@
             function canOverwriteRevision() {
                 var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
                 return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
-            }
-
-            function openAPIGeneratedFilesAreExist() {
-                let filesExist = #{projectBean.openAPIGeneratedFilesExist};
-                return !filesExist || confirm("Do you want to override existing files?")
-            }
-
-            function showRegenerationConfirmationDialog() {
-                if (!canOverwriteRevision()) {
-                    return false;
-                }
-                ws.ui.show("confirmOpenAPIRegenerationPopup");
-            }
-
-            function onOpenAPIEditComplete(validationProceeded) {
-                ws.ui.hide('manageOpenAPIPopup');
-                if (openAPIGeneratedFilesAreExist()) {
-                    showRegenerationConfirmationDialog();
-                }
             }
 
             $j(function () {
