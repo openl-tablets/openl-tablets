@@ -4,14 +4,32 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.*;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.ICastFactory;
+import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.INameSpacedMethodFactory;
+import org.openl.binding.INameSpacedTypeFactory;
+import org.openl.binding.INameSpacedVarFactory;
+import org.openl.binding.INodeBinderFactory;
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
@@ -50,13 +68,11 @@ import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeHelper;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
-import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.method.table.MethodTableNodeBinder;
 import org.openl.rules.property.PropertyTableBinder;
 import org.openl.rules.table.properties.PropertiesLoader;
 import org.openl.rules.tbasic.AlgorithmNodeBinder;
 import org.openl.rules.testmethod.TestMethodNodeBinder;
-import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -329,26 +345,13 @@ public class XlsBinder implements IOpenBinder {
             if (!Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
                 ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
                 if (bindingContext.isExecutionMode()) {
-                    XlsModuleOpenClass openClass = (XlsModuleOpenClass) topNode.getType();
-                    for (IOpenMethod openMethod : openClass.getMethods()) {
-                        removeDebugInformation(openMethod);
-                    }
+                    ((XlsModuleOpenClass) topNode.getType()).removeDebugInformation();
                 }
             }
 
             return topNode;
         } finally {
             OpenLFuzzyUtils.clearCaches();
-        }
-    }
-
-    private void removeDebugInformation(IOpenMethod openMethod) {
-        if (openMethod instanceof OpenMethodDispatcher) {
-            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
-                removeDebugInformation(candidate);
-            }
-        } else if (openMethod instanceof ExecutableRulesMethod) {
-            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
         }
     }
 

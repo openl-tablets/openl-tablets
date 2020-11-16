@@ -20,6 +20,7 @@ import javax.cache.spi.CachingProvider;
 
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -27,6 +28,7 @@ import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
+import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -81,6 +83,7 @@ public final class CompiledOpenClassCache {
         Objects.requireNonNull(deployment, "deploymentDescription cannot be null");
         Objects.requireNonNull(dependencyName, "dependencyName cannot be null");
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
+        CompiledOpenClass compiledOpenClass = null;
         try {
             LazyBinderMethodHandler.removePrebindHandler();
             RulesInstantiationStrategy rulesInstantiationStrategy = RulesInstantiationStrategyFactory
@@ -90,7 +93,7 @@ public final class CompiledOpenClassCache {
                 dependencyManager.getExternalParameters(),
                 Collections.singleton(module));
             rulesInstantiationStrategy.setExternalParameters(parameters);
-            CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
+            compiledOpenClass = rulesInstantiationStrategy.compile();
 
             Key key = new Key(deployment, dependencyName);
             Cache<Key, CompiledOpenClass> cache = getInstance().getModulesCache();
@@ -103,6 +106,12 @@ public final class CompiledOpenClassCache {
         } catch (Exception ex) {
             throw new OpenLCompilationException(String.format("Failed to load dependency '%s'.", dependencyName), ex);
         } finally {
+            if (compiledOpenClass != null) {
+                IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+                if (openClass instanceof XlsModuleOpenClass) {
+                    ((XlsModuleOpenClass) openClass).removeDebugInformation();
+                }
+            }
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);
         }
     }
