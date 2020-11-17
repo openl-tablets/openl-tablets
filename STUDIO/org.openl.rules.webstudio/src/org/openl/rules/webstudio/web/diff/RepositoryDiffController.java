@@ -13,7 +13,6 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
@@ -40,6 +39,7 @@ import org.openl.util.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.springframework.web.context.annotation.RequestScope;
 
 /**
@@ -107,7 +107,6 @@ public class RepositoryDiffController extends AbstractDiffController {
             if (designTimeRepository.getRepository().supports().branches()) {
                 Repository repository = ((BranchRepository) designTimeRepository.getRepository()).forBranch(branch);
                 String folderPath = designTimeRepository.getProject(projectUW.getName()).getFolderPath();
-                    .getFolderPath();
                 versions = new AProject(repository, folderPath).getVersions();
             } else {
                 versions = projectUW.getVersions();
@@ -179,12 +178,10 @@ public class RepositoryDiffController extends AbstractDiffController {
 
             if (designTimeRepository.getRepository().supports().branches()) {
                 projectRepo = designTimeRepository.getProject(branch, projectUW.getName(), selectedVersionRepo);
-                    .getProject(designRepository.getId(), branch, projectUW.getName(), selectedVersionRepo);
             } else {
                 CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
                 try {
                     projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
-                        .getProject(designRepository.getId(), projectUW.getName(), version);
                 } catch (Exception e) {
                     log.warn("Could not get project'{}' of version '{}'",
                         projectUW.getName(),
