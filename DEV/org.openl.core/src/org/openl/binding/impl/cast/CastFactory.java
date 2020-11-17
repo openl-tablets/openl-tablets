@@ -147,7 +147,6 @@ public class CastFactory implements ICastFactory {
         IOpenCast cast1To2 = casts.getCast(openClass1, openClass2);
         IOpenCast cast2To1 = casts.getCast(openClass2, openClass1);
         if (cast1To2 != null && cast2To1 != null) {
-
             if (!cast1To2.isImplicit() && cast2To1.isImplicit()) {
                 return openClass1;
             }
@@ -165,15 +164,6 @@ public class CastFactory implements ICastFactory {
             openClass1 = openClass1.getComponentClass();
             openClass2 = openClass2.getComponentClass();
             dim++;
-        }
-
-        // Use one element to array cast
-        if (openClass1.isArray() && !openClass1.getComponentClass().isArray() && !openClass2.isArray()) {
-            return findClosestClass(openClass1.getComponentClass(), openClass2, casts, methods);
-        }
-        if (openClass2.isArray() && !openClass2.getComponentClass().isArray() && !openClass1.isArray()) {
-            IOpenClass t = findClosestClass(openClass1, openClass2.getComponentClass(), casts, methods);
-            return ComponentTypeArrayOpenClass.createComponentTypeArrayOpenClass(t, 1);
         }
 
         Iterator<IOpenMethod> itr = methods.iterator();
