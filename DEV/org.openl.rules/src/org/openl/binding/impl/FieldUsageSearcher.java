@@ -15,7 +15,6 @@ import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.types.meta.MetaInfoUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -73,14 +72,14 @@ public final class FieldUsageSearcher {
                 StringBuilder classNames = new StringBuilder();
                 if (types.keySet().size() > 1) {
                     for (IOpenClass iOpenClass : types.keySet()) {
-                        classNames.append("\n").append(MetaInfoUtils.openClassToDisplayName(iOpenClass)).append(" in ");
+                        classNames.append("\n").append(MethodUtil.printType(iOpenClass)).append(" in ");
                         classNames.append(configureClassNames(types.get(iOpenClass)));
                     }
                 } else if (types.keySet().size() == 1) {
                     classNames = new StringBuilder(configureClassNames(types.values().iterator().next()));
                 }
                 String prefix = declaredClasses.length > 1 ? "Spreadsheets: " : "Spreadsheet ";
-                description = prefix + classNames + "\n" + MetaInfoUtils.openClassToDisplayName(boundField.getType()) + " " + boundField
+                description = prefix + classNames + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField
                     .getName();
                 syntaxNode = getIdentifierSyntaxNode(syntaxNode);
                 IMetaInfo metaInfo = type.getMetaInfo();
