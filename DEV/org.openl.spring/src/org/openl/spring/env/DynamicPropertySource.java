@@ -59,7 +59,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         return properties;
     }
 
-    private File getFile() {
+    public File getFile() {
         String property = resolver.getProperty(OPENL_HOME);
         return new File(property, appName + ".properties");
     }

@@ -1,8 +1,5 @@
 package org.openl.rules.webstudio.web;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
@@ -44,6 +41,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.web.jsf.FacesContextUtils;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
+
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
@@ -66,6 +66,7 @@ public class CopyBean {
     private String newProjectName;
     private String projectFolder;
     private boolean separateProject = false;
+    private String currentBranchName;
     private String newBranchName;
     private String comment;
     private Boolean copyOldRevisions = Boolean.FALSE;
@@ -83,6 +84,10 @@ public class CopyBean {
 
     public void setCurrentProjectName(String currentProjectName) {
         this.currentProjectName = currentProjectName;
+    }
+    
+    public String getCurrentBranchName() {
+        return currentBranchName;
     }
 
     public String getNewProjectName() {
@@ -215,10 +220,10 @@ public class CopyBean {
 
                 RulesProject copiedProject = new RulesProject(userWorkspace,
                     localRepository,
-                    null,
-                    designRepository,
-                    designProject.getFileData(),
-                    userWorkspace.getProjectsLockEngine());
+                        null,
+                        designRepository,
+                        designProject.getFileData(),
+                        userWorkspace.getProjectsLockEngine());
                 copiedProject.open();
             }
 
@@ -287,7 +292,7 @@ public class CopyBean {
         String newBranchName = StringUtils.trim((String) value);
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         WebStudioUtils.validate(newBranchName.matches("[\\w\\-/]+"),
-            "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
+                "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
@@ -295,9 +300,9 @@ public class CopyBean {
 
             BranchRepository designRepository = (BranchRepository) designTimeRepository.getRepository();
             WebStudioUtils.validate(designRepository.isValidBranchName(newBranchName),
-                "Invalid branch name. It should not contain reserved words or symbols.");
+                    "Invalid branch name. It should not contain reserved words or symbols.");
             WebStudioUtils.validate(!designRepository.branchExists(newBranchName),
-                "Branch " + newBranchName + " already exists.");
+                    "Branch " + newBranchName + " already exists.");
             for (String branch : designRepository.getBranches(null)) {
                 String message = "Can't create the branch '" + newBranchName + "' because the branch '" + branch + "' already exists.\n"
                     + "Explanation: for example a branch 'foo/bar'exists. That branch can be considered as a file 'bar' located in the folder 'foo'.\n"
@@ -324,7 +329,7 @@ public class CopyBean {
 
     private Boolean isSeparateProjectSubmitted(FacesContext context) {
         return (Boolean) ((UIInput) context.getViewRoot().findComponent("copyProjectForm:separateProjectCheckbox"))
-            .getValue();
+                .getValue();
     }
 
     public void setInitProject(String currentProjectName) {
@@ -338,12 +343,14 @@ public class CopyBean {
             separateProject = false;
             errorMessage = null;
             if (isSupportsBranches()) {
+                RulesProject project = getCurrentProject();
+                currentBranchName = project.getBranch();
                 // Remove restricted symbols
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()
-                    .getProperty("repository.design.new-branch-pattern");
+                        .getProperty("repository.design.new-branch-pattern");
                 newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {

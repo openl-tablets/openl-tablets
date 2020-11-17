@@ -1,3 +1,3 @@
-ERROR: Method 'rule()' is already used in modules 'Product-CRV,MTH,STR-01012018-BYR,RUB' and 'Product-CRV,MTH,STR-01012018-01012018-BYR,RUB' with the same version, active status, properties set.
+ERROR: Method 'rule()' is already used in modules 'Product-CRV,MTH,STR-01012018-01012018-BYR,RUB' and 'Product-CRV,MTH,STR-01012018-BYR,RUB' with the same version, active status, properties set.
 ERROR: There can be only one active table.
 ERROR: There can be only one active table.

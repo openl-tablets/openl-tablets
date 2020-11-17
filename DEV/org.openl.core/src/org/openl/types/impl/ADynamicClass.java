@@ -188,4 +188,5 @@ public abstract class ADynamicClass extends AOpenClass {
     public Collection<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
+
 }

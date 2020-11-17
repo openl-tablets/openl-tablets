@@ -75,21 +75,32 @@ public class OpenApiSupportConverter implements ModelConverter {
                     List<Method> methods = SupportConverterHelper.getAllMethods(t);
                     Set<String> methodNames = methods.stream().map(Method::getName).collect(Collectors.toSet());
                     for (Method m : methods) {
-                        Schema<?> prop = schema.getProperties().get(m.getName());
-                        if (prop != null) {
-                            String getterMethod = ClassUtils.getter(prop.getName());
-                            if (!methodNames.contains(getterMethod)) {
+                        if (m.getName().startsWith("get") || m.getName().startsWith("is")) {
+                            Schema<?> prop = schema.getProperties().get(m.getName());
+                            if (prop != null) {
+                                String customPropertyName = null;
                                 XmlAttribute xmlAttributeAnn = m.getAnnotation(XmlAttribute.class);
                                 if (xmlAttributeAnn != null && !"".equals(xmlAttributeAnn.name()) && !"##default"
                                     .equals(xmlAttributeAnn.name())) {
-                                    prop.setName(xmlAttributeAnn.name());
+                                    customPropertyName = xmlAttributeAnn.name();
                                 }
                                 XmlElement xmlElementAnn = m.getAnnotation(XmlElement.class);
                                 if (xmlElementAnn != null && !"".equals(xmlElementAnn.name()) && !"##default"
                                     .equals(xmlElementAnn.name())) {
-                                    prop.setName(xmlElementAnn.name());
+                                    customPropertyName = xmlElementAnn.name();
                                 }
-                                if (xmlElementAnn != null || xmlAttributeAnn != null) {
+                                String getterMethod = ClassUtils.getter(prop.getName());
+                                if (!methodNames.contains(getterMethod) && customPropertyName != null) {
+                                    prop.setName(customPropertyName);
+                                    schema.getProperties().remove(m.getName());
+                                    schema.getProperties().put(prop.getName(), prop);
+                                } else if (customPropertyName == null) {
+                                    if (prop.getName().startsWith("get")) {
+                                        prop.setName(prop.getName().substring(3));
+                                    }
+                                    if (prop.getName().startsWith("is")) {
+                                        prop.setName(prop.getName().substring(2));
+                                    }
                                     schema.getProperties().remove(m.getName());
                                     schema.getProperties().put(prop.getName(), prop);
                                 }

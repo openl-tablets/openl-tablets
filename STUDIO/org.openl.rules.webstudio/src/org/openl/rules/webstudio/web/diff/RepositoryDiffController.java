@@ -13,7 +13,6 @@ import java.util.List;
 import javax.annotation.PreDestroy;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
@@ -39,8 +38,9 @@ import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
-import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * @author Andrey Naumenko
  */
 @ManagedBean
-@SessionScoped
+@RequestScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 

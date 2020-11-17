@@ -317,4 +317,10 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-10708/EPBDS-10708/openapi.json", "/EPBDS-10708/EPBDS-10708_openapi.resp.json");
         client.get("/REST/EPBDS-10708/EPBDS-10708/mainSpr", "/EPBDS-10708/EPBDS-10708_mainSpr.resp.json");
     }
+
+    @Test
+    public void EPBDS_10483() {
+        client.get("/REST/EPBDS-10483/EPBDS-10483/swagger.json", "/EPBDS-10483/EPBDS-10483_swagger.resp.json");
+        client.get("/REST/EPBDS-10483/EPBDS-10483/openapi.json", "/EPBDS-10483/EPBDS-10483_openapi.resp.json");
+    }
 }
