@@ -83,7 +83,9 @@ public class DeploymentController {
         } else {
             DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
             ADeploymentProject project = getSelectedProject();
-            checker.addProjects(project);
+            synchronized (project) {
+                checker.addProjects(project);
+            }
             canDeploy = checker.check();
         }
     }
@@ -92,7 +94,7 @@ public class DeploymentController {
         this.propertyResolver = propertyResolver;
     }
 
-    public synchronized String addItem(String version) {
+    public String addItem(String version) {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
         if (project == null) {
@@ -105,20 +107,22 @@ public class DeploymentController {
             String businessName = projectToAdd.getBusinessName();
             String path = projectToAdd.getRealPath();
 
-            ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
-                repositoryId,
-                businessName,
-                path,
-                projectBranch,
-                new CommonVersionImpl(version)
-            );
-            List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
-
-            project.setProjectDescriptors(newDescriptors);
-        } catch (ProjectException e) {
-            LOG.error("Failed to add project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
-        }
+                ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                        repositoryId,
+                        businessName,
+                        path,
+                        projectBranch,
+                        new CommonVersionImpl(version)
+                );
+                List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
+                synchronized (project) {
+                    items = null;
+                    project.setProjectDescriptors(newDescriptors);
+                }
+            } catch (ProjectException e) {
+                LOG.error("Failed to add project descriptor.", e);
+                WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            }
 
         return null;
     }
@@ -130,7 +134,9 @@ public class DeploymentController {
 
         DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
         ADeploymentProject project = getSelectedProject();
-        checker.addProjects(project);
+        synchronized (project) {
+            checker.addProjects(project);
+        }
         checker.check(items);
     }
 
@@ -145,10 +151,11 @@ public class DeploymentController {
                 WebStudioUtils.addErrorMessage("Deployment configuration isn't selected");
                 return null;
             }
-
-            String comment = deployConfigRepoComments.saveProject(selectedProject.getName());
-            selectedProject.getFileData().setComment(comment);
-            selectedProject.save();
+            synchronized (selectedProject) {
+                String comment = deployConfigRepoComments.saveProject(selectedProject.getName());
+                selectedProject.getFileData().setComment(comment);
+                selectedProject.save();
+            }
             items = null;
         } catch (ProjectException e) {
             LOG.error("Failed to save changes", e);
@@ -187,7 +194,11 @@ public class DeploymentController {
         ADeploymentProject project = getSelectedProject();
 
         try {
-            project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
+            List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, null);
+            synchronized (project) {
+                items = null;
+                project.setProjectDescriptors(newDescriptors);
+            }
         } catch (ProjectException e) {
             LOG.error("Failed to delete project descriptor.", e);
             WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
@@ -220,7 +231,7 @@ public class DeploymentController {
         return null;
     }
 
-    public synchronized List<DeploymentDescriptorItem> getItems() {
+    public List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {
             return null;
@@ -232,17 +243,19 @@ public class DeploymentController {
         }
 
         cachedForProject = projectNameWithVersion;
-        Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
-        items = new ArrayList<>();
+        synchronized (project) {
+            Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
+            items = new ArrayList<>();
 
-        for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(
-                    descriptor.getRepositoryId(),
-                    descriptor.getProjectName(),
-                    descriptor.getPath(),
-                    descriptor.getProjectVersion()
-            );
-            items.add(item);
+            for (ProjectDescriptor descriptor : descriptors) {
+                DeploymentDescriptorItem item = new DeploymentDescriptorItem(
+                        descriptor.getRepositoryId(),
+                        descriptor.getProjectName(),
+                        descriptor.getPath(),
+                        descriptor.getProjectVersion()
+                );
+                items.add(item);
+            }
         }
 
         checkConflicts(items);
@@ -375,7 +388,6 @@ public class DeploymentController {
         if (newItem != null) {
             newDescriptors.add(newItem);
         }
-        items = null;
         return newDescriptors;
     }
 
