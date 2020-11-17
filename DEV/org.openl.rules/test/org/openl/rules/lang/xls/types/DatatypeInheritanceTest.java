@@ -74,7 +74,7 @@ public class DatatypeInheritanceTest extends BaseOpenlBuilderHelper {
         IOpenClass secondLevelChildType = moduleOpenClass.findType("SecondLevelChildType");
 
         IRuntimeEnv env = new SimpleVM().getRuntimeEnv();
-        String childTypeToStringResult = (String) childType.getMethod("toString", new IOpenClass[] {})
+        String childTypeToStringResult = (String) childType.getMethod("toString", IOpenClass.EMPTY)
             .invoke(childType.newInstance(env), new Object[] {}, env);
         assertTrue(childTypeToStringResult.contains("field5"));
         assertTrue(childTypeToStringResult.startsWith("ChildType"));

@@ -543,13 +543,13 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
             sprStructureFieldNames[2] = findNonConflictFieldName(beanFieldNames, "tableDetails");
             beanClassBuilder.addField(sprStructureFieldNames[0],
                 new FieldDescription(String[].class
-                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "RowNames")));
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "RowNames"), false));
             beanClassBuilder.addField(sprStructureFieldNames[1],
                 new FieldDescription(String[].class
-                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "ColumnNames")));
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "ColumnNames"), false));
             beanClassBuilder.addField(sprStructureFieldNames[2],
                 new FieldDescription(String[][].class
-                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "TableDetails")));
+                    .getName(), null, null, null, findNonConflictFieldName(xmlNames, "TableDetails"), false));
             return sprStructureFieldNames;
         }
         return new String[3];
@@ -659,7 +659,12 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                         }
                     }
                     if (!usedXmlNames.containsKey(fieldName) && !usedXmlNames.containsValue(xmlName)) {
-                        FieldDescription fieldDescription = new FieldDescription(typeName, null, null, null, xmlName);
+                        FieldDescription fieldDescription = new FieldDescription(typeName,
+                            null,
+                            null,
+                            null,
+                            xmlName,
+                            false);
                         beanClassBuilder.addField(fieldName, fieldDescription);
                         beanFieldsMap.put(fieldName, fillUsed(used, point, field));
                         usedXmlNames.put(fieldName, xmlName);
@@ -680,7 +685,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                             null,
                             null,
                             null,
-                            newXmlName);
+                            newXmlName,
+                            false);
                         beanClassBuilder.addField(newFieldName, fieldDescription);
                         beanFieldsMap.put(newFieldName, fillUsed(used, point, field));
                         usedXmlNames.put(newFieldName, newXmlName);

@@ -16,6 +16,7 @@ import org.openl.OpenL;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
+import org.openl.rules.lang.xls.types.DatatypeOpenField;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -25,7 +26,6 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
-import org.openl.types.impl.DatatypeOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 /**

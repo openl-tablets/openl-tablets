@@ -3,7 +3,9 @@ package org.openl.rules.java;
 import org.openl.OpenL;
 import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.vm.SimpleVM;
 
 public class OpenLBuilder extends AOpenLBuilder {
 
@@ -59,6 +61,11 @@ public class OpenLBuilder extends AOpenLBuilder {
             org.openl.rules.helpers.CharRange.class.getName(),
             org.openl.rules.helpers.StringRange.class.getName(),
             org.openl.rules.helpers.DateRange.class.getName() };
+
+    @Override
+    protected SimpleVM createVM() {
+        return new SimpleRulesVM();
+    }
 
     @Override
     public OpenL build(String category) {
@@ -123,32 +130,32 @@ public class OpenLBuilder extends AOpenLBuilder {
 
         TypeFactoryConfiguration types = op.createTypes();
 
-        NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
-        typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
+        NameSpacedTypeConfiguration typeLibrary = new NameSpacedTypeConfiguration();
+        typeLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
-        JavaImportTypeConfiguration javaimport1 = new JavaImportTypeConfiguration();
-        javaimport1.addPackageImport("org.openl.rules.helpers");
-        typelibrary.addConfiguration(javaimport1);
+        JavaImportTypeConfiguration javaImport1 = new JavaImportTypeConfiguration();
+        javaImport1.addPackageImport("org.openl.rules.helpers");
+        typeLibrary.addConfiguration(javaImport1);
 
-        JavaImportTypeConfiguration javaimport2 = new JavaImportTypeConfiguration();
-        javaimport1.addPackageImport("org.openl.meta");
-        typelibrary.addConfiguration(javaimport2);
+        JavaImportTypeConfiguration javaImport2 = new JavaImportTypeConfiguration();
+        javaImport1.addPackageImport("org.openl.meta");
+        typeLibrary.addConfiguration(javaImport2);
 
-        JavaImportTypeConfiguration javaimport3 = new JavaImportTypeConfiguration();
-        javaimport1.addPackageImport("org.openl.rules.helpers.scope");
-        typelibrary.addConfiguration(javaimport3);
+        JavaImportTypeConfiguration javaImport3 = new JavaImportTypeConfiguration();
+        javaImport1.addPackageImport("org.openl.rules.helpers.scope");
+        typeLibrary.addConfiguration(javaImport3);
 
         JavaImportTypeConfiguration javaimport4 = new JavaImportTypeConfiguration();
-        javaimport1.addPackageImport("org.openl.rules.calc");
-        javaimport1.addPackageImport("org.openl.rules.calc.result");
-        typelibrary.addConfiguration(javaimport4);
+        javaImport1.addPackageImport("org.openl.rules.calc");
+        javaImport1.addPackageImport("org.openl.rules.calc.result");
+        typeLibrary.addConfiguration(javaimport4);
 
-        types.addConfiguredTypeLibrary(typelibrary);
+        types.addConfiguredTypeLibrary(typeLibrary);
 
         /*
          *
-         * <types> <typelibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
-         * <javaimport all="org.openl.rules.helpers"/> </typelibrary> </types>
+         * <types> <typeLibrary namespace="org.openl.this"> <javaimport all="${org.openl.rules.java.project.imports}"/>
+         * <javaimport all="org.openl.rules.helpers"/> </typeLibrary> </types>
          *
          */
 

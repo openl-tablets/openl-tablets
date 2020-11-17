@@ -1,8 +1,11 @@
-package org.openl.conf;
+package org.openl.rules.lang.xls;
 
 import org.openl.OpenL;
+import org.openl.conf.*;
 import org.openl.conf.TypeCastFactory.JavaCastComponent;
+import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
+import org.openl.vm.SimpleVM;
 
 public class OpenLBuilderImpl extends AOpenLBuilder {
 
@@ -16,11 +19,16 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
     private String[] libraries = new String[] {};
 
     @Override
+    protected SimpleVM createVM() {
+        return new SimpleRulesVM();
+    }
+
+    @Override
     public OpenL build(String category) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
-        ClassLoader userEnvitonmentContextClassLoader = getUserEnvironmentContext().getUserClassLoader();
+        ClassLoader userEnvironmentContextClassLoader = getUserEnvironmentContext().getUserClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(userEnvitonmentContextClassLoader);
+            Thread.currentThread().setContextClassLoader(userEnvironmentContextClassLoader);
             OpenL.getInstance(extendsCategory, getUserEnvironmentContext());
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
@@ -47,7 +55,7 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
             TypeCastFactory typeCastFactory = op.createTypecast();
 
             for (String libraryName : this.libraries) {
-                JavaLibraryConfiguration javalib = new JavaLibraryConfiguration(libraryName);
+                JavaLibraryConfiguration javaLib = new JavaLibraryConfiguration(libraryName);
 
                 try {
                     Class<?> libraryClass = getUserEnvironmentContext().getUserClassLoader().loadClass(libraryName);
@@ -56,11 +64,11 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                             operationNamespaceLibrary = new NameSpacedLibraryConfiguration();
                             operationNamespaceLibrary.setNamespace(ISyntaxConstants.OPERATORS_NAMESPACE);
                         }
-                        operationNamespaceLibrary.addJavalib(javalib);
+                        operationNamespaceLibrary.addJavalib(javaLib);
                     }
                 } catch (ReflectiveOperationException ignore) {
                 }
-                thisNamespaceLibrary.addJavalib(javalib);
+                thisNamespaceLibrary.addJavalib(javaLib);
 
                 JavaCastComponent javaCastComponent = typeCastFactory.new JavaCastComponent(libraryName,
                     org.openl.binding.impl.cast.CastFactory.class.getName());
@@ -82,8 +90,8 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
 
         if (packageImports != null && packageImports.length > 0 || classImports != null && classImports.length > 0) {
             TypeFactoryConfiguration types = op.createTypes();
-            NameSpacedTypeConfiguration typelibrary = new NameSpacedTypeConfiguration();
-            typelibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
+            NameSpacedTypeConfiguration typeLibrary = new NameSpacedTypeConfiguration();
+            typeLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
             JavaImportTypeConfiguration javaImportTypeConfiguration = new JavaImportTypeConfiguration();
             if (packageImports != null) {
                 for (String packageName : packageImports) {
@@ -91,14 +99,14 @@ public class OpenLBuilderImpl extends AOpenLBuilder {
                 }
             }
             if (classImports != null) {
-                for (String classeName : classImports) {
-                    javaImportTypeConfiguration.addClassImport(classeName);
+                for (String className : classImports) {
+                    javaImportTypeConfiguration.addClassImport(className);
                 }
             }
 
-            typelibrary.addConfiguration(javaImportTypeConfiguration);
+            typeLibrary.addConfiguration(javaImportTypeConfiguration);
 
-            types.addConfiguredTypeLibrary(typelibrary);
+            types.addConfiguredTypeLibrary(typeLibrary);
         }
 
         /*

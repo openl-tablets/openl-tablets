@@ -9,12 +9,12 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.MethodUtil;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
+import org.openl.rules.lang.xls.types.DatatypeOpenConstructor;
 import org.openl.rules.types.IUriMember;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DatatypeOpenConstructor;
 import org.openl.types.impl.ExecutableMethod;
 import org.openl.types.impl.MethodDelegator;
 import org.openl.types.java.JavaOpenClass;
@@ -34,9 +34,9 @@ public final class MethodUsagesSearcher {
     }
 
     public static class MethodUsage implements NodeUsage {
-        private int startPos;
-        private int endPos;
-        private IOpenMethod method;
+        private final int startPos;
+        private final int endPos;
+        private final IOpenMethod method;
 
         public MethodUsage(int startPos, int endPos, IOpenMethod method) {
             this.startPos = startPos;

@@ -2,12 +2,15 @@ package org.openl.generated.epbds6830;
 
 import java.util.Objects;
 
+import javax.xml.bind.annotation.XmlTransient;
+
 public class BeanA {
     private int a = 1;
     protected int B = 2;
     private int aa = 4;
     protected int aB = 8;
-    protected int Ba = 16;
+    @XmlTransient
+    protected transient int Ba = 16;
     protected int xB = 64;
 
     public BeanA() {

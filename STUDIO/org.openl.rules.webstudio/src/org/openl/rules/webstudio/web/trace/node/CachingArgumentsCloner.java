@@ -27,9 +27,9 @@ import com.rits.cloning.IFastCloner;
  * it's not changed since that.
  */
 public class CachingArgumentsCloner extends OpenLCloner {
-    private static ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
+    private static final ThreadLocal<CachingArgumentsCloner> instance = new ThreadLocal<>();
 
-    private Map<Object, Object> cache = new HashMap<>();
+    private final Map<Object, Object> cache = new HashMap<>();
 
     private CachingArgumentsCloner() {
         dontCloneInstanceOf(StubSpreadSheetResult.class);

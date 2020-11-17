@@ -1,9 +1,10 @@
-package org.openl.types.impl;
+package org.openl.rules.lang.xls.types;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.AOpenField;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -15,16 +16,37 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class DatatypeOpenField extends AOpenField {
 
-    private final IOpenClass declaringClass;
     private volatile byte flag;
     private volatile Method getter;
     private volatile Method setter;
+    private final boolean isTransient;
+    private final IOpenClass declaringClass;
     private final String contextProperty;
 
-    public DatatypeOpenField(IOpenClass declaringClass, String name, IOpenClass type, String contextProperty) {
+    public DatatypeOpenField(IOpenClass declaringClass,
+            String name,
+            IOpenClass type,
+            String contextProperty,
+            boolean isTransient) {
         super(name, type);
         this.declaringClass = declaringClass;
         this.contextProperty = contextProperty;
+        this.isTransient = isTransient;
+    }
+
+    @Override
+    public IOpenClass getDeclaringClass() {
+        return declaringClass;
+    }
+
+    @Override
+    public boolean isContextProperty() {
+        return contextProperty != null;
+    }
+
+    @Override
+    public String getContextProperty() {
+        return contextProperty;
     }
 
     private void initMethods() {
@@ -74,10 +96,8 @@ public class DatatypeOpenField extends AOpenField {
         if (target == null) {
             return null;
         }
-
-        initMethods();
         try {
-            Object res = getter.invoke(target);
+            Object res = getGetter().invoke(target);
             return res != null ? res : getType().nullObject();
         } catch (IllegalAccessException | InvocationTargetException e) {
             throw new RuntimeException(e);
@@ -85,8 +105,8 @@ public class DatatypeOpenField extends AOpenField {
     }
 
     @Override
-    public IOpenClass getDeclaringClass() {
-        return declaringClass;
+    public boolean isTransient() {
+        return isTransient;
     }
 
     @Override
@@ -105,15 +125,5 @@ public class DatatypeOpenField extends AOpenField {
                 throw new RuntimeException(e);
             }
         }
-    }
-
-    @Override
-    public boolean isContextProperty() {
-        return contextProperty != null;
-    }
-
-    @Override
-    public String getContextProperty() {
-        return contextProperty;
     }
 }
