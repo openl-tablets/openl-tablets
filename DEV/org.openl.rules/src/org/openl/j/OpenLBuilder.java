@@ -34,8 +34,6 @@ public class OpenLBuilder extends AOpenLBuilder {
                 org.openl.binding.impl.BusinessIntNodeBinder.class.getName(),
                 "array.init",
                 org.openl.binding.impl.ArrayInitializationBinder.class.getName(),
-                "module.top",
-                org.openl.binding.impl.module.ModuleNodeBinder.class.getName(),
                 "method.header",
                 org.openl.binding.impl.MethodHeaderNodeBinder.class.getName(),
                 "method.parameters",

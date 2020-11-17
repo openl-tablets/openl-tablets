@@ -81,23 +81,6 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, syntaxNode.getType());
     }
 
-    public void _testModule(String src, final String type) throws OpenLConfigurationException {
-
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
-
-        SyntaxNodeException[] error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
-
-        ISyntaxNode bn = search(pc.getTopNode(), type);
-
-        Assert.assertNotNull(bn);
-
-        Assert.assertEquals(type, bn.getType());
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenLConfigurationException {
 
@@ -275,10 +258,6 @@ public class ParserTest extends TestCase {
         ILocation loc = pc.getTopNode().getSourceLocation();
         Assert.assertEquals(1, loc.getStart().getAbsolutePosition(new TextInfo(test1)));
 
-    }
-
-    public void testMethod() {
-        _testModule("int x(){return 5;}", "module.top");
     }
 
     public void testMethodHeader() {
