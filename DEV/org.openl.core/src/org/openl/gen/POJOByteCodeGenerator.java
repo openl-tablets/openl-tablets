@@ -32,7 +32,7 @@ import org.openl.util.JAXBUtils;
  * @author Yury Molchan, Marat Kamalov
  */
 public class POJOByteCodeGenerator {
-    private static final Set<String> INTERFACES_TO_OBJECT = Collections.unmodifiableSet(
+    private static final Set<String> INTERFACES_AS_OBJECT = Collections.unmodifiableSet(
         new HashSet<>(Arrays.asList(Type.getDescriptor(Serializable.class), Type.getDescriptor(Cloneable.class))));
 
     public final static TypeDescription OBJECT_TYPE_DESCRIPTION = new TypeDescription(Object.class.getName());
@@ -53,7 +53,7 @@ public class POJOByteCodeGenerator {
             while (dim < fieldTypeName.length() && fieldTypeName.charAt(dim) == '[') {
                 dim++;
             }
-            if (INTERFACES_TO_OBJECT.contains(fieldTypeName.substring(dim))) {
+            if (INTERFACES_AS_OBJECT.contains(fieldTypeName.substring(dim))) {
                 String newTypeName = dim > 0 ? (IntStream.range(0, dim)
                     .mapToObj(e -> "[")
                     .collect(joining()) + "L" + Object.class.getName() + ";") : Object.class.getName();

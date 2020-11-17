@@ -384,7 +384,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaClassClassField implements IOpenField {
-        private Class<?> instanceClass;
+        private final Class<?> instanceClass;
 
         public JavaClassClassField(Class<?> instanceClass) {
             this.instanceClass = instanceClass;

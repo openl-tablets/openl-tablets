@@ -106,10 +106,10 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     @Override
     public IOpenClass[] getDeclaredClasses() {
-        List<IOpenClass> declaredClasses = new ArrayList();
+        List<IOpenClass> declaredClasses = new ArrayList<>();
         getFieldDeclaredClasses(field1, declaredClasses);
         getFieldDeclaredClasses(field2, declaredClasses);
-        return declaredClasses.toArray(new IOpenClass[] {});
+        return declaredClasses.toArray(IOpenClass.EMPTY);
     }
 
     private static void getFieldDeclaredClasses(IOpenField field, List<IOpenClass> declaredClasses) {
@@ -119,9 +119,6 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         if (field instanceof IOriginalDeclaredClassesOpenField) {
             IOpenClass[] fieldDeclaredClasses = ((IOriginalDeclaredClassesOpenField) field).getDeclaredClasses();
             declaredClasses.addAll(Arrays.asList(fieldDeclaredClasses));
-        } else if (field instanceof CustomSpreadsheetResultField && ((CustomSpreadsheetResultField) field).field != null) {
-            CustomSpreadsheetResultField customSpreadsheetResultField = (CustomSpreadsheetResultField) field;
-            declaredClasses.add(customSpreadsheetResultField.field.getDeclaringClass());
         } else {
             declaredClasses.add(field.getDeclaringClass());
         }
