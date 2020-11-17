@@ -22,22 +22,6 @@ public class ShowMessageBean {
     public List<OpenLMessage> getMessage() {
         String type = WebStudioUtils.getRequestParameter("type");
         String value = WebStudioUtils.getRequestParameter("summary");
-        final int openLMessageId;
-        try {
-            openLMessageId = Integer.parseInt(value);
-        } catch (Exception ignored) {
-            return Collections.emptyList();
-        }
-
-        Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
-        OpenLMessage openLMessage = moduleMessages.stream()
-            .filter(m -> m.getId() == openLMessageId)
-            .findFirst()
-            .orElse(null);
-
-        if (openLMessage == null) {
-            return Collections.emptyList();
-        }
 
         Severity severity;
         if (StringUtils.isNotBlank(type)) {
@@ -46,9 +30,22 @@ public class ShowMessageBean {
             severity = Severity.INFO;
         }
 
-        OpenLMessage message = new OpenLMessage(openLMessage.getSummary(), severity);
+        final int openLMessageId;
+        try {
+            openLMessageId = Integer.parseInt(value);
+        } catch (Exception ignored) {
+            return Collections.emptyList();
+        }
 
-        return Collections.singletonList(message);
+        Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
+        List<OpenLMessage> openLMessage = moduleMessages.stream()
+            .filter(m -> m.getId() == openLMessageId)
+            .findFirst()
+            .map(x -> new OpenLMessage(x.getSummary(), severity))
+            .map(Collections::singletonList)
+            .orElse(Collections.emptyList());
+
+        return openLMessage;
     }
 
 }
