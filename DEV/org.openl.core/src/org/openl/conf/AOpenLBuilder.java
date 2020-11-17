@@ -17,6 +17,10 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
     private final Logger log = LoggerFactory.getLogger(AOpenLBuilder.class);
 
+    protected SimpleVM createVM() {
+        return new SimpleVM();
+    }
+
     @Override
     public OpenL build(String openl) {
         OpenL op = new OpenL();
@@ -31,7 +35,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             op.setParser(new Parser(conf));
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
-            op.setVm(new SimpleVM());
+            op.setVm(createVM());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }

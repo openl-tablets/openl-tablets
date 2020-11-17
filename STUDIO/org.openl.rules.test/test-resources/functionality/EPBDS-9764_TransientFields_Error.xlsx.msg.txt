@@ -1,0 +1,15 @@
+WARN: Field 'field2' has been already defined in class 'MyType1SuperType'.
+WARN: Field 'field1' has been already defined in class 'MyType2SuperClass'.
+WARN: Field 'field1' has been already defined in class 'MyType3SuperClass'.
+ERROR: Field 'field2' has already been defined.
+ERROR: Field 'field4' has already been defined.
+ERROR: Field 'field2' has already been defined.
+ERROR: Field 'field4' has already been defined.
+ERROR: Field 'field2' has already been defined.
+ERROR: Field 'field1' has already been defined.
+ERROR: Field 'field2' has already been defined.
+ERROR: Field 'field1' has already been defined.
+ERROR: Field 'field1' has already been defined.
+ERROR: Field 'field2' has already been defined.
+ERROR: Field 'field1' has already been defined.
+ERROR: Field 'field2' has already been defined.

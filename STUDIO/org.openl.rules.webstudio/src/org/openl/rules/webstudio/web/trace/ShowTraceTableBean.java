@@ -110,7 +110,7 @@ public class ShowTraceTableBean {
         ParameterWithValueDeclaration[] paramDescriptions = new ParameterWithValueDeclaration[parameters.length];
         for (int i = 0; i < paramDescriptions.length; i++) {
             paramDescriptions[i] = new ParameterWithValueDeclaration(tracedMethod.getSignature().getParameterName(i),
-                parameters[i]);
+                parameters[i], tracedMethod.getSignature().getParameterType(i));
         }
         return paramDescriptions;
     }

@@ -10,6 +10,7 @@ public class FieldDescription {
     private Object defaultValue;
     private String contextPropertyName;
     private String xmlName;
+    private boolean isTransient;
 
     public FieldDescription(String typeName) {
         this.typeDescription = new TypeDescription(typeName);
@@ -18,20 +19,23 @@ public class FieldDescription {
     public FieldDescription(String typeName,
             Object defaultValue,
             String defaultValueAsString,
-            String contextPropertyName) {
-        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null);
+            String contextPropertyName,
+            boolean isTransient) {
+        this(typeName, defaultValue, defaultValueAsString, contextPropertyName, null, isTransient);
     }
 
     public FieldDescription(String typeName,
             Object defaultValue,
             String defaultValueAsString,
             String contextPropertyName,
-            String xmlName) {
+            String xmlName,
+            boolean isTransient) {
         this(typeName);
         this.defaultValueAsString = defaultValueAsString;
         this.defaultValue = defaultValue;
         this.contextPropertyName = contextPropertyName;
         this.xmlName = xmlName;
+        this.isTransient = isTransient;
     }
 
     public String getTypeName() {
@@ -60,6 +64,10 @@ public class FieldDescription {
 
     public String getXmlName() {
         return xmlName;
+    }
+
+    public boolean isTransient() {
+        return isTransient;
     }
 
     @Override
