@@ -247,14 +247,15 @@ public class DeploymentController {
             Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
             items = new ArrayList<>();
 
-        for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(
-                    descriptor.getRepositoryId(),
-                    descriptor.getProjectName(),
-                    descriptor.getPath(),
-                    descriptor.getProjectVersion()
-            );
-            items.add(item);
+            for (ProjectDescriptor descriptor : descriptors) {
+                DeploymentDescriptorItem item = new DeploymentDescriptorItem(
+                        descriptor.getRepositoryId(),
+                        descriptor.getProjectName(),
+                        descriptor.getPath(),
+                        descriptor.getProjectVersion()
+                );
+                items.add(item);
+            }
         }
 
         checkConflicts(items);
