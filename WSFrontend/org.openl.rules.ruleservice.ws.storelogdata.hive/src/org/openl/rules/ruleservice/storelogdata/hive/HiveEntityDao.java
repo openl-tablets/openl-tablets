@@ -9,6 +9,7 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
@@ -18,7 +19,7 @@ import java.util.stream.Collectors;
 
 public class HiveEntityDao {
     private final PreparedStatement preparedStatement;
-    private final Field[] sortedFields;
+    private final ArrayList<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
         byte.class,
         Short.class,
@@ -44,14 +45,16 @@ public class HiveEntityDao {
                                                                       UnsupportedFieldTypeException {
         checkTypes(entityClass);
         preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
-        sortedFields = entityClass.getDeclaredFields();
-        Arrays.sort(sortedFields, Comparator.comparing(Field::getName));
-        Arrays.stream(sortedFields).forEach(f -> f.setAccessible(true));
+        sortedFields = Arrays.stream(entityClass.getDeclaredFields())
+                .filter(f -> !f.isSynthetic())
+                .sorted(Comparator.comparing(Field::getName))
+                .peek(f -> f.setAccessible(true))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     private void checkTypes(Class<?> entityClass) throws UnsupportedFieldTypeException {
         for (Field field : entityClass.getDeclaredFields()) {
-            if (!supportedTypes.contains(field.getType())) {
+            if (!field.isSynthetic() && !supportedTypes.contains(field.getType())) {
                 throw new UnsupportedFieldTypeException(String.format(
                     "Entity '%s' contains field '%s' with unsupported type '%s'. Allowed types are '%s'.",
                     entityClass.getTypeName(),
@@ -63,8 +66,8 @@ public class HiveEntityDao {
     }
 
     public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
-        for (int index = 0; index < sortedFields.length; index++) {
-            setValue(index + 1, sortedFields[index], entity);
+        for (int index = 0; index < sortedFields.size(); index++) {
+            setValue(index + 1, sortedFields.get(index), entity);
         }
         preparedStatement.execute();
     }

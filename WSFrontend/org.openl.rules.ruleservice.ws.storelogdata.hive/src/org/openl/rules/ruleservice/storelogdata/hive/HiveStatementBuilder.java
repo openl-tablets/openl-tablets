@@ -40,12 +40,16 @@ public final class HiveStatementBuilder {
 
     private String getFields() {
         return Arrays.stream(entityClass.getDeclaredFields())
+            .filter(f -> !f.isSynthetic())
             .map(f -> f.getName().toLowerCase())
             .sorted()
             .collect(Collectors.joining(","));
     }
 
     private String getParameters() {
-        return Arrays.stream(entityClass.getDeclaredFields()).map(f -> "?").collect(Collectors.joining(","));
+        return Arrays.stream(entityClass.getDeclaredFields())
+            .filter(f -> !f.isSynthetic())
+            .map(f -> "?")
+            .collect(Collectors.joining(","));
     }
 }
