@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.binding.MethodUtil;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -22,7 +23,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
     // Typically too few header cells have any meta info. Header may not contain any cell at all.
     // It's more convenient to store existing header meta info in the Map.
     // Remove it in the future: retrieve header meta info from compiled data.
-    private Map<CellKey, CellMetaInfo> headerMetaInfo = new HashMap<>();
+    private final Map<CellKey, CellMetaInfo> headerMetaInfo = new HashMap<>();
 
     public SpreadsheetMetaInfoReader(SpreadsheetBoundNode boundNode) {
         super(boundNode);
@@ -58,7 +59,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 nodeUsages = new ArrayList<>();
                 int from = stringValue.indexOf('=');
                 if (from >= 0 && type != null) {
-                    String description = "Cell type: " + MetaInfoUtils.openClassToDisplayName(type);
+                    String description = "Cell type: " + MethodUtil.printType(type);
                     nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
                 }
 

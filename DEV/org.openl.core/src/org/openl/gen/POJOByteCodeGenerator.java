@@ -1,13 +1,17 @@
 package org.openl.gen;
 
-import static java.util.stream.Collectors.joining;
-
-import java.io.Serializable;
 import java.lang.reflect.Array;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.function.Consumer;
-import java.util.stream.IntStream;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -32,9 +36,6 @@ import org.openl.util.JAXBUtils;
  * @author Yury Molchan, Marat Kamalov
  */
 public class POJOByteCodeGenerator {
-    private static final Set<String> INTERFACES_AS_OBJECT = Collections.unmodifiableSet(
-        new HashSet<>(Arrays.asList(Type.getDescriptor(Serializable.class), Type.getDescriptor(Cloneable.class))));
-
     public final static TypeDescription OBJECT_TYPE_DESCRIPTION = new TypeDescription(Object.class.getName());
 
     private final String beanNameWithPackage;
@@ -44,32 +45,6 @@ public class POJOByteCodeGenerator {
     private final List<BeanByteCodeWriter> writers;
     private final boolean publicFields;
     private final Set<Consumer<ClassWriter>> typeWriters;
-
-    private static Map<String, FieldDescription> processFields(Map<String, FieldDescription> fields) {
-        Map<String, FieldDescription> ret = new LinkedHashMap<>(fields != null ? fields : Collections.emptyMap());
-        for (Map.Entry<String, FieldDescription> entry : ret.entrySet()) {
-            String fieldTypeName = entry.getValue().getTypeDescriptor();
-            int dim = 0;
-            while (dim < fieldTypeName.length() && fieldTypeName.charAt(dim) == '[') {
-                dim++;
-            }
-            if (INTERFACES_AS_OBJECT.contains(fieldTypeName.substring(dim))) {
-                String newTypeName = dim > 0 ? (IntStream.range(0, dim)
-                    .mapToObj(e -> "[")
-                    .collect(joining()) + "L" + Object.class.getName() + ";") : Object.class.getName();
-                FieldDescription fd = entry.getValue();
-                entry.setValue(new FieldDescription(newTypeName,
-                    fd.getDefaultValue(),
-                    fd.getDefaultValueAsString(),
-                    fd.getContextPropertyName(),
-                    fd.getXmlName(),
-                    fd.isTransient(),
-                    fd.getFieldVisitorWriters(),
-                    fd.getGetterVisitorWriters()));
-            }
-        }
-        return ret;
-    }
 
     /**
      *
@@ -87,9 +62,9 @@ public class POJOByteCodeGenerator {
             boolean equalsHashCodeToStringMethods,
             boolean publicFields) {
 
-        this.fields = processFields(beanFields);
+        this.fields = beanFields != null ? beanFields : Collections.emptyMap();
         this.parentType = parentType;
-        this.parentFields = processFields(parentFields);
+        this.parentFields = parentFields != null ? parentFields : Collections.emptyMap();
         this.beanNameWithPackage = beanName.replace('.', '/');
         this.publicFields = publicFields;
         this.typeWriters = typeWriters != null ? new LinkedHashSet<>(typeWriters) : Collections.emptySet();

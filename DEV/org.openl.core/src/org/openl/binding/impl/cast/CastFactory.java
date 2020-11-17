@@ -1,15 +1,10 @@
 package org.openl.binding.impl.cast;
 
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
-import java.util.ArrayDeque;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.Queue;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Predicate;
 
 import org.openl.binding.ICastFactory;
 import org.openl.binding.IMethodFactory;
@@ -36,6 +31,14 @@ import org.slf4j.LoggerFactory;
  * @author snshor, Yury Molchan, Marat Kamalov
  */
 public class CastFactory implements ICastFactory {
+    private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Collections
+        .unmodifiableSet(new HashSet<>(Arrays.asList(Serializable.class, Cloneable.class, Comparable.class)));
+
+    private static Predicate<IOpenClass> isNotIgnorableInParentSearch = (
+            e) -> e != null && e.getInstanceClass() != null && !INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS
+                .contains(e.getInstanceClass()) && e.getInstanceClass().getPackage() != null && !Objects
+                    .equals(e.getInstanceClass().getPackage().getName(), "java.lang.constant");
+
     private static final Logger LOG = LoggerFactory.getLogger(CastFactory.class);
 
     public static final int NO_CAST_DISTANCE = 1;
@@ -358,6 +361,7 @@ public class CastFactory implements ICastFactory {
                 oc.superClasses()
                     .stream()
                     .filter(IOpenClass::isInterface)
+                    .filter(isNotIgnorableInParentSearch)
                     .filter(e -> !interfaces.contains(e))
                     .forEach(e -> {
                         interfaces.add(e);
@@ -370,7 +374,11 @@ public class CastFactory implements ICastFactory {
         if (openClass2.isInterface()) {
             queue.add(openClass2);
         }
-        openClass2.superClasses().stream().filter(IOpenClass::isInterface).forEach(queue::add);
+        openClass2.superClasses()
+            .stream()
+            .filter(IOpenClass::isInterface)
+            .filter(isNotIgnorableInParentSearch)
+            .forEach(queue::add);
         while (!queue.isEmpty()) {
             Set<IOpenClass> queue1 = new LinkedHashSet<>();
             for (IOpenClass oc : queue) {
@@ -380,6 +388,7 @@ public class CastFactory implements ICastFactory {
                 oc.superClasses()
                     .stream()
                     .filter(IOpenClass::isInterface)
+                    .filter(isNotIgnorableInParentSearch)
                     .filter(e -> !interfaces.contains(e))
                     .forEach(queue1::add);
             }
