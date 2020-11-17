@@ -14,10 +14,9 @@ import org.openl.util.FileUtils;
 import org.richfaces.component.UITree;
 import org.richfaces.event.FileUploadEvent;
 import org.richfaces.model.UploadedFile;
-import org.springframework.web.context.annotation.RequestScope;
 
 @ManagedBean
-@RequestScope
+@SessionScoped
 public class UploadExcelDiffController extends ExcelDiffController {
 
     private List<UploadedFile> uploadedFiles = new ArrayList<>();
