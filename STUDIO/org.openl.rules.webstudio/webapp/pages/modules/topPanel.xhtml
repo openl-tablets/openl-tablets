@@ -39,8 +39,10 @@
     </h:panelGroup>
 
     <h:panelGroup rendered="#{!empty rProject and copyBean.canCreate}">
-        <ui:include src="/pages/modules/copyProject.xhtml" />
-        <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml" />
+        <ui:include src="/pages/modules/copyProject.xhtml"/>
+        <f:subview id="selectFolderSubview">
+            <ui:include src="/pages/modules/repository/modal/selectFolder.xhtml"/>
+        </f:subview>
     </h:panelGroup>
 
     <h:panelGroup rendered="#{studio.canMerge}">
