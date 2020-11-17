@@ -30,7 +30,6 @@ import org.openl.binding.INameSpacedTypeFactory;
 import org.openl.binding.INameSpacedVarFactory;
 import org.openl.binding.INodeBinderFactory;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
@@ -338,8 +337,6 @@ public class XlsBinder implements IOpenBinder {
             }
 
             ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
-
-            processErrors(moduleOpenClass.getErrors(), bindingContext);
 
             if (!Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
                 ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
@@ -808,20 +805,6 @@ public class XlsBinder implements IOpenBinder {
             RulesModuleBindingContext rulesModuleBindingContext) {
         tableSyntaxNode.addError(error);
         rulesModuleBindingContext.addError(error);
-    }
-
-    protected void processErrors(List<Exception> errors, IBindingContext bindingContext) {
-        if (errors != null) {
-            for (Exception error : errors) {
-                if (error instanceof SyntaxNodeException) {
-                    bindingContext.addError((SyntaxNodeException) error);
-                } else if (error instanceof CompositeSyntaxNodeException) {
-                    BindHelper.processError((CompositeSyntaxNodeException) error, bindingContext);
-                } else {
-                    BindHelper.processError(error, null, bindingContext);
-                }
-            }
-        }
     }
 
     class XlsBinderExecutableMethodBind implements RecursiveOpenMethodPreBinder {

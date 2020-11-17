@@ -22,6 +22,7 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.ConflictsMethodException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.dependency.CompiledDependency;
@@ -55,6 +56,8 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.rits.cloning.Cloner;
 
@@ -63,6 +66,8 @@ import com.rits.cloning.Cloner;
  *
  */
 public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableModuleOpenClass {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ModuleOpenClass.class);
 
     private IDataBase dataBase;
 
@@ -201,7 +206,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     /**
      * Populate current module fields with data from dependent modules.
      */
-    @Override
     protected void initDependencies() {// Reduce iterators over dependencies for
         // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
@@ -233,11 +237,45 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
+    private void addDependencyTypes(CompiledDependency dependency) {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenClass type : compiledOpenClass.getTypes()) {
+            try {
+                addType(processDependencyTypeBeforeAdding(type));
+            } catch (OpenlNotCheckedException e) {
+                BindHelper.processError(e, null, rulesModuleBindingContext);
+            }
+        }
+    }
+
     protected void addGlobalTableProperties(CompiledDependency dependency) {
         IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
         if (openClass instanceof XlsModuleOpenClass) {
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
             addGlobalTableProperties(xlsModuleOpenClass.getGlobalTableProperties());
+        }
+    }
+
+    /**
+     * Add methods form dependent modules to current one.
+     *
+     * @param dependency compiled dependency module
+     */
+    protected void addMethods(CompiledDependency dependency) throws DuplicatedMethodException {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenMethod dependencyMethod : compiledOpenClass.getOpenClassWithErrors().getMethods()) {
+            // filter constructor and getOpenClass methods of dependency modules
+            //
+            if (!dependencyMethod.isConstructor() && !(dependencyMethod instanceof GetOpenClass)) {
+                try {
+                    if (isDependencyMethodInheritable(dependencyMethod)) {
+                        addMethod(dependencyMethod);
+                    }
+                } catch (OpenlNotCheckedException e) {
+                    LOG.debug("ADD METHOD", e);
+                    BindHelper.processError(e, null, rulesModuleBindingContext);
+                }
+            }
         }
     }
 
@@ -287,11 +325,27 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     if (XlsNodeTypes.XLS_DATA.toString().equals(table.getTableSyntaxNode().getType())) {
                         try {
                             getDataBase().registerTable(table);
-                        } catch (DuplicatedTableException | OpenlNotCheckedException e) {
-                            addError(e);
+                        } catch (DuplicatedTableException e) {
+                            rulesModuleBindingContext.addError(e);
+                        } catch (OpenlNotCheckedException e) {
+                            BindHelper.processError(e, null, rulesModuleBindingContext);
                         }
                     }
                 }
+            }
+        }
+    }
+
+    private void addFields(CompiledDependency dependency) throws DuplicatedFieldException {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields()) {
+            try {
+                if (isDependencyFieldInheritable(depField)) {
+                    addField(depField);
+                }
+            } catch (OpenlNotCheckedException e) {
+                LOG.debug("ADD FIELD", e);
+                BindHelper.processError(e, null, rulesModuleBindingContext);
             }
         }
     }
@@ -492,7 +546,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);
                     } catch (OpenlNotCheckedException e) {
-                        addError(e);
+                        BindHelper.processError(e, null, rulesModuleBindingContext);
                     }
                 }
             }
