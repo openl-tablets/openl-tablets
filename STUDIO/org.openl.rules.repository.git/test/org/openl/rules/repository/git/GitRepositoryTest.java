@@ -389,6 +389,71 @@ public class GitRepositoryTest {
         assertTrue("'project1' is not deleted", repo.check(projectPath).isDeleted());
     }
 
+    @Test(timeout = 10_000)
+    public void deleteAndSwitchBranches() throws IOException, GitAPIException {
+        repo.createBranch(FOLDER_IN_REPOSITORY, "test1");
+        GitRepository repo2 = repo.forBranch("test1");
+
+        final String name = FOLDER_IN_REPOSITORY;
+
+        // Archive the project in main branch
+        FileData fileData = new FileData();
+        fileData.setName(name);
+        fileData.setComment("Delete project1");
+        fileData.setAuthor("John Smith");
+        boolean deleted = repo.delete(fileData);
+        assertTrue("'file2' has not been deleted", deleted);
+
+        // Check that the project is archived in main branch
+        assertEquals(BRANCH, repo.getBranch());
+        final FileData archived = repo.check(name);
+        assertTrue(archived.isDeleted());
+
+        // Check that the project is archived in secondary branch too
+        assertTrue("In repository with flat folder structure deleted status should be gotten from main branch",
+            repo2.check(name).isDeleted());
+
+        // Undelete the project
+        assertTrue(repo.deleteHistory(archived));
+        FileData undeleted = repo.check(name);
+
+        // Check that the project is undeleted in main branch
+        assertFalse(undeleted.isDeleted());
+
+        // Check that the project is undeleted in secondary branch too
+        assertFalse("In repository with flat folder structure deleted status should be gotten from main branch",
+            repo2.check(name).isDeleted());
+
+        // Check that old archived version is still deleted.
+        assertTrue(repo.checkHistory(name, archived.getVersion()).isDeleted());
+
+        // Check that isDeleted() isn't broken for files: their status shouldn't be get from main branch.
+        String filePath = "rules/project1/folder/file-new";
+        String text = "text";
+        FileData created = repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text));
+        assertFalse(created.isDeleted());
+        assertFalse(repo2.check(filePath).isDeleted());
+        assertFalse(repo2.checkHistory(filePath, created.getVersion()).isDeleted());
+
+        // Delete the project outside of OpenL
+        deleteProjectOutsideOfOpenL(repo2);
+        // Recreate a project
+        assertNotNull(repo2.save(createFileData(filePath, text), IOUtils.toInputStream(text)));
+        // Check that the commit with project erasing can be read. There should be no deadlock.
+        List<FileData> history = repo2.listHistory(name);
+        assertTrue("Not enough history records", history.size() > 2);
+        FileData erasedData = history.get(history.size() - 2);
+        assertTrue(erasedData.isDeleted());
+    }
+
+    private void deleteProjectOutsideOfOpenL(GitRepository repo) throws IOException, GitAPIException {
+        try (Git git = repo.getClosableGit()) {
+            git.checkout().setName(repo.getBranch()).setForced(true).call();
+            git.rm().addFilepattern(FOLDER_IN_REPOSITORY).call();
+            git.commit().setMessage("External erase").setCommitter("user1", "user1@mail.to").call();
+        }
+    }
+
     @Test
     public void listHistory() throws IOException {
         List<FileData> file2History = repo.listHistory("rules/project1/file2");
