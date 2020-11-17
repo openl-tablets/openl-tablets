@@ -246,6 +246,7 @@ public class InputArgsBean {
     }
 
     public Object[] getParams() {
+        runtimeContext = null;
         if (argumentTreeNodes == null) {
             return new Object[0];
         }

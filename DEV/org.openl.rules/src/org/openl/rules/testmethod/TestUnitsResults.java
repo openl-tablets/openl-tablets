@@ -166,10 +166,12 @@ public class TestUnitsResults implements INamedThing {
     private String[] getColumnDisplayNames(String type) {
         List<String> displayNames = new ArrayList<>();
         TestSuiteMethod test = testSuite.getTestSuiteMethod();
-        for (int i = 0; i < test.getColumnsCount(); i++) {
-            String columnName = test.getColumnName(i);
-            if (columnName != null && columnName.startsWith(type)) {
-                displayNames.add(test.getColumnDisplayName(columnName));
+        if (test != null) {
+            for (int i = 0; i < test.getColumnsCount(); i++) {
+                String columnName = test.getColumnName(i);
+                if (columnName != null && columnName.startsWith(type)) {
+                    displayNames.add(test.getColumnDisplayName(columnName));
+                }
             }
         }
         return displayNames.toArray(new String[displayNames.size()]);

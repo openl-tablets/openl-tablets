@@ -13,17 +13,18 @@ public final class TestUtils {
     public static ParameterWithValueDeclaration[] getContextParams(TestSuite test, TestDescription testCase) {
         List<ParameterWithValueDeclaration> params = new ArrayList<>();
 
-        TestSuiteMethod testMethod = test.getTestSuiteMethod();
         IRulesRuntimeContext context = testCase.getRuntimeContext(test.getArgumentsCloner());
+        TestSuiteMethod testMethod = test.getTestSuiteMethod();
+        if (testMethod != null) {
+            for (int i = 0; i < testMethod.getColumnsCount(); i++) {
+                String columnName = testMethod.getColumnName(i);
+                if (columnName != null && columnName.startsWith(TestMethodHelper.CONTEXT_NAME)) {
 
-        for (int i = 0; i < testMethod.getColumnsCount(); i++) {
-            String columnName = testMethod.getColumnName(i);
-            if (columnName != null && columnName.startsWith(TestMethodHelper.CONTEXT_NAME)) {
+                    Object value = context != null ? context
+                            .getValue(columnName.replace(TestMethodHelper.CONTEXT_NAME + ".", "")) : null;
 
-                Object value = context != null ? context
-                    .getValue(columnName.replace(TestMethodHelper.CONTEXT_NAME + ".", "")) : null;
-
-                params.add(new ParameterWithValueDeclaration(columnName, value));
+                    params.add(new ParameterWithValueDeclaration(columnName, value));
+                }
             }
         }
 
