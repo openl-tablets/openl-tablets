@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -49,6 +50,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenField;
+import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 
@@ -122,7 +124,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             OpenAPIParser openApiParser = new OpenAPIParser();
             ParseOptions options = new ParseOptions();
             options.setResolve(true);
-            OpenAPI openAPI = openApiParser.readLocation(projectResource.getUrl().toString(), null, options).getOpenAPI();
+            OpenAPI openAPI = openApiParser.readLocation(projectResource.getUrl().toString(), null, options)
+                .getOpenAPI();
             if (openAPI == null) {
                 validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(
                     String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to read file '%s'.", openApiFile)));
@@ -1164,20 +1167,20 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             if (resolvedActualSchema != null) {
                 Schema<?> resolvedExpectedSchema = context.getExpectedOpenAPIResolver()
                     .resolve(expectedSchema, Schema::get$ref);
-                if (openClass.isArray() && resolvedActualSchema instanceof ArraySchema) {
+                if ((openClass.isArray() || ClassUtils.isAssignable(openClass.getInstanceClass(),
+                    Collection.class)) && resolvedActualSchema instanceof ArraySchema) {
                     if (resolvedExpectedSchema instanceof ArraySchema) {
                         validateType(context,
                             ((ArraySchema) resolvedActualSchema).getItems(),
                             ((ArraySchema) resolvedExpectedSchema).getItems(),
-                            openClass.getComponentClass(),
+                            openClass.isArray() ? openClass.getComponentClass() : JavaOpenClass.OBJECT,
                             validatedSchemas);
                         return;
                     } else {
                         throw new DifferentTypesException();
                     }
                 }
-                if (resolvedExpectedSchema instanceof ArraySchema && (!openClass
-                    .isArray() || resolvedActualSchema instanceof ArraySchema)) {
+                if (resolvedExpectedSchema instanceof ArraySchema && !(resolvedActualSchema instanceof ArraySchema)) {
                     throw new DifferentTypesException();
                 }
 
