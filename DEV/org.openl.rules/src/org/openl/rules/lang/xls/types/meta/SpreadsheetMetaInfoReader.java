@@ -58,7 +58,7 @@ public class SpreadsheetMetaInfoReader extends AMethodMetaInfoReader<Spreadsheet
                 nodeUsages = new ArrayList<>();
                 int from = stringValue.indexOf('=');
                 if (from >= 0 && type != null) {
-                    String description = "Cell type: " + type.getDisplayName(0);
+                    String description = "Cell type: " + MetaInfoUtils.openClassToDisplayName(type);
                     nodeUsages.add(new SimpleNodeUsage(from, from, description, null, NodeType.OTHER));
                 }
 
