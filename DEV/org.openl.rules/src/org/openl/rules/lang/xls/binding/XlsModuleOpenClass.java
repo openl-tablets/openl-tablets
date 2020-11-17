@@ -255,7 +255,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             try {
                 addType(processDependencyTypeBeforeAdding(type));
             } catch (OpenlNotCheckedException e) {
-                BindHelper.processError(e, null, rulesModuleBindingContext);
+                addError(e);
             }
         }
     }
@@ -292,7 +292,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     }
                 } catch (OpenlNotCheckedException e) {
                     LOG.debug("ADD METHOD", e);
-                    BindHelper.processError(e, null, rulesModuleBindingContext);
+                    addError(e);
                 }
             }
         }
@@ -347,7 +347,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         } catch (DuplicatedTableException e) {
                             rulesModuleBindingContext.addError(e);
                         } catch (OpenlNotCheckedException e) {
-                            BindHelper.processError(e, null, rulesModuleBindingContext);
+                            addError(e);
                         }
                     }
                 }
@@ -364,7 +364,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                 }
             } catch (OpenlNotCheckedException e) {
                 LOG.debug("ADD FIELD", e);
-                BindHelper.processError(e, null, rulesModuleBindingContext);
+                addError(e);
             }
         }
     }
@@ -572,7 +572,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         TestSuiteMethod newTestSuiteMethod = createNewTestSuiteMethod(testSuiteMethod);
                         addMethod(newTestSuiteMethod);
                     } catch (OpenlNotCheckedException e) {
-                        BindHelper.processError(e, null, rulesModuleBindingContext);
+                        addError(e);
                     }
                 }
             }
@@ -606,6 +606,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         } else if (openMethod instanceof ExecutableRulesMethod) {
             ((ExecutableRulesMethod) openMethod).removeDebugInformation();
         }
+    }
+
+    private void addError(Throwable e) {
+        BindHelper.processError(e, null, rulesModuleBindingContext);
     }
 
 }
