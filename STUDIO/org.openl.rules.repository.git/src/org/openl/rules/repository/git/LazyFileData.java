@@ -27,6 +27,7 @@ class LazyFileData extends FileData {
     private final CommitMessageParser commitMessageParser;
 
     private boolean loaded = false;
+    private boolean deleteStatusLoaded = false;
 
     LazyFileData(String branch,
             String fullPath,
@@ -138,14 +139,14 @@ class LazyFileData extends FileData {
 
     @Override
     public boolean isDeleted() {
-        verifyLoaded();
+        verifyDeleteStatusLoaded();
         return super.isDeleted();
     }
 
     @Override
     public void setDeleted(boolean deleted) {
-        verifyLoaded();
         super.setDeleted(deleted);
+        deleteStatusLoaded = true;
     }
 
     private void verifyLoaded() {
@@ -178,6 +179,7 @@ class LazyFileData extends FileData {
                 CommitType commitType = commitMessage.getCommitType();
                 if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
                     super.setDeleted(true);
+                    deleteStatusLoaded = true;
                 }
                 if (commitMessage.getMessage() != null) {
                     message = commitMessage.getMessage();
@@ -200,6 +202,29 @@ class LazyFileData extends FileData {
 
             loaded = true;
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * For non-flat folder structure this method shouldn't be invoked because in that case another algorithm is used.
+     */
+    private void verifyDeleteStatusLoaded() {
+        verifyLoaded();
+        if (deleteStatusLoaded) {
+            return;
+        }
+
+        try {
+            if (fileId == null && getSize() == UNDEFINED_SIZE) {
+                // Deleted status for folder is got from main branch.
+                if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
+                    FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(getName());
+                    super.setDeleted(data.isDeleted());
+                }
+            }
+            deleteStatusLoaded = true;
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
     }

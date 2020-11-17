@@ -666,7 +666,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanErase() {
-        return getSelectedProject().isDeleted() && isGranted(ERASE_PROJECTS);
+        UserWorkspaceProject project = getSelectedProject();
+        return project.isDeleted() && isGranted(ERASE_PROJECTS) && isMainBranch(project);
     }
 
     public boolean getCanOpen() {
@@ -724,7 +725,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public boolean getCanUndelete() {
-        return getSelectedProject().isDeleted() && isGranted(EDIT_PROJECTS);
+        UserWorkspaceProject project = getSelectedProject();
+        return project.isDeleted() && isGranted(EDIT_PROJECTS) && isMainBranch(project);
     }
 
     // for any project artefact
