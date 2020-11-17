@@ -11,7 +11,6 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.DynamicObject;
 import org.openl.types.java.JavaOpenClass;
 
 import junit.framework.TestCase;
@@ -28,23 +27,14 @@ import junit.framework.TestCase;
  */
 public class BinderTest extends TestCase {
 
-    /**
-     * Constructor for BinderTest.
-     *
-     * @param arg0
-     */
-    public BinderTest(String arg0) {
-        super(arg0);
-    }
-
-    public void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
+    private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
         OpenL openl = OpenL.getInstance(openlName);
         IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         Assert.assertEquals(type, header.getType());
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
 
-    public void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenLConfigurationException {
+    private void _testNoError(String testCode, Class<?> targetClass, String parser) throws OpenLConfigurationException {
 
         OpenL op = OpenL.getInstance(parser);
 
@@ -75,43 +65,8 @@ public class BinderTest extends TestCase {
         Assert.assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
     }
 
-    public void _testNoErrorModule(String testCode,
-            Class<?> targetClass,
-            String parser) throws OpenLConfigurationException {
-
-        OpenL op = OpenL.getInstance(parser);
-
-        IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(testCode, null));
-
-        int errnum = pc.getErrors().length;
-
-        for (int i = 0; i < errnum; i++) {
-            SyntaxNodeException err = pc.getErrors()[i];
-            System.out.println(err);
-        }
-
-        Assert.assertEquals(0, errnum);
-
-        IOpenBinder b = op.getBinder();
-
-        IBoundCode bc = b.bind(pc);
-
-        errnum = bc.getErrors().length;
-
-        for (int i = 0; i < errnum; i++) {
-            SyntaxNodeException err = bc.getErrors()[i];
-            System.out.println(err);
-        }
-
-        Assert.assertEquals(0, errnum);
-
-        Assert.assertEquals(targetClass, bc.getTopNode().getType().getInstanceClass());
-    }
-
     public void testBind() throws OpenLConfigurationException {
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
-        _testNoErrorModule("int foo(int x){return x+y+5;} int y= 3;", DynamicObject.class, OpenL.OPENL_J_NAME);
-
         _testNoError("int x = 5, z, y= 20;", void.class, OpenL.OPENL_J_NAME);
         _testNoError("5.5", double.class, OpenL.OPENL_J_NAME);
         _testNoError("5.5 + 4.5", double.class, OpenL.OPENL_J_NAME);
@@ -122,9 +77,7 @@ public class BinderTest extends TestCase {
         _testNoError("5-3", int.class, OpenL.OPENL_J_NAME);
         _testNoError("int x = 5, z, y= 20; x < 3 || z > 2", Boolean.class, OpenL.OPENL_J_NAME);
         _testNoError("Date d1, d2; d1 < d2", Boolean.class, OpenL.OPENL_J_NAME);
-        // _testNoError("Date[] d1, d2", boolean.class, OpenL.OPENL_J_NAME);
         _testNoError("String[] name;", void.class, OpenL.OPENL_J_NAME);
-
     }
 
     public void testMeta() {
