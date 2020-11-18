@@ -1622,6 +1622,7 @@ public final class DecisionTableHelper {
             int h,
             StringBuilder sb,
             int sourceTableColumn,
+            int firstColumnForHCondition,
             boolean onlyReturns) {
         String d = gridTable.getCell(w, h).getStringValue();
         int w0 = gridTable.getCell(w, h).getWidth();
@@ -1649,6 +1650,7 @@ public final class DecisionTableHelper {
                     h + h0,
                     sb,
                     sourceTableColumn,
+                    firstColumnForHCondition,
                     onlyReturns);
                 w2 = w2 + w1;
             }
@@ -1681,9 +1683,20 @@ public final class DecisionTableHelper {
                         .mapToInt(Token::getDistance)
                         .max()
                         .orElse(0);
-                    tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
-                        new Token("is true", maxDistance + 1, numberOfHCondition > 0 ? 2 : 1),
-                        new Token("is false", maxDistance + 1, numberOfHCondition > 0 ? 2 : 1));
+                    if (firstColumnForHCondition < 0 && numberOfHCondition > 0 && Arrays
+                        .stream(decisionTable.getSignature().getParameterTypes())
+                        .anyMatch(
+                            e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
+                        tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
+                            new Token("is true", maxDistance + 1, 2),
+                            new Token("is false", maxDistance + 1, 2));
+                    } else {
+                        tokens = ArrayUtils.addAll(fuzzyContext.getParameterTokens().getTokens(),
+                            new Token("is true", maxDistance + 1, 2),
+                            new Token("is false", maxDistance + 1, 2),
+                            new Token("true", maxDistance + 1, 1),
+                            new Token("false", maxDistance + 1, 1));
+                    }
                 } else {
                     tokens = fuzzyContext.getParameterTokens().getTokens();
                 }
@@ -1691,6 +1704,8 @@ public final class DecisionTableHelper {
                 addFuzzyCondition(decisionTable,
                     gridTable,
                     fuzzyContext,
+                    numberOfHCondition,
+                    firstColumnForHCondition,
                     w,
                     h,
                     sb,
@@ -1707,6 +1722,8 @@ public final class DecisionTableHelper {
                     addFuzzyCondition(decisionTable,
                         gridTable,
                         fuzzyContext,
+                        numberOfHCondition,
+                        firstColumnForHCondition,
                         w,
                         h,
                         sb,
@@ -1724,6 +1741,8 @@ public final class DecisionTableHelper {
     private static void addFuzzyCondition(DecisionTable decisionTable,
             IGridTable gridTable,
             FuzzyContext fuzzyContext,
+            int numberOfHConditions,
+            int firstColumnForHCondition,
             int w,
             int h,
             StringBuilder sb,
@@ -1776,17 +1795,20 @@ public final class DecisionTableHelper {
                         false));
                 }
             } else {
-                if ("is true".equals(fuzzyResult.getToken().getValue()) || "is false"
-                    .equals(fuzzyResult.getToken().getValue())) {
-                    dtHeaders
-                        .add(new FuzzyDTHeader("is true".equals(fuzzyResult.getToken().getValue()) ? "true" : "false",
-                            sb.toString(),
-                            new IOpenField[] {},
-                            sourceTableColumn,
-                            sourceTableColumn,
-                            w0,
-                            fuzzyResult,
-                            false));
+                if (isPredicateToken(decisionTable,
+                    numberOfHConditions > 0 && firstColumnForHCondition < 0,
+                    fuzzyResult.getToken().getValue())) {
+                    dtHeaders.add(new FuzzyDTHeader(
+                        isTruePredicateToken(decisionTable,
+                            numberOfHConditions > 0 && firstColumnForHCondition < 0,
+                            fuzzyResult.getToken().getValue()) ? "true" : "false",
+                        sb.toString(),
+                        new IOpenField[] {},
+                        sourceTableColumn,
+                        sourceTableColumn,
+                        w0,
+                        fuzzyResult,
+                        false));
                 }
             }
         }
@@ -1800,6 +1822,7 @@ public final class DecisionTableHelper {
             int column,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
+            int firstColumnForHCondition,
             boolean onlyReturns) {
         if (onlyReturns && !fuzzyContext.isFuzzySupportsForReturnType()) {
             return Collections.emptyList();
@@ -1818,6 +1841,7 @@ public final class DecisionTableHelper {
             0,
             new StringBuilder(),
             column,
+            firstColumnForHCondition,
             onlyReturns);
         dtHeaders.addAll(newDtHeaders);
         return Collections.unmodifiableList(newDtHeaders);
@@ -2470,8 +2494,9 @@ public final class DecisionTableHelper {
             .getXlsDefinitions();
 
         int lastColumn = originalTable.getSource().getWidth();
-        if (numberOfHCondition != 0) {
-            int firstColumnForHCondition = getFirstColumnForHCondition(originalTable,
+        int firstColumnForHCondition = -1;
+        if (numberOfHCondition > 0) {
+            firstColumnForHCondition = getFirstColumnForHCondition(originalTable,
                 numberOfHCondition,
                 firstColumnHeight);
             if (firstColumnForHCondition > 0) {
@@ -2515,6 +2540,7 @@ public final class DecisionTableHelper {
                         column,
                         dtHeaders,
                         firstColumnHeight,
+                        firstColumnForHCondition,
                         false);
                     if (numberOfHCondition == 0) {
                         String titleForColumn = getTitleForColumn(originalTable, firstColumnHeight, column);
@@ -2554,6 +2580,7 @@ public final class DecisionTableHelper {
                             column,
                             dtHeaders,
                             firstColumnHeight,
+                            firstColumnForHCondition,
                             true);
                     }
                     if (i < numberOfParameters - numberOfHCondition) {
@@ -3230,6 +3257,22 @@ public final class DecisionTableHelper {
         }
     }
 
+    private static boolean isPredicateToken(IDecisionTable decisionTable, boolean isVCondition, String token) {
+        if (isVCondition && Arrays.stream(decisionTable.getSignature().getParameterTypes())
+            .anyMatch(e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
+            return "is true".equals(token) || "is false".equals(token);
+        }
+        return "is true".equals(token) || "is false".equals(token) || "false".equals(token) || "true".equals(token);
+    }
+
+    private static boolean isTruePredicateToken(IDecisionTable decisionTable, boolean isVCondition, String token) {
+        if (isVCondition && Arrays.stream(decisionTable.getSignature().getParameterTypes())
+            .anyMatch(e -> e.getInstanceClass() == Boolean.class || e.getInstanceClass() == boolean.class)) {
+            return "is true".equals(token);
+        }
+        return "is true".equals(token) || "true".equals(token);
+    }
+
     private static IOpenClass getTypeForCondition(DecisionTable decisionTable, DTHeader condition) {
         if (condition.isMethodParameterUsed()) {
             IOpenClass type = decisionTable.getSignature().getParameterTypes()[condition.getMethodParameterIndex()];
@@ -3240,8 +3283,9 @@ public final class DecisionTableHelper {
                         type = fuzzyCondition.getFieldsChain()[fuzzyCondition.getFieldsChain().length - 1].getType();
                     }
                 } else {
-                    if ("is true".equals(fuzzyCondition.getFuzzyResult().getToken().getValue()) || "is false"
-                        .equals(fuzzyCondition.getFuzzyResult().getToken().getValue())) {
+                    if (isPredicateToken(decisionTable,
+                        condition.isHCondition(),
+                        fuzzyCondition.getFuzzyResult().getToken().getValue())) {
                         return JavaOpenClass.getOpenClass(Boolean.class);
                     }
                 }
@@ -3250,8 +3294,9 @@ public final class DecisionTableHelper {
         } else {
             if (condition instanceof FuzzyDTHeader) {
                 FuzzyDTHeader fuzzyCondition = (FuzzyDTHeader) condition;
-                if ("is true".equals(fuzzyCondition.getFuzzyResult().getToken().getValue()) || "is false"
-                    .equals(fuzzyCondition.getFuzzyResult().getToken().getValue())) {
+                if (isPredicateToken(decisionTable,
+                    condition.isHCondition(),
+                    fuzzyCondition.getFuzzyResult().getToken().getValue())) {
                     return JavaOpenClass.getOpenClass(Boolean.class);
                 }
             }
