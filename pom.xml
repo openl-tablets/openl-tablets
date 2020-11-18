@@ -1033,7 +1033,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.31.1</version> <!-- Downgraded from 3.36.1. If you want update to latest please check EPBDS-10726. Starting from 3.31.1 stops work. -->
+                <version>3.36.2</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
