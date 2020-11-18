@@ -10,7 +10,6 @@ import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.XlsVM;
 
 /**
@@ -32,6 +31,6 @@ public class OpenLBuilder extends BaseOpenLBuilder {
     }
 
     protected IOpenParser createParser() {
-        return new XlsParser(getUserEnvironmentContext());
+        return new Parser(getUserEnvironmentContext());
     }
 }

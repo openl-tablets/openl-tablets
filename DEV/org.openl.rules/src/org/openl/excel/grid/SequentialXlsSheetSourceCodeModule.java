@@ -16,7 +16,7 @@ class SequentialXlsSheetSourceCodeModule extends XlsSheetSourceCodeModule {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsSheetSourceCodeModule.class);
     private final SheetDescriptor sheet;
 
-    public SequentialXlsSheetSourceCodeModule(XlsWorkbookSourceCodeModule module, SheetDescriptor sheet) {
+    SequentialXlsSheetSourceCodeModule(XlsWorkbookSourceCodeModule module, SheetDescriptor sheet) {
         super(sheet.getIndex(), module);
         this.sheet = sheet;
     }
