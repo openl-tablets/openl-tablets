@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -28,7 +29,9 @@ public class DataTableTest {
             .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertFalse(dataModels.isEmpty());
-        DataModel petsB = dataModels.iterator().next();
+        Optional<DataModel> optionalPetsB = dataModels.stream().filter(x -> x.getName().equals("PetsB")).findFirst();
+        assertTrue(optionalPetsB.isPresent());
+        DataModel petsB = optionalPetsB.get();
         assertEquals("PetsB", petsB.getName());
         assertEquals("Pet", petsB.getType());
         PathInfo info = petsB.getInfo();
@@ -64,14 +67,16 @@ public class DataTableTest {
     @Test
     public void testRuleWithRuntimeContext() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
-        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
+        ProjectModel pm = converter
+            .extractProjectModel("test.converter/data_tables/openapiRule_with_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 
     @Test
     public void testRuleWithoutRuntimeContext() throws IOException {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
-        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
+        ProjectModel pm = converter
+            .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
     }
 }

@@ -219,7 +219,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 dataModels.add(new DataModel(dataTableName,
                     type,
                     potentialDataModel.getPathInfo(),
-                    createModel(openAPI, type, getSchemas(openAPI).get(type))));
+                    isSimpleType(type) ? createSimpleModel(type)
+                                       : createModel(openAPI, type, getSchemas(openAPI).get(type))));
             }
         }
         return dataModels;
@@ -582,6 +583,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             }
         }
         return result;
+    }
+
+    private DatatypeModel createSimpleModel(String type) {
+        DatatypeModel dm = new DatatypeModel("");
+        dm.setFields(Collections.singletonList(new FieldModel("result", type)));
+        return dm;
     }
 
     private DatatypeModel createModel(OpenAPI openAPI, String schemaName, Schema<?> schema) {

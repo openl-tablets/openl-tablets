@@ -28,6 +28,10 @@ public class Cursor {
         return new Cursor(column, row - y);
     }
 
+    public Cursor setColumn(int x) {
+        return new Cursor(x, row);
+    }
+
     public int getColumn() {
         return column;
     }

@@ -107,6 +107,8 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
         }
         if (width > 0) {
             endPosition = endPosition.moveDown(ROWS_COUNT).moveLeft(width + 1);
+        } else {
+            endPosition = endPosition.setColumn(1);
         }
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }
