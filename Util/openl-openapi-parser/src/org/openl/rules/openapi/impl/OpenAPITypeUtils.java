@@ -244,10 +244,6 @@ public class OpenAPITypeUtils {
         return propMap;
     }
 
-    public static boolean isCustomType(String type) {
-        return !isSimpleType(type) && !type.equals(SPREADSHEET_RESULT);
-    }
-
     private static boolean isComposedSchema(Schema<?> schema) {
         return schema instanceof ComposedSchema;
     }

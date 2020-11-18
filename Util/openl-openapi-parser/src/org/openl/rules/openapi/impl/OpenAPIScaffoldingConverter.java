@@ -193,21 +193,27 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private List<DataModel> extractDataModels(List<SpreadsheetModel> spreadsheetModels, OpenAPI openAPI) {
         List<SpreadsheetModel> potentialDataModels = spreadsheetModels.stream()
-            .filter(x -> CollectionUtils.isEmpty(x.getParameters()) || containsOnlyRuntimeContext(x.getParameters()))
+            .filter(x -> x.getPathInfo()
+                .getFormattedPath()
+                .toLowerCase()
+                .startsWith("get") && (CollectionUtils
+                    .isEmpty(x.getParameters()) || containsOnlyRuntimeContext(x.getParameters())))
             .collect(Collectors.toList());
         List<DataModel> dataModels = new ArrayList<>();
         for (SpreadsheetModel potentialDataModel : potentialDataModels) {
             String originalType = potentialDataModel.getType();
             String type = ARRAY_MATCHER.matcher(originalType).replaceAll("");
-            if (!originalType.endsWith("[]") || !OpenAPITypeUtils.isCustomType(type)) {
+            if (!originalType.endsWith("[]") || type.equals(SPREADSHEET_RESULT)) {
                 continue;
             }
             String operationMethod = potentialDataModel.getPathInfo().getOperation();
             // if get operation without parameters or post with only runtime context
             List<InputParameter> parameters = potentialDataModel.getParameters();
             boolean parametersNotEmpty = CollectionUtils.isNotEmpty(parameters);
-            if (parameters.isEmpty() && operationMethod.equals(PathItem.HttpMethod.GET
-                .name()) || parametersNotEmpty && operationMethod.equals(PathItem.HttpMethod.POST.name())) {
+            boolean getAndNoParams = parameters.isEmpty() && operationMethod.equals(PathItem.HttpMethod.GET.name());
+            boolean postAndRuntimeContext = parametersNotEmpty && operationMethod
+                .equals(PathItem.HttpMethod.POST.name());
+            if (getAndNoParams || postAndRuntimeContext) {
                 spreadsheetModels.remove(potentialDataModel);
                 String dataTableName = formatTableName(potentialDataModel.getName());
                 dataModels.add(new DataModel(dataTableName,
