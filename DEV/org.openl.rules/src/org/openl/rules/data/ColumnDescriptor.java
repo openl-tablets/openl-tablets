@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.meta.StringValue;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -170,9 +171,9 @@ public class ColumnDescriptor {
         return field == null ? null : field.getType();
     }
 
-    public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx) throws SyntaxNodeException {
+    public synchronized Map<String, Integer> getUniqueIndex(ITable table, int idx, IBindingContext cxt) {
         if (uniqueIndex == null) {
-            uniqueIndex = table.makeUniqueIndex(idx);
+            uniqueIndex = table.makeUniqueIndex(idx, cxt);
         }
         return uniqueIndex;
     }

@@ -23,7 +23,7 @@ import org.openl.types.IOpenClass;
  */
 public interface ITable {
 
-    Object findObject(int columnIndex, String key, IBindingContext bindingContext) throws SyntaxNodeException;
+    Object findObject(int columnIndex, String key, IBindingContext bindingContext);
 
     String getColumnDisplay(int n);
 
@@ -59,11 +59,9 @@ public interface ITable {
 
     TableSyntaxNode getTableSyntaxNode();
 
-    Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException;
-
     Object getValue(int col, int row);
 
-    Map<String, Integer> makeUniqueIndex(int idx) throws SyntaxNodeException;
+    Map<String, Integer> makeUniqueIndex(int idx, IBindingContext cxt);
 
     List<Object> getUniqueValues(int colIdx) throws SyntaxNodeException;
 

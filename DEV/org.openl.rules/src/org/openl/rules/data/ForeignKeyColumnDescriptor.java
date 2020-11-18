@@ -233,19 +233,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         ITable foreignTable = db.getTable(foreignKeyTableName);
         Object result = null;
 
-        validateForeignTable(foreignTable, foreignKeyTableName);
-
         int foreignKeyIndex = 0;
         String columnName = NOT_INITIALIZED;
 
         if (foreignKey != null) {
             columnName = foreignKey.getIdentifier();
             foreignKeyIndex = foreignTable.getColumnIndex(columnName);
-        }
-
-        if (foreignKeyIndex == -1) {
-            String message = MessageUtils.getConstructorNotFoundMessage(columnName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -325,14 +318,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String foreignKeyTableName = foreignKeyTable.getIdentifier();
                 ITable foreignTable = db.getTable(foreignKeyTableName);
 
-                validateForeignTable(foreignTable, foreignKeyTableName);
-
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
-
-                if (foreignKeyIndex == -1) {
-                    String message = MessageUtils.getColumnNotFoundErrorMessage(foreignKey.getIdentifier());
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
-                }
 
                 // table will have 1xN size
                 //
@@ -344,13 +330,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
                     Object result;
-                    try {
-                        result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                    } catch (SyntaxNodeException ex) {
-                        foreignTable.getTableSyntaxNode().addError(ex);
-                        cxt.addError(ex);
-                        return;
-                    }
+                    result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     if (result != null) {
                         ResultChainObject chainRes = getChainObject(cxt,
                             resType,
@@ -520,16 +500,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
     }
 
-    private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
-        if (foreignTable == null) {
-            String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = MessageUtils.getForeignTableCompilationErrorsMessage(foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        }
-    }
-
     private int getForeignKeyIndex(ITable foreignTable) {
         if (foreignTable != null) {
             if (foreignKey != null) {
@@ -620,6 +590,10 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
 
     public IdentifierNode getForeignKeyTable() {
         return foreignKeyTable;
+    }
+
+    public IdentifierNode getForeignKey() {
+        return foreignKey;
     }
 
     public CellKey getForeignKeyCellCoordinate() {
