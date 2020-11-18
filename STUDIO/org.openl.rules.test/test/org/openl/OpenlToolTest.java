@@ -5,6 +5,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -33,7 +34,7 @@ public class OpenlToolTest extends TestCase {
         super(name);
     }
 
-    public void testMakeMethod() {
+    public void testMakeMethod() throws SyntaxNodeException {
         StringValue srcCode = new StringValue("5");
 
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);

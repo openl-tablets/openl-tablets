@@ -6,6 +6,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -45,7 +46,7 @@ public final class OpenLManager {
     public static CompositeMethod makeMethod(OpenL openl,
             IOpenSourceCodeModule source,
             IOpenMethodHeader methodHeader,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
 
@@ -87,7 +88,7 @@ public final class OpenLManager {
             String methodName,
             IMethodSignature signature,
             IOpenClass declaringClass,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
         return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass, bindingContext);
     }
@@ -103,7 +104,7 @@ public final class OpenLManager {
     public static void compileMethod(OpenL openl,
             IOpenSourceCodeModule source,
             CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         OpenLCodeManager codeManager = new OpenLCodeManager(openl);
 

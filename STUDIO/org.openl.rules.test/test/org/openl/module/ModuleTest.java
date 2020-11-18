@@ -10,6 +10,7 @@ import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -170,7 +171,7 @@ public class ModuleTest extends TestCase {
      * @param expr
      * @return
      */
-    private boolean executeBooleanOpenLExprression(Object context, String expr) {
+    private boolean executeBooleanOpenLExprression(Object context, String expr) throws SyntaxNodeException {
         IOpenClass retType = JavaOpenClass.BOOLEAN;
         Boolean res = (Boolean) executeOpenLExprression(context, expr, retType);
         return res;
@@ -185,7 +186,7 @@ public class ModuleTest extends TestCase {
      * @param retType OpenL return type of expression
      * @return
      */
-    private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) {
+    private Object executeOpenLExprression(Object context, String expr, IOpenClass retType) throws SyntaxNodeException {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
@@ -210,7 +211,7 @@ public class ModuleTest extends TestCase {
      * @param expr
      * @return
      */
-    private Object executeOpenLGetExpression(Object context, String expr) {
+    private Object executeOpenLGetExpression(Object context, String expr) throws SyntaxNodeException {
         IOpenClass retType = JavaOpenClass.OBJECT;
         return executeOpenLExprression(context, expr, retType);
     }
@@ -228,7 +229,7 @@ public class ModuleTest extends TestCase {
      *
      */
 
-    private Object executeOpenLOGNLExprression(Object context, String expr) {
+    private Object executeOpenLOGNLExprression(Object context, String expr) throws SyntaxNodeException {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
@@ -246,7 +247,7 @@ public class ModuleTest extends TestCase {
         return method.invoke(null, new Object[] { context }, env);
     }
 
-    private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) {
+    private IOpenMethod makeMethod(ModuleOpenClass module, String expr, IOpenClass retType, OpenL op) throws SyntaxNodeException {
         IOpenSourceCodeModule src = new StringSourceCodeModule(expr, null);
 
         IMethodSignature signature = IMethodSignature.VOID;
@@ -288,7 +289,7 @@ public class ModuleTest extends TestCase {
         orderValue = 10 + order.getPrice() * order.getQuantity() / 1.05;
     }
 
-    public void testModule() {
+    public void testModule() throws SyntaxNodeException {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         ModuleOpenClass module = new ModuleOpenClass("ZZZ", op);
@@ -330,7 +331,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample "assert" expressions is OpenL
      */
-    public void testOpenL() {
+    public void testOpenL() throws SyntaxNodeException {
         boolean b;
         long t = System.currentTimeMillis();
         b = executeBooleanOpenLExprression(data, OPENL_EXPR);
@@ -344,7 +345,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample "get" expression in OpenL
      */
-    public void testOpenLGet() {
+    public void testOpenLGet() throws SyntaxNodeException {
         Object obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
         assertTrue(obj == data.getAddress());
     }
@@ -352,7 +353,7 @@ public class ModuleTest extends TestCase {
     /**
      * Test sample arithemtic expression in OpenL
      */
-    public void testOpenLMath() {
+    public void testOpenLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */
@@ -371,7 +372,7 @@ public class ModuleTest extends TestCase {
         assertEquals(orderValue, value, 0.00001);
     }
 
-    public void testOpenLOGNLMath() {
+    public void testOpenLOGNLMath() throws SyntaxNodeException {
         /*
          * This invocation does not work with primitive values, e.g. in arithemtic expressions
          */

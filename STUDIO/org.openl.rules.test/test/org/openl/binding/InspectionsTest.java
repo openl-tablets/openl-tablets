@@ -9,6 +9,7 @@ import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -17,7 +18,7 @@ public class InspectionsTest {
     private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
-    public void testConditionTypes() {
+    public void testConditionTypes() throws SyntaxNodeException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num ==== num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num <= num ? 1 : 2", ALWAYS_TRUE);
@@ -34,7 +35,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testDifferentExpressionTypes() {
+    public void testDifferentExpressionTypes() throws SyntaxNodeException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
         checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
@@ -59,7 +60,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testNoWarning() {
+    public void testNoWarning() throws SyntaxNodeException {
         Object result;
 
         result = checkNoMessage(
@@ -80,7 +81,7 @@ public class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkWarning(String expression, String expectedMessage) {
+    private <T> T checkWarning(String expression, String expectedMessage) throws SyntaxNodeException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();
@@ -97,7 +98,7 @@ public class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkNoMessage(String expression) {
+    private <T> T checkNoMessage(String expression) throws SyntaxNodeException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();

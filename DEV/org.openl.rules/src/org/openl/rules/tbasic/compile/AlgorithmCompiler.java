@@ -241,7 +241,7 @@ public class AlgorithmCompiler {
         return thisTargetClass;
     }
 
-    public IOpenClass getTypeOfField(StringValue fieldContent) {
+    public IOpenClass getTypeOfField(StringValue fieldContent) throws SyntaxNodeException {
         // TODO: make rational type detecting(without creating of
         // CompositeMethod)
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
@@ -280,7 +280,7 @@ public class AlgorithmCompiler {
         variablesStack.peek().add(field);
     }
 
-    public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) {
+    public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) throws SyntaxNodeException {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
@@ -288,7 +288,7 @@ public class AlgorithmCompiler {
         return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
-    public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
+    public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) throws SyntaxNodeException {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         // create method header for newly created method
