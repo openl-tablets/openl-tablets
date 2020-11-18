@@ -20,7 +20,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
-import org.openl.xls.sequential.SequentialParser;
+import org.openl.xls.Parser;
 
 /**
  * Find difference between two XLS files. It compares per Table.
@@ -58,7 +58,7 @@ public class XlsDiff2 {
             Thread.currentThread().setContextClassLoader(bundleCl);
             UserContext ucxt = new UserContext(bundleCl, ".");
 
-            IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
+            IParsedCode pc = new Parser(ucxt).parseAsModule(src);
             IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
             IOpenClass ioc = bc.getTopNode().getType();
 
