@@ -1,4 +1,4 @@
-package org.openl.xls.sequential;
+package org.openl.xls;
 
 import org.openl.conf.ConfigurableResourceContext;
 import org.openl.conf.IUserContext;
@@ -8,10 +8,10 @@ import org.openl.rules.lang.xls.IncludeSearcher;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 
-public class SequentialParser extends BaseParser {
+public class Parser extends BaseParser {
     private final IUserContext userContext;
 
-    public SequentialParser(IUserContext userContext) {
+    public Parser(IUserContext userContext) {
         this.userContext = userContext;
     }
 
