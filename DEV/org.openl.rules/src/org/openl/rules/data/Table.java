@@ -2,7 +2,6 @@ package org.openl.rules.data;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +18,9 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.util.BiMap;
 import org.openl.util.MessageUtils;
@@ -169,13 +168,6 @@ public class Table implements ITable {
     }
 
     @Override
-    public Map<String, Integer> getUniqueIndex(int columnIndex) throws SyntaxNodeException {
-        ColumnDescriptor descriptor = dataModel.getDescriptor(columnIndex);
-
-        return descriptor.getUniqueIndex(this, columnIndex);
-    }
-
-    @Override
     public Object getValue(int col, int row) {
         int startRows = getStartRowForData();
         int idx = row - startRows;
@@ -185,7 +177,7 @@ public class Table implements ITable {
     }
 
     @Override
-    public Map<String, Integer> makeUniqueIndex(int colIdx) throws SyntaxNodeException {
+    public Map<String, Integer> makeUniqueIndex(int colIdx, IBindingContext cxt) {
         Map<String, Integer> index = new HashMap<>();
 
         if (dataIdxToTableRowNum == null || dataIdxToTableRowNum.isEmpty()) {
@@ -197,15 +189,22 @@ public class Table implements ITable {
             String key = gridTable.getCell(0, 0).getStringValue();
 
             if (key == null) {
-                throw SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
                     new GridCellSourceCodeModule(gridTable));
+                cxt.addError(error);
+                getTableSyntaxNode().addError(error);
+                break;
             }
 
             key = key.trim();
 
             if (index.containsKey(key)) {
-                throw SyntaxNodeExceptionUtils.createError(MessageUtils.getDuplicatedKeyIndexErrorMessage(key),
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
+                    MessageUtils.getDuplicatedKeyIndexErrorMessage(key),
                     new GridCellSourceCodeModule(gridTable));
+                cxt.addError(error);
+                getTableSyntaxNode().addError(error);
+                break;
             }
 
             index.put(key, entry.getKey());
@@ -251,7 +250,11 @@ public class Table implements ITable {
         int rows = logicalTable.getHeight();
         int columns = logicalTable.getWidth();
 
-        Collection<SyntaxNodeException> errorSyntaxNodeExceptions = new ArrayList<>(0);
+        boolean hasError = validateOnErrors(bindingContext, dataBase, columns);
+
+        if (hasError) {
+            return;
+        }
 
         int dataArrayLength = Array.getLength(dataArray);
         for (int i = 0; i < dataArrayLength; i++) {
@@ -294,18 +297,8 @@ public class Table implements ITable {
                                     env);
                             }
                         } catch (SyntaxNodeException e) {
-                            boolean found = false;
-                            for (SyntaxNodeException syntaxNodeException : errorSyntaxNodeExceptions) {
-                                if (syntaxNodeException.getMessage()
-                                    .equals(e.getMessage()) && syntaxNodeException
-                                        .getSourceUri() != null && syntaxNodeException.getSourceUri()
-                                            .equals(e.getSourceUri())) {
-                                    found = true;
-                                }
-                            }
-                            if (!found) {
-                                errorSyntaxNodeExceptions.add(e);
-                            }
+                            bindingContext.addError(e);
+                            tableSyntaxNode.addError(e);
                         }
                     }
                 }
@@ -315,10 +308,71 @@ public class Table implements ITable {
         }
         // clear cache
         dataContextCache = null;
-        if (!errorSyntaxNodeExceptions.isEmpty()) {
-            throw new CompositeSyntaxNodeException("Parsing Error:",
-                errorSyntaxNodeExceptions.toArray(SyntaxNodeException.EMPTY_ARRAY));
+    }
+
+    private boolean validateOnErrors(IBindingContext bindingContext, IDataBase dataBase, int columns) {
+        boolean hasError = false;
+        // Validation
+        for (int j = 0; j < columns; j++) {
+            SyntaxNodeException ex = null;
+            ColumnDescriptor descriptor = dataModel.getDescriptor(j);
+            if (descriptor instanceof ForeignKeyColumnDescriptor) {
+                ForeignKeyColumnDescriptor fkDescriptor = (ForeignKeyColumnDescriptor) descriptor;
+                if (fkDescriptor.isReference()) {
+                    IdentifierNode foreignKeyTable = fkDescriptor.getForeignKeyTable();
+                    IdentifierNode foreignKey = fkDescriptor.getForeignKey();
+                    String foreignKeyTableName = foreignKeyTable.getIdentifier();
+                    ITable foreignTable = dataBase.getTable(foreignKeyTableName);
+
+                    if (foreignTable == null) {
+                        String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
+                        ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                    } else {
+                        if (foreignKey != null) {
+                            String columnName = foreignKey.getIdentifier();
+                            int foreignKeyIndex = foreignTable.getColumnIndex(columnName);
+                            if (foreignKeyIndex == -1) {
+                                String message = MessageUtils.getColumnNotFoundErrorMessage(columnName);
+                                ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
+                            } else {
+                                foreignTable.getColumnDescriptor(foreignKeyIndex)
+                                    .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
+                            }
+                        } else {
+                            // we don't have defined PK lets use first key as PK
+                            int foreignKeyIndex = 0;
+                            ITableModel dataModel = foreignTable.getDataModel();
+                            ColumnDescriptor d1 = dataModel.getDescriptors()[0];
+                            if (d1.isPrimaryKey()) {
+                                foreignKeyIndex = d1.getColumnIdx();
+                            } else {
+                                ColumnDescriptor firstColDescriptor = dataModel.getDescriptor(0);
+                                if (firstColDescriptor.isPrimaryKey()) {
+                                    // first column is primary key for another level. So return column index for first
+                                    // descriptor
+                                    foreignKeyIndex = descriptor.getColumnIdx();
+                                }
+                                foreignTable.getColumnDescriptor(foreignKeyIndex)
+                                    .getUniqueIndex(foreignTable, foreignKeyIndex, bindingContext);
+
+                            }
+
+                            if (foreignTable.getTableSyntaxNode().hasErrors()) {
+                                String message = MessageUtils
+                                    .getForeignTableCompilationErrorsMessage(foreignKeyTableName);
+                                ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                            }
+                        }
+                    }
+                }
+            }
+            if (ex != null) {
+                bindingContext.addError(ex);
+                tableSyntaxNode.addError(ex);
+                hasError = true;
+            }
         }
+        return hasError;
     }
 
     @Override
@@ -637,8 +691,10 @@ public class Table implements ITable {
     }
 
     @Override
-    public Object findObject(int columnIndex, String skey, IBindingContext cxt) throws SyntaxNodeException {
-        Map<String, Integer> index = getUniqueIndex(columnIndex);
+    public Object findObject(int columnIndex, String skey, IBindingContext cxt) {
+        ColumnDescriptor descriptor = dataModel.getDescriptor(columnIndex);
+
+        Map<String, Integer> index = descriptor.getUniqueIndex(this, columnIndex, cxt);
 
         Integer found = index.get(skey);
 
