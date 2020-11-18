@@ -331,6 +331,14 @@
                                 OpenAPI File:
                                 <h:outputText value="#{project.openapi.path}"/>
                             </li>
+                            <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
+                                Rules module:
+                                <h:outputText value="#{project.openapi.algorithmModuleName}"/>
+                            </li>
+                            <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
+                                Data module:
+                                <h:outputText value="#{project.openapi.modelModuleName}"/>
+                            </li>
                         </ul>
                     </div>
                 </div>

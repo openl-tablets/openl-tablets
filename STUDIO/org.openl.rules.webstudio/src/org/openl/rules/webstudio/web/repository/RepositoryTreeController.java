@@ -2080,8 +2080,19 @@ public class RepositoryTreeController {
     private String extractPath(boolean editorWasEnabled, String current, OpenAPIModule moduleType) {
         String pathForModels;
         if (!editorWasEnabled) {
-            pathForModels = moduleType.equals(OpenAPIModule.MODEL) ? propertyResolver.getProperty(
-                    OPENAPI_DEFAULT_DATA_MODULE_PATH) : propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH);
+            if (moduleType == OpenAPIModule.MODEL) {
+                if (StringUtils.isNotBlank(modelsModuleName)) {
+                    pathForModels = openAPIEditorService.generatePath(modelsModuleName);
+                } else {
+                    pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH);
+                }
+            } else {
+                if (StringUtils.isNotBlank(algorithmsModuleName)) {
+                    pathForModels = openAPIEditorService.generatePath(algorithmsModuleName);
+                } else {
+                    pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH);
+                }
+            }
         } else {
             pathForModels = current;
         }
@@ -2664,7 +2675,9 @@ public class RepositoryTreeController {
     }
 
     public boolean isMergedIntoMain(UserWorkspaceProject project) {
-        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
+            .supports()
+            .branches()) {
             return false;
         }
 
@@ -2678,7 +2691,9 @@ public class RepositoryTreeController {
     }
 
     public String getMainBranch(UserWorkspaceProject project) {
-        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository().supports().branches()) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
+            .supports()
+            .branches()) {
             return null;
         }
         return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
