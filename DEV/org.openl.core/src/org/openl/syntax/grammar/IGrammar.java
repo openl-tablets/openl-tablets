@@ -16,11 +16,9 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public interface IGrammar {
 
-    SyntaxNodeException[] getErrors();
+    SyntaxNodeException getError();
 
     ISyntaxNode getTopNode();
-
-    void parse(Reader characterStream, String parseType);
 
     void parseAsMethod(Reader r);
 
