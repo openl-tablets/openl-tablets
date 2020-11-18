@@ -604,6 +604,9 @@ public final class DecisionTableHelper {
                 }
             }
         }
+
+        Map<Token, List<Pair<IOpenField[], FuzzyResult>>> bestFuzzyResultsMap = new HashMap<>();
+
         for (Entry<IOpenField[], List<Token>> entry : m.entrySet()) {
             final IOpenField[] fieldsChain = entry.getKey();
             final boolean foundInReturns = fuzzyReturns.stream()
@@ -611,17 +614,39 @@ public final class DecisionTableHelper {
             if (foundInReturns) {
                 continue;
             }
-            FuzzyResult fuzzyResult = null;
             for (Token token : entry.getValue()) {
                 List<FuzzyResult> fuzzyResults = OpenLFuzzyUtils
                     .fuzzyExtract(token.getValue(), fuzzyContext.getParameterTokens().getTokens(), false);
-                if (fuzzyResult == null && fuzzyResults.size() == 1 || fuzzyResult != null && fuzzyResults
-                    .size() == 1 && fuzzyResults.get(0).compareTo(fuzzyResult) < 0) {
-                    fuzzyResult = fuzzyResults.get(0);
+                for (FuzzyResult fuzzyResult : fuzzyResults) {
+                    List<Pair<IOpenField[], FuzzyResult>> resultList = bestFuzzyResultsMap
+                        .computeIfAbsent(fuzzyResult.getToken(), e -> new ArrayList<>());
+                    if (resultList.isEmpty()) {
+                        resultList.add(Pair.of(fieldsChain, fuzzyResult));
+                    } else {
+                        Pair<IOpenField[], FuzzyResult> existedResult = resultList.iterator().next();
+                        int fuzzyResultCompare = fuzzyResult.compareTo(existedResult.getRight());
+                        if (fuzzyResultCompare <= 0) {
+                            if (fuzzyResultCompare < 0) {
+                                resultList.clear();
+                            }
+                            boolean f = true;
+                            for (Pair<IOpenField[], FuzzyResult> pair : resultList) {
+                                if (OpenLFuzzyUtils.isEqualsFieldsChains(pair.getKey(), fieldsChain)) {
+                                    f = false;
+                                }
+                            }
+                            if (f) {
+                                resultList.add(Pair.of(fieldsChain, fuzzyResult));
+                            }
+                        }
+                    }
                 }
             }
-            if (fuzzyResult != null) {
-                Token paramToken = fuzzyResult.getToken();
+        }
+
+        for (Entry<Token, List<Pair<IOpenField[], FuzzyResult>>> entry : bestFuzzyResultsMap.entrySet()) {
+            Token paramToken = entry.getKey();
+            for (Pair<IOpenField[], FuzzyResult> pair : entry.getValue()) {
                 final int paramIndex = fuzzyContext.getParameterTokens().getParameterIndex(paramToken);
                 IOpenClass type = decisionTable.getSignature().getParameterType(paramIndex);
                 final IOpenField[] paramFieldsChain = fuzzyContext.getParameterTokens().getFieldsChain(paramToken);
@@ -633,8 +658,8 @@ public final class DecisionTableHelper {
                 } else {
                     statement = decisionTable.getSignature().getParameterName(paramIndex);
                 }
-
                 if (!isCompoundInputType(type)) {
+                    IOpenField[] fieldsChain = pair.getKey();
                     Pair<String, IOpenClass> p = buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
                         fieldsChain);
                     IOpenCast cast = bindingContext.getCast(type, p.getValue());
@@ -653,6 +678,7 @@ public final class DecisionTableHelper {
                                     fieldsChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
                         }
+
                     }
                 }
             }
