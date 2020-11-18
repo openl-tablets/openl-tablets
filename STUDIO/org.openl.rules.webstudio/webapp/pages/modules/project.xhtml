@@ -115,7 +115,7 @@
                                 <td>#{projectData.version.versionInfo.createdBy}</td>
                             </tr>
                             <tr>
-                                <td>inModified At:</td>
+                                <td>Modified At:</td>
                                 <td>
                                     <h:outputText value="#{projectData.version.versionInfo.createdAt}">
                                         <f:convertDateTime type="date"
@@ -330,6 +330,14 @@
                             <li style="display: #{not empty project.openapi.path ? 'list-item' :'none'}">
                                 OpenAPI File:
                                 <h:outputText value="#{project.openapi.path}"/>
+                            </li>
+                            <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
+                                Rules module:
+                                <h:outputText value="#{project.openapi.algorithmModuleName}"/>
+                            </li>
+                            <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
+                                Data module:
+                                <h:outputText value="#{project.openapi.modelModuleName}"/>
                             </li>
                         </ul>
                     </div>

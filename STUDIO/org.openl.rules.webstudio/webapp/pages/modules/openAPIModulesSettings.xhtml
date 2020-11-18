@@ -162,10 +162,15 @@
 
         const RULES_TYPE = 'Algorithms';
         const MODELS_TYPE = 'Models';
+        const DEFAULT_FOLDER = "rules/";
+        const DEFAULT_EXTENSION = ".xlsx";
         const DEFAULT_MODEL_MODULE_PATH = "#{environment.getProperty('openapi.default.data.module.path')}";
         const DEFAULT_ALGORITHM_MODULE_PATH = "#{environment.getProperty('openapi.default.algorithm.module.path')}";
 
         function openModulesSettings(importFormInfo) {
+            algorithmPathEditable = true;
+            modelPathEditable = true;
+
             if (!canOverwriteRevision()) {
                 return false;
             }
@@ -177,14 +182,12 @@
             let modelsModule = modules.find(module => module.type === MODELS_TYPE);
             modelModuleName = modelsModule ? modelsModule.name : openAPIModifiedInfo.modelModuleName;
             algorithmModuleName = rulesModule ? rulesModule.name : openAPIModifiedInfo.algorithmModuleName;
-
             if (modelsModule) {
                 modelModulePath = modelsModule.path;
                 modelPathEditable = false;
             } else {
                 modelModulePath = DEFAULT_MODEL_MODULE_PATH;
             }
-
             if (rulesModule) {
                 algorithmModulePath = rulesModule.path;
                 algorithmPathEditable = false;
@@ -346,25 +349,47 @@
                 },
 
                 resetDataPath: function () {
-                    $j("#data-error span.error").remove()
-                    fields.getModelModulePath().val(DEFAULT_MODEL_MODULE_PATH);
+                    $j("#data-error span.error").remove();
+                    let currentModuleName = fields.getModelModuleName().val();
+                    let modelModulePathInput = fields.getModelModulePath();
+                    let modelDisplayPath = fields.getDataDisplayPath();
+                    if (currentModuleName) {
+                        let path = DEFAULT_FOLDER + currentModuleName + DEFAULT_EXTENSION;
+                        modelModulePathInput.val(path);
+                        modelDisplayPath.val(path);
+                    } else {
+                        modelModulePathInput.val(DEFAULT_MODEL_MODULE_PATH);
+                    }
                 },
 
                 resetAlgoPath: function () {
-                    $j("#algo-error span.error").remove()
-                    fields.getAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
+                    $j("#algo-error span.error").remove();
+                    let currentModuleName = fields.getAlgorithmModuleName().val();
+                    let algorithmModulePathInput = fields.getAlgorithmModulePath();
+                    let algorithmModuleDisplayPath = fields.getAlgoDisplayPath();
+                    if (currentModuleName) {
+                        let path = DEFAULT_FOLDER + currentModuleName + DEFAULT_EXTENSION;
+                        algorithmModulePathInput.val(path);
+                        algorithmModuleDisplayPath.text(path);
+                    } else {
+                        algorithmModulePathInput.val(DEFAULT_ALGORITHM_MODULE_PATH);
+                    }
                 },
 
                 makeAlgoPathEditable() {
-                    $j("#algo-error span.error").remove()
-                    fields.getAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
-                    fields.getEditableAlgorithmModulePath().val(DEFAULT_ALGORITHM_MODULE_PATH);
+                    $j("#algo-error span.error").remove();
+                    let currentModuleName = fields.getAlgorithmModuleName().val();
+                    let algoValue = currentModuleName ? DEFAULT_FOLDER + currentModuleName + DEFAULT_EXTENSION : DEFAULT_ALGORITHM_MODULE_PATH;
+                    fields.getAlgorithmModulePath().val(algoValue);
+                    fields.getEditableAlgorithmModulePath().val(algoValue);
                 },
 
                 makeDataPathEditable() {
-                    $j("#data-error span.error").remove()
-                    fields.getModelModulePath().val(DEFAULT_MODEL_MODULE_PATH);
-                    fields.getEditableDataModulePath().val(DEFAULT_MODEL_MODULE_PATH);
+                    $j("#data-error span.error").remove();
+                    let currentModuleName = fields.getModelModuleName().val();
+                    let dataValue = currentModuleName ? DEFAULT_FOLDER + currentModuleName + DEFAULT_EXTENSION : DEFAULT_MODEL_MODULE_PATH;
+                    fields.getModelModulePath().val(dataValue);
+                    fields.getEditableDataModulePath().val(dataValue);
                 }
             }
         }

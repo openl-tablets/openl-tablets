@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.common.OpenAPIProjectException;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -133,6 +134,8 @@ public class ProjectUploader {
                 }
             } catch (IOException e) {
                 errorMessage = e.getMessage();
+            } catch (OpenAPIProjectException e) {
+                errorMessage = "Error creating the project, " + e.getMessage();
             } catch (Exception e) {
                 errorMessage = "Cannot create project. Error: " + e.getMessage();
             } finally {

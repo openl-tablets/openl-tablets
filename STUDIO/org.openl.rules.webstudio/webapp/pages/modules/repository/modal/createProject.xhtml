@@ -362,7 +362,7 @@
                             <a4j:commandLink title="Reset" style="margin-left: 5px; text-decoration: none;"
                                              id="resetDataPath"
                                              render="openAPIModelModule"
-                                             oncomplete="modelsPathIsInput = false; showDefaultDataPath(); checkCreateOnOpenApiPanel();"
+                                             oncomplete="modelsPathIsInput = false; initListeners();showDefaultDataPath(); checkCreateOnOpenApiPanel();"
                                              action="#{repositoryTreeController.changeModelsFilePathInputState}">
                                 <img src="#{request.contextPath}/webresource/images/close.gif"
                                      style="opacity:0.4"/></a4j:commandLink>
@@ -374,7 +374,7 @@
                                              id="editDataPath"
                                              style="margin-left: 5px; text-decoration: none;"
                                              action="#{repositoryTreeController.changeModelsFilePathInputState}"
-                                             oncomplete="modelsPathIsInput = true; checkCreateOnOpenApiPanel();"
+                                             oncomplete="modelsPathIsInput = true; initListeners(); checkCreateOnOpenApiPanel();"
                                              render="openAPIModelModule">
                                 <img src="#{request.contextPath}/webresource/images/edit.png"
                                      style="opacity:0.4"/></a4j:commandLink>
@@ -398,7 +398,7 @@
                                              style="margin-left: 5px;text-decoration: none;"
                                              id="resetAlgoPath"
                                              action="#{repositoryTreeController.changeAlgorithmsFilePathInputState}"
-                                             oncomplete="algorithmsPathIsInput = false; showDefaultAlgoPath(); checkCreateOnOpenApiPanel();"><img
+                                             oncomplete="algorithmsPathIsInput = false; initListeners(); showDefaultAlgoPath(); checkCreateOnOpenApiPanel();"><img
                                     src="#{request.contextPath}/webresource/images/close.gif"
                                     style="opacity:0.4"/></a4j:commandLink>
                         </h:panelGroup>
@@ -410,7 +410,7 @@
                                              render="openAPIAlgoModule"
                                              style="margin-left: 5px; text-decoration: none;"
                                              action="#{repositoryTreeController.changeAlgorithmsFilePathInputState}"
-                                             oncomplete="algorithmsPathIsInput = true; checkCreateOnOpenApiPanel();">
+                                             oncomplete="algorithmsPathIsInput = true; initListeners(); checkCreateOnOpenApiPanel();">
                                 <img src="#{request.contextPath}/webresource/images/edit.png"
                                      style="opacity:0.4"/></a4j:commandLink>
                         </h:panelGroup>
@@ -862,6 +862,8 @@
             }
         }
 
+        const DEFAULT_FOLDER = "rules/";
+        const DEFAULT_EXTENSION = ".xlsx";
         const DEFAULT_MODEL_MODULE_PATH = "#{environment.getProperty('openapi.default.data.module.path')}";
         const DEFAULT_ALGORITHM_MODULE_PATH = "#{environment.getProperty('openapi.default.algorithm.module.path')}";
         const DEFAULT_MODEL_MODULE_NAME = "#{environment.getProperty('openapi.default.data.module.name')}";
@@ -872,14 +874,47 @@
             getOpenAPIAlgorithmsModuleName().val(DEFAULT_ALGORITHM_MODULE_NAME);
             getOpenAPIModelsDisplayPath().text(DEFAULT_MODEL_MODULE_PATH);
             getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_ALGORITHM_MODULE_PATH);
+
+            initListeners();
         }
 
-        function showDefaultDataPath(){
-            getOpenAPIModelsDisplayPath().text(DEFAULT_MODEL_MODULE_PATH);
+        function initListeners() {
+            getOpenAPIModelsModuleName().on("keyup change", onModelsModuleNameChange);
+            getOpenAPIAlgorithmsModuleName().on("keyup change", onAlgorithmsModuleNameChange);
         }
 
-        function showDefaultAlgoPath(){
-            getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_ALGORITHM_MODULE_PATH);
+        function showDefaultDataPath() {
+            let moduleName = getOpenAPIModelsModuleName().val();
+            if (moduleName) {
+                getOpenAPIModelsDisplayPath().text(DEFAULT_FOLDER + moduleName + DEFAULT_EXTENSION);
+            } else {
+                getOpenAPIModelsDisplayPath().text(DEFAULT_MODEL_MODULE_PATH);
+            }
+        }
+
+        function showDefaultAlgoPath() {
+            let moduleName = getOpenAPIAlgorithmsModuleName().val();
+            if (moduleName) {
+                getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_FOLDER + moduleName + DEFAULT_EXTENSION);
+            } else {
+                getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_ALGORITHM_MODULE_PATH);
+            }
+        }
+
+        function onModelsModuleNameChange(event) {
+            if (!event) {
+                return;
+            }
+            let moduleName = getOpenAPIModelsModuleName().val();
+            getOpenAPIModelsDisplayPath().text(DEFAULT_FOLDER + moduleName + DEFAULT_EXTENSION);
+        }
+
+        function onAlgorithmsModuleNameChange(event) {
+            if (!event) {
+                return;
+            }
+            let moduleName = getOpenAPIAlgorithmsModuleName().val();
+            getOpenAPIAlgorithmsDisplayPath().text(DEFAULT_FOLDER + moduleName + DEFAULT_EXTENSION);
         }
 
         //]]>

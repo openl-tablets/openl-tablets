@@ -21,7 +21,7 @@
     }
   ],
   "paths": {
-    "/pets": {
+    "/getpets": {
       "post": {
         "description": "Creates a new pet in the store. Duplicates are allowed",
         "operationId": "addPet",
@@ -42,7 +42,7 @@
         }
       }
     },
-    "/petsB": {
+    "/getpetsB": {
       "get": {
         "description": "Creates a new pet in the store. Duplicates are allowed",
         "operationId": "addPet",
@@ -63,7 +63,7 @@
         }
       }
     },
-    "/petsA": {
+    "/getpetsA": {
       "get": {
         "description": "Returns a user based on a single ID, if the user does not have access to the pet",
         "operationId": "find pet by id",
