@@ -1,6 +1,7 @@
 package org.openl.excel.grid;
 
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +18,14 @@ import org.openl.excel.parser.SheetDescriptor;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.IncludeSearcher;
+import org.openl.rules.lang.xls.TablePart;
+import org.openl.rules.lang.xls.TablePartProcessor;
+import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -40,8 +48,6 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.util.PathTool;
-import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
@@ -239,8 +245,7 @@ public class SequentialXlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(),
-                            StringTool.encodeURL(include));
+                        String newURL = Paths.get(sheetSource.getWorkbookSource().getUri()).getParent().resolve(include).normalize().toString();
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
