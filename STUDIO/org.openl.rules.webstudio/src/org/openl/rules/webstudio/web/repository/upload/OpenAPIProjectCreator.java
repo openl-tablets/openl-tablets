@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.openl.rules.common.OpenAPIProjectException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -71,36 +72,36 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         super(projectName, projectFolder, userWorkspace);
         this.repositoryId = repositoryId;
         if (!checkFileSize(projectFile)) {
-            throw new ProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");
+            throw new OpenAPIProjectException("Size of the file " + projectFile.getName() + " is more then 100MB.");
         }
         if (StringUtils.isBlank(modelsModuleName)) {
-            throw new ProjectException("Error creating the project, module name for Data Types is not provided.");
+            throw new OpenAPIProjectException("Module name for Data Types is not provided.");
         }
         if (StringUtils.isBlank(modelsPath)) {
-            throw new ProjectException("Error creating the project, path for module with Data Types is not provided.");
+            throw new OpenAPIProjectException("Path for module with Data Types is not provided.");
         }
         if (StringUtils.isBlank(algorithmsModuleName)) {
-            throw new ProjectException("Error creating the project, module name for Rules is not provided.");
+            throw new OpenAPIProjectException("Module name for Rules is not provided.");
         }
         if (!NameChecker.checkName(modelsModuleName) || !NameChecker.checkName(algorithmsModuleName)) {
-            throw new ProjectException("Error creating the project, Module " + NameChecker.BAD_NAME_MSG);
+            throw new OpenAPIProjectException("Module " + NameChecker.BAD_NAME_MSG);
         }
         if (!NameChecker.checkName(FileUtils.getName(projectFile.getName()))) {
-            throw new ProjectException("Error creating the project, OpenAPI File " + NameChecker.BAD_NAME_MSG);
+            throw new OpenAPIProjectException("OpenAPI File " + NameChecker.BAD_NAME_MSG);
         }
 
         if (modelsModuleName.equalsIgnoreCase(algorithmsModuleName)) {
-            throw new ProjectException("Error creating the project, module names cannot be the same.");
+            throw new OpenAPIProjectException("Module names cannot be the same.");
         }
 
         if (StringUtils.isBlank(algorithmsPath)) {
-            throw new ProjectException("Error creating the project, path for module with Rules is not provided.");
+            throw new OpenAPIProjectException("path for module with Rules is not provided.");
         }
         if (modelsPath.startsWith("/")) {
-            throw new ProjectException("Path for Data Types cannot start with '/'");
+            throw new OpenAPIProjectException("Path for Data Types cannot start with '/'");
         }
         if (algorithmsPath.startsWith("/")) {
-            throw new ProjectException("Path for Rules cannot start with '/'");
+            throw new OpenAPIProjectException("Path for Rules cannot start with '/'");
         }
         String normalizedAlgorithmsPath = FileNameFormatter.normalizePath(algorithmsPath);
         String normalizedModelsPath = FileNameFormatter.normalizePath(modelsPath);
@@ -114,11 +115,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
 
         if (!FileTypeHelper.isExcelFile(normalizedAlgorithmsPath)) {
-            throw new ProjectException("Error creating the project, unsupported file extension for module with Rules.");
+            throw new OpenAPIProjectException("Unsupported file extension for module with Rules.");
         }
         if (!FileTypeHelper.isExcelFile(normalizedModelsPath)) {
-            throw new ProjectException(
-                "Error creating the project, unsupported file extension for module with Data Types.");
+            throw new OpenAPIProjectException("Unsupported file extension for module with Data Types.");
         }
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
@@ -148,7 +148,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             boolean spreadsheetsArePresented = CollectionUtils.isNotEmpty(spreadsheetModels);
 
             if (!dataTypesArePresented && !spreadsheetsArePresented) {
-                throw new ProjectException("Error creating the project, uploaded file has invalid structure.");
+                throw new OpenAPIProjectException("Uploaded file has invalid structure.");
             }
 
             environmentModel = new EnvironmentModel();
