@@ -66,18 +66,18 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                 sne = new org.openl.syntax.exception.SyntaxNodeException(pe.getMessage(),
                     null,
                     pos(pe.currentToken),
-                    syntaxBuilder.getModule());
+                    module);
             }
-            syntaxBuilder.addError(sne);
+            syntaxError = sne;
         } catch (TokenMgrError err) {
             org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
 
-            syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(),
+            syntaxError = new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(),
                 null,
                 loc,
-                syntaxBuilder.getModule()));
+                    module);
         } catch (Throwable e) {
-            syntaxBuilder.addError(new SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
+            syntaxError = new SyntaxNodeException("", e, pos(token), module);
         }
     }
 
@@ -85,8 +85,8 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
 
         BExGrammar be = new BExGrammar();
 
-        be.setModule(syntaxBuilder.getModule());
-        be.ReInit(syntaxBuilder.getModule().getCharacterStream());
+        be.setModule(module);
+        be.ReInit(module.getCharacterStream());
 
         BracketMatcher bm = new BracketMatcher();
 
@@ -98,7 +98,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
             } catch (TokenMgrError err) {
                 org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
 
-                return new SyntaxNodeException(err.getMessage(), null, loc, syntaxBuilder.getModule());
+                return new SyntaxNodeException(err.getMessage(), null, loc, module);
             }
             if (t.kind == EOF) {
                 break;
@@ -111,14 +111,14 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                     case UNEXPECTED:
                         message = String.format("Unexpected bracket '%s'", addEscapes(t.image));
 
-                        return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
+                        return new SyntaxNodeException(message, null, pos(t), module);
                     case MISMATCHED:
                         Token t2 = (Token) bso.getId();
 
                         message = String.format("Mismatched: opened with '%s' and closed with '%s'",
                             addEscapes(t2.image.substring(0, 1)),
                             addEscapes(t.image));
-                        return new SyntaxNodeException(message, null, pos(t2, t), syntaxBuilder.getModule());
+                        return new SyntaxNodeException(message, null, pos(t2, t), module);
                     case UNMATCHED:
                         throw new IllegalStateException("UNMATCHED error type shouldn't appear here");
                     default:
@@ -135,7 +135,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
 
             String message = String.format("Need to close '%s'", addEscapes(t.image));
 
-            return new SyntaxNodeException(message, null, pos(t), syntaxBuilder.getModule());
+            return new SyntaxNodeException(message, null, pos(t), module);
 
         }
 

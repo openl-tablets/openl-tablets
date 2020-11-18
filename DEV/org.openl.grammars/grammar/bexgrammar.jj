@@ -93,26 +93,26 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
     }
     catch (ParseException pe)
     {
-      syntaxBuilder.addError(
+      syntaxError =
       new org.openl.syntax.exception.SyntaxNodeException(
       pe.getMessage(), 
       null, 
       pos(pe.currentToken), 
-      syntaxBuilder.getModule()));
+      module);
     }
     catch (TokenMgrError err)
     {
       org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
-      syntaxBuilder.addError(
-      new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, syntaxBuilder.getModule()));
+      syntaxError =
+      new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, module);
     }
     catch (Exception e)
     {
-      syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", e, pos(token), syntaxBuilder.getModule()));
+      syntaxError = new org.openl.syntax.exception.SyntaxNodeException("", e, pos(token), module);
     }
     catch (Throwable t)
     {
-      syntaxBuilder.addError(new org.openl.syntax.exception.SyntaxNodeException("", t, pos(token), syntaxBuilder.getModule()));
+      syntaxError = new org.openl.syntax.exception.SyntaxNodeException("", t, pos(token), module);
     }
   }
 } //EOF JGrammar
@@ -573,7 +573,7 @@ void Expression() :
     )
     Expression()
     {
-      syntaxBuilder.bop(func, pos(x));
+      bop(func, pos(x));
     }
   ]
 }
@@ -587,7 +587,7 @@ void ConditionalTernaryExpression() :
   [
     x = < HOOK > ConditionalTernaryExpression() < COLON > ConditionalTernaryExpression()
     {
-      syntaxBuilder.nop("op.ternary.qmark", pos(x), 3);
+      nop("op.ternary.qmark", pos(x), 3);
     }
   ]
 }
@@ -602,7 +602,7 @@ void ConditionalImplExpression() :
     LOOKAHEAD(< IMPL >)
     (x = < IMPL >) ConditionalOrExpression()
     {
-      syntaxBuilder.bop("op.binary.impl", pos(x));
+      bop("op.binary.impl", pos(x));
     }
   )*
 }
@@ -619,7 +619,7 @@ void ConditionalOrExpression() :
     ) 
     ConditionalAndExpression()
     {
-      syntaxBuilder.bop("op.binary.or", pos(x));
+      bop("op.binary.or", pos(x));
     }
   )*
 }
@@ -636,7 +636,7 @@ void ConditionalAndExpression() :
     ) 
     EqualityExpression()
     {
-      syntaxBuilder.bop("op.binary.and", pos(x));
+      bop("op.binary.and", pos(x));
     }
   )*
 }
@@ -689,7 +689,7 @@ void EqualityExpression() :
     )
     RelationalExpression()
     {
-      syntaxBuilder.bop(func, pos(x));
+      bop(func, pos(x));
     }
   )*
 }
@@ -782,7 +782,7 @@ void RelationalExpression() :
     )
     AdditiveExpression()
     {
-      syntaxBuilder.bop(func, pos(x));
+      bop(func, pos(x));
     }
   )*
 }
@@ -807,7 +807,7 @@ void AdditiveExpression() :
     )
     MultiplicativeExpression()
     {
-      syntaxBuilder.bop(func, pos(x));
+      bop(func, pos(x));
     }
   )*
 }
@@ -836,7 +836,7 @@ void MultiplicativeExpression() :
     )
     PowerExpression()
     {
-      syntaxBuilder.bop(func, pos(x));
+      bop(func, pos(x));
     }
   )*
 }
@@ -851,7 +851,7 @@ void PowerExpression() :
     LOOKAHEAD(< EXP >)
     x = < EXP > UnaryExpression()
     {
-      syntaxBuilder.bop("op.binary.pow", pos(x));
+      bop("op.binary.pow", pos(x));
     }
   )*
 }
@@ -863,17 +863,17 @@ void UnaryExpression() :
 {
   x = < PLUS > UnaryExpression()
   {
-    syntaxBuilder.uop("op.unary.positive", pos(x));
+    uop("op.unary.positive", pos(x));
   }
 | 
   x = < MINUS > UnaryExpression()
   {
-    syntaxBuilder.uop("op.unary.negative", pos(x));
+    uop("op.unary.negative", pos(x));
   }
 |
   x = < NOT > UnaryExpression()
   {
-    syntaxBuilder.uop("op.unary.not", pos(x));
+    uop("op.unary.not", pos(x));
   }
 | 
   PreIncrementExpression()
@@ -893,7 +893,7 @@ void OfTheExpressionSuffix() :
 {
   x = < OF_THE > PrimaryExpression()
   {
-    syntaxBuilder.bop("chain.suffix.of.the", null);
+    bop("chain.suffix.of.the", null);
   }
 }
 
@@ -904,7 +904,7 @@ void PreIncrementExpression() :
 {
   x = < INCR > PrimaryExpression()
   {
-    syntaxBuilder.uop("op.prefix.inc", pos(x));
+    uop("op.prefix.inc", pos(x));
   }
 }
 
@@ -915,7 +915,7 @@ void PreDecrementExpression() :
 {
   x = < DECR > PrimaryExpression()
   {
-    syntaxBuilder.uop("op.prefix.dec", pos(x));
+    uop("op.prefix.dec", pos(x));
   }
 }
 
@@ -928,11 +928,11 @@ void PostfixExpression() :
   [
     x = < INCR >
     {
-      syntaxBuilder.uop("op.suffix.inc", pos(x));
+      uop("op.suffix.inc", pos(x));
     }
   | x = < DECR >
     {
-      syntaxBuilder.uop("op.suffix.dec", pos(x));
+      uop("op.suffix.dec", pos(x));
     }
   ]
 }
@@ -952,7 +952,7 @@ void PrimaryExpression() :
   )*
   {
     if (args > 1) 
-    syntaxBuilder.uop("chain", null);
+    uop("chain", null);
   }
 }
 
@@ -985,20 +985,20 @@ void IdentifierSequence() :
   (
     x = < IDENTIFIER >
     {
-      syntaxBuilder.identifier("identifier", pos(token), token.image);
+      identifier("identifier", pos(token), token.image);
     }
   )
   (
     x = < IDENTIFIER >
     {
-      syntaxBuilder.identifier("identifier.sequence.element", pos(token), token.image);
+      identifier("identifier.sequence.element", pos(token), token.image);
       ++args;
     }
   )*
   {
     if (args > 1)
     {
-      syntaxBuilder.nop("identifier.sequence", null, args);
+      nop("identifier.sequence", null, args);
     }
   }		
 }
@@ -1011,7 +1011,7 @@ void Word(String type) :
   (
     x = < IDENTIFIER >
     {
-      syntaxBuilder.identifier(type, pos(token), token.image);
+      identifier(type, pos(token), token.image);
     }
   )
 }
@@ -1021,19 +1021,19 @@ void PrimarySuffix() :
 {
   IndexOperator()
   {
-    syntaxBuilder.bop("chain.suffix.dot.index", null);
+    bop("chain.suffix.dot.index", null);
   }
 | LOOKAHEAD(< DOT_OPERATOR > function())
   < DOT_OPERATOR > function()
   {
-    syntaxBuilder.bop("chain.suffix.dot.function", null);
+    bop("chain.suffix.dot.function", null);
   }
 | LOOKAHEAD(OfTheExpressionSuffix())
   OfTheExpressionSuffix()
 | LOOKAHEAD(< DOT_OPERATOR > identifier())
   < DOT_OPERATOR > identifier()
   {
-    syntaxBuilder.bop("chain.suffix.dot.identifier", null);
+    bop("chain.suffix.dot.identifier", null);
   }
 }
 
@@ -1044,7 +1044,7 @@ void CastExpression() :
 {
   x1 = < LPAREN > Type() x2 = < RPAREN > UnaryExpression()
   {
-    syntaxBuilder.bop("type.cast", pos(x1, x2));
+    bop("type.cast", pos(x1, x2));
   }
 }
 
@@ -1069,7 +1069,7 @@ void identifier() :
 {
   < IDENTIFIER >
   {
-    syntaxBuilder.identifier("identifier", pos(token), token.image);
+    identifier("identifier", pos(token), token.image);
   }
 }
 
@@ -1078,7 +1078,7 @@ void rangeidentifier() :
 {
   < RANGE_VARIABLE >
   {
-    syntaxBuilder.identifier("range.variable", pos(token), token.image);
+    identifier("range.variable", pos(token), token.image);
   }
 }
 
@@ -1089,7 +1089,7 @@ void TypeDimension() :
 {
   x1 = < LBRACKET > x2 = < RBRACKET >
   {
-    syntaxBuilder.uop("type.index", pos(x1, x2));
+    uop("type.index", pos(x1, x2));
   }
 }
 
@@ -1115,7 +1115,7 @@ void Type() :
     TypeDimension()
   )*
   {
-    syntaxBuilder.uop("type.declaration", null);
+    uop("type.declaration", null);
   }
 }
 
@@ -1124,8 +1124,8 @@ void ResultType() :
 {
   < VOID >
   {
-    syntaxBuilder.identifier("type.name", pos(token), token.image);
-    syntaxBuilder.uop("type.declaration", null);
+    identifier("type.name", pos(token), token.image);
+    uop("type.declaration", null);
   }
 | 
   Type()
@@ -1150,7 +1150,7 @@ void ClassName() :
     }
   )*
   {
-    syntaxBuilder.identifier("type.name", pos(x1, x2), name);
+    identifier("type.name", pos(x1, x2), name);
   }
 }
 
@@ -1171,7 +1171,7 @@ void CommaSeparatedList() :
     }
   )+
   {
-    syntaxBuilder.nop("list.element", null, words);
+    nop("list.element", null, words);
     ++elements;
   }
   (
@@ -1186,13 +1186,13 @@ void CommaSeparatedList() :
       }
     )+
     {
-      syntaxBuilder.nop("list.element", null, words);
+      nop("list.element", null, words);
       ++elements;
     }
   )*
   < RBRACKET >
   {
-    syntaxBuilder.nop("list", null, elements);
+    nop("list", null, elements);
   }
 }
 
@@ -1222,8 +1222,8 @@ void function() :
   ]
   x2 = < RPAREN >
   {
-    syntaxBuilder.identifier("funcname", pos(x1), funcname);
-    syntaxBuilder.nop("function", pos(x1, x2), args + 1);
+    identifier("funcname", pos(x1), funcname);
+    nop("function", pos(x1, x2), args + 1);
   }
 }
 
@@ -1250,12 +1250,12 @@ void AllocationExpression() :
     ]
     x2 = < RPAREN >
     {
-      syntaxBuilder.nop("op.new.object", pos(x1, x2), args + 1);
+      nop("op.new.object", pos(x1, x2), args + 1);
     }
   | 
     ArrayDimsAndInits()
     {
-      syntaxBuilder.uop("op.new.array", pos(x1));
+      uop("op.new.array", pos(x1));
     }
   )
 }
@@ -1275,7 +1275,7 @@ void ArrayDimsAndInits() :
     LOOKAHEAD(2)
     x1 = < LBRACKET > Expression() x2 = < RBRACKET >
     {
-      syntaxBuilder.bop("array.index.expression", pos(x1, x2));
+      bop("array.index.expression", pos(x1, x2));
       cnt++;
     }
   )+
@@ -1283,7 +1283,7 @@ void ArrayDimsAndInits() :
     LOOKAHEAD(2)
     x1 = < LBRACKET > x2 = < RBRACKET >
     {
-      syntaxBuilder.uop("array.index.empty", pos(x1, x2));
+      uop("array.index.empty", pos(x1, x2));
     }
   )*
 |
@@ -1292,7 +1292,7 @@ void ArrayDimsAndInits() :
   )+
   ArrayInitializer()
   {
-    syntaxBuilder.bop("new.array.initialized", null);
+    bop("new.array.initialized", null);
   }
 }
 
@@ -1305,7 +1305,7 @@ void IndexTypeExpression() :
   (
     x1 = < LPAREN > Type() VariableDeclaratorId() x2 = < RPAREN >
     {
-      syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 2);
+      nop("index.parameter.declaration", pos(x1, x2), 2);
     }
   )
 | 
@@ -1313,7 +1313,7 @@ void IndexTypeExpression() :
   (
     x1 = < LPAREN > VariableDeclaratorId() x2 = < RPAREN >
     {
-      syntaxBuilder.nop("index.parameter.declaration", pos(x1, x2), 1);
+      nop("index.parameter.declaration", pos(x1, x2), 1);
     }
   )
 }
@@ -1403,11 +1403,11 @@ void IndexOperator() :
     {
       if (hasTypeExpression)
       {
-        syntaxBuilder.nop(prefix, pos(x1, x2), 2);
+        nop(prefix, pos(x1, x2), 2);
       }
       else
       {
-        syntaxBuilder.uop(prefix, pos(x1, x2));
+        uop(prefix, pos(x1, x2));
       }
     }
   )
@@ -1418,32 +1418,32 @@ void Literal() :
 {
   < INTEGER_LITERAL >
   {
-    syntaxBuilder.literal("literal.integer", pos(token), token.image);
+    literal("literal.integer", pos(token), token.image);
   }
 | 
   < BUSINESS_INTEGER_LITERAL >
   {
-    syntaxBuilder.literal("literal.integer.business", pos(token), token.image);
+    literal("literal.integer.business", pos(token), token.image);
   }
 | 
   < PERCENT_LITERAL >
   {
-    syntaxBuilder.literal("literal.percent", pos(token), token.image);
+    literal("literal.percent", pos(token), token.image);
   }
 | 
   < FLOATING_POINT_LITERAL >
   {
-    syntaxBuilder.literal("literal.real", pos(token), token.image);
+    literal("literal.real", pos(token), token.image);
   }
 | 
   < STRING_LITERAL >
   {
-    syntaxBuilder.literal("literal.string", pos(token), token.image);
+    literal("literal.string", pos(token), token.image);
   }
 | 
   < CHARACTER_LITERAL >
   {
-    syntaxBuilder.literal("literal.char", pos(token), token.image);
+    literal("literal.char", pos(token), token.image);
   }
 | 
   BooleanLiteral()
@@ -1463,7 +1463,7 @@ void DateLiteral() :
 {
   < DATE_FORMAT_LITERAL_4_2_2 >
   {
-    syntaxBuilder.literal("literal.date", pos(token), token.image);
+    literal("literal.date", pos(token), token.image);
   }
 }
 
@@ -1472,7 +1472,7 @@ void TimeLiteral() :
 {
   < TIME_FORMAT_LITERAL >
   {
-    syntaxBuilder.literal("literal.time", pos(token), token.image);
+    literal("literal.time", pos(token), token.image);
   }
 }
 
@@ -1483,7 +1483,7 @@ void DateTimeLiteral() :
   DateLiteral() 
   TimeLiteral()
   {
-    syntaxBuilder.literal("literal.datetime", null, 2);
+    literal("literal.datetime", null, 2);
   }
 }
 
@@ -1492,12 +1492,12 @@ void BooleanLiteral() :
 {
   < TRUE >
   {
-    syntaxBuilder.literal("literal.bool", pos(token), token.image);
+    literal("literal.bool", pos(token), token.image);
   }
 | 
   < FALSE >
   {
-    syntaxBuilder.literal("literal.bool", pos(token), token.image);
+    literal("literal.bool", pos(token), token.image);
   }
 }
 
@@ -1506,7 +1506,7 @@ void NullLiteral() :
 {
   < NULL >
   {
-    syntaxBuilder.literal("literal.null", pos(token), token.image);
+    literal("literal.null", pos(token), token.image);
   }
 }
 
@@ -1532,7 +1532,7 @@ void BlockStatementList() :
     }
   )*
   {
-    syntaxBuilder.nop("block.statement", null, args);
+    nop("block.statement", null, args);
   }
 }
 
@@ -1594,7 +1594,7 @@ void ExtendedWhereStatement() :
     }
   )*
   {
-    syntaxBuilder.nop("where.explanation", null, args);
+    nop("where.explanation", null, args);
   }
 }
 
@@ -1603,7 +1603,7 @@ void WhereVarExpalnation() :
 {
   Word("identifier.var.explanation") "-" Expression()
   {
-    syntaxBuilder.bop("where.var.expalnation", null);
+    bop("where.var.expalnation", null);
   }
 }
 
@@ -1618,11 +1618,11 @@ void LabeledStatement() :
   }
   < COLON >
   {
-    syntaxBuilder.notImplemented("startLabel(label)");
+    notImplemented("startLabel(label)");
   }
   Statement()
   {
-    syntaxBuilder.notImplemented("endLabel()");
+    notImplemented("endLabel()");
   }
 }
 
@@ -1649,7 +1649,7 @@ void StatementExpression() :
     LOOKAHEAD(2)
     ExtendedWhereStatement()
     {
-      syntaxBuilder.bop("where.expression", null);
+      bop("where.expression", null);
     }
   ]
 }
@@ -1659,7 +1659,7 @@ void EmptyStatement() :
 {
   < SEMICOLON >
   {
-    syntaxBuilder.emptyStatement(token.image, pos(token));
+    emptyStatement(token.image, pos(token));
   }
 }
 
@@ -1678,7 +1678,7 @@ void IfStatement() :
     }
   ]
   {
-    syntaxBuilder.nop("control.if", pos(x1), nodes);
+    nop("control.if", pos(x1), nodes);
   }
 }
 
@@ -1689,7 +1689,7 @@ void WhileStatement() :
 {
   x = < WHILE > < LPAREN > Expression() < RPAREN > Statement()
   {
-    syntaxBuilder.bop("control.while", pos(x));
+    bop("control.while", pos(x));
   }
 }
 
@@ -1708,7 +1708,7 @@ void ReturnStatement() :
   ]
   < SEMICOLON >
   {
-    syntaxBuilder.nop("control.return", pos(x), args);
+    nop("control.return", pos(x), args);
   }
 }
 
@@ -1722,14 +1722,14 @@ void DoStatement() :
 {}
 {
   {
-    syntaxBuilder.notImplemented("startLabel(null)");
+    notImplemented("startLabel(null)");
   } // anonymous label for cycles
   < DO > Statement() < WHILE > < LPAREN > Expression() < RPAREN > OptionalSemiColon()
   {
-    syntaxBuilder.notImplemented("doStatement()");
+    notImplemented("doStatement()");
   }
   {
-    syntaxBuilder.notImplemented("endLabel()");
+    notImplemented("endLabel()");
   }
 }
 
@@ -1749,7 +1749,7 @@ void LocalVariableDeclaration() :
     }
   )*
   {
-    syntaxBuilder.nop("local.var.declaration", null, args + 1);
+    nop("local.var.declaration", null, args + 1);
   }
 }
 
@@ -1768,7 +1768,7 @@ void VariableDeclarator() :
   {
     if (withInitializer)
     {
-      syntaxBuilder.bop("local.var.name.init", null);	
+      bop("local.var.name.init", null);	
     }
   }
 }
@@ -1813,7 +1813,7 @@ void ArrayInitializer() :
   [ < COMMA > ] 
   x2 = < RBRACE >
   {
-    syntaxBuilder.nop("array.init", pos(x1, x2), args);
+    nop("array.init", pos(x1, x2), args);
   }
 }
 
@@ -1849,7 +1849,7 @@ void ForStatement() :
     bParts [ 3 ] = true;
   }
   {
-    syntaxBuilder.nop("control.for", pos(x), bParts);
+    nop("control.for", pos(x), bParts);
   }
 }
 
@@ -1879,7 +1879,7 @@ void StatementExpressionList() :
   )*
   {
     if (args > 1) 
-    syntaxBuilder.nop("statement_list", null, args);
+    nop("statement_list", null, args);
   }
 }
 
@@ -1903,7 +1903,7 @@ void BreakStatement() :
   ]
   OptionalSemiColon()
   {
-    syntaxBuilder.notImplemented("doBreak(label)");
+    notImplemented("doBreak(label)");
   }
 }
 
@@ -1921,7 +1921,7 @@ void ContinueStatement() :
   ]
   OptionalSemiColon()
   {
-    syntaxBuilder.notImplemented("doContinue(label)");
+    notImplemented("doContinue(label)");
   }
 }
 
@@ -1930,7 +1930,7 @@ void MethodHeader() :
 {
   ResultType() MethodDeclarator()
   {
-    syntaxBuilder.nop("method.header", null, 3);
+    nop("method.header", null, 3);
   }
 }
 
@@ -1941,7 +1941,7 @@ void MethodDeclaration() :
   (
     Block()
     {
-      syntaxBuilder.nop("method.declaration", null, 4);
+      nop("method.declaration", null, 4);
     }
   | < SEMICOLON >
   )
@@ -1980,7 +1980,7 @@ void FormalParameters() :
   ]
   x2 = < RPAREN >
   {
-    syntaxBuilder.nop("method.parameters", pos(x1, x2), args);
+    nop("method.parameters", pos(x1, x2), args);
   }
 }
 
@@ -1989,7 +1989,7 @@ void FormalParameter() :
 {
   Type() VariableDeclaratorId()
   {
-    syntaxBuilder.nop("parameter.declaration", null, 2);
+    nop("parameter.declaration", null, 2);
   }
 }
 
@@ -1998,7 +1998,7 @@ void VarDeclaration() :
 {
   LocalVariableDeclaration() < SEMICOLON >
   {
-    syntaxBuilder.uop("var.declaration", null);
+    uop("var.declaration", null);
   }
 }
 
@@ -2024,7 +2024,7 @@ void parseModuleInternal() :
     }
   )*
   {
-    if (nMethods > 0) syntaxBuilder.nop("module.top", null, nMethods);
+    if (nMethods > 0) nop("module.top", null, nMethods);
   }
   < EOF >
 }
@@ -2034,7 +2034,7 @@ void parseTopNodeInternal() :
 {
   BlockStatementList()
   {
-    syntaxBuilder.uop("block.top", null);
+    uop("block.top", null);
   }
   < EOF >
 }
