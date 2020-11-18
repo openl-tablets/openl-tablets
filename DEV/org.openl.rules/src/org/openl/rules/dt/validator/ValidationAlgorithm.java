@@ -18,6 +18,7 @@ import org.openl.ie.constrainer.consistencyChecking.Uncovered;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -128,7 +129,11 @@ public class ValidationAlgorithm {
 
         IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator().getFormalSourceCode(condition);
 
-        return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, bindingContext);
+        try {
+            return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, bindingContext);
+        } catch (SyntaxNodeException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 
     private IMethodSignature getNewSignature(IBaseCondition condition, DecisionTableAnalyzer analyzer) {

@@ -138,16 +138,12 @@ public class ReturnAnalyzer {
         return returnType;
     }
 
-    private IOpenClass getTypeOfField(StringValue fieldContent) {
-        return compiler.getTypeOfField(fieldContent);
-    }
-
-    private boolean hasTypeAsReturn(StringValue fieldContent) {
+    private boolean hasTypeAsReturn(StringValue fieldContent) throws SyntaxNodeException {
         if (returnType == JavaOpenClass.VOID) {
             // for void functions return must be empty
             return fieldContent.getValue().equals("");
         }
-        IOpenClass typeOfField = getTypeOfField(fieldContent);
+        IOpenClass typeOfField = compiler.getTypeOfField(fieldContent);
         return returnType.equals(typeOfField);
     }
 }

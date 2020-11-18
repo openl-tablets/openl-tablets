@@ -2914,7 +2914,7 @@ public final class DecisionTableHelper {
                             isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                         }
 
-                    } catch (CompositeSyntaxNodeException ignored) {
+                    } catch (CompositeSyntaxNodeException | SyntaxNodeException ignored) {
                     }
                     h[valueNum][cellNum] = false;
                     continue;

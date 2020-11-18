@@ -7,7 +7,7 @@ ERROR: Table structure is wrong. More than one cell with data found where only o
 ERROR: Cannot parse cell value 'test'. Expected value of type 'Boolean'.
 ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
 ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
-ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
+ERROR: Method 'someMyRule3(java.lang.Integer, java.lang.Integer, java.lang.Integer)' is not found.
 ERROR: Failed to parse int range.
 ERROR: Failed to parse int range.
 ERROR: Failed to parse int range.

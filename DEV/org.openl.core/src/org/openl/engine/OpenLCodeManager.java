@@ -9,7 +9,6 @@ import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.ANodeBinder;
 import org.openl.binding.impl.MethodCastNode;
-import org.openl.binding.impl.TypeCastException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.source.IOpenSourceCodeModule;
@@ -23,7 +22,6 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.StringUtils;
 
 /**
  * Class that defines OpenL engine manager implementation for operations with code such as make type, make method and
@@ -53,24 +51,19 @@ public class OpenLCodeManager {
      */
     private static IBoundMethodNode bindMethod(IBoundMethodNode boundMethodNode,
             IOpenMethodHeader header,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
-        try {
-            IOpenClass type = header.getType();
+        IOpenClass type = header.getType();
 
-            if (type != JavaOpenClass.VOID && type != NullOpenClass.the) {
+        if (type != JavaOpenClass.VOID && type != NullOpenClass.the) {
 
-                IOpenCast cast = ANodeBinder.getCast(boundMethodNode, type, bindingContext);
+            IOpenCast cast = ANodeBinder.getCast(boundMethodNode, type, bindingContext);
 
-                if (cast != null) {
-                    boundMethodNode = new MethodCastNode(boundMethodNode, cast, type);
-                }
+            if (cast != null) {
+                boundMethodNode = new MethodCastNode(boundMethodNode, cast, type);
             }
-            return boundMethodNode;
-        } catch (TypeCastException ex) {
-            throw new CompositeSyntaxNodeException(StringUtils.EMPTY, new SyntaxNodeException[] { ex });
         }
-
+        return boundMethodNode;
     }
 
     /**
@@ -141,7 +134,7 @@ public class OpenLCodeManager {
             String methodName,
             IMethodSignature signature,
             IOpenClass declaringClass,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
         CompositeMethod compositeMethod = new CompositeMethod(header, null);
@@ -172,7 +165,7 @@ public class OpenLCodeManager {
      */
     public void compileMethod(IOpenSourceCodeModule source,
             CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
+            IBindingContext bindingContext) throws SyntaxNodeException {
 
         IOpenMethodHeader header = compositeMethod.getHeader();
         MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
