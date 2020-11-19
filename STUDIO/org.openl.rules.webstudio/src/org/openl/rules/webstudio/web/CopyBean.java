@@ -409,7 +409,8 @@ public class CopyBean {
                 String pattern = applicationContext.getEnvironment()
                         .getProperty("repository.design.new-branch-pattern");
                 Objects.requireNonNull(pattern);
-                newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
+                newBranchName = pattern.replaceAll("\\{project-name}", simplifiedProjectName).
+                        replaceAll("\\{user-name}", userName).replaceAll("\\{current-date}", date);
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

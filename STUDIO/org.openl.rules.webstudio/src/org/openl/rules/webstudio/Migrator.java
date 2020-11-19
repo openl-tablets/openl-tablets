@@ -145,6 +145,16 @@ public class Migrator {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
+        // migrate design new-branch-pattern
+        Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
+        if (desNewBranchPattern != null) {
+            String migratedNewBranchPattern = desNewBranchPattern.toString()
+                    .replaceAll("\\{0}", "\\{project-name}")
+                    .replaceAll("\\{1}", "\\{user-name}")
+                    .replaceAll("\\{2}", "\\{current-date}");
+            props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
+        }
+
         // migrate deployment repository path
         if (settings.getProperty(
             "repository.production.local-repository-path") == null && "org.openl.rules.repository.git.GitRepository"
