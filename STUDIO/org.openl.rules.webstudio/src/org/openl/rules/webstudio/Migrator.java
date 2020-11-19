@@ -26,5 +26,15 @@ public class Migrator {
         props.put("project.history.unlimited", null); // Remove
         props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         DynamicPropertySource.get().save(props);
+        // migrate design new-branch-pattern
+        Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
+        if (desNewBranchPattern != null) {
+            String migratedNewBranchPattern = desNewBranchPattern.toString()
+                    .replaceAll("\\{0}", "\\{project-name}")
+                    .replaceAll("\\{1}", "\\{user-name}")
+                    .replaceAll("\\{2}", "\\{current-date}");
+            props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
+        }
+
     }
 }

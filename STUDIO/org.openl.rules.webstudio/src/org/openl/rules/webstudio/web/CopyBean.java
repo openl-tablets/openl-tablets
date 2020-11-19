@@ -351,7 +351,8 @@ public class CopyBean {
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
                 String pattern = applicationContext.getEnvironment()
                         .getProperty("repository.design.new-branch-pattern");
-                newBranchName = MessageFormat.format(pattern, simplifiedProjectName, userName, date);
+                newBranchName = pattern.replaceAll("\\{project-name}", simplifiedProjectName).
+                        replaceAll("\\{user-name}", userName).replaceAll("\\{current-date}", date);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
