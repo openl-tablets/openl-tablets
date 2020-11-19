@@ -9,6 +9,7 @@ import java.time.LocalTime;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -613,10 +614,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         }
 
         private void addSchemaOpenApiAnnotation(AnnotationVisitor av, Class<?> type) {
-            boolean isArray = type.isArray();
-            if (isArray) {
+            boolean isArrayOrCollection = type.isArray() || Collection.class.isAssignableFrom(type);
+            if (isArrayOrCollection) {
                 av = av.visitAnnotation("array", Type.getDescriptor(ArraySchema.class));
-                type = type.getComponentType();
+                type = Collection.class.isAssignableFrom(type) ? Object.class : type.getComponentType();
             }
             final Class<?> extractedType = extractOriginalType(type);
             if (extractedType != null) {
@@ -639,11 +640,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 av1.visit("type", "boolean");
             } else if (type == Character.class || type == char.class) {
                 av1.visit("type", "string");
+            } else if (Map.class.isAssignableFrom(type)) {
+                av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema annotations.
             } else {
                 av1.visit("implementation", Type.getType(type));
             }
             av1.visitEnd();
-            if (isArray) {
+            if (isArrayOrCollection) {
                 av.visitEnd();
             }
         }

@@ -620,4 +620,10 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-10708/EPBDS-10708/openapi.json", "/EPBDS-10708/EPBDS-10708_openapi.resp.json");
         client.get("/REST/EPBDS-10708/EPBDS-10708/mainSpr", "/EPBDS-10708/EPBDS-10708_mainSpr.resp.json");
     }
+
+    @Test
+    public void EPBDS_10743() {
+        client.get("/EPBDS-10743/EPBDS-10743/swagger.json", "/EPBDS-10743/EPBDS-10743_swagger.resp.json");
+        client.get("/EPBDS-10743/EPBDS-10743/openapi.json", "/EPBDS-10743/EPBDS-10743_openapi.resp.json");
+    }
 }
