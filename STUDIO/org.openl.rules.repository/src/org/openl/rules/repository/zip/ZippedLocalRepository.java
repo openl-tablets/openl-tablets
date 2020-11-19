@@ -1,4 +1,4 @@
-package org.openl.rules.repository.file;
+package org.openl.rules.repository.zip;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -9,22 +9,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
+import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
-import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.Features;
@@ -36,6 +38,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
+import org.openl.util.StringUtils;
 
 /**
  * Read only implementation of Local Repository to support deploying of zip archives as it is from file system without
@@ -49,10 +52,10 @@ import org.openl.util.IOUtils;
  */
 public class ZippedLocalRepository implements FolderRepository, RRepositoryFactory, Closeable  {
 
-    private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
-
-    private static final String PATH_SEPARATOR = "/";
+    private static final Pattern PATH_SEP = Pattern.compile("[\\\\/]");
     private static final String ZIP_EXT = "zip";
+
+    private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
 
     private static boolean zipArchiveFilter(Path path) {
         if (!Files.isRegularFile(path)) {
@@ -68,9 +71,11 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     }
 
     private String uri;
+    private String[] archives;
     private Path root;
     private String id;
     private String name;
+    private Map<String, Path> storage;
 
     @Override
     public void initialize() throws RRepositoryException {
@@ -88,8 +93,42 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         }
         this.root = rootFile.toPath();
         if (!Files.isDirectory(root)) {
-            throw new IOException(String.format("Failed to initialize the root directory: [%s]", root));
+            throw new IOException(String.format("Failed to initialize the root directory: [%s].", root));
         }
+        final Map<String, Path> localStorage = new HashMap<>();
+        if (archives != null && archives.length > 0) {
+            for (String archiveName : archives) {
+                if (StringUtils.isBlank(archiveName)) {
+                    throw new IOException("An archive name cannot be blank!");
+                }
+                if (localStorage.containsKey(archiveName.toLowerCase())) {
+                    throw new IOException(String.format("An archive name [%s] is duplicated!", archiveName));
+                }
+                if (PATH_SEP.matcher(archiveName).find()) {
+                    throw new IOException(String.format("An archive name [%s] must not contain characters of path separator!", archiveName));
+                }
+                Path pathToArchive = root.resolve(archiveName);
+                if (!Files.exists(pathToArchive)) {
+                    throw new IOException(String.format("The path [%s] does not exist.", archiveName));
+                }
+                if (!zipArchiveFilter(pathToArchive)) {
+                    throw new IOException(String.format("[%s] is not archive.", archiveName));
+                }
+                localStorage.put(archiveName.toLowerCase(), pathToArchive);
+            }
+        }
+        if (localStorage.isEmpty()) {
+            Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
+                    if (attrs.isDirectory() || zipArchiveFilter(p)) {
+                        localStorage.put(p.getFileName().toString().toLowerCase(), p);
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        }
+        this.storage = Collections.unmodifiableMap(localStorage);
     }
 
     public void setUri(String uri) {
@@ -114,6 +153,10 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         return name;
     }
 
+    public void setArchives(String... archives) {
+        this.archives = archives;
+    }
+
     @Override
     public void close() {
         openedFileSystems.values().forEach(IOUtils::closeQuietly);
@@ -123,13 +166,17 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     @Override
     public List<FileData> list(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<>();
-        Pair<Path, Path> paths = resolvePath(path);
-        Path resolvedPath = paths.getValue();
-        Path pathToArchive = paths.getKey();
-        if (!Files.isDirectory(resolvedPath)) {
+        CompoundPath resolvedPath = resolvePath(path);
+        if (!resolvedPath.isDirectory()) {
             return files;
         }
-        listFiles(files, pathToArchive, resolvedPath);
+        if (resolvedPath.getPath().equals(root)) {
+            for (Path p : storage.values()) {
+                listFiles(files, null, p);
+            }
+        } else {
+            listFiles(files, resolvedPath.getPathToArchive(), resolvedPath.getPath());
+        }
         return files;
     }
 
@@ -145,7 +192,8 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
                         //it's not an archive
                     }
                 } else {
-                    FileData data = getFileData(pathToArchive, p, attr);
+                    CompoundPath cp = new CompoundPath(p, pathToArchive, attr);
+                    FileData data = getFileData(cp);
                     files.add(data);
                 }
                 return FileVisitResult.CONTINUE;
@@ -153,11 +201,11 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         });
     }
 
-    private FileData getFileData(Path pathToArchive, Path pathToFile, BasicFileAttributes attr) {
+    private FileData getFileData(CompoundPath path) throws IOException {
         FileData data = new FileData();
-        data.setName(resolveName(pathToArchive, pathToFile));
-        data.setModifiedAt(new Date(attr.lastModifiedTime().toMillis()));
-        data.setSize(attr.size());
+        data.setName(path.relativize(root));
+        data.setModifiedAt(path.getModifiedAt());
+        data.setSize(path.getSize());
         return data;
     }
 
@@ -165,50 +213,41 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     @Override
     public List<FileData> listFolders(String path) throws IOException {
         List<FileData> files = new LinkedList<>();
-        Pair<Path, Path> paths = resolvePath(path);
-        Path pathToArchive = paths.getKey();
-        Path resolvedPath = paths.getValue();
-        if (!Files.isDirectory(resolvedPath)) {
+        final CompoundPath resolvedPath = resolvePath(path);
+        if (!resolvedPath.isDirectory()) {
             return files;
         }
-        List<Path> found = Files.walk(resolvedPath, 1)
-                .filter(p -> !resolvedPath.equals(p))
-                .filter(p -> Files.isDirectory(p) || zipArchiveFilter(p))
+        Stream<Path> stream = resolvedPath.getPath().equals(root) ? storage.values().stream()
+                : Files.walk(resolvedPath.getPath(), 1).filter(p -> !resolvedPath.getPath().equals(p));
+        List<Path> found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p))
                 .collect(Collectors.toList());
         for (Path p : found) {
+            CompoundPath cp = new CompoundPath(p, resolvedPath.getPathToArchive());
             FileData data = new FileData();
-            data.setName(resolveName(pathToArchive, p));
-            BasicFileAttributes attr = Files.readAttributes(p, BasicFileAttributes.class);
-            data.setModifiedAt(new Date(attr.lastModifiedTime().toMillis()));
+            data.setName(cp.relativize(root));
+            data.setModifiedAt(cp.getModifiedAt());
             data.setVersion(String.valueOf(getHashVersion(p)));
             files.add(data);
         }
         return files;
     }
 
-    private String resolveName(Path pathToArchive, Path pathToFile) {
-        String name;
-        if (pathToArchive == null) {
-            name = root.relativize(pathToFile)
-                    .toString();
-        } else {
-            String pathInArchive = pathToFile.toString();
-            if (pathInArchive.charAt(0) == PATH_SEPARATOR.charAt(0)) {
-                pathInArchive = pathInArchive.substring(1);
-            }
-            name = root.relativize(pathToArchive)
-                    .resolve(pathInArchive)
-                    .toString();
+    private CompoundPath resolvePath(String p) throws IOException {
+        if (StringUtils.isEmpty(p) || CompoundPath.PATH_SEPARATOR.equals(p)) {
+            return new CompoundPath(root, null);
         }
-        return name.replace('\\', PATH_SEPARATOR.charAt(0));
-    }
-
-    private Pair<Path, Path> resolvePath(String p) throws IOException {
         Path resolvedPath = root;
         Path archivePath = null;
-        String[] folderNames = p.split(PATH_SEPARATOR);
+        String[] folderNames = p.split(CompoundPath.PATH_SEPARATOR);
+        int i = 0;
         for (String folderName : folderNames) {
-            resolvedPath = resolvedPath.resolve(folderName);
+            if (StringUtils.isEmpty(folderName)) {
+                continue;
+            }
+            resolvedPath = i == 0 ? storage.get(folderName.toLowerCase()) : resolvedPath.resolve(folderName);
+            if (resolvedPath == null) {
+                throw new IOException(String.format("Unable to resolve the path [%s].", p));
+            }
             if (archivePath == null && zipArchiveFilter(resolvedPath)) {
                 try {
                     Path tmp = resolvedPath;
@@ -218,11 +257,12 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
                     throw new IOException(String.format("Unable to resolve the path [%s].", p), e);
                 }
             }
+            i++;
         }
         if ((archivePath != null && !Files.exists(archivePath)) || !Files.exists(resolvedPath)) {
             throw new FileNotFoundException(String.format("File [%s] does not exist.", p));
         }
-        return Pair.of(archivePath, resolvedPath);
+        return new CompoundPath(resolvedPath, archivePath);
     }
 
     private synchronized Path enterZipArchive(Path path) throws IOException {
@@ -231,7 +271,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
             fileSystem = FileSystems.newFileSystem(path, Thread.currentThread().getContextClassLoader());
             openedFileSystems.put(path, fileSystem);
         }
-        return fileSystem.getPath(PATH_SEPARATOR);
+        return fileSystem.getPath(CompoundPath.PATH_SEPARATOR);
     }
 
     protected int getHashVersion(Path path) throws IOException {
@@ -259,29 +299,23 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     @Override
     public FileItem read(String name) throws IOException {
-        Pair<Path, Path> paths = resolvePath(name);
-        Path resolvedPath = paths.getValue();
-        Path pathToArchive = paths.getKey();
-        BasicFileAttributes attr = Files.readAttributes(resolvedPath, BasicFileAttributes.class);
-        if (!attr.isRegularFile()) {
+        CompoundPath path = resolvePath(name);
+        if (!path.isRegularFile()) {
             return null;
         }
-        FileData data = getFileData(pathToArchive, resolvedPath, attr);
+        FileData data = getFileData(path);
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Files.copy(resolvedPath, baos);
+        Files.copy(path.getPath(), baos);
         return new FileItem(data, new ByteArrayInputStream(baos.toByteArray()));
     }
 
     @Override
     public FileData check(String name) throws IOException {
-        Pair<Path, Path> paths = resolvePath(name);
-        Path pathToArchive = paths.getKey();
-        Path resolvedPath = paths.getValue();
-        BasicFileAttributes attr = Files.readAttributes(resolvedPath, BasicFileAttributes.class);
-        if (!attr.isRegularFile()) {
+        CompoundPath path = resolvePath(name);
+        if (!path.isRegularFile()) {
             return null;
         }
-        return getFileData(pathToArchive, resolvedPath, attr);
+        return getFileData(path);
     }
 
     @Override
