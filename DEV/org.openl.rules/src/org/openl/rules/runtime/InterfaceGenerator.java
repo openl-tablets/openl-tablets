@@ -224,7 +224,8 @@ public class InterfaceGenerator {
     private static boolean isIgnoredMember(IOpenMember member, Map<IOpenClass, Boolean> validationMap) {
         if (member instanceof DataOpenField) {
             DataOpenField dataOpenField = (DataOpenField) member;
-            if (XlsNodeTypes.XLS_TEST_METHOD.equals(dataOpenField.getNodeType())) {
+            if (XlsNodeTypes.XLS_RUN_METHOD.equals(dataOpenField.getNodeType()) || XlsNodeTypes.XLS_TEST_METHOD
+                .equals(dataOpenField.getNodeType())) {
                 return true;
             }
         }
