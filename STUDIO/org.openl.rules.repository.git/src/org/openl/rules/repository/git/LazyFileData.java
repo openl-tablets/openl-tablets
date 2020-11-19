@@ -219,7 +219,7 @@ class LazyFileData extends FileData {
             if (fileId == null && getSize() == UNDEFINED_SIZE) {
                 // Deleted status for folder is got from main branch.
                 if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
-                    FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(getName());
+                    FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
                     super.setDeleted(data.isDeleted());
                 }
             }

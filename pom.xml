@@ -91,7 +91,7 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.3.7</org.apache.cxf.version>
+        <org.apache.cxf.version>3.3.8</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
         <jakarta.ws.rs-api.version>2.1.5</jakarta.ws.rs-api.version>
         <io.swagger.core.v3.version>2.0.10</io.swagger.core.v3.version>
@@ -1065,7 +1065,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.31.1</version> <!-- Downgraded from 3.36.1. If you want update to latest please check EPBDS-10726. Starting from 3.31.1 stops work. -->
+                <version>3.36.2</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>

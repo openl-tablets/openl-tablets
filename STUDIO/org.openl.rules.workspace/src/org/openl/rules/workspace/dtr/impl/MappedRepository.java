@@ -135,9 +135,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     .stream()
                     .filter(p -> name.equals(baseFolder + getMappedName(p)))
                     .findFirst();
-            if (project.isPresent() && project.get().isArchived()) {
-                check.setDeleted(true);
-            }
+            check.setDeleted(project.isPresent() && project.get().isArchived());
         }
         return toExternal(mapping, check);
     }
@@ -306,9 +304,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     log.debug("Project {} is not found.", project.getPath());
                 } else {
                     if (delegate.supports().versions()) {
-                        if (project.isArchived()) {
-                            data.setDeleted(true);
-                        }
+                        data.setDeleted(project.isArchived());
                     }
                     internal.add(data);
                 }
@@ -650,6 +646,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         String name = toExternal(externalToInternal, data.getName());
         data.addAdditionalData(new FileMappingData(name, data.getName()));
         data.setName(name);
+
+        Optional<ProjectInfo> project = externalToInternal.getProjects()
+            .stream()
+            .filter(p -> name.equals(baseFolder + getMappedName(p)))
+            .findFirst();
+        data.setDeleted(project.isPresent() && project.get().isArchived());
+
         return data;
     }
 
