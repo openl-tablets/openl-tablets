@@ -34,9 +34,9 @@
     <div id="#{prependId}newBranchTemplateShowInfo" class="hidden">
         This is a pattern for new branches in Git repository.<br/><br/>
         <ul>
-            <li>{0} is replaced by project name.</li>
-            <li>{1} is replaced by user name.</li>
-            <li>{2} is replaced by current date.</li>
+            <li>{project-name} is replaced by project name.</li>
+            <li>{user-name} is replaced by user name.</li>
+            <li>{current-date} is replaced by current date.</li>
         </ul><br/><br/>
         <b>NOTE: </b>Only latin letters, numbers, '_', '-' and '/' are allowed. 
     </div>
@@ -105,7 +105,7 @@
         <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
                      id="#{prependId}newBranchTemplate" rendered="#{isDesignRepo}"
                      validatorMessage="Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.">
-            <f:validateRegex pattern="^([\w\-\/]+|\{[012]\})*$" />
+            <f:validateRegex pattern="^([\w\-\/]+|\{[\w\-\/]+\})*$" />
         </h:inputText>             
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}newBranchTemplateShowInfo');return false;" title="Details" rendered="#{isDesignRepo}"/>
         

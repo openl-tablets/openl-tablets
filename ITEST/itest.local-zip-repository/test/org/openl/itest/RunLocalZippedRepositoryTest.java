@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -23,6 +24,7 @@ public class RunLocalZippedRepositoryTest {
     }
 
     @Test
+    @Ignore
     public void testSingleProjectDeployment() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
     }
