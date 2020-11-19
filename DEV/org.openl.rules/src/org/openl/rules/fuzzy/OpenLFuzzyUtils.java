@@ -475,7 +475,11 @@ public final class OpenLFuzzyUtils {
         int missedTokensMin1 = missedTokensMin;
         double acceptableSimilarity = buildBySimilarity.getAcceptableSimilarity();
         return ret.stream()
-            .map(e -> new FuzzyResult(e, maxMatchedTokens, missedTokensMin1, acceptableSimilarity))
+            .map(e -> new FuzzyResult(e,
+                maxMatchedTokens,
+                missedTokensMin1,
+                sourceTokens.length - maxMatchedTokens,
+                acceptableSimilarity))
             .collect(Collectors.toList());
     }
 
@@ -483,12 +487,18 @@ public final class OpenLFuzzyUtils {
         Token token;
         int foundTokensCount;
         int missedTokensCount;
+        int unmatchedTokensCount;
         double acceptableSimilarity;
 
-        public FuzzyResult(Token token, int foundTokensCount, int missedTokensCount, double acceptableSimilarity) {
+        public FuzzyResult(Token token,
+                int foundTokensCount,
+                int missedTokensCount,
+                int unmatchedTokensCount,
+                double acceptableSimilarity) {
             this.token = token;
             this.foundTokensCount = foundTokensCount;
             this.missedTokensCount = missedTokensCount;
+            this.unmatchedTokensCount = unmatchedTokensCount;
             this.acceptableSimilarity = acceptableSimilarity;
         }
 
@@ -512,6 +522,12 @@ public final class OpenLFuzzyUtils {
             if (this.token.getDistance() > o.token.getDistance()) {
                 return 1;
             }
+            if (this.unmatchedTokensCount > o.unmatchedTokensCount) {
+                return 1;
+            }
+            if (this.unmatchedTokensCount < o.unmatchedTokensCount) {
+                return -1;
+            }
             return Double.compare(o.acceptableSimilarity, this.acceptableSimilarity);
         }
 
@@ -530,11 +546,15 @@ public final class OpenLFuzzyUtils {
         public double getAcceptableSimilarity() {
             return acceptableSimilarity;
         }
+
+        public int getUnmatchedTokensCount() {
+            return unmatchedTokensCount;
+        }
     }
 
     private static class BuildBySimilarity {
-        private String[] sourceTokens;
-        private String[][] tokensList;
+        private final String[] sourceTokens;
+        private final String[][] tokensList;
         private List<Pair<String, String>> similarity;
         private int maxMatchedTokens;
         private int[] f;
