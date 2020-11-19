@@ -1,0 +1,318 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "EPBDS-10743_EPBDS-10743"
+  },
+  "basePath": "/EPBDS-10743/EPBDS-10743",
+  "paths": {
+    "/method2": {
+      "post": {
+        "summary": "Set method2(String)",
+        "description": "Rules method: java.util.Set method2(java.lang.String a)",
+        "operationId": "method2",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              },
+              "uniqueItems": true
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/method1": {
+      "post": {
+        "summary": "List method1(String)",
+        "description": "Rules method: java.util.List method1(java.lang.String a)",
+        "operationId": "method1",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/method4": {
+      "post": {
+        "summary": "Map method4(String)",
+        "description": "Rules method: java.util.Map method4(java.lang.String a)",
+        "operationId": "method4",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "object"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/method3": {
+      "post": {
+        "summary": "Collection method3(String)",
+        "description": "Rules method: java.util.Collection method3(java.lang.String a)",
+        "operationId": "method3",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "JAXRSErrorResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "USER_ERROR",
+            "RULES_RUNTIME",
+            "COMPILATION",
+            "SYSTEM",
+            "BAD_REQUEST",
+            "VALIDATION"
+          ]
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}
