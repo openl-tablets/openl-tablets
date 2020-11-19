@@ -16,9 +16,6 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
-
-import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT;
-
 public class OpenAPITypeUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
@@ -28,50 +25,56 @@ public class OpenAPITypeUtils {
     public static final String DATE = "Date";
     public static final String STRING = "String";
     public static final String FLOAT = "Float";
+    public static final String FLOAT_PRIMITIVE = "float";
     public static final String DOUBLE = "Double";
+    public static final String DOUBLE_PRIMITIVE = "double";
     public static final String INTEGER = "Integer";
+    public static final String INT = "int";
     public static final String BOOLEAN = "Boolean";
+    public static final String BOOLEAN_PRIMITIVE = "boolean";
     public static final String LONG = "Long";
+    public static final String LONG_PRIMITIVE = "long";
     public static final String BIG_DECIMAL = "BigDecimal";
     public static final String BIG_INTEGER = "BigInteger";
 
     private OpenAPITypeUtils() {
     }
 
-    public static String extractType(Schema<?> schema) {
+    public static String extractType(Schema<?> schema, boolean isPrimitive) {
         if (schema.get$ref() != null) {
             return getSimpleName(schema.get$ref());
         }
         String schemaType = schema.getType();
+        String format = schema.getFormat();
         if ("string".equals(schemaType)) {
-            if ("date".equals(schema.getFormat())) {
+            if ("date".equals(format)) {
                 return DATE;
-            } else if ("date-time".equals(schema.getFormat())) {
+            } else if ("date-time".equals(format)) {
                 return DATE;
             } else {
                 return STRING;
             }
         } else if ("number".equals(schemaType)) {
-            if ("float".equals(schema.getFormat())) {
-                return FLOAT;
-            } else if ("double".equals(schema.getFormat())) {
-                return DOUBLE;
+            if (FLOAT_PRIMITIVE.equals(format)) {
+                return isPrimitive ? format : FLOAT;
+            } else if (DOUBLE_PRIMITIVE.equals(format)) {
+                return isPrimitive ? format : DOUBLE;
             } else {
                 return BIG_DECIMAL;
             }
         } else if ("integer".equals(schemaType)) {
-            if ("int64".equals(schema.getFormat())) {
-                return LONG;
-            } else if ("int32".equals(schema.getFormat())) {
-                return INTEGER;
+            if ("int64".equals(format)) {
+                return isPrimitive ? LONG_PRIMITIVE : LONG;
+            } else if ("int32".equals(format)) {
+                return isPrimitive ? INT : INTEGER;
             } else {
                 return BIG_INTEGER;
             }
-        } else if ("boolean".equals(schemaType)) {
-            return BOOLEAN;
+        } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
+            return isPrimitive ? schemaType : BOOLEAN;
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
-            String type = extractType(arraySchema.getItems());
+            String type = extractType(arraySchema.getItems(), false);
             return type != null ? type + "[]" : "";
         } else {
             return OBJECT;
@@ -90,26 +93,35 @@ public class OpenAPITypeUtils {
 
     public static boolean isSimpleType(String type) {
         return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
-            .equals(type) || BOOLEAN.equals(type) || DATE
-                .equals(type) || OBJECT.equals(type) || BIG_INTEGER.equals(type) || BIG_DECIMAL.equals(type);
+            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT
+                .equals(type) || BIG_INTEGER.equals(type) || BIG_DECIMAL.equals(type) || isPrimitiveType(type);
+    }
+
+    public static boolean isPrimitiveType(String type) {
+        return FLOAT_PRIMITIVE.equals(type) || BOOLEAN_PRIMITIVE.equals(type) || INT.equals(type) || LONG_PRIMITIVE
+            .equals(type) || DOUBLE_PRIMITIVE.equals(type);
     }
 
     public static String getSimpleValue(String type) {
         String result;
         switch (type) {
             case INTEGER:
+            case INT:
                 result = "=0";
                 break;
             case BIG_INTEGER:
                 result = "=java.math.BigInteger.ZERO";
                 break;
             case LONG:
+            case LONG_PRIMITIVE:
                 result = "=0L";
                 break;
             case DOUBLE:
+            case DOUBLE_PRIMITIVE:
                 result = "=0.0";
                 break;
             case FLOAT:
+            case FLOAT_PRIMITIVE:
                 result = "=0.0f";
                 break;
             case BIG_DECIMAL:
@@ -122,6 +134,7 @@ public class OpenAPITypeUtils {
                 result = "=new Date()";
                 break;
             case BOOLEAN:
+            case BOOLEAN_PRIMITIVE:
                 result = "=false";
                 break;
             default:

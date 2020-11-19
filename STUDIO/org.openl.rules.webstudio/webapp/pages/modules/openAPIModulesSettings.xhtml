@@ -127,9 +127,8 @@
             </div>
             <footer>
                 <a4j:commandButton id="generateOpenAPIBtn" value="Import"
-                                   styleClass="button-primary"
                                    action="#{projectBean.regenerateOpenAPI}"
-                                   oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('openAPIModulesSettings');}"/>
+                                   oncomplete="if(!#{facesContext.validationFailed}){ws.ui.hide('openAPIModulesSettings'); forceReload();}"/>
                 <input type="button" value="Cancel"
                        onclick="ws.ui.hide('openAPIModulesSettings'); reOpenEditOpenAPI();"/>
             </footer>

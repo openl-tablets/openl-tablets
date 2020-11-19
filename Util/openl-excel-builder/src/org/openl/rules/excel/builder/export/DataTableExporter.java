@@ -30,6 +30,7 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
     public static final String DATA_TYPE_NAME = "{returnType}";
     public static final String DATA_TABLE_NAME = "{table.name}";
     public static final int ROWS_COUNT = 3;
+    public static final String KEYWORD = "this";
 
     private final Logger LOGGER = LoggerFactory.getLogger(DataTableExporter.class);
 
@@ -82,7 +83,13 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
         if (CollectionUtils.isNotEmpty(fields)) {
             for (FieldModel fm : fields) {
                 String fieldName = fm.getName();
-                String formattedName = formatName(fieldName);
+                String formattedName;
+                if (fieldName.equals(KEYWORD)) {
+                    formattedName = "result";
+                } else {
+                    formattedName = formatName(fieldName);
+
+                }
 
                 Cursor next = endPosition.moveDown(1);
                 Cell subheaderCell = PoiExcelHelper.getOrCreateCell(next.getColumn(), next.getRow(), sheet);
@@ -108,7 +115,7 @@ public class DataTableExporter extends AbstractOpenlTableExporter<DataModel> {
         if (width > 0) {
             endPosition = endPosition.moveDown(ROWS_COUNT).moveLeft(width + 1);
         } else {
-            endPosition = endPosition.setColumn(1);
+            endPosition = endPosition.moveDown(ROWS_COUNT).setColumn(1);
         }
         return new Cursor(endPosition.getColumn(), endPosition.getRow());
     }

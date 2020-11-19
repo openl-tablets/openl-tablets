@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -90,9 +91,9 @@ public class OpenLOpenAPIUtils {
             if (responses != null) {
                 ApiResponse response = getResponse(jxPathContext, responses);
                 if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
-                    MediaType mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
+                    MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
                     if (mediaType != null) {
-                        Schema<?> mediaTypeSchema = mediaType.getSchema();
+                        Schema<?> mediaTypeSchema = mediaType.getContent().getSchema();
                         if (mediaTypeSchema != null) {
                             type = mediaTypeSchema;
                         }
@@ -142,14 +143,19 @@ public class OpenLOpenAPIUtils {
         return resolve(jxPathContext, result, ApiResponse::get$ref);
     }
 
-    public static MediaType getMediaType(Content content) {
+    public static MediaTypeInfo getMediaType(Content content) {
         Set<String> mediaTypes = content.keySet();
         if (mediaTypes.contains(APPLICATION_JSON)) {
-            return content.get(APPLICATION_JSON);
+            return new MediaTypeInfo(content.get(APPLICATION_JSON), APPLICATION_JSON);
         } else if (mediaTypes.contains(TEXT_PLAIN)) {
-            return content.get(TEXT_PLAIN);
+            return new MediaTypeInfo(content.get(TEXT_PLAIN), TEXT_PLAIN);
         } else {
-            return content.values().iterator().next();
+            Optional<Map.Entry<String, MediaType>> mediaType = content.entrySet().stream().findFirst();
+            if (mediaType.isPresent()) {
+                Map.Entry<String, MediaType> e = mediaType.get();
+                return new MediaTypeInfo(e.getValue(), e.getKey());
+            }
+            return null;
         }
     }
 
@@ -180,9 +186,9 @@ public class OpenLOpenAPIUtils {
                         if (responses != null) {
                             ApiResponse response = OpenLOpenAPIUtils.getResponse(jxPathContext, responses);
                             if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
-                                MediaType mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
+                                MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
                                 if (mediaType != null) {
-                                    Schema<?> mediaTypeSchema = mediaType.getSchema();
+                                    Schema<?> mediaTypeSchema = mediaType.getContent().getSchema();
                                     if (mediaTypeSchema != null) {
                                         Set<String> refs = OpenLOpenAPIUtils
                                             .visitSchema(jxPathContext, mediaTypeSchema, false, false);
@@ -538,8 +544,8 @@ public class OpenLOpenAPIUtils {
             for (Parameter pathParameter : pathParameters) {
                 Parameter p = resolve(jxPathContext, pathParameter, Parameter::get$ref);
                 if (p != null) {
-                    parameterModels.add(
-                        new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema()), normalizeName(p.getName())));
+                    parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), false),
+                        normalizeName(p.getName())));
                 }
             }
         }
@@ -550,7 +556,7 @@ public class OpenLOpenAPIUtils {
                 for (Parameter parameter : parameters) {
                     Parameter p = resolve(jxPathContext, parameter, Parameter::get$ref);
                     if (p != null) {
-                        parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema()),
+                        parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), false),
                             normalizeName(p.getName())));
                     }
                 }
@@ -559,9 +565,10 @@ public class OpenLOpenAPIUtils {
                     satisfyingOperation.getRequestBody(),
                     RequestBody::get$ref);
                 if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
-                    MediaType mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
+                    MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
                     if (mediaType != null) {
-                        Schema<?> resSchema = resolve(jxPathContext, mediaType.getSchema(), Schema::get$ref);
+                        MediaType content = mediaType.getContent();
+                        Schema<?> resSchema = resolve(jxPathContext, content.getSchema(), Schema::get$ref);
                         parameterModels = collectInputParams(jxPathContext,
                             openAPI,
                             refsToExpand,
@@ -612,7 +619,7 @@ public class OpenLOpenAPIUtils {
             OpenAPI openAPI,
             Set<String> refsToExpand,
             List<InputParameter> parameterModels,
-            MediaType mediaType,
+            MediaTypeInfo mediaType,
             Schema<?> resSchema) {
         if (resSchema != null) {
             // search for refsToExpandInside
@@ -624,7 +631,7 @@ public class OpenLOpenAPIUtils {
                     refsToExpand.remove(internalModel);
                 }
             }
-            String ref = mediaType.getSchema().get$ref();
+            String ref = mediaType.getContent().getSchema().get$ref();
             // only root schema is expandable
             if (ref != null && refsToExpand.contains(ref)) {
                 Map<String, Schema> properties;
@@ -650,16 +657,22 @@ public class OpenLOpenAPIUtils {
                 }
             } else {
                 // non expandable
-                String name = OpenAPITypeUtils.extractType(mediaType.getSchema());
-                if (StringUtils.isBlank(name)) {
+                String type = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(),
+                    TEXT_PLAIN.equals(mediaType.getType()));
+                if (StringUtils.isBlank(type)) {
                     parameterModels = Collections.emptyList();
                 } else {
-                    String parameter = name;
-                    if (name.endsWith("[]")) {
-                        parameter = ARRAY_MATCHER.matcher(name).replaceAll("");
+                    String parameter = type;
+                    if (type.endsWith("[]")) {
+                        parameter = ARRAY_MATCHER.matcher(type).replaceAll("");
                     }
-                    parameterModels = new ArrayList<>(Collections.singletonList(
-                        new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(parameter))));
+                    if (OpenAPITypeUtils.isPrimitiveType(type)) {
+                        parameter += "Param";
+                    } else {
+                        type = StringUtils.capitalize(type);
+                    }
+                    parameterModels = new ArrayList<>(
+                        Collections.singletonList(new ParameterModel(type, StringUtils.uncapitalize(parameter))));
                 }
             }
         }
@@ -669,7 +682,7 @@ public class OpenLOpenAPIUtils {
     public static ParameterModel extractParameter(Map.Entry<String, Schema> property) {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
-        String typeModel = OpenAPITypeUtils.extractType(valueSchema);
+        String typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
         return new ParameterModel(typeModel, normalizeName(propertyName));
     }
 

@@ -263,7 +263,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(mySprOptional.isPresent());
         SpreadsheetModel mySprModel = mySprOptional.get();
-        assertEquals("Double", mySprModel.getType());
+        assertEquals("double", mySprModel.getType());
         List<InputParameter> parameters = mySprModel.getParameters();
         assertEquals(4, parameters.size());
 
