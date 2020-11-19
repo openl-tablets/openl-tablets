@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -215,6 +216,15 @@ public class UserWorkspaceImpl implements UserWorkspace {
         result.sort(PROJECTS_COMPARATOR);
 
         return result;
+    }
+
+    @Override
+    public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
+        return getProjects(false)
+            .stream()
+            .filter(p -> repositoryId.equals(p.getDesignRepository()
+                .getId()) && (realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/"))
+            .findFirst();
     }
 
     @Override

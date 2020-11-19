@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.GET;
@@ -15,6 +16,9 @@ import javax.ws.rs.core.NewCookie;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.openl.rules.common.ProjectException;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -90,16 +94,19 @@ public class ConflictService {
             InputStream stream = null;
             try {
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
-                String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
-                String localName = name.substring(rulesLocation.length());
-                FileItem file = userWorkspace.getLocalWorkspace().getRepository(repoId).read(localName);
-                if (file == null) {
-                    throw new FileNotFoundException(String.format("File %s is not found.", localName));
+                Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repoId, name);
+                if (projectByPath.isPresent()) {
+                    RulesProject project = projectByPath.get();
+                    String artefactPath = name.substring(project.getRealPath().length() + 1);
+                    if (project.hasArtefact(artefactPath)) {
+                        stream = ((AProjectResource) project.getArtefact(artefactPath)).getContent();
+                        IOUtils.copy(stream, output);
+                        output.flush();
+                        return;
+                    }
                 }
-                stream = file.getStream();
-                IOUtils.copy(stream, output);
-                output.flush();
-            } catch (WorkspaceException e) {
+                throw new FileNotFoundException(String.format("File %s is not found.", name));
+            } catch (WorkspaceException | ProjectException e) {
                 LOG.warn(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
