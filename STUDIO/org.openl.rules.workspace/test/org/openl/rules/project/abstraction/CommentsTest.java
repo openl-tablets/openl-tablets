@@ -28,6 +28,7 @@ public class CommentsTest {
         String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
         String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
+        String newBranchNameTemplate = "WebStudio/{project-name}/{username}/{current-date} {foo}";
         comments = new Comments(dateTimeFormat,
             saveProjectTemplate,
             createProjectTemplate,
@@ -35,7 +36,8 @@ public class CommentsTest {
             restoreProjectTemplate,
             eraseProjectTemplate,
             copiedFromTemplate,
-            restoredFromTemplate);
+            restoredFromTemplate,
+            newBranchNameTemplate);
     }
 
     @Test
@@ -146,5 +148,19 @@ public class CommentsTest {
         String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
         assertEquals("Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}", actualWithSymbol);
     }
+
+
+    @Test
+    public void testNewBranch() {
+        String actual = comments.newBranch("myProjectName", "myUserName", "myCurrentDate");
+        assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}", actual);
+    }
+
+    @Test
+    public void testNewBranchWithDollarSign() {
+        String actualWithSymbol = comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate");
+        assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}", actualWithSymbol);
+    }
+
 
 }

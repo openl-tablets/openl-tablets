@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -349,10 +348,7 @@ public class CopyBean {
                 String simplifiedProjectName = currentProjectName.replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                String pattern = applicationContext.getEnvironment()
-                        .getProperty("repository.design.new-branch-pattern");
-                newBranchName = pattern.replaceAll("\\{project-name}", simplifiedProjectName).
-                        replaceAll("\\{user-name}", userName).replaceAll("\\{current-date}", date);
+                newBranchName = designRepoComments.newBranch(simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

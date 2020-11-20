@@ -30,9 +30,9 @@ public class Migrator {
         Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
             String migratedNewBranchPattern = desNewBranchPattern.toString()
-                    .replaceAll("\\{0}", "\\{project-name}")
-                    .replaceAll("\\{1}", "\\{user-name}")
-                    .replaceAll("\\{2}", "\\{current-date}");
+                    .replace("{0}", "{project-name}")
+                    .replace("{1}", "{username}")
+                    .replace("{2}", "{current-date}");
             props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
         }
 
