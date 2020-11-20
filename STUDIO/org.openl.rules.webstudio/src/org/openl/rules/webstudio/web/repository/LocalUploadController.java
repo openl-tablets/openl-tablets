@@ -170,6 +170,13 @@ public class LocalUploadController {
                         String comment = getDesignRepoComments().createProject(createProjectCommentTemplate,
                             bean.getProjectName());
 
+                        UserWorkspace userWorkspace = WebStudioUtils.getRulesUserSession().getUserWorkspace();
+                        if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, bean.getProjectName())) {
+                            WebStudioUtils.addErrorMessage(
+                                "Cannot create project because project with such name already exists.");
+                            return null;
+                        }
+
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
                             repositoryId);
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
