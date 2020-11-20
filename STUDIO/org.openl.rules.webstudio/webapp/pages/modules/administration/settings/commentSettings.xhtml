@@ -83,7 +83,7 @@
             <h:outputLabel value="Customize comments:" for="#{prependId}useCustomComments"/>
             <h:selectBooleanCheckbox id="#{prependId}useCustomComments" value="#{settings.useCustomComments}"
                                      onmousedown="if($j(this).attr('checked')){if(!window.confirm('All validation patterns will be lost. Do you want to continue?')) {return false;}} return this.click()">
-                <f:ajax event="change" execute="@form" render="#{prependId}commentSettings"/>
+                <f:ajax event="change" render="#{prependId}commentSettings"/>
             </h:selectBooleanCheckbox>
         </h:panelGrid>
 
