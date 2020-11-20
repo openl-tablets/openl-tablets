@@ -148,11 +148,7 @@ public class BranchesBean {
                         project.close();
                         String currentBranch = project.getBranch();
 
-                        Optional<RulesProject> refreshedProject = getUserWorkspace().getProjects(false)
-                            .stream()
-                            .filter(p -> repoId.equals(p.getDesignRepository()
-                                .getId()) && realPath.equals(p.getRealPath()))
-                            .findFirst();
+                        Optional<RulesProject> refreshedProject = getUserWorkspace().getProjectByPath(repoId, realPath);
                         if (refreshedProject.isPresent()) {
                             RulesProject mergedProject = refreshedProject.get();
                             mergedProject.setBranch(currentBranch);

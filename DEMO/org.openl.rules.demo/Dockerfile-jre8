@@ -1,6 +1,6 @@
 FROM openjdk:8-jre-slim
 
-ENV TOMCAT_VERSION=9.0.39
+ENV TOMCAT_VERSION=9.0.40
 
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=90.0"
 ENV CONTAINER="true"

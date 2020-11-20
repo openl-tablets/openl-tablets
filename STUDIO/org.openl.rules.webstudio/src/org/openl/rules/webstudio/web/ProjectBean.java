@@ -864,13 +864,6 @@ public class ProjectBean {
             internalOpenAPIPath,
             converter);
 
-        if (infoChanged) {
-            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
-            clean(newProjectDescriptor);
-            newProjectDescriptor.setOpenapi(openAPI);
-            save(newProjectDescriptor);
-        }
-
         if (currentProject.hasArtefact(RULES_DEPLOY_XML)) {
             editRulesDeploy(currentProject, projectModel);
         } else {
@@ -894,6 +887,13 @@ public class ProjectBean {
         }
 
         refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+
+        if (infoChanged) {
+            ProjectDescriptor newProjectDescriptor = cloneProjectDescriptor(currentProjectDescriptor);
+            clean(newProjectDescriptor);
+            newProjectDescriptor.setOpenapi(openAPI);
+            save(newProjectDescriptor);
+        }
 
     }
 

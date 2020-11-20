@@ -10,12 +10,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;
@@ -74,7 +76,6 @@ public class MergeConflictBean {
             return Collections.emptyList();
         }
         try {
-            String rulesLocation = getRulesLocation();
             List<String> conflicts = new ArrayList<>(mergeConflict.getException().getConflictedFiles());
             Map<String, ConflictGroup> groups = new TreeMap<>((p1, p2) -> {
                 if (p1.equals(p2)) {
@@ -90,21 +91,23 @@ public class MergeConflictBean {
                     return p1.compareToIgnoreCase(p2);
                 }
             });
+            UserWorkspace userWorkspace = getUserWorkspace();
+            String repositoryId = mergeConflict.getRepositoryId();
             for (String conflict : conflicts) {
+                Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, conflict);
                 String projectName;
                 String projectPath;
-                if (conflict.startsWith(rulesLocation)) {
-                    int from = rulesLocation.length();
-                    int to = conflict.indexOf('/', from);
-                    projectName = conflict.substring(from, to);
-                    projectPath = conflict.substring(0, to);
+                if (projectByPath.isPresent()) {
+                    RulesProject project = projectByPath.get();
+                    projectName = project.getName();
+                    projectPath = project.getRealPath();
                 } else {
                     projectName = "";
                     projectPath = "";
                 }
                 ConflictGroup group = groups.get(projectName);
                 if (group == null) {
-                    group = new ConflictGroup(projectName, getRealPath(projectPath));
+                    group = new ConflictGroup(projectName, projectPath);
                     groups.put(projectName, group);
                 }
                 group.addFile(conflict);
@@ -198,6 +201,9 @@ public class MergeConflictBean {
             SimpleDateFormat formatter = new SimpleDateFormat(WebStudioFormats.getInstance().dateTime());
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository(mergeConflict.getRepositoryId());
             for (String file : mergeConflict.getException().getConflictedFiles()) {
+                if (designRepository.supports().mappedFolders()) {
+                    designRepository = ((FolderMapper) designRepository).getDelegate();
+                }
                 FileData fileData = designRepository.checkHistory(file, commit);
                 if (fileData != null) {
                     String modifiedOnStr = formatter.format(fileData.getModifiedAt());
@@ -334,7 +340,6 @@ public class MergeConflictBean {
             boolean opened = project.isOpened();
 
             UserWorkspace userWorkspace = getUserWorkspace();
-            String rulesLocation = getRulesLocation();
 
             Repository designRepository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
             LocalRepository localRepository = userWorkspace.getLocalWorkspace().getRepository(repositoryId);
@@ -350,8 +355,15 @@ public class MergeConflictBean {
                         if (mergeOperation) {
                             file = designRepository.readHistory(name, getYourCommit());
                         } else {
-                            String localName = name.substring(rulesLocation.length());
-                            file = localRepository.read(localName);
+                            Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, name);
+                            if (projectByPath.isPresent()) {
+                                RulesProject p = projectByPath.get();
+                                String artefactPath = name.substring(p.getRealPath().length() + 1);
+                                String localName = p.getFolderPath() + "/" + artefactPath;
+                                file = localRepository.read(localName);
+                            } else {
+                                file = null;
+                            }
                         }
                         stream = file == null ? null : file.getStream();
                         resolvedFiles.add(new FileItem(name, stream));
@@ -370,9 +382,7 @@ public class MergeConflictBean {
                 }
             }
 
-            Map<String, List<Module>> modulesToAppend = findModulesToAppend(mergeConflict,
-                rulesLocation,
-                resolvedFiles);
+            Map<String, List<Module>> modulesToAppend = findModulesToAppend(mergeConflict, resolvedFiles);
 
             ConflictResolveData conflictResolveData = new ConflictResolveData(mergeConflict.getException()
                 .getTheirCommit(), resolvedFiles, mergeMessage);
@@ -438,8 +448,9 @@ public class MergeConflictBean {
     }
 
     private Map<String, List<Module>> findModulesToAppend(MergeConflictInfo mergeConflict,
-            String rulesLocation,
-            List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
+        List<FileItem> resolvedFiles) throws WorkspaceException, IOException {
+        UserWorkspace userWorkspace = getUserWorkspace();
+        String repositoryId = mergeConflict.getRepositoryId();
         Map<String, List<Module>> modulesToAppend = new HashMap<>();
         for (FileItem resolvedFile : resolvedFiles) {
             String name = resolvedFile.getData().getName();
@@ -447,18 +458,21 @@ public class MergeConflictBean {
                 continue;
             }
             if ((!hasYourFile(name) || !hasTheirFile(name)) && resolvedFile.getStream() != null) {
-                int from = rulesLocation.length();
-                int to = name.indexOf('/', from);
-                String projectPath = name.substring(0, to);
+                Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, name);
+                if (!projectByPath.isPresent()) {
+                    continue;
+                }
+
+                RulesProject project = projectByPath.get();
+                String projectPath = project.getRealPath();
                 String rulesXmlFile = projectPath + "/rules.xml";
                 if (hasYourFile(rulesXmlFile) && hasTheirFile(rulesXmlFile)) {
-                    String moduleInternalPath = name.substring(to + 1);
+                    String moduleInternalPath = name.substring(projectPath.length() + 1);
 
                     IProjectDescriptorSerializer serializer = WebStudioUtils
                         .getBean(ProjectDescriptorSerializerFactory.class)
                         .getDefaultSerializer();
-                    String id = mergeConflict.getRepositoryId();
-                    Repository repository = getUserWorkspace().getDesignTimeRepository().getRepository(id);
+                    Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
 
                     Module module;
 
@@ -468,9 +482,10 @@ public class MergeConflictBean {
                         if (mergeConflict.isMerging()) {
                             fileItem = repository.readHistory(rulesXmlFile, getYourCommit());
                         } else {
-                            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length())
-                                                                              : name;
-                            fileItem = getUserWorkspace().getLocalWorkspace().getRepository(id).read(localName);
+                            String artefactPath = name.substring(project.getRealPath().length() + 1);
+                            String localName = project.getFolderPath() + "/" + artefactPath;
+
+                            fileItem = userWorkspace.getLocalWorkspace().getRepository(repositoryId).read(localName);
                         }
                         module = getModule(serializer, fileItem, moduleInternalPath);
                     }
@@ -556,11 +571,15 @@ public class MergeConflictBean {
                 boolean merging = mergeConflict.isMerging();
                 String yourBranch = getYourBranch();
                 String theirBranch = getTheirBranch();
+                Repository designRepository = getUserWorkspace().getDesignTimeRepository().getRepository(mergeConflict.getRepositoryId());
                 for (String file : conflicts) {
                     ConflictResolution resolution = conflictResolutions.get(file);
 
-                    if (file.startsWith(rulesLocation)) {
-                        file = file.substring(rulesLocation.length());
+                    // In non-flat repositories we should see full path. In flat repos only essential part.
+                    if (!designRepository.supports().mappedFolders()) {
+                        if (file.startsWith(rulesLocation)) {
+                            file = file.substring(rulesLocation.length());
+                        }
                     }
                     messageBuilder.append("\n\t").append(file);
 
@@ -622,10 +641,10 @@ public class MergeConflictBean {
 
     private boolean hasLocalFile(String repositoryId, String name) {
         try {
-            String rulesLocation = getRulesLocation();
-            String localName = name.startsWith(rulesLocation) ? name.substring(rulesLocation.length()) : name;
-            return getUserWorkspace().getLocalWorkspace().getRepository(repositoryId).check(localName) != null;
-        } catch (WorkspaceException | IOException e) {
+            return getUserWorkspace().getProjectByPath(repositoryId, name)
+                .map(project -> project.hasArtefact(name.substring(project.getRealPath().length() + 1)))
+                .orElse(false);
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }

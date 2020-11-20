@@ -225,4 +225,67 @@ public class OpenAPIConverterTest {
         assertEquals(9, spreadsheetModels.size());
     }
 
+    @Test
+    public void testSimpleTypes() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+
+        Optional<SpreadsheetModel> requestBodyApplicationJSON = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithIntegerRBAJ"))
+            .findFirst();
+        assertTrue(requestBodyApplicationJSON.isPresent());
+        SpreadsheetModel simpleModel = requestBodyApplicationJSON.get();
+        assertEquals("SpreadsheetResult", simpleModel.getType());
+        List<InputParameter> parameters = simpleModel.getParameters();
+        assertEquals(1, parameters.size());
+        InputParameter integerParam = parameters.iterator().next();
+        assertEquals("integer", integerParam.getName());
+        assertEquals("Integer", integerParam.getType());
+
+        Optional<SpreadsheetModel> requestBodyTextPlain = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithDoubleRBTP"))
+            .findFirst();
+        assertTrue(requestBodyTextPlain.isPresent());
+        SpreadsheetModel textPlainWithPrimitiveDoubleParam = requestBodyTextPlain.get();
+        assertEquals("SpreadsheetResult", textPlainWithPrimitiveDoubleParam.getType());
+        List<InputParameter> paramsPrimitive = textPlainWithPrimitiveDoubleParam.getParameters();
+        assertEquals(1, paramsPrimitive.size());
+        InputParameter doubleParam = paramsPrimitive.iterator().next();
+        assertEquals("doubleParam", doubleParam.getName());
+        assertEquals("double", doubleParam.getType());
+
+        Optional<SpreadsheetModel> myTst = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTst"))
+            .findFirst();
+        assertTrue(myTst.isPresent());
+        SpreadsheetModel myTstModel = myTst.get();
+        assertEquals("boolean", myTstModel.getType());
+        List<InputParameter> myTstParams = myTstModel.getParameters();
+        assertEquals(2, myTstParams.size());
+
+        Optional<SpreadsheetModel> myTestWithArrayDouble = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithArrayDoubleRBTP"))
+            .findFirst();
+        assertTrue(myTestWithArrayDouble.isPresent());
+        SpreadsheetModel doubleArrayParamModel = myTestWithArrayDouble.get();
+        assertEquals("Boolean[]", doubleArrayParamModel.getType());
+        List<InputParameter> doubleArrayParam = doubleArrayParamModel.getParameters();
+        InputParameter param = doubleArrayParam.iterator().next();
+        assertEquals("Double[]", param.getType());
+        assertEquals("double", param.getName());
+
+        Optional<SpreadsheetModel> myTestWithLong = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithLongRBTP"))
+            .findFirst();
+        assertTrue(myTestWithLong.isPresent());
+        SpreadsheetModel longModel = myTestWithLong.get();
+        assertEquals("long", longModel.getType());
+        List<InputParameter> longParams = longModel.getParameters();
+        InputParameter longParam = longParams.iterator().next();
+        assertEquals("long", longParam.getType());
+        assertEquals("longParam", longParam.getName());
+
+    }
+
 }

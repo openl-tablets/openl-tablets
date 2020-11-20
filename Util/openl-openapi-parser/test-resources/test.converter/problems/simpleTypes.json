@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Bolean_Reconciliation_Bolean_Reconciliation",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/Bolean_Reconciliation/Bolean_Reconciliation",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/myTst": {
+      "post": {
+        "summary": "boolean myTst(Integer, String)",
+        "description": "Rules method: boolean myTst(java.lang.Integer a, java.lang.String b)",
+        "operationId": "myTst",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyTstRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "boolean"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myTestWithIntegerRBAJ": {
+      "post": {
+        "description": "post query with simple param",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleSchema"
+                }
+              }
+            },
+            "description": "typed response"
+          }
+        }
+      }
+    },
+    "/myTestWithDoubleRBTP": {
+      "post": {
+        "description": "request body with text/plain",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleSchema"
+                }
+              }
+            },
+            "description": "simple schema returned"
+          }
+        }
+      }
+    },
+    "/myTestWithLongRBTP": {
+      "post": {
+        "description": "request body with text/plain",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "description": "simple schema returned"
+          }
+        }
+      }
+    },
+    "/myTestWithArrayDoubleRBTP": {
+      "post": {
+        "description": "request body with text/plain",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "boolean"
+                  }
+                }
+              }
+            },
+            "description": "simple schema returned"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MyTstRequest": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "b": {
+            "type": "string"
+          }
+        }
+      },
+      "SimpleSchema": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

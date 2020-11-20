@@ -416,7 +416,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         PathInfo pathInfo = generatePathInfo(path, pathItem);
         spr.setPathInfo(pathInfo);
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
-        String usedSchemaInResponse = OpenAPITypeUtils.extractType(responseSchema);
+        String usedSchemaInResponse = OpenAPITypeUtils.extractType(responseSchema,
+            TEXT_PLAIN.equals(pathInfo.getProduces()));
         pathInfo.setReturnType(extractReturnType(pathType, usedSchemaInResponse));
         boolean isChild = childSet.contains(usedSchemaInResponse);
         List<InputParameter> parameters = OpenLOpenAPIUtils
@@ -587,7 +588,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private DatatypeModel createSimpleModel(String type) {
         DatatypeModel dm = new DatatypeModel("");
-        dm.setFields(Collections.singletonList(new FieldModel("result", type)));
+        dm.setFields(Collections.singletonList(new FieldModel("this", type)));
         return dm;
     }
 
@@ -617,7 +618,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
 
-        String typeModel = OpenAPITypeUtils.extractType(valueSchema);
+        String typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
         Object defaultValue;
         if ((valueSchema instanceof IntegerSchema) && valueSchema.getFormat() == null) {
             if (valueSchema.getDefault() == null) {
@@ -638,7 +639,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     private StepModel extractStep(Map.Entry<String, Schema> property) {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
-        String typeModel = OpenAPITypeUtils.extractType(valueSchema);
+        String typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
         String value = makeValue(typeModel);
         return new StepModel(normalizeName(propertyName), typeModel, value);
     }

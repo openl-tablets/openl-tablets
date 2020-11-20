@@ -1,4 +1,4 @@
-FROM tomcat:9.0.39-jdk11-openjdk-slim
+FROM tomcat:9.0.40-jdk11-openjdk-slim
 
 ENV JAVA_OPTS="-Xms128m -XX:MaxRAMPercentage=90.0"
 

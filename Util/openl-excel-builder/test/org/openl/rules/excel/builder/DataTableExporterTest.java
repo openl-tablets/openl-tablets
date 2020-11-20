@@ -13,8 +13,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
@@ -38,7 +38,7 @@ public class DataTableExporterTest {
     @Test
     public void writeDataTables() throws IOException {
         DatatypeModel noFieldsModel = new DatatypeModel("NoFieldsModel");
-        noFieldsModel.setFields(new ArrayList<>());
+        noFieldsModel.setFields(Collections.singletonList(new FieldModel("this", "Double")));
         DataModel emptyModel = new DataModel("emptyDataTAble", "Object", null, noFieldsModel);
 
         DatatypeModel dt = new DatatypeModel("Test");
@@ -81,12 +81,24 @@ public class DataTableExporterTest {
             String emptyModelHeaderText = headerCell.getStringCellValue();
             assertEquals("Data Object emptyDataTAble", emptyModelHeaderText);
 
-            XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN + 3);
+            XSSFRow emptyModelSubheaderRow = dtsSheet.getRow(TOP_MARGIN + 1);
+            assertNotNull(emptyModelSubheaderRow);
+            XSSFCell subheaderCell = emptyModelSubheaderRow.getCell(1);
+            assertNotNull(subheaderCell);
+            assertEquals("this", subheaderCell.getStringCellValue());
+
+            XSSFRow emptyModelSubheaderColumnRow = dtsSheet.getRow(TOP_MARGIN + 2);
+            assertNotNull(emptyModelSubheaderColumnRow);
+            XSSFCell subheaderColumnCell = emptyModelSubheaderColumnRow.getCell(1);
+            assertNotNull(subheaderColumnCell);
+            assertEquals("result", subheaderColumnCell.getStringCellValue());
+
+            XSSFRow headerRow = dtsSheet.getRow(TOP_MARGIN + 6);
             assertNotNull(headerRow);
             String headerText = headerRow.getCell(1).getStringCellValue();
             assertEquals("Data Test getTest", headerText);
 
-            XSSFRow subheaderRow = dtsSheet.getRow(TOP_MARGIN + 4);
+            XSSFRow subheaderRow = dtsSheet.getRow(TOP_MARGIN + 7);
             assertNotNull(subheaderRow);
 
             XSSFCell typeSbCell = subheaderRow.getCell(1);
@@ -114,7 +126,7 @@ public class DataTableExporterTest {
             String driverSubheader = driverSbCell.getStringCellValue();
             assertEquals("driver", driverSubheader);
 
-            XSSFRow columnHeaderRow = dtsSheet.getRow(TOP_MARGIN + 5);
+            XSSFRow columnHeaderRow = dtsSheet.getRow(TOP_MARGIN + 8);
             assertNotNull(columnHeaderRow);
 
             XSSFCell typeColumnHeaderCell = columnHeaderRow.getCell(1);
@@ -142,7 +154,7 @@ public class DataTableExporterTest {
             String driverColumnHeader = driverColumnHeaderCell.getStringCellValue();
             assertEquals("Driver", driverColumnHeader);
 
-            XSSFRow valueRow = dtsSheet.getRow(TOP_MARGIN + 6);
+            XSSFRow valueRow = dtsSheet.getRow(TOP_MARGIN + 9);
             assertNotNull(valueRow);
 
             XSSFCell typeValueCell = valueRow.getCell(1);
@@ -170,12 +182,12 @@ public class DataTableExporterTest {
             String driverValue = driverCell.getStringCellValue();
             assertTrue(StringUtils.isBlank(driverValue));
 
-            XSSFRow getMyModelRow = dtsSheet.getRow(TOP_MARGIN + 9);
+            XSSFRow getMyModelRow = dtsSheet.getRow(TOP_MARGIN + 12);
             assertNotNull(getMyModelRow);
             String myModelHeaderText = getMyModelRow.getCell(1).getStringCellValue();
             assertEquals("Data Test getMyModel", myModelHeaderText);
 
-            XSSFRow myModelSubheaderRow = dtsSheet.getRow(TOP_MARGIN + 10);
+            XSSFRow myModelSubheaderRow = dtsSheet.getRow(TOP_MARGIN + 13);
             assertNotNull(myModelSubheaderRow);
 
             XSSFCell typeMyModelSb = myModelSubheaderRow.getCell(1);
@@ -193,7 +205,7 @@ public class DataTableExporterTest {
             String isOkMyModelSbText = isOkMyModelSb.getStringCellValue();
             assertEquals("isOk", isOkMyModelSbText);
 
-            XSSFRow columnMyModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 11);
+            XSSFRow columnMyModelHeaderRow = dtsSheet.getRow(TOP_MARGIN + 14);
             assertNotNull(columnMyModelHeaderRow);
 
             XSSFCell javaNameMyModelColumnHeaderCell = columnMyModelHeaderRow.getCell(1);
@@ -211,7 +223,7 @@ public class DataTableExporterTest {
             String isOkMyModelColumnHeader = isOkMyModelColumnHeaderCell.getStringCellValue();
             assertEquals("Is Ok", isOkMyModelColumnHeader);
 
-            XSSFRow myModelValueRow = dtsSheet.getRow(TOP_MARGIN + 12);
+            XSSFRow myModelValueRow = dtsSheet.getRow(TOP_MARGIN + 15);
             assertNotNull(myModelValueRow);
 
             XSSFCell javaNameCell = myModelValueRow.getCell(1);
