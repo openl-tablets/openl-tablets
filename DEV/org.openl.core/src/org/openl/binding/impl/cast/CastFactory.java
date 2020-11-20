@@ -139,15 +139,12 @@ public class CastFactory implements ICastFactory {
             return openClass1;
         }
 
-        if (openClass1 instanceof DomainOpenClass) {
-            return findClosestClass(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()),
-                openClass2,
-                casts,
-                methods);
-        }
-        if (openClass2 instanceof DomainOpenClass) {
-            return findClosestClass(openClass1,
-                JavaOpenClass.getOpenClass(openClass2.getInstanceClass()),
+        if (openClass1 instanceof DomainOpenClass && !(openClass2 instanceof DomainOpenClass) || !(openClass1 instanceof DomainOpenClass) && openClass2 instanceof DomainOpenClass) {
+            return findClosestClass(
+                openClass1 instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass1.getInstanceClass())
+                                                      : openClass1,
+                openClass2 instanceof DomainOpenClass ? JavaOpenClass.getOpenClass(openClass2.getInstanceClass())
+                                                      : openClass2,
                 casts,
                 methods);
         }
@@ -165,6 +162,13 @@ public class CastFactory implements ICastFactory {
             if (cast1To2.isImplicit() && cast2To1.isImplicit()) {
                 return cast1To2.getDistance() < cast2To1.getDistance() ? openClass2 : openClass1;
             }
+        }
+
+        if (openClass1 instanceof DomainOpenClass) {
+            return findClosestClass(JavaOpenClass.getOpenClass(openClass1.getInstanceClass()),
+                JavaOpenClass.getOpenClass(openClass2.getInstanceClass()),
+                casts,
+                methods);
         }
 
         int dim = 0;
