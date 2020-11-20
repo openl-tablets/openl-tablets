@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web;
 
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -74,6 +73,7 @@ public class CopyBean {
     private Boolean copyOldRevisions = Boolean.FALSE;
     private Integer revisionsCount;
     private String errorMessage;
+    private Comments designRepoComments;
 
     public CopyBean(PropertyResolver propertyResolver, RepositoryTreeState repositoryTreeState) {
         this.propertyResolver = propertyResolver;
@@ -149,8 +149,7 @@ public class CopyBean {
     }
 
     public String getComment() {
-        if (comment == null && toRepositoryId != null) {
-            Comments designRepoComments = new Comments(propertyResolver, toRepositoryId);
+        if (designRepoComments != null) {
             return designRepoComments.copiedFrom(getBusinessName());
         }
         return comment;
@@ -376,6 +375,7 @@ public class CopyBean {
     public void setRepositoryId(String repositoryId) {
         this.repositoryId = repositoryId;
         this.toRepositoryId = repositoryId;
+        this.designRepoComments = new Comments(propertyResolver, toRepositoryId);
     }
 
     public String getToRepositoryId() {
@@ -409,8 +409,7 @@ public class CopyBean {
                 String pattern = applicationContext.getEnvironment()
                         .getProperty("repository.design.new-branch-pattern");
                 Objects.requireNonNull(pattern);
-                newBranchName = pattern.replaceAll("\\{project-name}", simplifiedProjectName).
-                        replaceAll("\\{user-name}", userName).replaceAll("\\{current-date}", date);
+                newBranchName = designRepoComments.newBranch(simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
