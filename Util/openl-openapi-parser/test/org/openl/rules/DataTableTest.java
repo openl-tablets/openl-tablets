@@ -42,14 +42,13 @@ public class DataTableTest {
         assertEquals("Object", info.getReturnType());
 
         DatatypeModel datatypeModel = petsB.getDatatypeModel();
-        assertEquals("NewPet", datatypeModel.getParent());
         assertEquals("Pet", datatypeModel.getName());
         List<FieldModel> fields = datatypeModel.getFields();
         assertFalse(fields.isEmpty());
-        FieldModel fm = fields.iterator().next();
-        assertEquals("id", fm.getName());
-        assertEquals("Long", fm.getType());
-        assertNull(fm.getDefaultValue());
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("tag")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("id")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("name")));
+
     }
 
     @Test
@@ -78,5 +77,54 @@ public class DataTableTest {
         ProjectModel pm = converter
             .extractProjectModel("test.converter/data_tables/openapiRule_without_runtimeContext.json");
         assertTrue(CollectionUtils.isEmpty(pm.getDataModels()));
+    }
+
+    @Test
+    public void testNesting() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/nesting.json");
+        List<DataModel> dataModels = pm.getDataModels();
+        assertEquals(4, dataModels.size());
+
+        Optional<DataModel> newDatatypeDataOptional = dataModels.stream()
+            .filter(x -> x.getName().equals("NewDatatypeData"))
+            .findFirst();
+        assertTrue(newDatatypeDataOptional.isPresent());
+        DataModel newDataTypeData = newDatatypeDataOptional.get();
+        List<FieldModel> fields = newDataTypeData.getDatatypeModel().getFields();
+        assertEquals(2, fields.size());
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("dtpField")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newStrField")));
+
+        Optional<DataModel> myStrOptional = dataModels.stream()
+            .filter(x -> x.getName().equals("MystrData"))
+            .findFirst();
+        assertTrue(myStrOptional.isPresent());
+        DataModel myStrModel = myStrOptional.get();
+        List<FieldModel> strFields = myStrModel.getDatatypeModel().getFields();
+        assertEquals(1, strFields.size());
+        FieldModel strModel = strFields.iterator().next();
+        assertEquals("this", strModel.getName());
+
+        Optional<DataModel> superDatatypeOptional = dataModels.stream()
+            .filter(x -> x.getName().equals("SuperDatatypeData"))
+            .findFirst();
+        assertTrue(superDatatypeOptional.isPresent());
+        DataModel superDataModel = superDatatypeOptional.get();
+        List<FieldModel> superFields = superDataModel.getDatatypeModel().getFields();
+        assertEquals(2, superFields.size());
+        assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
+        assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("newStrField")));
+
+        Optional<DataModel> myDatatypeDataOptional = dataModels.stream()
+            .filter(x -> x.getName().equals("MyDatatypeData"))
+            .findFirst();
+        assertTrue(myDatatypeDataOptional.isPresent());
+        DataModel dataModel = myDatatypeDataOptional.get();
+        List<FieldModel> myDatatypeFields = dataModel.getDatatypeModel().getFields();
+        assertEquals(3, myDatatypeFields.size());
+        assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
+        assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("newStrField")));
+        assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("r")));
     }
 }

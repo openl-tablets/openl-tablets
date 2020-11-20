@@ -257,6 +257,28 @@ public class OpenAPITypeUtils {
         return propMap;
     }
 
+    public static Map<String, Schema> getAllProperties(ComposedSchema cs, OpenAPI openAPI) {
+        Map<String, Schema> allProperties = new HashMap<>();
+        String parentName = getParentName(cs, openAPI);
+        Schema<?> parentSchema = OpenLOpenAPIUtils.getSchemas(openAPI).get(parentName);
+        if (parentSchema != null) {
+            Map<String, Schema> properties = parentSchema.getProperties();
+            if (CollectionUtils.isNotEmpty(properties)) {
+                allProperties.putAll(properties);
+            }
+            if (parentSchema instanceof ComposedSchema) {
+                allProperties.putAll(getAllProperties((ComposedSchema) parentSchema, openAPI));
+            }
+        }
+        if (cs != null) {
+            Map<String, Schema> properties = cs.getProperties();
+            if (CollectionUtils.isNotEmpty(properties)) {
+                allProperties.putAll(properties);
+            }
+        }
+        return allProperties;
+    }
+
     private static boolean isComposedSchema(Schema<?> schema) {
         return schema instanceof ComposedSchema;
     }

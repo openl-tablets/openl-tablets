@@ -220,7 +220,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     type,
                     potentialDataModel.getPathInfo(),
                     isSimpleType(type) ? createSimpleModel(type)
-                                       : createModel(openAPI, type, getSchemas(openAPI).get(type))));
+                                       : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type))));
             }
         }
         return dataModels;
@@ -597,9 +597,30 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Map<String, Schema> properties;
         List<FieldModel> fields = new ArrayList<>();
         if (schema instanceof ComposedSchema) {
-            String parentName = OpenAPITypeUtils.getParentName((ComposedSchema) schema, openAPI);
-            properties = OpenAPITypeUtils.getFieldsOfChild((ComposedSchema) schema);
+            ComposedSchema composedSchema = (ComposedSchema) schema;
+            String parentName = OpenAPITypeUtils.getParentName(composedSchema, openAPI);
+            properties = OpenAPITypeUtils.getFieldsOfChild(composedSchema);
             dm.setParent(parentName);
+        } else {
+            properties = schema.getProperties();
+        }
+        if (properties != null) {
+            fields = properties.entrySet()
+                .stream()
+                .filter(property -> !IGNORED_FIELDS.contains(property.getKey()))
+                .map(this::extractField)
+                .collect(Collectors.toList());
+        }
+        dm.setFields(fields);
+        return dm;
+    }
+
+    private DatatypeModel createModelForDataTable(OpenAPI openAPI, String schemaName, Schema<?> schema) {
+        DatatypeModel dm = new DatatypeModel(normalizeName(schemaName));
+        Map<String, Schema> properties;
+        List<FieldModel> fields = new ArrayList<>();
+        if (schema instanceof ComposedSchema) {
+            properties = OpenAPITypeUtils.getAllProperties((ComposedSchema) schema, openAPI);
         } else {
             properties = schema.getProperties();
         }
