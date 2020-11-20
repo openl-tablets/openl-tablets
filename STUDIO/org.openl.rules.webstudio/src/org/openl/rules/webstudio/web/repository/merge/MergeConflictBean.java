@@ -95,10 +95,19 @@ public class MergeConflictBean {
             String repositoryId = mergeConflict.getRepositoryId();
             for (String conflict : conflicts) {
                 Optional<RulesProject> projectByPath = userWorkspace.getProjectByPath(repositoryId, conflict);
-                String projectName = projectByPath.map(AProjectFolder::getName).orElse("");
+                String projectName;
+                String projectPath;
+                if (projectByPath.isPresent()) {
+                    RulesProject project = projectByPath.get();
+                    projectName = project.getName();
+                    projectPath = project.getRealPath();
+                } else {
+                    projectName = "";
+                    projectPath = "";
+                }
                 ConflictGroup group = groups.get(projectName);
                 if (group == null) {
-                    group = new ConflictGroup(projectName, conflict);
+                    group = new ConflictGroup(projectName, projectPath);
                     groups.put(projectName, group);
                 }
                 group.addFile(conflict);
