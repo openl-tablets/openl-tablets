@@ -149,7 +149,7 @@ public class CopyBean {
     }
 
     public String getComment() {
-        if (designRepoComments != null) {
+        if (comment == null && designRepoComments != null) {
             return designRepoComments.copiedFrom(getBusinessName());
         }
         return comment;
