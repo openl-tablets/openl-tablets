@@ -3555,7 +3555,7 @@ public final class RulesUtils {
 
     // <<< replace functions for Strings >>>
 
-    @AutoCastReturnType
+    @AutoCastReturnType(FlattenAutoCastFactory.class)
     public static Object[] flatten(@ReturnType Object... data) {
         if (data == null) {
             return null;
