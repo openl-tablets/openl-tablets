@@ -217,6 +217,8 @@
             modulesSettings.fields.getAlgorithmModulePath().val(algorithmModulePath);
 
             $j("#openAPIModulesSettings span.error").remove();
+            modulesSettings.fields.getSubmitButton().removeClass("button-primary")
+
             modulesSettings.fields.getDataModuleMessage().empty();
             modulesSettings.fields.getRulesModuleMessage().empty();
             modulesSettings.initListeners();
@@ -236,6 +238,10 @@
             } else {
                 modulesSettings.fields.getEditDataPathLink().hide();
                 modulesSettings.fields.getDataModuleMessage().append(moduleExistsMessage);
+            }
+
+            if (algorithmPathEditable &amp;&amp; modelPathEditable) {
+                modulesSettings.fields.getSubmitButton().addClass("button-primary");
             }
 
             modulesSettings.initExpandableInputs('.algo-path-short', '.algo-path-full');
@@ -310,6 +316,10 @@
 
                 getRulesModuleMessage: function () {
                     return $j("#rulesModuleMessage");
+                },
+
+                getSubmitButton: function () {
+                    return $j("#generateOpenAPIForm\\:generateOpenAPIBtn");
                 }
             };
 
