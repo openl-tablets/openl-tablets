@@ -274,9 +274,13 @@ public class ZippedLocalRepositoryTest {
     }
 
     public byte[] read(InputStream is) throws IOException {
-        byte[] array = new byte[is.available()];
-        is.read(array);
-        return array;
+        try {
+            byte[] array = new byte[is.available()];
+            is.read(array);
+            return array;
+        } finally {
+            IOUtils.closeQuietly(is);
+        }
     }
 
     private static void assertExistsFolderFileData(FileData actual) {
