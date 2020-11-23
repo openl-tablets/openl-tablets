@@ -26,9 +26,7 @@ public class VersionedTreeNode extends ProjectTreeNode {
         super(displayName,
             String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(),
             null,
-            null,
-            0,
-            null);
+                null);
     }
 
     @Override
@@ -39,16 +37,6 @@ public class VersionedTreeNode extends ProjectTreeNode {
     @Override
     public String getUri() {
         return linkedChild.getUri();
-    }
-
-    @Override
-    public Object getProblems() {
-        return linkedChild.getErrors() != null ? linkedChild.getErrors() : linkedChild.getValidationResult();
-    }
-
-    @Override
-    public boolean hasProblems() {
-        return getProblems() != null;
     }
 
     @Override

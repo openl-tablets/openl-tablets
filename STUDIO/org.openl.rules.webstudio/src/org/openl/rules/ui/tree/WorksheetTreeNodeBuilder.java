@@ -64,12 +64,4 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getModule();
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        return null;
-    }
 }

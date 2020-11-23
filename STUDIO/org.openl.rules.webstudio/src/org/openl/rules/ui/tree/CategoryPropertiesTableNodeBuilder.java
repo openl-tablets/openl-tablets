@@ -74,8 +74,6 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
         return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
             IProjectTypes.PT_FOLDER,
             null,
-            null,
-            0,
-            null);
+                null);
     }
 }

@@ -711,7 +711,7 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[] { null, null, null }, "root", null, null, 0, null);
+        return new ProjectTreeNode(new String[] { null, null, null }, "root", null, null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
