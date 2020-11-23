@@ -61,23 +61,6 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
-
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return !(XlsNodeTypes.XLS_PROPERTIES.toString()

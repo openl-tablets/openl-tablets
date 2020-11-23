@@ -29,12 +29,6 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
-
-    @Override
     public String getType(Object nodeObject) {
         return IProjectTypes.PT_TABLE_GROUP;
     }
@@ -48,11 +42,6 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     @Override
     public int getWeight(Object nodeObject) {
         return 0;
-    }
-
-    @Override
-    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
     }
 
     @Override
