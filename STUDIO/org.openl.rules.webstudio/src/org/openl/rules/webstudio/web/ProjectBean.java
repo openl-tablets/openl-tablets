@@ -756,13 +756,10 @@ public class ProjectBean {
 
         OpenAPI openAPI = projectDescriptor.getOpenapi();
         if (openAPI != null) {
-            String path = openAPI.getPath();
-            if (openAPIPathParam.equals(path)) {
-                return;
-            }
             openAPI.setPath(openAPIPathParam);
+            openAPI.setMode(OpenAPI.Mode.RECONCILIATION);
         } else {
-            openAPI = new OpenAPI(openAPIPathParam, null, null);
+            openAPI = new OpenAPI(openAPIPathParam, OpenAPI.Mode.RECONCILIATION, null, null);
         }
         newProjectDescriptor.setOpenapi(openAPI);
         save(newProjectDescriptor);
@@ -818,10 +815,14 @@ public class ProjectBean {
         final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
         OpenAPI openAPI = new OpenAPI();
         openAPI.setPath(openAPIPathParam);
-        if (existingOpenAPI == null || existingOpenAPI.getPath() == null) {
+        openAPI.setMode(OpenAPI.Mode.GENERATION);
+
+        if (existingOpenAPI == null || existingOpenAPI.getPath() == null || existingOpenAPI.getMode() == null) {
             infoChanged = true;
         } else {
-            infoChanged = !existingOpenAPI.getPath().equals(openAPIPathParam);
+            boolean pathWasChanged = !existingOpenAPI.getPath().equals(openAPIPathParam);
+            boolean modeWasChanged = !existingOpenAPI.getMode().equals(OpenAPI.Mode.GENERATION);
+            infoChanged = pathWasChanged || modeWasChanged;
         }
 
         RulesProject currentProject = studio.getCurrentProject();

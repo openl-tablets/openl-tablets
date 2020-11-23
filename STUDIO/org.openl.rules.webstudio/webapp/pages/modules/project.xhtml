@@ -65,6 +65,11 @@
             vertical-align: middle;
             padding-right: 5px;
         }
+
+        .openAPIFieldDescription {
+            margin-right: 5px;
+        }
+
     </style>
 
     <ui:param name="editable" value="#{studio.model.editable}"/>
@@ -324,19 +329,23 @@
                         </h:panelGroup>
                         <ul class="enum">
                             <li style="display: #{not empty projectBean.lastOpenAPIFileUploadDate ? 'list-item' :'none'}">
-                                Last Import At:
+                                <span class="field-description openAPIFieldDescription">Last Import At:</span>
                                 <h:outputText value="#{projectBean.lastOpenAPIFileUploadDate}"/>
                             </li>
                             <li style="display: #{not empty project.openapi.path ? 'list-item' :'none'}">
-                                OpenAPI File:
+                                <span class="field-description openAPIFieldDescription">OpenAPI File:</span>
                                 <h:outputText value="#{project.openapi.path}"/>
                             </li>
-                            <li style="display: #{not empty project.openapi.algorithmModuleName ? 'list-item' :'none'}">
-                                Rules module:
+                            <li style="display: #{not empty project.openapi.mode ? 'list-item' :'none'}">
+                                <span class="field-description openAPIFieldDescription">Mode:</span>
+                                <h:outputText value="#{openAPIEditorService.getDisplayName(project.openapi.mode)}"/>
+                            </li>
+                            <li style="display: #{not empty project.openapi.algorithmModuleName and project.openapi.mode == 'GENERATION' ? 'list-item' :'none'}">
+                                <span class="field-description openAPIFieldDescription">Rules module:</span>
                                 <h:outputText value="#{project.openapi.algorithmModuleName}"/>
                             </li>
-                            <li style="display: #{not empty project.openapi.modelModuleName ? 'list-item' :'none'}">
-                                Data module:
+                            <li style="display: #{not empty project.openapi.modelModuleName and project.openapi.mode == 'GENERATION' ? 'list-item' :'none'}">
+                                <span class="field-description openAPIFieldDescription">Data module:</span>
                                 <h:outputText value="#{project.openapi.modelModuleName}"/>
                             </li>
                         </ul>
