@@ -4,7 +4,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.faces.context.FacesContext;
 
@@ -312,18 +311,8 @@ public class SystemSettingsBean {
         configName = repositoryMode.toString();
         RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
         templateConfig.setType(accessType);
-        
-        AtomicInteger max = new AtomicInteger(0);
-        configurations.forEach(rc -> {
-            if (rc.getConfigName().matches(configName + "\\d+")) {
-                String num = rc.getConfigName().substring(configName.length());
-                int i = Integer.parseInt(num);
-                if (i > max.get()) {
-                    max.set(i);
-                }
-            }
-        });
-        String newConfigName = configName + (max.get() + 1);
+
+        String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode.toString());
         
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
         repoConfig.commit();

@@ -5,6 +5,7 @@ import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
@@ -41,6 +42,20 @@ public class RepositoryEditor {
         return (PropertyResolver) Proxy.newProxyInstance(properties.getClass().getClassLoader(),
             new Class[] { PropertyResolver.class },
             createDefaultValueInvocationHandler(properties, repoConfigName));
+    }
+
+    public static String getNewConfigName(List<RepositoryConfiguration> configurations, String configName) {
+        AtomicInteger max = new AtomicInteger(0);
+        configurations.forEach(rc -> {
+            if (rc.getConfigName().matches(configName + "\\d+")) {
+                String num = rc.getConfigName().substring(configName.length());
+                int i = Integer.parseInt(num);
+                if (i > max.get()) {
+                    max.set(i);
+                }
+            }
+        });
+        return configName + (max.get() + 1);
     }
 
     private static String getFirstConfigName(String configNames) {
