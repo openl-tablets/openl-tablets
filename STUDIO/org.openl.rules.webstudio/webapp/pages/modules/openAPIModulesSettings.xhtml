@@ -186,13 +186,21 @@
                 modelModulePath = modelsModule.path;
                 modelPathEditable = false;
             } else {
-                modelModulePath = DEFAULT_MODEL_MODULE_PATH;
+                if (modelModuleName) {
+                    modelModulePath = DEFAULT_FOLDER + modelModuleName + DEFAULT_EXTENSION;
+                } else {
+                    modelModulePath = DEFAULT_MODEL_MODULE_PATH;
+                }
             }
             if (rulesModule) {
                 algorithmModulePath = rulesModule.path;
                 algorithmPathEditable = false;
             } else {
-                algorithmModulePath = DEFAULT_ALGORITHM_MODULE_PATH;
+                if (algorithmModuleName) {
+                    algorithmModulePath = DEFAULT_FOLDER + algorithmModuleName + DEFAULT_EXTENSION;
+                } else {
+                    algorithmModulePath = DEFAULT_ALGORITHM_MODULE_PATH;
+                }
             }
 
             rerenderOpenAPIModulesSettings(importFormInfo.path, modelModuleName, algorithmModuleName, modelModulePath, algorithmModulePath);
@@ -367,7 +375,7 @@
                     if (currentModuleName) {
                         let path = DEFAULT_FOLDER + currentModuleName + DEFAULT_EXTENSION;
                         modelModulePathInput.val(path);
-                        modelDisplayPath.val(path);
+                        modelDisplayPath.text(path);
                     } else {
                         modelModulePathInput.val(DEFAULT_MODEL_MODULE_PATH);
                     }
