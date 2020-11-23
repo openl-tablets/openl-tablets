@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -17,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  * @author Pavel Tarasevich
- *
  */
 public abstract class AbstractProductionRepoController {
     private static final Logger LOG = LoggerFactory.getLogger(AbstractProductionRepoController.class);
@@ -67,16 +65,8 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
-        String name = repositoryConfiguration.getName();
-        String finalName = name;
-        Optional<RepositoryConfiguration> first = getProductionRepositoryConfigurations().stream()
-            .filter(x -> x.getConfigName().equalsIgnoreCase(finalName))
-            .findFirst();
-        // If there is already config with the given name we need to modify it to avoid collision
-        if (first.isPresent() || RepositoryMode.contains(name)) {
-            name += "1";
-        }
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(name, properties, repositoryConfiguration);
+        String newConfigName = RepositoryEditor.getNewConfigName(getProductionRepositoryConfigurations(), RepositoryMode.PRODUCTION.toString());
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, repositoryConfiguration);
         repoConfig.commit();
         return repoConfig;
     }
