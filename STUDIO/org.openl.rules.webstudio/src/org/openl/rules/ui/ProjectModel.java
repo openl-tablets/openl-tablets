@@ -231,43 +231,6 @@ public class ProjectModel {
         return getMethod(tsn);
     }
 
-    public List<IOpenMethod> getTargetMethods(String testOrRunUri) {
-        List<IOpenMethod> targetMethods = new ArrayList<>();
-        IOpenMethod testMethod = getMethod(testOrRunUri);
-
-        if (testMethod instanceof TestSuiteMethod) {
-            IOpenMethod targetMethod = ((TestSuiteMethod) testMethod).getTestedMethod();
-
-            // Overloaded methods
-            if (targetMethod instanceof OpenMethodDispatcher) {
-                List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) targetMethod).getCandidates();
-                targetMethods.addAll(overloadedMethods);
-            } else {
-                targetMethods.add(targetMethod);
-            }
-        }
-
-        return targetMethods;
-    }
-
-    public List<IOpenLTable> getTargetTables(String testOrRunUri) {
-        List<IOpenLTable> targetTables = new ArrayList<>();
-        List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
-
-        for (IOpenMethod targetMethod : targetMethods) {
-            if (targetMethod != null) {
-                IMemberMetaInfo methodInfo = targetMethod.getInfo();
-                if (methodInfo != null) {
-                    TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
-                    IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                    targetTables.add(targetTable);
-                }
-            }
-        }
-
-        return targetTables;
-    }
-
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
 
         if (!isProjectCompiledSuccessfully()) {

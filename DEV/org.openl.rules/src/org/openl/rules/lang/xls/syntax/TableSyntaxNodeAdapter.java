@@ -1,10 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
-import java.util.Collection;
 import java.util.Objects;
 
-import org.openl.message.OpenLMessage;
-import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.IGridTable;
@@ -13,7 +10,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMember;
 import org.openl.util.StringUtils;
 
@@ -49,12 +45,6 @@ public class TableSyntaxNodeAdapter implements IOpenLTable {
     @Override
     public String getType() {
         return tsn.getType();
-    }
-
-    @Override
-    public Collection<OpenLMessage> getMessages() {
-        SyntaxNodeException[] errors = tsn.getErrors();
-        return OpenLMessagesUtils.newErrorMessages(errors);
     }
 
     @Override
