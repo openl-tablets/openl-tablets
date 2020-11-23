@@ -67,14 +67,6 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         return tsn.getXlsSheetSourceCodeModule().getWorkbookSource();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        return null;
-    }
-
     @Override
     public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         TreeNode<Object> treeNode = (TreeNode<Object>) super.makeNode(tableSyntaxNode, i);

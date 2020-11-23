@@ -34,7 +34,7 @@ public class TreeBuilder<T> {
      * @param treeNodeBuilders array of tree node builders
      * @param level index of builder which will be invoked
      */
-    public void addToNode(ITreeNode<T> targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders, int level) {
+    private void addToNode(ITreeNode<T> targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders, int level) {
 
         // If level is greater than count of builders finish the adding process
         // (recursion exit condition).

@@ -22,14 +22,12 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
 
         String type = getType(nodeObject);
         if (type.equals(IProjectTypes.PT_FOLDER)) {
-            projectTreeNode = new ProjectTreeNode(displayNames, type, null, getProblems(nodeObject), i, null);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, null, null);
         } else {
             projectTreeNode = new ProjectTreeNode(displayNames,
                 type,
                 getUrl(nodeObject),
-                getProblems(nodeObject),
-                i,
-                tableSyntaxNode);
+                    tableSyntaxNode);
         }
 
         projectTreeNode.setObject(nodeObject);
@@ -121,15 +119,4 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @return string that represent node weight
      */
     public abstract int getWeight(Object nodeObject);
-
-    /**
-     * Gets problems of node.
-     *
-     * @param nodeObject node object
-     * @return object that represent node problems
-     */
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
 }

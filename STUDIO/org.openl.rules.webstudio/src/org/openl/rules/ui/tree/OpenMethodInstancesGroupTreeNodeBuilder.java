@@ -171,6 +171,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
      * @return tree node
      */
     private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, "folder", null, null, 0, null);
+        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, "folder", null, null);
     }
 }
