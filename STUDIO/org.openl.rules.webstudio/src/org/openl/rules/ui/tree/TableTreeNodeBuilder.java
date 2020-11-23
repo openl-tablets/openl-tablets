@@ -127,24 +127,6 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-
-        return tableSyntaxNode;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
-
-    /**
      * Gets node key for node object.
      *
      * @param nodeObject node object

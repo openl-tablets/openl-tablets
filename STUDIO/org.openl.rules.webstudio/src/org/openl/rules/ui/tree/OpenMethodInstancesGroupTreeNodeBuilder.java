@@ -66,14 +66,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         return 0;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
-    }
-
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {
@@ -130,15 +122,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         }
 
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
 
     /**

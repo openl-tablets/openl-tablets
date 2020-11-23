@@ -78,7 +78,9 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @param tableSyntaxNode table syntax node
      * @return node object
      */
-    protected abstract Object makeObject(TableSyntaxNode tableSyntaxNode);
+    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
+        return tableSyntaxNode;
+    }
 
     /**
      * Gets display value (triple of possible names) of node object.
@@ -126,5 +128,8 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @param nodeObject node object
      * @return object that represent node problems
      */
-    public abstract Object getProblems(Object nodeObject);
+    public Object getProblems(Object nodeObject) {
+        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
+        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
+    }
 }

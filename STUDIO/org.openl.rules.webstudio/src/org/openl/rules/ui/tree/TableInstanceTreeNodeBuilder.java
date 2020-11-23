@@ -40,15 +40,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      * {@inheritDoc}
      */
     @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getType(Object sorterObject) {
 
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
@@ -93,15 +84,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         // be grouped
                 || tsn.getMember() == null; // When table contains syntax errors and cannot be grouped with other
                                             // tables.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tsn) {
-
-        return tsn;
     }
 
     @Override
