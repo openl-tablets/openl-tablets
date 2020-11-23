@@ -67,7 +67,7 @@ public class TestSuite implements INamedThing {
         TestSuiteMethod testSuiteMethod = getTestSuiteMethod();
         if (testSuiteMethod != null) {
             IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
-            if (testSuiteMethod.getTestedMethod() instanceof ExecutableRulesMethod) {
+            if (testedMethod instanceof ExecutableRulesMethod) {
                 TableSyntaxNode syntaxNode = ((ExecutableRulesMethod) testedMethod).getSyntaxNode();
                 if (syntaxNode.getErrors().length > 0) {
                     testUnitResults.setTestedRulesHaveErrors(true);
