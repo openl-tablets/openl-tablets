@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 public class DTScale {
 
-    private int vScale, hScale;
+    private final int vScale, hScale;
 
     public DTScale(int vScale, int hScale) {
         super();
