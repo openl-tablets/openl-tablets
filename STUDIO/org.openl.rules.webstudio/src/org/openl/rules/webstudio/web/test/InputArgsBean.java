@@ -259,7 +259,7 @@ public class InputArgsBean {
                 ObjectMapper objectMapper = configureObjectMapper();
                 if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
                     parsedArguments[0] = JsonUtils.fromJSON(inputTextBean,
-                            argumentTreeNodes[0].getType().getInstanceClass());
+                            argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
                 } else {
                     for (int i = 0; i < argumentTreeNodes.length; i++) {
                         String field = stringStringMap.get(argumentTreeNodes[i].getName());
@@ -271,7 +271,7 @@ public class InputArgsBean {
                     }
                     if (!stringStringMap.isEmpty() && isProvideRuntimeContext()) {
                         String contextJson = stringStringMap.values().iterator().next();
-                        runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class);
+                        runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class, objectMapper);
                     }
                 }
             } else {
