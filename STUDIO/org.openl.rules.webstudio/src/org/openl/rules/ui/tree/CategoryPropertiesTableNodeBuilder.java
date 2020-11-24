@@ -18,17 +18,11 @@ import org.openl.util.StringUtils;
 public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
     private static final String FOLDER_NAME = "Category Properties";
-    private static final String CATEGORY_PROPERTIES_TABLE = "Category Properties Table";
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
-    }
-
-    @Override
-    public String getName() {
-        return CATEGORY_PROPERTIES_TABLE;
     }
 
     @Override

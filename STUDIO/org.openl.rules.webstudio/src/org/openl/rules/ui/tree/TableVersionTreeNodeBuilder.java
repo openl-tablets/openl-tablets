@@ -12,7 +12,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String TABLE_VERSION = "Table Version";
     private static final String VERSION_NOT_SPECIFIED = "Version not specified";
 
     @Override
@@ -41,11 +40,6 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         String sfx = " [" + version + "]";
 
         return new String[] { name + sfx, display + sfx, display + sfx };
-    }
-
-    @Override
-    public String getName() {
-        return TABLE_VERSION;
     }
 
     @Override

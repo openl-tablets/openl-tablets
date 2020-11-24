@@ -14,8 +14,6 @@ import org.openl.types.impl.MethodKey;
  */
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
-    private static final String TABLE_INSTANCE_NAME = "Table Instance";
-
     /**
      * {@inheritDoc}
      */
@@ -26,14 +24,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
         return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary(),
             WebStudioFormats.getInstance());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return TABLE_INSTANCE_NAME;
     }
 
     /**

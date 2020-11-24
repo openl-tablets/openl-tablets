@@ -90,13 +90,6 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
     public abstract String[] getDisplayValue(Object nodeObject, int i);
 
     /**
-     * Gets name of node.
-     *
-     * @return name of node
-     */
-    public abstract String getName();
-
-    /**
      * Gets type of node.
      *
      * @param nodeObject node object
