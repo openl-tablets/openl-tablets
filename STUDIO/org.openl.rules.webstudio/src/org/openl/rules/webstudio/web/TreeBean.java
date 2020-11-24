@@ -5,8 +5,6 @@ import static org.openl.rules.security.Privileges.RUN;
 
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
 import org.richfaces.model.TreeNode;
@@ -48,8 +46,6 @@ public class TreeBean {
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        ProjectTreeNode tree = studio.getModel().getProjectTree();
-
-        return new ProjectTreeBuilder().build(tree);
+        return studio.getModel().getProjectTree();
     }
 }
