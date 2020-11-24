@@ -212,11 +212,12 @@ public class TableBean {
             String messageUri = message.getSourceLocation();
             if (messageUri != null) {
                 XlsUrlParser msgUri = new XlsUrlParser(messageUri);
-                if (tableUri.intersects(msgUri)) {
-                    switch (message.getSeverity()) {
-                        case ERROR:
-                        case FATAL:
-                            hasErrors = true;
+                switch (message.getSeverity()) {
+                    case ERROR:
+                    case FATAL:
+                        hasErrors = true;
+                        if (tableUri.intersects(msgUri)) {
+                            // This message belong the current table
                             if (errors.size() < MAX_PROBLEMS) {
                                 errors.add(message);
                                 if (errors.size() >= MAX_PROBLEMS) {
@@ -224,27 +225,30 @@ public class TableBean {
                                         "Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
                                 }
                             }
-                            break;
-                        case WARN:
-                            if (warnings.size() < MAX_PROBLEMS) {
-                                warnings.add(message);
-                                if (warnings.size() >= MAX_PROBLEMS) {
-                                    warnings.add(OpenLMessagesUtils.newErrorMessage(
-                                        "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+                        } else {
+                            // Otherwise if the current table is a test
+                            // then check tested target tables on errors.
+                            for (TableDescription targetTable : targetTables) {
+                                if (!targetTablesHasErrors && new XlsUrlParser(targetTable.getUri())
+                                    .intersects(msgUri)) {
+                                    warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                                    targetTablesHasErrors = true;
                                 }
                             }
-                            break;
-                        default:
-                            // skip
-                            break;
-                    }
-                } else {
-                    for (TableDescription targetTable : targetTables) {
-                        if (!targetTablesHasErrors && new XlsUrlParser(targetTable.getUri()).intersects(msgUri)) {
-                            warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                            targetTablesHasErrors = true;
                         }
-                    }
+                        break;
+                    case WARN:
+                        if (warnings.size() < MAX_PROBLEMS && tableUri.intersects(msgUri)) {
+                            warnings.add(message);
+                            if (warnings.size() >= MAX_PROBLEMS) {
+                                warnings.add(OpenLMessagesUtils.newErrorMessage(
+                                    "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+                            }
+                        }
+                        break;
+                    default:
+                        // skip
+                        break;
                 }
             }
         }
