@@ -4,36 +4,24 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 
-public class ProjectTreeNode implements INamedThing {
+public class ProjectTreeNode {
 
     private String uri;
     private String[] displayName;
     private TableSyntaxNode tableSyntaxNode;
 
     public ProjectTreeNode(String[] displayName, String type, String uri, TableSyntaxNode tsn) {
-
-        setType(type);
+        this.type = type;
         this.uri = uri;
         this.displayName = displayName;
         this.tableSyntaxNode = tsn;
     }
 
-    public String[] getDisplayName() {
-        return displayName;
-    }
-
-    @Override
     public String getDisplayName(int mode) {
         return displayName[mode];
-    }
-
-    @Override
-    public String getName() {
-        return getDisplayName(SHORT);
     }
 
     public String getUri() {
@@ -59,10 +47,6 @@ public class ProjectTreeNode implements INamedThing {
             result += treeNode.getNumErrors();
         }
         return result;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -149,12 +133,4 @@ public class ProjectTreeNode implements INamedThing {
         this.object = object;
     }
 
-    /**
-     * Sets type of node.
-     *
-     * @param type string that indicates type of node
-     */
-    public void setType(String type) {
-        this.type = type;
-    }
 }
