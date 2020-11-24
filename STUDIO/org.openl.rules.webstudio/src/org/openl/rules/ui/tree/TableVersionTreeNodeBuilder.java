@@ -59,9 +59,4 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getUri();
     }
-
-    @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
 }

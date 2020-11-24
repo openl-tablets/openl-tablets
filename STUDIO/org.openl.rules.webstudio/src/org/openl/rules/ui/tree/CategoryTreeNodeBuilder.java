@@ -53,14 +53,6 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         return tableSyntaxNode.getUri();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
-
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return !(XlsNodeTypes.XLS_PROPERTIES.toString()

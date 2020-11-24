@@ -58,14 +58,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         return null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getWeight(Object sorterObject) {
-        return 0;
-    }
-
     @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         if (tableSyntaxNode.getMember() instanceof IOpenMethod) {

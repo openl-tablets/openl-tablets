@@ -43,11 +43,6 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
 
     @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
-
-    @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return XlsNodeTypes.XLS_PROPERTIES.toString()
             .equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode);

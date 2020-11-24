@@ -53,14 +53,6 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      * {@inheritDoc}
      */
     @Override
-    public int getWeight(Object sorterObject) {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getModule();
     }
