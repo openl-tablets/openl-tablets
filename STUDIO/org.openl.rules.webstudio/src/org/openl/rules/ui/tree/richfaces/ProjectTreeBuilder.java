@@ -1,7 +1,5 @@
 package org.openl.rules.ui.tree.richfaces;
 
-import java.util.function.Predicate;
-
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
@@ -12,19 +10,10 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 
 public class ProjectTreeBuilder {
 
-    private Predicate<ProjectTreeNode> utilityTablePredicate;
-
-    public ProjectTreeBuilder(Predicate<ProjectTreeNode> utilityTablePredicate) {
-        this.utilityTablePredicate = utilityTablePredicate;
-    }
-
     public TreeNode build(ProjectTreeNode root) {
         TreeNode node = createNode(root);
         Iterable<ProjectTreeNode> children = root.getChildren();
         for (ProjectTreeNode child : children) {
-            if (utilityTablePredicate != null && utilityTablePredicate.test(child)) {
-                continue;
-            }
             TreeNode rfChild = build(child);
             if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
                 .equals(rfChild.getType())) {
