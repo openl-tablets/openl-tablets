@@ -588,7 +588,7 @@
 
                     <footer>
                         <h:commandButton id="sbtRepo" value="Import" action="#{repositoryTreeController.importFromRepo}"
-                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder isn\'t OpenL project. Are you sure?')) return false;"
+                                         onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false;"
                                          styleClass="button-primary"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
