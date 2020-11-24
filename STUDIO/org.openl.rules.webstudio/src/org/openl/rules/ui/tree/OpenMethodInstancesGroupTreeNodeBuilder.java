@@ -21,8 +21,6 @@ import org.openl.util.StringUtils;
  */
 public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
-    private static final String TABLE_INSTANCES_GROUP_NAME = "Table Group Instance";
-
     /**
      * {@inheritDoc}
      */
@@ -32,14 +30,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
 
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return TABLE_INSTANCES_GROUP_NAME;
     }
 
     /**

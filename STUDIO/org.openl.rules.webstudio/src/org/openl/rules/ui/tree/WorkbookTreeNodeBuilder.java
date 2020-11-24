@@ -11,8 +11,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String WORKBOOK_NAME = "workbook";
-
     /**
      * {@inheritDoc}
      */
@@ -22,14 +20,6 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) nodeObject;
 
         return new String[] { wb.getDisplayName(), wb.getUri(), wb.getUri() };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return WORKBOOK_NAME;
     }
 
     /**

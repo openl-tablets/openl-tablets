@@ -16,7 +16,6 @@ import org.openl.types.impl.InternalDatatypeClass;
 public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
     private static final String OTHER_NODE_KEY = "Other";
-    private static final String TABLE_TYPE_NAME = "Table Type";
     private static final String ALIAS_SUFFIX = ".alias";
 
     /**
@@ -85,14 +84,6 @@ public class TableTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         NodeKey nodeKey = getNodeKey(nodeObject);
 
         return nodeKey.getValue();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return TABLE_TYPE_NAME;
     }
 
     /**

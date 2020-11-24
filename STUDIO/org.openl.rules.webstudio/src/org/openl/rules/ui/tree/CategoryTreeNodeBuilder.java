@@ -11,8 +11,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String CATEGORY_BUILDER_NAME = "Category Builder";
-
     /**
      * {@inheritDoc}
      */
@@ -23,14 +21,6 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         String category = getCategory(tableSyntaxNode);
 
         return new String[] { category, category, category };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return CATEGORY_BUILDER_NAME;
     }
 
     /**
