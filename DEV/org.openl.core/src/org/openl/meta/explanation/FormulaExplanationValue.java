@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.openl.meta.number.Formulas;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for formulas.
@@ -54,7 +53,7 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
     }
 
     @Override
-    public Collection<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return Arrays.asList(v1, v2);
     }
 

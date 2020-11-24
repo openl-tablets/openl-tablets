@@ -8,7 +8,6 @@ import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Number value that supports explanation operations.
@@ -125,7 +124,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
 
     @Override
-    public Collection<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return getExplanation().getChildren();
     }
 
