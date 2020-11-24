@@ -250,7 +250,7 @@ public class OpenAPITypeUtils {
         if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> sc : interfaces) {
                 if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
-                    propMap.putAll(sc.getProperties());
+                    sc.getProperties().forEach(propMap::putIfAbsent);
                 }
             }
         }
@@ -258,22 +258,23 @@ public class OpenAPITypeUtils {
     }
 
     public static Map<String, Schema> getAllProperties(ComposedSchema cs, OpenAPI openAPI) {
-        Map<String, Schema> allProperties = new HashMap<>();
+        Map<String, Schema> allProperties = new HashMap<>(getFieldsOfChild(cs));
         String parentName = getParentName(cs, openAPI);
         Schema<?> parentSchema = OpenLOpenAPIUtils.getSchemas(openAPI).get(parentName);
         if (parentSchema != null) {
             Map<String, Schema> properties = parentSchema.getProperties();
             if (CollectionUtils.isNotEmpty(properties)) {
-                allProperties.putAll(properties);
+                properties.forEach(allProperties::putIfAbsent);
             }
             if (parentSchema instanceof ComposedSchema) {
-                allProperties.putAll(getAllProperties((ComposedSchema) parentSchema, openAPI));
+                getAllProperties((ComposedSchema) parentSchema, openAPI)
+                    .forEach(allProperties::putIfAbsent);
             }
         }
         if (cs != null) {
             Map<String, Schema> properties = cs.getProperties();
             if (CollectionUtils.isNotEmpty(properties)) {
-                allProperties.putAll(properties);
+                properties.forEach(allProperties::putIfAbsent);
             }
         }
         return allProperties;

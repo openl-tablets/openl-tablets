@@ -127,4 +127,31 @@ public class DataTableTest {
         assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("newStrField")));
         assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("r")));
     }
+
+    @Test
+    public void testMultipleNesting() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
+        List<DataModel> dataModels = pm.getDataModels();
+        assertEquals(2, dataModels.size());
+        Optional<DataModel> dataLevelForeData = dataModels.stream().filter(x -> x.getName().equals("DalaLevelForeData")).findFirst();
+        assertTrue(dataLevelForeData.isPresent());
+        DataModel dataLevelFore = dataLevelForeData.get();
+        List<FieldModel> fields = dataLevelFore.getDatatypeModel().getFields();
+        assertEquals(4, fields.size());
+        assertTrue(fields.stream().anyMatch(x->x.getName().equals("newField")));
+        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed1")));
+        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed2")));
+        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed4")));
+
+        Optional<DataModel> dataLevelThreeData = dataModels.stream().filter(x -> x.getName().equals("Arlekino")).findFirst();
+        assertTrue(dataLevelThreeData.isPresent());
+        DataModel dataLevelThree = dataLevelThreeData.get();
+        List<FieldModel> dltFields = dataLevelThree.getDatatypeModel().getFields();
+        assertEquals(3, dltFields.size());
+        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("newField")));
+        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("filed1")));
+        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("filed2")));
+
+    }
 }
