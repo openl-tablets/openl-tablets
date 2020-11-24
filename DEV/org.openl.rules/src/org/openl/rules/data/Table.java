@@ -18,6 +18,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -357,10 +358,16 @@ public class Table implements ITable {
 
                             }
 
-                            if (foreignTable.getTableSyntaxNode().hasErrors()) {
-                                String message = MessageUtils
-                                    .getForeignTableCompilationErrorsMessage(foreignKeyTableName);
-                                ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                            SyntaxNodeException[] errors = bindingContext.getErrors();
+                            for (SyntaxNodeException error : errors) {
+                                String sourceLocation = error.getSourceLocation();
+                                if (sourceLocation != null && foreignTable.getTableSyntaxNode()
+                                    .getUriParser()
+                                    .intersects(new XlsUrlParser(sourceLocation))) {
+                                    String message = MessageUtils
+                                        .getForeignTableCompilationErrorsMessage(foreignKeyTableName);
+                                    ex = SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
+                                }
                             }
                         }
                     }

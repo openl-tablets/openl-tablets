@@ -220,9 +220,6 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
     }
 
     private boolean beanClassCanBeGenerated(IBindingContext cxt) {
-        if (tableSyntaxNode.hasErrors()) {
-            return false;
-        }
         if (parentClassName != null) {
             IOpenClass parentClass = cxt.findType(ISyntaxConstants.THIS_NAMESPACE, parentClassName);
             return parentClass != null;
