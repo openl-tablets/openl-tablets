@@ -10,7 +10,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -22,10 +21,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
-import org.openl.rules.extension.instantiation.IExtensionDescriptor;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -149,7 +144,6 @@ public class ProjectDescriptorManager {
                     m.setMethodFilter(module.getMethodFilter());
                     m.setWildcardRulesRootPath(pathPattern);
                     m.setWildcardName(module.getName());
-                    m.setExtension(module.getExtension());
                     modules.add(m);
                 }
                 return FileVisitResult.CONTINUE;
@@ -197,7 +191,7 @@ public class ProjectDescriptorManager {
         List<Module> processedModules = new ArrayList<>(modulesWasRead.size());
         // Process modules without wildcard path
         for (Module module : modulesWasRead) {
-            if (!isModuleWithWildcard(module) && module.getExtension() == null) {
+            if (!isModuleWithWildcard(module)) {
                 processedModules.add(module);
             }
         }
@@ -214,17 +208,6 @@ public class ProjectDescriptorManager {
                     }
                 }
                 processedModules.addAll(newModules);
-            }
-        }
-        // Process extension modules
-        for (Module module : modulesWasRead) {
-            if (module.getExtension() != null) {
-                ClassLoader classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
-                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
-                    .getExtensionDescriptor(module.getExtension(), classLoader);
-                module.setProject(descriptor);
-                processedModules.addAll(extensionDescriptor.getInternalModules(module));
-                ClassLoaderUtils.close(classLoader);
             }
         }
 

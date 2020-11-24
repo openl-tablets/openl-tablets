@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web;
 import static org.openl.rules.security.AccessManager.isGranted;
 import static org.openl.rules.security.Privileges.RUN;
 
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.OpenLBundleClassLoader;
-import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.Module;
@@ -62,30 +59,12 @@ public class TreeBean {
         if (tree != null) {
             Module module = studio.getCurrentModule();
 
-            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = getUtilityTablePredicate(studio, module);
+            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = new UtilityTablePredicate(hideUtilityTables);
 
             return new ProjectTreeBuilder(utilityTablePredicate).build(tree);
         }
         // Empty tree
         return new TreeNodeImpl();
-    }
-
-    private CollectionUtils.Predicate<ITreeElement> getUtilityTablePredicate(WebStudio studio, Module module) {
-        CollectionUtils.Predicate<ITreeElement> utilityTablePredicate;
-        if (module.getExtension() == null) {
-            utilityTablePredicate = new UtilityTablePredicate(hideUtilityTables);
-        } else {
-            ClassLoader classLoader = null;
-            try {
-                classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
-                utilityTablePredicate = ExtensionDescriptorFactory
-                    .getExtensionDescriptor(module.getExtension(), classLoader)
-                    .getUtilityTablePredicate(studio.getModel().getXlsModuleNode());
-            } finally {
-                ClassLoaderUtils.close(classLoader);
-            }
-        }
-        return utilityTablePredicate;
     }
 
     private static class UtilityTablePredicate implements CollectionUtils.Predicate<ITreeElement> {

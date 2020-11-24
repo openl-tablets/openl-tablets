@@ -533,13 +533,8 @@ public class ProjectModel {
         return grid != null && grid.getGrid() instanceof CompositeGrid;
     }
 
-    public boolean isCurrentModuleLoadedByExtension() {
-        Module moduleInfo = getModuleInfo();
-        return moduleInfo != null && moduleInfo.getExtension() != null;
-    }
-
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
+        return isEditable() && isGranted(CREATE_TABLES);
     }
 
     public boolean isCanEditTable(String uri) {

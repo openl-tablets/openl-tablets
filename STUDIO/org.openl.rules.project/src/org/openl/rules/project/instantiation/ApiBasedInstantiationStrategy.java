@@ -4,8 +4,6 @@ import java.io.File;
 import java.net.URL;
 
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
-import org.openl.rules.extension.instantiation.IExtensionDescriptor;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -81,21 +79,11 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
         if (engineFactory == null) {
-            if (getModule().getExtension() != null) {
-                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
-                    .getExtensionDescriptor(getModule().getExtension(), getClassLoader());
 
-                IOpenSourceCodeModule source = extensionDescriptor.getSourceCode(getModule());
-                source.setParams(prepareExternalParameters());
+            IOpenSourceCodeModule source = getSourceCode(getModule());
+            source.setParams(prepareExternalParameters());
 
-                String openlName = extensionDescriptor.getOpenLName();
-                engineFactory = new RulesEngineFactory<>(openlName, source, serviceClass);
-            } else {
-                IOpenSourceCodeModule source = getSourceCode(getModule());
-                source.setParams(prepareExternalParameters());
-
-                engineFactory = new RulesEngineFactory<>(source, serviceClass);
-            }
+            engineFactory = new RulesEngineFactory<>(source, serviceClass);
 
             // Information for interface generation, if generation required.
             Module m = getModule();
