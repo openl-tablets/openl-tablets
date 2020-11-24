@@ -1,8 +1,8 @@
-package org.openl.rules.project.model;
+package org.openl.rules.project.model.v5_16;
 
 import java.util.List;
 
-public class Extension {
+public class Extension_v5_16 {
     private String name;
     private String extensionPackage;
     private List<String> dependencies;

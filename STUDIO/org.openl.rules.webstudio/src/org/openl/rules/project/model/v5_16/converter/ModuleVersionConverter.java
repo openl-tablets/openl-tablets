@@ -13,7 +13,6 @@ public class ModuleVersionConverter implements ObjectVersionConverter<Module, Mo
         module.setName(oldVersion.getName());
         module.setRulesRootPath(oldVersion.getRulesRootPath());
         module.setMethodFilter(oldVersion.getMethodFilter());
-        module.setExtension(oldVersion.getExtension());
 
         return module;
     }
@@ -25,7 +24,6 @@ public class ModuleVersionConverter implements ObjectVersionConverter<Module, Mo
         module.setName(currentVersion.getName());
         module.setRulesRootPath(currentVersion.getRulesRootPath());
         module.setMethodFilter(currentVersion.getMethodFilter());
-        module.setExtension(currentVersion.getExtension());
 
         return module;
     }
