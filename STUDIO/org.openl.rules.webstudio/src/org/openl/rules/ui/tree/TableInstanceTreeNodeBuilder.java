@@ -88,7 +88,7 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     }
 
     @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
         // it seems we need to process only those tables that have properties that are using for version sorting.

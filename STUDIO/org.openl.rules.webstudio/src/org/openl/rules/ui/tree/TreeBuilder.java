@@ -18,7 +18,7 @@ public class TreeBuilder<T> {
      * @param object object to add
      * @param treeNodeBuilders array of tree node builders
      */
-    public void addToNode(ITreeNode<T> targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders) {
+    public void addToNode(ProjectTreeNode targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders) {
         addToNode(targetNode, object, treeNodeBuilders, 0);
     }
 
@@ -34,7 +34,7 @@ public class TreeBuilder<T> {
      * @param treeNodeBuilders array of tree node builders
      * @param level index of builder which will be invoked
      */
-    private void addToNode(ITreeNode<T> targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders, int level) {
+    private void addToNode(ProjectTreeNode targetNode, T object, TreeNodeBuilder<T>[] treeNodeBuilders, int level) {
 
         // If level is greater than count of builders finish the adding process
         // (recursion exit condition).
@@ -48,7 +48,7 @@ public class TreeBuilder<T> {
         //
         Comparable<?> key = treeNodeBuilders[level].makeKey(object);
 
-        ITreeNode element = null;
+        ProjectTreeNode element = null;
 
         // If key is null the rest of building node process should be skipped.
         //

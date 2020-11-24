@@ -2,13 +2,11 @@ package org.openl.meta.explanation;
 
 import org.openl.base.INamedThing;
 import org.openl.meta.IMetaHolder;
-import org.openl.util.tree.ITreeElement;
 
 import java.util.Collection;
 
 /**
- * Interface, contains operations over {@link ExplanationNumberValue} objects for explaining these objects in tree(see
- * {@link ITreeElement})
+ * Interface, contains operations over {@link ExplanationNumberValue} objects for explaining these objects in tree
  *
  * @author DLiauchuk
  *

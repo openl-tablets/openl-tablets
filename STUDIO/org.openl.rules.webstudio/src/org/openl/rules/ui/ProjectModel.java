@@ -76,7 +76,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
-import org.openl.util.tree.ITreeElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -328,7 +327,7 @@ public class ProjectModel {
         return tsn;
     }
 
-    public synchronized ITreeElement<?> getProjectTree() {
+    public synchronized ProjectTreeNode getProjectTree() {
         if (projectRoot == null) {
             buildProjectTree();
         }
@@ -663,10 +662,8 @@ public class ProjectModel {
     }
 
     private void cacheTree(ProjectTreeNode treeNode) {
-        Iterable<? extends ITreeElement<Object>> children = treeNode.getChildren();
-        for (ITreeElement<Object> item : children) {
-            // TODO: Remove class casting
-            ProjectTreeNode child = (ProjectTreeNode) item;
+        Iterable<ProjectTreeNode> children = treeNode.getChildren();
+        for (ProjectTreeNode child : children) {
             if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
                 TableSyntaxNode tsn = child.getTableSyntaxNode();
                 uriTableCache.put(child.getUri(), tsn);
