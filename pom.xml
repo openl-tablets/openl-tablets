@@ -116,6 +116,8 @@
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
+        <org.apache.avro.version>1.10.0</org.apache.avro.version>
+        <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
     </properties>
 
     <modules>
