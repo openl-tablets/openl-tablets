@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -206,16 +207,19 @@ public class ProjectModel {
 
     // TODO Cache it
     public int getErrorNodesNumber() {
-        int count = 0;
+        AtomicInteger count = new AtomicInteger();
         if (compiledOpenClass != null) {
             TableSyntaxNode[] nodes = getTableSyntaxNodes();
             for (TableSyntaxNode tsn : nodes) {
-                if (tsn.hasErrors()) {
-                    count++;
-                }
+                XlsUrlParser parser = tsn.getUriParser();
+                getModuleMessages().stream()
+                        .filter(
+                                x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
+                                        x.getSourceLocation()).intersects(parser))
+                        .findFirst().ifPresent(t -> count.incrementAndGet());
             }
         }
-        return count;
+        return count.get();
     }
 
     public Map<String, TableSyntaxNode> getAllTableNodes() {
@@ -779,20 +783,6 @@ public class ProjectModel {
         node.setActive(active);
 
         return node;
-    }
-
-    private boolean isActive(ProjectTreeNode element) {
-        TableSyntaxNode syntaxNode = element.getTableSyntaxNode();
-        if (syntaxNode != null) {
-            ITableProperties tableProperties = syntaxNode.getTableProperties();
-            if (tableProperties != null) {
-                Boolean active = tableProperties.getActive();
-                if (active != null) {
-                    return active;
-                }
-            }
-        }
-        return true;
     }
 
     private void initProjectHistory() {

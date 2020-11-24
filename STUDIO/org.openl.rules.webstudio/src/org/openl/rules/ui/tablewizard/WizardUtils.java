@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.openl.base.INamedThing;
 import org.openl.rules.lang.xls.classes.ClassFinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
@@ -97,10 +96,6 @@ public final class WizardUtils {
         return WebStudioUtils.getProjectModel().getCompiledOpenClass().getOpenClassWithErrors();
     }
 
-    public static XlsModuleSyntaxNode getXlsModuleNode() {
-        return WebStudioUtils.getProjectModel().getXlsModuleNode();
-    }
-
     public static TableSyntaxNode[] getTableSyntaxNodes() {
         return WebStudioUtils.getProjectModel().getTableSyntaxNodes();
     }
@@ -115,7 +110,7 @@ public final class WizardUtils {
             (o1, o2) -> o1.getDisplayName(INamedThing.SHORT).compareToIgnoreCase(o2.getDisplayName(INamedThing.SHORT)));
 
         ClassFinder finder = new ClassFinder();
-        for (String packageName : getXlsModuleNode().getImports()) {
+        for (String packageName : WebStudioUtils.getProjectModel().getXlsModuleNode().getImports()) {
             if ("org.openl.rules.enumeration".equals(packageName)) {
                 // This package is added automatically in XlsLoader.addInnerImports() for inner usage, not for user.
                 continue;
