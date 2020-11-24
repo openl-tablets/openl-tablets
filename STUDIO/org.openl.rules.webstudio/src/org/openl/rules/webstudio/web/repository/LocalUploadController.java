@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
@@ -18,6 +21,7 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.StringUtils;
@@ -102,10 +106,10 @@ public class LocalUploadController {
                 localProjects.sort((p1, p2) -> p1.getName().compareToIgnoreCase(p2.getName()));
                 for (AProject project : localProjects) {
                     try {
-                        String repoId = project.getRepository().getId();
                         File projectFolder = new File(localWorkspace.getLocation(), project.getFolderPath());
+
                         ResolvingStrategy strategy = projectResolver.isRulesProject(projectFolder);
-                        if (strategy != null && !dtr.hasProject(repoId, project.getName())) {
+                        if (strategy != null && !hasCorrespondingDesignProject(dtr, project)) {
                             uploadBeans.add(new UploadBean(project.getName()));
                         }
                     } catch (Exception e) {
@@ -116,6 +120,23 @@ public class LocalUploadController {
             }
         }
         return uploadBeans;
+    }
+
+    private boolean hasCorrespondingDesignProject(DesignTimeRepository dtr, AProject localProject) throws IOException {
+        String repoId = localProject.getRepository().getId();
+        Repository repository = dtr.getRepository(repoId);
+        if (repository.supports().mappedFolders()) {
+            FileData fileData = localProject.getFileData();
+            FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+            if (mappingData != null) {
+                String realPath = mappingData.getInternalPath();
+                return dtr.getProjectByPath(repoId, null, realPath, null) != null;
+            } else {
+                return false;
+            }
+        } else {
+            return dtr.hasProject(repositoryId, localProject.getName());
+        }
     }
 
     public String getRepositoryId() {
