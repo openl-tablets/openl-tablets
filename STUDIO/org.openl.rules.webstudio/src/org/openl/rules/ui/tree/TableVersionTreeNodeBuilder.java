@@ -12,7 +12,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String TABLE_VERSION = "Table Version";
     private static final String VERSION_NOT_SPECIFIED = "Version not specified";
 
     @Override
@@ -44,17 +43,6 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public String getName() {
-        return TABLE_VERSION;
-    }
-
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
-    }
-
-    @Override
     public String getType(Object nodeObject) {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return String.format("%s.%s", IProjectTypes.PT_TABLE, tsn.getType()).intern();
@@ -65,15 +53,4 @@ public class TableVersionTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
         return tsn.getUri();
     }
-
-    @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
-
-    @Override
-    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
-    }
-
 }

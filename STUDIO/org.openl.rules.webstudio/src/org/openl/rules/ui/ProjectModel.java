@@ -7,11 +7,22 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.base.INamedThing;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
@@ -48,6 +59,7 @@ import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -58,13 +70,14 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.syntax.code.Dependency;
@@ -76,7 +89,6 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
 import org.openl.util.ISelector;
-import org.openl.util.tree.ITreeElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,7 +117,7 @@ public class ProjectModel {
 
     private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
-    private ProjectTreeNode projectRoot = null;
+    private TreeNode projectRoot = null;
 
     // TODO Fix performance
     private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
@@ -231,43 +243,6 @@ public class ProjectModel {
         return getMethod(tsn);
     }
 
-    public List<IOpenMethod> getTargetMethods(String testOrRunUri) {
-        List<IOpenMethod> targetMethods = new ArrayList<>();
-        IOpenMethod testMethod = getMethod(testOrRunUri);
-
-        if (testMethod instanceof TestSuiteMethod) {
-            IOpenMethod targetMethod = ((TestSuiteMethod) testMethod).getTestedMethod();
-
-            // Overloaded methods
-            if (targetMethod instanceof OpenMethodDispatcher) {
-                List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) targetMethod).getCandidates();
-                targetMethods.addAll(overloadedMethods);
-            } else {
-                targetMethods.add(targetMethod);
-            }
-        }
-
-        return targetMethods;
-    }
-
-    public List<IOpenLTable> getTargetTables(String testOrRunUri) {
-        List<IOpenLTable> targetTables = new ArrayList<>();
-        List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
-
-        for (IOpenMethod targetMethod : targetMethods) {
-            if (targetMethod != null) {
-                IMemberMetaInfo methodInfo = targetMethod.getInfo();
-                if (methodInfo != null) {
-                    TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
-                    IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                    targetTables.add(targetTable);
-                }
-            }
-        }
-
-        return targetTables;
-    }
-
     public IOpenMethod getMethod(TableSyntaxNode tsn) {
 
         if (!isProjectCompiledSuccessfully()) {
@@ -365,15 +340,11 @@ public class ProjectModel {
         return tsn;
     }
 
-    public synchronized ITreeElement<?> getProjectTree() {
+    public synchronized TreeNode getProjectTree() {
         if (projectRoot == null) {
             buildProjectTree();
         }
         return projectRoot;
-    }
-
-    public synchronized void resetProjectTree() {
-        projectRoot = null;
     }
 
     public IOpenLTable getTable(String tableUri) {
@@ -570,13 +541,8 @@ public class ProjectModel {
         return grid != null && grid.getGrid() instanceof CompositeGrid;
     }
 
-    public boolean isCurrentModuleLoadedByExtension() {
-        Module moduleInfo = getModuleInfo();
-        return moduleInfo != null && moduleInfo.getExtension() != null;
-    }
-
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
+        return isEditable() && isGranted(CREATE_TABLES);
     }
 
     public boolean isCanEditTable(String uri) {
@@ -611,8 +577,6 @@ public class ProjectModel {
 
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
 
-        TreeBuilder<Object> treeBuilder = new TreeBuilder<>();
-
         TreeNodeBuilder<Object>[] treeSorters = studio.getTreeView().getBuilders();
 
         // Find all group sorters defined for current subtree.
@@ -631,17 +595,190 @@ public class ProjectModel {
             }
         }
 
+        idTableCache.clear();
+        uriTableCache.clear();
         for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-            treeBuilder.addToNode(root, tableSyntaxNode, treeSorters);
+            // Cache tables
+            uriTableCache.put(tableSyntaxNode.getUri(), tableSyntaxNode);
+            idTableCache.put(tableSyntaxNode.getId(), tableSyntaxNode);
+
+            ProjectTreeNode element = root;
+            for (TreeNodeBuilder treeSorter : treeSorters) {
+                element = addToNode(element, tableSyntaxNode, treeSorter);
+            }
+        }
+        dependencyGraph = null;
+
+        projectRoot = build(root);
+
+        initProjectHistory();
+    }
+
+    /**
+     * Adds new object to target tree node.
+     *
+     * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
+     * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
+     * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
+     *
+     * @param targetNode target node to which will be added new object
+     * @param object object to add
+     */
+    private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
+
+        // Create key for adding object. It used to check that the same node
+        // exists.
+        //
+        Comparable<?> key = treeNodeBuilder.makeKey(object);
+
+        ProjectTreeNode element = null;
+
+        // If key is null the rest of building node process should be skipped.
+        //
+        if (treeNodeBuilder.isBuilderApplicableForObject(object) && key != null) {
+
+            // Try to find child node with the same object.
+            //
+            element = targetNode.getChild(key);
+
+            // If element is null the node with same object is absent.
+            //
+            if (element == null) {
+
+                // Build new node for the object.
+                //
+                element = treeNodeBuilder.makeNode(object, 0);
+
+                // If element is null then builder has not created the new
+                // element
+                // and this builder should be skipped.
+                // author: Alexey Gamanovich
+                //
+                if (element != null) {
+                    targetNode.addChild(key, element);
+                } else {
+                    element = targetNode;
+                }
+            }
+
+            // ///////
+            // ???????????????????
+            // //////
+            else if (treeNodeBuilder.isUnique(object)) {
+
+                for (int i = 2; i < 100; ++i) {
+
+                    Comparable<?> key2 = treeNodeBuilder.makeKey(object, i);
+                    element = targetNode.getChild(key2);
+
+                    if (element == null) {
+
+                        element = treeNodeBuilder.makeNode(object, i);
+
+                        // If element is null then sorter has not created the
+                        // new
+                        // element and this sorter should be skipped.
+                        // author: Alexey Gamanovich
+                        //
+                        if (element != null) {
+                            targetNode.addChild(key2, element);
+                        } else {
+                            element = targetNode;
+                        }
+
+                        break;
+                    }
+                }
+            }
         }
 
-        projectRoot = root;
-        uriTableCache.clear();
-        idTableCache.clear();
-        cacheTree(projectRoot);
+        // If node is null skip the current builder: set the targetNode to
+        // current element.
+        //
+        if (element == null) {
+            element = targetNode;
+        }
 
-        dependencyGraph = null;
-        initProjectHistory();
+        return element;
+    }
+
+    private TreeNode build(ProjectTreeNode root) {
+        TreeNode node = createNode(root);
+        Iterable<ProjectTreeNode> children = root.getChildren();
+        int errors = 0;
+        for (ProjectTreeNode child : children) {
+            TreeNode rfChild = build(child);
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
+                .equals(rfChild.getType())) {
+                // skip workbook or worksheet node if it has no children nodes
+                if (!rfChild.getChildrenKeysIterator().hasNext()) {
+                    continue;
+                }
+            }
+            errors += rfChild.getNumErrors();
+            node.addChild(rfChild, rfChild);
+        }
+        node.setNumErrors(node.getNumErrors() + errors);
+        return node;
+    }
+
+    private TreeNode createNode(ProjectTreeNode element) {
+
+        boolean leaf = element.getChildren().isEmpty();
+        String name = element.getDisplayName(INamedThing.SHORT);
+        String title = element.getDisplayName(INamedThing.REGULAR);
+
+        String type = element.getType();
+        String url = null;
+        int state = 0;
+        int numErrors = 0;
+        boolean active = true;
+
+        if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
+            TableSyntaxNode tsn = element.getTableSyntaxNode();
+            url = WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
+            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode())) {
+                state = 2; // has tests
+            }
+
+            XlsUrlParser parser = new XlsUrlParser(tsn.getUri());
+            numErrors = (int) getModuleMessages().stream()
+                .filter(
+                    x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
+                        x.getSourceLocation()).intersects(parser))
+                .count();
+            ITableProperties tableProperties = tsn.getTableProperties();
+            if (tableProperties != null) {
+                Boolean act = tableProperties.getActive();
+                if (act != null) {
+                    active = act;
+                }
+            }
+        }
+        TreeNode node = new TreeNode(leaf);
+        node.setName(name);
+        node.setTitle(title);
+        node.setType(type);
+        node.setUrl(url);
+        node.setState(state);
+        node.setNumErrors(numErrors);
+        node.setActive(active);
+
+        return node;
+    }
+
+    private boolean isActive(ProjectTreeNode element) {
+        TableSyntaxNode syntaxNode = element.getTableSyntaxNode();
+        if (syntaxNode != null) {
+            ITableProperties tableProperties = syntaxNode.getTableProperties();
+            if (tableProperties != null) {
+                Boolean active = tableProperties.getActive();
+                if (active != null) {
+                    return active;
+                }
+            }
+        }
+        return true;
     }
 
     private void initProjectHistory() {
@@ -704,20 +841,6 @@ public class ProjectModel {
         return count;
     }
 
-    private void cacheTree(ProjectTreeNode treeNode) {
-        Iterable<? extends ITreeElement<Object>> children = treeNode.getChildren();
-        for (ITreeElement<Object> item : children) {
-            // TODO: Remove class casting
-            ProjectTreeNode child = (ProjectTreeNode) item;
-            if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
-                TableSyntaxNode tsn = child.getTableSyntaxNode();
-                uriTableCache.put(child.getUri(), tsn);
-                idTableCache.put(tsn.getId(), tsn);
-            }
-            cacheTree(child);
-        }
-    }
-
     private void updateCacheTree() {
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
         for (TableSyntaxNode tsn : tableSyntaxNodes) {
@@ -748,7 +871,7 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[] { null, null, null }, "root", null, null, 0, null);
+        return new ProjectTreeNode(new String[] { null, null, null }, "root", null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
@@ -826,10 +949,6 @@ public class ProjectModel {
         }
 
         return searchResults;
-    }
-
-    public void setProjectTree(ProjectTreeNode projectRoot) {
-        this.projectRoot = projectRoot;
     }
 
     public void clearModuleInfo() {

@@ -22,13 +22,7 @@ public abstract class RulesMethodInvoker<T extends ExecutableRulesMethod> implem
     public final Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         // check if the object can be invoked
         if (!canInvoke()) {
-            // object can`t be invoked, inform user about the problem.
-            TableSyntaxNode syntaxNode = getInvokableMethod().getSyntaxNode();
-            if (syntaxNode != null) {
-                throw new OpenLRuntimeException(syntaxNode.getErrors()[0]);
-            } else {
-                throw new OpenLRuntimeException("Method cannot be invoked");
-            }
+            throw new OpenLRuntimeException("Method cannot be invoked");
         } else {
             // simple run invoke
             return invokeSimple(target, params, env);

@@ -34,11 +34,14 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
     @Override
     public IStorage<Object> optimizeAndBuild() {
-        storage.setInfo(info);
-        return shouldUseMappedStorage() ? makeMappedStorage() : storage;
-    }
+        if (storage.size() == 0) {
+            return new EmptyStorage(info);
+        }
 
-    private IStorage<Object> makeMappedStorage() {
+        if (!shouldUseMappedStorage()) {
+            storage.setInfo(info);
+            return storage;
+        }
 
         int size = storage.size();
 

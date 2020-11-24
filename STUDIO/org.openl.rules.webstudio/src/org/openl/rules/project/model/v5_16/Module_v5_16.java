@@ -1,6 +1,5 @@
 package org.openl.rules.project.model.v5_16;
 
-import org.openl.rules.project.model.Extension;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.v5_13.ModuleType_v5_13;
@@ -12,7 +11,7 @@ public class Module_v5_16 {
     private String classname;
     private PathEntry rulesRootPath;
     private MethodFilter methodFilter;
-    private Extension extension;
+    private Extension_v5_16 extension;
 
     public MethodFilter getMethodFilter() {
         return methodFilter;
@@ -54,11 +53,11 @@ public class Module_v5_16 {
         this.rulesRootPath = rulesRootPath;
     }
 
-    public Extension getExtension() {
+    public Extension_v5_16 getExtension() {
         return extension;
     }
 
-    public void setExtension(Extension extension) {
+    public void setExtension(Extension_v5_16 extension) {
         this.extension = extension;
     }
 

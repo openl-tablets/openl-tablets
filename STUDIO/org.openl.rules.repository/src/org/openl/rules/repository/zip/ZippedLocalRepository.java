@@ -1,7 +1,5 @@
 package org.openl.rules.repository.zip;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -304,9 +302,8 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
             return null;
         }
         FileData data = getFileData(path);
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Files.copy(path.getPath(), baos);
-        return new FileItem(data, new ByteArrayInputStream(baos.toByteArray()));
+        InputStream is = Files.newInputStream(path.getPath());
+        return new FileItem(data, is);
     }
 
     @Override

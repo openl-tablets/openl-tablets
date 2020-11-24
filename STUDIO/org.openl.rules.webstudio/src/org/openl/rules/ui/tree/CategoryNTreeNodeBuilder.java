@@ -40,16 +40,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
-        return "category." + categoryLevel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getType(Object sorterObject) {
-        // return "category." + categoryLevel;
         return IProjectTypes.PT_FOLDER;
     }
 

@@ -244,6 +244,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         OpenAPI openAPI = new OpenAPI();
         openAPI.setAlgorithmModuleName(algorithmsModuleName);
         openAPI.setModelModuleName(modelsModuleName);
+        openAPI.setMode(OpenAPI.Mode.GENERATION);
 
         descriptor.setName(projectName);
         List<Module> modules = new ArrayList<>();

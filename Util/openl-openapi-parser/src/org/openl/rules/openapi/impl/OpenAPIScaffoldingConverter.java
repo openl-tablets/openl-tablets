@@ -600,6 +600,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             ComposedSchema composedSchema = (ComposedSchema) schema;
             String parentName = OpenAPITypeUtils.getParentName(composedSchema, openAPI);
             properties = OpenAPITypeUtils.getFieldsOfChild(composedSchema);
+            if (composedSchema.getProperties() != null) {
+                composedSchema.getProperties().forEach(properties::putIfAbsent);
+            }
             dm.setParent(parentName);
         } else {
             properties = schema.getProperties();

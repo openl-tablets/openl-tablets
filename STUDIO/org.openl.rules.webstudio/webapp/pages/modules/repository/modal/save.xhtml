@@ -25,20 +25,9 @@
             <h:outputText value="Project name in rules.xml is '#{repositoryTreeController.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 
-          <h:outputText value="Current Revision Id:" />
+          <h:outputText value="Current Revision:" />
           <h:panelGroup>
-            <ui:param name="revisionNo" value="#{node.versionName}" />
-            <ui:param name="shortRevisionNo" value="#{node.shortVersion}" />
-
-            <c:choose>
-              <c:when test="#{revisionNo eq shortRevisionNo}">
-                <h:outputText value="#{revisionNo}"/>
-              </c:when>
-              <c:otherwise>
-                <h:outputText value="#{shortRevisionNo}" styleClass="expandable"/>
-                <h:outputText value="#{revisionNo}" styleClass="hidden"/>
-              </c:otherwise>
-            </c:choose>
+            <h:outputText value="#{utils.descriptiveProjectVersion(artefact)}"/>
           </h:panelGroup>
 
           <h:outputText value="Comment:" />

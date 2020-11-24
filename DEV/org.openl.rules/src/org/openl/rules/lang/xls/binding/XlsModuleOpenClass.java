@@ -19,7 +19,6 @@ import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.exception.ConflictsMethodException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.BindHelper;
@@ -54,7 +53,6 @@ import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.DomainOpenClass;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -415,18 +413,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     MethodUtil.printSignature(m, INamedThing.REGULAR),
                     existedMethod.getType().getDisplayName(0));
                 throw new DuplicatedMethodException(message, existedMethod, method);
-            }
-
-            for (int i = 0; i < existedMethod.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass existedParameterType = existedMethod.getSignature().getParameterType(i);
-                IOpenClass mParameterType = m.getSignature().getParameterType(i);
-                if ((existedParameterType instanceof DomainOpenClass || mParameterType instanceof DomainOpenClass) && !Objects
-                    .equals(existedParameterType, mParameterType)) {
-                    String message = String.format("Method '%s' conflicts with another method '%s'.",
-                        MethodUtil.printSignature(existedMethod, INamedThing.REGULAR),
-                        MethodUtil.printSignature(m, INamedThing.REGULAR));
-                    throw new ConflictsMethodException(message);
-                }
             }
 
             // Checks the instance of existed method. If it's the

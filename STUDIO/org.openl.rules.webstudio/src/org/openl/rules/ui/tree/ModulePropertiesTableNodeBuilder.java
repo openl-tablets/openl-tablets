@@ -15,23 +15,11 @@ import org.openl.util.StringUtils;
  */
 public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String FOLDER_NAME = "Module Properties";
-    private static final String MODULE_PROPERTIES_TABLE = "Module Properties Table";
+    private static final String[] DISPLAY_NAMES = {"Module Properties", "Module Properties", "Module Properties"};
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        return new String[] { FOLDER_NAME, FOLDER_NAME, FOLDER_NAME };
-    }
-
-    @Override
-    public String getName() {
-        return MODULE_PROPERTIES_TABLE;
-    }
-
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
+        return DISPLAY_NAMES;
     }
 
     @Override
@@ -46,16 +34,6 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
-
-    @Override
-    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
-    }
-
-    @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return XlsNodeTypes.XLS_PROPERTIES.toString()
             .equals(tableSyntaxNode.getType()) && isModulePropertyTable(tableSyntaxNode);
@@ -63,8 +41,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        String folderName = FOLDER_NAME;
-        return makeFolderNode(folderName);
+        return new ProjectTreeNode(DISPLAY_NAMES, IProjectTypes.PT_FOLDER, null);
     }
 
     public static boolean isModulePropertyTable(TableSyntaxNode tableSyntaxNode) {
@@ -78,14 +55,4 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
         }
         return result;
     }
-
-    private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
-            IProjectTypes.PT_FOLDER,
-            null,
-            null,
-            0,
-            null);
-    }
-
 }

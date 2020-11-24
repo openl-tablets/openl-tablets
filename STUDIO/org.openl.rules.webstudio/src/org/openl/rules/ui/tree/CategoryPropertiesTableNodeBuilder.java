@@ -17,24 +17,12 @@ import org.openl.util.StringUtils;
  */
 public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String FOLDER_NAME = "Category Properties";
-    private static final String CATEGORY_PROPERTIES_TABLE = "Category Properties Table";
+    private static final String[] DISPLAY_NAMES = {"Category Properties", "Category Properties", "Category Properties"};
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
-    }
-
-    @Override
-    public String getName() {
-        return CATEGORY_PROPERTIES_TABLE;
-    }
-
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
 
     @Override
@@ -49,16 +37,6 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
     }
 
     @Override
-    public int getWeight(Object nodeObject) {
-        return 0;
-    }
-
-    @Override
-    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
-    }
-
-    @Override
     public boolean isBuilderApplicableForObject(TableSyntaxNode tableSyntaxNode) {
         return XlsNodeTypes.XLS_PROPERTIES.toString()
             .equals(tableSyntaxNode.getType()) && isCategoryPropertyTable(tableSyntaxNode);
@@ -66,7 +44,7 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
 
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        return makeFolderNode(FOLDER_NAME);
+        return new ProjectTreeNode(DISPLAY_NAMES, IProjectTypes.PT_FOLDER, null);
     }
 
     private static boolean isCategoryPropertyTable(TableSyntaxNode tableSyntaxNode) {
@@ -79,14 +57,5 @@ public class CategoryPropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder
             }
         }
         return result;
-    }
-
-    private static ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
-            IProjectTypes.PT_FOLDER,
-            null,
-            null,
-            0,
-            null);
     }
 }

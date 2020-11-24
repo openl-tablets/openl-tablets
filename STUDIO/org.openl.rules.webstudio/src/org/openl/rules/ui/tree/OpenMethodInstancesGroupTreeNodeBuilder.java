@@ -21,8 +21,6 @@ import org.openl.util.StringUtils;
  */
 public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
-    private static final String TABLE_INSTANCES_GROUP_NAME = "Table Group Instance";
-
     /**
      * {@inheritDoc}
      */
@@ -32,14 +30,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         TableSyntaxNode tableSyntaxNode = (TableSyntaxNode) nodeObject;
 
         return TableSyntaxNodeUtils.getTableDisplayValue(tableSyntaxNode, i, WebStudioFormats.getInstance());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return TABLE_INSTANCES_GROUP_NAME;
     }
 
     /**
@@ -56,22 +46,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     @Override
     public String getUrl(Object sorterObject) {
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int getWeight(Object sorterObject) {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tableSyntaxNode) {
-        return tableSyntaxNode;
     }
 
     @Override
@@ -98,7 +72,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
         String folderName = getFolderName(method);
-        return makeFolderNode(folderName);
+        return new ProjectTreeNode(new String[] {folderName, folderName, folderName}, IProjectTypes.PT_FOLDER, null);
     }
 
     private String getFolderName(IOpenMethod method) {
@@ -130,15 +104,6 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         }
 
         return null;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
     }
 
     /**
@@ -179,15 +144,5 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         }
 
         return majorName;
-    }
-
-    /**
-     * Makes node that represents folder.
-     *
-     * @param folderName name of folder node
-     * @return tree node
-     */
-    private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, "folder", null, null, 0, null);
     }
 }

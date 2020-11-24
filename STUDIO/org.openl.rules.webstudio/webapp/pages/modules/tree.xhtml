@@ -189,7 +189,7 @@
                     </h:outputLink>
                     <h:outputText value="#{node.numErrors}" styleClass="badge badge-small badge-error badge-right" rendered="#{node.numErrors > 0}" />
                 </rich:treeNode>
-                <rich:treeNode type="table.xls.other" onclick="changeNode(event, '#{node.url}')">
+                <rich:treeNode type="table.xls.other" onclick="changeNode(event, '#{node.url}')" rendered="#{!treeBean.hideUtilityTables}">
                     <h:outputLink value="#{node.url}" title="#{node.title}">
                         <h:outputText value="#{node.name}" styleClass="#{node.numErrors > 0 ? 'error' : ''}" />
                     </h:outputLink>

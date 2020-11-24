@@ -26,7 +26,6 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
-import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.GridTable;
 import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
@@ -316,19 +315,11 @@ public class DecisionTableLoader {
                     tableSyntaxNode);
             }
         }
-        if (tableBody.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+        int height = tableBody.getHeight();
+        if (height < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
         }
-        if (tableBody.getHeight() == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            //create virtual empty Row
-            GridTable virtualDefaultRulesRowGridTable = new GridTable(0,
-                    0,
-                    0,
-                    tableBody.getSource().getWidth() - 1,
-                    DecisionTableHelper.createVirtualGrid());
-            IGrid grid = new CompositeGrid(new IGridTable[] { tableBody.getSource(), virtualDefaultRulesRowGridTable }, true);
-            tableBody = LogicalTableHelper.logicalTable(
-                    new GridTable(0, 0, tableBody.getHeight(), tableBody.getSource().getWidth() - 1, grid));
+        if (height == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             bindingContext.addMessage(OpenLMessagesUtils
                     .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
         }
@@ -339,7 +330,7 @@ public class DecisionTableLoader {
         int nHConditions = DecisionTableHelper.countHConditionsByHeaders(toParse);
         int nVConditions = DecisionTableHelper.countVConditionsByHeaders(toParse);
         TableStructure tableStructure = new TableStructure();
-        if (nHConditions > 0) {
+        if (nHConditions > 0 && height > IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
                 IGridTable convertedTable = dtlc.convertTable(toParse);

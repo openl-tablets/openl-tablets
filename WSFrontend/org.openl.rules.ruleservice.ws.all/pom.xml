@@ -61,6 +61,8 @@
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                         <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
+                        <ignoredResourcePattern>git.properties</ignoredResourcePattern>
+                        <ignoredResourcePattern>about.html</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>

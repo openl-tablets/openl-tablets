@@ -5,7 +5,6 @@ import java.util.Collections;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for number values.
@@ -74,7 +73,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     @Override
-    public Collection<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return Collections.emptyList();
     }
 

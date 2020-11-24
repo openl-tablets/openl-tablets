@@ -3,16 +3,23 @@ package org.openl.rules.webstudio.web.test;
 import javax.servlet.http.HttpSession;
 
 import org.openl.base.INamedThing;
+import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+
+import java.util.Collection;
 
 public final class Utils {
     private Utils() {
@@ -72,15 +79,39 @@ public final class Utils {
     }
 
     private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests) {
+        Collection<OpenLMessage> messages = model.getModuleMessages();
+        Collection<OpenLMessage> errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
         if (tests != null) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                TestSuite testSuite = new TestSuite((TestSuiteMethod) tests[i]);
-                results[i] = model.runTest(testSuite);
+                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tests[i];
+                TestSuite testSuite = new TestSuite(testSuiteMethod);
+                TestUnitsResults testUnitsResults;
+                if (hasError(errors, testSuiteMethod)) {
+                    testUnitsResults = new TestUnitsResults(testSuite);
+                    testUnitsResults.setTestedRulesHaveErrors(true);
+                } else {
+                    testUnitsResults = model.runTest(testSuite);
+                }
+                results[i] = testUnitsResults;
             }
             return results;
         }
         return new TestUnitsResults[0];
+    }
+
+    private static boolean hasError(Collection<OpenLMessage> errors, TestSuiteMethod testSuiteMethod) {
+        IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
+        IMemberMetaInfo metaInfo = testedMethod.getInfo();
+        XlsUrlParser testedMethodUrl = new XlsUrlParser(metaInfo.getSourceUrl());
+
+        for (OpenLMessage msg : errors) {
+            String sourceLocation = msg.getSourceLocation();
+            if (sourceLocation != null && new XlsUrlParser(sourceLocation).intersects(testedMethodUrl)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public static IDataBase getDb(ProjectModel model) {

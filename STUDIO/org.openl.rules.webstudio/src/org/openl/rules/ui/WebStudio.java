@@ -25,13 +25,10 @@ import javax.validation.ValidationException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
-import org.openl.classloader.ClassLoaderUtils;
-import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.common.CommonException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
-import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.abstraction.AProject;
@@ -1233,20 +1230,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         // Eclipse project
                         return false;
                     }
-                    String moduleURI;
-                    if (module.getExtension() == null) {
-                        moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
-                    } else {
-                        ClassLoader classLoader = null;
-                        try {
-                            classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
-                            moduleURI = ExtensionDescriptorFactory
-                                .getExtensionDescriptor(module.getExtension(), classLoader)
-                                .getUrlForModule(module);
-                        } finally {
-                            ClassLoaderUtils.close(classLoader);
-                        }
-                    }
+                    String moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
                     return tableURI.startsWith(moduleURI);
                 }
             });
