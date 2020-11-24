@@ -1,6 +1,5 @@
 package org.openl.rules.ui.tree;
 
-import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -22,17 +21,12 @@ public class VersionedTreeNode extends ProjectTreeNode {
     private TableSyntaxNode linkedChild;
 
     VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
-        super(displayName, String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(), null, null);
+        super(displayName, String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(), null);
     }
 
     @Override
     public String getType() {
         return String.format("%s.%s", IProjectTypes.PT_TABLE, linkedChild.getType()).intern();
-    }
-
-    @Override
-    public String getUri() {
-        return linkedChild.getUri();
     }
 
     @Override
@@ -50,23 +44,14 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
-    public boolean isLeaf() {
-        return getElements().size() < 1;
-    }
-
-    @Override
-    public Collection<ProjectTreeNode> getChildren() {
-        return getElements().values();
-    }
-
-    @Override
     public void addChild(Object key, ProjectTreeNode child) {
         super.addChild(key, child);
+        TableSyntaxNode childTableSyntaxNode = child.getTableSyntaxNode();
         if (linkedChild == null) {
-            linkedChild = child.getTableSyntaxNode();
+            linkedChild = childTableSyntaxNode;
         } else {
-            if (findLaterTable(linkedChild, child.getTableSyntaxNode()) > 0) {
-                linkedChild = child.getTableSyntaxNode();
+            if (findLaterTable(linkedChild, childTableSyntaxNode) > 0) {
+                linkedChild = childTableSyntaxNode;
             }
         }
     }

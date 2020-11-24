@@ -5,48 +5,20 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 
 public class ProjectTreeNode {
 
-    private String uri;
     private String[] displayName;
     private TableSyntaxNode tableSyntaxNode;
 
-    public ProjectTreeNode(String[] displayName, String type, String uri, TableSyntaxNode tsn) {
+    public ProjectTreeNode(String[] displayName, String type, TableSyntaxNode tsn) {
         this.type = type;
-        this.uri = uri;
         this.displayName = displayName;
         this.tableSyntaxNode = tsn;
     }
 
     public String getDisplayName(int mode) {
         return displayName[mode];
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public int getNumErrors() {
-        int result = 0;
-
-        TableSyntaxNode table = getTableSyntaxNode();
-        Collection<ProjectTreeNode> children = getChildren();
-        if (table != null) {
-            SyntaxNodeException[] errors = table.getErrors();
-            if (errors != null) {
-                result += errors.length;
-            }
-            if (children.isEmpty()) {
-                return result;
-            }
-        }
-
-        for (ProjectTreeNode treeNode : children) {
-            result += treeNode.getNumErrors();
-        }
-        return result;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
@@ -62,11 +34,6 @@ public class ProjectTreeNode {
      * String that represent the node type.
      */
     private String type;
-
-    /**
-     * Contained object.
-     */
-    private Object object;
 
     /**
      * {@inheritDoc}
@@ -86,7 +53,7 @@ public class ProjectTreeNode {
      * {@inheritDoc}
      */
     public Collection<ProjectTreeNode> getChildren() {
-        return elements.values();
+        return getElements().values();
     }
 
     /**
@@ -105,32 +72,7 @@ public class ProjectTreeNode {
     /**
      * {@inheritDoc}
      */
-    public Object getObject() {
-        return object;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
     public String getType() {
         return type;
     }
-
-    /**
-     * Checks that node is leaf.
-     *
-     * @return <code>true</code> if node is leaf; <code>false</code> - otherwise
-     */
-    public boolean isLeaf() {
-
-        return elements == null || elements.isEmpty();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setObject(Object object) {
-        this.object = object;
-    }
-
 }

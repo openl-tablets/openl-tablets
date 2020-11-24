@@ -95,8 +95,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         // in other case return original tableSyntaxNode.
         // ???
         // author: DLiauchuk
-        ProjectTreeNode projectTreeNode = new VersionedTreeNode(displayNames, tableSyntaxNode);
-        projectTreeNode.setObject(nodeObject);
-        return projectTreeNode;
+        return new VersionedTreeNode(displayNames, tableSyntaxNode);
     }
 }
