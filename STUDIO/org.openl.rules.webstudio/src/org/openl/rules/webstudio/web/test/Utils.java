@@ -106,7 +106,8 @@ public final class Utils {
         XlsUrlParser testedMethodUrl = new XlsUrlParser(metaInfo.getSourceUrl());
 
         for (OpenLMessage msg : errors) {
-            if (new XlsUrlParser(msg.getSourceLocation()).intersects(testedMethodUrl)) {
+            String sourceLocation = msg.getSourceLocation();
+            if (sourceLocation != null && new XlsUrlParser(sourceLocation).intersects(testedMethodUrl)) {
                 return true;
             }
         }
