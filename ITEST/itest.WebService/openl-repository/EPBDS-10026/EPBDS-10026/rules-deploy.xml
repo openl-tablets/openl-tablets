@@ -5,7 +5,7 @@
     <configuration>
         <entry>
             <string>jackson.propertyNamingStrategy</string>
-            <string>org.openl.rules.serialization.SpreadsheetResultBeanPropertyNamingStrategy$LowerCamelCaseStrategy</string>
+            <string>org.openl.rules.serialization.spr.LowerCamelCaseStrategy</string>
         </entry>
     </configuration>
 </rules-deploy>
