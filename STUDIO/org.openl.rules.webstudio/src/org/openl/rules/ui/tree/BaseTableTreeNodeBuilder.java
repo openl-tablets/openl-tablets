@@ -18,19 +18,14 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
 
-        ProjectTreeNode projectTreeNode = null;
+        ProjectTreeNode projectTreeNode;
 
         String type = getType(nodeObject);
         if (type.equals(IProjectTypes.PT_FOLDER)) {
-            projectTreeNode = new ProjectTreeNode(displayNames, type, null, null);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, null);
         } else {
-            projectTreeNode = new ProjectTreeNode(displayNames,
-                type,
-                getUrl(nodeObject),
-                    tableSyntaxNode);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, tableSyntaxNode);
         }
-
-        projectTreeNode.setObject(nodeObject);
 
         return projectTreeNode;
     }

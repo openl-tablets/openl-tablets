@@ -15,11 +15,11 @@ import org.openl.util.StringUtils;
  */
 public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String FOLDER_NAME = "Module Properties";
+    private static final String[] DISPLAY_NAMES = {"Module Properties", "Module Properties", "Module Properties"};
 
     @Override
     public String[] getDisplayValue(Object nodeObject, int i) {
-        return new String[] { FOLDER_NAME, FOLDER_NAME, FOLDER_NAME };
+        return DISPLAY_NAMES;
     }
 
     @Override
@@ -41,8 +41,7 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
 
     @Override
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        String folderName = FOLDER_NAME;
-        return makeFolderNode(folderName);
+        return new ProjectTreeNode(DISPLAY_NAMES, IProjectTypes.PT_FOLDER, null);
     }
 
     public static boolean isModulePropertyTable(TableSyntaxNode tableSyntaxNode) {
@@ -56,12 +55,4 @@ public class ModulePropertiesTableNodeBuilder extends BaseTableTreeNodeBuilder {
         }
         return result;
     }
-
-    private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName },
-            IProjectTypes.PT_FOLDER,
-            null,
-                null);
-    }
-
 }

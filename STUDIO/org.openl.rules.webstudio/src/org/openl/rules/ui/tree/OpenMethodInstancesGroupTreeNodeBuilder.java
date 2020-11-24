@@ -72,7 +72,7 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
     public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         IOpenMethod method = (IOpenMethod) tableSyntaxNode.getMember();
         String folderName = getFolderName(method);
-        return makeFolderNode(folderName);
+        return new ProjectTreeNode(new String[] {folderName, folderName, folderName}, IProjectTypes.PT_FOLDER, null);
     }
 
     private String getFolderName(IOpenMethod method) {
@@ -144,15 +144,5 @@ public class OpenMethodInstancesGroupTreeNodeBuilder extends OpenMethodsGroupTre
         }
 
         return majorName;
-    }
-
-    /**
-     * Makes node that represents folder.
-     *
-     * @param folderName name of folder node
-     * @return tree node
-     */
-    private ProjectTreeNode makeFolderNode(String folderName) {
-        return new ProjectTreeNode(new String[] { folderName, folderName, folderName }, "folder", null, null);
     }
 }

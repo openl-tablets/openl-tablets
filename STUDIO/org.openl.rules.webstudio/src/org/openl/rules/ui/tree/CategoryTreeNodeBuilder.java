@@ -28,7 +28,6 @@ public class CategoryTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      */
     @Override
     public String getType(Object nodeObject) {
-        // return CATEGORY_TYPE;
         return IProjectTypes.PT_FOLDER;
     }
 
