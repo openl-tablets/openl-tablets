@@ -73,15 +73,4 @@ public class XlsModuleSyntaxNode extends NaryNode {
         tableSyntaxNodes = tsnodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
-    public TableSyntaxNode[] getXlsTableSyntaxNodesWithoutErrors() {
-        List<TableSyntaxNode> resultNodes = new ArrayList<>();
-        for (TableSyntaxNode node : getXlsTableSyntaxNodes()) {
-            if (node.hasErrors()) {
-                continue;
-            }
-            resultNodes.add(node);
-        }
-        return resultNodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
-    }
-
 }

@@ -9,11 +9,13 @@ import javax.faces.model.SelectItem;
 import javax.validation.GroupSequence;
 
 import org.hibernate.validator.constraints.NotBlank;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
+import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.table.xls.builder.TableBuilder;
 import org.openl.rules.table.xls.builder.TestTableBuilder;
@@ -21,6 +23,7 @@ import org.openl.rules.ui.validation.StringPresentedGroup;
 import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -126,10 +129,8 @@ public class TestTableCreationWizard extends TableCreationWizard {
 
     private List<TableSyntaxNode> getSyntaxNodes() {
         if (executableTables == null) {
-            TableSyntaxNode[] syntaxNodes = WizardUtils.getXlsModuleNode().getXlsTableSyntaxNodesWithoutErrors();
-
             executableTables = new ArrayList<>();
-            for (TableSyntaxNode syntaxNode : syntaxNodes) {
+            for (TableSyntaxNode syntaxNode : WebStudioUtils.getProjectModel().getTableSyntaxNodes()) {
                 if (isExecutableAndTestableNode(syntaxNode)) {
                     executableTables.add(syntaxNode);
                 }
@@ -196,7 +197,19 @@ public class TestTableCreationWizard extends TableCreationWizard {
      * type of the table is not void.
      */
     private boolean isExecutableAndTestableNode(TableSyntaxNode node) {
-        return node.isExecutableNode() && void.class != node.getMember().getType().getInstanceClass();
+        boolean executable = node
+            .isExecutableNode() && !void.class.equals(node.getMember().getType().getInstanceClass());
+        if (!executable) {
+            return false;
+        }
+        XlsUrlParser parser = node.getUriParser();
+        return !WebStudioUtils.getProjectModel()
+            .getModuleMessages()
+            .stream()
+            .filter(x -> x.getSourceLocation() != null && x.getSeverity()
+                .equals(Severity.ERROR) && new XlsUrlParser(x.getSourceLocation()).intersects(parser))
+            .findFirst()
+            .isPresent();
     }
 
     @Override
