@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import org.openl.meta.number.NumberOperations;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for functions.
@@ -26,7 +25,7 @@ public class FunctionExplanationValue<T extends ExplanationNumberValue<T>> exten
     }
 
     @Override
-    public Collection<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return Arrays.asList(params);
     }
 
