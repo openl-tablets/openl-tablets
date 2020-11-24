@@ -115,7 +115,7 @@
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
-        <hive.jdbc.version>2.3.7</hive.jdbc.version>
+        <hive.jdbc.version>3.1.2</hive.jdbc.version>
     </properties>
 
     <modules>
