@@ -5,7 +5,7 @@ package org.openl.rules.ui.tree;
  *
  * @param <T> type of node object
  */
-public interface TreeNodeBuilder<T extends Object> {
+public interface TreeNodeBuilder<T> {
 
     /**
      * Generates comparable key that will be used for detecting similar nodes.
@@ -20,7 +20,7 @@ public interface TreeNodeBuilder<T extends Object> {
      * @param i Order number of object.
      * @return TreeNode generated for the object.
      */
-    ITreeNode<Object> makeNode(T object, int i);
+    ProjectTreeNode makeNode(T object, int i);
 
     /**
      * Generates comparable key for similar keys. It only used if <code>isUnique==true</code>. Then we have to create

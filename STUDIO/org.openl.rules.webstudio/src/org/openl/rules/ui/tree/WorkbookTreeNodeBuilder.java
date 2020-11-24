@@ -50,8 +50,8 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
     }
 
     @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        TreeNode<Object> treeNode = (TreeNode<Object>) super.makeNode(tableSyntaxNode, i);
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        ProjectTreeNode treeNode = super.makeNode(tableSyntaxNode, i);
         // Put spreadsheets in order as they defined in xls, not sort them alphabetically
         treeNode.setElements(new LinkedHashMap<>(treeNode.getElements()));
         return treeNode;

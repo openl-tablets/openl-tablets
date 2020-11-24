@@ -8,17 +8,18 @@ import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.ui.tree.ProjectTreeNode;
 import org.openl.rules.ui.tree.richfaces.ProjectTreeBuilder;
 import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.util.CollectionUtils;
-import org.openl.util.tree.ITreeElement;
 import org.richfaces.model.TreeNode;
 import org.richfaces.model.TreeNodeImpl;
+
+import java.util.function.Predicate;
 
 /**
  * Request scope managed bean providing logic for tree page of OpenL Studio.
@@ -56,11 +57,9 @@ public class TreeBean {
     public TreeNode getTree() {
         WebStudio studio = WebStudioUtils.getWebStudio();
 
-        ITreeElement<?> tree = studio.getModel().getProjectTree();
+        ProjectTreeNode tree = studio.getModel().getProjectTree();
         if (tree != null) {
-            Module module = studio.getCurrentModule();
-
-            CollectionUtils.Predicate<ITreeElement> utilityTablePredicate = new UtilityTablePredicate(hideUtilityTables);
+            Predicate<ProjectTreeNode> utilityTablePredicate = new UtilityTablePredicate(hideUtilityTables);
 
             return new ProjectTreeBuilder(utilityTablePredicate).build(tree);
         }
@@ -68,7 +67,7 @@ public class TreeBean {
         return new TreeNodeImpl();
     }
 
-    private static class UtilityTablePredicate implements CollectionUtils.Predicate<ITreeElement> {
+    private static class UtilityTablePredicate implements Predicate<ProjectTreeNode> {
         private boolean hideUtilityTables;
 
         public UtilityTablePredicate(boolean hideUtilityTables) {
@@ -76,7 +75,7 @@ public class TreeBean {
         }
 
         @Override
-        public boolean evaluate(ITreeElement tableNode) {
+        public boolean test(ProjectTreeNode tableNode) {
             if (tableNode.isLeaf() && tableNode.getObject() instanceof ISyntaxNode) {
                 String tableType = ((ISyntaxNode) tableNode.getObject()).getType();
                 if (hideUtilityTables) {

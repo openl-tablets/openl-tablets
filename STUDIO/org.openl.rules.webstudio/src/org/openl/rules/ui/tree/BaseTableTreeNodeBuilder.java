@@ -13,7 +13,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * {@inheritDoc}
      */
     @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
 
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
