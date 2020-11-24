@@ -41,12 +41,11 @@ public final class ProjectHelper {
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
-    public static boolean isTester(IOpenMethod tester) {
+    private static boolean isTester(IOpenMethod tester) {
         if (tester instanceof TestSuiteMethod) {
             try {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-                return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod
-                    .getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
+                return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable();
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
                 log.error(e.getMessage(), e);
