@@ -447,10 +447,14 @@ public class RepositoryTreeController {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId,
                     dependency.getName());
                 if (projectNode == null) {
+                    projectNode = repositoryTreeState.getProjectNodeByBusinessName(null, dependency.getName());
+                }
+                if (projectNode == null) {
                     continue;
                 }
-                String physicalName = projectNode.getName();
-                AProject dependentProject = userWorkspace.getProject(repoId, physicalName, false);
+                AProjectArtefact projectArtefact = projectNode.getData();
+                AProject dependentProject = userWorkspace
+                    .getProject(projectArtefact.getRepository().getId(), projectArtefact.getName(), false);
                 if (canOpen(dependentProject)) {
                     result.add(dependency.getName());
                 }
@@ -1521,11 +1525,15 @@ public class RepositoryTreeController {
             for (String dependency : getDependencies(selectedProject, true)) {
                 TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId, dependency);
                 if (projectNode == null) {
+                    projectNode = repositoryTreeState.getProjectNodeByBusinessName(null, dependency);
+                }
+                if (projectNode == null) {
                     log.error("Cannot find dependency {}", dependency);
                     continue;
                 }
-                String physicalName = projectNode.getData().getName();
-                RulesProject project = userWorkspace.getProject(repoId, physicalName);
+                AProjectArtefact projectArtefact = projectNode.getData();
+                RulesProject project = userWorkspace.getProject(projectArtefact.getRepository().getId(),
+                    projectArtefact.getName());
                 if (!userWorkspace.isOpenedOtherProject(project)) {
                     project.open();
                 }
