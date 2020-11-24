@@ -62,15 +62,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      * {@inheritDoc}
      */
     @Override
-    public int getWeight(Object sorterObject) {
-
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isUnique(TableSyntaxNode tsn) {
         return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType()) || XlsNodeTypes.XLS_DATATYPE.toString()
             .equals(tsn.getType()) || XlsNodeTypes.XLS_DATA.toString()

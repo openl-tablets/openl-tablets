@@ -118,5 +118,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @param nodeObject node object
      * @return string that represent node weight
      */
-    public abstract int getWeight(Object nodeObject);
+    public int getWeight(Object nodeObject) {
+        return 0;
+    }
 }
