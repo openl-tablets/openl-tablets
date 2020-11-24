@@ -334,10 +334,6 @@ public class ProjectModel {
         return projectRoot;
     }
 
-    public synchronized void resetProjectTree() {
-        projectRoot = null;
-    }
-
     public IOpenLTable getTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
