@@ -1,0 +1,5 @@
+ERROR: Incorrect value 'or%g.table' for property 'Datatype Package'
+ERROR: Incorrect value 'org.table.' for property 'Datatype Package'
+ERROR: Incorrect value 'org.ta$ble' for property 'Datatype Package'
+ERROR: Incorrect value '1org.table' for property 'Datatype Package'
+ERROR: Failed to load a class for datatype 'org.table..DotEnded'.
