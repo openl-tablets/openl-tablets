@@ -120,6 +120,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         if (!FileTypeHelper.isExcelFile(normalizedModelsPath)) {
             throw new OpenAPIProjectException("Unsupported file extension for module with Data Types.");
         }
+
+        if (normalizedAlgorithmsPath.equalsIgnoreCase(normalizedModelsPath)) {
+            throw new OpenAPIProjectException("Path for Modules cannot be the same.");
+        }
+
         this.uploadedOpenAPIFile = projectFile;
         this.comment = comment;
         this.projectName = projectName;

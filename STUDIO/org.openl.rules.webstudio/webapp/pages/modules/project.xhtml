@@ -66,10 +66,6 @@
             padding-right: 5px;
         }
 
-        .openAPIFieldDescription {
-            margin-right: 5px;
-        }
-
     </style>
 
     <ui:param name="editable" value="#{studio.model.editable}"/>
@@ -315,7 +311,7 @@
                     <h3>
                         <span>OpenAPI</span>
                         <h:panelGroup rendered="#{editable}">
-                            <a href="javascript:void(0)" title="Manage OpenAPI" class="editable-link"
+                            <a href="javascript:void(0)" title="Import OpenAPI" class="editable-link"
                                onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">
                                 <img src="#{request.contextPath}/webresource/images/import.png"
                                      height="16" width="16"
@@ -327,28 +323,54 @@
                             <a class="link-ref" href="javascript:void(0)"
                                onclick="editOpenAPI({path: '#{utils.toJSText(project.openapi.path)}', algorithmModuleName: '#{project.openapi.algorithmModuleName}', modelModuleName: '#{project.openapi.modelModuleName}'})">Click to Import OpenAPI File</a>
                         </h:panelGroup>
-                        <ul class="enum">
-                            <li style="display: #{not empty projectBean.lastOpenAPIFileUploadDate ? 'list-item' :'none'}">
-                                <span class="field-description openAPIFieldDescription">Last Import At:</span>
-                                <h:outputText value="#{projectBean.lastOpenAPIFileUploadDate}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.path ? 'list-item' :'none'}">
-                                <span class="field-description openAPIFieldDescription">OpenAPI File:</span>
-                                <h:outputText value="#{project.openapi.path}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.mode ? 'list-item' :'none'}">
-                                <span class="field-description openAPIFieldDescription">Mode:</span>
-                                <h:outputText value="#{openAPIEditorService.getDisplayName(project.openapi.mode)}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.algorithmModuleName and project.openapi.mode == 'GENERATION' ? 'list-item' :'none'}">
-                                <span class="field-description openAPIFieldDescription">Rules module:</span>
-                                <h:outputText value="#{project.openapi.algorithmModuleName}"/>
-                            </li>
-                            <li style="display: #{not empty project.openapi.modelModuleName and project.openapi.mode == 'GENERATION' ? 'list-item' :'none'}">
-                                <span class="field-description openAPIFieldDescription">Data module:</span>
-                                <h:outputText value="#{project.openapi.modelModuleName}"/>
-                            </li>
-                        </ul>
+                        <table class="properties">
+                            <h:panelGroup rendered="#{not empty projectBean.lastOpenAPIFileUploadDate}">
+                                <tr>
+                                    <td class="field-description">Last Import At:</td>
+                                    <td>
+                                        <h:outputText value="#{projectBean.lastOpenAPIFileUploadDate}"/>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not empty project.openapi.path}">
+                                <tr>
+                                    <td class="field-description">
+                                        OpenAPI File:
+                                    </td>
+                                    <td>
+                                        <h:outputText value="#{project.openapi.path}"/>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{not empty project.openapi.mode}">
+                                <tr>
+                                    <td class="field-description"> Mode:
+                                    </td>
+                                    <td>
+                                        <h:outputText
+                                                value="#{openAPIEditorService.getDisplayName(project.openapi.mode)}"/>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup
+                                    rendered="#{not empty project.openapi.algorithmModuleName and project.openapi.mode == 'GENERATION'}">
+                                <tr>
+                                    <td class="field-description">Rules module:</td>
+                                    <td>
+                                        <h:outputText value="#{project.openapi.algorithmModuleName}"/>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                            <h:panelGroup
+                                    rendered="#{not empty project.openapi.modelModuleName and project.openapi.mode == 'GENERATION'}">
+                                <tr>
+                                    <td class="field-description">Data module:</td>
+                                    <td>
+                                        <h:outputText value="#{project.openapi.modelModuleName}"/>
+                                    </td>
+                                </tr>
+                            </h:panelGroup>
+                        </table>
                     </div>
                 </div>
             </h:panelGroup>

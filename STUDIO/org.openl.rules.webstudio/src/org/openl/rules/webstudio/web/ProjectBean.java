@@ -74,6 +74,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
 
+import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
+
 @Service
 @RequestScope
 public class ProjectBean {
@@ -306,7 +308,7 @@ public class ProjectBean {
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
             if (!withWildcard || StringUtils.isNotBlank(newName)) {
-                WebStudioUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+                WebStudioUtils.validate(NameChecker.checkName(newName), BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
                 WebStudioUtils.validate(module == null, "Module with such name already exists");
@@ -329,7 +331,7 @@ public class ProjectBean {
         if (StringUtils.isBlank(oldName) // Add new Module
                 || !oldName.equals(newName)) { // Edit current Module
             if (!withWildcard || StringUtils.isNotBlank(newName)) {
-                WebStudioUtils.validate(NameChecker.checkName(newName), NameChecker.BAD_NAME_MSG);
+                WebStudioUtils.validate(NameChecker.checkName(newName), BAD_NAME_MSG);
 
                 Module module = studio.getModule(studio.getCurrentProjectDescriptor(), newName);
                 WebStudioUtils.validate(module == null, "Module with such name already exists");
@@ -379,10 +381,12 @@ public class ProjectBean {
     }
 
     public void validateAlgorithmPath(FacesContext context, UIComponent component, Object value) {
-        String path = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModulePath");
+        String algoPath = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModulePath");
+        String modelPath = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModulePath");
         String algorithmModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModuleName");
-        WebStudioUtils.validate(StringUtils.isNotBlank(path), "Algorithm Module Path cannot be empty.");
-        validatePath(path, algorithmModuleNameParam);
+        WebStudioUtils.validate(StringUtils.isNotBlank(algoPath), "Algorithm Module Path cannot be empty.");
+        WebStudioUtils.validate(!algoPath.equalsIgnoreCase(modelPath), "Module paths cannot be the same");
+        validatePath(algoPath, algorithmModuleNameParam);
     }
 
     private void validatePath(String path, String moduleName) {
@@ -392,6 +396,8 @@ public class ProjectBean {
             WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
         }
         String fileName = FileUtils.getBaseName(path);
+        WebStudioUtils.validate(NameChecker.checkName(fileName),
+            "File name contains illegal characters " + BAD_NAME_MSG);
         WebStudioUtils.validate(StringUtils.isNotBlank(fileName), "File name is not defined.");
         String fileNameWithExtension = FileUtils.getName(path);
         WebStudioUtils.validate(FileTypeHelper.isExcelFile(fileNameWithExtension),
@@ -411,8 +417,10 @@ public class ProjectBean {
 
     public void validateDataPath(FacesContext context, UIComponent component, Object value) {
         String path = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModulePath");
+        String algoPath = WebStudioUtils.getRequestParameter("generateOpenAPIForm:algorithmModulePath");
         String modelModuleNameParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModuleName");
         WebStudioUtils.validate(StringUtils.isNotBlank(path), "Data Module Path cannot be empty.");
+        WebStudioUtils.validate(!algoPath.equalsIgnoreCase(path), "Module paths cannot be the same");
         validatePath(path, modelModuleNameParam);
     }
 
@@ -802,6 +810,9 @@ public class ProjectBean {
         String modelModulePathParam = WebStudioUtils.getRequestParameter("generateOpenAPIForm:modelModulePath");
         if (!NameChecker.checkName(algorithmModuleNameParam) || !NameChecker.checkName(modelModuleNameParam)) {
             throw new Message("Module names are not correct.");
+        }
+        if (modelModulePathParam.equalsIgnoreCase(algorithmModulePathParam)) {
+            throw new Message("Module paths cannot be the same.");
         }
         Module existingAlgorithmModule = studio.getModule(currentProjectDescriptor, algorithmModuleNameParam);
         boolean isNewAlgorithmModule = existingAlgorithmModule == null;
