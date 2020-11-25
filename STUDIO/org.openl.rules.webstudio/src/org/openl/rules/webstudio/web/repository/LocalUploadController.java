@@ -135,7 +135,7 @@ public class LocalUploadController {
                 return false;
             }
         } else {
-            return dtr.hasProject(repositoryId, localProject.getName());
+            return dtr.hasProject(repoId, localProject.getName());
         }
     }
 
