@@ -88,9 +88,6 @@ final class OpenApiProjectValidatorMessagesUtils {
             if (tableSyntaxNode != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
                     tableSyntaxNode);
-                if (isNotExistingError(tableSyntaxNode, summary)) {
-                    tableSyntaxNode.addError(syntaxNodeException);
-                }
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                     context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
@@ -101,24 +98,12 @@ final class OpenApiProjectValidatorMessagesUtils {
         }
     }
 
-    private static boolean isNotExistingError(TableSyntaxNode tableSyntaxNode, String summary) {
-        for (SyntaxNodeException sne : tableSyntaxNode.getErrors()) {
-            if (Objects.equals(sne.getMessage(), summary)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public static void addTypeError(Context context, String summary) {
         if (context.getType() instanceof DatatypeOpenClass) {
             DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) context.getType();
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
                     datatypeOpenClass.getTableSyntaxNode());
-                if (isNotExistingError(datatypeOpenClass.getTableSyntaxNode(), summary)) {
-                    datatypeOpenClass.getTableSyntaxNode().addError(syntaxNodeException);
-                }
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
                     context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
