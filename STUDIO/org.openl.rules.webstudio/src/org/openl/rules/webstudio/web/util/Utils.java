@@ -83,7 +83,7 @@ public class Utils {
     }
 
     public String descriptiveProjectVersion(AProjectArtefact artefact) {
-        if (artefact == null) {
+        if (artefact == null || artefact.getVersion() == null) {
             return "";
         }
         return getDescriptiveVersion(artefact.getVersion(), dateTimeFormat);
