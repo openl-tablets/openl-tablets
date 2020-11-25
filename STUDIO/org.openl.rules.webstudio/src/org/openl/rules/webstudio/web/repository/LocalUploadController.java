@@ -125,7 +125,7 @@ public class LocalUploadController {
     private boolean hasCorrespondingDesignProject(DesignTimeRepository dtr, AProject localProject) throws IOException {
         String repoId = localProject.getRepository().getId();
         Repository repository = dtr.getRepository(repoId);
-        if (repository.supports().mappedFolders()) {
+        if (repository != null && repository.supports().mappedFolders()) {
             FileData fileData = localProject.getFileData();
             FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
             if (mappingData != null) {

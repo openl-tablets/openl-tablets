@@ -60,8 +60,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public LocalRepository getRepository(String id) {
         if (id == null) {
-            // For backward compatibility.
-            id = "design";
+            id = "<local-id>";
         }
         // Create a new instance with id and name.
         LocalRepository repository = new LocalRepository(localRepository.getRoot());
@@ -150,6 +149,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 if (fileData == null) {
                     String version = projectState.getProjectVersion();
                     lpi = new AProject(repository, name, version);
+                    repositoryPath = "<local-path>";
                 } else {
                     FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {

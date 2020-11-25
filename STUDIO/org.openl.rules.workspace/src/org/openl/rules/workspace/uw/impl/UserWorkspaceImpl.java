@@ -285,7 +285,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void syncProjects() {
         for (RulesProject rPr : getProjects()) {
-            if (designTimeRepository.getRepository(rPr.getRepository().getId()).supports().mappedFolders()) {
+            Repository repository = designTimeRepository.getRepository(rPr.getRepository().getId());
+            if (repository != null && repository.supports().mappedFolders()) {
                 if (rPr.isOpened() && !rPr.isLocalOnly()) {
                     try {
                         String realProjectName = getActualName(rPr);
