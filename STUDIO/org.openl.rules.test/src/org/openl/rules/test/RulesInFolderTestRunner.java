@@ -132,7 +132,7 @@ public class RulesInFolderTestRunner {
                 List<String> restMessages = new ArrayList<>(expectedMessages);
                 for (OpenLMessage msg : compiledOpenClass.getMessages()) {
                     String actual = msg.getSeverity() + ": " + msg.getSummary();
-                    if (msg.getSeverity().equals(Severity.ERROR) || msg.getSeverity().equals(Severity.FATAL)) {
+                    if (msg.getSeverity().equals(Severity.ERROR)) {
                         success = false;
                     }
                     Iterator<String> itr = restMessages.iterator();
