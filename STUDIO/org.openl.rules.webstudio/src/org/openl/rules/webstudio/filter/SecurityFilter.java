@@ -27,6 +27,7 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
+        servletRequest.setCharacterEncoding("UTF-8");
         ServletContext sc = servletRequest.getServletContext();
         Lock readLock = SpringInitializer.getLock(sc);
         readLock.lock();

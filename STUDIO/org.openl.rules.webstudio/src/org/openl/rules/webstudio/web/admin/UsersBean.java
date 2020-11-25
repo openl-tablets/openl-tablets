@@ -45,8 +45,7 @@ public class UsersBean {
     public static final String VALIDATION_MAX = "Must be less than 25";
     public static final String VALIDATION_USERNAME_CHARACTERS = "Invalid characters (valid: latin letters, numbers, '.', '-', and '_')";
     public static final String VALIDATION_USERNAME_BEGIN_END = "The name must end and begin with a latin letter or number.";
-    public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.', '-', and '_'.";
-
+    public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.', '-', or '_'.";
 
     public static final String VALIDATION_GROUPS = "Please select at least one group";
 
@@ -59,9 +58,9 @@ public class UsersBean {
     @NotBlank(message = VALIDATION_EMPTY)
     @Size(max = 25, message = VALIDATION_MAX)
     @Pattern.List({
-            @Pattern(regexp = "(([a-zA-Z0-9]+|(^))+((.)?+([a-zA-Z0-9]+|($))+)*)*", message = VALIDATION_USERNAME_CONSECUTIVE),
-            @Pattern(regexp = "^([a-zA-Z0-9])+(.*)+([a-zA-Z0-9])$", message = VALIDATION_USERNAME_BEGIN_END),
-            @Pattern(regexp = "([a-zA-Z0-9-_.]*)?", message = VALIDATION_USERNAME_CHARACTERS),
+            @Pattern(regexp = "(([a-zA-Z0-9À-ÿА-Яа-я]+|(^))+((.)?+([a-zA-Z0-9À-ÿА-Яа-я]+|($))+)*)*", message = VALIDATION_USERNAME_CONSECUTIVE),
+            @Pattern(regexp = "^([a-zA-Z0-9À-ÿА-Яа-я])+((.*)+([a-zA-Z0-9À-ÿА-Яа-я]))?", message = VALIDATION_USERNAME_BEGIN_END),
+            @Pattern(regexp = "([a-zA-Z0-9À-ÿА-Яа-я-_.]*)?", message = VALIDATION_USERNAME_CHARACTERS),
     })
     private String username;
 
