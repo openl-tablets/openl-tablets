@@ -39,6 +39,23 @@ public class RepositorySettingsValidators {
             "Comment message template must contain '{user-message}'");
     }
 
+    public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String newBranchName = StringUtils.trim((String) value);
+        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
+        newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
+        WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
+        validateBranchName(newBranchName);
+    }
+
+    public static void validateBranchName(String newBranchName){
+        WebStudioUtils.validate(newBranchName.matches("[a-zA-Z0-9À-ÿА-Яа-я-/_.]+"),
+                "Invalid branch name. Only latin letters, numbers, '_', '-', '/' and '.' are allowed.");
+        WebStudioUtils.validate(newBranchName.matches("(([a-zA-Z0-9À-ÿА-Яа-я]+|(^))+((.)?+([a-zA-Z0-9À-ÿА-Яа-я]+|($))+)*)*"),
+                "Invalid branch name. Should not contain consecutive symbols: '.', '-', '/', '_'.");
+        WebStudioUtils.validate(newBranchName.matches("^([a-zA-Z0-9À-ÿА-Яа-я-_])+(.*)+([a-zA-Z0-9À-ÿА-Яа-я-_])$"),
+                "Invalid branch name. Can not start with '.' or '/'.");
+    }
+
     protected void validateNotBlank(String value, String field) {
         WebStudioUtils.validate(StringUtils.isNotBlank(value), field + " cannot be empty");
     }
