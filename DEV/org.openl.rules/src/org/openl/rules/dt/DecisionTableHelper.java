@@ -1120,7 +1120,6 @@ public final class DecisionTableHelper {
                 String.format("Smart table has unmatched title '%s'.", eGridCellSourceCodeModule.getCode()),
                 eGridCellSourceCodeModule);
             bindingContext.addError(error);
-            tableSyntaxNode.addError(error);
         }
     }
 
@@ -2700,7 +2699,6 @@ public final class DecisionTableHelper {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils
                     .createError("No input parameter found for horizontal condition.", tableSyntaxNode);
                 bindingContext.addError(error);
-                tableSyntaxNode.addError(error);
                 return fitWithHConditions;
             }
 

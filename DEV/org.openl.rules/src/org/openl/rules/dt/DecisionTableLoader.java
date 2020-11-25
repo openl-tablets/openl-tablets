@@ -405,7 +405,6 @@ public class DecisionTableLoader {
             decisionTableMetaInfoReader = (DecisionTableMetaInfoReader) tableSyntaxNode.getMetaInfoReader();
             decisionTableMetaInfoReader.pushMetaInfos();
         }
-        tableSyntaxNode.clearErrors();
         bindingContext.pushErrors();
         bindingContext.pushMessages();
         Exception ex = null;

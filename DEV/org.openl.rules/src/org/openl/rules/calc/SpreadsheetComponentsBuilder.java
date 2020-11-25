@@ -198,11 +198,6 @@ public class SpreadsheetComponentsBuilder {
         buildReturnCells(spreadsheetHeaderType);
     }
 
-    void addError(SyntaxNodeException e) {
-        getTableSyntaxNode().addError(e);
-        getBindingContext().addError(e);
-    }
-
     public IBindingContext getBindingContext() {
         return bindingContext;
     }
@@ -216,7 +211,7 @@ public class SpreadsheetComponentsBuilder {
         try {
             resultBuilder = getResultBuilderInternal(spreadsheet, bindingContext);
         } catch (SyntaxNodeException e) {
-            addError(e);
+            getBindingContext().addError(e);
         }
         return resultBuilder;
     }
@@ -259,7 +254,7 @@ public class SpreadsheetComponentsBuilder {
             if (h1 != null) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("The header definition is duplicated.",
                     name);
-                addError(error);
+                getBindingContext().addError(error);
                 throw new DuplicatedVarException(null, headerName);
             } else {
                 SpreadsheetHeaderDefinition header;
@@ -272,7 +267,7 @@ public class SpreadsheetComponentsBuilder {
                 headerDefinitions.put(headerName, header);
             }
         } catch (SyntaxNodeException error) {
-            addError(error);
+            getBindingContext().addError(error);
         }
     }
 
@@ -338,7 +333,7 @@ public class SpreadsheetComponentsBuilder {
                 try {
                     headerType = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
                 } catch (SyntaxNodeException e) {
-                    addError(e);
+                    getBindingContext().addError(e);
                 }
             }
 
@@ -413,7 +408,7 @@ public class SpreadsheetComponentsBuilder {
         } catch (OpenLCompilationException e) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Cannot parse header.",
                 typeIdentifierNode);
-            addError(error);
+            getBindingContext().addError(error);
             LOG.debug("Error occurred: ", e);
         }
 

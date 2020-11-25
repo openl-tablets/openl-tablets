@@ -148,7 +148,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenSourceCodeModule syntaxNode) {
         String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
-        getTableSyntaxNode().addError(error);
         bindingContext.addError(error);
     }
 

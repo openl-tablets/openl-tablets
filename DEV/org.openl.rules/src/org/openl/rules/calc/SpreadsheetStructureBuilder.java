@@ -33,7 +33,6 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
@@ -271,8 +270,8 @@ public class SpreadsheetStructureBuilder {
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                addError(SyntaxNodeExceptionUtils
-                    .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
+                            .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
         } else if (spreadsheetCell.isConstantCell()) {
@@ -282,13 +281,13 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setValue(constOpenField.getValue());
             } catch (Exception e) {
                 String message = "Cannot parse cell.";
-                addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {
             Class<?> instanceClass = type.getInstanceClass();
             if (instanceClass == null) {
                 String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
-                addError(SyntaxNodeExceptionUtils.createError(message, source));
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, source));
             }
 
             try {
@@ -315,14 +314,9 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Exception t) {
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
         }
-    }
-
-    private void addError(SyntaxNodeException e) {
-        componentsBuilder.getTableSyntaxNode().addError(e);
-        spreadsheetBindingContext.addError(e);
     }
 
     /**

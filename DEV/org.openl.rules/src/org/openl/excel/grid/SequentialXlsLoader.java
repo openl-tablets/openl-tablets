@@ -272,7 +272,6 @@ public class SequentialXlsLoader {
             LocationUtils.createTextInterval(include),
             new GridCellSourceCodeModule(table, 1, i, null));
         addError(se);
-        tableSyntaxNode.addError(se);
     }
 
     private void preprocessOpenlTable(IGridTable table, XlsSheetSourceCodeModule source) {
@@ -300,7 +299,6 @@ public class SequentialXlsLoader {
                     .toString(), tsn.getGridLocation(), source, table, tsn.getHeader());
                 SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(t, tsn);
                 addError(sne);
-                tsn.addError(sne);
             }
         }
 

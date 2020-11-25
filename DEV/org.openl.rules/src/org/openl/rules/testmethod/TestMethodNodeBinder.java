@@ -179,8 +179,6 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
             DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, bestTestMethodOpenClass);
 
-            tableSyntaxNode.clearErrors();
-
             if (bestMessages != null) {
                 bestMessages.forEach(bindingContext::addMessage);
             }

@@ -62,9 +62,6 @@ public class ActivePropertyValidator extends TablesValidator {
                 for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
                             executableMethodTable);
-                    if (openClass.equals(executableMethodTable.getMember().getDeclaringClass())) {
-                        executableMethodTable.addError(error);
-                    }
                     messages.add(OpenLMessagesUtils.newErrorMessage(error));
                 }
             }

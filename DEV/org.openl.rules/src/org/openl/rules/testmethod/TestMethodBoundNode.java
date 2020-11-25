@@ -53,7 +53,6 @@ public class TestMethodBoundNode extends DataTableBoundNode {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                     "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
                     cellSourceCodeModule);
-                getTableSyntaxNode().addError(error);
                 cxt.addError(error);
             }
         }
