@@ -8,7 +8,6 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.meta.StringValue;
@@ -24,20 +23,14 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
-import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  */
 public class TableSyntaxNode extends NaryNode {
     public static final TableSyntaxNode[] EMPTY_ARRAY = new TableSyntaxNode[0];
-    private final Logger log = LoggerFactory.getLogger(TableSyntaxNode.class);
 
     private ILogicalTable table;
 
@@ -48,11 +41,6 @@ public class TableSyntaxNode extends NaryNode {
     private IOpenMember member;
 
     private final Map<String, ILogicalTable> subTables = new HashMap<>();
-
-    /**
-     * Map with errors in the order in which they were inserted
-     */
-    private final LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
 
     private Object validationResult;
 
@@ -71,30 +59,6 @@ public class TableSyntaxNode extends NaryNode {
 
     public void setTable(IGridTable gridTable) {
         table = LogicalTableHelper.logicalTable(gridTable);
-    }
-
-    public void addError(SyntaxNodeException error) {
-        ErrorKey key = new ErrorKey(error);
-        if (errors.get(key) != null) {
-            if (StringUtils.isNotBlank(error.getMessage())) {
-                log.error("Skip duplicated message: {}", error.getMessage(), error);
-            } else {
-                log.error("Skip duplicated message.", error);
-            }
-            assert false : "Message duplication has been detected";
-        }
-        errors.put(key, error);
-    }
-
-    public void addError(CompositeSyntaxNodeException error) {
-        SyntaxNodeException[] errors = error.getErrors();
-        for (SyntaxNodeException e : errors) {
-            addError(e);
-        }
-    }
-
-    public void clearErrors() {
-        errors.clear();
     }
 
     public String getDisplayName() {

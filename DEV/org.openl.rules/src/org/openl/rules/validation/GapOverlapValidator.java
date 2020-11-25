@@ -67,7 +67,6 @@ public class GapOverlapValidator extends TablesValidator {
 
     private void addError(Collection<OpenLMessage> messages, TableSyntaxNode tableSyntaxNode, String message) {
         SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-        tableSyntaxNode.addError(sne);
         messages.add(OpenLMessagesUtils.newErrorMessage(sne));
     }
 

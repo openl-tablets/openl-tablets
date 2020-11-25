@@ -193,7 +193,6 @@ public class Table implements ITable {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(MessageUtils.EMPTY_UNQ_IDX_KEY,
                     new GridCellSourceCodeModule(gridTable));
                 cxt.addError(error);
-                getTableSyntaxNode().addError(error);
                 break;
             }
 
@@ -204,7 +203,6 @@ public class Table implements ITable {
                     MessageUtils.getDuplicatedKeyIndexErrorMessage(key),
                     new GridCellSourceCodeModule(gridTable));
                 cxt.addError(error);
-                getTableSyntaxNode().addError(error);
                 break;
             }
 
@@ -299,7 +297,6 @@ public class Table implements ITable {
                             }
                         } catch (SyntaxNodeException e) {
                             bindingContext.addError(e);
-                            tableSyntaxNode.addError(e);
                         }
                     }
                 }
@@ -375,7 +372,6 @@ public class Table implements ITable {
             }
             if (ex != null) {
                 bindingContext.addError(ex);
-                tableSyntaxNode.addError(ex);
                 hasError = true;
             }
         }
@@ -442,7 +438,6 @@ public class Table implements ITable {
                 startRow,
                 rows);
         } catch (SyntaxNodeException e) {
-            tableSyntaxNode.addError(e);
             openlAdapter.getBindingContext().addError(e);
         }
     }
@@ -676,7 +671,6 @@ public class Table implements ITable {
                         return columnDescriptor.populateLiteral(literal, lTable, openlAdapter, env);
                     }
                 } catch (SyntaxNodeException ex) {
-                    tableSyntaxNode.addError(ex);
                     openlAdapter.getBindingContext().addError(ex);
                 }
             }

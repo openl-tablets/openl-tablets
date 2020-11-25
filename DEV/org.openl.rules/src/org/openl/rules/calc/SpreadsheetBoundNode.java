@@ -138,7 +138,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 String message = String.format("Cannot define type '%s'.",
                     Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
-                getTableSyntaxNode().addError(error);
                 bindingContext.addError(error);
                 spreadsheet.setCustomSpreadsheetResultType(
                     (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,

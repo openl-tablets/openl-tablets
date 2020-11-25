@@ -803,7 +803,6 @@ public class XlsBinder implements IOpenBinder {
     protected void processError(SyntaxNodeException error,
             TableSyntaxNode tableSyntaxNode,
             RulesModuleBindingContext rulesModuleBindingContext) {
-        tableSyntaxNode.addError(error);
         rulesModuleBindingContext.addError(error);
     }
 

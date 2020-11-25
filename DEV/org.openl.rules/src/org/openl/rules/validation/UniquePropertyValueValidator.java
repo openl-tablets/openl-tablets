@@ -110,7 +110,6 @@ public class UniquePropertyValueValidator extends TablesValidator {
             SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
             // error should be put inside tsn
             //
-            syntaxNode.addError(sne);
             return new OpenLErrorMessage(sne);
         }
         // return warning in default case, e.g. severity == null

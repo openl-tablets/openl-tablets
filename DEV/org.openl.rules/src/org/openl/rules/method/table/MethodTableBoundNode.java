@@ -60,7 +60,6 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         if (bodyTable == null) {
             String errorMessage = "Method table must contain a body section";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
-            tsn.addError(error);
             bindingContext.addError(error);
         } else {
             int height = bodyTable.getHeight();

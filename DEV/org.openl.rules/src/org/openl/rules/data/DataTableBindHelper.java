@@ -610,18 +610,18 @@ public class DataTableBindHelper {
                 } catch (OpenLCompilationException e) {
                     String message = String.format("Cannot parse field source '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                 }
                 if (identifiers.contains(new IdentifierNodesBucket(fieldAccessorChainTokens))) {
                     String message = String.format("Found duplicate of field '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                 } else {
                     boolean added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
                     if (!added) {
                         String message = String.format("Found duplicate of field '%s'", code);
                         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                        processError(bindingContext, table, error);
+                        bindingContext.addError(error);
                     }
                 }
             } else {
@@ -755,7 +755,7 @@ public class DataTableBindHelper {
         if (type == null) {
             String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
         }
         return type;
     }
@@ -792,7 +792,7 @@ public class DataTableBindHelper {
                 if (!(fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils
                         .createError("Primary key was defined incorrectly.", fieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     continue;
                 }
                 // Multi-rows support. PK for arrays.
@@ -948,13 +948,6 @@ public class DataTableBindHelper {
         return getFieldName(fieldName);
     }
 
-    private static void processError(IBindingContext bindingContext, ITable table, SyntaxNodeException error) {
-        if (table != null && table.getTableSyntaxNode() != null) {
-            table.getTableSyntaxNode().addError(error);
-        }
-        bindingContext.addError(error);
-    }
-
     /**
      * Returns foreign_key_tokens from the current column.
      *
@@ -1004,7 +997,7 @@ public class DataTableBindHelper {
                     .format("Field '%s' is not found in type '%s'.", fieldName, loadedFieldType.getName());
             }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1012,7 +1005,7 @@ public class DataTableBindHelper {
             String message = String
                 .format("Field '%s' is not writable in type '%s'.", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1053,7 +1046,7 @@ public class DataTableBindHelper {
         if (field == null) {
             String message = String.format("Field '%s' is not found.", name);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1064,7 +1057,7 @@ public class DataTableBindHelper {
                 name,
                 field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1100,12 +1093,12 @@ public class DataTableBindHelper {
                         loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                         bindingContext);
                 } catch (SyntaxNodeException e) {
-                    processError(bindingContext, table, e);
+                    bindingContext.addError(e);
                     return null;
                 } catch (Exception e) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                         currentFieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     return null;
                 }
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
@@ -1120,7 +1113,7 @@ public class DataTableBindHelper {
                 } catch (Exception e) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                         currentFieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     return null;
                 }
                 if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
@@ -1147,7 +1140,7 @@ public class DataTableBindHelper {
         if (!collectionAccessField.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s.", name, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 

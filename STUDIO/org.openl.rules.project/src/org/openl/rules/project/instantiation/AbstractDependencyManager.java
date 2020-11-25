@@ -10,13 +10,11 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.slf4j.Logger;
@@ -240,10 +238,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         IdentifierNode node = dependency.getNode();
         OpenLCompilationException exception = new OpenLCompilationException(String
             .format("Dependency '%s' is not found.", dependencyName), null, node.getSourceLocation(), node.getModule());
-
-        if (node.getParent() instanceof TableSyntaxNode) {
-            ((TableSyntaxNode) node.getParent()).addError(SyntaxNodeExceptionUtils.createError(exception, node));
-        }
 
         throw exception;
     }

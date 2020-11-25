@@ -42,7 +42,6 @@ public class RegexpPropertyValidator extends TablesValidator {
                             .createError(String.format("Incorrect value '%s' for property '%s'",
                                     propertyValue,
                                     TablePropertyDefinitionUtils.getPropertyDisplayName(propertyName)), tsn);
-                    tsn.addError(exception);
                     messages.add(new OpenLErrorMessage(exception));
                 }
             }
