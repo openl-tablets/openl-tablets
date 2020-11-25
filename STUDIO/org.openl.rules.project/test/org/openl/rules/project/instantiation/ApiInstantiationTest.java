@@ -23,7 +23,7 @@ public class ApiInstantiationTest {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName("project1");
         project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test-resources/excel/"));
+        project.setProjectFolder(new File("test-resources/excel/").toPath());
         Module module = new Module();
         module.setName("Rules2");
         module.setProject(project);
@@ -47,7 +47,7 @@ public class ApiInstantiationTest {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName("project1");
         project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test-resources/excel/"));
+        project.setProjectFolder(new File("test-resources/excel/").toPath());
         Module module = new Module();
         module.setName("Rules");
         module.setProject(project);

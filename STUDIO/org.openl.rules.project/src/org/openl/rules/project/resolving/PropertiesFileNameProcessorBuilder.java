@@ -1,5 +1,6 @@
 package org.openl.rules.project.resolving;
 
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
@@ -20,7 +21,7 @@ public final class PropertiesFileNameProcessorBuilder {
 
     public PropertiesFileNameProcessor build(
             ProjectDescriptor projectDescriptor) throws InvalidFileNameProcessorException,
-                                                 InvalidFileNamePatternException {
+                                                 InvalidFileNamePatternException, IOException {
         if (processor != null) {
             throw new IllegalStateException("Processor is already built! Use a new builder.");
         }
@@ -146,7 +147,7 @@ public final class PropertiesFileNameProcessorBuilder {
         }
     }
 
-    protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) {
+    protected ClassLoader getCustomClassLoader(ProjectDescriptor projectDescriptor) throws IOException {
         URL[] urls = projectDescriptor.getClassPathUrls();
         classLoader = new URLClassLoader(urls, Thread.currentThread().getContextClassLoader());
         return classLoader;

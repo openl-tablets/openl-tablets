@@ -63,8 +63,8 @@ public class ProjectDescriptorManager {
         return serializer.deserialize(source);
     }
 
-    public ProjectDescriptor readDescriptor(File file) throws IOException, ValidationException {
-        FileInputStream inputStream = new FileInputStream(file);
+    public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException {
+        InputStream inputStream = Files.newInputStream(file);
 
         ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
         IOUtils.closeQuietly(inputStream);
@@ -77,7 +77,7 @@ public class ProjectDescriptorManager {
 
     public ProjectDescriptor readDescriptor(String filename) throws IOException, ValidationException {
         File source = new File(filename);
-        return readDescriptor(source);
+        return readDescriptor(source.toPath());
     }
 
     public ProjectDescriptor readOriginalDescriptor(File filename) throws FileNotFoundException, ValidationException {
@@ -129,7 +129,7 @@ public class ProjectDescriptorManager {
         List<Module> modules = new ArrayList<>();
 
         String ptrn = pathPattern.trim();
-        Path rootPath = descriptor.getProjectFolder().toPath();
+        Path rootPath = descriptor.getProjectFolder();
 
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
             @Override
@@ -167,17 +167,16 @@ public class ProjectDescriptorManager {
         return true;
     }
 
-    private boolean containsInProcessedModules(Collection<Module> modules, Module m, File projectRoot) {
+    private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
         PathEntry pathEntry = m.getRulesRootPath();
         if (!new File(m.getRulesRootPath().getPath()).isAbsolute()) {
-            pathEntry = new PathEntry(new File(projectRoot, m.getRulesRootPath().getPath()).getAbsolutePath());
+            pathEntry = new PathEntry(projectRoot.resolve(m.getRulesRootPath().getPath()).toAbsolutePath().toString());
         }
 
         for (Module module : modules) {
             PathEntry modulePathEntry = module.getRulesRootPath();
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                modulePathEntry = new PathEntry(
-                    new File(projectRoot, module.getRulesRootPath().getPath()).getAbsolutePath());
+                modulePathEntry = new PathEntry(projectRoot.resolve(module.getRulesRootPath().getPath()).toAbsolutePath().toString());
             }
             if (pathEntry.getPath().equals(modulePathEntry.getPath())) {
                 return true;
@@ -186,7 +185,7 @@ public class ProjectDescriptorManager {
         return false;
     }
 
-    private void processModulePathPatterns(ProjectDescriptor descriptor, File projectRoot) throws IOException {
+    private void processModulePathPatterns(ProjectDescriptor descriptor, Path projectRoot) throws IOException {
         List<Module> modulesWasRead = descriptor.getModules();
         List<Module> processedModules = new ArrayList<>(modulesWasRead.size());
         // Process modules without wildcard path
@@ -214,8 +213,8 @@ public class ProjectDescriptorManager {
         descriptor.setModules(processedModules);
     }
 
-    private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) throws IOException {
-        File projectRoot = projectDescriptorFile.getParentFile().getCanonicalFile();
+    private void postProcess(ProjectDescriptor descriptor, Path projectDescriptorFile) throws IOException {
+        Path projectRoot = projectDescriptorFile.getParent().toRealPath();
         descriptor.setProjectFolder(projectRoot);
         processModulePathPatterns(descriptor, projectRoot);
 
@@ -240,7 +239,7 @@ public class ProjectDescriptorManager {
 
             if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
                 PathEntry absolutePath = new PathEntry(
-                    new File(projectRoot, module.getRulesRootPath().getPath()).getCanonicalFile().getAbsolutePath());
+                    new File(projectRoot.toFile(), module.getRulesRootPath().getPath()).getCanonicalFile().getAbsolutePath());
                 module.setRulesRootPath(absolutePath);
             }
         }

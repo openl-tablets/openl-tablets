@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,7 +133,7 @@ public class ProjectBean {
         if (project == null || project.getProjectFolder() == null) {
             return moduleFullPath;
         }
-        String projectFullPath = project.getProjectFolder().getAbsolutePath();
+        String projectFullPath = project.getProjectFolder().toAbsolutePath().toString();
 
         if (moduleFullPath.contains(projectFullPath)) {
             return moduleFullPath.replace(projectFullPath, "").substring(1);
@@ -261,7 +263,7 @@ public class ProjectBean {
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNameProcessorException e) {
+            } catch (InvalidFileNameProcessorException | IOException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNamePatternException ignore) {
                 // Ignore
@@ -282,7 +284,7 @@ public class ProjectBean {
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePatterns(patterns);
                 propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNamePatternException e) {
+            } catch (InvalidFileNamePatternException | IOException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
                 // Processed in other validator
@@ -345,8 +347,8 @@ public class ProjectBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(path), CANNOT_BE_EMPTY_MESSAGE);
 
         if (!(path.contains("*") || path.contains("?"))) {
-            File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-            WebStudioUtils.validate(moduleFile.exists(), "File with such path does not exist");
+            Path moduleFile = studio.getCurrentProjectDescriptor().getProjectFolder().resolve(path);
+            WebStudioUtils.validate(Files.exists(moduleFile), "File with such path does not exist");
         }
     }
 
@@ -360,8 +362,8 @@ public class ProjectBean {
         } catch (IOException e) {
             WebStudioUtils.throwValidationError(String.format("Invalid path \"%s\". %s", path, e.getMessage()));
         }
-        File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-        WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists");
+        Path moduleFile = studio.getCurrentProjectDescriptor().getProjectFolder().resolve(path);
+        WebStudioUtils.validate(!Files.exists(moduleFile), "File with such name already exists");
     }
 
     public void validateOpenAPIPath(FacesContext context, UIComponent uiComponent, Object value) {
@@ -409,8 +411,8 @@ public class ProjectBean {
         if (module == null || (module
             .getRulesRootPath() != null && !getArtefactPath(module.getRulesRootPath().getPath(), folderPath)
                 .equals(path))) {
-            File moduleFile = new File(currentProjectDescriptor.getProjectFolder(), path);
-            WebStudioUtils.validate(!moduleFile.exists(), "File with such name already exists.");
+            Path moduleFile = currentProjectDescriptor.getProjectFolder().resolve(path);
+            WebStudioUtils.validate(!Files.exists(moduleFile), "File with such name already exists.");
         }
 
     }
@@ -580,11 +582,11 @@ public class ProjectBean {
         String oldPath = WebStudioUtils.getRequestParameter("copyModuleForm:modulePathOld");
         String path = WebStudioUtils.getRequestParameter("copyModuleForm:modulePath");
 
-        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
-        File inputFile = new File(projectFolder, oldPath);
-        File outputFile = new File(projectFolder, path);
+        Path projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        Path inputFile = projectFolder.resolve(oldPath);
+        Path outputFile = projectFolder.resolve(path);
         try {
-            FileUtils.copy(inputFile, outputFile);
+            FileUtils.copy(inputFile.toFile(), outputFile.toFile());
         } catch (IOException e) {
             if (log.isErrorEnabled()) {
                 log.error(e.getMessage(), e);
@@ -639,7 +641,7 @@ public class ProjectBean {
 
         if (StringUtils.isEmpty(leaveExcelFile)) {
             ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();
-            File projectFolder = currentProjectDescriptor.getProjectFolder();
+            File projectFolder = currentProjectDescriptor.getProjectFolder().toFile();
 
             if (projectDescriptorManager.isModuleWithWildcard(removed)) {
                 for (Module module : currentProjectDescriptor.getModules()) {
@@ -947,8 +949,8 @@ public class ProjectBean {
     }
 
     private void checkPath(String path) {
-        File existingArtefact = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
-        if (existingArtefact.exists()) {
+        Path existingArtefact = studio.getCurrentProjectDescriptor().getProjectFolder().resolve(path);
+        if (Files.exists(existingArtefact)) {
             throw new Message("Artefact with the path " + path + " already exists.");
         }
     }
@@ -1107,7 +1109,7 @@ public class ProjectBean {
         if (version == null) {
             version = getSupportedVersion();
         }
-        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder();
+        File projectFolder = studio.getCurrentProjectDescriptor().getProjectFolder().toFile();
         projectDescriptorSerializerFactory.setSupportedVersion(projectFolder, version);
 
         serializer = projectDescriptorSerializerFactory.getSerializer(version);
@@ -1319,7 +1321,7 @@ public class ProjectBean {
                 builder.build(projectDescriptor).process(newFileName);
                 fileNameMatched = true;
             }
-        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {
+        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException | IOException ignored) {
             // Cannot check for name correctness
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
@@ -1400,7 +1402,7 @@ public class ProjectBean {
         }
 
         ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
-        return projectDescriptorSerializerFactory.getSupportedVersion(descriptor.getProjectFolder());
+        return projectDescriptorSerializerFactory.getSupportedVersion(descriptor.getProjectFolder().toFile());
     }
 
     public void setSupportedVersion(SupportedVersion supportedVersion) {
@@ -1422,8 +1424,9 @@ public class ProjectBean {
     private ProjectDescriptor getOriginalProjectDescriptor() {
         ProjectDescriptor descriptor = studio.getCurrentProjectDescriptor();
         try {
-            File file = new File(descriptor.getProjectFolder(),
-                ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME);
+            File file = descriptor.getProjectFolder()
+                    .resolve(ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME)
+                    .toFile();
             return projectDescriptorManager.readOriginalDescriptor(file);
         } catch (FileNotFoundException ignored) {
             return descriptor;

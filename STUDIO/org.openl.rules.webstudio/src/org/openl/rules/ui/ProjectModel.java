@@ -994,7 +994,7 @@ public class ProjectModel {
             idTableCache.clear();
         }
 
-        File projectFolder = moduleInfo.getProject().getProjectFolder();
+        File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
         if (reloadType == ReloadType.FORCED) {
             ProjectResolver projectResolver = studio.getProjectResolver();
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);

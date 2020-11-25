@@ -1,7 +1,7 @@
 package org.openl.rules.project.resolving;
 
-import java.io.File;
 import java.io.FileNotFoundException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
@@ -26,24 +26,24 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
     private static final Logger LOG = LoggerFactory.getLogger(ProjectDescriptorBasedResolvingStrategy.class);
 
     @Override
-    public boolean isRulesProject(File folder) {
-        File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
-        if (descriptorFile.exists()) {
+    public boolean isRulesProject(Path folder) {
+        Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
+        if (Files.exists(descriptorFile)) {
             LOG.debug("Project in folder '{}' has been resolved as project descriptor based project.",
-                folder.getPath());
+                    descriptorFile);
             return true;
         } else {
             LOG.debug(
                 "Project descriptor based strategy is failed to resolve project folder '{}': there is no file '{}' in the folder.",
-                folder.getPath(),
+                descriptorFile,
                 PROJECT_DESCRIPTOR_FILE_NAME);
             return false;
         }
     }
 
     @Override
-    public ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException {
-        File descriptorFile = new File(folder, PROJECT_DESCRIPTOR_FILE_NAME);
+    public ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException {
+        Path descriptorFile = folder.resolve(PROJECT_DESCRIPTOR_FILE_NAME);
         ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
         Set<String> globalErrorMessages = new LinkedHashSet<>();
         PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
@@ -62,7 +62,7 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 globalWarnMessages.add(
                     "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property is moved to the default property processor. Remove declaration of this class from 'rules.xml'.");
             }
-            Path rootProjectPath = projectDescriptor.getProjectFolder().toPath();
+            Path rootProjectPath = projectDescriptor.getProjectFolder();
             for (Module module : projectDescriptor.getModules()) {
                 Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
                 Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
