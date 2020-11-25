@@ -318,15 +318,30 @@ public class CopyBean {
         }
     }
 
+    public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String newBranchName = StringUtils.trim((String) value);
+        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
+        newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
+        WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
+        validateBranchName(newBranchName);
+    }
+
+    private void validateBranchName(String newBranchName){
+        WebStudioUtils.validate(newBranchName.matches("[a-zA-Z0-9À-ÿА-Яа-я-_.]+"),
+                "Invalid branch name. Only latin letters, numbers, '_', '-', '/' and '.' are allowed.");
+        WebStudioUtils.validate(newBranchName.matches("(([a-zA-Z0-9À-ÿА-Яа-я]+|(^))+((.)?+([a-zA-Z0-9À-ÿА-Яа-я]+|($))+)*)*"),
+                "Invalid branch name. Should not contain consecutive symbols: '.', '-', '/', '_'.");
+        WebStudioUtils.validate(newBranchName.matches("^([a-zA-Z0-9À-ÿА-Яа-я-_])+(.*)+([a-zA-Z0-9À-ÿА-Яа-я-_])$"),
+                "Invalid branch name. Can not start with '.' or '/'.");
+    }
+
     public void newBranchNameValidator(FacesContext context, UIComponent toValidate, Object value) {
         if (!isSupportsBranches() || isSeparateProjectSubmitted(context)) {
             return;
         }
-
         String newBranchName = StringUtils.trim((String) value);
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        WebStudioUtils.validate(newBranchName.matches("[\\w\\-/]+"),
-                "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
+        validateBranchName(newBranchName);
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
@@ -349,7 +364,6 @@ public class CopyBean {
         } catch (WorkspaceException | IOException e) {
             LOG.debug("Ignored error: ", e);
         }
-
     }
 
     public void commentValidator(FacesContext context, UIComponent toValidate, Object value) {
