@@ -1,0 +1,43 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="openAPIModesDescription" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="OpenAPI Mode description"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="ws.ui.hide('openAPIModesDescription')" alt="Close"/>
+        </f:facet>
+
+        <div id="openAPIGeneration" class="hidden">
+            This mode is used for (re)generation of the Rules and Data Type modules based on the OpenAPI file.
+        </div>
+
+        <div id="openAPIReconciliation" class="hidden">
+            This mode is used for the validation of the current project by the OpenAPI file.
+            It's possible to change the path to the OpenAPI file to revalidate the project.
+        </div>
+
+        <footer>
+            <input type="button" value="Close" onclick="ws.ui.hide('openAPIModesDescription');"/>
+        </footer>
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function showOpenAPIModeInfo(mode) {
+            $j('#openAPIGeneration').hide();
+            $j('#openAPIReconciliation').hide();
+            $j('#' + mode).show();
+            ws.ui.show('openAPIModesDescription');
+        }
+
+        //]]>
+    </script>
+
+</ui:composition>
