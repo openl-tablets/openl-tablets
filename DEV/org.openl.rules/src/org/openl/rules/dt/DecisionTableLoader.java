@@ -4,14 +4,12 @@ import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
@@ -26,8 +24,6 @@ import org.openl.rules.dt.element.RuleRow;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DecisionTableMetaInfoReader;
-import org.openl.rules.table.GridTable;
-import org.openl.rules.table.IGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
@@ -114,7 +110,6 @@ public class DecisionTableLoader {
         boolean firstTransposedThenNormal = width > height && width >= MAX_COLUMNS_IN_DT;
         CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
             loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext);
-            return null;
         }, bindingContext);
         final DTInfo dtInfo = decisionTable.getDtInfo();
         if (loadAndBindErrors != null) {
@@ -130,19 +125,15 @@ public class DecisionTableLoader {
                         module,
                         !firstTransposedThenNormal,
                         bindingContext);
-                    return null;
                 }, bindingContext);
                 if (altLoadAndBindErrors == null) {
                     return;
                 } else {
                     if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
                         // Select compilation with less errors count for smart tables
-                        if (loadAndBindErrors.getBindingSyntaxNodeException().size() > altLoadAndBindErrors
-                            .getBindingSyntaxNodeException()
-                            .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > altLoadAndBindErrors
-                                .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
-                                    .size() == altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
-                        putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
+                        if (loadAndBindErrors.getBindingSyntaxNodeException()
+                            .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
                                 throw altLoadAndBindErrors.getEx();
@@ -320,7 +311,7 @@ public class DecisionTableLoader {
         }
         if (height == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             bindingContext.addMessage(OpenLMessagesUtils
-                    .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
+                .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
         }
         ILogicalTable toParse = tableBody;
 
@@ -365,19 +356,15 @@ public class DecisionTableLoader {
     }
 
     private static class CompilationErrors {
-        private SyntaxNodeException[] syntaxNodeExceptions;
         private List<SyntaxNodeException> bindingSyntaxNodeException;
         private Collection<OpenLMessage> openLMessages;
         private Exception ex;
         private DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
 
-        private CompilationErrors(SyntaxNodeException[] syntaxNodeExceptions,
-                List<SyntaxNodeException> bindingSyntaxNodeException,
+        private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                 Collection<OpenLMessage> openLMessages,
                 DecisionTableMetaInfoReader.MetaInfoHolder metaInfos,
                 Exception ex) {
-            this.syntaxNodeExceptions = Objects.requireNonNull(syntaxNodeExceptions,
-                "syntaxNodeExceptions cannot be null");
             this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
                 "bindingSyntaxNodeException cannot be null");
             this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
@@ -388,7 +375,6 @@ public class DecisionTableLoader {
         private void apply(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
             bindingSyntaxNodeException.forEach(bindingContext::addError);
             openLMessages.forEach(bindingContext::addMessage);
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
             if (!bindingContext.isExecutionMode()) {
                 DecisionTableMetaInfoReader decisionTableMetaInfoReader = (DecisionTableMetaInfoReader) tableSyntaxNode
                     .getMetaInfoReader();
@@ -400,24 +386,19 @@ public class DecisionTableLoader {
             return ex;
         }
 
-        public SyntaxNodeException[] getSyntaxNodeExceptions() {
-            return syntaxNodeExceptions;
-        }
-
         public List<SyntaxNodeException> getBindingSyntaxNodeException() {
             return bindingSyntaxNodeException;
         }
     }
 
     @FunctionalInterface
-    private interface Supplier<T> {
-        T get() throws Exception;
+    private interface Supplier {
+        void get() throws Exception;
     }
 
     private CompilationErrors compileAndRevertIfFails(TableSyntaxNode tableSyntaxNode,
-            Supplier<T> supplier,
+            Supplier supplier,
             IBindingContext bindingContext) {
-        SyntaxNodeException[] syntaxNodeExceptions = tableSyntaxNode.getErrors();
         DecisionTableMetaInfoReader decisionTableMetaInfoReader = null;
         if (!bindingContext.isExecutionMode()) {
             decisionTableMetaInfoReader = (DecisionTableMetaInfoReader) tableSyntaxNode.getMetaInfoReader();
@@ -426,37 +407,27 @@ public class DecisionTableLoader {
         tableSyntaxNode.clearErrors();
         bindingContext.pushErrors();
         bindingContext.pushMessages();
+        Exception ex = null;
         try {
             supplier.get();
-            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-            if (bindingContext.getErrors().length == 0 && !tableSyntaxNode.hasErrors()) {
-                bindingContext.popErrors().forEach(bindingContext::addError);
-                bindingContext.popMessages().forEach(bindingContext::addMessage);
-                Arrays.stream(newSyntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-                if (decisionTableMetaInfoReader != null) {
-                    DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = decisionTableMetaInfoReader.popMetaInfos();
-                    decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
-                }
-                return null;
-            } else {
-                return new CompilationErrors(newSyntaxNodeExceptions,
-                    bindingContext.popErrors(),
-                    bindingContext.popMessages(),
-                    decisionTableMetaInfoReader != null ? decisionTableMetaInfoReader.popMetaInfos() : null,
-                    null);
-            }
         } catch (Exception e) {
-            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-            return new CompilationErrors(newSyntaxNodeExceptions,
-                bindingContext.popErrors(),
-                bindingContext.popMessages(),
-                decisionTableMetaInfoReader != null ? decisionTableMetaInfoReader.popMetaInfos() : null,
-                e);
+            ex = e;
         }
+
+        List<SyntaxNodeException> errors = bindingContext.popErrors();
+        Collection<OpenLMessage> messages = bindingContext.popMessages();
+        DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = null;
+        if (decisionTableMetaInfoReader != null) {
+            metaInfos = decisionTableMetaInfoReader.popMetaInfos();
+        }
+        if (errors.isEmpty() && ex == null) {
+            messages.forEach(bindingContext::addMessage);
+            if (decisionTableMetaInfoReader != null) {
+                decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
+            }
+            return null;
+        }
+        return new CompilationErrors(errors, messages, metaInfos, ex);
     }
 
     private void validateMapReturnType(TableSyntaxNode tableSyntaxNode,

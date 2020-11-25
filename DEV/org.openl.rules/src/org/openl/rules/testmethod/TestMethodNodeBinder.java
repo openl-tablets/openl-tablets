@@ -4,8 +4,8 @@
 package org.openl.rules.testmethod;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -102,21 +102,18 @@ public class TestMethodNodeBinder extends DataNodeBinder {
 
         TestMethodBoundNode bestCaseTestMethodBoundNode = null;
         IOpenMethod bestCaseOpenMethod = null;
-        SyntaxNodeException[] bestCaseErrors = null;
+        List<SyntaxNodeException> bestCaseErrors = null;
         TestMethodOpenClass bestTestMethodOpenClass = null;
         ITable bestDataTable = null;
 
         boolean hasNoErrorBinding = false;
-        SyntaxNodeException[] errors = tableSyntaxNode.getErrors();
         Collection<OpenLMessage> bestMessages = null;
-        SyntaxNodeException[] bestBindingContextErrors = null;
+        List<SyntaxNodeException> bestBindingContextErrors = null;
 
         for (IOpenMethod testedMethod : module.getMethods()) {
             if (!methodName.equals(testedMethod.getName())) {
                 continue;
             }
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(errors).forEach(tableSyntaxNode::addError);
             TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode,
                 module,
                 bindingContext);
@@ -130,51 +127,51 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                 String message = String.format("Table '%s' was defined with errors", methodName);
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
+            bindingContext.pushErrors();
+            bindingContext.pushMessages();
+            ITable dataTable;
+            Collection<OpenLMessage> messages;
+            List<SyntaxNodeException> errors1;
             try {
-                bindingContext.pushErrors();
-                bindingContext.pushMessages();
-                ITable dataTable = makeTable(module,
+                dataTable = makeTable(module,
                     tableSyntaxNode,
                     tableName,
                     testMethodOpenClass,
                     bindingContext,
                     openl,
                     false);
-                testMethodBoundNode.setTable(dataTable);
-                if (testMethodBoundNode.getTableSyntaxNode()
-                    .hasErrors() && (bestCaseErrors == null || bestCaseErrors.length > testMethodBoundNode
-                        .getTableSyntaxNode()
-                        .getErrors().length)) {
-                    bestCaseErrors = testMethodBoundNode.getTableSyntaxNode().getErrors();
+            } finally {
+                errors1 = bindingContext.popErrors();
+                messages = bindingContext.popMessages();
+            }
+            testMethodBoundNode.setTable(dataTable);
+            if (!errors1.isEmpty() && (bestCaseErrors == null || bestCaseErrors.size() > errors1.size())) {
+                bestCaseErrors = errors1;
+                bestCaseTestMethodBoundNode = testMethodBoundNode;
+                bestCaseOpenMethod = testedMethod;
+                bestTestMethodOpenClass = testMethodOpenClass;
+                bestDataTable = dataTable;
+                bestMessages = messages;
+                bestBindingContextErrors = errors1;
+            } else if (errors1.isEmpty()) {
+                if (!hasNoErrorBinding) {
                     bestCaseTestMethodBoundNode = testMethodBoundNode;
                     bestCaseOpenMethod = testedMethod;
                     bestTestMethodOpenClass = testMethodOpenClass;
+                    hasNoErrorBinding = true;
                     bestDataTable = dataTable;
-                    bestMessages = bindingContext.getMessages();
-                    bestBindingContextErrors = bindingContext.getErrors();
+                    bestMessages = messages;
+                    bestBindingContextErrors = errors1;
                 } else {
-                    if (!testMethodBoundNode.getTableSyntaxNode().hasErrors()) {
-                        if (!hasNoErrorBinding) {
-                            bestCaseTestMethodBoundNode = testMethodBoundNode;
-                            bestCaseOpenMethod = testedMethod;
-                            bestTestMethodOpenClass = testMethodOpenClass;
-                            hasNoErrorBinding = true;
-                            bestDataTable = dataTable;
-                            bestMessages = bindingContext.getMessages();
-                            bestBindingContextErrors = bindingContext.getErrors();
-                        } else {
-                            List<IOpenMethod> list = new ArrayList<>();
-                            list.add(testedMethod);
-                            list.add(bestCaseOpenMethod);
-                            throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
-                        }
-                        bestCaseErrors = SyntaxNodeException.EMPTY_ARRAY;
-                    }
+                    List<IOpenMethod> list = new ArrayList<>();
+                    list.add(testedMethod);
+                    list.add(bestCaseOpenMethod);
+                    throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                 }
-            } finally {
-                bindingContext.popErrors();
-                bindingContext.popMessages();
+                bestCaseErrors = Collections.emptyList();
+
             }
+
         }
 
         if (bestCaseTestMethodBoundNode != null) {
@@ -183,18 +180,11 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, bestTestMethodOpenClass);
 
             tableSyntaxNode.clearErrors();
-            if (bestCaseErrors != null) {
-                Arrays.stream(bestCaseErrors).forEach(tableSyntaxNode::addError);
-            } else {
-                Arrays.stream(errors).forEach(tableSyntaxNode::addError);
-            }
 
             if (bestMessages != null) {
                 bestMessages.forEach(bindingContext::addMessage);
             }
-            if (bestBindingContextErrors != null) {
-                Arrays.stream(bestBindingContextErrors).forEach(bindingContext::addError);
-            }
+            bestBindingContextErrors.forEach(bindingContext::addError);
             return bestCaseTestMethodBoundNode;
         }
 
