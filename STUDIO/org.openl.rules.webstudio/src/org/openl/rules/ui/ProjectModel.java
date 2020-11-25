@@ -14,10 +14,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
@@ -122,8 +122,10 @@ public class ProjectModel {
     // TODO Fix performance
     private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
     private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
-
+    private Map<String, List<OpenLMessage>> warnTableCache = new HashMap<>();
+    private Map<String, List<OpenLMessage>> errorTableCache = new HashMap<>();
     private Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
+    private int errorNodesNumber = 0;
 
     private DependencyRulesGraph dependencyGraph;
 
@@ -156,16 +158,6 @@ public class ProjectModel {
         return findNode(parsedUrl);
     }
 
-    public String findTableUri(String partialUri) {
-        TableSyntaxNode tableSyntaxNode = findNode(partialUri);
-
-        if (tableSyntaxNode != null) {
-            return tableSyntaxNode.getUri();
-        }
-
-        return null;
-    }
-
     private boolean findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1) {
         for (IGridTable gridTable : compositeGrid.getGridTables()) {
             if (gridTable.getGrid() instanceof CompositeGrid) {
@@ -182,7 +174,7 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-        // TableSyntaxNode[] nodes = getTableSyntaxNodes();
+        // TableSyntaxNode[] n*-odes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (TableSyntaxNode node : nodes) {
@@ -205,25 +197,8 @@ public class ProjectModel {
         return null;
     }
 
-    // TODO Cache it
     public int getErrorNodesNumber() {
-        AtomicInteger count = new AtomicInteger();
-        if (compiledOpenClass != null) {
-            TableSyntaxNode[] nodes = getTableSyntaxNodes();
-            for (TableSyntaxNode tsn : nodes) {
-                XlsUrlParser parser = tsn.getUriParser();
-                getModuleMessages().stream()
-                        .filter(
-                                x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
-                                        x.getSourceLocation()).intersects(parser))
-                        .findFirst().ifPresent(t -> count.incrementAndGet());
-            }
-        }
-        return count.get();
-    }
-
-    public Map<String, TableSyntaxNode> getAllTableNodes() {
-        return uriTableCache;
+        return errorNodesNumber;
     }
 
     public TableSyntaxNode getTableByUri(String uri) {
@@ -232,6 +207,14 @@ public class ProjectModel {
 
     public TableSyntaxNode getNodeById(String id) {
         return idTableCache.get(id);
+    }
+
+    public List<OpenLMessage> getWarnsByUri(String uri) {
+        return Collections.unmodifiableList(warnTableCache.getOrDefault(uri, Collections.emptyList()));
+    }
+
+    public List<OpenLMessage> getErrorsByUri(String uri) {
+        return Collections.unmodifiableList(errorTableCache.getOrDefault(uri, Collections.emptyList()));
     }
 
     public ColorFilterHolder getFilterHolder() {
@@ -611,13 +594,7 @@ public class ProjectModel {
             }
         }
 
-        idTableCache.clear();
-        uriTableCache.clear();
         for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-            // Cache tables
-            uriTableCache.put(tableSyntaxNode.getUri(), tableSyntaxNode);
-            idTableCache.put(tableSyntaxNode.getId(), tableSyntaxNode);
-
             ProjectTreeNode element = root;
             for (TreeNodeBuilder treeSorter : treeSorters) {
                 element = addToNode(element, tableSyntaxNode, treeSorter);
@@ -759,12 +736,8 @@ public class ProjectModel {
                 state = 2; // has tests
             }
 
-            XlsUrlParser parser = new XlsUrlParser(tsn.getUri());
-            numErrors = (int) getModuleMessages().stream()
-                .filter(
-                    x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
-                        x.getSourceLocation()).intersects(parser))
-                .count();
+            String uri = tsn.getUri();
+            numErrors = getErrorsByUri(uri).size();
             ITableProperties tableProperties = tsn.getTableProperties();
             if (tableProperties != null) {
                 Boolean act = tableProperties.getActive();
@@ -818,7 +791,7 @@ public class ProjectModel {
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
-        return new TableSyntaxNode[0];
+        return TableSyntaxNode.EMPTY_ARRAY;
     }
 
     public TableSyntaxNode[] getAllTableSyntaxNodes() {
@@ -832,7 +805,7 @@ public class ProjectModel {
             }
         }
 
-        return nodes.toArray(new TableSyntaxNode[0]);
+        return nodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     public int getNumberOfTables() {
@@ -971,8 +944,13 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         messageNodeIds.clear();
+        idTableCache.clear();
+        uriTableCache.clear();
+        warnTableCache.clear();
+        errorTableCache.clear();
         projectRoot = null;
         workbookSyntaxNodes = null;
+        errorNodesNumber = 0;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -1073,7 +1051,7 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
-            fillMessageNodeIds();
+            fillCaches();
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
@@ -1137,13 +1115,51 @@ public class ProjectModel {
         }
     }
 
-    private void fillMessageNodeIds() {
-        for (OpenLMessage message : compiledOpenClass.getMessages()) {
-            TableSyntaxNode node = getNode(message.getSourceLocation());
-            if (node != null) {
-                messageNodeIds.put(message, node.getId());
+    private void fillCaches() {
+        messageNodeIds.clear();
+        idTableCache.clear();
+        uriTableCache.clear();
+        warnTableCache.clear();
+        errorTableCache.clear();
+
+        LinkedList<OpenLMessage> moduleMessages = new LinkedList<>(getModuleMessages());
+        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
+            // Cache tables
+            String tableUri = tsn.getUri();
+            String tableId = tsn.getId();
+            XlsUrlParser uriParser = tsn.getUriParser();
+            uriTableCache.put(tableUri, tsn);
+            idTableCache.put(tableId, tsn);
+
+            Iterator<OpenLMessage> iterator = moduleMessages.iterator();
+            while (iterator.hasNext()) {
+                OpenLMessage msg = iterator.next();
+                String msgUrl = msg.getSourceLocation();
+                if (msgUrl != null && new XlsUrlParser(msgUrl).intersects(uriParser)) {
+                    iterator.remove();
+                    messageNodeIds.put(msg, tableId);
+                    switch (msg.getSeverity()) {
+                        case ERROR:
+                            errorTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
+                            break;
+                        case WARN:
+                            warnTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
+                            break;
+                        default:
+                            // skip
+                            break;
+                    }
+                }
             }
         }
+        int count = 0;
+        TableSyntaxNode[] nodes = getTableSyntaxNodes(); // For the current module
+        for (TableSyntaxNode tsn : nodes) {
+            if (errorTableCache.containsKey(tsn.getUri())) {
+                count++;
+            }
+        }
+        errorNodesNumber = count;
     }
 
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {

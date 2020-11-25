@@ -8,9 +8,7 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.RequestScoped;
 
 import org.openl.message.OpenLMessage;
-import org.openl.message.Severity;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.util.StringUtils;
 
 @ManagedBean
 @RequestScoped
@@ -21,15 +19,7 @@ public class ShowMessageBean {
     }
 
     public List<OpenLMessage> getMessage() {
-        String type = WebStudioUtils.getRequestParameter("type");
         String value = WebStudioUtils.getRequestParameter("summary");
-
-        Severity severity;
-        if (StringUtils.isNotBlank(type)) {
-            severity = Severity.valueOf(type);
-        } else {
-            severity = Severity.INFO;
-        }
 
         final int openLMessageId;
         try {
@@ -42,11 +32,9 @@ public class ShowMessageBean {
         List<OpenLMessage> openLMessage = moduleMessages.stream()
             .filter(m -> m.getId() == openLMessageId)
             .findFirst()
-            .map(x -> new OpenLMessage(x.getSummary(), severity))
             .map(Collections::singletonList)
             .orElse(Collections.emptyList());
 
         return openLMessage;
     }
-
 }

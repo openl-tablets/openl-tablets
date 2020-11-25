@@ -66,18 +66,6 @@ public class OpenLMessage {
         return Severity.ERROR.equals(getSeverity());
     }
 
-    public boolean isWarn() {
-        return Severity.WARN.equals(getSeverity());
-    }
-
-    public boolean isFatal() {
-        return Severity.FATAL.equals(getSeverity());
-    }
-
-    public boolean isInfo() {
-        return Severity.INFO.equals(getSeverity());
-    }
-
     @Override
     public String toString() {
         return summary == null ? StringUtils.EMPTY : summary;

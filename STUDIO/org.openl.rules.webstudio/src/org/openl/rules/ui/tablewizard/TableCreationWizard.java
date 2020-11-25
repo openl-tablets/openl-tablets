@@ -247,7 +247,7 @@ public abstract class TableCreationWizard extends BaseWizard {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
 
-        for (TableSyntaxNode node : model.getAllTableNodes().values()) {
+        for (TableSyntaxNode node : model.getAllTableSyntaxNodes()) {
             try {
                 if (node.getMember().getName().equalsIgnoreCase(techName)) {
                     return false;
