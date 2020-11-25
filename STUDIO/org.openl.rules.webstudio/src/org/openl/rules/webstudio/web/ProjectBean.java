@@ -953,8 +953,13 @@ public class ProjectBean {
     }
 
     private void configureRulesDeploy(RulesProject currentProject, ProjectModel projectModel) {
-        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel)) {
+        try {
             configureSerializer();
+        } catch (IOException e) {
+            log.error("There was an error with configuring the serializer.");
+            throw new Message("Failed to create rules deploy xml file.");
+        }
+        try (ByteArrayInputStream rulesDeployInputStream = generateRulesDeployFile(projectModel)) {
             currentProject.addResource(RULES_DEPLOY_XML, rulesDeployInputStream);
         } catch (ProjectException | IOException e) {
             log.error("Can't add rules deploy file to the project.");
@@ -1003,11 +1008,6 @@ public class ProjectBean {
                 throw new Message(errorMessage);
             }
         }
-    }
-
-    enum OpenAPIModuleType {
-        ALGORITHM,
-        MODEL
     }
 
     private String getArtefactPath(String filePath, String basePath) {
