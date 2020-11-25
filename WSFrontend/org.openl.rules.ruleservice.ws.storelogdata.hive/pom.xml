@@ -149,6 +149,11 @@
             <artifactId>jetty-webapp</artifactId>
             <version>${jetty.server.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.thrift</groupId>
+            <artifactId>libthrift</artifactId>
+            <version>${org.apache.thrift.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>org.openl.rules</groupId>
