@@ -195,14 +195,6 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             if (bestBindingContextErrors != null) {
                 Arrays.stream(bestBindingContextErrors).forEach(bindingContext::addError);
             }
-
-            if (bindingContext.isExecutionMode() && ((TableSyntaxNode) bestCaseTestMethodBoundNode.getSyntaxNode())
-                .hasErrors()) {
-                // In execution mode we don't need test tables that cannot be run because of errors (even if
-                // isKeepTestsInExecutionMode() == true)
-                return null;
-            }
-
             return bestCaseTestMethodBoundNode;
         }
 
