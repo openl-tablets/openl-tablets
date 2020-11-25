@@ -214,8 +214,8 @@ public class TableBean {
                 switch (message.getSeverity()) {
                     case ERROR:
                     case FATAL:
-                        hasErrors = true;
                         if (tableUri.intersects(msgUri)) {
+                            hasErrors = true;
                             // This message belong the current table
                             if (errors.size() < MAX_PROBLEMS) {
                                 errors.add(message);
