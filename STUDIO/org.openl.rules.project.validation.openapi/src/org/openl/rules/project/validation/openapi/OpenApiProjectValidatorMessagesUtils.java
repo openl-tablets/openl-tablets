@@ -4,6 +4,7 @@ import java.util.Objects;
 
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -48,7 +49,7 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     private static boolean isNotExistingWarning(String summary, ValidatedCompiledOpenClass validatedCompiledOpenClass) {
         for (OpenLMessage openLMessage : validatedCompiledOpenClass.getMessages()) {
-            if (openLMessage.isWarn() && Objects.equals(openLMessage.getSummary(), summary)) {
+            if (openLMessage.getSeverity().equals(Severity.WARN) && Objects.equals(openLMessage.getSummary(), summary)) {
                 return false;
             }
         }
