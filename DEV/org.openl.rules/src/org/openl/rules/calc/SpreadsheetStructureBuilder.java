@@ -267,9 +267,6 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setValue(method);
             } catch (CompositeSyntaxNodeException e) {
                 spreadsheetCell.setTypeUnknown(true);
-                if (!SyntaxNodeExceptionUtils.isErrorPresented(e, componentsBuilder.getTableSyntaxNode().getErrors())) {
-                    componentsBuilder.getTableSyntaxNode().addError(e);
-                }
                 BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);

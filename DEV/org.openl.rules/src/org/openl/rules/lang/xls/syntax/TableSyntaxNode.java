@@ -28,7 +28,6 @@ import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
-import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -100,14 +99,6 @@ public class TableSyntaxNode extends NaryNode {
 
     public String getDisplayName() {
         return table.getSource().getCell(0, 0).getStringValue();
-    }
-
-    public SyntaxNodeException[] getErrors() {
-        return errors.values().toArray(SyntaxNodeException.EMPTY_ARRAY);
-    }
-
-    public boolean hasErrors() {
-        return CollectionUtils.isNotEmpty(errors);
     }
 
     public GridLocation getGridLocation() {
