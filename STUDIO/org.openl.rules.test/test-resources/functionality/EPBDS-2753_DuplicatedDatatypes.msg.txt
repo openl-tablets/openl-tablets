@@ -1,0 +1,1 @@
+ERROR: Type 'TestType2' has already been defined.
