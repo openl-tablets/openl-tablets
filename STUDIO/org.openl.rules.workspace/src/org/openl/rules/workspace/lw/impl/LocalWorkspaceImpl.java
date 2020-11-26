@@ -149,7 +149,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 if (fileData == null) {
                     String version = projectState.getProjectVersion();
                     lpi = new AProject(repository, name, version);
-                    repositoryPath = "<local-path>";
+                    repositoryPath = "<local-path>/" + name;
                 } else {
                     FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
                     if (mappingData != null) {
