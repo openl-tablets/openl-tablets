@@ -12,7 +12,6 @@ import org.openl.codegen.tools.generator.SourceGenerator;
 import org.openl.codegen.tools.loader.IContextPropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablePropertyDefinitionLoader;
 import org.openl.codegen.tools.loader.ITablesPriorityLoader;
-import org.openl.codegen.tools.type.ContextPropertyDefinitionWrapper;
 import org.openl.codegen.tools.type.ContextPropertyDefinitionWrappers;
 import org.openl.codegen.tools.type.TablePriorityRuleWrappers;
 import org.openl.codegen.tools.type.TablePropertyDefinitionWrapper;
@@ -31,7 +30,6 @@ import org.openl.rules.types.impl.DefaultPropertiesContextMatcher;
 import org.openl.rules.types.impl.DefaultPropertiesIntersectionFinder;
 import org.openl.rules.types.impl.DefaultTablePropertiesSorter;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.xls.RulesCompileContext;
 
 public class GenRulesCode {
@@ -51,13 +49,15 @@ public class GenRulesCode {
         new GenRulesCode().run();
     }
 
+    private static String getClassSourcePathInRulesModule(Class<?> clazz) {
+        return CodeGenConstants.RULES_SOURCE_LOCATION + clazz.getName().replace('.', '/') + ".java";
+    }
+
     public void run() throws Exception {
 
         System.out.println("Generating Rules Code...");
 
         loadDefinitions();
-
-        processTypes();
 
         generateRulesCompileContextCode();
         generateIRulesRuntimeContextCode();
@@ -78,7 +78,7 @@ public class GenRulesCode {
 
     private void generateDefaultPropertyDefinitionsCode() throws IOException {
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertyDefinitions.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(DefaultPropertyDefinitions.class);
 
         FileCodeGen fileGen = new FileCodeGen(sourceFilePath, TMP_FILE);
         fileGen.processFile(new ICodeGenAdaptor() {
@@ -108,7 +108,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(TableProperties.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(TableProperties.class);
         processSourceCode(sourceFilePath, "DefaultTableProperties-properties.vm", variables);
     }
 
@@ -118,7 +118,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", tablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(ITableProperties.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(ITableProperties.class);
         processSourceCode(sourceFilePath, "ITableProperties-properties.vm", variables);
     }
 
@@ -128,7 +128,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(DefaultRulesRuntimeContext.class);
 
         processSourceCode(sourceFilePath, "DefaultRulesContext-properties.vm", variables);
 
@@ -140,7 +140,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(IRulesRuntimeContext.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(IRulesRuntimeContext.class);
         processSourceCode(sourceFilePath, "IRulesContext-properties.vm", variables);
     }
 
@@ -161,7 +161,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("validatorsDefinitions", propertyValidatorsWrappers);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(RulesCompileContext.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(RulesCompileContext.class);
         processSourceCode(sourceFilePath, "RulesCompileContext-validators.vm", variables);
     }
 
@@ -174,7 +174,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(MatchingOpenMethodDispatcher.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(MatchingOpenMethodDispatcher.class);
         processSourceCode(sourceFilePath, "MatchingOpenMethodDispatcher.vm", variables);
     }
 
@@ -187,7 +187,7 @@ public class GenRulesCode {
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
         variables.put("contextPropertyDefinitionWrappers", contextPropertyDefinitionWrappers);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertiesContextMatcher.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(DefaultPropertiesContextMatcher.class);
         processSourceCode(sourceFilePath, "DefaultPropertiesContextMatcher-constraints.vm", variables);
     }
 
@@ -200,7 +200,7 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("tablePropertyDefinitions", dimensionalTablePropertyDefinitions);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultPropertiesIntersectionFinder.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(DefaultPropertiesIntersectionFinder.class);
         processSourceCode(sourceFilePath, "DefaultPropertiesIntersectionFinder.vm", variables);
     }
 
@@ -211,41 +211,8 @@ public class GenRulesCode {
         variables.put("tool", new VelocityTool());
         variables.put("priorityRuleWrappers", tablePriorityRuleWrappers);
 
-        String sourceFilePath = CodeGenTools.getClassSourcePathInRulesModule(DefaultTablePropertiesSorter.class);
+        String sourceFilePath = getClassSourcePathInRulesModule(DefaultTablePropertiesSorter.class);
         processSourceCode(sourceFilePath, "DefaultTablePropertiesSorter-constraints.vm", variables);
-    }
-
-    private void processTypes() {
-
-        for (TablePropertyDefinitionWrapper wrapper : tablePropertyDefinitionWrappers.asList()) {
-            if (wrapper.isEnum()) {
-                String name = wrapper.getEnumName();
-                String enumName = GenRulesTypes.getEnumName(name);
-                String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
-
-                boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
-
-                JavaOpenClass enumOpenClass = CodeGenTools.getJavaOpenClass(fullEnumName, isArray);
-
-                wrapper.getDefinition().setType(enumOpenClass);
-            }
-        }
-
-        for (ContextPropertyDefinitionWrapper wrapper : contextPropertyDefinitionWrappers.asList()) {
-
-            if (wrapper.isEnum()) {
-                String name = wrapper.getEnumName();
-                String enumName = GenRulesTypes.getEnumName(name);
-                String fullEnumName = CodeGenConstants.ENUMS_PACKAGE + "." + enumName;
-
-                boolean isArray = wrapper.getDefinition().getType().getInstanceClass().isArray();
-
-                JavaOpenClass enumOpenClass = CodeGenTools.getJavaOpenClass(fullEnumName, isArray);
-
-                wrapper.getDefinition().setType(enumOpenClass);
-            }
-        }
-
     }
 
     protected void processSourceCode(String sourceFilePath,

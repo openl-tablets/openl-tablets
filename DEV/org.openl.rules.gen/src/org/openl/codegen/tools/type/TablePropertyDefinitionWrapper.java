@@ -45,38 +45,4 @@ public class TablePropertyDefinitionWrapper {
     public String getPropertyVar() {
         return propertyVar;
     }
-
-    public boolean isEnum() {
-        return org.openl.rules.enumeration.Enum.class
-            .equals(tablePropertyDefinition.getType().getInstanceClass()) || org.openl.rules.enumeration.Enum[].class
-                .equals(tablePropertyDefinition.getType().getInstanceClass());
-    }
-
-    public String getEnumName() {
-
-        Constraints constraints = tablePropertyDefinition.getConstraints();
-        Constraint dataEnumConstraint = null;
-
-        for (int i = 0; i < constraints.size(); i++) {
-
-            Constraint constraint = constraints.get(i);
-
-            if (constraint instanceof DataEnumConstraint) {
-
-                if (dataEnumConstraint != null) {
-                    throw new RuntimeException("Ambiguous enumearation definitions");
-                } else {
-                    dataEnumConstraint = constraint;
-                }
-            }
-        }
-
-        if (dataEnumConstraint == null) {
-            throw new RuntimeException("Undefined enumeration constraint");
-        }
-
-        Object[] params = dataEnumConstraint.getParams();
-
-        return (String) params[0];
-    }
 }

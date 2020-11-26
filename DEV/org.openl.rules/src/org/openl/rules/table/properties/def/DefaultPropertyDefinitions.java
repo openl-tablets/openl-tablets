@@ -190,7 +190,6 @@ public final class DefaultPropertyDefinitions {
         definitions[11].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[11].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.util.Date.class));
         definitions[12] = new TablePropertyDefinition();
-        definitions[12].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caRegions"));
         definitions[12].setDescription("Canada region(s) of operation for which the table should be used");
         definitions[12].setDimensional(true);
         definitions[12].setDisplayName("Canada Region");
@@ -204,7 +203,6 @@ public final class DefaultPropertyDefinitions {
         definitions[12].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[12].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaRegionsEnum[].class));
         definitions[13] = new TablePropertyDefinition();
-        definitions[13].setConstraints(new org.openl.rules.table.constraints.Constraints("data: caProvinces"));
         definitions[13].setDescription("Canada province for which the table should be used");
         definitions[13].setDimensional(true);
         definitions[13].setDisplayName("Canada Province");
@@ -218,7 +216,6 @@ public final class DefaultPropertyDefinitions {
         definitions[13].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[13].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CaProvincesEnum[].class));
         definitions[14] = new TablePropertyDefinition();
-        definitions[14].setConstraints(new org.openl.rules.table.constraints.Constraints("data: countries"));
         definitions[14].setDescription("Countrie(s) for which the table works and should be used");
         definitions[14].setDimensional(true);
         definitions[14].setDisplayName("Countries");
@@ -232,7 +229,6 @@ public final class DefaultPropertyDefinitions {
         definitions[14].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[14].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CountriesEnum[].class));
         definitions[15] = new TablePropertyDefinition();
-        definitions[15].setConstraints(new org.openl.rules.table.constraints.Constraints("data: regions"));
         definitions[15].setDescription("Economic Region(s) for which the table works and should be used");
         definitions[15].setDimensional(true);
         definitions[15].setDisplayName("Region");
@@ -246,7 +242,6 @@ public final class DefaultPropertyDefinitions {
         definitions[15].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[15].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RegionsEnum[].class));
         definitions[16] = new TablePropertyDefinition();
-        definitions[16].setConstraints(new org.openl.rules.table.constraints.Constraints("data: currencies"));
         definitions[16].setDescription("Currencie(s) for which the table works and should be used");
         definitions[16].setDimensional(true);
         definitions[16].setDisplayName("Currency");
@@ -260,7 +255,6 @@ public final class DefaultPropertyDefinitions {
         definitions[16].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[16].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.CurrenciesEnum[].class));
         definitions[17] = new TablePropertyDefinition();
-        definitions[17].setConstraints(new org.openl.rules.table.constraints.Constraints("data: languages"));
         definitions[17].setDescription("Language(s) for which this table works and should be used");
         definitions[17].setDimensional(true);
         definitions[17].setDisplayName("Language");
@@ -288,7 +282,6 @@ public final class DefaultPropertyDefinitions {
         definitions[18].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[18].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String[].class));
         definitions[19] = new TablePropertyDefinition();
-        definitions[19].setConstraints(new org.openl.rules.table.constraints.Constraints("data: origins"));
         definitions[19].setDescription("Indicates origin of the rules to allow hierarchy of more generic and more specif"
          + "ic rules");
         definitions[19].setDimensional(true);
@@ -302,7 +295,6 @@ public final class DefaultPropertyDefinitions {
         definitions[19].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[19].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.OriginsEnum.class));
         definitions[20] = new TablePropertyDefinition();
-        definitions[20].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usRegions"));
         definitions[20].setDescription("US region(s) for which the table works and should be used");
         definitions[20].setDimensional(true);
         definitions[20].setDisplayName("US Region");
@@ -316,7 +308,6 @@ public final class DefaultPropertyDefinitions {
         definitions[20].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[20].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.UsRegionsEnum[].class));
         definitions[21] = new TablePropertyDefinition();
-        definitions[21].setConstraints(new org.openl.rules.table.constraints.Constraints("data: usStates"));
         definitions[21].setDescription("US State(s) for which this table works and should be used");
         definitions[21].setDimensional(true);
         definitions[21].setDisplayName("US States");
@@ -382,7 +373,6 @@ public final class DefaultPropertyDefinitions {
         definitions[25].setSystem(false);
         definitions[25].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         definitions[26] = new TablePropertyDefinition();
-        definitions[26].setConstraints(new org.openl.rules.table.constraints.Constraints("data: validateDT"));
         definitions[26].setDescription("On/Off validation mode for the rule table");
         definitions[26].setDimensional(false);
         definitions[26].setDisplayName("Validate DT");
@@ -470,7 +460,6 @@ public final class DefaultPropertyDefinitions {
         definitions[32].setTableType(new XlsNodeTypes[] {XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES});
         definitions[32].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
         definitions[33] = new TablePropertyDefinition();
-        definitions[33].setConstraints(new org.openl.rules.table.constraints.Constraints("data: recalculate"));
         definitions[33].setDescription("The way of recalculation of the table for a variation - slightly varied input pa"
          + "rameter(s)");
         definitions[33].setDimensional(false);
