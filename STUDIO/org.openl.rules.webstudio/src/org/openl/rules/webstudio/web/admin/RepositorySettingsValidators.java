@@ -48,11 +48,11 @@ public class RepositorySettingsValidators {
     }
 
     public static void validateBranchName(String newBranchName){
-        WebStudioUtils.validate(newBranchName.matches("[a-zA-Z0-9À-ÿА-Яа-я-/_.]+"),
-                "Invalid branch name. Only latin letters, numbers, '_', '-', '/' and '.' are allowed.");
-        WebStudioUtils.validate(newBranchName.matches("(([a-zA-Z0-9À-ÿА-Яа-я]+|(^))+((.)?+([a-zA-Z0-9À-ÿА-Яа-я]+|($))+)*)*"),
-                "Invalid branch name. Should not contain consecutive symbols: '.', '-', '/', '_'.");
-        WebStudioUtils.validate(newBranchName.matches("^([a-zA-Z0-9À-ÿА-Яа-я-_])+(.*)+([a-zA-Z0-9À-ÿА-Яа-я-_])$"),
+        WebStudioUtils.validate(newBranchName.matches("([^\\\\:*?\"<>|{}~^]*)?"),
+                "Invalid branch name. Must not contain the following characters: \\ : * ? \" < > | { } ~ ^");
+        WebStudioUtils.validate(newBranchName.matches("(.(?<![./]{2}))+"),
+                "Invalid branch name. Should not contain consecutive symbols '.' or '/'.");
+        WebStudioUtils.validate(newBranchName.matches("^([^./])((.*)([^./]))*"),
                 "Invalid branch name. Can not start with '.' or '/'.");
     }
 
