@@ -24,7 +24,6 @@ public class RunLocalZippedRepositoryTest {
     }
 
     @Test
-    @Ignore
     public void testSingleProjectDeployment() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
     }
