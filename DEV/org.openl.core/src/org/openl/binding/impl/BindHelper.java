@@ -35,8 +35,8 @@ public final class BindHelper {
         }
     }
 
-    public static void processError(Throwable error, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
-        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, syntaxNode);
+    public static void processError(Throwable error, IBindingContext bindingContext) {
+        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, null);
         bindingContext.addError(syntaxNodeException);
     }
 
