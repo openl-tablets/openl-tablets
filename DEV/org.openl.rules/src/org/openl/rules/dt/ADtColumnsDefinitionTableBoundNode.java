@@ -88,7 +88,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     protected IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
-            boolean singleParameter,
             IBindingContext bindingContext) throws OpenLCompilationException {
 
         IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
@@ -294,7 +293,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     }
                     GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
                     IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
-                        singleParameter,
                         cxt);
                     parametersForMergedTitle.add(parameterDeclaration);
                     if (parameterDeclaration != null) {

@@ -8,6 +8,7 @@ import java.util.Collections;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -42,6 +43,21 @@ public final class BindHelper {
 
     public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(String message, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(String message, Throwable ex, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, null, source);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(Throwable ex, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ex, null, source);
         bindingContext.addError(error);
     }
 

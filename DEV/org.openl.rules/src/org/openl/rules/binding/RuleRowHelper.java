@@ -10,6 +10,7 @@ import java.util.List;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.SimpleNodeUsage;
@@ -50,6 +51,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -148,17 +150,21 @@ public final class RuleRowHelper {
         return arrayValues;
     }
 
-    public static IOpenClass getType(String typeCode,
-            ISyntaxNode node,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+    public static IOpenClass getType(String typeCode, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        return getType(typeCode, new IdentifierNode("identifier", null, typeCode, source), bindingContext);
+
+    }
+
+    public static IOpenClass getType(String typeCode, ISyntaxNode node, IBindingContext bindingContext) {
         if (typeCode.endsWith("[]")) {
-            String baseCode = typeCode.substring(0, typeCode.length() - 2);
+            String baseCode = typeCode.substring(0, typeCode.length() - 2).trim();
             IOpenClass type = getType(baseCode, node, bindingContext);
             return type.getAggregateInfo().getIndexedAggregateType(type);
         }
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {
-            throw SyntaxNodeExceptionUtils.createError(MessageUtils.getTypeNotFoundMessage(typeCode), node);
+            BindHelper.processError(MessageUtils.getTypeNotFoundMessage(typeCode), node, bindingContext);
+            type = NullOpenClass.the;
         }
         return type;
     }
@@ -419,9 +425,8 @@ public final class RuleRowHelper {
 
             Class<?> expectedType = paramType.getInstanceClass();
             if (expectedType == null) {
-                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(
-                        cell.getSource(),
-                        openlAdaptor.getBindingContext());
+                IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
+                    openlAdaptor.getBindingContext());
                 throw SyntaxNodeExceptionUtils.createError(
                     String.format("Cannot parse cell value '%s'. Undefined cell type.", source),
                     cellSourceCodeModule);
