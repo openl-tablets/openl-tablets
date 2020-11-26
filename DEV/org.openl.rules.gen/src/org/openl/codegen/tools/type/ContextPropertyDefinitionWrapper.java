@@ -16,38 +16,4 @@ public class ContextPropertyDefinitionWrapper {
     public ContextPropertyDefinition getDefinition() {
         return contextPropertyDefinition;
     }
-
-    public boolean isEnum() {
-        return org.openl.rules.enumeration.Enum.class
-            .equals(contextPropertyDefinition.getType().getInstanceClass()) || org.openl.rules.enumeration.Enum[].class
-                .equals(contextPropertyDefinition.getType().getInstanceClass());
-    }
-
-    public String getEnumName() {
-
-        Constraints constraints = contextPropertyDefinition.getConstraints();
-        Constraint dataEnumConstraint = null;
-
-        for (int i = 0; i < constraints.size(); i++) {
-
-            Constraint constraint = constraints.get(i);
-
-            if (constraint instanceof DataEnumConstraint) {
-
-                if (dataEnumConstraint != null) {
-                    throw new RuntimeException("Ambiguous enumearation definitions");
-                } else {
-                    dataEnumConstraint = constraint;
-                }
-            }
-        }
-
-        if (dataEnumConstraint == null) {
-            throw new RuntimeException("Undefined enumeration constraint");
-        }
-
-        Object[] params = dataEnumConstraint.getParams();
-
-        return (String) params[0];
-    }
 }
