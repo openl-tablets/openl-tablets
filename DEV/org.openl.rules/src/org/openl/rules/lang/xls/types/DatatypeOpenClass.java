@@ -68,6 +68,7 @@ public class DatatypeOpenClass extends ADynamicClass {
         //
         // @author Denis Levchuk
         //
+        // FIXME: instance class have to be defined to prevent multiple NPEs in CastFactory
         super(name, null);
         if (StringUtils.isBlank(packageName)) {
             javaName = name;

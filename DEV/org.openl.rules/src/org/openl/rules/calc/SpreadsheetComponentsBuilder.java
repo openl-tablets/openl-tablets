@@ -330,11 +330,7 @@ public class SpreadsheetComponentsBuilder {
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
             if (typeIdentifierNode != null) {
                 String typeIdentifier = typeIdentifierNode.getText();
-                try {
-                    headerType = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
-                } catch (SyntaxNodeException e) {
-                    getBindingContext().addError(e);
-                }
+                headerType = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
             }
 
             if (headerType != null) {
