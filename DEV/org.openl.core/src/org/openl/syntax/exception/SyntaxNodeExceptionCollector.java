@@ -36,10 +36,6 @@ public class SyntaxNodeExceptionCollector {
         throwIfAny(StringUtils.EMPTY);
     }
 
-    public boolean hasErrors() {
-        return !syntaxNodeExceptions.isEmpty();
-    }
-
     public void throwIfAny(String msg) throws SyntaxNodeException {
         if (!syntaxNodeExceptions.isEmpty()) {
             if (syntaxNodeExceptions.size() == 1) {

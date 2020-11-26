@@ -609,7 +609,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     private void addError(Throwable e) {
-        BindHelper.processError(e, null, rulesModuleBindingContext);
+        BindHelper.processError(e, rulesModuleBindingContext);
     }
 
 }
