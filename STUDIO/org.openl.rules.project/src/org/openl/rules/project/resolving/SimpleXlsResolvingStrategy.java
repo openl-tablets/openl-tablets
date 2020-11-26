@@ -38,7 +38,7 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
             return false;
         }
         try {
-            final boolean isExcelFile = Files.walk(folder).anyMatch(this::isExcelFile);
+            final boolean isExcelFile = Files.walk(folder, 1).anyMatch(this::isExcelFile);
             if (isExcelFile) {
                 LOG.debug("Project in {} folder has been resolved as simple xls project.", folder);
             } else {

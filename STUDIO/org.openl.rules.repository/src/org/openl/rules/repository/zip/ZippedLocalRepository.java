@@ -204,6 +204,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         data.setName(path.relativize(root));
         data.setModifiedAt(path.getModifiedAt());
         data.setSize(path.getSize());
+        data.setPath(path.getPath());
         return data;
     }
 
@@ -225,6 +226,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
             data.setName(cp.relativize(root));
             data.setModifiedAt(cp.getModifiedAt());
             data.setVersion(String.valueOf(getHashVersion(p)));
+            data.setPath(cp.getPath());
             files.add(data);
         }
         return files;
@@ -308,11 +310,15 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     @Override
     public FileData check(String name) throws IOException {
-        CompoundPath path = resolvePath(name);
-        if (!path.isRegularFile()) {
+        try {
+            CompoundPath path = resolvePath(name);
+            if (!Files.exists(path.getPath())) {
+                return null;
+            }
+            return getFileData(path);
+        } catch (FileNotFoundException e) {
             return null;
         }
-        return getFileData(path);
     }
 
     @Override
