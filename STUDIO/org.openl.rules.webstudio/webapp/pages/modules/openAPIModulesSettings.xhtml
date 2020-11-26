@@ -54,7 +54,7 @@
                 <div id="rulesModule">
                     <div id="rulesModuleMessage" class="moduleInfoMessage">
                     </div>
-                    <table id="openapiAlgorithmsModuleTable" class="properties wide">
+                    <table id="openapiAlgorithmsModuleTable" class="properties">
                         <tr>
                             <td>
                                 <label class="field-description">Rules Module:</label>
@@ -79,6 +79,7 @@
                             <td></td>
                             <td>
                                 <h:inputText id="newAlgoPath" size="35" maxlength="70"
+                                             style="width: 200px;"
                                              validator="#{projectBean.validateAlgorithmPath}"/>
                                 <a href="javascript:void(0)" title="Reset" class="editable-link"
                                    id="resetAlgoPath"
@@ -100,7 +101,7 @@
                 <div id="dataModule">
                     <div id="dataModuleMessage" class="moduleInfoMessage">
                     </div>
-                    <table id="openapiDataModuleTable" class="properties wide">
+                    <table id="openapiDataModuleTable" class="properties">
                         <tr>
                             <td>
                                 <label class="field-description">Data Module:</label>
@@ -125,7 +126,7 @@
                         <tr class="data-path-full">
                             <td></td>
                             <td>
-                                <h:inputText id="newDataPath" size="35" maxlength="70"
+                                <h:inputText id="newDataPath" size="35" maxlength="70" style="width: 200px;"
                                              validator="#{projectBean.validateDataPath}"/>
                                 <a href="javascript:void(0)" title="Reset" class="editable-link"
                                    id="resetDataPath"
@@ -244,7 +245,7 @@
             modulesSettings.fields.getAlgorithmModulePath().val(algorithmModulePath);
 
             $j("#openAPIModulesSettings span.error").remove();
-            modulesSettings.fields.getSubmitButton().text('value', 'Import');
+            modulesSettings.fields.getSubmitButton().prop('value', 'Import');
             modulesSettings.fields.getSubmitButton().removeClass("button-primary");
             modulesSettings.fields.getSubmitButton().removeClass("button-warning");
 

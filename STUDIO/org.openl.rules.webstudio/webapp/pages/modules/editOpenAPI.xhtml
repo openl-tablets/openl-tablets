@@ -52,19 +52,30 @@
                         <tr>
                             <td></td>
                             <td>
-                                <label><input type="radio" name="mode" id="reconciliation" value="reconciliation"
-                                              checked="checked">Reconciliation</input></label>
-                                <a class="imageButton"
-                                   onclick="showOpenAPIModeInfo('openAPIReconciliation');return false;"
-                                   style="background:url('webresource/images/info.png');"/>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td><label><input type="radio" name="mode" id="generation"
-                                              value="generation">Generation</input></label>
-                                <a class="imageButton" onclick="showOpenAPIModeInfo('openAPIGeneration'); return false;"
-                                   style="background:url('webresource/images/info.png');"/>
+                                <table>
+                                    <tr>
+                                        <td style="text-align: left; vertical-align: middle;">
+                                            <input type="radio" name="mode" id="reconciliation"
+                                                   value="reconciliation"
+                                                   checked="checked">Reconciliation</input>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <a class="imageButton"
+                                               onclick="showOpenAPIModeInfo('openAPIReconciliation');return false;"
+                                               style="background:url('webresource/images/info.png');"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; vertical-align: middle;"><input type="radio" name="mode" id="generation"
+                                                   value="generation">Generation</input>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <a class="imageButton"
+                                               onclick="showOpenAPIModeInfo('openAPIGeneration'); return false;"
+                                               style="background:url('webresource/images/info.png');"/>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
