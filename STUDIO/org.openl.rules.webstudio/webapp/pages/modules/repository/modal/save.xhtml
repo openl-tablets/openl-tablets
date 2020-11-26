@@ -16,7 +16,7 @@
 
     <h:form id="saveForm">
       <h:panelGroup id="modalSaveData">
-        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{node.type == 'project'}">
           <h:outputText value="Project Name:" />
           <h:outputText value="#{artefact.name}"/>
 
