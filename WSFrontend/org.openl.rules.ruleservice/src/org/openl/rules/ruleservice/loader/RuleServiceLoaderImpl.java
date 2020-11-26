@@ -193,7 +193,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                         List<FileData> artefacts = repository.list(getDeployPath() + deploymentFolderName);
                         for (FileData artefactData : artefacts) {
                             //create sub folders
-                            Path artefactPath = artefactData.getPath().getRoot();
+                            Path artefactPath = artefactData.getPath().getParent();
                             artefactPath = tempDeploymentPath.resolve(artefactPath.toString().substring(1));
                             Files.createDirectories(artefactPath);
 

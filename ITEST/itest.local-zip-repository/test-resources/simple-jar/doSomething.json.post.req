@@ -1,0 +1,8 @@
+POST /simple-jar-rs/doSomething HTTP/1.1
+Content-Type: application/json
+Accept: text/plain;q=1.0, */*;q=0.8
+
+{
+  "filed1": "foo",
+  "field2": 11
+}

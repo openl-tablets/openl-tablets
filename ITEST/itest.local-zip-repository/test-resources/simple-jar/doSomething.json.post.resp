@@ -1,0 +1,11 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "Bean": {
+    "filed1": "foo",
+    "field2": 11.0
+  },
+  "Calc1": "foo - bar",
+  "Calc2": 21.0
+}
