@@ -118,7 +118,8 @@
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
-        <org.apache.thrift.version>0.10.0</org.apache.thrift.version>
+        <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
+        <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
     </properties>
 
     <modules>

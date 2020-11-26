@@ -100,6 +100,10 @@
                     <groupId>io.dropwizard.metrics</groupId>
                     <artifactId>metrics-json</artifactId>
                 </exclusion>
+                <exclusion>
+                    <groupId>org.apache.thrift</groupId>
+                    <artifactId>libfb303</artifactId>
+                </exclusion>
             </exclusions>
         </dependency>
 
@@ -154,6 +158,12 @@
             <artifactId>libthrift</artifactId>
             <version>${org.apache.thrift.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.ant</groupId>
+            <artifactId>ant</artifactId>
+            <version>${org.apache.ant.varsion}</version>
+        </dependency>
+
 
         <dependency>
             <groupId>org.openl.rules</groupId>
