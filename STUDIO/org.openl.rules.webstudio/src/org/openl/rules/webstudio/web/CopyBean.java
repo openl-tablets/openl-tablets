@@ -378,6 +378,16 @@ public class CopyBean {
     public void setRepositoryId(String repositoryId) {
         this.repositoryId = repositoryId;
         this.toRepositoryId = repositoryId;
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+            if (designTimeRepository.getRepository(toRepositoryId) == null) {
+                toRepositoryId = designTimeRepository.getRepositories().get(0).getId();
+            }
+        } catch (WorkspaceException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
         this.designRepoComments = new Comments(propertyResolver, toRepositoryId);
     }
 
