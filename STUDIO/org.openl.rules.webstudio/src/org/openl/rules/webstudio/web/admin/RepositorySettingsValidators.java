@@ -39,6 +39,23 @@ public class RepositorySettingsValidators {
             "Comment message template must contain '{user-message}'");
     }
 
+    public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
+        String newBranchName = StringUtils.trim((String) value);
+        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
+        newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
+        WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
+        validateBranchName(newBranchName);
+    }
+
+    public static void validateBranchName(String newBranchName){
+        WebStudioUtils.validate(newBranchName.matches("[^\\\\:*?\"<>|{}~^]*"),
+                "Invalid branch name. Must not contain the following characters: \\ : * ? \" < > | { } ~ ^");
+        WebStudioUtils.validate(newBranchName.matches("(.(?<![./]{2}))+"),
+                "Invalid branch name. Should not contain consecutive symbols '.' or '/'.");
+        WebStudioUtils.validate(newBranchName.matches("^[^./].*[^./]"),
+                "Invalid branch name. Can not start with '.' or '/'.");
+    }
+
     protected void validateNotBlank(String value, String field) {
         WebStudioUtils.validate(StringUtils.isNotBlank(value), field + " cannot be empty");
     }

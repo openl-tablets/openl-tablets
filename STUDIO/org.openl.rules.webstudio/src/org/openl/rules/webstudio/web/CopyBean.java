@@ -25,6 +25,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -290,8 +291,14 @@ public class CopyBean {
 
         String newBranchName = StringUtils.trim((String) value);
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        WebStudioUtils.validate(newBranchName.matches("[\\w\\-/]+"),
-                "Invalid branch name. Only latin letters, numbers, '_', '-' and '/' are allowed.");
+        RepositorySettingsValidators.validateBranchName(newBranchName);
+
+        String customRegex = Props.text("repository.design.new-branch-regex");
+        String customRegexError = Props.text("repository.design.new-branch-regex-error");
+        if (StringUtils.isNotBlank(customRegex)) {
+            customRegexError = StringUtils.isNotBlank(customRegexError) ? customRegexError : "The branch name does not match the following pattern: " + customRegex;
+            WebStudioUtils.validate(newBranchName.matches(customRegex), customRegexError);
+        }
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();

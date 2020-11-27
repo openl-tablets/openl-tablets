@@ -22,6 +22,7 @@ public class SecurityFilter extends DelegatingFilterProxy {
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
+        servletRequest.setCharacterEncoding("UTF-8");
         try {
             super.doFilter(servletRequest, servletResponse, filterChain);
         } catch (RuntimeException e) {
