@@ -18,6 +18,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private String localRepositoryPath;
     private String branch;
     private String newBranchTemplate;
+    private String newBranchRegex;
+    private String newBranchRegexError;
     private String tagPrefix;
     private int listenerTimerPeriod;
     private int connectionTimeout;
@@ -32,6 +34,8 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String LOCAL_REPOSITORY_PATH;
     private final String BRANCH;
     private final String NEW_BRANCH_TEMPLATE;
+    private final String NEW_BRANCH_REGEX;
+    private final String NEW_BRANCH_REGEX_ERROR;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String CONNECTION_TIMEOUT;
@@ -52,6 +56,8 @@ public class GitRepositorySettings extends RepositorySettings {
         LOCAL_REPOSITORY_PATH = configPrefix + ".local-repository-path";
         BRANCH = configPrefix + ".branch";
         NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch-pattern";
+        NEW_BRANCH_REGEX = configPrefix + ".new-branch-regex";
+        NEW_BRANCH_REGEX_ERROR = configPrefix + ".new-branch-regex-error";
         TAG_PREFIX = configPrefix + ".tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
@@ -81,6 +87,8 @@ public class GitRepositorySettings extends RepositorySettings {
         failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("default.failed-authentication-seconds")));
         maxAuthenticationAttempts = Integer.parseInt(Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("default.max-authentication-attempts")));
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
+        newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
+        newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -197,6 +205,22 @@ public class GitRepositorySettings extends RepositorySettings {
         this.newBranchTemplate = newBranchTemplate;
     }
 
+    public String getNewBranchRegex() {
+        return newBranchRegex;
+    }
+
+    public void setNewBranchRegex(String newBranchRegex) {
+        this.newBranchRegex = newBranchRegex;
+    }
+
+    public String getNewBranchRegexError() {
+        return newBranchRegexError;
+    }
+
+    public void setNewBranchRegexError(String newBranchRegexError) {
+        this.newBranchRegexError = newBranchRegexError;
+    }
+
     @Override
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
@@ -223,6 +247,8 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         propertiesHolder.setProperty(BRANCH, branch);
         propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
+        propertiesHolder.setProperty(NEW_BRANCH_REGEX, newBranchRegex);
+        propertiesHolder.setProperty(NEW_BRANCH_REGEX_ERROR, newBranchRegexError);
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
@@ -242,6 +268,8 @@ public class GitRepositorySettings extends RepositorySettings {
                 LOCAL_REPOSITORY_PATH,
                 BRANCH,
                 NEW_BRANCH_TEMPLATE,
+                NEW_BRANCH_REGEX,
+                NEW_BRANCH_REGEX_ERROR,
                 TAG_PREFIX,
                 LISTENER_TIMER_PERIOD);
         load(properties);
@@ -261,6 +289,8 @@ public class GitRepositorySettings extends RepositorySettings {
             setLocalRepositoryPath(otherSettings.getLocalRepositoryPath());
             setBranch(otherSettings.getBranch());
             setNewBranchTemplate(otherSettings.getNewBranchTemplate());
+            setNewBranchRegex(otherSettings.getNewBranchRegex());
+            setNewBranchRegexError(otherSettings.getNewBranchRegexError());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setConnectionTimeout(otherSettings.getConnectionTimeout());
