@@ -9,7 +9,7 @@ public enum $enumName {
 
     private final String displayName;
 
-    private $enumName(String displayName) {
+    $enumName(String displayName) {
         this.displayName = displayName;
     }
 
