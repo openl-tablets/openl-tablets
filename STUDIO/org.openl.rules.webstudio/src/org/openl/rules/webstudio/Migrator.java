@@ -25,7 +25,6 @@ public class Migrator {
         }
         props.put("project.history.unlimited", null); // Remove
         props.put(".version", OpenLVersion.getVersion()); // Mark the file version
-        DynamicPropertySource.get().save(props);
         // migrate design new-branch-pattern
         Object desNewBranchPattern = settings.getProperty("repository.design.new-branch-pattern");
         if (desNewBranchPattern != null) {
@@ -35,6 +34,6 @@ public class Migrator {
                     .replace("{2}", "{current-date}");
             props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
         }
-
+        DynamicPropertySource.get().save(props);
     }
 }
