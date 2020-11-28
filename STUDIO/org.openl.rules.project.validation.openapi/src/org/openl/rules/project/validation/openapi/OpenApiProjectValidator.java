@@ -2,15 +2,7 @@ package org.openl.rules.project.validation.openapi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -50,6 +42,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.types.java.JavaOpenField;
+import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -284,10 +277,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     if (method == null) {
                         continue;
                     }
-                    IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
-                        context.getMethodMap().get(method),
-                        context.isProvideRuntimeContext(),
-                        context.isProvideVariations());
+                    IOpenMethod openMethod = getRulesMethod(context, method);
                     if (expectedPath != null && expectedPath.getRight() != null) {
                         context.setExpectedPath(expectedPath.getKey());
                         context.setExpectedPathItem(expectedPath.getValue());
@@ -332,6 +322,34 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setExpectedPathItem(null);
                 }
             }
+        }
+    }
+
+    private IOpenMethod getRulesMethod(Context context, Method method) {
+        IOpenMethod openMethod = MethodUtils.findRulesMethod(context.getOpenClass(),
+            context.getMethodMap().get(method),
+            context.isProvideRuntimeContext(),
+            context.isProvideVariations());
+        if (openMethod != null) {
+            return openMethod;
+        } else {
+            if (openMethod == null && method.getParameterCount() == 0 && method.getName().startsWith("get")) {
+                Optional<IOpenField> foundOpenField = context.getOpenClass()
+                    .getFields()
+                    .stream()
+                    .filter(e -> method.getName().equals(ClassUtils.getter(e.getName())))
+                    .findFirst();
+                if (foundOpenField.isPresent()) {
+                    IOpenField openField = foundOpenField.get();
+                    return new JavaOpenMethod(method) {
+                        @Override
+                        public IOpenClass getType() {
+                            return openField.getType();
+                        }
+                    };
+                }
+            }
+            return null;
         }
     }
 
