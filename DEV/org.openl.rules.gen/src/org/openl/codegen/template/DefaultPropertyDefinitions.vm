@@ -1,0 +1,14 @@
+        definitions = new TablePropertyDefinition[$tablePropertyDefinitions.size()];
+#foreach( $bean in $tablePropertyDefinitions )
+#set( $index = $foreach.index )
+#if ( $bean )
+
+        definitions[$index] = new TablePropertyDefinition();
+#set( $pdlist = $tool.getPropertyDescriptors($bean) )
+#foreach( $pd in $pdlist )
+#if ( $tool.value($bean, $pd) )
+        definitions[$index].set$tool.formatAccessorName($pd.getName())($tool.value($bean, $pd));
+#end
+#end
+#end
+#end

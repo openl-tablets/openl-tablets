@@ -1,5 +1,5 @@
     @Override
-    public IRuntimeContext clone() throws CloneNotSupportedException {
+    public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
         defaultRulesRuntimeContext.set$tool.formatAccessorName($contextPropertyDefinition.Name)(this.$contextPropertyDefinition.Name);

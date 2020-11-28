@@ -1,5 +1,7 @@
 package org.openl.codegen.tools;
 
+import java.io.FileWriter;
+import java.io.Writer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -11,10 +13,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import org.openl.codegen.tools.generator.SourceGenerator;
-import org.openl.util.StringUtils;
+import org.apache.commons.lang.StringUtils;
 
-public class GenRulesTypes {
+public final class GenRulesTypes {
 
     private static Pattern CSV_PARSER = Pattern.compile("(?:^|,)\\s*(?:(?:\"((?:[^\"]|\"\")*)\")|(?:([^,\"\\n]*)))");
 
@@ -46,8 +47,11 @@ public class GenRulesTypes {
             vars.put("enumName", enumName);
             vars.put("values", table);
 
-            String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + enumFile;
-            SourceGenerator.getInstance().generateSource(sourceFilePath, "rules-enum.vm", vars);
+            String sourceFilePath = GenRulesCode.RULES_SOURCE_LOCATION + enumFile;
+
+            try (Writer writer = new FileWriter(sourceFilePath)) {
+                SourceGenerator.generate("rules-enum.vm", vars, writer);
+            }
             System.out.println("     > Enumeration " + sourceFilePath + " was generated successfully.");
         } catch (Exception e) {
             e.printStackTrace();
