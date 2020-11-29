@@ -23,6 +23,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -129,7 +130,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             deploymentDescription.getVersion(),
             projectDescriptor.getName())).thenReturn(modules);
         Deployment deployment = mock(Deployment.class);
-        List<AProject> projects = new ArrayList<>();
+        List<IProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
         projects.add(project);
         when(project.getName()).thenReturn("service");

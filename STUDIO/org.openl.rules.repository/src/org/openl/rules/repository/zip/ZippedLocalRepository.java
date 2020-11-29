@@ -248,7 +248,8 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
             if (resolvedPath == null) {
                 throw new IOException(String.format("Unable to resolve the path [%s].", p));
             }
-            if (archivePath == null && zipArchiveFilter(resolvedPath)) {
+            //don't enter an archive if it's the last token in the path
+            if (i < folderNames.length - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
                 try {
                     Path tmp = resolvedPath;
                     resolvedPath = enterZipArchive(resolvedPath);
@@ -312,7 +313,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     public FileData check(String name) throws IOException {
         try {
             CompoundPath path = resolvePath(name);
-            if (!Files.exists(path.getPath())) {
+            if (!path.exists()) {
                 return null;
             }
             return getFileData(path);

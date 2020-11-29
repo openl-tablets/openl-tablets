@@ -20,9 +20,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author PUdalau
  */
-public class Deployment extends AProjectFolder {
+public class Deployment extends AProjectFolder implements IDeployment {
     private static final Logger LOG = LoggerFactory.getLogger(Deployment.class);
-    private Map<String, AProject> projects;
+    private Map<String, IProject> projects;
 
     private String deploymentName;
     private CommonVersion commonVersion;
@@ -71,11 +71,11 @@ public class Deployment extends AProjectFolder {
         }
     }
 
-    public Collection<AProject> getProjects() {
+    public Collection<IProject> getProjects() {
         return projects.values();
     }
 
-    public AProject getProject(String name) {
+    public IProject getProject(String name) {
         return projects.get(name);
     }
 
@@ -127,12 +127,12 @@ public class Deployment extends AProjectFolder {
     public void update(AProjectArtefact newFolder, CommonUser user) throws ProjectException {
         Deployment other = (Deployment) newFolder;
         // add new
-        for (AProject otherProject : other.getProjects()) {
+        for (IProject otherProject : other.getProjects()) {
             String name = otherProject.getName();
             if (!otherProject.isDeleted() && !hasArtefact(name)) {
                 AProject newProject = new AProject(getRepository(), getFolderPath() + "/" + name);
                 newProject.overrideFolderStructure(folderStructure);
-                newProject.update(otherProject, user);
+                newProject.update((AProject) otherProject, user);
                 projects.put(newProject.getName(), newProject);
             }
         }

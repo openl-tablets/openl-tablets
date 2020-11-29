@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.util.Collection;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.model.Module;
 
 /**
@@ -26,7 +26,9 @@ public interface RuleServiceLoader {
      *
      * @return list of deployments.
      */
-    Collection<Deployment> getDeployments();
+    Collection<IDeployment> getDeployments();
+
+    Collection<IDeployment> getDeployments2();
 
     /**
      * @param deploymentName
@@ -45,5 +47,5 @@ public interface RuleServiceLoader {
      * @param deploymentVersion target version
      * @return deployment
      */
-    Deployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
+    IDeployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
 }

@@ -48,6 +48,10 @@ class CompoundPath {
         return getAttributes().isRegularFile();
     }
 
+    boolean exists() {
+        return Files.exists(resolvedPath);
+    }
+
     Date getModifiedAt() throws IOException {
         return new Date(getAttributes().lastModifiedTime().toMillis());
     }

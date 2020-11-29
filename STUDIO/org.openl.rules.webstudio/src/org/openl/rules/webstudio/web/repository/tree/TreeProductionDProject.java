@@ -1,13 +1,17 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.VersionInfo;
-import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
@@ -37,9 +41,12 @@ public class TreeProductionDProject extends TreeProductFolder {
         if (elements == null && !isLeafOnly()) {
             elements = new LinkedHashMap<>();
 
-            Collection<AProject> prjList = ((Deployment) getData()).getProjects();
+            Collection<IProject> prjList = ((Deployment) getData()).getProjects();
             AProjectArtefact[] sortedArtefacts = new AProjectArtefact[prjList.size()];
-            sortedArtefacts = prjList.toArray(sortedArtefacts);
+            int i = 0;
+            for (IProject iProject : prjList) {
+                sortedArtefacts[i++] = (AProjectArtefact) iProject;
+            }
 
             Arrays.sort(sortedArtefacts, RepositoryUtils.ARTEFACT_COMPARATOR);
 

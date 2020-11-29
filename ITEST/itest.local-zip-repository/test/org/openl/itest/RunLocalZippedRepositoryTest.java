@@ -2,7 +2,6 @@ package org.openl.itest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -14,7 +13,7 @@ public class RunLocalZippedRepositoryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 

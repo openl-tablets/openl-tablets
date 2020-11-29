@@ -19,7 +19,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.impl.CommonVersionImpl;
-import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.IProjectFolder;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
@@ -45,7 +45,7 @@ public class RulesLoaderTest {
         List<String> d0 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Collections.emptyList(), d0);
@@ -55,7 +55,7 @@ public class RulesLoaderTest {
         List<String> d1 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Arrays.asList("project1"), d1);
@@ -64,7 +64,7 @@ public class RulesLoaderTest {
         List<String> d2 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Arrays.asList("project1", "project2"), d2);
@@ -74,7 +74,7 @@ public class RulesLoaderTest {
         List<String> d3 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Collections.singletonList("project2"), d3);
@@ -83,7 +83,7 @@ public class RulesLoaderTest {
         List<String> d4 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Collections.singletonList("project2"), d4);
@@ -92,7 +92,7 @@ public class RulesLoaderTest {
         List<String> d5 = ruleServiceLoader.getDeployments()
             .stream()
             .flatMap(d -> d.getProjects().stream())
-            .map(AProjectFolder::getName)
+            .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
         assertEquals(Arrays.asList("org.openl.tablets.tutorial4", "project2"), d5);

@@ -1,6 +1,5 @@
 package org.openl.rules.project.resolving;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
