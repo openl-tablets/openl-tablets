@@ -46,6 +46,11 @@ public final class BindHelper {
         bindingContext.addError(error);
     }
 
+    public static void processError(String message, Throwable ex, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, syntaxNode);
+        bindingContext.addError(error);
+    }
+
     public static void processError(String message, IOpenSourceCodeModule source, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
         bindingContext.addError(error);

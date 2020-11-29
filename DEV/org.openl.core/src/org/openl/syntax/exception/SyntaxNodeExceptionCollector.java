@@ -32,10 +32,6 @@ public class SyntaxNodeExceptionCollector {
         syntaxNodeExceptions.add(e);
     }
 
-    public void throwIfAny() throws SyntaxNodeException {
-        throwIfAny(StringUtils.EMPTY);
-    }
-
     public void throwIfAny(String msg) throws SyntaxNodeException {
         if (!syntaxNodeExceptions.isEmpty()) {
             if (syntaxNodeExceptions.size() == 1) {
