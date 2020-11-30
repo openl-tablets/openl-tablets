@@ -24,7 +24,7 @@ public class GitRepositorySettings extends RepositorySettings {
     private int listenerTimerPeriod;
     private int connectionTimeout;
     private int failedAuthenticationSeconds;
-    private int maxAuthenticationAttempts;
+    private Integer maxAuthenticationAttempts;
 
     private final String URI;
     private final String LOGIN;
@@ -85,7 +85,10 @@ public class GitRepositorySettings extends RepositorySettings {
         listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse(properties.getProperty("default.listener-timer-period")));
         connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse(properties.getProperty("default.connection-timeout")));
         failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("default.failed-authentication-seconds")));
-        maxAuthenticationAttempts = Integer.parseInt(Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("default.max-authentication-attempts")));
+        String authsAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("default.max-authentication-attempts"));
+        if(StringUtils.isNotBlank(authsAttempts)){
+            maxAuthenticationAttempts = Integer.parseInt(authsAttempts);
+        }
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
         newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
         newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
@@ -189,11 +192,11 @@ public class GitRepositorySettings extends RepositorySettings {
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
     }
 
-    public int getMaxAuthenticationAttempts() {
+    public Integer getMaxAuthenticationAttempts() {
         return maxAuthenticationAttempts;
     }
 
-    public void setMaxAuthenticationAttempts(int maxAuthenticationAttempts) {
+    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
