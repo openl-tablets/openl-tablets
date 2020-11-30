@@ -4,14 +4,23 @@ ERROR: Smart table has unmatched title 'Result'.
 ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
 ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
 ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Cannot parse cell value 'false'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value 'false'. Expected value of type 'Double'.
+ERROR: Cannot parse cell value 'test'. Expected value of type 'Double'.
 ERROR: Cannot parse cell value 'test'. Expected value of type 'Boolean'.
-ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
-ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Cannot parse cell value '2'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '34'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '4'. Expected value of type 'MyObject2'.
 ERROR: Method 'someMyRule3(java.lang.Integer, java.lang.Integer, java.lang.Integer)' is not found.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
-ERROR: Failed to parse int range.
+ERROR: Cannot convert from 'MyObject2' to 'java.lang.Integer'.
+ERROR: Cannot convert from 'java.lang.Double' to 'java.lang.Integer'.
+ERROR: No input parameter found for horizontal condition.
+ERROR: Smart table has unmatched title 'Result'.
+ERROR: Cannot parse cell value '2'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '0'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '2'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '123'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '62'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '5'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '4'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '7'. Expected value of type 'MyObject2'.
