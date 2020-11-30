@@ -1,6 +1,3 @@
-/**
- * Created Jul 8, 2007
- */
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
@@ -11,6 +8,7 @@ import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -41,8 +39,6 @@ import org.openl.rules.dt.type.StringRangeAdaptor;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -278,7 +274,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
             IOpenClass inputParamType,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            IBindingContext bindingContext) {
         IParameterDeclaration[] params = condition.getParams();
         if (params.length == 1) {
             IOpenClass conditionParamType = params[0].getType();
@@ -320,7 +316,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(inputParamType)) {
-                return new DefaultConditionEvaluator();
+                return DefaultConditionEvaluator.INSTANCE;
             }
 
         } else if (params.length == 2) {
@@ -350,7 +346,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
                 .equals(inputParamType)) {
-                return new DefaultConditionEvaluator();
+                return DefaultConditionEvaluator.INSTANCE;
             }
         }
 
@@ -366,7 +362,8 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             String.join(", ", names),
             inputParamType.getName());
 
-        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getUserDefinedExpressionSource());
+        BindHelper.processError(message, condition.getUserDefinedExpressionSource(), bindingContext);
+        return DefaultConditionEvaluator.INSTANCE;
     }
 
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,
