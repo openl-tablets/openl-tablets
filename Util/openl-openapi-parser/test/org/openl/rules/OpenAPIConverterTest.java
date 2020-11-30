@@ -252,8 +252,8 @@ public class OpenAPIConverterTest {
         List<InputParameter> paramsPrimitive = textPlainWithPrimitiveDoubleParam.getParameters();
         assertEquals(1, paramsPrimitive.size());
         InputParameter doubleParam = paramsPrimitive.iterator().next();
-        assertEquals("doubleParam", doubleParam.getName());
-        assertEquals("double", doubleParam.getType());
+        assertEquals("double", doubleParam.getName());
+        assertEquals("Double", doubleParam.getType());
 
         Optional<SpreadsheetModel> myTst = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("myTst"))
@@ -283,9 +283,34 @@ public class OpenAPIConverterTest {
         assertEquals("long", longModel.getType());
         List<InputParameter> longParams = longModel.getParameters();
         InputParameter longParam = longParams.iterator().next();
-        assertEquals("long", longParam.getType());
-        assertEquals("longParam", longParam.getName());
+        assertEquals("Long", longParam.getType());
+        assertEquals("long", longParam.getName());
 
+        Optional<SpreadsheetModel> myTestWithParams = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithParams"))
+            .findFirst();
+        assertTrue(myTestWithParams.isPresent());
+        SpreadsheetModel testWithParams = myTestWithParams.get();
+        List<InputParameter> parametersList = testWithParams.getParameters();
+        assertEquals(1, parametersList.size());
+        InputParameter oneParam = parametersList.iterator().next();
+        assertEquals("long", oneParam.getType());
+        assertEquals("simpleId", oneParam.getName());
+
+        Optional<SpreadsheetModel> myTestWithPathParams = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("myTestWithParams2"))
+            .findFirst();
+        assertTrue(myTestWithPathParams.isPresent());
+        SpreadsheetModel model = myTestWithPathParams.get();
+        List<InputParameter> withPathParams = model.getParameters();
+        assertEquals(2, withPathParams.size());
+        Optional<InputParameter> pidId = withPathParams.stream().filter(x -> x.getName().equals("pidId")).findFirst();
+        assertTrue(pidId.isPresent());
+        assertEquals("double", pidId.get().getType());
+
+        Optional<InputParameter> sum = withPathParams.stream().filter(x -> x.getName().equals("sum")).findFirst();
+        assertTrue(sum.isPresent());
+        assertEquals("float", sum.get().getType());
     }
 
 }

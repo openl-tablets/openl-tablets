@@ -544,7 +544,7 @@ public class OpenLOpenAPIUtils {
             for (Parameter pathParameter : pathParameters) {
                 Parameter p = resolve(jxPathContext, pathParameter, Parameter::get$ref);
                 if (p != null) {
-                    parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), false),
+                    parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), true),
                         normalizeName(p.getName())));
                 }
             }
@@ -556,7 +556,7 @@ public class OpenLOpenAPIUtils {
                 for (Parameter parameter : parameters) {
                     Parameter p = resolve(jxPathContext, parameter, Parameter::get$ref);
                     if (p != null) {
-                        parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), false),
+                        parameterModels.add(new ParameterModel(OpenAPITypeUtils.extractType(p.getSchema(), true),
                             normalizeName(p.getName())));
                     }
                 }
@@ -657,8 +657,7 @@ public class OpenLOpenAPIUtils {
                 }
             } else {
                 // non expandable
-                String type = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(),
-                    TEXT_PLAIN.equals(mediaType.getType()));
+                String type = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(), false);
                 if (StringUtils.isBlank(type)) {
                     parameterModels = Collections.emptyList();
                 } else {

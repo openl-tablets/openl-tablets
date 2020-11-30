@@ -121,6 +121,71 @@
         }
       }
     },
+    "/myTestWithParams": {
+      "post": {
+        "description": "request body with text/plain",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "name": "simpleId",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "description": "simple schema returned"
+          }
+        }
+      }
+    },
+    "/myTestWithParams2": {
+      "parameters": [
+        {
+          "schema": {
+            "type": "number",
+            "format": "double"
+          },
+          "name": "pidId",
+          "in": "path"
+        }
+      ],
+      "post": {
+        "parameters": [
+          {
+            "schema": {
+              "type": "number",
+              "format": "float"
+            },
+            "name": "sum",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
     "/myTestWithArrayDoubleRBTP": {
       "post": {
         "description": "request body with text/plain",
