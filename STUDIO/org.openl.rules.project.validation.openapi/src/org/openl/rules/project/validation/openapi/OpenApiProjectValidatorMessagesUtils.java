@@ -14,6 +14,7 @@ import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -49,7 +50,8 @@ final class OpenApiProjectValidatorMessagesUtils {
 
     private static boolean isNotExistingWarning(String summary, ValidatedCompiledOpenClass validatedCompiledOpenClass) {
         for (OpenLMessage openLMessage : validatedCompiledOpenClass.getMessages()) {
-            if (openLMessage.getSeverity().equals(Severity.WARN) && Objects.equals(openLMessage.getSummary(), summary)) {
+            if (openLMessage.getSeverity().equals(Severity.WARN) && Objects.equals(openLMessage.getSummary(),
+                summary)) {
                 return false;
             }
         }
@@ -99,9 +101,19 @@ final class OpenApiProjectValidatorMessagesUtils {
         }
     }
 
+    private static IOpenClass findOpenClass(Context context) {
+        for (IOpenClass openClass : context.getOpenClass().getTypes()) {
+            if (Objects.equals(context.getType().getInstanceClass(), openClass.getInstanceClass())) {
+                return openClass;
+            }
+        }
+        return context.getType();
+    }
+
     public static void addTypeError(Context context, String summary) {
-        if (context.getType() instanceof DatatypeOpenClass) {
-            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) context.getType();
+        IOpenClass type = findOpenClass(context);
+        if (type instanceof DatatypeOpenClass) {
+            DatatypeOpenClass datatypeOpenClass = (DatatypeOpenClass) type;
             if (datatypeOpenClass.getTableSyntaxNode() != null) {
                 SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(summary,
                     datatypeOpenClass.getTableSyntaxNode());
@@ -111,7 +123,7 @@ final class OpenApiProjectValidatorMessagesUtils {
                 }
             }
         } else {
-            IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(context.getType());
+            IOpenMethod method = context.getSpreadsheetMethodResolver().resolve(type);
             if (method != null) {
                 addMethodError(context, method, summary);
             } else {
