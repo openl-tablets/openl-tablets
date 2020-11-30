@@ -333,7 +333,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         if (openMethod != null) {
             return openMethod;
         } else {
-            if (openMethod == null && method.getParameterCount() == 0 && method.getName().startsWith("get")) {
+            if (method.getParameterCount() == 0 && method.getName().startsWith("get")) {
                 Optional<IOpenField> foundOpenField = context.getOpenClass()
                     .getFields()
                     .stream()
@@ -707,6 +707,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 actualParameter.getSchema(),
                 expectedParameter.getSchema(),
                 parameterType,
+                new HashSet<>(),
                 new HashSet<>());
         } catch (DifferentTypesException e) {
             OpenApiProjectValidatorMessagesUtils.addMethodError(context,
@@ -768,6 +769,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     actualMediaType.getSchema(),
                     expectedMediaType.getSchema(),
                     returnType,
+                    new HashSet<>(),
                     new HashSet<>());
             } catch (DifferentTypesException e) {
                 String methodName = openMethod != null ? openMethod.getName() : method.getName();
@@ -1008,6 +1010,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         actualParameterSchema,
                         expectedParameterSchema,
                         parameterType,
+                        new HashSet<>(),
                         new HashSet<>());
                 } catch (DifferentTypesException e) {
                     OpenApiProjectValidatorMessagesUtils.addMethodError(context,
@@ -1138,12 +1141,40 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return null;
     }
 
-    private static class Key {
+    private static class KeyBySchemasRef {
+        private final IOpenClass openClass;
+        private final String actualSchemaRef;
+        private final String expectedSchemaRef;
+
+        public KeyBySchemasRef(IOpenClass openClass, String actualSchemaRef, String expectedSchemaRef) {
+            this.openClass = openClass;
+            this.actualSchemaRef = actualSchemaRef;
+            this.expectedSchemaRef = expectedSchemaRef;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o)
+                return true;
+            if (o == null || getClass() != o.getClass())
+                return false;
+            KeyBySchemasRef key = (KeyBySchemasRef) o;
+            return Objects.equals(openClass, key.openClass) && Objects.equals(actualSchemaRef,
+                key.actualSchemaRef) && Objects.equals(expectedSchemaRef, key.expectedSchemaRef);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(openClass, actualSchemaRef, expectedSchemaRef);
+        }
+    }
+
+    private static class KeyByFieldType {
         private final IOpenClass openClass;
         private final IOpenClass openFieldType;
         private final String expectedSchemaRef;
 
-        public Key(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
+        public KeyByFieldType(IOpenClass openClass, IOpenClass openFieldType, String expectedSchemaRef) {
             this.openClass = openClass;
             this.openFieldType = openFieldType;
             this.expectedSchemaRef = expectedSchemaRef;
@@ -1156,7 +1187,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             if (o == null || getClass() != o.getClass())
                 return false;
 
-            Key key = (Key) o;
+            KeyByFieldType key = (KeyByFieldType) o;
             if (!Objects.equals(openClass, key.openClass))
                 return false;
             if (!Objects.equals(openFieldType, key.openFieldType))
@@ -1178,7 +1209,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Schema<?> actualSchema,
             Schema<?> expectedSchema,
             IOpenClass openClass,
-            Set<Key> validatedSchemas) throws DifferentTypesException {
+            Set<KeyBySchemasRef> validatedBySchemasRef,
+            Set<KeyByFieldType> validatedByFieldType) throws DifferentTypesException {
+         if (expectedSchema != null && actualSchema != null && expectedSchema.get$ref() != null && actualSchema.get$ref() != null) {
+            KeyBySchemasRef key = new KeyBySchemasRef(openClass, actualSchema.get$ref(), expectedSchema.get$ref());
+            if (validatedBySchemasRef.contains(key)) {
+                return;
+            }
+            validatedBySchemasRef.add(key);
+        }
         IOpenClass oldType = context.getType();
         try {
             Schema<?> resolvedActualSchema = context.getActualOpenAPIResolver().resolve(actualSchema, Schema::get$ref);
@@ -1192,7 +1231,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             ((ArraySchema) resolvedActualSchema).getItems(),
                             ((ArraySchema) resolvedExpectedSchema).getItems(),
                             openClass.isArray() ? openClass.getComponentClass() : JavaOpenClass.OBJECT,
-                            validatedSchemas);
+                            validatedBySchemasRef,
+                            validatedByFieldType);
                         return;
                     } else {
                         throw new DifferentTypesException();
@@ -1233,7 +1273,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                     extractParentSchema(actualComposedSchema),
                                     extractParentSchema(expectedComposedSchema),
                                     superClass,
-                                    validatedSchemas);
+                                    validatedBySchemasRef,
+                                    validatedByFieldType);
                             } catch (DifferentTypesException e) {
                                 String schemaToString = schemaToString(context,
                                     extractParentSchema(expectedComposedSchema));
@@ -1289,21 +1330,29 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                             BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate = (e1, f) -> {
                                 try {
                                     if (expectedSchema.get$ref() != null) {
-                                        Key key = new Key(openClass, openField.getType(), expectedSchema.get$ref());
-                                        if (!validatedSchemas.contains(key)) {
-                                            validatedSchemas.add(key);
+                                        KeyByFieldType key = new KeyByFieldType(openClass,
+                                            openField.getType(),
+                                            expectedSchema.get$ref());
+                                        if (!validatedByFieldType.contains(key)) {
+                                            validatedByFieldType.add(key);
                                             try {
                                                 validateType(context,
                                                     e1,
                                                     entry.getValue(),
                                                     f.getType(),
-                                                    validatedSchemas);
+                                                    validatedBySchemasRef,
+                                                    validatedByFieldType);
                                             } finally {
-                                                validatedSchemas.remove(key);
+                                                validatedByFieldType.remove(key);
                                             }
                                         }
                                     } else {
-                                        validateType(context, e1, entry.getValue(), f.getType(), validatedSchemas);
+                                        validateType(context,
+                                            e1,
+                                            entry.getValue(),
+                                            f.getType(),
+                                            validatedBySchemasRef,
+                                            validatedByFieldType);
                                     }
                                     return false;
                                 } catch (DifferentTypesException e2) {
