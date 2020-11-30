@@ -77,7 +77,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private boolean noVerify;
     private Boolean gcAutoDetach;
     private int failedAuthenticationSeconds;
-    private int maxAuthenticationAttempts;
+    private Integer maxAuthenticationAttempts;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -548,12 +548,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 .setBranch(branch)
                                 .setCloneAllBranches(true);
 
-                        CredentialsProvider credentialsProvider = getCredentialsProvider();
+                        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
                         if (credentialsProvider != null) {
                             cloneCommand.setCredentialsProvider(credentialsProvider);
                         }
 
                         Git cloned = cloneCommand.call();
+                        successAuthentication(GitActionType.CLONE);
                         cloned.close();
                     } else {
                         Git repo = Git.init().setDirectory(local).call();
@@ -643,7 +644,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (getCredentialsProvider() == null) {
+                    if (getCredentialsProvider(null) == null) {
                         String message = e.getMessage();
                         if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
                             throw new IOException(
@@ -737,7 +738,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
     }
 
-    public void setMaxAuthenticationAttempts(int maxAuthenticationAttempts) {
+    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
@@ -1110,7 +1111,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FetchResult fetchAll() throws GitAPIException, IOException {
         FetchCommand fetchCommand = git.fetch();
-        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {
             fetchCommand.setCredentialsProvider(credentialsProvider);
         }
@@ -1119,7 +1120,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         fetchCommand.setRemoveDeletedRefs(true);
         fetchCommand.setTimeout(connectionTimeout);
         FetchResult result = fetchCommand.call();
-        successAuthentication();
+        successAuthentication(GitActionType.FETCH_ALL);
         return result;
     }
 
@@ -1142,13 +1143,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new IOException(String.format("Cannot find branch '%s'", branch));
             }
 
-            CredentialsProvider credentialsProvider = getCredentialsProvider();
+            CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
             if (credentialsProvider != null) {
                 push.setCredentialsProvider(credentialsProvider);
             }
 
             Iterable<PushResult> results = push.call();
-            successAuthentication();
+            successAuthentication(GitActionType.PUSH);
             validatePushResults(results);
         } finally {
             remoteRepoLock.unlock();
@@ -2126,13 +2127,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
-        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
         if (credentialsProvider != null) {
             push.setCredentialsProvider(credentialsProvider);
         }
 
         Iterable<PushResult> results = push.call();
-        successAuthentication();
+        successAuthentication(GitActionType.PUSH_BRANCH);
         validatePushResults(results);
     }
 
@@ -2299,16 +2300,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private CredentialsProvider getCredentialsProvider() throws IOException {
+    private CredentialsProvider getCredentialsProvider(GitActionType actionType) {
         if (credentialsProvider != null) {
-            credentialsProvider.validateAuthorizationState();
+            credentialsProvider.validateAuthorizationState(actionType);
         }
         return credentialsProvider;
     }
 
-    private void successAuthentication() {
+    private void successAuthentication(GitActionType actionType) {
         if (credentialsProvider != null) {
-            credentialsProvider.successAuthentication();
+            credentialsProvider.successAuthentication(actionType);
         }
     }
 
