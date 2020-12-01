@@ -165,6 +165,9 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     public List<FileData> list(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<>();
         CompoundPath resolvedPath = resolvePath(path);
+        if (zipArchiveFilter(resolvedPath.getPath())) {
+            resolvedPath = new CompoundPath(enterZipArchive(resolvedPath.getPath()), resolvedPath.getPath());
+        }
         if (!resolvedPath.isDirectory()) {
             return files;
         }
@@ -212,12 +215,16 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     @Override
     public List<FileData> listFolders(String path) throws IOException {
         List<FileData> files = new LinkedList<>();
-        final CompoundPath resolvedPath = resolvePath(path);
+        CompoundPath resolvedPath = resolvePath(path);
+        if (zipArchiveFilter(resolvedPath.getPath())) {
+            resolvedPath = new CompoundPath(enterZipArchive(resolvedPath.getPath()), resolvedPath.getPath());
+        }
         if (!resolvedPath.isDirectory()) {
             return files;
         }
-        Stream<Path> stream = resolvedPath.getPath().equals(root) ? storage.values().stream()
-                : Files.walk(resolvedPath.getPath(), 1).filter(p -> !resolvedPath.getPath().equals(p));
+        final Path walkRoot = resolvedPath.getPath();
+        Stream<Path> stream = walkRoot.equals(root) ? storage.values().stream()
+                : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p));
         List<Path> found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p))
                 .collect(Collectors.toList());
         for (Path p : found) {

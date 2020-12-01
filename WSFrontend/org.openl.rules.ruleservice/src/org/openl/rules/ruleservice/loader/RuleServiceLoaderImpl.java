@@ -130,8 +130,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         if (repository.supports().isLocal() && repository.supports().folders()) {
             FileData data;
             try {
-                data = repository.check(deploymentName);
-                if (data.getPath() != null) {
+                data = repository.check(getDeployPath() + deploymentName);
+                if (data != null && data.getPath() != null) {
                     return buildLocalDeployment(version, data, (FolderRepository) repository);
                 }
             } catch (IOException e) {
@@ -314,7 +314,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
             deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0], commonVersion, Collections.singletonMap(project.getName(), project));
         } else {
-            List<FileData> projectFolders = repository.listFolders(deploymentFolder.getName());
+            List<FileData> projectFolders = repository.listFolders(getDeployPath() + deploymentFolder.getName());
             Map<String, IProject> projectMap = new HashMap<>();
             for (FileData projectFolder : projectFolders) {
                 Map<String, IProjectArtefact> resourceMap = gatherProjectResources(projectFolder, repository);
@@ -327,7 +327,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private Map<String, IProjectArtefact> gatherProjectResources(FileData folder, Repository repository) throws IOException {
-        List<FileData> files = repository.list(folder.getName());
+        List<FileData> files = repository.list(getDeployPath() + folder.getName());
         Map<String, IProjectArtefact> resourceMap = new HashMap<>();
         for (FileData file : files) {
             String resourceName = file.getName().substring(folder.getName().length() + 1);
