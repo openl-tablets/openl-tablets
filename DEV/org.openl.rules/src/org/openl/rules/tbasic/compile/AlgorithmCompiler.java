@@ -1,17 +1,32 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
-import org.openl.rules.tbasic.*;
+import org.openl.rules.tbasic.Algorithm;
+import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
+import org.openl.rules.tbasic.AlgorithmTreeNode;
+import org.openl.rules.tbasic.NoParamMethodField;
+import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
+import org.openl.types.IMethodCaller;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -70,23 +85,24 @@ public class AlgorithmCompiler {
      * Main logic
      **************************************************************************/
 
-    public void compile(Algorithm algorithm) throws Exception {
-        initialization(algorithm);
-        precompile();
-        compile();
+    public void compile(Algorithm algorithm, IBindingContext bindingContext) {
+        initialization(algorithm, bindingContext);
+        precompileNestedNodes(nodesToCompile, bindingContext);
+        compile(bindingContext);
         postprocess(algorithm);
     }
 
-    private void compile() throws Exception {
+    private void compile(IBindingContext bindingContext) {
         getThisTargetClass().allFieldsToVisible();
         for (AlgorithmFunctionCompiler functionCompiler : functions) {
-            functionCompiler.compile();
+            functionCompiler.compile(bindingContext);
         }
     }
 
     private void createAlgorithmInternalMethod(List<AlgorithmTreeNode> nodesToCompile,
             IOpenClass returnType,
-            CompileContext methodContext) throws SyntaxNodeException {
+            CompileContext methodContext,
+            IBindingContext bindingContext) {
         // method name will be at every label
         for (StringValue label : nodesToCompile.get(0).getLabels()) {
             String methodName = label.getValue();
@@ -107,7 +123,7 @@ public class AlgorithmCompiler {
         }
         Map<String, AlgorithmTreeNode> internalLablesOfMethod = AlgorithmCompilerTool
             .getAllDeclaredLables(nodesToCompile);
-        methodContext.registerGroupOfLabels(internalLablesOfMethod);
+        methodContext.registerGroupOfLabels(internalLablesOfMethod, bindingContext);
     }
 
     private IBindingContext getAlgorithmBindingContext() {
@@ -118,35 +134,41 @@ public class AlgorithmCompiler {
     }
 
     private void declareFunction(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep convertionStep) throws SyntaxNodeException {
+            ConversionRuleStep convertionStep,
+            IBindingContext bindingContext) {
         String returnValueInstruction = convertionStep.getOperationParam1();
 
         IOpenClass returnType;
         if (AlgorithmCompilerTool.isOperationFieldInstruction(returnValueInstruction)) {
-            returnType = getTypeOfField(AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction));
+            returnType = getTypeOfField(
+                AlgorithmCompilerTool.getCellContent(nodesToCompile, returnValueInstruction, bindingContext),
+                bindingContext);
         } else {
             // TODO add support of specification instruction
-            returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), returnValueInstruction);
+            returnType = discoverFunctionType(nodesToCompile.get(0).getChildren(), bindingContext);
         }
-        createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext());
+        createAlgorithmInternalMethod(nodesToCompile, returnType, new CompileContext(), bindingContext);
 
     }
 
-    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
+    private void declareSubroutine(List<AlgorithmTreeNode> nodesToCompile, IBindingContext bindingContext) {
         CompileContext subroutineContext = new CompileContext();
         // add all labels from main
-        subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables());
+        subroutineContext.registerGroupOfLabels(mainCompileContext.getExistingLables(), bindingContext);
 
-        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID, subroutineContext);
+        createAlgorithmInternalMethod(nodesToCompile, JavaOpenClass.VOID, subroutineContext, bindingContext);
     }
 
     private void declareVariable(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep) throws SyntaxNodeException {
+            ConversionRuleStep conversionStep,
+            IBindingContext bindingContext) {
         String variableNameParameter = conversionStep.getOperationParam1();
         String variableAssignmentParameter = conversionStep.getOperationParam2();
-        StringValue variableName = AlgorithmCompilerTool.getCellContent(nodesToCompile, variableNameParameter);
+        StringValue variableName = AlgorithmCompilerTool
+            .getCellContent(nodesToCompile, variableNameParameter, bindingContext);
         IOpenClass variableType = getTypeOfField(
-            AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter));
+            AlgorithmCompilerTool.getCellContent(nodesToCompile, variableAssignmentParameter, bindingContext),
+            bindingContext);
         initNewInternalVariable(variableName.getValue(), variableType);
     }
 
@@ -154,7 +176,8 @@ public class AlgorithmCompiler {
      * Find out the type of the array element. And define the internal variable
      */
     private void declareArrayElement(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep) throws SyntaxNodeException {
+            ConversionRuleStep conversionStep,
+            IBindingContext bindingContext) {
         // Points to the location of the elementName in the TBasic table
         //
         String elementNameParameter = conversionStep.getOperationParam1();
@@ -166,26 +189,27 @@ public class AlgorithmCompiler {
 
         // Extract the element name
         //
-        StringValue elementName = AlgorithmCompilerTool.getCellContent(nodesToCompile, elementNameParameter);
+        StringValue elementName = AlgorithmCompilerTool
+            .getCellContent(nodesToCompile, elementNameParameter, bindingContext);
 
         // Extract the type of the iterable array
         //
         IOpenClass iterableArrayType = getTypeOfField(
-            AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter));
+            AlgorithmCompilerTool.getCellContent(nodesToCompile, iterableArrayParameter, bindingContext),
+            bindingContext);
         if (!iterableArrayType.isArray()) {
             IOpenSourceCodeModule errorSource = nodesToCompile.get(0)
                 .getAlgorithmRow()
                 .getAction()
                 .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError("Compilation failure. The cell should be of the array type",
-                errorSource);
+            BindHelper
+                .processError("Compilation failure. The cell should be of the array type", errorSource, bindingContext);
         }
         IOpenClass elementType = iterableArrayType.getComponentClass();
         initNewInternalVariable(elementName.getValue(), elementType);
     }
 
-    private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children,
-            String returnValueInstruction) throws SyntaxNodeException {
+    private IOpenClass discoverFunctionType(List<AlgorithmTreeNode> children, IBindingContext bindingContext) {
         // find first RETURN operation
         List<AlgorithmTreeNode> returnNodes = findFirstReturn(children);
 
@@ -193,11 +217,13 @@ public class AlgorithmCompiler {
             StringValue lastAction = AlgorithmCompilerTool.getLastExecutableOperation(children)
                 .getAlgorithmRow()
                 .getAction();
-            return getTypeOfField(lastAction);
+            return getTypeOfField(lastAction, bindingContext);
         } else {
             // get RETURN.condition part of instruction
             String fieldWithOpenLStatement = "RETURN.condition"; // returnValueInstruction
-            return getTypeOfField(AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement));
+            return getTypeOfField(
+                AlgorithmCompilerTool.getCellContent(returnNodes, fieldWithOpenLStatement, bindingContext),
+                bindingContext);
         }
     }
 
@@ -241,36 +267,44 @@ public class AlgorithmCompiler {
         return thisTargetClass;
     }
 
-    public IOpenClass getTypeOfField(StringValue fieldContent) throws SyntaxNodeException {
+    public IOpenClass getTypeOfField(StringValue fieldContent, IBindingContext bindingContext) {
         // TODO: make rational type detecting(without creating of
         // CompositeMethod)
         IOpenSourceCodeModule src = fieldContent.asSourceCodeModule();
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
 
-        return OpenLManager.makeMethodWithUnknownType(
-                openl,
-                src,
-                "cell_" + fieldContent.getValue(),
-                signature,
-                thisTargetClass,
-                getAlgorithmBindingContext()
-            )
-            .getMethod()
-            .getType();
+        try {
+            return OpenLManager
+                .makeMethodWithUnknownType(openl,
+                    src,
+                    "cell_" + fieldContent.getValue(),
+                    signature,
+                    thisTargetClass,
+                    getAlgorithmBindingContext())
+                .getMethod()
+                .getType();
+        } catch (CompositeSyntaxNodeException e) {
+            BindHelper.processError(e, bindingContext);
+            return NullOpenClass.the;
+        } catch (SyntaxNodeException e) {
+            bindingContext.addError(e);
+            return NullOpenClass.the;
+        }
     }
 
-    private void initialization(Algorithm algorithm) throws SyntaxNodeException {
+    private void initialization(Algorithm algorithm, IBindingContext bindingContext) {
         labelManager = new LabelManager();
         thisTargetClass = new AlgorithmOpenClass(generateOpenClassName(), context.getOpenL());
 
-        variablesStack.push(new ArrayList<IOpenField>());
-        initNewInternalVariable("ERROR", getTypeOfField(new StringValue("new RuntimeException()")));
-        initNewInternalVariable("Error Message", getTypeOfField(new StringValue("\"Error!\"")));
+        variablesStack.push(new ArrayList<>());
+        initNewInternalVariable("ERROR", JavaOpenClass.getOpenClass(RuntimeException.class));
+        initNewInternalVariable("Error Message", JavaOpenClass.STRING);
 
         mainCompileContext = new CompileContext();
         List<AlgorithmTreeNode> mainFunction = getMainFunctionBody();
-        mainCompileContext.registerGroupOfLabels(AlgorithmCompilerTool.getAllDeclaredLables(mainFunction));
+        mainCompileContext.registerGroupOfLabels(AlgorithmCompilerTool.getAllDeclaredLables(mainFunction),
+            bindingContext);
         functions.add(new AlgorithmFunctionCompiler(mainFunction, mainCompileContext, algorithm, this));
     }
 
@@ -280,22 +314,38 @@ public class AlgorithmCompiler {
         variablesStack.peek().add(field);
     }
 
-    public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) throws SyntaxNodeException {
+    public IMethodCaller makeMethod(IOpenSourceCodeModule src, String methodName) {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
 
-        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
+        try {
+            return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
+        } catch (CompositeSyntaxNodeException e) {
+            BindHelper.processError(e, cxt);
+            return null;
+        } catch (SyntaxNodeException e) {
+            cxt.addError(e);
+            return null;
+        }
     }
 
-    public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) throws SyntaxNodeException {
+    public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         // create method header for newly created method
         OpenMethodHeader openMethodHeader = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
-        return OpenLManager.makeMethod(openl, src, openMethodHeader, cxt);
+        try {
+            return OpenLManager.makeMethod(openl, src, openMethodHeader, cxt);
+        } catch (CompositeSyntaxNodeException e) {
+            BindHelper.processError(e, cxt);
+            return null;
+        } catch (SyntaxNodeException e) {
+            cxt.addError(e);
+            return null;
+        }
 
     }
 
@@ -306,35 +356,34 @@ public class AlgorithmCompiler {
         algorithm.setThisClass(getThisTargetClass());
     }
 
-    /***************************************************************************
-     * Main precompile, compile, postprocess logic
-     **************************************************************************/
-
-    private void precompile() throws SyntaxNodeException {
-        precompileNestedNodes(nodesToCompile);
-    }
-
-    private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
+    private void precompileLinkedNodesGroup(List<AlgorithmTreeNode> nodesToCompile, IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
-        ConversionRuleBean conversionRule = ConversionRulesController.getInstance().getConvertionRule(nodesToCompile);
+        ConversionRuleBean conversionRule = ConversionRulesController.getInstance()
+            .getConvertionRule(nodesToCompile, bindingContext);
+        if (conversionRule == null) {
+            return;
+        }
 
         for (ConversionRuleStep convertionStep : conversionRule.getConvertionSteps()) {
-            preprocessConversionStep(nodesToCompile, convertionStep);
+            preprocessConversionStep(nodesToCompile, convertionStep, bindingContext);
         }
     }
 
-    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess) throws SyntaxNodeException {
+    private void precompileNestedNodes(List<AlgorithmTreeNode> nodesToProcess, IBindingContext bindingContext) {
         // process nodes by groups of linked nodes
         for (int i = 0, linkedNodesGroupSize; i < nodesToProcess.size(); i += linkedNodesGroupSize) {
             linkedNodesGroupSize = AlgorithmCompilerTool.getLinkedNodesGroupSize(nodesToProcess, i);
 
-            precompileLinkedNodesGroup(nodesToProcess.subList(i, i + linkedNodesGroupSize));
+            List<AlgorithmTreeNode> nodesToCompile = nodesToProcess.subList(i, i + linkedNodesGroupSize);
+
+            precompileLinkedNodesGroup(nodesToCompile, bindingContext);
         }
     }
 
     private void preprocessConversionStep(List<AlgorithmTreeNode> nodesToCompile,
-            ConversionRuleStep conversionStep) throws SyntaxNodeException {
+            ConversionRuleStep conversionStep,
+            IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
         assert conversionStep != null;
 
@@ -346,36 +395,39 @@ public class AlgorithmCompiler {
                     .getAlgorithmRow()
                     .getOperation()
                     .asSourceCodeModule();
-                throw SyntaxNodeExceptionUtils
-                    .createError(String.format("Unknown compilation instruction %s", operationType), errorSource);
+                BindHelper.processError(String.format("Unknown compilation instruction %s", operationType),
+                    errorSource,
+                    bindingContext);
             } else {
-                preprocessor.preprocess(nodesToCompile, conversionStep);
+                preprocessor.preprocess(nodesToCompile, conversionStep, bindingContext);
             }
         }
     }
 
     public interface OperationPreprocessor {
         void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException;
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext);
     }
 
     private final class CompilePreprocessor implements OperationPreprocessor {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException {
-            List<AlgorithmTreeNode> nodesToProcess = AlgorithmCompilerTool.getNestedInstructionsBlock(nodesToCompile,
-                conversionStep.getOperationParam1());
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext) {
+            List<AlgorithmTreeNode> nodesToProcess = AlgorithmCompilerTool
+                .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
             try {
-                variablesStack.push(new ArrayList<IOpenField>());
-                precompileNestedNodes(nodesToProcess);
+                variablesStack.push(new ArrayList<>());
+                precompileNestedNodes(nodesToProcess, bindingContext);
             } finally {
                 updateVariablesVisibitily(variablesStack.pop());
             }
         }
     }
 
-    private final void updateVariablesVisibitily(Collection<IOpenField> fields) {
+    private void updateVariablesVisibitily(Collection<IOpenField> fields) {
         for (IOpenField field : fields) {
             thisTargetClass.setFieldToInvisibleState(field.getName());
         }
@@ -385,8 +437,9 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException {
-            declareVariable(nodesToCompile, conversionStep);
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext) {
+            declareVariable(nodesToCompile, conversionStep, bindingContext);
         }
     }
 
@@ -394,8 +447,9 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException {
-            declareArrayElement(nodesToCompile, conversionStep);
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext) {
+            declareArrayElement(nodesToCompile, conversionStep, bindingContext);
         }
     }
 
@@ -403,8 +457,9 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException {
-            declareSubroutine(nodesToCompile);
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext) {
+            declareSubroutine(nodesToCompile, bindingContext);
         }
     }
 
@@ -412,8 +467,9 @@ public class AlgorithmCompiler {
 
         @Override
         public void preprocess(List<AlgorithmTreeNode> nodesToCompile,
-                ConversionRuleStep conversionStep) throws SyntaxNodeException {
-            declareFunction(nodesToCompile, conversionStep);
+                ConversionRuleStep conversionStep,
+                IBindingContext bindingContext) {
+            declareFunction(nodesToCompile, conversionStep, bindingContext);
         }
     }
 
