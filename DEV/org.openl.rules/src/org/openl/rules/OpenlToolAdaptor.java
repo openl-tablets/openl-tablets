@@ -1,8 +1,3 @@
-/*
- * Created on Jun 23, 2004
- *
- * Developed by OpenRules Inc 2003-2004
- */
 package org.openl.rules;
 
 import org.openl.OpenL;
@@ -54,8 +49,12 @@ public class OpenlToolAdaptor {
         return tableSyntaxNode;
     }
 
-    public CompositeMethod makeMethod(IOpenSourceCodeModule src) throws SyntaxNodeException {
-        return OpenLManager.makeMethod(openl, src, header, bindingContext);
-
+    public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
+        try {
+            return OpenLManager.makeMethod(openl, src, header, bindingContext);
+        } catch (SyntaxNodeException e) {
+            bindingContext.addError(e);
+            return null;
+        }
     }
 }

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmRow;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
@@ -13,7 +15,6 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 
@@ -42,7 +43,8 @@ public final class AlgorithmCompilerTool {
      * @throws SyntaxNodeException
      */
     public static AlgorithmTreeNode extractOperationNode(List<AlgorithmTreeNode> candidateNodes,
-            String instruction) throws SyntaxNodeException {
+            String instruction,
+            IBindingContext bindingContext) {
         AlgorithmTreeNode operationNode = null;
 
         // Get the name of the operation: e.g. VAR, IF, WHILE, etc
@@ -60,9 +62,10 @@ public final class AlgorithmCompilerTool {
                 .getAlgorithmRow()
                 .getOperation()
                 .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils.createError(String
+            BindHelper.processError(String
                 .format("Compilation failure. Cannot find %s in operations sequence %s", operationName, candidateNodes),
-                errorSource);
+                errorSource,
+                bindingContext);
         }
         return operationNode;
     }
@@ -89,7 +92,8 @@ public final class AlgorithmCompilerTool {
      * @throws SyntaxNodeException
      */
     public static StringValue getCellContent(List<AlgorithmTreeNode> candidateNodes,
-            String instruction) throws SyntaxNodeException {
+            String instruction,
+            IBindingContext bindingContext) {
         // Field of the AlgorithmRow.class, that also is the column in the TBasic table
         //
         String fieldName = extractFieldName(instruction);
@@ -101,13 +105,15 @@ public final class AlgorithmCompilerTool {
                 .getAlgorithmRow()
                 .getOperation()
                 .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils
-                .createError(String.format("Compilation failure. Cannot find '%s' field", fieldName), errorSource);
+            BindHelper.processError(String.format("Compilation failure. Cannot find '%s' field", fieldName),
+                errorSource,
+                bindingContext);
+            return new StringValue("");
         }
 
         // Get the operation node from the candidate nodes, that suits to the given instruction
         //
-        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
+        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction, bindingContext);
 
         return (StringValue) codeField.get(executionNode.getAlgorithmRow(), null);
     }
@@ -157,13 +163,13 @@ public final class AlgorithmCompilerTool {
 
     /**
      * @param candidateNodes
-     * @param conversionStep
      * @return
      */
     public static List<AlgorithmTreeNode> getNestedInstructionsBlock(List<AlgorithmTreeNode> candidateNodes,
-            String instruction) throws SyntaxNodeException {
+            String instruction,
+            IBindingContext bindingContext) {
 
-        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction);
+        AlgorithmTreeNode executionNode = extractOperationNode(candidateNodes, instruction, bindingContext);
 
         return executionNode.getChildren();
     }
@@ -174,14 +180,15 @@ public final class AlgorithmCompilerTool {
      * @return
      */
     public static AlgorithmOperationSource getOperationSource(List<AlgorithmTreeNode> nodesToCompile,
-            String instruction) throws SyntaxNodeException {
+            String instruction,
+            IBindingContext bindingContext) {
 
         AlgorithmTreeNode sourceNode;
         String operationValueName = null;
 
         // TODO: set more precise source reference
         if (isOperationFieldInstruction(instruction)) {
-            sourceNode = extractOperationNode(nodesToCompile, instruction);
+            sourceNode = extractOperationNode(nodesToCompile, instruction, bindingContext);
             operationValueName = extractFieldName(instruction);
         } else {
             sourceNode = nodesToCompile.get(0);
