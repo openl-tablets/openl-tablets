@@ -67,19 +67,6 @@ public class OpenLCodeManager {
     }
 
     /**
-     * Makes open class that describes a type.
-     *
-     * @param source source
-     * @param bindingContext binding context
-     * @return {@link IOpenClass} instance
-     */
-    public IOpenClass makeType(IOpenSourceCodeModule source, IBindingContext bindingContext) {
-        IParsedCode parsedCode = openl.getParser().parseAsType(source);
-        IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode);
-        return topNode.getType();
-    }
-
-    /**
      * Makes a method header from source.
      *
      * @param source source

@@ -2,19 +2,16 @@ package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLManager;
+import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.PropertiesHelper;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class DatatypeHelper {
-    private static final Logger LOG = LoggerFactory.getLogger(DatatypeHelper.class);
-
     /**
      * Datatype table can contain no more than 3 columns: 1) First column - type name 2) Second column - field name 3)
      * Third column - default value
@@ -98,25 +95,21 @@ public class DatatypeHelper {
         int height = table.getHeight();
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
 
+        cxt.pushErrors();
         for (int i = 1; i < height; ++i) {
-            try {
-                IOpenClass type = makeType(table.getRow(i), openl, cxt);
-                if (type != null) {
-                    count += 1;
-                }
-            } catch (Exception ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            ILogicalTable row = table.getRow(i);
+            GridCellSourceCodeModule source = new GridCellSourceCodeModule(row.getSource(), cxt);
+            String code = row.getCell(0, 0).getStringValue();
+            if (StringUtils.isBlank(code)) {
+                continue;
+            }
+            IOpenClass type = RuleRowHelper.getType(code, source, cxt);
+            if (type != NullOpenClass.the) {
+                count += 1;
             }
         }
+        cxt.popErrors();
 
         return count;
     }
-
-    private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext bindingContext) {
-
-        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
-
-        return OpenLManager.makeType(openl, source, bindingContext);
-    }
-
 }
