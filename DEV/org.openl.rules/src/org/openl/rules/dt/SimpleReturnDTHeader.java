@@ -32,4 +32,9 @@ class SimpleReturnDTHeader extends DTHeader {
     boolean isReturn() {
         return true;
     }
+
+    @Override
+    boolean isRule() {
+        return false;
+    }
 }

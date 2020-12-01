@@ -83,6 +83,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
         private final List<CellKey> unmatchedColumns = new ArrayList<>();
 
+        private final List<CellKey> ruleColumns = new ArrayList<>();
+
         public Map<CellKey, HeaderMetaInfo> getSimpleRulesConditionMap() {
             return simpleRulesConditionMap;
         }
@@ -103,6 +105,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return unmatchedColumns;
         }
 
+        public List<CellKey> getRuleColumns() {
+            return ruleColumns;
+        }
+
         public void merge(MetaInfoHolder metaInfoHolder) {
             if (metaInfoHolder == null) {
                 return;
@@ -112,6 +118,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             simpleRulesReturnMap.putAll(metaInfoHolder.simpleRulesReturnMap);
             inputParametersToReturn.addAll(metaInfoHolder.inputParametersToReturn);
             unmatchedColumns.addAll(metaInfoHolder.unmatchedColumns);
+            ruleColumns.addAll(metaInfoHolder.ruleColumns);
         }
     }
 
@@ -330,18 +337,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         final List<CellKey> unmatchedColumns = getMetaInfos().getUnmatchedColumns();
         for (CellKey cellKey : unmatchedColumns) {
-            setMetaInfoForUnmatchedColumn(cellKey);
+            setMetaInfoForColumn(cellKey, "Unmatched column");
+        }
+        final List<CellKey> ruleColumns = getMetaInfos().getRuleColumns();
+        for (CellKey cellKey : ruleColumns) {
+            setMetaInfoForColumn(cellKey, "Rule column");
         }
     }
 
-    private void setMetaInfoForUnmatchedColumn(CellKey cellKey) {
+    private void setMetaInfoForColumn(CellKey cellKey, String description) {
         IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
-        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
-            cellValue.length() - 1,
-            "Unmatched column",
-            null,
-            NodeType.OTHER);
+        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, description, null, NodeType.OTHER);
         setPreparedMetaInfo(cellKey.getRow(),
             cellKey.getColumn(),
             new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
@@ -389,8 +396,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
     }
 
-    public void addDescription(int row, int col) {
+    public void addUnmatchedDescription(int row, int col) {
         getMetaInfos().getUnmatchedColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
+    }
+
+    public void addRuleDescription(int row, int col) {
+        getMetaInfos().getRuleColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
     public void addSimpleRulesAction(int row,

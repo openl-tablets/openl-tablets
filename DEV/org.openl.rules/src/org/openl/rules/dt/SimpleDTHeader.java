@@ -3,7 +3,7 @@ package org.openl.rules.dt;
 class SimpleDTHeader extends DTHeader {
 
     private int row;
-    private boolean horizontal;
+    private final boolean horizontal;
     private String title;
 
     SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int width) {
@@ -43,6 +43,11 @@ class SimpleDTHeader extends DTHeader {
 
     @Override
     boolean isReturn() {
+        return false;
+    }
+
+    @Override
+    boolean isRule() {
         return false;
     }
 }

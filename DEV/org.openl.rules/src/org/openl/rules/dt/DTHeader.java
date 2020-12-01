@@ -23,6 +23,8 @@ abstract class DTHeader {
 
     abstract boolean isReturn();
 
+    abstract boolean isRule();
+
     int getWidth() {
         return width;
     }
@@ -57,6 +59,8 @@ abstract class DTHeader {
             return "ACTION";
         } else if (isReturn()) {
             return "RETURN";
+        } else if (isRule()) {
+            return "RULE";
         } else {
             return "UNKNOWN";
         }

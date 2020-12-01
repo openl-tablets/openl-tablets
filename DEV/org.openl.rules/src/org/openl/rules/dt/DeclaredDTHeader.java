@@ -40,6 +40,11 @@ class DeclaredDTHeader extends DTHeader {
         return matchedDefinition.getDtColumnsDefinition().isAction();
     }
 
+    @Override
+    boolean isRule() {
+        return false;
+    }
+
     CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }

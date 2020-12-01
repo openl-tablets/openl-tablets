@@ -4,7 +4,7 @@ import org.openl.rules.fuzzy.OpenLFuzzyUtils.FuzzyResult;
 import org.openl.types.IOpenField;
 
 class FuzzyDTHeader extends DTHeader {
-    private static final int[] RETURN_EMPTY_INDEXES = new int[] {};
+    private static final int[] EMPTY_INDEXES = new int[] {};
 
     private final IOpenField[] fieldsChain;
     private final String title;
@@ -37,7 +37,7 @@ class FuzzyDTHeader extends DTHeader {
             int width,
             FuzzyResult fuzzyResult,
             boolean returnDTHeader) {
-        super(new int[] {}, statement, column, width);
+        super(EMPTY_INDEXES, statement, column, width);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
@@ -77,6 +77,11 @@ class FuzzyDTHeader extends DTHeader {
         return false;
     }
 
+    @Override
+    boolean isRule() {
+        return false;
+    }
+
     boolean isMethodParameterUsed() {
         if (returnDTHeader) {
             return false;
@@ -95,7 +100,7 @@ class FuzzyDTHeader extends DTHeader {
     @Override
     int[] getMethodParameterIndexes() {
         if (returnDTHeader) {
-            return RETURN_EMPTY_INDEXES;
+            return EMPTY_INDEXES;
         }
         return super.getMethodParameterIndexes();
     }
