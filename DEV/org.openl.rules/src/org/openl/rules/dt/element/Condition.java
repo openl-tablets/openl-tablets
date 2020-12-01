@@ -50,6 +50,12 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
+    public IParameterDeclaration[] getParams() {
+        IParameterDeclaration[] params = super.getParams();
+        return params == null ? IParameterDeclaration.EMPTY : params;
+    }
+
+    @Override
     public IConditionEvaluator getConditionEvaluator() {
         return conditionEvaluator;
     }
