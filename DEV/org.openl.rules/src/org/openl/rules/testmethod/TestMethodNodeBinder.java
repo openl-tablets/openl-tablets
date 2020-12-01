@@ -124,7 +124,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             // Check that table type loaded properly.
             //
             if (testMethodOpenClass.getInstanceClass() == null) {
-                String message = String.format("Table '%s' was defined with errors", methodName);
+                String message = String.format("Table '%s' is defined with errors", methodName);
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
             bindingContext.pushErrors();
@@ -169,9 +169,7 @@ public class TestMethodNodeBinder extends DataNodeBinder {
                     throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
                 }
                 bestCaseErrors = Collections.emptyList();
-
             }
-
         }
 
         if (bestCaseTestMethodBoundNode != null) {
