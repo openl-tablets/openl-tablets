@@ -1,8 +1,8 @@
 package org.openl.rules.dt;
 
 class UnmatchedDtHeader extends DTHeader {
-    UnmatchedDtHeader(int[] methodParameterIndexes, String statement, int column, int width) {
-        super(methodParameterIndexes, statement, column, width);
+    UnmatchedDtHeader(String statement, int column, int width) {
+        super(new int[] {}, statement, column, width);
     }
 
     @Override
@@ -22,6 +22,11 @@ class UnmatchedDtHeader extends DTHeader {
 
     @Override
     boolean isReturn() {
+        return false;
+    }
+
+    @Override
+    boolean isRule() {
         return false;
     }
 }
