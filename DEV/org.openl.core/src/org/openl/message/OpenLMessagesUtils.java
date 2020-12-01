@@ -1,12 +1,16 @@
 package org.openl.message;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.util.CollectionUtils;
 
 public class OpenLMessagesUtils {
@@ -58,16 +62,7 @@ public class OpenLMessagesUtils {
     public static List<OpenLMessage> newErrorMessages(Throwable exception) {
         List<OpenLMessage> messages = new ArrayList<>();
 
-        if (exception instanceof CompositeSyntaxNodeException) {
-            CompositeSyntaxNodeException compositeException = (CompositeSyntaxNodeException) exception;
-            OpenLException[] exceptions = compositeException.getErrors();
-
-            for (OpenLException openLException : exceptions) {
-                OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
-                messages.add(errorMessage);
-            }
-
-        } else if (exception instanceof OpenLException) {
+        if (exception instanceof OpenLException) {
             OpenLException openLException = (OpenLException) exception;
             OpenLMessage errorMessage = new OpenLErrorMessage(openLException);
             messages.add(errorMessage);

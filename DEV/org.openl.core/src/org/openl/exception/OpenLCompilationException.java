@@ -6,7 +6,7 @@ import java.io.StringWriter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.util.text.ILocation;
 
 public class OpenLCompilationException extends Exception implements OpenLException {
@@ -104,9 +104,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         String message;
 
-        if (cause instanceof CompositeSyntaxNodeException) {
+        if (cause instanceof CompositeOpenlException) {
 
-            CompositeSyntaxNodeException syntaxErrorException = (CompositeSyntaxNodeException) cause;
+            CompositeOpenlException syntaxErrorException = (CompositeOpenlException) cause;
 
             for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
                 printError(syntaxErrorException.getErrors()[i], writer);

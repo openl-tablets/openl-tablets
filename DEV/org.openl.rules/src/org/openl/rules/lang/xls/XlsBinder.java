@@ -75,7 +75,6 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -396,10 +395,6 @@ public class XlsBinder implements IOpenBinder {
                 propLoader.loadProperties(tsn);
             } catch (SyntaxNodeException error) {
                 processError(error, tsn, bindingContext);
-            } catch (CompositeSyntaxNodeException ex) {
-                for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tsn, bindingContext);
-                }
             } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tsn);
                 processError(error, tsn, bindingContext);
@@ -691,12 +686,6 @@ public class XlsBinder implements IOpenBinder {
                     datatypeTableBoundNode.generateByteCode(rulesModuleBindingContext);
                 } catch (SyntaxNodeException error) {
                     processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
-                } catch (CompositeSyntaxNodeException ex) {
-                    if (ex.getErrors() != null) {
-                        for (SyntaxNodeException error : ex.getErrors()) {
-                            processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
-                        }
-                    }
                 } catch (Exception | LinkageError t) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
                     processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
@@ -744,12 +733,6 @@ public class XlsBinder implements IOpenBinder {
             memberBoundNode.finalizeBind(rulesModuleBindingContext);
         } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-        } catch (CompositeSyntaxNodeException ex) {
-            if (ex.getErrors() != null) {
-                for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tableSyntaxNode, rulesModuleBindingContext);
-                }
-            }
         } catch (Exception | LinkageError t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
@@ -766,13 +749,6 @@ public class XlsBinder implements IOpenBinder {
 
                 } catch (SyntaxNodeException error) {
                     processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
-
-                } catch (CompositeSyntaxNodeException ex) {
-
-                    for (SyntaxNodeException error : ex.getErrors()) {
-                        processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
-                    }
-
                 } catch (Exception | LinkageError t) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
                     processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
@@ -789,10 +765,6 @@ public class XlsBinder implements IOpenBinder {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
         } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-        } catch (CompositeSyntaxNodeException ex) {
-            for (SyntaxNodeException error : ex.getErrors()) {
-                processError(error, tableSyntaxNode, rulesModuleBindingContext);
-            }
         } catch (Exception | LinkageError t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);

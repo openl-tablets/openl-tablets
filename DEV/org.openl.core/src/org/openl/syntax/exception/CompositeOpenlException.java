@@ -8,27 +8,57 @@ import java.util.Collection;
 import org.openl.message.OpenLMessage;
 
 /**
- * Added possibility to handle list of {@link OpenLMessage}.
- *
+ * Handles all errors during compiling OpenL rules. Added possibility to handle list of {@link OpenLMessage}.
  */
-public class CompositeOpenlException extends CompositeSyntaxNodeException {
+public class CompositeOpenlException extends RuntimeException {
 
-    private static final long serialVersionUID = 5130142151601932536L;
-
+    /**
+     * Exception message.
+     */
+    private final String message;
+    /**
+     * Syntax errors.
+     */
+    private final SyntaxNodeException[] errors;
     private Collection<OpenLMessage> errorMessages = new ArrayList<>();
 
     public CompositeOpenlException(String message,
             SyntaxNodeException[] errors,
             Collection<OpenLMessage> errorMessages) {
-        super(message, errors);
+        super(message);
+
+        this.message = message;
+        this.errors = errors;
         if (errorMessages != null) {
             this.errorMessages = new ArrayList<>(errorMessages);
         }
     }
 
+    private String getMessage2() {
+
+        StringWriter stringWriter = new StringWriter();
+        PrintWriter printWriter = new PrintWriter(stringWriter);
+
+        if (message != null) {
+            printWriter.print(message);
+            printWriter.print("\r\n");
+        }
+
+        if (errors != null) {
+            for (SyntaxNodeException error : errors) {
+                printWriter.print(error);
+                printWriter.print("\r\n");
+            }
+        }
+
+        printWriter.close();
+
+        return stringWriter.toString();
+    }
+
     @Override
     public String getMessage() {
-        String superMessage = super.getMessage();
+        String superMessage = getMessage2();
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
@@ -47,5 +77,14 @@ public class CompositeOpenlException extends CompositeSyntaxNodeException {
 
     public OpenLMessage[] getErrorMessages() {
         return new ArrayList<>(errorMessages).toArray(new OpenLMessage[errorMessages.size()]);
+    }
+
+    /**
+     * Gets syntax errors.
+     *
+     * @return syntax errors
+     */
+    public SyntaxNodeException[] getErrors() {
+        return errors;
     }
 }

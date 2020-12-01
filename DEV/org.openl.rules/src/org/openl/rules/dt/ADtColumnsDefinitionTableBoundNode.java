@@ -35,8 +35,6 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -258,20 +256,13 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             int d,
             int z) {
         IOpenMethodHeader header;
-        try {
-            String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
-            String headerCode = prefix + signatureCode + ")";
-            header = OpenLManager.makeMethodHeader(getOpenl(),
-                new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
-                dtHeaderBindingContext);
-            if (!cxt.isExecutionMode()) {
-                addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
-            }
-        } catch (CompositeSyntaxNodeException e) {
-            GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable, cxt);
-            String errorMessage = String.format("Failed to parse the cell '%s'", eGridCellSourceCodeModule.getCode());
-            BindHelper.processError(errorMessage, e, eGridCellSourceCodeModule, cxt);
-            return;
+        String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
+        String headerCode = prefix + signatureCode + ")";
+        header = OpenLManager.makeMethodHeader(getOpenl(),
+            new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
+            dtHeaderBindingContext);
+        if (!cxt.isExecutionMode()) {
+            addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
         }
         int j = 0;
         int j1 = 0;
@@ -364,17 +355,12 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
         GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable, cxt);
 
-        CompositeMethod compositeMethod = null;
-        try {
-            compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
-                expressionCellSourceCodeModule,
-                header.getName(),
-                newSignature,
-                getXlsModuleOpenClass(),
-                dtHeaderBindingContext);
-        } catch (SyntaxNodeException e) {
-            cxt.addError(e);
-        }
+        CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
+            expressionCellSourceCodeModule,
+            header.getName(),
+            newSignature,
+            getXlsModuleOpenClass(),
+            dtHeaderBindingContext);
 
         validate(header, localParameters, expressionCellSourceCodeModule, compositeMethod, cxt);
 
