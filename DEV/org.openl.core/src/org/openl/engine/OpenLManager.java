@@ -22,19 +22,6 @@ public final class OpenLManager {
     }
 
     /**
-     * Makes open class that describes a type.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param bindingContext binding context
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass makeType(OpenL openl, IOpenSourceCodeModule source, IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeType(source, bindingContext);
-    }
-
-    /**
      * Makes a method from source using method header descriptor.
      *
      * @param openl OpenL engine context
@@ -136,24 +123,5 @@ public final class OpenLManager {
     public static Object run(OpenL openl, IOpenSourceCodeModule source) {
         OpenLRunManager runManager = new OpenLRunManager(openl);
         return runManager.run(source);
-    }
-
-    /**
-     * Compiles and runs specified method.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodName method name
-     * @param paramTypes parameters types
-     * @param params parameters values
-     * @return result of method execution
-     */
-    public static Object runMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            String methodName,
-            IOpenClass[] paramTypes,
-            Object[] params) {
-        OpenLRunManager runManager = new OpenLRunManager(openl);
-        return runManager.runMethod(source, methodName, paramTypes, params);
     }
 }
