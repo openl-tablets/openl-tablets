@@ -21,7 +21,6 @@ import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.property.PropertyTableBoundNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.xls.RulesCompileContext;
@@ -48,10 +47,6 @@ public class XlsPreBinder extends XlsBinder {
                 memberBoundNode.finalizeBind(rulesModuleBindingContext);
             } catch (SyntaxNodeException error) {
                 processError(error, tableSyntaxNode, rulesModuleBindingContext);
-            } catch (CompositeSyntaxNodeException ex) {
-                for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tableSyntaxNode, rulesModuleBindingContext);
-                }
             } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
                 processError(error, tableSyntaxNode, rulesModuleBindingContext);

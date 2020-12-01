@@ -16,6 +16,7 @@ import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.MessageUtils;
 import org.openl.util.OpenClassUtils;
@@ -110,7 +111,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenSourceCodeModule headerSyntaxNode = null;
             // Return type
             IOpenClass type = OpenClassUtils.getRootComponentClass(tableHeader.getType());
-            if (type.getInstanceClass() == null) {
+            if (type != NullOpenClass.the && type.getInstanceClass() == null) {
                 headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
                 addTypeError(bindingContext, type, tableHeader.getTypeLocation(), headerSyntaxNode);
             }

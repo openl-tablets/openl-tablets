@@ -19,14 +19,11 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.NoParamMethodField;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
 import org.openl.types.impl.DynamicObjectField;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
@@ -274,23 +271,15 @@ public class AlgorithmCompiler {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
 
-        try {
-            return OpenLManager
-                .makeMethodWithUnknownType(openl,
-                    src,
-                    "cell_" + fieldContent.getValue(),
-                    signature,
-                    thisTargetClass,
-                    getAlgorithmBindingContext())
-                .getMethod()
-                .getType();
-        } catch (CompositeSyntaxNodeException e) {
-            BindHelper.processError(e, bindingContext);
-            return NullOpenClass.the;
-        } catch (SyntaxNodeException e) {
-            bindingContext.addError(e);
-            return NullOpenClass.the;
-        }
+        return OpenLManager
+            .makeMethodWithUnknownType(openl,
+                src,
+                "cell_" + fieldContent.getValue(),
+                signature,
+                thisTargetClass,
+                getAlgorithmBindingContext())
+            .getMethod()
+            .getType();
     }
 
     private void initialization(Algorithm algorithm, IBindingContext bindingContext) {
@@ -319,33 +308,17 @@ public class AlgorithmCompiler {
         IMethodSignature signature = header.getSignature();
         IBindingContext cxt = getAlgorithmBindingContext();
 
-        try {
-            return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
-        } catch (CompositeSyntaxNodeException e) {
-            BindHelper.processError(e, cxt);
-            return null;
-        } catch (SyntaxNodeException e) {
-            cxt.addError(e);
-            return null;
-        }
+        return OpenLManager.makeMethodWithUnknownType(openl, src, methodName, signature, thisTargetClass, cxt);
     }
 
     public IMethodCaller makeMethodWithCast(IOpenSourceCodeModule src, String methodName, IOpenClass returnType) {
         OpenL openl = context.getOpenL();
         IMethodSignature signature = header.getSignature();
         // create method header for newly created method
-        OpenMethodHeader openMethodHeader = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
+        OpenMethodHeader header = new OpenMethodHeader(methodName, returnType, signature, thisTargetClass);
 
         IBindingContext cxt = getAlgorithmBindingContext();
-        try {
-            return OpenLManager.makeMethod(openl, src, openMethodHeader, cxt);
-        } catch (CompositeSyntaxNodeException e) {
-            BindHelper.processError(e, cxt);
-            return null;
-        } catch (SyntaxNodeException e) {
-            cxt.addError(e);
-            return null;
-        }
+        return OpenLManager.makeMethod(openl, src, header, cxt);
 
     }
 

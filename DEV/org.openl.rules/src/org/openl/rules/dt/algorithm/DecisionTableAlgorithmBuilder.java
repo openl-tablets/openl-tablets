@@ -20,7 +20,6 @@ import org.openl.rules.dt.element.IAction;
 import org.openl.rules.dt.element.ICondition;
 import org.openl.rules.dt.element.RuleRow;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
@@ -205,9 +204,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 ruleRow,
                 ruleExecutionType,
                 table.getSyntaxNode());
-        } catch (CompositeSyntaxNodeException e) {
-            BindHelper.processError(e, bindingContext);
-            return DefaultConditionEvaluator.INSTANCE;
         } catch (Exception e) {
             BindHelper.processError(e, table.getSyntaxNode().getModule(), bindingContext);
             return DefaultConditionEvaluator.INSTANCE;

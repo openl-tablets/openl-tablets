@@ -2,7 +2,6 @@ package org.openl.syntax.exception;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
@@ -58,25 +57,6 @@ public class SyntaxNodeExceptionUtils {
 
     public static SyntaxNodeException createError(Throwable ex, ISyntaxNode syntaxNode) {
         return createError(formatErrorMessage(ex), ex, syntaxNode);
-    }
-
-    public static boolean isErrorPresented(SyntaxNodeException e, SyntaxNodeException[] errors) {
-        for (SyntaxNodeException sne : errors) {
-            if (Objects.equals(sne.getLocation(), e.getLocation()) && Objects.equals(e.getMessage(),
-                sne.getMessage())) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    public static boolean isErrorPresented(CompositeSyntaxNodeException e, SyntaxNodeException[] errors) {
-        for (SyntaxNodeException sne : e.getErrors()) {
-            if (isErrorPresented(sne, errors)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private static String formatErrorMessage(Throwable ex) {

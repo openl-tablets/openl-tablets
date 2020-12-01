@@ -2,6 +2,7 @@ package org.openl.rules.constants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -24,9 +25,10 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.utils.ParserUtils;
 import org.openl.rules.utils.TableNameChecker;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.StringUtils;
@@ -103,11 +105,24 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                 new MethodSignature(),
                 null);
             try {
-                objectValue = OpenLManager.makeMethod(openl, source, methodHeader, cxt)
-                    .invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
-            } catch (CompositeSyntaxNodeException ex) {
-                BindHelper.processError(ex, cxt);
-                objectValue = null;
+                boolean noErrors;
+                CompositeMethod compositeMethod;
+                cxt.pushErrors();
+                // cxt.pushMessages();
+                try {
+                    compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
+                } finally {
+
+                    // cxt.popMessages();
+                    List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
+                    noErrors = syntaxNodeExceptions.isEmpty();
+                    syntaxNodeExceptions.forEach(cxt::addError);
+                }
+                if (noErrors) {
+                    objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
+                } else {
+                    objectValue = null;
+                }
             } catch (Exception ex) {
                 BindHelper.processError(ex, defaultValueSrc, cxt);
                 objectValue = null;
