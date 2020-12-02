@@ -1,4 +1,7 @@
-ERROR: Binding Error:
-ERROR: Binding Error:
-ERROR: Binding Error:
+ERROR: Type 'BeanB' is not found.
+ERROR: Type 'BeanB' is not found.
+ERROR: Type 'BeanB' is not found.
+ERROR: Cannot load type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanB'.
+ERROR: Cannot load type 'org.openl.beans.BeanB'.
 ERROR: Cannot load type 'org.openl.beans.BeanB'.

@@ -3,8 +3,27 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 
@@ -69,7 +88,6 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -2995,6 +3013,8 @@ public final class DecisionTableHelper {
                 }
                 if (RuleRowHelper.isFormula(value) && !isRangeType) {
                     try {
+                        bindingContext.pushErrors();
+                        bindingContext.pushMessages();
                         StringSourceCodeModule expressionCellSourceCodeModule = new StringSourceCodeModule(
                             value.substring(value.indexOf("=")).trim(),
                             null);
@@ -3024,7 +3044,9 @@ public final class DecisionTableHelper {
                             isNotParsableAsSingleRangeButParsableAsRangesArrayFlag = true;
                         }
 
-                    } catch (CompositeSyntaxNodeException | SyntaxNodeException ignored) {
+                    } finally {
+                        bindingContext.popMessages();
+                        bindingContext.popErrors();
                     }
                     h[valueNum][cellNum] = false;
                     continue;

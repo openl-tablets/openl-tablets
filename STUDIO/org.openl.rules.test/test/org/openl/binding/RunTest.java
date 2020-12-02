@@ -15,7 +15,7 @@ import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.CompositeOpenlException;
 
 public class RunTest {
     private static Object runExpression(String expression) {
@@ -42,7 +42,7 @@ public class RunTest {
         try {
             runExpression(expr);
             Assert.fail("Non-reachable");
-        } catch (CompositeSyntaxNodeException t) {
+        } catch (CompositeOpenlException t) {
             Assert.assertEquals(expected, t.getErrors()[0].getMessage());
         } catch (Exception t) {
             Assert.assertEquals(expected, t.getMessage());

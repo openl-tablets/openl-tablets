@@ -5,7 +5,6 @@ import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -50,11 +49,6 @@ public class OpenlToolAdaptor {
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
-        try {
-            return OpenLManager.makeMethod(openl, src, header, bindingContext);
-        } catch (SyntaxNodeException e) {
-            bindingContext.addError(e);
-            return null;
-        }
+        return OpenLManager.makeMethod(openl, src, header, bindingContext);
     }
 }
