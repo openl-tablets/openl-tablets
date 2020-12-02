@@ -42,29 +42,4 @@ public class MethodFilter {
             Collections.addAll(excludes, patterns);
         }
     }
-
-    public void removeAllExcludePatterns() {
-        if (excludes != null) {
-            this.excludes.clear();
-        }
-    }
-
-    public void removeAllIncludePatterns() {
-        if (includes != null) {
-            this.includes.clear();
-        }
-    }
-
-    public void removeIncludePattern(String pattern) {
-        if (includes != null) {
-            this.includes.remove(pattern);
-        }
-    }
-
-    public void removeExcludePattern(String pattern) {
-        if (excludes != null) {
-            this.excludes.remove(pattern);
-        }
-    }
-
 }
