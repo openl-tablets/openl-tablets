@@ -26,10 +26,6 @@ import org.openl.util.StringUtils;
  * @author Andrei Astrouski
  */
 public class HTMLRenderer {
-
-    /** New line */
-    public static final String NL = "\n";
-
     public static final int ALL_ROWS = -1;
     public static final int MAX_NUM_CELLS = 5000;
 
