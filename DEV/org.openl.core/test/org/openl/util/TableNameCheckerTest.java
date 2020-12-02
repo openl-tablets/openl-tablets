@@ -1,4 +1,4 @@
-package org.openl.rules.utils;
+package org.openl.util;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;

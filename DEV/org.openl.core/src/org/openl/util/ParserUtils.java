@@ -1,4 +1,4 @@
-package org.openl.rules.utils;
+package org.openl.util;
 
 import org.openl.util.StringUtils;
 
