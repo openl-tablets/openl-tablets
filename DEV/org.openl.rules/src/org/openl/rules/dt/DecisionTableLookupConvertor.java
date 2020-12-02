@@ -12,7 +12,7 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.TransformedGridTable;
-import org.openl.rules.utils.ParserUtils;
+import org.openl.util.ParserUtils;
 
 /**
  * Lookup table is a decision table that is created by transforming lookup tables to create a single-column return
