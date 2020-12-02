@@ -8,7 +8,7 @@ public class RowIdField extends AOpenField {
 
     public static final String ROW_ID = "_id_";
 
-    private ITable table;
+    private final ITable table;
 
     public RowIdField(ITable table) {
         super(ROW_ID, JavaOpenClass.STRING);
