@@ -68,6 +68,11 @@ public final class BindHelper {
         bindingContext.addError(error);
     }
 
+    public static void processError(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(e, node);
+        bindingContext.addError(syntaxNodeException);
+    }
+
     private static final Collection<String> EQUAL_OPERATORS = Collections
         .unmodifiableCollection(Arrays.asList("op.binary.eq",
             "op.binary.strict_eq",
@@ -219,4 +224,5 @@ public final class BindHelper {
         return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
 
     }
+
 }
