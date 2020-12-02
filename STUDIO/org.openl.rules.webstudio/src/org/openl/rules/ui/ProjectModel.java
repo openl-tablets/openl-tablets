@@ -221,16 +221,6 @@ public class ProjectModel {
     }
 
     public IOpenMethod getMethod(String tableUri) {
-        TableSyntaxNode tsn = getNode(tableUri);
-        if (tsn == null) {
-            return null;
-        }
-
-        return getMethod(tsn);
-    }
-
-    public IOpenMethod getMethod(TableSyntaxNode tsn) {
-
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
@@ -241,9 +231,9 @@ public class ProjectModel {
             IOpenMethod resolvedMethod = null;
 
             if (method instanceof OpenMethodDispatcher) {
-                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
+                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
             } else {
-                resolvedMethod = resolveMethod(method, tsn);
+                resolvedMethod = resolveMethod(method, tableUri);
             }
 
             if (resolvedMethod != null) {
@@ -254,18 +244,19 @@ public class ProjectModel {
         // for methods that exist in module but not included in
         // CompiledOpenClass
         // e.g. elder inactive versions of methods
-        if (tsn.getMember() instanceof IOpenMethod) {
+        TableSyntaxNode tsn = getNode(tableUri);
+        if (tsn != null && tsn.getMember() instanceof IOpenMethod) {
             return (IOpenMethod) tsn.getMember();
         }
 
         return null;
     }
 
-    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -275,11 +266,11 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -289,9 +280,9 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
-        if (isInstanceOfTable(method, syntaxNode)) {
+        if (isInstanceOfTable(method, uri)) {
             return method;
         }
 
@@ -304,15 +295,14 @@ public class ProjectModel {
      * {@link OpenMethodDispatcher} <code>false</code> value will be returned.
      *
      * @param method method to check
-     * @param syntaxNode syntax node
      * @return <code>true</code> if {@link IOpenMethod} object represents the given table syntax node;
      *         <code>false</code> - otherwise
      */
-    private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private boolean isInstanceOfTable(IOpenMethod method, String uri) {
 
         IMemberMetaInfo metaInfo = method.getInfo();
 
-        return metaInfo != null && metaInfo.getSyntaxNode() == syntaxNode;
+        return metaInfo != null && uri.equals(metaInfo.getSourceUrl());
     }
 
     public TableSyntaxNode getNode(String tableUri) {
@@ -555,8 +545,8 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isTestable(TableSyntaxNode tsn) {
-        IOpenMethod m = getMethod(tsn);
+    public boolean isTestable(String uri) {
+        IOpenMethod m = getMethod(uri);
         if (m == null) {
             return false;
         }
@@ -731,7 +721,7 @@ public class ProjectModel {
         if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = element.getTableSyntaxNode();
             url = WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
-            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode())) {
+            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode().getUri())) {
                 state = 2; // has tests
             }
 
@@ -1435,8 +1425,7 @@ public class ProjectModel {
     }
 
     public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
-        TableSyntaxNode tsn = getNode(uri);
-        return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
+        return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
 
     private boolean isVirtualWorkbook() {
