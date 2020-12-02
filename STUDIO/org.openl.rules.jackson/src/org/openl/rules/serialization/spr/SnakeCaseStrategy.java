@@ -10,7 +10,7 @@ package org.openl.rules.serialization.spr;
  * #L%
  */
 
-public class LowerCaseStrategy extends SpreadsheetResultBeanPropertyNamingStrategyBase {
+public class SnakeCaseStrategy extends SpreadsheetResultBeanPropertyNamingStrategyBase {
     @Override
     protected String transform(String name) {
         if (name == null || name.length() == 0) {
@@ -21,6 +21,6 @@ public class LowerCaseStrategy extends SpreadsheetResultBeanPropertyNamingStrate
 
     @Override
     protected String transform(String column, String row) {
-        return transform(column + row);
+        return transform(column) + "_" + transform(row);
     }
 }
