@@ -11,6 +11,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import org.openl.info.SysInfo;
 import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,6 +59,14 @@ public class AdminRestController {
         return Response.ok(info).build();
     }
 
+    /**
+     * @return a list of descriptions of published OpenL services with serverSettings.
+     */
+    @GET
+    @Path("/sys")
+    public Response getSysInfo() {
+        return Response.ok(SysInfo.get()).build();
+    }
     /**
      * @return a list of method descriptors of the given OpenL service.
      */
