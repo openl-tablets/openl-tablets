@@ -39,6 +39,18 @@ public class DataTypeConverterTest {
             .filter(x -> x.getName().equals("DriverRisk"))
             .findFirst();
         assertTrue(driverRisk.isPresent());
+
+        List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> apiBla = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("apiBla"))
+            .findFirst();
+        assertTrue(apiBla.isPresent());
+        SpreadsheetModel model = apiBla.get();
+        List<StepModel> steps = model.getSteps();
+        assertEquals(1, steps.size());
+        StepModel resultStep = steps.iterator().next();
+        assertEquals("Result", resultStep.getName());
+        assertEquals("=new DriverRisk()", resultStep.getValue());
     }
 
     @Test
