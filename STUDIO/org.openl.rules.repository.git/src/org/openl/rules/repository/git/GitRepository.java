@@ -1535,6 +1535,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         trees[parentsNum] = commit.getTree();
         tw.reset(trees);
 
+        int[] changes = new int[parentsNum];
+
         while (tw.next()) {
             if (parentsNum == 0) {
                 // Path is changed but there are no parents. It's a first commit.
@@ -1546,8 +1548,45 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 int parentMode = tw.getRawMode(i);
                 if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
                     // Path configured in tw was changed
-                    return true;
+                    changes[i]++;
                 }
+            }
+        }
+
+        if (parentsNum == 0) {
+            return false;
+        } else if (parentsNum == 1) {
+            return changes[0] > 0;
+        } else {
+            boolean allChanged = true;
+            boolean anyChanged = false;
+
+            for (int change : changes) {
+                if (change == 0) {
+                    allChanged = false;
+                } else {
+                    anyChanged = true;
+                }
+            }
+            if (allChanged) {
+                // Merge commit is modified comparing to both parents. Definitely we must show it in history.
+                return true;
+            }
+            if (anyChanged) {
+                // Merge commit is same as one of the parents for inspecting path.
+                // It can be in two cases:
+                // 1) it's a merge commit with overwriting changes of a user (ours or theirs).
+                // 2) merge commit doesn't introduce anything related to our path (merged changes are for other
+                // paths not related to the path interesting to us).
+                String fullMessage = commit.getFullMessage();
+                // We assume that if some of the parents contains a change, and message contains "conflict" word,
+                // then probably someone overwrites other user's changes in our project. So we should show that
+                // commit in history to show that overwrite step.
+                //
+                // Otherwise (if we don't contain "conflict" word), most probably that just means that their branch
+                // doesn't contain changes from our branch so that Merge commit isn't interesting for us because it
+                // doesn't introduce any change to our branch.
+                return fullMessage.contains("conflict") || fullMessage.contains("Conflict");
             }
         }
 
