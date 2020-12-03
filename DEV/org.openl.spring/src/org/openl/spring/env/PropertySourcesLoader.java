@@ -97,6 +97,8 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         DisablePropertySource disablePropertySource = new DisablePropertySource(propertySources);
         DisablePropertySource.THE = disablePropertySource;
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, disablePropertySource);
+
+        propertySources.addFirst(new SysInfoPropertySource());
     }
 
     private static String normalizeAppName(String appName) {
