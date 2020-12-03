@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.openl.util.CollectionUtils;
@@ -36,6 +37,8 @@ public class OpenAPITypeUtils {
     public static final String LONG_PRIMITIVE = "long";
     public static final String BIG_DECIMAL = "BigDecimal";
     public static final String BIG_INTEGER = "BigInteger";
+
+    public static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
 
     private OpenAPITypeUtils() {
     }
@@ -267,8 +270,7 @@ public class OpenAPITypeUtils {
                 properties.forEach(allProperties::putIfAbsent);
             }
             if (parentSchema instanceof ComposedSchema) {
-                getAllProperties((ComposedSchema) parentSchema, openAPI)
-                    .forEach(allProperties::putIfAbsent);
+                getAllProperties((ComposedSchema) parentSchema, openAPI).forEach(allProperties::putIfAbsent);
             }
         }
         if (cs != null) {
@@ -278,6 +280,10 @@ public class OpenAPITypeUtils {
             }
         }
         return allProperties;
+    }
+
+    public static String removeArrayBrackets(String type) {
+        return ARRAY_MATCHER.matcher(type).replaceAll("");
     }
 
     private static boolean isComposedSchema(Schema<?> schema) {

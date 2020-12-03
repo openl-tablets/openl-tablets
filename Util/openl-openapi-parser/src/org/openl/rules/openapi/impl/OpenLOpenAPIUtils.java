@@ -1,6 +1,5 @@
 package org.openl.rules.openapi.impl;
 
-import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.ARRAY_MATCHER;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 
 import java.util.ArrayList;
@@ -663,7 +662,7 @@ public class OpenLOpenAPIUtils {
                 } else {
                     String parameter = type;
                     if (type.endsWith("[]")) {
-                        parameter = ARRAY_MATCHER.matcher(type).replaceAll("");
+                        parameter = OpenAPITypeUtils.removeArrayBrackets(type);
                     }
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
                         parameter += "Param";
