@@ -65,7 +65,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
-        String newConfigName = RepositoryEditor.getNewConfigName(getProductionRepositoryConfigurations(), RepositoryMode.PRODUCTION.toString());
+        String newConfigName = RepositoryEditor.getNewConfigName(getProductionRepositoryConfigurations(), RepositoryMode.PRODUCTION.getId());
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, repositoryConfiguration);
         repoConfig.commit();
         return repoConfig;
@@ -77,7 +77,7 @@ public abstract class AbstractProductionRepoController {
     }
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
-        RepositoryConfiguration rc = new RepositoryConfiguration(RepositoryMode.PRODUCTION.toString(), properties);
+        RepositoryConfiguration rc = new RepositoryConfiguration(RepositoryMode.PRODUCTION.getId(), properties);
         rc.setType(RepositoryType.DB.name().toLowerCase());
         return rc;
     }

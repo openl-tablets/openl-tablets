@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.web.install;
 
+import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
 import java.io.Closeable;
@@ -18,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Objects;
 import java.util.Properties;
 
 import javax.annotation.PostConstruct;
@@ -174,11 +176,11 @@ public class InstallWizard implements Serializable {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    validateConnectionToDesignRepo(designRepositoryConfiguration, RepositoryMode.DESIGN.toString());
+                    String designRepoId = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORY_CONFIGS)).split("\\s*,\\s*")[0];
+                    validateConnectionToDesignRepo(designRepositoryConfiguration, designRepoId);
 
                     if (!isUseDesignRepo()) {
-                        RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, RepositoryMode.DEPLOY_CONFIG.toString());
+                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, "deploy-config");
                     }
 
                     productionRepositoryEditor.validate();
@@ -192,12 +194,13 @@ public class InstallWizard implements Serializable {
             ++step;
             if (step == 2) {
                 // Get defaults
-                designRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DESIGN.toString(), properties);
+                String designRepoId = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORY_CONFIGS)).split("\\s*,\\s*")[0];
+                designRepositoryConfiguration = new RepositoryConfiguration(designRepoId, properties);
                 if (designRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(designRepositoryConfiguration.getErrorMessage());
                 }
 
-                deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.toString(),
+                deployConfigRepositoryConfiguration = new RepositoryConfiguration("deploy-config",
                     properties);
                 if (deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                     log.error(deployConfigRepositoryConfiguration.getErrorMessage());
@@ -923,7 +926,8 @@ public class InstallWizard implements Serializable {
 
     public void setUseDesignRepo(boolean useDesignRepo) {
         // TODO: We should point specific design repository
-        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? RepositoryMode.DESIGN.toString() : null);
+        String designRepoId = Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORY_CONFIGS)).split("\\s*,\\s*")[0];
+        properties.setProperty(DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG, useDesignRepo ? designRepoId : null);
     }
 
     public FolderStructureSettings getDesignFolderStructure() {

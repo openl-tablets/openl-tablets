@@ -128,7 +128,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                     deployConfigRepository = ((FolderMapper) repository).getDelegate();
                 }
             } else {
-                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.toString(),
+                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
                     flatDeployConfig, deploymentConfigurationLocation);
             }
 
@@ -154,7 +154,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                repo = MappedRepository.create(delegate, RepositoryMode.getType(configName), baseFolder, repositorySettings);
+                repo = MappedRepository.create(delegate, baseFolder, repositorySettings);
             }
 
             return repo;

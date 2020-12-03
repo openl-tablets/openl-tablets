@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.dtr.impl;
 
 import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
@@ -34,21 +33,18 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     private volatile ProjectIndex externalToInternal = new ProjectIndex();
 
-    private RepositoryMode repositoryMode;
     private String configFile;
     private String baseFolder;
     private RepositorySettings repositorySettings;
     private Date settingsSyncDate = new Date();
 
     public static Repository create(FolderRepository delegate,
-                                    RepositoryMode repositoryMode,
                                     String baseFolder,
                                     RepositorySettings repositorySettings) throws RRepositoryException {
         MappedRepository mappedRepository = new MappedRepository();
         mappedRepository.setDelegate(delegate);
-        mappedRepository.setRepositoryMode(repositoryMode);
         mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.yaml");
-        mappedRepository.setBaseFolder(baseFolder);
+        mappedRepository.setBaseFolder(baseFolder);П
         mappedRepository.setRepositorySettings(repositorySettings);
         mappedRepository.initialize();
         return mappedRepository;
@@ -72,10 +68,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
     public void setDelegate(FolderRepository delegate) {
         this.delegate = delegate;
-    }
-
-    private void setRepositoryMode(RepositoryMode repositoryMode) {
-        this.repositoryMode = repositoryMode;
     }
 
     private void setConfigFile(String configFile) {
@@ -194,7 +186,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                     refreshMapping();
 
                     ProjectIndex projectIndex = externalToInternal.copy();
-                    boolean modified = syncProjectIndex(delegate, repositoryMode, projectIndex);
+                    boolean modified = syncProjectIndex(delegate, projectIndex);
                     if (modified) {
                         saveProjectIndex(projectIndex);
                     }
@@ -409,7 +401,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
 
         MappedRepository mappedRepository = new MappedRepository();
         mappedRepository.setDelegate((FolderRepository) delegateForBranch);
-        mappedRepository.setRepositoryMode(repositoryMode);
         mappedRepository.setConfigFile(configFile);
         mappedRepository.setBaseFolder(baseFolder);
         mappedRepository.setRepositorySettings(repositorySettings);
@@ -670,21 +661,19 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      * Load mapping from properties file.
      *
      * @param delegate       original repository
-     * @param repositoryMode Repository mode: design or deploy config.
      * @param configFile     properties file
      * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return loaded mapping
      * @throws IOException if it was any error during operation
      */
     private ProjectIndex readExternalToInternalMap(FolderRepository delegate,
-                                                   RepositoryMode repositoryMode,
                                                    String configFile,
                                                    String baseFolder) throws IOException {
         baseFolder = StringUtils.isBlank(baseFolder) ? "" : baseFolder.endsWith("/") ? baseFolder : baseFolder + "/";
         FileItem fileItem = repositorySettings.getRepository().read(configFile);
         if (fileItem == null) {
             log.debug("Repository configuration file {} is not found.", configFile);
-            return generateExternalToInternalMap(delegate, repositoryMode, baseFolder);
+            return generateExternalToInternalMap(delegate, baseFolder);
         }
 
         if (settingsSyncDate.before(fileItem.getData().getModifiedAt())) {
@@ -711,59 +700,56 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     }
 
     private boolean syncProjectIndex(FolderRepository delegate,
-                                     RepositoryMode repositoryMode,
                                      ProjectIndex projectIndex) throws IOException {
         boolean modified = false;
-        if (repositoryMode == RepositoryMode.DESIGN) {
-            for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
-                ProjectInfo project = iterator.next();
+        for (Iterator<ProjectInfo> iterator = projectIndex.getProjects().iterator(); iterator.hasNext(); ) {
+            ProjectInfo project = iterator.next();
 
-                if (delegate.check(project.getPath()) == null) {
-                    // Folder was removed.
-                    iterator.remove();
-                    modified = true;
-                    log.info("Sync project index: remove project '{}' with path '{}'",
-                            project.getName(),
-                            project.getPath());
-                } else {
-                    Date modifiedAt = project.getModifiedAt();
-                    String fullName = project.getPath() + "/rules.xml";
-                    FileData fileData = delegate.check(fullName);
+            if (delegate.check(project.getPath()) == null) {
+                // Folder was removed.
+                iterator.remove();
+                modified = true;
+                log.info("Sync project index: remove project '{}' with path '{}'",
+                        project.getName(),
+                        project.getPath());
+            } else {
+                Date modifiedAt = project.getModifiedAt();
+                String fullName = project.getPath() + "/rules.xml";
+                FileData fileData = delegate.check(fullName);
 
-                    if (fileData != null) {
-                        if (modifiedAt == null || !modifiedAt.equals(fileData.getModifiedAt())) {
-                            // rules.xml was modified. Need to update modification date and project name.
-                            project.setModifiedAt(fileData.getModifiedAt());
+                if (fileData != null) {
+                    if (modifiedAt == null || !modifiedAt.equals(fileData.getModifiedAt())) {
+                        // rules.xml was modified. Need to update modification date and project name.
+                        project.setModifiedAt(fileData.getModifiedAt());
 
-                            FileItem descriptorItem = delegate.read(fullName);
-                            try (InputStream is = descriptorItem.getStream()) {
-                                project.setName(getProjectName(is));
-                            }
-                            log.info("Sync project index: update name to '{}' the project in path '{}'",
-                                    project.getName(),
-                                    project.getPath());
-                            modified = true;
+                        FileItem descriptorItem = delegate.read(fullName);
+                        try (InputStream is = descriptorItem.getStream()) {
+                            project.setName(getProjectName(is));
                         }
+                        log.info("Sync project index: update name to '{}' the project in path '{}'",
+                                project.getName(),
+                                project.getPath());
+                        modified = true;
+                    }
+                } else {
+                    // If we don't have rules.xml, the project name will be folder name.
+                    String path = project.getPath();
+                    String folderName = path.substring(path.lastIndexOf('/') + 1);
+                    if (modifiedAt != null) {
+                        // rules.xml was exist before but now it's removed
+                        project.setModifiedAt(null);
+                        project.setName(folderName);
+                        modified = true;
+                        log.info("Sync project index: update name to '{}' the project in path '{}'",
+                                project.getName(),
+                                project.getPath());
                     } else {
-                        // If we don't have rules.xml, the project name will be folder name.
-                        String path = project.getPath();
-                        String folderName = path.substring(path.lastIndexOf('/') + 1);
-                        if (modifiedAt != null) {
-                            // rules.xml was exist before but now it's removed
-                            project.setModifiedAt(null);
+                        if (!project.getName().equals(folderName)) {
                             project.setName(folderName);
                             modified = true;
-                            log.info("Sync project index: update name to '{}' the project in path '{}'",
+                            log.info("Sync project index: update name to '{}' the project in path {}",
                                     project.getName(),
                                     project.getPath());
-                        } else {
-                            if (!project.getName().equals(folderName)) {
-                                project.setName(folderName);
-                                modified = true;
-                                log.info("Sync project index: update name to '{}' the project in path {}",
-                                        project.getName(),
-                                        project.getPath());
-                            }
                         }
                     }
                 }
@@ -801,13 +787,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
      * to them
      *
      * @param delegate       repository to detect projects
-     * @param repositoryMode repository mode. If design repository, rules.xml will be searched, otherwise
      *                       {@link ArtefactProperties#DESCRIPTORS_FILE}
      * @param baseFolder     virtual base folder. WebStudio will think that projects can be found in this folder.
      * @return generated mapping
      */
     private ProjectIndex generateExternalToInternalMap(FolderRepository delegate,
-                                                       RepositoryMode repositoryMode,
                                                        String baseFolder) throws IOException {
         ProjectIndex externalToInternal = new ProjectIndex();
         List<FileData> allFiles = delegate.list("");
@@ -818,36 +802,20 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
                 continue;
             }
             String fileName = nameParts[nameParts.length - 1];
-            if (repositoryMode == RepositoryMode.DESIGN) {
-                if ("rules.xml".equals(fileName)) {
-                    FileItem fileItem = delegate.read(fullName);
-                    try (InputStream stream = fileItem.getStream()) {
-                        String projectName = getProjectName(stream);
-                        String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
+            if ("rules.xml".equals(fileName)) {
+                FileItem fileItem = delegate.read(fullName);
+                try (InputStream stream = fileItem.getStream()) {
+                    String projectName = getProjectName(stream);
+                    String externalPath = createUniquePath(externalToInternal, baseFolder + projectName);
 
-                        int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
-                        String path = fullName.substring(0, fullName.length() - cutSize);
-                        ProjectInfo project = new ProjectInfo(externalPath.substring(baseFolder.length()), path);
-                        project.setModifiedAt(fileItem.getData().getModifiedAt());
-                        externalToInternal.getProjects().add(project);
-                    }
-                }
-            } else if (repositoryMode == RepositoryMode.DEPLOY_CONFIG) {
-                if (ArtefactProperties.DESCRIPTORS_FILE.equals(fileName)) {
-                    if (nameParts.length < 2) {
-                        continue;
-                    }
-
-                    String deployConfigName = nameParts[nameParts.length - 2];
-                    String externalPath = createUniquePath(externalToInternal, baseFolder + deployConfigName);
-                    int cutSize = ArtefactProperties.DESCRIPTORS_FILE.length() + 1; // Exclude "/"
+                    int cutSize = "rules.xml".length() + (nameParts.length > 1 ? 1 : 0); // Exclude "/" if exist
                     String path = fullName.substring(0, fullName.length() - cutSize);
                     ProjectInfo project = new ProjectInfo(externalPath.substring(baseFolder.length()), path);
+                    project.setModifiedAt(fileItem.getData().getModifiedAt());
                     externalToInternal.getProjects().add(project);
                 }
             }
         }
-
         return externalToInternal;
     }
 
@@ -865,7 +833,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
             settingsSyncDate = repositorySettings.getSyncDate();
 
             this.externalToInternal = readExternalToInternalMap(delegate,
-                    repositoryMode,
                     configFile,
                     baseFolder);
         } catch (IOException e) {

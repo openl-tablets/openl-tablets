@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
@@ -44,7 +43,6 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String MAX_AUTHENTICATION_ATTEMPTS;
 
 
-
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
         CONFIG_PREFIX = configPrefix;
@@ -68,11 +66,13 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     private void load(PropertiesHolder properties) {
-        String type = RepositoryMode.getTypePrefix(CONFIG_PREFIX).toString();
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
+        String[] prefixParts = CONFIG_PREFIX.split("\\.");
+        String id = prefixParts.length > 1 ? prefixParts[1] : "repository";
+        //prefixParts.length must be always > 1
         String defaultLocalPath = localPath != null ? localPath
                 : properties.getProperty(
-                DynamicPropertySource.OPENL_HOME) + "/repositories/" + type;
+                DynamicPropertySource.OPENL_HOME) + "/repositories/" + id;
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
