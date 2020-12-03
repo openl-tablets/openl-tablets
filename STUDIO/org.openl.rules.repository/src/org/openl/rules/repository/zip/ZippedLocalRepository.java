@@ -5,12 +5,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
@@ -21,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -50,22 +51,31 @@ import org.openl.util.StringUtils;
  */
 public class ZippedLocalRepository implements FolderRepository, RRepositoryFactory, Closeable  {
 
-    private static final Pattern PATH_SEP = Pattern.compile("[\\\\/]");
-    private static final String ZIP_EXT = "zip";
+    private static final int REGULAR_ARCHIVE_FILE_SIGN = 0x504B0304;
+    private static final int EMPTY_ARCHIVE_FILE_SIGN = 0x504B0506;
+    private static final int SPANNED_ARCHIVE_FILE_SIGN = 0x504B0708;
 
     private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
 
+    /**
+     * Verifies if it's an archive
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
+     *
+     * @param path path to archive
+     * @return {@code true} if it's archive, otherwise {@code false}
+     */
     private static boolean zipArchiveFilter(Path path) {
         if (!Files.isRegularFile(path)) {
             return false;
         }
-        String name = path.getFileName().toString();
-        int idx = name.lastIndexOf('.');
-        if (idx > -1) {
-            String extension = name.substring(idx + 1);
-            return ZIP_EXT.equals(extension);
+        try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
+            int sign = raf.readInt();
+            return sign == REGULAR_ARCHIVE_FILE_SIGN
+                    || sign == EMPTY_ARCHIVE_FILE_SIGN
+                    || sign == SPANNED_ARCHIVE_FILE_SIGN;
+        } catch (Exception ignored) {
+            return false;
         }
-        return false;
     }
 
     private String uri;
@@ -95,22 +105,27 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         }
         final Map<String, Path> localStorage = new HashMap<>();
         if (archives != null && archives.length > 0) {
-            for (String archiveName : archives) {
-                if (StringUtils.isBlank(archiveName)) {
-                    throw new IOException("An archive name cannot be blank!");
+            for (String archive : archives) {
+                if (StringUtils.isBlank(archive)) {
+                    continue;
                 }
-                if (localStorage.containsKey(archiveName.toLowerCase())) {
-                    throw new IOException(String.format("An archive name [%s] is duplicated!", archiveName));
-                }
-                if (PATH_SEP.matcher(archiveName).find()) {
-                    throw new IOException(String.format("An archive name [%s] must not contain characters of path separator!", archiveName));
-                }
-                Path pathToArchive = root.resolve(archiveName);
-                if (!Files.exists(pathToArchive)) {
-                    throw new IOException(String.format("The path [%s] does not exist.", archiveName));
+                archive = archive.trim().replace('\\', '/');
+                Path pathToArchive = Paths.get(archive);
+                boolean exists = Files.exists(pathToArchive);
+                boolean isArchive = exists && zipArchiveFilter(pathToArchive);
+                if (!pathToArchive.isAbsolute() && (!exists || !isArchive)) {
+                    //if path is not absolute, try to resolve it from root folder
+                    pathToArchive = root.resolve(archive);
+                    if (!Files.exists(pathToArchive) && !exists) {
+                        throw new IOException(String.format("The path [%s] does not exist.", archive));
+                    }
                 }
                 if (!zipArchiveFilter(pathToArchive)) {
-                    throw new IOException(String.format("[%s] is not archive.", archiveName));
+                    throw new IOException(String.format("[%s] is not archive.", archive));
+                }
+                String archiveName = pathToArchive.getFileName().toString();
+                if (localStorage.containsKey(archiveName.toLowerCase())) {
+                    throw new IOException(String.format("An archive name [%s] is duplicated!", archiveName));
                 }
                 localStorage.put(archiveName.toLowerCase(), pathToArchive);
             }
