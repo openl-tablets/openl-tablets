@@ -7,8 +7,13 @@ import org.eclipse.jetty.webapp.Configuration;
 import org.eclipse.jetty.webapp.WebAppContext;
 import org.eclipse.jetty.webapp.WebInfConfiguration;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.stream.Collectors;
 
 /**
  * Simple wrapper for Jetty Server
@@ -24,6 +29,7 @@ public class JettyServer {
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
+        webAppContext.setExtraClasspath(getExtraClasspath());
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
         webAppContext
             .setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() });
@@ -32,6 +38,14 @@ public class JettyServer {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
         }
         this.server.setHandler(webAppContext);
+    }
+
+    private String getExtraClasspath() {
+        try {
+            return Files.walk(Paths.get("libs")).map(Path::toString).collect(Collectors.joining(","));
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     public static JettyServer start() throws Exception {
