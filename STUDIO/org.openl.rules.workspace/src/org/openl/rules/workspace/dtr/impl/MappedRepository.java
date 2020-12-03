@@ -44,7 +44,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         MappedRepository mappedRepository = new MappedRepository();
         mappedRepository.setDelegate(delegate);
         mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.yaml");
-        mappedRepository.setBaseFolder(baseFolder);П
+        mappedRepository.setBaseFolder(baseFolder);
         mappedRepository.setRepositorySettings(repositorySettings);
         mappedRepository.initialize();
         return mappedRepository;
