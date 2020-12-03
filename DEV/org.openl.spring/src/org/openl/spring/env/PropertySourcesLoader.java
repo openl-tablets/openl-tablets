@@ -104,6 +104,8 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         DisablePropertySource.THE = disablePropertySource;
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, disablePropertySource);
 
+        propertySources.addFirst(new SysInfoPropertySource());
+
         registerPropertyBean(appContext, defaultPropertySource, props);
     }
 
