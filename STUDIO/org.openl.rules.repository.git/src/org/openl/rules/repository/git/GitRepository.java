@@ -1,5 +1,21 @@
 package org.openl.rules.repository.git;
 
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -21,7 +37,12 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -48,18 +69,6 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
     static final String DELETED_MARKER_FILE = ".archived";
@@ -540,12 +549,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } else {
                 File[] files = local.listFiles();
                 if (files == null) {
-                    throw new IOException(String.format("Folder '%s' is not directory", local));
+                    throw new IOException(String.format("'%s' is not a directory.", local));
                 }
 
                 if (files.length > 0) {
                     if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
-                        log.debug("Reuse existing local repository {}", local);
+                        log.debug("Reuse existing git repository {}", local);
                         try (Repository repository = Git.open(local).getRepository()) {
                             if (uri != null) {
                                 String remoteUrl = repository.getConfig()
@@ -557,7 +566,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     URI savedUri = getUri(remoteUrl);
                                     if (!proposedUri.equals(savedUri)) {
                                         throw new IOException(String.format(
-                                                "Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                                "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
                                                 local,
                                                 remoteUrl));
                                     }
@@ -568,7 +577,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     } else {
                         // Cannot overwrite existing files that is definitely not git repository
                         throw new IOException(String.format(
-                                "Folder '%s' already exists and is not empty. Delete it or choose another local path.",
+                                "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
                                 local));
                     }
                 } else {
@@ -649,7 +658,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     }
                 } catch (RefAlreadyExistsException e) {
                     // the error may appear on non-case sensitive OS
-                    log.warn("The branch {} will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
+                    log.warn("The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
                             remoteBranch.getName());
                 }
             }
@@ -819,7 +828,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         if (treeWalk == null) {
             throw new FileNotFoundException(
-                    String.format("Did not find expected path '%s' in tree '%s'", path, tree.getName()));
+                    String.format("Missed expected path '%s' in tree '%s'.", path, tree.getName()));
         }
         return treeWalk;
     }
@@ -1437,7 +1446,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     } catch (CorruptObjectException ex) {
                         log.error("git index file is corrupted and will be deleted", e);
                         if (!indexFile.delete() && indexFile.exists()) {
-                            log.warn("Can't delete corrupted index file {}.", indexFile);
+                            log.warn("Cannot delete corrupted index file {}.", indexFile);
                         }
                         resetCommand.call();
                     }
@@ -1489,7 +1498,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try {
                     num = Integer.parseInt(name.substring(tagPrefix.length()));
                 } catch (NumberFormatException e) {
-                    log.debug("Tag {} is skipped because it does not contain version number", name);
+                    log.debug("Tag '{}' is skipped because it does not contain version number", name);
                     continue;
                 }
                 if (num > maxId) {
