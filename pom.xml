@@ -223,6 +223,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
+                            <openl.config.location/>
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
