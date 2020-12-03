@@ -528,6 +528,14 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public String getRealPath() {
         if (isLocalOnly()) {
+            ProjectState state = localRepository.getProjectState(getFolderPath());
+            if (state.getFileData() != null) {
+                FileMappingData mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    return mappingData.getInternalPath();
+                }
+            }
+
             return localFolderName;
         }
         String folderPath = getDesignFolderName();
