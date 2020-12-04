@@ -39,6 +39,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.repository.zip.ZippedLocalRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -100,7 +101,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Path projectFolder;
         if (project instanceof LocalProject) {
             projectFolder = ((LocalProject) project).getData().getPath();
-            if (projectFolder.getFileName() != null && FileTypeHelper.isZipFile(projectFolder.getFileName().toString())) {
+            if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
                 try {
                     FileSystem fs = FileSystems.newFileSystem(projectFolder, Thread.currentThread().getContextClassLoader());
                     projectFolder = fs.getPath("/");
@@ -292,7 +293,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         return repository.supports().folders()
                 && repository.supports().isLocal()
                 && fileData.getPath() != null
-                && FileTypeHelper.isZipFile(fileData.getPath().getFileName().toString());
+                && (FileTypeHelper.isZipFile(fileData.getPath().getFileName().toString())
+                || ZippedLocalRepository.zipArchiveFilter(fileData.getPath()));
     }
 
     private boolean isSimpleProjectDeployment(FileData fileData) {

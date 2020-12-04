@@ -198,7 +198,9 @@ public class RepositoryInstatiator {
 
     private static Object convert(Class<?> parameterType,
             String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        if (parameterType.isPrimitive()) {
+        if (parameterType.isArray()) {
+            return value.split(",");
+        } else if (parameterType.isPrimitive()) {
             parameterType = ClassUtils.primitiveToWrapper(parameterType);
         }
         Method valueOfMethod = parameterType.getMethod("valueOf", String.class);

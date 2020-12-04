@@ -29,6 +29,8 @@
                 <entry key="listenerTimerPeriod" value="${production-repository.listener-timer-period}"/>
                 <!-- Local File System specific -->
                 <entry key="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
+                <!-- Zip specific -->
+                <entry key="archives" value="${production-repository.archives}"/>
             </map>
         </constructor-arg>
     </bean>
