@@ -13,18 +13,18 @@ public class IOUtils {
     private static final int DEFAULT_BUFFER_SIZE = 8 * 1024;
 
     /**
-     * Unconditionally close a <code>Closeable</code>.
+     * Unconditionally close a <code>AutoCloseable</code>.
      * <p/>
-     * Equivalent to {@link Closeable#close()}, except any exceptions will be ignored.
+     * Equivalent to {@link AutoCloseable#close()}, except any exceptions will be ignored.
      *
      * @param closeable the object to close, may be null or already closed
      */
-    public static void closeQuietly(Closeable closeable) {
+    public static void closeQuietly(AutoCloseable closeable) {
         try {
             if (closeable != null) {
                 closeable.close();
             }
-        } catch (IOException ioe) {
+        } catch (Exception ioe) {
             // ignore
         }
     }

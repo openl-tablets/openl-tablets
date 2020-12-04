@@ -2,7 +2,6 @@ package org.openl.rules.workspace.deploy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -85,10 +84,8 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile, boolean skipExist) throws Exception {
-        Repository deployRepo = null;
-        try {
+        try (Repository deployRepo = RepositoryInstatiator.newRepository(prefix, environment)) {
             // Initialize repo
-            deployRepo = RepositoryInstatiator.newRepository(prefix, environment);
             String deployPath = environment.getProperty("repository." + prefix + ".base.path");
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
@@ -97,14 +94,6 @@ public class ProductionRepositoryDeployer {
             }
 
             deployInternal(zipFile, deployRepo, skipExist, deployPath);
-        } finally {
-            // Close repo
-            if (deployRepo != null) {
-                if (deployRepo instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) deployRepo);
-                }
-            }
         }
 
     }

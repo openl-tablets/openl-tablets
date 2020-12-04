@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.install;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.security.KeyStore;
@@ -38,9 +37,6 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -57,13 +53,11 @@ import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
 import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
-import org.openl.rules.webstudio.web.admin.RepositoryValidationException;
 import org.openl.rules.webstudio.web.admin.RepositoryValidators;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.spring.env.DynamicPropertySource;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.db.JDBCDriverRegister;
 import org.slf4j.Logger;
@@ -170,16 +164,19 @@ public class InstallWizard {
             if (step == 2) {
                 try {
                     RepositoryValidators.validate(designRepositoryConfiguration);
-                    validateConnectionToDesignRepo(designRepositoryConfiguration, ConfigNames.DESIGN_CONFIG);
+                    RepositoryValidators.validateInstantiation(designRepositoryConfiguration);
 
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                        validateConnectionToDesignRepo(deployConfigRepositoryConfiguration, ConfigNames.DEPLOY_CONFIG);
+                        RepositoryValidators.validateInstantiation(deployConfigRepositoryConfiguration);
                     }
 
                     productionRepositoryEditor.validate();
-                } catch (RepositoryValidationException e) {
-                    WebStudioUtils.addErrorMessage(e.getMessage());
+                } catch (Exception e) {
+                    Throwable rootCause = ExceptionUtils.getRootCause(e);
+                    String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
+                            .getMessage() : rootCause.getMessage());
+                    WebStudioUtils.addErrorMessage(message);
                     return null;
                 }
             }
@@ -248,24 +245,6 @@ public class InstallWizard {
             }
             step--;
             return null;
-        }
-    }
-
-    private void validateConnectionToDesignRepo(RepositoryConfiguration designRepositoryConfiguration,
-            String configName) throws RepositoryValidationException {
-        try {
-            PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(designRepositoryConfiguration.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(configName, propertiesResolver);
-            if (repository instanceof Closeable) {
-                // Release resources after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
-        } catch (RRepositoryException e) {
-            Throwable rootCause = ExceptionUtils.getRootCause(e);
-            String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
-                .getMessage() : rootCause.getMessage());
-            throw new RepositoryValidationException(message, e);
         }
     }
 

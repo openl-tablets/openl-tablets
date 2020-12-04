@@ -1,6 +1,5 @@
 package org.openl.rules.webstudio.web.repository;
 
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -30,7 +29,7 @@ public class ProductionRepositoryFactoryProxy {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, createFactory(configName));
+                    factories.put(configName, RepositoryInstatiator.newRepository(configName, propertyResolver));
                 }
             }
         }
@@ -42,10 +41,8 @@ public class ProductionRepositoryFactoryProxy {
         synchronized (this) {
             Repository repository = factories.get(configName);
             if (repository != null) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
                 factories.remove(configName);
             }
         }
@@ -54,17 +51,11 @@ public class ProductionRepositoryFactoryProxy {
     public void destroy() {
         synchronized (this) {
             for (Repository repository : factories.values()) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
             }
             factories.clear();
         }
-    }
-
-    private Repository createFactory(String configName) throws RRepositoryException {
-        return RepositoryInstatiator.newRepository(configName, propertyResolver);
     }
 
     public String getDeploymentsPath(String configName) {

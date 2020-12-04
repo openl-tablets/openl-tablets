@@ -1,6 +1,5 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -372,9 +371,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         synchronized (projects) {
             if (repository != null) {
                 repository.setListener(null);
-                if (repository instanceof Closeable) {
-                    ((Closeable) repository).close();
-                }
+                repository.close();
                 if (deployConfigRepository == repository) {
                     deployConfigRepository = null;
                 }
@@ -382,9 +379,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
             if (deployConfigRepository != null) {
                 deployConfigRepository.setListener(null);
-                if (deployConfigRepository instanceof Closeable) {
-                    ((Closeable) deployConfigRepository).close();
-                }
+                deployConfigRepository.close();
             }
 
             projects.clear();

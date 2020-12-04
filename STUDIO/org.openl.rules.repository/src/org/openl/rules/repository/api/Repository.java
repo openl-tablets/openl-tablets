@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-public interface Repository {
+public interface Repository extends AutoCloseable {
 
     /**
      * Return a list of files recursively in the given folder.
@@ -159,4 +159,9 @@ public interface Repository {
      * @return Supported features
      */
     Features supports();
+
+    @Override
+    default void close() throws Exception {
+        // Do nothing. For backward compatibility of API
+    }
 }
