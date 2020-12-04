@@ -6,7 +6,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCT
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -54,7 +53,7 @@ public class RepositoryFactoryProxy {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, createFactory(configName));
+                    factories.put(configName, RepositoryInstatiator.newRepository(configName, propertyResolver));
                 }
             }
         }
@@ -66,10 +65,8 @@ public class RepositoryFactoryProxy {
         synchronized (this) {
             Repository repository = factories.get(configName);
             if (repository != null) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
                 factories.remove(configName);
             }
         }
@@ -78,17 +75,11 @@ public class RepositoryFactoryProxy {
     public void destroy() {
         synchronized (this) {
             for (Repository repository : factories.values()) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
             }
             factories.clear();
         }
-    }
-
-    private Repository createFactory(String configName) throws RRepositoryException {
-        return RepositoryInstatiator.newRepository(configName, propertyResolver);
     }
 
     public String getBasePath(String configName) {

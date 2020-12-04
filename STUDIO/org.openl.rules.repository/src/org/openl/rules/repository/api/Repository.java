@@ -31,7 +31,7 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-public interface Repository {
+public interface Repository extends AutoCloseable {
     /**
      * Get unique identifier for Repository. Used to distinguish one repository from another. Must be unique.
      * 
@@ -172,4 +172,9 @@ public interface Repository {
      * @return Supported features
      */
     Features supports();
+
+    @Override
+    default void close() throws Exception {
+        // Do nothing. For backward compatibility of API
+    }
 }
