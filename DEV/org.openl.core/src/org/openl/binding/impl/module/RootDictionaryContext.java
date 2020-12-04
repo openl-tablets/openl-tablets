@@ -125,17 +125,17 @@ public class RootDictionaryContext implements VariableInContextFinder {
         if (level > maxDepthLevel) {
             return;
         }
-        IOpenClass fieldType = field.getType();
-
         add(new ContextField(parent, field));
-        if (fieldType.isSimple()) {
-            return;
-        }
 
-        for (IOpenField openField : fieldType.getFields()) {
-            initializeField(field, openField, level + 1);
+        if (level + 1 <= maxDepthLevel) {
+            IOpenClass fieldType = field.getType();
+            if (fieldType.isSimple()) {
+                return;
+            }
+            for (IOpenField openField : fieldType.getFields()) {
+                initializeField(field, openField, level + 1);
+            }
         }
-
     }
 
     private void initializeRoots() {
