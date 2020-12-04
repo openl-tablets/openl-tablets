@@ -1045,11 +1045,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         // The order of getting projects is important!
         Collection<RulesProject> projects = userWorkspace.getProjects(); // #1
-        // TODO: Remove unique project name check
-        RulesProject project = getProject(currentRepositoryId, name); // #2
         RulesProject currentProject = getCurrentProject(); // #3
 
-        return project != null && project != currentProject;
+        return projects.stream()
+            .anyMatch(p -> p != currentProject && p.getName()
+                .equals(name) && (p.isOpened() || p.getDesignRepository().getId().equals(currentRepositoryId)));
     }
 
     private void setTreeView(RulesTreeView treeView) {
