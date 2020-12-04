@@ -162,7 +162,7 @@ public final class RepositoryValidators {
             }
 
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s.", repoConfig.getName(), resultException.getMessage()));
+                String.format("Repository '%s' : %s", repoConfig.getName(), resultException.getMessage()));
         }
     }
 }
