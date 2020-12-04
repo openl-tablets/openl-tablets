@@ -26,6 +26,7 @@ public class RunLocalZippedRepositoryTest {
     public void testSingleProjectDeployment() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
         client.send("simple-jar/doSomething.json.post");
+        client.send("rules-to-deploy/MANIFEST.MF.json.get");
     }
 
     @Test
