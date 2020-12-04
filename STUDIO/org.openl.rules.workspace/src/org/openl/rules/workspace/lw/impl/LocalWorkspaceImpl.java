@@ -27,6 +27,7 @@ import org.openl.rules.workspace.lw.LocalWorkspaceListener;
 public class LocalWorkspaceImpl implements LocalWorkspace {
     private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
         .compareToIgnoreCase(o2.getName());
+    public static final String LOCAL_ID = "<local-id>";
 
     private final WorkspaceUser user;
     private final File location;
@@ -60,7 +61,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
     @Override
     public LocalRepository getRepository(String id) {
         if (id == null) {
-            id = "<local-id>";
+            id = LOCAL_ID;
         }
         // Create a new instance with id and name.
         LocalRepository repository = new LocalRepository(localRepository.getRoot());

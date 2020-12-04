@@ -233,8 +233,10 @@ public class RulesProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         try {
-            String repoId = isLocalOnly() ? "local" : getDesignRepository().getId();
-            return lockEngine.getLockInfo(repoId, getBranch(), getRealPath());
+            if (isLocalOnly()) {
+                return LockInfo.NO_LOCK;
+            }
+            return lockEngine.getLockInfo(getDesignRepository().getId(), getBranch(), getRealPath());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return LockInfo.NO_LOCK;
@@ -521,7 +523,7 @@ public class RulesProject extends UserWorkspaceProject {
         return designRepository;
     }
 
-    public Repository getLocalRepository() {
+    public LocalRepository getLocalRepository() {
         return localRepository;
     }
 
