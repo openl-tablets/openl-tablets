@@ -66,8 +66,8 @@ public abstract class AbstractTableMethodWrapper extends TableMethod {
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

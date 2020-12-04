@@ -19,10 +19,7 @@ public class OpenLErrorMessage extends OpenLMessage {
 
     public OpenLErrorMessage(OpenLException error) {
         super(getOpenLExceptionMessage(error), Severity.ERROR);
-        if (error == null) {
-            throw new NullPointerException();
-        }
-        this.error = error;
+        this.error = Objects.requireNonNull(error);
     }
 
     public OpenLException getError() {
@@ -36,7 +33,6 @@ public class OpenLErrorMessage extends OpenLMessage {
 
         printWriter.print(super.toString());
         printWriter.print("\r\n");
-
 
         if (getError() != null) {
             String url = getError().getSourceLocation();

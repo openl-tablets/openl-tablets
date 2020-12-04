@@ -103,8 +103,6 @@ import org.slf4j.LoggerFactory;
  */
 public class XlsBinder implements IOpenBinder {
 
-    public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
-
     private final Logger log = LoggerFactory.getLogger(XlsBinder.class);
 
     private static class BinderFactoryHolder {
@@ -239,14 +237,12 @@ public class XlsBinder implements IOpenBinder {
             bindingContext);
         try {
             RulesModuleBindingContext rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
-
             topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass, bindingContext);
-
+            ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
-            if (bindingContext
-                .isExecutionMode() && !Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
-                moduleOpenClass.clearOddDataForExecutionMode();
+            if (ValidationManager.isValidationEnabled() && bindingContext.isExecutionMode()) {
+                moduleOpenClass.clearForExecutionMode();
             }
         }
     }
@@ -336,13 +332,6 @@ public class XlsBinder implements IOpenBinder {
             }
 
             ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
-
-            if (!Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
-                ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
-                if (bindingContext.isExecutionMode()) {
-                    ((XlsModuleOpenClass) topNode.getType()).removeDebugInformation();
-                }
-            }
 
             return topNode;
         } finally {

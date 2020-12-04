@@ -41,6 +41,8 @@ public class Table implements ITable {
     private BiMap<Integer, Object> rowIndexMap;
     private BiMap<Integer, String> primaryIndexMap;
     private Map<Integer, Integer> dataIdxToTableRowNum;
+    private XlsNodeTypes xlsNodeType;
+    private String uri;
 
     public Table(ITableModel dataModel, ILogicalTable data) {
         this.dataModel = dataModel;
@@ -50,6 +52,23 @@ public class Table implements ITable {
     public Table(String tableName, TableSyntaxNode tsn) {
         this.tableName = tableName;
         this.tableSyntaxNode = tsn;
+        this.xlsNodeType = tsn.getNodeType();
+        this.uri = tsn.getUri();
+    }
+
+    @Override
+    public void clearOddDataForExecutionMode() {
+        this.tableSyntaxNode = null;
+    }
+
+    @Override
+    public String getUri() {
+        return uri;
+    }
+
+    @Override
+    public XlsNodeTypes getXlsNodeType() {
+        return xlsNodeType;
     }
 
     @Override

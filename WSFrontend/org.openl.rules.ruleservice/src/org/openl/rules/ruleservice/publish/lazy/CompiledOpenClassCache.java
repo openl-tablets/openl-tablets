@@ -109,7 +109,7 @@ public final class CompiledOpenClassCache {
             if (compiledOpenClass != null) {
                 IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
                 if (openClass instanceof XlsModuleOpenClass) {
-                    ((XlsModuleOpenClass) openClass).removeDebugInformation();
+                    ((XlsModuleOpenClass) openClass).clearForExecutionMode();
                 }
             }
             LazyBinderMethodHandler.setPrebindHandler(prebindHandler);

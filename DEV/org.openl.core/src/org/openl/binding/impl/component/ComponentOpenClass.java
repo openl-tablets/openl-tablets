@@ -43,7 +43,7 @@ public class ComponentOpenClass extends ADynamicClass {
     /**
      * Clears all unnecessary data for "Execution Mode"
      */
-    public void clearOddDataForExecutionMode() {
+    public void clearForExecutionMode() {
         setMetaInfo(null);
     }
 

@@ -135,8 +135,8 @@ public abstract class AbstractColumnMatchWrapper extends ColumnMatch {
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

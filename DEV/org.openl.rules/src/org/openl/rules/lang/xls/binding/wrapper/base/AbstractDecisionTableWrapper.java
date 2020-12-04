@@ -190,8 +190,8 @@ public abstract class AbstractDecisionTableWrapper extends DecisionTable {
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

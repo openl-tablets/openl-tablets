@@ -340,8 +340,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
             if (xlsModuleOpenClass.getDataBase() != null) {
                 for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
-                    // TODO Test and fix with lazy compilation. It was fixed for Maven Plugin but wasn't tested.
-                    if (XlsNodeTypes.XLS_DATA.toString().equals(table.getTableSyntaxNode().getType())) {
+                    if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
                         try {
                             getDataBase().registerTable(table);
                         } catch (DuplicatedTableException e) {
@@ -517,10 +516,23 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     }
 
     @Override
-    public void clearOddDataForExecutionMode() {
-        super.clearOddDataForExecutionMode();
-        dataBase = null;
+    public void clearForExecutionMode() {
+        super.clearForExecutionMode();
+        dataBase.clearOddDataForExecutionMode();
         rulesModuleBindingContext = null;
+        for (IOpenMethod openMethod : getMethods()) {
+            clearForExecutionMode(openMethod);
+        }
+    }
+
+    private void clearForExecutionMode(IOpenMethod openMethod) {
+        if (openMethod instanceof OpenMethodDispatcher) {
+            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
+                clearForExecutionMode(candidate);
+            }
+        } else if (openMethod instanceof ExecutableRulesMethod) {
+            ((ExecutableRulesMethod) openMethod).clearForExecutionMode();
+        }
     }
 
     public void completeOpenClassBuilding() {
@@ -590,22 +602,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
         }
         return cloner;
-    }
-
-    public void removeDebugInformation() {
-        for (IOpenMethod openMethod : getMethods()) {
-            removeDebugInformation(openMethod);
-        }
-    }
-
-    private void removeDebugInformation(IOpenMethod openMethod) {
-        if (openMethod instanceof OpenMethodDispatcher) {
-            for (IOpenMethod candidate : ((OpenMethodDispatcher) openMethod).getCandidates()) {
-                removeDebugInformation(candidate);
-            }
-        } else if (openMethod instanceof ExecutableRulesMethod) {
-            ((ExecutableRulesMethod) openMethod).removeDebugInformation();
-        }
     }
 
     private void addError(Throwable e) {

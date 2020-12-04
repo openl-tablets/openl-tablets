@@ -1,16 +1,6 @@
 package org.openl.engine;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
@@ -23,6 +13,7 @@ import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.ModuleFileSourceCodeModule;
 import org.openl.syntax.code.Dependency;
@@ -44,7 +35,7 @@ public class OpenLCompileManager {
     public static final String ADDITIONAL_ERROR_MESSAGES_KEY = "additional-error-messages";
     private static final Pattern ASTERIX_SIGN = Pattern.compile("\\*");
     private static final Pattern QUESTION_SIGN = Pattern.compile("\\?");
-    private OpenL openl;
+    private final OpenL openl;
 
     /**
      * Construct new instance of manager.
@@ -218,7 +209,10 @@ public class OpenLCompileManager {
 
         IOpenBinder binder = openl.getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
-        messages.addAll(boundCode.getMessages());
+        messages.addAll(bindingContext != null && bindingContext.isExecutionMode()
+                                                                                   ? clearOpenLMessagesForExecutionMode(
+                                                                                       boundCode.getMessages())
+                                                                                   : boundCode.getMessages());
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
@@ -230,6 +224,19 @@ public class OpenLCompileManager {
         processedCode.setMessages(messages);
 
         return processedCode;
+    }
+
+    private Collection<OpenLMessage> clearOpenLMessagesForExecutionMode(Collection<OpenLMessage> messages) {
+        // OpenLWarnMessage has a ref to TableSyntaxNode, this is workaround to clean this data in execution mode
+        Collection<OpenLMessage> ret = new ArrayList<>();
+        for (OpenLMessage message : messages) {
+            if (message instanceof OpenLWarnMessage) {
+                ret.add(OpenLMessagesUtils.newWarnMessage(message.getSummary()));
+            } else {
+                ret.add(message);
+            }
+        }
+        return ret;
     }
 
     @SuppressWarnings("unchecked")

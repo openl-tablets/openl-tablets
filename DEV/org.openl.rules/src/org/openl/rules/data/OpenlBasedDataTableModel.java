@@ -21,12 +21,12 @@ import org.openl.types.IOpenClass;
  */
 public class OpenlBasedDataTableModel implements ITableModel {
 
-    private String name;
-    private IOpenClass type;
-    private OpenL openl;
-    private ColumnDescriptor[] columnDescriptors;
-    private List<ColumnDescriptor> idxs = new ArrayList<>();
-    private boolean hasColumnTitleRow;
+    private final String name;
+    private final IOpenClass type;
+    private final OpenL openl;
+    private final ColumnDescriptor[] columnDescriptors;
+    private final List<ColumnDescriptor> idxs = new ArrayList<>();
+    private final boolean hasColumnTitleRow;
     private final int columnCount;
 
     //columnDescriptor must be sorted by getColumnIdx
