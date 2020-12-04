@@ -668,7 +668,7 @@ public class RepositoryTreeController {
                 if (repository.supports().mappedFolders()) {
                     String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
                     if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
-                        return "Cannot create the project because a project with such path already exists but it's not imported into WebStudio. Try to import that project from repository or create with another path.";
+                        return "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.";
                     }
                 }
             }

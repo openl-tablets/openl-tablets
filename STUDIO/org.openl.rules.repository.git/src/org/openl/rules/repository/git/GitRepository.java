@@ -690,12 +690,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (getCredentialsProvider(null) == null) {
+                    if (credentialsProvider == null) {
                         String message = e.getMessage();
                         if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
                             throw new IOException(
                                     "Authentication is required but login and password has not been specified.");
                         }
+                    } else if (credentialsProvider.isHasAuthorizationFailure()) {
+                        throw new IOException("Incorrect login or password.");
                     }
                     // For other cases like temporary connection loss we should not fail. The local repository exists,
                     // will fetch later.
@@ -708,7 +710,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } finally {
                 unlockSettings();
             }
-
+            if (credentialsProvider != null) {
+                credentialsProvider.successAuthentication(GitActionType.INIT);
+            }
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);

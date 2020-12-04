@@ -174,16 +174,23 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class[] { Repository.class },
-                (proxy, method, args) -> {
-                    if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
-                        return null;
-                    }
-                    if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
-                        return new FeaturesBuilder(null).setVersions(false).build();
-                    }
-                    throw new IllegalStateException(message);
-                });
+                    new Class[]{Repository.class},
+                    (proxy, method, args) -> {
+                        if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
+                            return null;
+                        }
+                        if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
+                            return new FeaturesBuilder(null).setVersions(false).build();
+                        }
+                        if ("getId".equals(method.getName()) && method.getReturnType() == String.class) {
+                            return configName;
+                        }
+                        String repoName = propertyResolver.getProperty("repository." + configName + ".name");
+                        if ("getName".equals(method.getName()) && method.getReturnType() == String.class) {
+                            return repoName;
+                        }
+                        throw new IllegalStateException(String.format("Repository '%s' : %s", repoName, message));
+                    });
         }
     }
 
