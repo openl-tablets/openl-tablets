@@ -26,9 +26,8 @@ public class CompositeOpenlException extends RuntimeException {
             SyntaxNodeException[] errors,
             Collection<OpenLMessage> errorMessages) {
         super(message);
-
         this.message = message;
-        this.errors = errors;
+        this.errors = errors != null ? errors : SyntaxNodeException.EMPTY_ARRAY;
         if (errorMessages != null) {
             this.errorMessages = new ArrayList<>(errorMessages);
         }

@@ -43,7 +43,7 @@ public abstract class TablesValidator implements IOpenLValidator {
 
             findAllTableSyntaxNodes(tableSyntaxNodes, openClass);
 
-            return validateTables(tableSyntaxNodes.toArray(new TableSyntaxNode[]{}), openClass);
+            return validateTables(tableSyntaxNodes.toArray(TableSyntaxNode.EMPTY_ARRAY), openClass);
         }
 
         // Skip validation if passed open class is not instance of

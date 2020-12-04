@@ -61,6 +61,6 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         super.removeDebugInformation(cxt);
-        testSuiteMethod.removeDebugInformation();
+        testSuiteMethod.clearForExecutionMode();
     }
 }

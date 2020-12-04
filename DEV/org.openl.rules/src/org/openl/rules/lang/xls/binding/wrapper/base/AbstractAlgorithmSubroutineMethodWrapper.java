@@ -82,8 +82,8 @@ public abstract class AbstractAlgorithmSubroutineMethodWrapper extends Algorithm
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

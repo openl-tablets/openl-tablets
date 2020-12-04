@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.function.BiPredicate;
 
 import org.openl.rules.project.model.RulesDeploy;
-import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.validation.ValidatedCompiledOpenClass;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

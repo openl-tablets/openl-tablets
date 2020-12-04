@@ -28,7 +28,6 @@ import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
 import org.openl.rules.project.validation.AbstractServiceInterfaceProjectValidator;
-import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.rules.ruleservice.publish.jaxrs.ParameterIndex;
@@ -46,6 +45,7 @@ import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.openl.validation.ValidatedCompiledOpenClass;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -94,7 +94,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 projectDescriptor,
                 projectDescriptor.getOpenapi().getPath());
             if (projectResource == null) {
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newErrorMessage(String.format(OPEN_API_VALIDATION_MSG_PREFIX + "File '%s' is not found.",
                         projectDescriptor.getOpenapi().getPath())));
             }
@@ -120,7 +120,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             OpenAPI openAPI = openApiParser.readLocation(projectResource.getUrl().toString(), null, options)
                 .getOpenAPI();
             if (openAPI == null) {
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
                     String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to read file '%s'.", openApiFile)));
             }
             return openAPI;
@@ -160,7 +160,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     serviceClassLoader);
             } catch (Exception e) {
                 validatedCompiledOpenClass
-                    .addValidationMessage(
+                    .addMessage(
                         OpenLMessagesUtils.newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + String
                             .format("Failed to build an interface for the project.%s",
                                 org.apache.commons.lang3.StringUtils
@@ -173,7 +173,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 context
                     .setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
             } catch (Exception e) {
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
                 return validatedCompiledOpenClass;
             }
@@ -195,7 +195,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         message.append(" ").append(e.getMessage());
                     }
                     validatedCompiledOpenClass
-                        .addValidationMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
+                        .addMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
                     return validatedCompiledOpenClass;
                 } finally {
                     OpenApiRulesCacheWorkaround.reset();

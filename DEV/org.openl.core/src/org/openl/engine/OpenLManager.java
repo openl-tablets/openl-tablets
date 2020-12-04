@@ -144,13 +144,7 @@ public final class OpenLManager {
             boolean executionMode,
             IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        try {
-            return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
-        } finally {
-            if (dependencyManager != null) {
-                dependencyManager.clearOddDataForExecutionMode();
-            }
-        }
+        return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }
 
     /**

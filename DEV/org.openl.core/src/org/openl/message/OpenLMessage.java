@@ -1,6 +1,6 @@
 package org.openl.message;
 
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 import org.openl.util.StringUtils;
 
@@ -10,9 +10,9 @@ import org.openl.util.StringUtils;
  */
 public class OpenLMessage {
 
-    private static final AtomicInteger idCounter = new AtomicInteger(0);
+    private static final AtomicLong idCounter = new AtomicLong(0);
 
-    private final int id = idCounter.incrementAndGet();
+    private final long id = idCounter.incrementAndGet();
 
     /**
      * Message's brief information.
@@ -75,7 +75,7 @@ public class OpenLMessage {
         return null;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 

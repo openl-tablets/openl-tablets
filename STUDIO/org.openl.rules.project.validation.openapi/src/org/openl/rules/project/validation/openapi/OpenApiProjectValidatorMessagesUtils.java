@@ -10,13 +10,13 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.method.ExecutableRulesMethod;
-import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.validation.ValidatedCompiledOpenClass;
 
 import io.swagger.v3.oas.models.media.Schema;
 
@@ -28,7 +28,7 @@ final class OpenApiProjectValidatorMessagesUtils {
     public static void addError(Context context, String summary) {
         ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
         if (isNotExistingError(validatedCompiledOpenClass, summary)) {
-            validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newErrorMessage(summary));
+            validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(summary));
         }
     }
 
@@ -44,7 +44,7 @@ final class OpenApiProjectValidatorMessagesUtils {
     public static void addWarning(Context context, String summary) {
         ValidatedCompiledOpenClass validatedCompiledOpenClass = context.getValidatedCompiledOpenClass();
         if (isNotExistingWarning(summary, validatedCompiledOpenClass)) {
-            validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(summary));
+            validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(summary));
         }
     }
 
@@ -93,7 +93,7 @@ final class OpenApiProjectValidatorMessagesUtils {
                     tableSyntaxNode);
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                    context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+                    context.getValidatedCompiledOpenClass().addMessage(openLMessage);
                 }
             } else {
                 addError(context, summary);
@@ -119,7 +119,7 @@ final class OpenApiProjectValidatorMessagesUtils {
                     datatypeOpenClass.getTableSyntaxNode());
                 if (isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
                     OpenLMessage openLMessage = OpenLMessagesUtils.newErrorMessage(syntaxNodeException);
-                    context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+                    context.getValidatedCompiledOpenClass().addMessage(openLMessage);
                 }
             }
         } else {
@@ -144,7 +144,7 @@ final class OpenApiProjectValidatorMessagesUtils {
         TableSyntaxNode tableSyntaxNode = extractTableSyntaxNode(context.getOpenMethod());
         if (tableSyntaxNode != null && isNotExistingError(context.getValidatedCompiledOpenClass(), summary)) {
             OpenLMessage openLMessage = OpenLMessagesUtils.newWarnMessage(summary, tableSyntaxNode);
-            context.getValidatedCompiledOpenClass().addValidationMessage(openLMessage);
+            context.getValidatedCompiledOpenClass().addMessage(openLMessage);
         } else {
             addWarning(context, summary);
         }

@@ -276,8 +276,8 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
     }
 
     @Override
-    public void removeDebugInformation() {
-        super.removeDebugInformation();
+    public void clearForExecutionMode() {
+        super.clearForExecutionMode();
         if (algorithm != null) {
             algorithm.cleanParamValuesForIndexedConditions();
         }

@@ -1,4 +1,4 @@
-package org.openl.rules.project.validation.base;
+package org.openl.validation;
 
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -13,11 +13,13 @@ import org.openl.types.IOpenClass;
 
 public class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private final CompiledOpenClass delegate;
-    private final Collection<OpenLMessage> validationMessages = new LinkedHashSet<>();
+    private final Collection<OpenLMessage> additionalMessages = new LinkedHashSet<>();
+    boolean hasErrors;
 
     public ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
         super(compiledOpenClass.getOpenClassWithErrors(), compiledOpenClass.getMessages());
         this.delegate = Objects.requireNonNull(compiledOpenClass, "compiledOpenClass cannot be null");
+        this.hasErrors = compiledOpenClass.hasErrors();
     }
 
     @Override
@@ -32,8 +34,7 @@ public class ValidatedCompiledOpenClass extends CompiledOpenClass {
 
     @Override
     public boolean hasErrors() {
-        return delegate
-            .hasErrors() || !OpenLMessagesUtils.filterMessagesBySeverity(validationMessages, Severity.ERROR).isEmpty();
+        return hasErrors;
     }
 
     @Override
@@ -48,16 +49,15 @@ public class ValidatedCompiledOpenClass extends CompiledOpenClass {
     @Override
     public Collection<OpenLMessage> getMessages() {
         Collection<OpenLMessage> messages = new LinkedHashSet<>(delegate.getMessages());
-        messages.addAll(validationMessages);
+        messages.addAll(additionalMessages);
         return messages;
     }
 
-    public void addValidationMessage(OpenLMessage message) {
-        this.validationMessages.add(message);
-    }
-
-    public void clearValidationMessages() {
-        this.validationMessages.clear();
+    public void addMessage(OpenLMessage message) {
+        this.additionalMessages.add(message);
+        if (message.getSeverity() == Severity.ERROR) {
+            hasErrors = true;
+        }
     }
 
     @Override

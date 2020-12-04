@@ -1,18 +1,17 @@
 package org.openl.message;
 
+import java.util.Objects;
+
 import org.openl.main.SourceCodeURLTool;
 import org.openl.syntax.ISyntaxNode;
 
 public class OpenLWarnMessage extends OpenLMessage {
 
-    private ISyntaxNode source;
+    private final ISyntaxNode source;
 
     public OpenLWarnMessage(String summary, ISyntaxNode source) {
         super(summary, Severity.WARN);
-        if (source == null) {
-            throw new NullPointerException();
-        }
-        this.source = source;
+        this.source = Objects.requireNonNull(source);
     }
 
     public ISyntaxNode getSource() {

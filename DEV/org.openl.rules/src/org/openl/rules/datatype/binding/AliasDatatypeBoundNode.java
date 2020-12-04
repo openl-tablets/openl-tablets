@@ -13,9 +13,9 @@ import org.openl.types.impl.InternalDatatypeClass;
  */
 public class AliasDatatypeBoundNode implements IMemberBoundNode {
 
-    private TableSyntaxNode tableSyntaxNode;
-    private DomainOpenClass domainOpenClass;
-    private ModuleOpenClass moduleOpenClass;
+    private final TableSyntaxNode tableSyntaxNode;
+    private final DomainOpenClass domainOpenClass;
+    private final ModuleOpenClass moduleOpenClass;
 
     public AliasDatatypeBoundNode(TableSyntaxNode tableSyntaxNode,
             DomainOpenClass domain,

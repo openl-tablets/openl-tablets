@@ -5,9 +5,12 @@ import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContextProvider;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.runtime.EngineFactory;
 import org.openl.runtime.IEngineWrapper;
@@ -16,7 +19,10 @@ import org.openl.runtime.IRuntimeEnvBuilder;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.validation.ValidatedCompiledOpenClass;
+import org.openl.validation.ValidationManager;
 import org.openl.vm.IRuntimeEnv;
+import org.openl.xls.RulesCompileContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -187,5 +193,38 @@ public class RulesEngineFactory<T> extends EngineFactory<T> {
             Map<Method, IOpenMember> methodMap,
             IRuntimeEnv runtimeEnv) {
         return new OpenLRulesMethodHandler(openClassInstance, runtimeEnv, methodMap);
+    }
+
+    @Override
+    protected CompiledOpenClass initializeOpenClass() {
+        boolean oldValidationState = ValidationManager.isValidationEnabled();
+        CompiledOpenClass compiledOpenClass;
+        try {
+            ValidationManager.turnOffValidation();
+            compiledOpenClass = super.initializeOpenClass();
+        } finally {
+            if (oldValidationState) {
+                ValidationManager.turnOnValidation();
+            }
+        }
+        try {
+            if (oldValidationState) {
+                IBindingContext bindingContext = getOpenL().getBinder().makeBindingContext();
+                bindingContext.setExecutionMode(isExecutionMode());
+                ValidationManager.validate(new RulesCompileContext(), compiledOpenClass.getOpenClassWithErrors(), bindingContext);
+                ValidatedCompiledOpenClass validatedCompiledOpenClass = new ValidatedCompiledOpenClass(
+                    compiledOpenClass);
+                if (bindingContext.getMessages() != null) {
+                    bindingContext.getMessages().forEach(validatedCompiledOpenClass::addMessage);
+                }
+                return validatedCompiledOpenClass;
+            }
+            return compiledOpenClass;
+        } finally {
+            // Turning off validation disables cleaning up, because validation works with tsn nodes
+            if (isExecutionMode()) {
+                ((XlsModuleOpenClass) compiledOpenClass.getOpenClassWithErrors()).clearForExecutionMode();
+            }
+        }
     }
 }
