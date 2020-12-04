@@ -6,16 +6,12 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.ClassUtils;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.core.env.PropertyResolver;
 
 /**
  * A factory to create repositories using Java reflection. This instantiator uses the following workflow:
@@ -34,46 +30,11 @@ public class RepositoryInstatiator {
 
     public static final String REPOSITORY_PREFIX = "repository.";
 
-    private static Logger log() {
-        return LoggerFactory.getLogger(RepositoryInstatiator.class);
-    }
-
-    /**
-     * Create new repository instance.
-     *
-     * @param configName the name of the configuration, e.g. design, deploy-config or production like.
-     * @param propertyResolver the propertyResolver of the app.
-     * @return the initialized repository.
-     */
-    public static Repository newRepository(String configName,
-            PropertyResolver propertyResolver) throws RRepositoryException {
-        String factoryClass = propertyResolver.getProperty(REPOSITORY_PREFIX + configName + ".factory");
-        try {
-            Repository repository = newInstance(factoryClass);
-            setParams(repository, propertyResolver, configName);
-            initialize(repository);
-            return repository;
-        } catch (Exception e) {
-            String message = "Failed to initialize repository: " + configName;
-            log().error(message, e);
-            throw new RRepositoryException(message, e);
-        }
-    }
-
-    /**
-     * Create new repository instance.
-     *
-     * @param factory the class name to instantiate.
-     * @param params the initialization parameters.
-     * @return the initialized repository.
-     */
-    public static Repository newRepository(String factory, Map<String, String> params) {
-        Repository repository = newInstance(factory);
-        if (params != null) {
-            setParams(repository, params);
-        }
+    public static Repository newRepository(String prefix, Function<String, String> props) {
+        String factoryClass = props.apply(prefix + ".factory");
+        Repository repository = newInstance(factoryClass);
+        setParams(repository, props, prefix);
         initialize(repository);
-
         return repository;
     }
 
@@ -94,17 +55,6 @@ public class RepositoryInstatiator {
             throw new IllegalStateException(String.format("%s must be an implementation of %s.",
                 instance.getClass().getTypeName(),
                 Repository.class.getTypeName()), e);
-        }
-    }
-
-    private static void setParams(Object instance, Map<String, String> params) {
-        Class<?> clazz = instance.getClass();
-        for (Map.Entry<String, String> param : params.entrySet()) {
-            String value = param.getValue();
-            if (StringUtils.isNotBlank(value)) {
-                String name = param.getKey();
-                injectValue(instance, clazz, value, name);
-            }
         }
     }
 
@@ -143,13 +93,11 @@ public class RepositoryInstatiator {
         }
     }
 
-    private static void setParams(Object instance,
-            PropertyResolver propertyResolver,
-            String configName) {
+    private static void setParams(Object instance, Function<String, String> props, String prefix) {
         Class<?> clazz = instance.getClass();
         for (String fieldName : getAllFieldNames(clazz)) {
-            String propertyName = buildPropertyName(configName, fieldName);
-            String propertyValue = propertyResolver.getProperty(propertyName);
+            String propertyName = prefix + "." + toPropertiesCase(fieldName);
+            String propertyValue = props.apply(propertyName);
             boolean propertyExists = StringUtils.isNotBlank(propertyValue);
             if (propertyExists) {
                 injectValue(instance, clazz, propertyValue, fieldName);
@@ -163,10 +111,6 @@ public class RepositoryInstatiator {
             fields.addAll(Arrays.stream(c.getDeclaredFields()).map(Field::getName).collect(Collectors.toList()));
         }
         return fields;
-    }
-
-    private static String buildPropertyName(String configName, String name) {
-        return REPOSITORY_PREFIX + configName + "." + toPropertiesCase(name);
     }
 
     /**

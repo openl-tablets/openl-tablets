@@ -156,8 +156,7 @@ public final class RepositoryValidators {
     public static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
             .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-        try (Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(),
-            propertiesResolver)) {
+        try (Repository repository = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             Objects.requireNonNull(repository);
         }

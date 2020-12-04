@@ -84,7 +84,7 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile, boolean skipExist) throws Exception {
-        try (Repository deployRepo = RepositoryInstatiator.newRepository(prefix, environment)) {
+        try (Repository deployRepo = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + prefix, environment::getProperty)) {
             // Initialize repo
             String deployPath = environment.getProperty("repository." + prefix + ".base.path");
             if (deployPath == null) {
