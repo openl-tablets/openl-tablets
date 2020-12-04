@@ -1,0 +1,3 @@
+org.openl.rules.repository.db.JdbcDBRepositoryFactory
+org.openl.rules.repository.db.DatasourceDBRepositoryFactory
+org.openl.rules.repository.file.LocalRepositoryFactory

@@ -35,7 +35,6 @@ import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
@@ -52,7 +51,6 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
     static final String DELETED_MARKER_FILE = ".archived";
@@ -485,7 +483,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("initialize(): lock");
@@ -672,11 +670,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // Unknown host
             if (cause instanceof UnknownHostException) {
                 String error = "Invalid URL " + uri;
-                throw new RRepositoryException(error, new IllegalArgumentException(error));
+                throw new IllegalArgumentException(error);
             }
 
             // Other cases
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
