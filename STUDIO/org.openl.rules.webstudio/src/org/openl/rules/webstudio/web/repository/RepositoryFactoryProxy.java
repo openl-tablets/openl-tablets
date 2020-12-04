@@ -13,7 +13,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.util.IOUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -49,11 +48,11 @@ public class RepositoryFactoryProxy {
         return repoListConfig;
      }
 
-    public Repository getRepositoryInstance(String configName) throws RRepositoryException {
+    public Repository getRepositoryInstance(String configName) {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, RepositoryInstatiator.newRepository(configName, propertyResolver));
+                    factories.put(configName, RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
                 }
             }
         }

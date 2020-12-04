@@ -139,7 +139,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
         try {
-            Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
+            Repository repo = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
             if (repositorySettings != null) {
                 String setter = "setRepositorySettings";
                 try {
