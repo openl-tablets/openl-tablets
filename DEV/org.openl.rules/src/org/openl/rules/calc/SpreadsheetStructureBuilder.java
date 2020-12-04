@@ -261,17 +261,14 @@ public class SpreadsheetStructureBuilder {
                 } else {
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
-                if (columnBindingContext.getErrors() != null && columnBindingContext.getErrors().length > 0) {
-                    spreadsheetCell.setTypeUnknown(true);
-                } else {
-                    spreadsheetCell.setValue(method);
-                }
+                spreadsheetCell.setValue(method);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
+
         } else if (spreadsheetCell.isConstantCell()) {
             try {
                 IOpenField openField = rowBindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, code, true);
