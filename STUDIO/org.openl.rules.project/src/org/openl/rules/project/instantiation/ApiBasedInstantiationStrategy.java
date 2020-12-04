@@ -1,6 +1,5 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.File;
 import java.net.URL;
 
 import org.openl.dependency.IDependencyManager;
@@ -69,8 +68,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
     }
 
     private IOpenSourceCodeModule getSourceCode(Module module) {
-        File sourceFile = new File(getModule().getRulesRootPath().getPath());
-        URL url = URLSourceCodeModule.toUrl(sourceFile);
+        URL url = URLSourceCodeModule.toUrl(getModule().getRulesPath());
         return new ModuleFileSourceCodeModule(url, getModule().getName());
     }
 

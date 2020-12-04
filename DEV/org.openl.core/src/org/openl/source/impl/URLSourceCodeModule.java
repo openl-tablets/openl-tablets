@@ -8,6 +8,7 @@ package org.openl.source.impl;
 import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Path;
 import java.util.Objects;
 
 import org.openl.util.RuntimeExceptionWrapper;
@@ -29,6 +30,14 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     public static URL toUrl(File file) {
         try {
             return file.toURI().toURL();
+        } catch (MalformedURLException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+    }
+
+    public static URL toUrl(Path path) {
+        try {
+            return path.toUri().toURL();
         } catch (MalformedURLException e) {
             throw RuntimeExceptionWrapper.wrap(e);
         }

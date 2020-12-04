@@ -1,7 +1,9 @@
 package org.openl.rules.project.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -9,6 +11,7 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.util.FileUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.util.AntPathMatcher;
 
@@ -142,6 +146,21 @@ public class ProjectDescriptor {
             } catch (URISyntaxException | MalformedURLException e1) {
                 try {
                     url = new URL(projectUrl, path).toURI().normalize().toURL();
+                    //FIXME
+                    if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+                        try {
+                            Path temp = Files.createTempFile(FileUtils.getBaseName(path), FileUtils.getExtension(path));
+                            temp.toFile().deleteOnExit();
+                            try (InputStream is = url.openStream()) {
+                                Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            url = temp.toUri().normalize().toURL();
+                        } catch (FileNotFoundException ignored) {
+                            //do nothing. It's OK
+                        } catch (IOException e) {
+                            throw RuntimeExceptionWrapper.wrap(e);
+                        }
+                    }
                 } catch (URISyntaxException | MalformedURLException e2) {
                     continue;
                 }

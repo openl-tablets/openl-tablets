@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web;
 
+import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -76,8 +78,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.PathMatcher;
 import org.springframework.web.context.annotation.RequestScope;
 
-import static org.openl.rules.webstudio.util.NameChecker.BAD_NAME_MSG;
-
 @Service
 @RequestScope
 public class ProjectBean {
@@ -123,22 +123,10 @@ public class ProjectBean {
 
     public String getModulePath(Module module) {
         PathEntry modulePath = module == null ? null : module.getRulesRootPath();
-
         if (modulePath == null) {
             return null;
         }
-
-        String moduleFullPath = modulePath.getPath();
-        ProjectDescriptor project = module.getProject();
-        if (project == null || project.getProjectFolder() == null) {
-            return moduleFullPath;
-        }
-        String projectFullPath = project.getProjectFolder().toAbsolutePath().toString();
-
-        if (moduleFullPath.contains(projectFullPath)) {
-            return moduleFullPath.replace(projectFullPath, "").substring(1);
-        }
-        return moduleFullPath;
+        return modulePath.getPath();
     }
 
     public List<ListItem<ProjectDependencyDescriptor>> getDependencies() {
@@ -650,17 +638,14 @@ public class ProjectBean {
                         continue;
                     }
                     if (module.getWildcardRulesRootPath().equals(removed.getRulesRootPath().getPath())) {
-                        File file = new File(module.getRulesRootPath().getPath());
+                        File file = module.getRulesPath().toFile();
                         if (!file.delete() && file.exists()) {
                             throw new Message("Cannot delete the file " + file.getName());
                         }
                     }
                 }
             } else {
-                File file = new File(removed.getRulesRootPath().getPath());
-                if (!file.isAbsolute()) {
-                    file = new File(projectFolder, removed.getRulesRootPath().getPath());
-                }
+                File file = removed.getRulesPath().toFile();
                 if (!file.delete() && file.exists()) {
                     throw new Message("Cannot delete the file " + file.getName());
                 }
@@ -1024,8 +1009,11 @@ public class ProjectBean {
     }
 
     private String getArtefactPath(String filePath, String basePath) {
+        if (filePath.startsWith(basePath)) {
+            filePath = filePath.substring(filePath.lastIndexOf(basePath) + basePath.length() + 1);
+        }
         return FileNameFormatter
-            .normalizePath(filePath.substring(filePath.lastIndexOf(basePath) + basePath.length() + 1));
+            .normalizePath(filePath);
     }
 
     private EnvironmentModel getEnvironmentModel(String moduleName) {

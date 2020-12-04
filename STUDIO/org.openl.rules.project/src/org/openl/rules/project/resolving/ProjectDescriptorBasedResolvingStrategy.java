@@ -3,7 +3,6 @@ package org.openl.rules.project.resolving;
 import java.io.FileNotFoundException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -62,17 +61,13 @@ public class ProjectDescriptorBasedResolvingStrategy implements ResolvingStrateg
                 globalWarnMessages.add(
                     "CWPropertyFileNameProcessor is deprecated. 'CW' keyword support for 'state' property is moved to the default property processor. Remove declaration of this class from 'rules.xml'.");
             }
-            Path rootProjectPath = projectDescriptor.getProjectFolder();
             for (Module module : projectDescriptor.getModules()) {
                 Set<String> moduleErrorMessages = new HashSet<>(globalErrorMessages);
                 Set<String> moduleWarnMessages = new HashSet<>(globalWarnMessages);
                 Map<String, Object> params = new HashMap<>();
                 if (processor != null) {
                     try {
-                        Path rulesFullPath = Paths.get(module.getRulesRootPath().getPath());
-
-                        String relativePath = rootProjectPath.relativize(rulesFullPath).toString().replace("\\", "/");
-
+                        final String relativePath = module.getRulesRootPath().getPath();
                         ITableProperties tableProperties = processor.process(relativePath);
                         params.put(PropertiesLoader.EXTERNAL_MODULE_PROPERTIES_KEY, tableProperties);
                     } catch (NoMatchFileNameException e) {

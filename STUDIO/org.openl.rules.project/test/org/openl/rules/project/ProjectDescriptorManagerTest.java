@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -38,10 +37,11 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ProjectDescriptor descriptor = manager.readDescriptor("test-resources/descriptor/rules1.xml");
         assertReadDescriptor1(descriptor);
+        final Path rootFolder = Paths.get("test-resources/descriptor").toAbsolutePath();
         Module module1 = descriptor.getModules().get(0);
-        assertTrue(new File(module1.getRulesRootPath().getPath()).isAbsolute());
+        assertTrue(module1.getRulesPath().startsWith(rootFolder));
         Module module2 = descriptor.getModules().get(1);
-        assertTrue(new File(module2.getRulesRootPath().getPath()).isAbsolute());
+        assertTrue(module2.getRulesPath().startsWith(rootFolder));
     }
 
     public void assertReadDescriptor1(ProjectDescriptor descriptor) {
@@ -52,9 +52,15 @@ public class ProjectDescriptorManagerTest {
         assertEquals("default.DefaultPropertiesFileNameProcessor", descriptor.getPropertiesFileNameProcessor());
         Module module1 = descriptor.getModules().get(0);
         assertEquals("MyModule1", module1.getName());
+        assertEquals("MyModule1.xls", module1.getRulesPath().getName(module1.getRulesPath().getNameCount() - 1).toString());
+        assertEquals("MyModule1.xls", module1.getRulesRootPath().getPath());
+        assertTrue(module1.getRulesPath().isAbsolute());
 
         Module module2 = descriptor.getModules().get(1);
         assertEquals("MyModule2", module2.getName());
+        assertEquals("MyModule2.xls", module2.getRulesPath().getName(module2.getRulesPath().getNameCount() - 1).toString());
+        assertEquals("MyModule2.xls", module2.getRulesRootPath().getPath());
+        assertTrue(module2.getRulesPath().isAbsolute());
 
         assertEquals(2, descriptor.getClasspath().size());
 
@@ -88,12 +94,13 @@ public class ProjectDescriptorManagerTest {
     @Test
     public void zipArchive_testReadDescriptor1() throws IOException, ValidationException {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
+            final Path rootFolder = fs.getPath("/");
             ProjectDescriptor descriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules1.xml"));
             assertReadDescriptor1(descriptor);
             Module module1 = descriptor.getModules().get(0);
-            assertTrue(module1.getRulesRootPath().getRealPath().isAbsolute());
+            assertTrue(module1.getRulesPath().startsWith(rootFolder));
             Module module2 = descriptor.getModules().get(1);
-            assertTrue(module2.getRulesRootPath().getRealPath().isAbsolute());
+            assertTrue(module2.getRulesPath().startsWith(rootFolder));
         }
     }
 

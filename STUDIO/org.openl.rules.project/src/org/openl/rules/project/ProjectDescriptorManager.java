@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -136,11 +137,11 @@ public class ProjectDescriptorManager {
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
                 if (isNotTemporaryFile(file) && pathMatcher.match(ptrn, relativePath)) {
-                    String moduleFile = file.toAbsolutePath().toString();
+                    Path modulePath = file.toAbsolutePath();
                     Module m = new Module();
                     m.setProject(descriptor);
-                    m.setRulesRootPath(new PathEntry(moduleFile));
-                    m.setName(FileUtils.getBaseName(moduleFile));
+                    m.setRulesRootPath(new PathEntry(relativePath));
+                    m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
                     m.setWildcardRulesRootPath(pathPattern);
                     m.setWildcardName(module.getName());
@@ -168,17 +169,11 @@ public class ProjectDescriptorManager {
     }
 
     private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
-        PathEntry pathEntry = m.getRulesRootPath();
-        if (!new File(m.getRulesRootPath().getPath()).isAbsolute()) {
-            pathEntry = new PathEntry(projectRoot.resolve(m.getRulesRootPath().getPath()).toAbsolutePath().toString());
-        }
+        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath().getPath());
 
         for (Module module : modules) {
-            PathEntry modulePathEntry = module.getRulesRootPath();
-            if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                modulePathEntry = new PathEntry(projectRoot.resolve(module.getRulesRootPath().getPath()).toAbsolutePath().toString());
-            }
-            if (pathEntry.getPath().equals(modulePathEntry.getPath())) {
+            Path modulePath = projectRoot.resolve(module.getRulesRootPath().getPath());
+            if (targetModulePath.equals(modulePath)) {
                 return true;
             }
         }
@@ -224,23 +219,24 @@ public class ProjectDescriptorManager {
                 module.setMethodFilter(new MethodFilter());
             }
             if (module.getMethodFilter().getExcludes() == null) {
-                module.getMethodFilter().setExcludes(new HashSet<String>());
+                module.getMethodFilter().setExcludes(new HashSet<>());
             } else {
                 // Remove empty nodes
                 module.getMethodFilter().getExcludes().removeAll(Arrays.asList("", null));
             }
 
             if (module.getMethodFilter().getIncludes() == null) {
-                module.getMethodFilter().setIncludes(new HashSet<String>());
+                module.getMethodFilter().setIncludes(new HashSet<>());
             } else {
                 // Remove empty nodes
                 module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
             }
 
-            if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                PathEntry absolutePath = new PathEntry(
-                    new File(projectRoot.toFile(), module.getRulesRootPath().getPath()).getCanonicalFile().getAbsolutePath());
-                module.setRulesRootPath(absolutePath);
+            Path modulePath = Paths.get(module.getRulesRootPath().getPath());
+            if (modulePath.isAbsolute()) {
+                modulePath = projectRoot.relativize(modulePath);
+                PathEntry relativePath = new PathEntry(modulePath.toString());
+                module.setRulesRootPath(relativePath);
             }
         }
     }

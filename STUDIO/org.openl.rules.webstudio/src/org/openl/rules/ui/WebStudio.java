@@ -10,9 +10,17 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.Charset;
-import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
@@ -373,7 +381,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public String exportModule() {
         try {
-            File file = new File(currentModule.getRulesRootPath().getPath());
+            File file = currentModule.getRulesPath().toFile();
             if (file.isDirectory() || !file.exists()) {
                 throw new ProjectException("Exporting module was failed");
             }
@@ -660,7 +668,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             stream = uploadedFile.getInput();
 
             Module module = getCurrentModule();
-            File sourceFile = new File(module.getRulesRootPath().getPath());
+            File sourceFile = module.getRulesPath().toFile();
 
             ProjectHistoryService.init(model.getHistoryStoragePath(), sourceFile);
             LocalRepository repository = rulesUserSession.getUserWorkspace()
@@ -701,7 +709,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         ProjectDescriptor projectDescriptor;
         try {
             for (Module module : currentProject.getModules()) {
-                File moduleFile = new File(module.getRulesRootPath().getPath());
+                File moduleFile = module.getRulesPath().toFile();
                 String moduleHistoryPath = currentProject.getProjectFolder()
                         .resolve(FolderHelper.HISTORY_FOLDER)
                         .resolve(module.getName())
@@ -779,7 +787,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         currentProject = resolveProject(projectDescriptor);
         for (Module module : currentProject.getModules()) {
-            File moduleFile = new File(module.getRulesRootPath().getPath());
+            File moduleFile = module.getRulesPath().toFile();
             String moduleHistoryPath = currentProject.getProjectFolder()
                     .resolve(FolderHelper.HISTORY_FOLDER)
                     .resolve(module.getName())
@@ -896,7 +904,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
         Module module = getCurrentModule();
         if (module != null) {
-            String moduleFullPath = module.getRulesRootPath().getPath().replace('\\', '/');
+            String moduleFullPath = module.getRulesPath().toString().replace('\\', '/');
             String lastUploadedFilePath = lastUploadedFile.getName().replace('\\', '/');
 
             String moduleFileName = moduleFullPath.substring(moduleFullPath.lastIndexOf('/') + 1);
@@ -1232,7 +1240,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         // Eclipse project
                         return false;
                     }
-                    String moduleURI = new File(module.getRulesRootPath().getPath()).toURI().toString();
+                    String moduleURI = module.getRulesPath().toFile().toURI().toString();
                     return tableURI.startsWith(moduleURI);
                 }
             });

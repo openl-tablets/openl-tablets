@@ -31,7 +31,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     private static final String CW_STATE_VALUE = "CW";
     private static final String ALL_KEYWORD = "Any";
 
-    private Set<String> propertyNames = new LinkedHashSet<>(0);
+    private final Set<String> propertyNames = new LinkedHashSet<>(0);
     private final Map<String, SimpleDateFormat> dateFormats;
     private final Pattern fileNameRegexpPattern;
     private final String pattern;

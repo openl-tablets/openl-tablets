@@ -64,7 +64,10 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
                     if (!Files.isHidden(f) && attrs.isRegularFile() && FileTypeHelper.isExcelFile(fileName)) {
                         String name = FileUtils.removeExtension(fileName);
                         if (!modules.containsKey(name)) {
-                            PathEntry rootPath = new PathEntry(f.toRealPath().toAbsolutePath().toString());
+                            final String relativePath = project.getProjectFolder()
+                                    .relativize(f.toRealPath().toAbsolutePath())
+                                    .toString();
+                            PathEntry rootPath = new PathEntry(relativePath);
                             Module module = createModule(project, rootPath, name);
                             modules.put(name, module);
                         } else {
