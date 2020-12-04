@@ -13,7 +13,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
 
     private static final String FAIL_MESSAGE = "Problem communicating with Git server, will retry automatically in %s";
     private static final String BLOCK_MESSAGE = "Problem communicating with Git server, please contact admin.";
-    private static final String INCORRECT_CRED_MESSAGE = "Incorrect login or password for '%s' Git repository.";
+    private static final String INCORRECT_CRED_MESSAGE = "Incorrect login or password for Git repository.";
 
 
     private final int failedAuthorizationSeconds;
@@ -42,7 +42,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             failedActions.addAll(currentActions);
         }
         if (currentActions.contains(GitActionType.INIT)) {
-            throw new InvalidCredentialsException(String.format(INCORRECT_CRED_MESSAGE, repositoryName));
+            throw new InvalidCredentialsException(INCORRECT_CRED_MESSAGE);
         }
         if (maxAuthorizationAttempts != null && failedAttempts.incrementAndGet() >= maxAuthorizationAttempts) {
             // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
