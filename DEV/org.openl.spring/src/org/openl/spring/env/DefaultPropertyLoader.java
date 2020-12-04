@@ -31,7 +31,7 @@ public class DefaultPropertyLoader extends PropertySourcesPlaceholderConfigurer 
     }
 
     @Nullable
-    private MutablePropertySources propertySources;
+    private PropertySources propertySources;
 
     @Nullable
     private Environment environment;
@@ -52,9 +52,9 @@ public class DefaultPropertyLoader extends PropertySourcesPlaceholderConfigurer 
     @Override
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         if (this.propertySources == null) {
-            this.propertySources = new MutablePropertySources();
+            MutablePropertySources propertySources = new MutablePropertySources();
             if (this.environment != null) {
-                this.propertySources.addLast(
+                propertySources.addLast(
                     new PropertySource<Environment>(ENVIRONMENT_PROPERTIES_PROPERTY_SOURCE_NAME, this.environment) {
                         @Override
                         @Nullable
@@ -68,9 +68,9 @@ public class DefaultPropertyLoader extends PropertySourcesPlaceholderConfigurer 
                     LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME,
                     mergeProperties());
                 if (this.localOverride) {
-                    this.propertySources.addFirst(localPropertySource);
+                    propertySources.addFirst(localPropertySource);
                 } else {
-                    this.propertySources.addLast(localPropertySource);
+                    propertySources.addLast(localPropertySource);
                 }
             } catch (IOException ex) {
                 throw new BeanInitializationException("Could not load properties", ex);
@@ -79,6 +79,7 @@ public class DefaultPropertyLoader extends PropertySourcesPlaceholderConfigurer 
                 .containsProperty(DefaultPropertySource.OPENL_CONFIG_LOADED)) {
                 propertySources.addLast(new DefaultPropertySource());
             }
+            this.propertySources = propertySources;
         }
 
         processProperties(beanFactory, new PropertySourcesPropertyResolver(this.propertySources));

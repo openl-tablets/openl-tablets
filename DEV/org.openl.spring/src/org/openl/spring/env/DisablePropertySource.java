@@ -2,21 +2,19 @@ package org.openl.spring.env;
 
 import java.util.prefs.Preferences;
 
-import org.springframework.core.env.MutablePropertySources;
 import org.springframework.core.env.PropertySource;
+import org.springframework.core.env.PropertySources;
 
 public class DisablePropertySource extends PropertySource<Preferences> {
 
     public static final String PROPS_NAME = "Disable properties";
     public static final String PROPS_PREFIX = "_sys_disable_";
 
-    static DisablePropertySource THE;
+    private final PropertySources propertySources;
 
-    private final MutablePropertySources propertySources;
-
-    public DisablePropertySource(MutablePropertySources resolver) {
+    DisablePropertySource(PropertySources propertySources) {
         super(PROPS_NAME);
-        this.propertySources = resolver;
+        this.propertySources = propertySources;
     }
 
     @Override
