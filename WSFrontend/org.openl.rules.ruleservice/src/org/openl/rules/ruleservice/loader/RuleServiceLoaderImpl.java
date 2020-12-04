@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.loader;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -34,7 +33,6 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.exceptions.RRepositoryException;
@@ -56,12 +54,11 @@ import org.springframework.util.FileSystemUtils;
 public class RuleServiceLoaderImpl implements RuleServiceLoader {
     private final Logger log = LoggerFactory.getLogger(RuleServiceLoaderImpl.class);
 
-    private ProjectResolver projectResolver;
-
-    private Repository repository;
+    private final ProjectResolver projectResolver;
+    private final Repository repository;
+    private final FileSystemRepository tempRepo;
+    private final Path tempPath;
     private String deployPath = "";
-    private FileSystemRepository tempRepo;
-    private Path tempPath;
 
     /**
      * Construct a new RulesLoader for bean usage.
@@ -172,81 +169,6 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     @Override
     public Collection<IDeployment> getDeployments() {
-        List<FileData> fileDatas;
-        try {
-            if (repository.supports().folders()) {
-                // All deployments
-                fileDatas = ((FolderRepository) repository).listFolders(getDeployPath());
-            } else {
-                // Projects inside all deployments
-                fileDatas = repository.list(getDeployPath());
-            }
-        } catch (IOException ex) {
-            throw RuntimeExceptionWrapper.wrap(ex);
-        }
-        ConcurrentMap<String, IDeployment> deployments = new ConcurrentHashMap<>();
-        for (FileData fileData : fileDatas) {
-            String name = fileData.getName();
-            String deployFolder = getDeployPath();
-            String deploymentPath = name.substring(deployFolder.length());
-            String[] pathEntries = deploymentPath.split("/");
-            String deploymentFolderName = pathEntries[0];
-
-            String version = fileData.getVersion();
-            CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0" : version);
-
-            String folderPath = getDeployPath() + deploymentFolderName;
-
-            boolean folderStructure = isFolderStructure(folderPath);
-
-            //FIXME: Workaround for simple deployment zip files
-            Deployment deployment = null;
-            if (isLocalZipFile(fileData) && isSimpleProjectDeployment(fileData)) {
-                String versionName = commonVersion.getVersionName();
-                final String tempDeploymentName = deploymentFolderName + "_v" + versionName;
-                deployment = new Deployment(tempRepo,
-                        tempDeploymentName,
-                        deploymentFolderName,
-                        commonVersion,
-                        true);
-                Path tempDeploymentPath = tempPath.resolve(tempDeploymentName).resolve(deploymentFolderName);
-                try {
-                    Files.createDirectories(tempDeploymentPath);
-                    List<FileData> artefacts = repository.list(getDeployPath() + deploymentFolderName);
-                    for (FileData artefactData : artefacts) {
-                        //create sub folders
-                        Path artefactPath = artefactData.getPath().getParent();
-                        artefactPath = tempDeploymentPath.resolve(artefactPath.toString().substring(1));
-                        Files.createDirectories(artefactPath);
-
-                        artefactPath = artefactPath.resolve(artefactData.getPath().getFileName().toString());
-                        FileItem artefactItem = repository.read(artefactData.getName());
-                        try (InputStream is = artefactItem.getStream()) {
-                            Files.copy(is, artefactPath);
-                        }
-                    }
-                    deployment.refresh();
-                } catch (IOException e) {
-                    log.error(e.getMessage(), e);
-                    deployment = null;
-                }
-            }
-
-            if (deployment == null) {
-                deployment = new Deployment(repository,
-                        folderPath,
-                        deploymentFolderName,
-                        commonVersion,
-                        folderStructure);
-            }
-            deployments.putIfAbsent(deploymentFolderName, deployment);
-        }
-
-        return deployments.values();
-    }
-
-    @Override
-    public Collection<IDeployment> getDeployments2() {
         List<FileData> fileDatas;
         try {
             if (repository.supports().folders()) {

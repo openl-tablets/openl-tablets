@@ -28,8 +28,6 @@ public interface RuleServiceLoader {
      */
     Collection<IDeployment> getDeployments();
 
-    Collection<IDeployment> getDeployments2();
-
     /**
      * @param deploymentName
      * @param deploymentVersion

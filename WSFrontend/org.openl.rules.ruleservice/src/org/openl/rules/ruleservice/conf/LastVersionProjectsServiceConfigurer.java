@@ -53,7 +53,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         log.debug("Calculate services to be deployed...");
 
         Collection<IDeployment> deployments = ruleServiceLoader.getDeployments();
-        Collection<IDeployment> deployments2 = ruleServiceLoader.getDeployments2();
 
         Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
         Set<String> serviceURLs = new HashSet<>();
