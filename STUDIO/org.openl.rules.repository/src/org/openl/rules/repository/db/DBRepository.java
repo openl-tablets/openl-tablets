@@ -30,7 +30,7 @@ import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
+abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
     private static final Logger LOG = LoggerFactory.getLogger(DBRepository.class);
 
     private String id;

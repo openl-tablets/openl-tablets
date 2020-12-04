@@ -56,7 +56,6 @@ import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.git.branch.BranchDescription;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
@@ -531,7 +530,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("initialize(): lock");
@@ -723,11 +722,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // Unknown host
             if (cause instanceof UnknownHostException) {
                 String error = "Invalid URL " + uri;
-                throw new RRepositoryException(error, new IllegalArgumentException(error));
+                throw new IllegalArgumentException(error);
             }
 
             // Other cases
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
