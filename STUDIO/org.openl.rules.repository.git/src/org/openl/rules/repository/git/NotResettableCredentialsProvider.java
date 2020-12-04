@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.eclipse.jgit.internal.JGitText;
 import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 
@@ -12,6 +13,8 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
 
     private static final String FAIL_MESSAGE = "Problem communicating with Git server, will retry automatically in %s";
     private static final String BLOCK_MESSAGE = "Problem communicating with Git server, please contact admin.";
+    private static final String INCORRECT_CRED_MESSAGE = "Incorrect login or password for Git repository.";
+
 
     private final int failedAuthorizationSeconds;
     private final Integer maxAuthorizationAttempts;
@@ -28,6 +31,7 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         super(username, password);
         this.failedAuthorizationSeconds = failedAuthorizationSeconds;
         this.maxAuthorizationAttempts = maxAuthorizationAttempts;
+        currentActions.add(GitActionType.INIT);
     }
 
     @Override
@@ -37,12 +41,15 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         synchronized (this) {
             failedActions.addAll(currentActions);
         }
+        if (currentActions.contains(GitActionType.INIT)) {
+            throw new InvalidCredentialsException(INCORRECT_CRED_MESSAGE);
+        }
         if (maxAuthorizationAttempts != null && failedAttempts.incrementAndGet() >= maxAuthorizationAttempts) {
             // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
             nextAttempt.set(-1);
             throw new InvalidCredentialsException(BLOCK_MESSAGE);
         }
-        nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000);
+        nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000L);
         throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, getNextAttemptTime()));
     }
 
@@ -97,5 +104,9 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
             nextAttempt = new AtomicLong(0);
             failedAttempts = new AtomicInteger(0);
         }
+    }
+
+    boolean isHasAuthorizationFailure() {
+        return !failedActions.isEmpty();
     }
 }

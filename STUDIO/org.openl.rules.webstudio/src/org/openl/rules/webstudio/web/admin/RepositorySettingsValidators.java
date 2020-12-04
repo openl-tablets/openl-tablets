@@ -41,10 +41,11 @@ public class RepositorySettingsValidators {
 
     public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
         String newBranchName = StringUtils.trim((String) value);
-        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
-        WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
-        validateBranchName(newBranchName);
+        if (StringUtils.isNotBlank(newBranchName)) {
+            newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
+            WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
+            validateBranchName(newBranchName);
+        }
     }
 
     public static void validateBranchName(String newBranchName){
