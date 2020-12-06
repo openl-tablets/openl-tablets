@@ -454,8 +454,7 @@ public class StringUtils {
      * @see #capitalize(String)
      */
     public static String uncapitalize(final String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
+        if (isEmpty(str)) {
             return str;
         }
 
