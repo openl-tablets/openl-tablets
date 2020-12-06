@@ -17,7 +17,7 @@ public final class Comments {
     private static final String DATETIME = "{datetime}";
     private static final String CURRENT_DATE = "{current-date}";
     private static final String USER_NAME = "{username}";
-    private static final String REPOSITORY_PREFIX = "repository.";
+    public static final String REPOSITORY_PREFIX = "repository.";
 
     private final PropertyResolver environment;
     private final String prefix;

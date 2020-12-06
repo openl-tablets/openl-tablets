@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -61,7 +62,7 @@ public class ProductionRepositoryEditor {
                     // Not found default value. Production repositories don't have default values. Let's get
                     // default value from design repository.
                     String key = (String) args[0];
-                    String prefix = "repository.";
+                    String prefix = Comments.REPOSITORY_PREFIX;
                     if (key.startsWith(prefix)) {
                         // Replace repository key to design repository
                         int from = prefix.length();
@@ -165,7 +166,7 @@ public class ProductionRepositoryEditor {
         prodConfig.commit();
         if (prodConfig.isNameChangedIgnoreCase()) {
             String newConfigName = prodConfig.getName();
-            properties.setProperty("repository." + prodConfig.getConfigName() + ".name", newConfigName);
+            properties.setProperty(Comments.REPOSITORY_PREFIX + prodConfig.getConfigName() + ".name", newConfigName);
         }
 
         return prodConfig;

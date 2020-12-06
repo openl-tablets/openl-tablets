@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.repository;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.ProductionRepositoryEditor;
@@ -28,7 +29,7 @@ public class ProductionRepositoryFactoryProxy {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
+                    factories.put(configName, RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
                 }
             }
         }
@@ -58,7 +59,7 @@ public class ProductionRepositoryFactoryProxy {
     }
 
     public String getDeploymentsPath(String configName) {
-        String key = "repository." + configName + ".base.path";
+        String key = Comments.REPOSITORY_PREFIX + configName + ".base.path";
         String deployPath = propertyResolver.getProperty(key);
         if (deployPath == null) {
             throw new IllegalArgumentException("Property " + key + " is absent");

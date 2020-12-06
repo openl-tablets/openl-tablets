@@ -17,6 +17,7 @@ import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.BranchRepository;
@@ -123,7 +124,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private Repository createRepo(String configName, boolean flatStructure, String folderConfig, String baseFolder) {
         try {
-            Repository repo = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
+            Repository repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;

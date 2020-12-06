@@ -28,8 +28,6 @@ import org.openl.util.StringUtils;
  */
 public class RepositoryInstatiator {
 
-    public static final String REPOSITORY_PREFIX = "repository.";
-
     public static Repository newRepository(String prefix, Function<String, String> props) {
         String factoryClass = props.apply(prefix + ".factory");
         Repository repository = newInstance(factoryClass);
