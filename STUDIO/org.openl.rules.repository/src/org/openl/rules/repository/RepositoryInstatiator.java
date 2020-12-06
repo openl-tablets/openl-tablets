@@ -1,16 +1,13 @@
 package org.openl.rules.repository;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.function.Function;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Repository;
-import org.openl.util.ClassUtils;
+import org.openl.util.ObjectUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -56,96 +53,37 @@ public class RepositoryInstatiator {
         }
     }
 
-    private static void injectValue(Object instance, Class<?> clazz, String value, String fieldName) {
-        String setter = "set" + Character.toUpperCase(fieldName.charAt(0)) + fieldName.substring(1);
-        try {
-            Method setMethod = clazz.getMethod(setter, String.class);
-            setMethod.invoke(instance, value);
-        } catch (NoSuchMethodException e) {
-            Method[] methods = clazz.getMethods();
-            for (Method method : methods) {
-                if (method.getName().equals(setter)) {
-                    Class<?>[] parameterTypes = method.getParameterTypes();
-                    if (parameterTypes.length == 1) {
-                        try {
-                            method.invoke(instance, convert(parameterTypes[0], value));
-                            // Found needed setter
-                            break;
-                        } catch (NoSuchMethodException | IllegalAccessException ignore) {
-                            // Cannot convert using this method. Skip.
-                        } catch (InvocationTargetException e1) {
-                            // The underlying method throws an exception
-                            throw new IllegalStateException(
-                                "Failed to invoke " + setter + "(" + parameterTypes[0]
-                                    .getSimpleName() + ") method in: " + clazz,
-                                e1);
-                        }
-                    }
-                }
-            }
-            // Didn't find setter, skip this param. For example not always exists setUri(String).
-        } catch (Exception e) {
-            throw new IllegalStateException(
-                String.format("Failed to invoke method '%s.%s(String)'.", clazz.getTypeName(), fieldName),
-                e);
-        }
-    }
-
     private static void setParams(Object instance, Function<String, String> props, String prefix) {
         Class<?> clazz = instance.getClass();
-        for (String fieldName : getAllFieldNames(clazz)) {
-            if ("id".equals(fieldName)) {
-                // FIXME: Remove assumption that id is the last part of the prefix.
-                int dot = prefix.lastIndexOf('.');
-                String configName = prefix.substring(dot + 1);
-                injectValue(instance, clazz, configName, fieldName);
-                continue;
-            }
-            String propertyName = prefix + "." + toPropertiesCase(fieldName);
-            String propertyValue = props.apply(propertyName);
-            boolean propertyExists = StringUtils.isNotBlank(propertyValue);
-            if (propertyExists) {
-                injectValue(instance, clazz, propertyValue, fieldName);
-            }
+        try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
+            stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))
+                .forEach(method -> {
+                    String fieldName = method.getName().substring(3);
+                    String propertyName = prefix + "." + StringUtils.camelToKebab(fieldName);
+                    String propertyValue = props.apply(propertyName);
+                    if ("id".equals(fieldName)) {
+                        // FIXME: Remove assumption that id is the last part of the prefix.
+                        int dot = prefix.lastIndexOf('.');
+                        propertyValue = prefix.substring(dot + 1);
+                    }
+                    boolean propertyExists = StringUtils.isNotBlank(propertyValue);
+                    if (propertyExists) {
+                        Class<?> type = method.getParameterTypes()[0];
+                        Object value = ObjectUtils.convert(propertyValue, type);
+                        try {
+                            method.invoke(instance, value);
+                        } catch (Exception e) {
+                            throw new IllegalStateException(
+                                String.format("Failed to invoke method '%s.%s(%s)' with value '%s'.",
+                                    clazz.getTypeName(),
+                                    method.getName(),
+                                    type.getSimpleName(),
+                                    value),
+                                e);
+                        }
+                    }
+                });
         }
-    }
-
-    private static Collection<String> getAllFieldNames(Class<?> type) {
-        Collection<String> fields = new HashSet<>();
-        for (Class<?> c = type; c != null; c = c.getSuperclass()) {
-            fields.addAll(Arrays.stream(c.getDeclaredFields()).map(Field::getName).collect(Collectors.toList()));
-        }
-        return fields;
-    }
-
-    /**
-     * Convert field names from camelCase("paramName") style to "param-name" style
-     *
-     * @param key camelCased parameter name
-     * @return hyphen-cased parameter name
-     */
-    private static String toPropertiesCase(String key) {
-        StringBuilder sb = new StringBuilder();
-        char[] chars = key.toCharArray();
-        for (char aChar : chars) {
-            char c = aChar;
-            if (Character.isUpperCase(c)) {
-                c = Character.toLowerCase(c);
-                sb.append("-").append(c);
-            } else {
-                sb.append(c);
-            }
-        }
-        return sb.toString();
-    }
-
-    private static Object convert(Class<?> parameterType,
-            String value) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException {
-        if (parameterType.isPrimitive()) {
-            parameterType = ClassUtils.primitiveToWrapper(parameterType);
-        }
-        Method valueOfMethod = parameterType.getMethod("valueOf", String.class);
-        return valueOfMethod.invoke(null, value);
     }
 
     private static void initialize(Object instance) {
