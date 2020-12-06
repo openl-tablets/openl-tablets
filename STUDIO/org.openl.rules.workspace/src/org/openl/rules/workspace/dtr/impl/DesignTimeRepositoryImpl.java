@@ -18,6 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.BranchRepository;
@@ -139,7 +140,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
         try {
-            Repository repo = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
+            Repository repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
             if (repositorySettings != null) {
                 String setter = "setRepositorySettings";
                 try {
@@ -184,7 +185,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         if ("getId".equals(method.getName()) && method.getReturnType() == String.class) {
                             return configName;
                         }
-                        String repoName = propertyResolver.getProperty("repository." + configName + ".name");
+                        String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
                         if ("getName".equals(method.getName()) && method.getReturnType() == String.class) {
                             return repoName;
                         }

@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
@@ -184,7 +185,7 @@ public final class RepositoryValidators {
     public static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
         PropertyResolver propertiesResolver = DelegatedPropertySource
             .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-        try (Repository repository = RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
+        try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
             // Validate instantiation
             Objects.requireNonNull(repository);
         }

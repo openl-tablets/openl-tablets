@@ -9,6 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -75,7 +76,7 @@ public class RepositoryEditor {
                     .equals(method.getName()) && parameterTypes.length == 1 && parameterTypes[0] == String.class) {
                     // Not found default value. Let's get default value from first repository.
                     String key = (String) args[0];
-                    String prefix = "repository.";
+                    String prefix = Comments.REPOSITORY_PREFIX;
                     if (key.startsWith(prefix)) {
                         // Replace repository key to design repository
                         int from = prefix.length();
@@ -183,7 +184,7 @@ public class RepositoryEditor {
         prodConfig.commit();
         if (prodConfig.isNameChangedIgnoreCase()) {
             String newConfigName = prodConfig.getName();
-            properties.setProperty("repository." + prodConfig.getConfigName() + ".name", newConfigName);
+            properties.setProperty(Comments.REPOSITORY_PREFIX + prodConfig.getConfigName() + ".name", newConfigName);
         }
 
         return prodConfig;

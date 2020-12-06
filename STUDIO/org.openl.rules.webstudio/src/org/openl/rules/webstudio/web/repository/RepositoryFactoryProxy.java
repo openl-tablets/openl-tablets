@@ -3,14 +3,11 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
-
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
@@ -52,7 +49,7 @@ public class RepositoryFactoryProxy {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, RepositoryInstatiator.newRepository(RepositoryInstatiator.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
+                    factories.put(configName, RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
                 }
             }
         }
@@ -82,7 +79,7 @@ public class RepositoryFactoryProxy {
     }
 
     public String getBasePath(String configName) {
-        String key = "repository." + configName + ".base.path";
+        String key = Comments.REPOSITORY_PREFIX + configName + ".base.path";
         String basePath = propertyResolver.getProperty(key);
         if (basePath == null) {
             throw new IllegalArgumentException("Property " + key + " is absent");

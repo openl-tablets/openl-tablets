@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.regex.Pattern;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
@@ -28,10 +29,10 @@ public class CommentValidator {
     }
 
     public static CommentValidator forRepo(String repoId) {
-        boolean customComments = Boolean.parseBoolean(Props.text("repository." + repoId + ".comment-template.use-custom-comments"));
+        boolean customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
         if (customComments) {
-            return new CommentValidator(Props.text("repository." + repoId + ".comment-validation-pattern"),
-                Props.text("repository." + repoId + ".invalid-comment-message"));
+            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-validation-pattern"),
+                Props.text(Comments.REPOSITORY_PREFIX + repoId + ".invalid-comment-message"));
         } else {
             return new CommentValidator(null, null);
         }
