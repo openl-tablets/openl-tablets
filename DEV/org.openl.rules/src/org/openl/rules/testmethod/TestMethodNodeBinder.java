@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
@@ -26,7 +28,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.TableNameChecker;
+import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
@@ -61,6 +63,15 @@ public class TestMethodNodeBinder extends DataNodeBinder {
         }
 
         return boundNode;
+    }
+
+    private static class TestedMethodBindingDetails {
+        TestMethodBoundNode testMethodBoundNode = null;
+        IOpenMethod testedMethod = null;
+        TestMethodOpenClass testMethodOpenClass = null;
+        ITable dataTable = null;
+        Collection<OpenLMessage> messages = null;
+        List<SyntaxNodeException> errors = null;
     }
 
     @Override
@@ -100,90 +111,100 @@ public class TestMethodNodeBinder extends DataNodeBinder {
             IMethodSignature.VOID,
             module);
 
-        TestMethodBoundNode bestCaseTestMethodBoundNode = null;
-        IOpenMethod bestCaseOpenMethod = null;
-        List<SyntaxNodeException> bestCaseErrors = null;
-        TestMethodOpenClass bestTestMethodOpenClass = null;
-        ITable bestDataTable = null;
-
+        TestedMethodBindingDetails best = null;
         boolean hasNoErrorBinding = false;
-        Collection<OpenLMessage> bestMessages = null;
-        List<SyntaxNodeException> bestBindingContextErrors = null;
-
+        List<TestedMethodBindingDetails> noErrorsCases = null;
         for (IOpenMethod testedMethod : module.getMethods()) {
             if (!methodName.equals(testedMethod.getName())) {
                 continue;
             }
-            TestMethodBoundNode testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode,
-                module,
-                bindingContext);
-            TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, testMethodBoundNode);
-            testMethodBoundNode.setTestSuite(testSuite);
-            TestMethodOpenClass testMethodOpenClass = new TestMethodOpenClass(tableName, testedMethod);
+            TestedMethodBindingDetails current = new TestedMethodBindingDetails();
+            current.testedMethod = testedMethod;
+            current.testMethodBoundNode = (TestMethodBoundNode) makeNode(tableSyntaxNode, module, bindingContext);
+            TestSuiteMethod testSuite = new TestSuiteMethod(testedMethod, header, current.testMethodBoundNode);
+            current.testMethodBoundNode.setTestSuite(testSuite);
+            current.testMethodOpenClass = new TestMethodOpenClass(tableName, testedMethod);
 
             // Check that table type loaded properly.
             //
-            if (testMethodOpenClass.getInstanceClass() == null) {
-                String message = String.format("Table '%s' was defined with errors", methodName);
+            if (current.testMethodOpenClass.getInstanceClass() == null) {
+                String message = String.format("Table '%s' is defined with errors.", methodName);
                 throw SyntaxNodeExceptionUtils.createError(message, parsedHeader[TESTED_METHOD_INDEX]);
             }
             bindingContext.pushErrors();
             bindingContext.pushMessages();
-            ITable dataTable;
-            Collection<OpenLMessage> messages;
-            List<SyntaxNodeException> errors1;
             try {
-                dataTable = makeTable(module,
+                current.dataTable = makeTable(module,
                     tableSyntaxNode,
                     tableName,
-                    testMethodOpenClass,
+                    current.testMethodOpenClass,
                     bindingContext,
                     openl,
                     false);
             } finally {
-                errors1 = bindingContext.popErrors();
-                messages = bindingContext.popMessages();
-            }
-            testMethodBoundNode.setTable(dataTable);
-            if (!errors1.isEmpty() && (bestCaseErrors == null || bestCaseErrors.size() > errors1.size())) {
-                bestCaseErrors = errors1;
-                bestCaseTestMethodBoundNode = testMethodBoundNode;
-                bestCaseOpenMethod = testedMethod;
-                bestTestMethodOpenClass = testMethodOpenClass;
-                bestDataTable = dataTable;
-                bestMessages = messages;
-                bestBindingContextErrors = errors1;
-            } else if (errors1.isEmpty()) {
-                if (!hasNoErrorBinding) {
-                    bestCaseTestMethodBoundNode = testMethodBoundNode;
-                    bestCaseOpenMethod = testedMethod;
-                    bestTestMethodOpenClass = testMethodOpenClass;
-                    hasNoErrorBinding = true;
-                    bestDataTable = dataTable;
-                    bestMessages = messages;
-                    bestBindingContextErrors = errors1;
-                } else {
-                    List<IOpenMethod> list = new ArrayList<>();
-                    list.add(testedMethod);
-                    list.add(bestCaseOpenMethod);
-                    throw new AmbiguousMethodException(tableName, IOpenClass.EMPTY, list);
+                current.errors = bindingContext.popErrors();
+                if (current.errors == null) {
+                    current.errors = Collections.emptyList();
                 }
-                bestCaseErrors = Collections.emptyList();
-
+                current.messages = bindingContext.popMessages();
+                if (current.messages == null) {
+                    current.messages = Collections.emptyList();
+                }
             }
+            current.testMethodBoundNode.setTable(current.dataTable);
 
+            if (!current.errors.isEmpty() && (best == null || best.errors.size() > current.errors.size())) {
+                best = current;
+            } else if (current.errors.isEmpty()) {
+                if (!hasNoErrorBinding) {
+                    hasNoErrorBinding = true;
+                    best = current;
+                } else {
+                    if (noErrorsCases == null) {
+                        noErrorsCases = new ArrayList<>();
+                        noErrorsCases.add(best);
+                    }
+                    noErrorsCases.add(current);
+                }
+            }
         }
 
-        if (bestCaseTestMethodBoundNode != null) {
-            bestCaseTestMethodBoundNode.setTable(bestDataTable);
-
-            DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, bestTestMethodOpenClass);
-
-            if (bestMessages != null) {
-                bestMessages.forEach(bindingContext::addMessage);
+        if (noErrorsCases != null && noErrorsCases.size() > 1) {
+            List<TestedMethodBindingDetails> exactMatches = new ArrayList<>();
+            for (TestedMethodBindingDetails noErrorCase : noErrorsCases) {
+                int c = 0;
+                for (int i = 0; i < noErrorCase.testedMethod.getSignature().getNumberOfParameters(); i++) {
+                    String parameterName = noErrorCase.testedMethod.getSignature().getParameterName(i);
+                    for (int j = 0; j < noErrorCase.dataTable.getNumberOfColumns(); j++) {
+                        String columnFieldName = noErrorCase.dataTable.getColumnDescriptor(j).getName();
+                        if (Objects.equals(columnFieldName, parameterName)) {
+                            c++;
+                            break;
+                        }
+                    }
+                }
+                if (c == noErrorCase.testedMethod.getSignature().getNumberOfParameters()) {
+                    exactMatches.add(noErrorCase);
+                }
             }
-            bestBindingContextErrors.forEach(bindingContext::addError);
-            return bestCaseTestMethodBoundNode;
+            if (exactMatches.isEmpty()) {
+                throw new AmbiguousMethodException(methodName,
+                    noErrorsCases.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+            }
+            if (exactMatches.size() > 1) {
+                throw new AmbiguousMethodException(methodName,
+                    exactMatches.stream().map(e -> e.testedMethod).collect(Collectors.toList()));
+            } else {
+                best = exactMatches.iterator().next();
+            }
+        }
+
+        if (best != null) {
+            best.testMethodBoundNode.setTable(best.dataTable);
+            DataNodeBinder.putSubTableForBusinessView(tableSyntaxNode, best.testMethodOpenClass);
+            best.messages.forEach(bindingContext::addMessage);
+            best.errors.forEach(bindingContext::addError);
+            return best.testMethodBoundNode;
         }
 
         String message = MessageUtils.getTableNotFoundErrorMessage(methodName);

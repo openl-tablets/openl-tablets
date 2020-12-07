@@ -14,5 +14,7 @@ import org.openl.base.INamedThing;
  */
 public interface IParameterDeclaration extends INamedThing {
 
+    IParameterDeclaration[] EMPTY = new IParameterDeclaration[0];
+
     IOpenClass getType();
 }

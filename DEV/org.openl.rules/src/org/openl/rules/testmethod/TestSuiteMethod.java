@@ -448,9 +448,9 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     }
 
     @Override
-    public void removeDebugInformation() {
+    public void clearForExecutionMode() {
         // Initialize data needed to run tests before removing debug info
         initializeTestData();
-        super.removeDebugInformation();
+        super.clearForExecutionMode();
     }
 }

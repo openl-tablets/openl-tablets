@@ -17,7 +17,6 @@ import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -84,7 +83,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
             builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
@@ -120,7 +119,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             list("");
             monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
         } catch (SdkClientException | IOException e) {
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         }
     }
 

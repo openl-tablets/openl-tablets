@@ -14,29 +14,6 @@
     <url>https://openl-tablets.org</url>
 
     <dependencies>
-        <!-- OpenL Projects -->
-        <dependency>
-            <groupId>itest.openl.projects</groupId>
-            <artifactId>rules-to-deploy-datasource</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/libs/rules-to-deploy-datasource.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>itest.openl.projects</groupId>
-            <artifactId>multiple-deployment-datasource</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/libs/multiple-deployment-datasource.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>itest.openl.projects</groupId>
-            <artifactId>multiple-deployment-yaml-datasource</artifactId>
-            <version>1.0</version>
-            <scope>system</scope>
-            <systemPath>${basedir}/libs/multiple-deployment-yaml-datasource.jar</systemPath>
-        </dependency>
-
         <!-- Integration Tests-->
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -50,5 +27,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 </project>

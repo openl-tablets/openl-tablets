@@ -1,0 +1,2 @@
+ ERROR: Method 'MyRule2' is ambiguous:
+ ERROR: Method 'MyRule3' is ambiguous:

@@ -69,7 +69,7 @@ public class SystemSettingsBean {
         properties = new InMemoryProperties(propertyResolver);
 
         try {
-            deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.toString(), properties);
+            deployConfigRepositoryConfiguration = new RepositoryConfiguration(RepositoryMode.DEPLOY_CONFIG.getId(), properties);
             if (!isUseDesignRepo() && deployConfigRepositoryConfiguration.getErrorMessage() != null) {
                 log.error(deployConfigRepositoryConfiguration.getErrorMessage());
                 WebStudioUtils.addErrorMessage("Incorrect deploy config repository configuration, please fix it.");
@@ -308,11 +308,11 @@ public class SystemSettingsBean {
             default:
                 throw new IllegalArgumentException("Unsupported repository mode " + repositoryMode);
         }
-        configName = repositoryMode.toString();
+        configName = repositoryMode.getId();
         RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
         templateConfig.setType(accessType);
 
-        String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode.toString());
+        String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode.getId());
         
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
         repoConfig.commit();

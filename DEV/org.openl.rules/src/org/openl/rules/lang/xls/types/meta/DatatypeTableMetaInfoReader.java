@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getIdentifierNode;
 
 import java.util.Collections;
 
@@ -17,7 +16,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.ParserUtils;
+import org.openl.util.ParserUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -135,7 +134,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
 
     private static String getName(ILogicalTable row) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, null, 1);
-        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
+        IdentifierNode[] idn = Tokenizer.tokenize(nameCellSource, " \r\n");
         if (idn.length != 1) {
             // Table with error. Skip it
             return null;

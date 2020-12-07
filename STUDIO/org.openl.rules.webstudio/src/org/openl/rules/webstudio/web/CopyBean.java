@@ -22,6 +22,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -318,30 +319,20 @@ public class CopyBean {
         }
     }
 
-    public void newBranchNamePatternValidator(FacesContext context, UIComponent toValidate, Object value) {
-        String newBranchName = StringUtils.trim((String) value);
-        WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        newBranchName = newBranchName.replace("{project-name}", "project-name").replace("{username}", "username").replace("{current-date}", "current-date");
-        WebStudioUtils.validate(!newBranchName.contains("{") && !newBranchName.contains("}"), "Only the following placeholder options are available: {project-name}, {username}, {current-date}");
-        validateBranchName(newBranchName);
-    }
-
-    private void validateBranchName(String newBranchName){
-        WebStudioUtils.validate(newBranchName.matches("[a-zA-Z0-9À-ÿА-Яа-я-_.]+"),
-                "Invalid branch name. Only latin letters, numbers, '_', '-', '/' and '.' are allowed.");
-        WebStudioUtils.validate(newBranchName.matches("(([a-zA-Z0-9À-ÿА-Яа-я]+|(^))+((.)?+([a-zA-Z0-9À-ÿА-Яа-я]+|($))+)*)*"),
-                "Invalid branch name. Should not contain consecutive symbols: '.', '-', '/', '_'.");
-        WebStudioUtils.validate(newBranchName.matches("^([a-zA-Z0-9À-ÿА-Яа-я-_])+(.*)+([a-zA-Z0-9À-ÿА-Яа-я-_])$"),
-                "Invalid branch name. Can not start with '.' or '/'.");
-    }
-
     public void newBranchNameValidator(FacesContext context, UIComponent toValidate, Object value) {
         if (!isSupportsBranches() || isSeparateProjectSubmitted(context)) {
             return;
         }
         String newBranchName = StringUtils.trim((String) value);
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
-        validateBranchName(newBranchName);
+        RepositorySettingsValidators.validateBranchName(newBranchName);
+
+        String customRegex = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch-regex");
+        String customRegexError = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch-regex-error");
+        if (StringUtils.isNotBlank(customRegex)) {
+            customRegexError = StringUtils.isNotBlank(customRegexError) ? customRegexError : "The branch name does not match the following pattern: " + customRegex;
+            WebStudioUtils.validate(newBranchName.matches(customRegex), customRegexError);
+        }
 
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
@@ -387,6 +378,16 @@ public class CopyBean {
     public void setRepositoryId(String repositoryId) {
         this.repositoryId = repositoryId;
         this.toRepositoryId = repositoryId;
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+            if (designTimeRepository.getRepository(toRepositoryId) == null) {
+                toRepositoryId = designTimeRepository.getRepositories().get(0).getId();
+            }
+        } catch (WorkspaceException e) {
+            LOG.error(e.getMessage(), e);
+        }
+
         this.designRepoComments = new Comments(propertyResolver, toRepositoryId);
     }
 

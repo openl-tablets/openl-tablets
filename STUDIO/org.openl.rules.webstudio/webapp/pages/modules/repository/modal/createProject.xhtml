@@ -358,8 +358,10 @@
                         <h:panelGroup rendered="#{repositoryTreeController.editModelsPath}">
                             <h:inputText id="modelsFilePath" size="35" maxlength="70"
                                          value="#{repositoryTreeController.modelsPath}"
+                                         style="display: inline-block;"
                                          onkeyup="checkCreateOnOpenApiPanel();"/>
-                            <a4j:commandLink title="Reset" style="margin-left: 5px; text-decoration: none;"
+                            <a4j:commandLink title="Reset"
+                                             style="text-decoration: none; display: inline-block; margin-left: 5px;"
                                              id="resetDataPath"
                                              render="openAPIModelModule"
                                              oncomplete="modelsPathIsInput = false; initListeners();showDefaultDataPath(); checkCreateOnOpenApiPanel();"
@@ -392,10 +394,11 @@
                         <h:panelGroup rendered="#{repositoryTreeController.editAlgorithmsPath}">
                             <h:inputText id="algorithmsFilePath" size="35" maxlength="70"
                                          value="#{repositoryTreeController.algorithmsPath}"
+                                         style="display: inline-block;"
                                          onkeyup="checkCreateOnOpenApiPanel();"/>
                             <a4j:commandLink title="Reset" class="editable-link"
                                              render="openAPIAlgoModule"
-                                             style="margin-left: 5px;text-decoration: none;"
+                                             style="text-decoration: none; display: inline-block; margin-left: 5px;"
                                              id="resetAlgoPath"
                                              action="#{repositoryTreeController.changeAlgorithmsFilePathInputState}"
                                              oncomplete="algorithmsPathIsInput = false; initListeners(); showDefaultAlgoPath(); checkCreateOnOpenApiPanel();"><img

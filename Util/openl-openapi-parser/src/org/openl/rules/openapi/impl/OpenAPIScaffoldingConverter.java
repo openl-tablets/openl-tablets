@@ -2,6 +2,7 @@ package org.openl.rules.openapi.impl;
 
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.OBJECT;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.extractType;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.getSimpleName;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.isSimpleType;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.APPLICATION_JSON;
@@ -22,6 +23,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -52,9 +54,9 @@ import io.swagger.v3.parser.core.models.ParseOptions;
 public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
+    public static final String ANY_SPREADSHEET_RESULT = "AnySpreadsheetResult";
     public static final String RESULT = "Result";
     public static final String DEFAULT_RUNTIME_CONTEXT = "DefaultRulesRuntimeContext";
-    public static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
     private static final Set<String> IGNORED_FIELDS = Collections
         .unmodifiableSet(new HashSet<>(Collections.singletonList("@class")));
@@ -146,6 +148,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             spreadsheetPaths,
             dts,
             childSet);
+
+        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI);
         // find not called potential spreadsheets, which are used as steps to make them data types
         findNotCalledPotentialDataTypes(spreadsheetParserModels);
         List<String> linkedRefs = spreadsheetParserModels.stream()
@@ -156,16 +160,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .stream()
             .filter(x -> !(spreadsheetResultRefs.contains(x) || refsToExpand.contains(x)) || linkedRefs.contains(x))
             .collect(Collectors.toSet());
-        List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
-            .map(SpreadsheetParserModel::getModel)
-            .collect(Collectors.toList());
-        List<DataModel> dataModels = extractDataModels(spreadsheetModels, openAPI);
-        Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
-            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
-        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
-        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
-        removeContextFromParams(sprModelsWithRC);
-        fillCallsInSteps(spreadsheetModels, datatypeRefs);
+        Set<String> refSpreadsheets = spreadsheetParserModels.stream()
+            .filter(x -> !x.isRefIsDataType() && x.getReturnRef() != null)
+            .map(SpreadsheetParserModel::getReturnRef)
+            .collect(Collectors.toSet());
+
+        Set<String> calledRefs = fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
 
         List<String> allFieldsRefs = refsWithFields.entrySet()
             .stream()
@@ -174,15 +174,59 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .collect(Collectors.toList());
 
         List<String> dtToAdd = allFieldsRefs.stream()
-            .filter(x -> !datatypeRefs.contains(x))
+            .filter(x -> !datatypeRefs.contains(x) && !calledRefs.contains(x))
             .collect(Collectors.toList());
+
+        // If there is a datatype to add which was returned by any spreadsheet model, it will be transformed
+        spreadsheetParserModels.stream().filter(x -> dtToAdd.contains(x.getReturnRef())).forEach(x -> {
+            SpreadsheetModel model = x.getModel();
+            model.setSteps(makeSingleStep(getSimpleName(x.getReturnRef())));
+        });
         datatypeRefs.addAll(dtToAdd);
+        refSpreadsheets.removeAll(dtToAdd);
 
         dts.addAll(extractDataTypeModels(openAPI, datatypeRefs, false));
         if (generateUnusedModels) {
             dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
         }
 
+        Set<String> usedInDataTypes = new HashSet<>();
+        // searching for links in data types
+        dts.forEach(dt -> {
+            Set<String> set = dt.getFields().stream().map(FieldModel::getType).collect(Collectors.toSet());
+            if (!set.contains(dt.getName())) {
+                dt.getFields()
+                    .stream()
+                    .filter(fieldModel -> !isSimpleType(fieldModel.getType()))
+                    .map(fieldModel -> OpenAPITypeUtils.removeArrayBrackets(fieldModel.getType()))
+                    .forEach(usedInDataTypes::add);
+            }
+        });
+        // if no links from data types, but model has links to the spreadsheets -> it will be a spreadsheet
+        // any spreadsheet result filtering there to avoid the broken project
+        List<String> notUsedDataTypeWithRefToSpreadsheet = dts.stream()
+            .filter(x -> !usedInDataTypes.contains(x.getName()) && !ANY_SPREADSHEET_RESULT.equals(x.getName()))
+            .map(x -> Pair.of(x.getName(), x.getFields()))
+            .filter(y -> y.getRight()
+                .stream()
+                .anyMatch(field -> refSpreadsheets
+                    .contains(SCHEMAS_LINK + OpenAPITypeUtils.removeArrayBrackets(field.getType()))))
+            .map(Pair::getLeft)
+            .collect(Collectors.toList());
+
+        dts.removeIf(x -> notUsedDataTypeWithRefToSpreadsheet.contains(x.getName()));
+        // create spreadsheet from potential models
+        createLostSpreadsheets(openAPI, spreadsheetParserModels, refSpreadsheets, notUsedDataTypeWithRefToSpreadsheet);
+        // change steps with in the spreadsheets to these potential models
+        setCallsToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
+        List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
+            .map(SpreadsheetParserModel::getModel)
+            .collect(Collectors.toList());
+        Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
+            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
+        List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
+        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
+        removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
             dts,
@@ -191,34 +235,113 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
     }
 
-    private List<DataModel> extractDataModels(List<SpreadsheetModel> spreadsheetModels, OpenAPI openAPI) {
-        List<SpreadsheetModel> potentialDataModels = spreadsheetModels.stream()
-            .filter(x -> x.getPathInfo()
+    private void setCallsToLostSpreadsheet(List<SpreadsheetParserModel> spreadsheetParserModels,
+            List<String> notUsedDataTypeWithRefToSpreadsheet) {
+        if (!notUsedDataTypeWithRefToSpreadsheet.isEmpty()) {
+            for (SpreadsheetParserModel spreadsheetParserModel : spreadsheetParserModels) {
+                for (StepModel model : spreadsheetParserModel.getModel().getSteps()) {
+                    String type = model.getType();
+                    String simpleType = OpenAPITypeUtils.removeArrayBrackets(type);
+                    if (notUsedDataTypeWithRefToSpreadsheet.contains(simpleType)) {
+                        String call = makeCall(type, "");
+                        model.setValue(type.endsWith("[]") ? makeArrayCall(type, simpleType, "") : "=" + call);
+                    }
+                }
+            }
+        }
+    }
+
+    private void createLostSpreadsheets(OpenAPI openAPI,
+            List<SpreadsheetParserModel> spreadsheetParserModels,
+            Set<String> refSpreadsheets,
+            List<String> notUsedDataTypeWithRefToSpreadsheet) {
+        for (String modelName : notUsedDataTypeWithRefToSpreadsheet) {
+            SpreadsheetParserModel lostModel = new SpreadsheetParserModel();
+            SpreadsheetModel model = new SpreadsheetModel();
+            model.setName(modelName);
+            model.setType(SPREADSHEET_RESULT);
+            model.setParameters(Collections.emptyList());
+            Schema<?> schema = getSchemas(openAPI).get(modelName);
+            List<StepModel> steps = new ArrayList<>();
+            if (schema != null) {
+                Map<String, Schema> properties = schema.getProperties();
+                if (CollectionUtils.isNotEmpty(properties)) {
+                    steps = properties.entrySet()
+                        .stream()
+                        .filter(x -> !IGNORED_FIELDS.contains(x.getKey()))
+                        .map(x -> createStep(spreadsheetParserModels, refSpreadsheets, modelName, x))
+                        .collect(Collectors.toList());
+                }
+            }
+            model.setSteps(steps);
+            lostModel.setModel(model);
+            spreadsheetParserModels.add(lostModel);
+        }
+    }
+
+    private StepModel createStep(List<SpreadsheetParserModel> spreadsheetParserModels,
+            Set<String> refSpreadsheets,
+            String modelName,
+            Map.Entry<String, Schema> x) {
+        StepModel step = extractStep(x);
+        String stepType = extractType(x.getValue(), false);
+        String type = OpenAPITypeUtils.removeArrayBrackets(stepType);
+        String modelToCall = "";
+        int size = 0;
+        if (!type.equals(modelName) && !refSpreadsheets.contains(SCHEMAS_LINK + type)) {
+            return step;
+        }
+        if (type.equals(modelName)) {
+            modelToCall = modelName;
+        } else {
+            Optional<SpreadsheetParserModel> optionalModel = spreadsheetParserModels.stream()
+                .filter(z -> z.getReturnRef() != null && z.getReturnRef().equals(SCHEMAS_LINK + type))
+                .findFirst();
+            if (optionalModel.isPresent()) {
+                SpreadsheetParserModel spreadsheetParserModel = optionalModel.get();
+                modelToCall = spreadsheetParserModel.getModel().getName();
+                size = spreadsheetParserModel.getModel().getParameters().size();
+            }
+        }
+        String value = String.join(",", Collections.nCopies(size, "null"));
+        String call = makeCall(modelToCall, value);
+        if (stepType.endsWith("[]")) {
+            step.setValue(makeArrayCall(stepType, modelToCall, call));
+        } else {
+            step.setValue("=" + call);
+        }
+        return step;
+    }
+
+    private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels, OpenAPI openAPI) {
+        List<SpreadsheetParserModel> potentialDataModels = spreadsheetModels.stream()
+            .filter(x -> x.getModel()
+                .getPathInfo()
                 .getFormattedPath()
                 .toLowerCase()
                 .startsWith("get") && (CollectionUtils
-                    .isEmpty(x.getParameters()) || containsOnlyRuntimeContext(x.getParameters())))
+                    .isEmpty(x.getModel().getParameters()) || containsOnlyRuntimeContext(x.getModel().getParameters())))
             .collect(Collectors.toList());
         List<DataModel> dataModels = new ArrayList<>();
-        for (SpreadsheetModel potentialDataModel : potentialDataModels) {
-            String originalType = potentialDataModel.getType();
-            String type = ARRAY_MATCHER.matcher(originalType).replaceAll("");
+        for (SpreadsheetParserModel potentialDataModel : potentialDataModels) {
+            String originalType = potentialDataModel.getModel().getType();
+            String type = OpenAPITypeUtils.removeArrayBrackets(originalType);
             if (!originalType.endsWith("[]") || type.equals(SPREADSHEET_RESULT)) {
                 continue;
             }
-            String operationMethod = potentialDataModel.getPathInfo().getOperation();
+            String operationMethod = potentialDataModel.getModel().getPathInfo().getOperation();
             // if get operation without parameters or post with only runtime context
-            List<InputParameter> parameters = potentialDataModel.getParameters();
+            List<InputParameter> parameters = potentialDataModel.getModel().getParameters();
             boolean parametersNotEmpty = CollectionUtils.isNotEmpty(parameters);
             boolean getAndNoParams = parameters.isEmpty() && operationMethod.equals(PathItem.HttpMethod.GET.name());
             boolean postAndRuntimeContext = parametersNotEmpty && operationMethod
                 .equals(PathItem.HttpMethod.POST.name());
             if (getAndNoParams || postAndRuntimeContext) {
                 spreadsheetModels.remove(potentialDataModel);
-                String dataTableName = formatTableName(potentialDataModel.getName());
+                String dataTableName = formatTableName(potentialDataModel.getModel().getName());
                 dataModels.add(new DataModel(dataTableName,
                     type,
-                    potentialDataModel.getPathInfo(),
+                    potentialDataModel.getModel().getPathInfo(),
                     isSimpleType(type) ? createSimpleModel(type)
                                        : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type))));
             }
@@ -227,8 +350,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private void findNotCalledPotentialDataTypes(List<SpreadsheetParserModel> spreadsheetParserModels) {
-        Set<String> sprTableNames = spreadsheetParserModels.stream()
-            .map(x -> x.getModel().getName())
+        Set<Pair<String, String>> sprTableNames = spreadsheetParserModels.stream()
+            .filter(x -> x.getReturnRef() != null)
+            .map(x -> Pair.of(getSimpleName(x.getReturnRef()), x.getModel().getName()))
             .collect(Collectors.toSet());
         Set<String> calledSpr = new HashSet<>();
         Set<String> stepTypes = new HashSet<>();
@@ -236,19 +360,22 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .flatMap(x -> x.getModel().getSteps().stream())
             .collect(Collectors.toSet());
         for (StepModel step : allSteps) {
-            String type = ARRAY_MATCHER.matcher(step.getType()).replaceAll("");
+            String type = OpenAPITypeUtils.removeArrayBrackets(step.getType());
             if (isSimpleType(type)) {
                 continue;
             }
             stepTypes.add(type);
-            if (sprTableNames.contains(type)) {
-                calledSpr.add(type);
-            }
+            Optional<Pair<String, String>> tableWithType = sprTableNames.stream()
+                .filter(x -> type.equals(x.getLeft()))
+                .findFirst();
+            tableWithType.ifPresent(stringStringPair -> calledSpr.add(stringStringPair.getValue()));
         }
-        sprTableNames.removeAll(calledSpr);
+        for (String s : calledSpr) {
+            sprTableNames.removeIf(x -> x.getRight().equals(s));
+        }
         List<SpreadsheetParserModel> pr = spreadsheetParserModels.stream().filter(x -> {
             boolean isTypeInSteps = x.getReturnRef() != null && stepTypes.contains(getSimpleName(x.getReturnRef()));
-            boolean notCalled = sprTableNames.contains(x.getModel().getName());
+            boolean notCalled = sprTableNames.stream().anyMatch(y -> y.getRight().equals(x.getModel().getName()));
             boolean isSprResult = x.getModel().getType().equals(SPREADSHEET_RESULT);
             return isTypeInSteps && notCalled && isSprResult;
         }).collect(Collectors.toList());
@@ -262,7 +389,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             SpreadsheetModel model = spr.getModel();
             String type = getSimpleName(spr.getReturnRef());
             model.setType(type);
-            model.setSteps(makeSingleStep(type, RESULT));
+            model.setSteps(makeSingleStep(type));
         }
     }
 
@@ -272,41 +399,50 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         }
     }
 
-    private void fillCallsInSteps(final List<SpreadsheetModel> models, Set<String> datatypeRefs) {
+    private Set<String> fillCallsInSteps(final List<SpreadsheetParserModel> models, Set<String> datatypeRefs) {
+        Set<String> calledRefs = new HashSet<>();
         Set<String> dts = datatypeRefs.stream().map(OpenAPITypeUtils::getSimpleName).collect(Collectors.toSet());
-        Set<String> sprNames = models.stream()
-            .map(SpreadsheetModel::getName)
-            .filter(x -> !dts.contains(x))
+        Set<String> sprResultNames = models.stream()
+            .filter(x -> x.getReturnRef() != null && !dts.contains(x.getModel().getName()))
+            .map(x -> getSimpleName(x.getReturnRef()))
             .collect(Collectors.toSet());
-        for (SpreadsheetModel model : models) {
-            for (StepModel step : model.getSteps()) {
+        for (SpreadsheetParserModel model : models) {
+            for (StepModel step : model.getModel().getSteps()) {
                 String stepType = step.getType();
                 boolean isArray = stepType.endsWith("[]");
-                String type = ARRAY_MATCHER.matcher(stepType).replaceAll("");
-                if (sprNames.contains(type)) {
-                    Optional<SpreadsheetModel> foundSpr = models.stream()
-                        .filter(x -> x.getName().equals(type))
+                String type = OpenAPITypeUtils.removeArrayBrackets(step.getType());
+                if (sprResultNames.stream().anyMatch(x -> x.equals(type))) {
+                    Optional<SpreadsheetParserModel> foundSpr = models.stream()
+                        .filter(x -> x.getReturnRef() != null && type.equals(getSimpleName(x.getReturnRef())) && !x
+                            .getModel()
+                            .getName()
+                            .equals(model.getModel().getName()) && x.getModel().getType().equals(SPREADSHEET_RESULT))
                         .findAny();
                     if (foundSpr.isPresent()) {
-                        SpreadsheetModel calledSpr = foundSpr.get();
-                        String value = String.join(",", Collections.nCopies(calledSpr.getParameters().size(), "null"));
-                        String call = makeCall(type, value);
-                        if (isArray) {
-                            step.setValue(makeArrayCall(stepType, call));
-                        } else {
-                            step.setValue("=" + call);
-                        }
+                        SpreadsheetParserModel calledSpr = foundSpr.get();
+                        calledRefs.add(calledSpr.getReturnRef());
+                        SpreadsheetModel calledModel = calledSpr.getModel();
+                        List<InputParameter> parameters = calledModel.getParameters();
+                        boolean contains = parameters.stream()
+                            .anyMatch(x -> x.getType().equals(DEFAULT_RUNTIME_CONTEXT));
+                        String value = String.join(",",
+                            Collections.nCopies(contains ? parameters.size() - 1 : parameters.size(), "null"));
+                        String calledName = calledModel.getName();
+                        String call = makeCall(calledName, value);
+                        step.setValue(isArray ? makeArrayCall(stepType, calledName, call) : "=" + call);
                     }
                 }
             }
         }
+        return calledRefs;
     }
 
-    private String makeArrayCall(String stepType, String call) {
+    private String makeArrayCall(String stepType, String name, String call) {
         int dimension = calculateDimension(stepType);
         String openingBrackets = String.join("", Collections.nCopies(dimension, "{"));
         String closingBrackets = String.join("", Collections.nCopies(dimension, "}"));
-        return "=new SpreadsheetResult" + stepType + openingBrackets + call + closingBrackets;
+        String arrayBrackets = String.join("", Collections.nCopies(dimension, "[]"));
+        return "=new SpreadsheetResult" + name + arrayBrackets + openingBrackets + call + closingBrackets;
     }
 
     private int calculateDimension(String stepType) {
@@ -432,7 +568,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             spreadsheetParserModel,
             spr,
             usedSchemaInResponse,
-            formattedName,
             isChild);
         spr.setSteps(stepModels);
         return spreadsheetParserModel;
@@ -453,20 +588,19 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             SpreadsheetParserModel spreadsheetParserModel,
             SpreadsheetModel spr,
             String usedSchemaInResponse,
-            String formattedName,
             boolean isChild) {
         List<StepModel> stepModels = new ArrayList<>();
         boolean isArray = usedSchemaInResponse.endsWith("[]");
         Schema<?> schema;
         if (PathType.SPREADSHEET_RESULT_PATH == pathType) {
-            final String nameOfSchema = isArray ? ARRAY_MATCHER.matcher(usedSchemaInResponse).replaceAll("")
+            final String nameOfSchema = isArray ? OpenAPITypeUtils.removeArrayBrackets(usedSchemaInResponse)
                                                 : usedSchemaInResponse;
             schema = getSchemas(openAPI).get(nameOfSchema);
             boolean isArrayOrChild = isArray || isChild;
             spr.setType(isArrayOrChild ? usedSchemaInResponse : SPREADSHEET_RESULT);
             if (schema != null) {
                 if (isArrayOrChild) {
-                    stepModels = makeSingleStep(usedSchemaInResponse, RESULT);
+                    stepModels = makeSingleStep(usedSchemaInResponse);
                 } else {
                     Map<String, Schema> properties = schema.getProperties();
                     if (CollectionUtils.isNotEmpty(properties)) {
@@ -478,22 +612,20 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     }
                 }
                 boolean addToDataTypes = stepModels.stream()
-                    .anyMatch(x -> ARRAY_MATCHER.matcher(x.getType()).replaceAll("").equals(nameOfSchema));
+                    .anyMatch(x -> OpenAPITypeUtils.removeArrayBrackets(x.getType()).equals(nameOfSchema));
                 spreadsheetParserModel.setStoreInModels(addToDataTypes || isArrayOrChild);
             }
             spreadsheetParserModel.setReturnRef(SCHEMAS_LINK + nameOfSchema);
-        } else if (PathType.SPREADSHEET_PATH == pathType) {
-            spr.setType(usedSchemaInResponse);
-            stepModels = makeSingleStep(usedSchemaInResponse, RESULT);
         } else {
             spr.setType(usedSchemaInResponse);
-            stepModels = makeSingleStep(usedSchemaInResponse, formattedName);
+            stepModels = makeSingleStep(usedSchemaInResponse);
         }
         return stepModels;
     }
 
-    private List<StepModel> makeSingleStep(String stepType, String stepName) {
-        return Collections.singletonList(new StepModel(stepName, stepType, makeValue(stepType)));
+    private List<StepModel> makeSingleStep(String stepType) {
+        return Collections
+            .singletonList(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType, makeValue(stepType)));
     }
 
     private OperationInfo findOperation(PathItem pathItem) {

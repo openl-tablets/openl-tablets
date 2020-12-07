@@ -4,31 +4,25 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.rules.tbasic.AlgorithmTableParserManager;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 
 public final class ConversionRulesController {
-    private static ConversionRulesController instance;
     private ConversionRuleBean[] conversionRules;
 
     public static ConversionRulesController getInstance() {
-        if (instance == null) {
-            return new ConversionRulesController();
-        }
-        return instance;
+        return new ConversionRulesController();
     }
 
     private ConversionRulesController() {
         conversionRules = AlgorithmTableParserManager.getInstance().getFixedConversionRules();
     }
 
-    /**
-     * @throws BoundError
-     */
-    public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile) throws SyntaxNodeException {
+    public ConversionRuleBean getConvertionRule(List<AlgorithmTreeNode> nodesToCompile,
+            IBindingContext bindingContext) {
         assert !nodesToCompile.isEmpty();
 
         List<String> groupedOperationNames = new ArrayList<>(nodesToCompile.size());
@@ -62,7 +56,8 @@ public final class ConversionRulesController {
             predecessorOperations,
             groupedOperationNames);
         IOpenSourceCodeModule errorSource = nodesToCompile.get(0).getAlgorithmRow().getOperation().asSourceCodeModule();
-        throw SyntaxNodeExceptionUtils.createError(errorMessage, errorSource);
+        BindHelper.processError(errorMessage, errorSource, bindingContext);
+        return null;
     }
 
 }

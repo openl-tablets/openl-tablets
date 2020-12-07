@@ -23,7 +23,7 @@ import org.openl.types.IOpenMethod;
 public abstract class BaseOpenlBuilderHelper {
 
     protected Object instance;
-    private CompiledOpenClass compiledOpenClass;
+    private final CompiledOpenClass compiledOpenClass;
 
     public BaseOpenlBuilderHelper(String src) {
         EngineFactory<Object> engineFactory = new RulesEngineFactory<>(src);

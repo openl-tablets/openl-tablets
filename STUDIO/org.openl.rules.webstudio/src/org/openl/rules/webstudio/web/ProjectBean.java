@@ -532,10 +532,10 @@ public class ProjectBean {
             filter.setExcludes(null);
 
             if (StringUtils.isNotBlank(includes)) {
-                filter.addIncludePattern(includes.split(StringTool.NEW_LINE));
+                filter.addIncludePattern(StringUtils.toLines(includes));
             }
             if (StringUtils.isNotBlank(excludes)) {
-                filter.addExcludePattern(excludes.split(StringTool.NEW_LINE));
+                filter.addExcludePattern(StringUtils.toLines(excludes));
             }
 
             if (moduleWasRenamed) {
@@ -719,14 +719,12 @@ public class ProjectBean {
         tryLockProject();
 
         List<PathEntry> sourceList = new ArrayList<>();
-        String[] sourceArray = sources.split(StringTool.NEW_LINE);
+        String[] sourceArray = StringUtils.toLines(sources);
 
         if (CollectionUtils.isNotEmpty(sourceArray)) {
             for (String source : sourceArray) {
-                if (StringUtils.isNotBlank(source)) {
-                    PathEntry sourcePath = new PathEntry(source);
-                    sourceList.add(sourcePath);
-                }
+                PathEntry sourcePath = new PathEntry(source);
+                sourceList.add(sourcePath);
             }
         }
 

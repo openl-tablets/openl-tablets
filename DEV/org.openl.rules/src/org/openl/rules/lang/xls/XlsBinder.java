@@ -4,32 +4,14 @@
 
 package org.openl.rules.lang.xls;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.ICompileContext;
 import org.openl.IOpenBinder;
 import org.openl.OpenL;
-import org.openl.binding.IBindingContext;
-import org.openl.binding.IBoundCode;
-import org.openl.binding.IBoundNode;
-import org.openl.binding.ICastFactory;
-import org.openl.binding.IMemberBoundNode;
-import org.openl.binding.INameSpacedMethodFactory;
-import org.openl.binding.INameSpacedTypeFactory;
-import org.openl.binding.INameSpacedVarFactory;
-import org.openl.binding.INodeBinderFactory;
-import org.openl.binding.MethodUtil;
+import org.openl.binding.*;
 import org.openl.binding.impl.BindingContext;
 import org.openl.binding.impl.BoundCode;
 import org.openl.binding.impl.ErrorBoundNode;
@@ -75,7 +57,6 @@ import org.openl.rules.validation.properties.dimentional.DispatcherTablesBuilder
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -103,8 +84,6 @@ import org.slf4j.LoggerFactory;
  * @author snshor
  */
 public class XlsBinder implements IOpenBinder {
-
-    public static final String DISABLED_CLEAN_UP = "XLS_OPEN_CLASS_DISABLED_CLEANUP";
 
     private static final Logger LOG = LoggerFactory.getLogger(XlsBinder.class);
 
@@ -229,8 +208,6 @@ public class XlsBinder implements IOpenBinder {
             bindingContext.setExternalParams(parsedCode.getExternalParams());
         }
 
-        IBoundNode topNode;
-
         Set<CompiledDependency> compiledDependencies = parsedCode.getCompiledDependencies();
         compiledDependencies = compiledDependencies.isEmpty() ? null : compiledDependencies; // !!! empty to null
         XlsModuleOpenClass moduleOpenClass = createModuleOpenClass(moduleNode,
@@ -240,14 +217,12 @@ public class XlsBinder implements IOpenBinder {
             bindingContext);
         try {
             RulesModuleBindingContext rulesModuleBindingContext = moduleOpenClass.getRulesModuleBindingContext();
-
-            topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass, bindingContext);
-
+            IBoundNode topNode = processBinding(moduleNode, openl, rulesModuleBindingContext, moduleOpenClass);
+            ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
             return new BoundCode(parsedCode, topNode, bindingContext.getErrors(), bindingContext.getMessages());
         } finally {
-            if (bindingContext
-                .isExecutionMode() && !Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
-                moduleOpenClass.clearOddDataForExecutionMode();
+            if (ValidationManager.isValidationEnabled() && bindingContext.isExecutionMode()) {
+                moduleOpenClass.clearForExecutionMode();
             }
         }
     }
@@ -259,8 +234,7 @@ public class XlsBinder implements IOpenBinder {
     private IBoundNode processBinding(XlsModuleSyntaxNode moduleNode,
             OpenL openl,
             RulesModuleBindingContext rulesModuleBindingContext,
-            XlsModuleOpenClass moduleOpenClass,
-            IBindingContext bindingContext) {
+            XlsModuleOpenClass moduleOpenClass) {
         try {
             //
             // Selectors
@@ -338,13 +312,6 @@ public class XlsBinder implements IOpenBinder {
 
             ((XlsModuleOpenClass) topNode.getType()).completeOpenClassBuilding();
 
-            if (!Boolean.TRUE.equals(bindingContext.getExternalParams().get(DISABLED_CLEAN_UP))) {
-                ValidationManager.validate(compileContext, topNode.getType(), bindingContext);
-                if (bindingContext.isExecutionMode()) {
-                    ((XlsModuleOpenClass) topNode.getType()).removeDebugInformation();
-                }
-            }
-
             return topNode;
         } finally {
             OpenLFuzzyUtils.clearCaches();
@@ -396,10 +363,6 @@ public class XlsBinder implements IOpenBinder {
                 propLoader.loadProperties(tsn);
             } catch (SyntaxNodeException error) {
                 processError(error, tsn, bindingContext);
-            } catch (CompositeSyntaxNodeException ex) {
-                for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tsn, bindingContext);
-                }
             } catch (Exception | LinkageError t) {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tsn);
                 processError(error, tsn, bindingContext);
@@ -691,12 +654,6 @@ public class XlsBinder implements IOpenBinder {
                     datatypeTableBoundNode.generateByteCode(rulesModuleBindingContext);
                 } catch (SyntaxNodeException error) {
                     processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
-                } catch (CompositeSyntaxNodeException ex) {
-                    if (ex.getErrors() != null) {
-                        for (SyntaxNodeException error : ex.getErrors()) {
-                            processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
-                        }
-                    }
                 } catch (Exception | LinkageError t) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
                     processError(error, tableSyntaxNodes[i], rulesModuleBindingContext);
@@ -744,12 +701,6 @@ public class XlsBinder implements IOpenBinder {
             memberBoundNode.finalizeBind(rulesModuleBindingContext);
         } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-        } catch (CompositeSyntaxNodeException ex) {
-            if (ex.getErrors() != null) {
-                for (SyntaxNodeException error : ex.getErrors()) {
-                    processError(error, tableSyntaxNode, rulesModuleBindingContext);
-                }
-            }
         } catch (Exception | LinkageError t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
@@ -766,13 +717,6 @@ public class XlsBinder implements IOpenBinder {
 
                 } catch (SyntaxNodeException error) {
                     processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
-
-                } catch (CompositeSyntaxNodeException ex) {
-
-                    for (SyntaxNodeException error : ex.getErrors()) {
-                        processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
-                    }
-
                 } catch (Exception | LinkageError t) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNodes[i]);
                     processError(error, tableSyntaxNodes[i], ruleModuleBindingContext);
@@ -789,10 +733,6 @@ public class XlsBinder implements IOpenBinder {
             return preBindXlsNode(tableSyntaxNode, openl, rulesModuleBindingContext, module);
         } catch (SyntaxNodeException error) {
             processError(error, tableSyntaxNode, rulesModuleBindingContext);
-        } catch (CompositeSyntaxNodeException ex) {
-            for (SyntaxNodeException error : ex.getErrors()) {
-                processError(error, tableSyntaxNode, rulesModuleBindingContext);
-            }
         } catch (Exception | LinkageError t) {
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(t, tableSyntaxNode);
             processError(error, tableSyntaxNode, rulesModuleBindingContext);

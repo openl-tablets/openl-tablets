@@ -26,6 +26,7 @@ import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -37,6 +38,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
+import org.openl.rules.workspace.lw.impl.LocalWorkspaceImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.UserWorkspaceListener;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -285,7 +287,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public void syncProjects() {
         for (RulesProject rPr : getProjects()) {
-            if (designTimeRepository.getRepository(rPr.getRepository().getId()).supports().mappedFolders()) {
+            Repository repository = designTimeRepository.getRepository(rPr.getRepository().getId());
+            if (repository != null && repository.supports().mappedFolders()) {
                 if (rPr.isOpened() && !rPr.isLocalOnly()) {
                     try {
                         String realProjectName = getActualName(rPr);
@@ -517,6 +520,14 @@ public class UserWorkspaceImpl implements UserWorkspace {
                 if (!userRulesProjects.containsKey(new ProjectKey(repoId, name.toLowerCase()))) {
                     FileData local = lp.getFileData();
                     LocalRepository repository = (LocalRepository) lp.getRepository();
+
+                    ProjectState state = repository.getProjectState(lp.getFolderPath());
+                    if (state != null) {
+                        if (!LocalWorkspaceImpl.LOCAL_ID.equals(state.getRepositoryId())) {
+                            state.saveFileData(LocalWorkspaceImpl.LOCAL_ID, local);
+                        }
+                    }
+
                     RulesProject project = new RulesProject(getUser(), repository, local, null, null, projectsLockEngine);
                     userRulesProjects.put(new ProjectKey(repoId, project.getName().toLowerCase()), project);
                 }

@@ -29,7 +29,6 @@ import org.junit.Test;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -44,7 +43,7 @@ public class ZippedLocalRepositoryTest {
     private Map<String, byte[]> multiDeployment;
 
     @Before
-    public void setUp() throws RRepositoryException, IOException {
+    public void setUp() throws IOException {
         this.repositoryRoot = new File(REPOSITORY_ROOT);
         FileUtils.deleteQuietly(this.repositoryRoot);
         new File(REPOSITORY_ROOT).mkdirs();
@@ -52,7 +51,7 @@ public class ZippedLocalRepositoryTest {
         configureZipRepository();
     }
 
-    private void configureZipRepository(String... archives) throws RRepositoryException {
+    private void configureZipRepository(String... archives) {
         ZippedLocalRepository repository = new ZippedLocalRepository();
         repository.setUri(REPOSITORY_ROOT);
         repository.setArchives(archives);
@@ -178,28 +177,28 @@ public class ZippedLocalRepositoryTest {
         try {
             configureZipRepository("", null);
             configureZipRepository("target\\test-zip-repository\\singleDeployment", null);
-        } catch (RRepositoryException e) {
+        } catch (IllegalStateException e) {
             fail("Ooops...");
         }
 
         try {
             configureZipRepository("multiDeployment.zip", "MuLtIdEpLoYmEnT.zip");
             fail("Ooops...");
-        } catch (RRepositoryException e) {
+        } catch (IllegalStateException e) {
             assertEquals("An archive name [MuLtIdEpLoYmEnT.zip] is duplicated!", e.getMessage());
         }
 
         try {
             configureZipRepository("/multiDeployment.zip");
             fail("Ooops...");
-        } catch (RRepositoryException e) {
+        } catch (IllegalStateException e) {
             assertEquals("The path [/multiDeployment.zip] does not exist.", e.getMessage());
         }
 
         try {
             configureZipRepository("foo.zip");
             fail("Ooops...");
-        } catch (RRepositoryException e) {
+        } catch (IllegalStateException e) {
             assertEquals("The path [foo.zip] does not exist.", e.getMessage());
         }
 
@@ -207,13 +206,13 @@ public class ZippedLocalRepositoryTest {
         try {
             configureZipRepository("bar");
             fail("Ooops...");
-        } catch (RRepositoryException e) {
+        } catch (IllegalStateException e) {
             assertEquals("[bar] is not archive.", e.getMessage());
         }
     }
 
     @Test
-    public void specificArchiveConfiguredTest() throws RRepositoryException, IOException {
+    public void specificArchiveConfiguredTest() throws IOException {
         configureZipRepository("multiDeployment.zip");
         assertMultiDeployment("/multiDeployment.zip/project1/rules.xml", "project1/rules.xml");
         assertMultiDeployment("/multiDeployment.zip/project1/rules/Algorithm1.xlsx", "project1/rules/Algorithm1.xlsx");

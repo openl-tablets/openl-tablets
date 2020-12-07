@@ -8,10 +8,12 @@ package org.openl.rules.data;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.openl.rules.OpenlToolAdaptor;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.binding.DuplicatedTableException;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
@@ -76,10 +78,9 @@ public class DataBase implements IDataBase {
     public void registerTable(ITable newTable) throws DuplicatedTableException {
         synchronized (lock) {
             ITable table = getTable(newTable.getName());
-
             if (table != null) {
-                String uri = table.getTableSyntaxNode().getTable().getSource().getUri();
-                String newUri = newTable.getTableSyntaxNode().getTable().getSource().getUri();
+                String uri = table.getUri();
+                String newUri = newTable.getUri();
                 if (!uri.equals(newUri)) {
                     throw new DuplicatedTableException(newTable.getName(), newTable.getTableSyntaxNode());
                 }
@@ -104,4 +105,16 @@ public class DataBase implements IDataBase {
         table.preLoad(openlAdapter);
     }
 
+    @Override
+    public synchronized void clearOddDataForExecutionMode() {
+        Iterator<Map.Entry<String, ITable>> itr = tables.entrySet().iterator();
+        while (itr.hasNext()) {
+            Map.Entry<String, ITable> entry = itr.next();
+            if (XlsNodeTypes.XLS_DATA.equals(entry.getValue().getXlsNodeType())) {
+                entry.getValue().clearOddDataForExecutionMode();
+            } else {
+                itr.remove();
+            }
+        }
+    }
 }

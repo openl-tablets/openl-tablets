@@ -1,25 +1,24 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.Closeable;
 import java.net.ConnectException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -145,13 +144,7 @@ public final class RepositoryValidators {
             // Close connection to repository before checking connection
             dtr.destroy();
 
-            PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
-            if (repository instanceof Closeable) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
+            validateInstantiation(repoConfig);
         } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
@@ -166,14 +159,9 @@ public final class RepositoryValidators {
         try {
             /* Close connection to repository before checking connection */
             repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
-            if (repository instanceof Closeable) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
-        } catch (RRepositoryException e) {
+
+            validateInstantiation(repoConfig);
+        } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
                 resultException = e;
@@ -190,7 +178,16 @@ public final class RepositoryValidators {
             }
 
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s.", repoConfig.getName(), resultException.getMessage()));
+                String.format("Repository '%s' : %s", repoConfig.getName(), resultException.getMessage()));
+        }
+    }
+
+    public static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
+        PropertyResolver propertiesResolver = DelegatedPropertySource
+            .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+        try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
+            // Validate instantiation
+            Objects.requireNonNull(repository);
         }
     }
 }

@@ -1,6 +1,10 @@
 package org.openl.binding.impl;
 
-import java.lang.reflect.*;
+import java.lang.reflect.AnnotatedElement;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.Member;
+import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -8,8 +12,8 @@ import java.util.Collections;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.message.OpenLMessagesUtils;
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
@@ -28,21 +32,45 @@ public final class BindHelper {
     private BindHelper() {
     }
 
-    public static void processError(CompositeSyntaxNodeException error, IBindingContext bindingContext) {
-        SyntaxNodeException[] errors = error.getErrors();
-        for (SyntaxNodeException e : errors) {
-            bindingContext.addError(e);
-        }
-    }
-
-    public static void processError(Throwable error, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
-        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, syntaxNode);
+    public static void processError(Throwable error, IBindingContext bindingContext) {
+        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(error, null);
         bindingContext.addError(syntaxNodeException);
     }
 
     public static void processError(String message, ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
         bindingContext.addError(error);
+    }
+
+    public static void processError(String message,
+            Throwable ex,
+            ISyntaxNode syntaxNode,
+            IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, syntaxNode);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(String message, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, source);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(String message,
+            Throwable ex,
+            IOpenSourceCodeModule source,
+            IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, ex, null, source);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(Throwable ex, IOpenSourceCodeModule source, IBindingContext bindingContext) {
+        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ex, null, source);
+        bindingContext.addError(error);
+    }
+
+    public static void processError(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
+        SyntaxNodeException syntaxNodeException = SyntaxNodeExceptionUtils.createError(e, node);
+        bindingContext.addError(syntaxNodeException);
     }
 
     private static final Collection<String> EQUAL_OPERATORS = Collections
@@ -196,4 +224,5 @@ public final class BindHelper {
         return type == null || JavaOpenClass.BOOLEAN == type || JavaOpenClass.getOpenClass(Boolean.class) == type;
 
     }
+
 }

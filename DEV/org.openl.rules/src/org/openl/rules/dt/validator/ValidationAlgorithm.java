@@ -10,7 +10,12 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntBoolExpConst;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
 import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
@@ -18,7 +23,6 @@ import org.openl.ie.constrainer.consistencyChecking.Uncovered;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -129,11 +133,7 @@ public class ValidationAlgorithm {
 
         IOpenSourceCodeModule formulaSourceCode = condition.getConditionEvaluator().getFormalSourceCode(condition);
 
-        try {
-            return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, bindingContext);
-        } catch (SyntaxNodeException e) {
-            throw new IllegalArgumentException(e);
-        }
+        return OpenLManager.makeMethod(openl, formulaSourceCode, methodHeader, bindingContext);
     }
 
     private IMethodSignature getNewSignature(IBaseCondition condition, DecisionTableAnalyzer analyzer) {

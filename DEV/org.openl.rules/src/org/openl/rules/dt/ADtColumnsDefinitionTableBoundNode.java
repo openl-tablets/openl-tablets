@@ -16,10 +16,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
@@ -35,12 +35,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
@@ -85,33 +80,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     protected XlsModuleOpenClass getXlsModuleOpenClass() {
         return xlsModuleOpenClass;
-    }
-
-    protected IParameterDeclaration getParameterDeclaration(IOpenSourceCodeModule paramSource,
-            boolean singleParameter,
-            IBindingContext bindingContext) throws OpenLCompilationException {
-
-        IdentifierNode[] nodes = Tokenizer.tokenize(paramSource, " \n\r");
-
-        if (nodes.length > 2) {
-            String errMsg = "Parameter cell format: <type> or <type> <name>.";
-            throw SyntaxNodeExceptionUtils.createError(errMsg, null, null, paramSource);
-        }
-
-        if (nodes.length == 0) {
-            return null;
-        }
-
-        String typeCode = nodes[0].getText();
-        IOpenClass type = RuleRowHelper.getType(typeCode, nodes[0], bindingContext);
-
-        if (nodes.length == 1) {
-            return new ParameterDeclaration(type, null);
-        }
-
-        String name = nodes[1].getIdentifier();
-
-        return new ParameterDeclaration(type, name);
     }
 
     @Override
@@ -200,7 +168,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     }
 
     @Override
-    public void finalizeBind(IBindingContext cxt) throws Exception {
+    public void finalizeBind(IBindingContext cxt) {
         TableSyntaxNode tsn = getTableSyntaxNode();
         ILogicalTable tableBody = tsn.getTableBody();
         if (tableBody == null) {
@@ -213,9 +181,11 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             tableStructure = getTableStructure(tableBody);
             w = tableStructure.length;
             if (w != 4) {
-                throw SyntaxNodeExceptionUtils.createError(
+                BindHelper.processError(
                     "Wrong table structure: Expected 4 columns table: <Inputs> <Expression> <Parameter> <Title>.",
-                    getTableSyntaxNode());
+                    getTableSyntaxNode(),
+                    cxt);
+                return;
             }
         }
 
@@ -247,7 +217,6 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             false);
         IBindingContext dtHeaderBindingContext = new ComponentBindingContext(cxt, ruleExecutionType);
 
-        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         while (i < h) {
             String signatureCode1 = tableBody.getSource()
                 .getCell(tableStructure[headerIndexes[INPUTS_INDEX]], i)
@@ -262,135 +231,160 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             ICell expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
             int d = expressionTable.getCell(0, 0).getHeight();
             final int z = i;
-            syntaxNodeExceptionCollector.run(() -> {
-                IOpenMethodHeader header;
-                try {
-                    String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils
-                        .random(16, true, false) + "(";
-                    String headerCode = prefix + signatureCode + ")";
-                    header = OpenLManager.makeMethodHeader(getOpenl(),
-                        new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
-                        dtHeaderBindingContext);
-                    if (!cxt.isExecutionMode()) {
-                        addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
-                    }
-                } catch (CompositeSyntaxNodeException e) {
-                    GridCellSourceCodeModule eGridCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
-                        cxt);
-                    throw SyntaxNodeExceptionUtils.createError(String.format("Failed to parse the cell '%s'",
-                        eGridCellSourceCodeModule.getCode()), e, null, eGridCellSourceCodeModule);
-                }
-                int j = 0;
-                int j1 = 0;
-                Map<String, List<IParameterDeclaration>> localParameters = new HashMap<>();
-                List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
-                Set<String> uniqueSetOfParameters = new HashSet<>();
-                Set<String> uniqueSetOfTitles = new HashSet<>();
-                String title = null;
-                Boolean singleParameter = null;
-                while (j < d) {
-                    IGridTable pCodeTable = tableBody1.getSource()
-                        .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
-                    if (singleParameter == null) {
-                        singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
-                    }
-                    GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
-                    IParameterDeclaration parameterDeclaration = getParameterDeclaration(pGridCellSourceCodeModule,
-                        singleParameter,
-                        cxt);
-                    parametersForMergedTitle.add(parameterDeclaration);
-                    if (parameterDeclaration != null) {
-                        if (parameterDeclaration.getName() != null) {
-                            if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
-                                throw SyntaxNodeExceptionUtils.createError(
-                                    "Parameter '" + parameterDeclaration.getName() + "' is already defined.",
-                                    pGridCellSourceCodeModule);
-                            }
-                            uniqueSetOfParameters.add(parameterDeclaration.getName());
-                        }
-                        if (!cxt.isExecutionMode()) {
-                            ICell parameterCell = tableBody1.getSource()
-                                .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j);
-                            addMetaInfoForParameter(parameterDeclaration, parameterCell);
-                        }
-                    }
-
-                    if (j1 <= j) {
-                        IGridTable tCodeTable = tableBody1.getSource()
-                            .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
-                        String title1 = tCodeTable.getCell(0, 0).getStringValue();
-                        if (StringUtils.isEmpty(title1)) {
-                            GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                tCodeTable,
-                                cxt);
-                            throw SyntaxNodeExceptionUtils.createError("Title cannot be empty.",
-                                tGridCellSourceCodeModule);
-                        }
-                        title = OpenLFuzzyUtils.toTokenString(title1);
-                        if (uniqueSetOfTitles.contains(title)) {
-                            GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(
-                                tCodeTable,
-                                cxt);
-                            throw SyntaxNodeExceptionUtils.createError("Title '" + title1 + "' is already defined.",
-                                tGridCellSourceCodeModule);
-                        }
-                        uniqueSetOfTitles.add(title);
-                        j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
-                    }
-
-                    j = j + pCodeTable.getCell(0, 0).getHeight();
-                    if (j1 <= j || j >= d) {
-                        localParameters.put(title, parametersForMergedTitle);
-                        parametersForMergedTitle = new ArrayList<>();
-                    }
-                }
-
-                IParameterDeclaration[] allParameterDeclarations = localParameters.values()
-                    .stream()
-                    .flatMap(List::stream)
-                    .filter(e -> e != null && e.getName() != null)
-                    .collect(Collectors.toList())
-                    .toArray(new IParameterDeclaration[] {});
-
-                IMethodSignature newSignature = ((MethodSignature) header.getSignature())
-                    .merge(allParameterDeclarations);
-
-                GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable,
-                    cxt);
-
-                CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
-                    expressionCellSourceCodeModule,
-                    header.getName(),
-                    newSignature,
-                    getXlsModuleOpenClass(),
-                    dtHeaderBindingContext);
-
-                validate(header, localParameters, expressionCellSourceCodeModule, compositeMethod, cxt);
-
-                if (!cxt.isExecutionMode()) {
-                    addMetaInfoForExpression(compositeMethod, expressionCell);
-                }
-
-                createAndAddDefinition(localParameters, header, compositeMethod, cxt);
-            });
-
+            process(cxt,
+                tableBody1,
+                tableStructure1,
+                headerIndexes1,
+                dtHeaderBindingContext,
+                inputsCell,
+                signatureCode,
+                expressionTable,
+                expressionCell,
+                d,
+                z);
             i = i + d;
         }
-        syntaxNodeExceptionCollector.throwIfAny();
+    }
+
+    private void process(IBindingContext cxt,
+            ILogicalTable tableBody1,
+            int[] tableStructure1,
+            int[] headerIndexes1,
+            IBindingContext dtHeaderBindingContext,
+            ICell inputsCell,
+            String signatureCode,
+            IGridTable expressionTable,
+            ICell expressionCell,
+            int d,
+            int z) {
+        IOpenMethodHeader header;
+        String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
+        String headerCode = prefix + signatureCode + ")";
+        header = OpenLManager.makeMethodHeader(getOpenl(),
+            new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
+            dtHeaderBindingContext);
+        if (!cxt.isExecutionMode()) {
+            addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
+        }
+        int j = 0;
+        int j1 = 0;
+        Map<String, List<IParameterDeclaration>> localParameters = new HashMap<>();
+        List<IParameterDeclaration> parametersForMergedTitle = new ArrayList<>();
+        Set<String> uniqueSetOfParameters = new HashSet<>();
+        Set<String> uniqueSetOfTitles = new HashSet<>();
+        String title = null;
+        Boolean singleParameter = null;
+        while (j < d) {
+            IGridTable pCodeTable = tableBody1.getSource()
+                .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
+            if (singleParameter == null) {
+                singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
+            }
+            GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
+
+            ParameterDeclaration parameterDeclaration = null;
+            String code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
+            if (StringUtils.isNotBlank(code)) {
+                String[] parts = code.split("\\s+");
+
+                if (parts.length > 2) {
+                    String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                    BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
+                    return;
+                } else {
+                    IOpenClass type = RuleRowHelper.getType(parts[0], pGridCellSourceCodeModule, cxt);
+
+                    if (parts.length == 1) {
+                        parameterDeclaration = new ParameterDeclaration(type, null);
+                    } else {
+                        parameterDeclaration = new ParameterDeclaration(type, parts[1]);
+                    }
+                }
+            }
+
+            parametersForMergedTitle.add(parameterDeclaration);
+            if (parameterDeclaration != null) {
+                if (parameterDeclaration.getName() != null) {
+                    if (uniqueSetOfParameters.contains(parameterDeclaration.getName())) {
+                        String errorMessage = "Parameter '" + parameterDeclaration.getName() + "' is already defined.";
+                        BindHelper.processError(errorMessage, pGridCellSourceCodeModule, cxt);
+                        return;
+                    }
+                    uniqueSetOfParameters.add(parameterDeclaration.getName());
+                }
+                if (!cxt.isExecutionMode()) {
+                    ICell parameterCell = tableBody1.getSource()
+                        .getCell(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j);
+                    addMetaInfoForParameter(parameterDeclaration, parameterCell);
+                }
+            }
+
+            if (j1 <= j) {
+                IGridTable tCodeTable = tableBody1.getSource()
+                    .getSubtable(tableStructure1[headerIndexes1[TITLE_INDEX]], z + j, 1, 1);
+                String title1 = tCodeTable.getCell(0, 0).getStringValue();
+                if (StringUtils.isEmpty(title1)) {
+                    GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable, cxt);
+                    BindHelper.processError("Title cannot be empty.", tGridCellSourceCodeModule, cxt);
+                    return;
+                }
+                title = OpenLFuzzyUtils.toTokenString(title1);
+                if (uniqueSetOfTitles.contains(title)) {
+                    GridCellSourceCodeModule tGridCellSourceCodeModule = new GridCellSourceCodeModule(tCodeTable, cxt);
+                    BindHelper
+                        .processError("Title '" + title1 + "' is already defined.", tGridCellSourceCodeModule, cxt);
+                    return;
+                }
+                uniqueSetOfTitles.add(title);
+                j1 = j1 + tCodeTable.getCell(0, 0).getHeight();
+            }
+
+            j = j + pCodeTable.getCell(0, 0).getHeight();
+            if (j1 <= j || j >= d) {
+                localParameters.put(title, parametersForMergedTitle);
+                parametersForMergedTitle = new ArrayList<>();
+            }
+        }
+
+        IParameterDeclaration[] allParameterDeclarations = localParameters.values()
+            .stream()
+            .flatMap(List::stream)
+            .filter(e -> e != null && e.getName() != null)
+            .collect(Collectors.toList())
+            .toArray(new IParameterDeclaration[] {});
+
+        IMethodSignature newSignature = ((MethodSignature) header.getSignature()).merge(allParameterDeclarations);
+
+        GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(expressionTable, cxt);
+
+        CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
+            expressionCellSourceCodeModule,
+            header.getName(),
+            newSignature,
+            getXlsModuleOpenClass(),
+            dtHeaderBindingContext);
+
+        validate(header, localParameters, expressionCellSourceCodeModule, compositeMethod, cxt);
+
+        if (!cxt.isExecutionMode()) {
+            addMetaInfoForExpression(compositeMethod, expressionCell);
+        }
+
+                createAndAddDefinition(localParameters, header, compositeMethod, cxt);
     }
 
     private void validate(IOpenMethodHeader header,
             Map<String, List<IParameterDeclaration>> localParameters,
             GridCellSourceCodeModule expressionCellSourceCodeModule,
             CompositeMethod compositeMethod,
-            IBindingContext cxt) throws SyntaxNodeException {
+            IBindingContext cxt) {
         if (StringUtils.isBlank(expressionCellSourceCodeModule.getCode())) {
             if (isConditions()) {
-                throw SyntaxNodeExceptionUtils
-                    .createError("Expression is required for a condition.", null, null, expressionCellSourceCodeModule);
+                BindHelper.processError("Expression is required for a condition.", expressionCellSourceCodeModule, cxt);
+                return;
             } else if (isActions()) {
-                throw SyntaxNodeExceptionUtils
-                    .createError("Expression is required for an action.", null, null, expressionCellSourceCodeModule);
+                BindHelper.processError("Expression is required for an action.", expressionCellSourceCodeModule, cxt);
+                return;
             }
         }
         if (isConditions()
@@ -401,10 +395,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
             } else {
                 if (isLocalParameterIsUsed(compositeMethod, localParameters.values())) {
-                    throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
-                        null,
-                        null,
-                        expressionCellSourceCodeModule);
+                        BindHelper.processError("Condition expression must return a boolean type.",
+                            expressionCellSourceCodeModule,
+                            cxt);
                 } else {
                     validateConditionType(compositeMethod, expressionCellSourceCodeModule, localParameters, cxt);
                 }
@@ -415,7 +408,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
     private void validateConditionType(CompositeMethod compositeMethod,
             GridCellSourceCodeModule expressionCellSourceCodeModule,
             Map<String, List<IParameterDeclaration>> localParameters,
-            IBindingContext cxt) throws SyntaxNodeException {
+            IBindingContext cxt) {
         IOpenClass parameterType = null;
         int localParameterCount = 0;
         for (List<IParameterDeclaration> paramTypes : localParameters.values()) {
@@ -425,21 +418,20 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     if (parameterType == null) {
                         parameterType = paramType.getType();
                     } else if (!Objects.equals(parameterType, paramType.getType())) {
-                        throw SyntaxNodeExceptionUtils.createError("Condition expression must return a boolean type.",
-                            null,
-                            null,
-                            expressionCellSourceCodeModule);
+                        BindHelper.processError("Condition expression must return a boolean type.",
+                            expressionCellSourceCodeModule,
+                            cxt);
+                        return;
                     }
                 }
             }
         }
 
         if (localParameterCount > 2) {
-            throw SyntaxNodeExceptionUtils.createError(
-                "Condition expression type is incompatible with condition parameter type.",
-                null,
-                null,
-                expressionCellSourceCodeModule);
+            BindHelper.processError("Condition expression type is incompatible with condition parameter type.",
+                expressionCellSourceCodeModule,
+                cxt);
+            return;
         }
 
         if (parameterType != null) {
@@ -449,11 +441,9 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 .findConditionCasts(parameterType.getComponentClass(), compositeMethod.getType(), cxt)
                 .atLeastOneExists();
             if (!(f1 || f2)) {
-                throw SyntaxNodeExceptionUtils.createError(
-                    "Condition expression type is incompatible with condition parameter type.",
-                    null,
-                    null,
-                    expressionCellSourceCodeModule);
+                BindHelper.processError("Condition expression type is incompatible with condition parameter type.",
+                    expressionCellSourceCodeModule,
+                    cxt);
             }
         }
     }

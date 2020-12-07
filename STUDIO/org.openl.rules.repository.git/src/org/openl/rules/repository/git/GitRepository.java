@@ -1,5 +1,21 @@
 package org.openl.rules.repository.git;
 
+import java.io.*;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.net.UnknownHostException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.text.MessageFormat;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.stream.Collectors;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.eclipse.jgit.api.*;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -21,7 +37,12 @@ import org.eclipse.jgit.merge.MergeStrategy;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.eclipse.jgit.revwalk.RevTree;
 import org.eclipse.jgit.revwalk.RevWalk;
-import org.eclipse.jgit.transport.*;
+import org.eclipse.jgit.transport.CredentialsProvider;
+import org.eclipse.jgit.transport.FetchResult;
+import org.eclipse.jgit.transport.PushResult;
+import org.eclipse.jgit.transport.RefSpec;
+import org.eclipse.jgit.transport.RemoteRefUpdate;
+import org.eclipse.jgit.transport.TrackingRefUpdate;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -35,7 +56,6 @@ import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.git.branch.BranchDescription;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.util.FileUtils;
@@ -48,18 +68,6 @@ import org.yaml.snakeyaml.TypeDescription;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.constructor.Constructor;
 import org.yaml.snakeyaml.representer.Representer;
-
-import java.io.*;
-import java.net.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.text.MessageFormat;
-import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.stream.Collectors;
 
 public class GitRepository implements FolderRepository, BranchRepository, Closeable, RRepositoryFactory {
     static final String DELETED_MARKER_FILE = ".archived";
@@ -87,7 +95,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     private boolean noVerify;
     private Boolean gcAutoDetach;
     private int failedAuthenticationSeconds;
-    private int maxAuthenticationAttempts;
+    private Integer maxAuthenticationAttempts;
 
     private ChangesMonitor monitor;
     private Git git;
@@ -522,7 +530,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         Lock writeLock = repositoryLock.writeLock();
         try {
             log.debug("initialize(): lock");
@@ -540,12 +548,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } else {
                 File[] files = local.listFiles();
                 if (files == null) {
-                    throw new IOException(String.format("Folder '%s' is not directory", local));
+                    throw new IOException(String.format("'%s' is not a directory.", local));
                 }
 
                 if (files.length > 0) {
                     if (RepositoryCache.FileKey.resolve(local, FS.DETECTED) != null) {
-                        log.debug("Reuse existing local repository {}", local);
+                        log.debug("Reuse existing git repository {}", local);
                         try (Repository repository = Git.open(local).getRepository()) {
                             if (uri != null) {
                                 String remoteUrl = repository.getConfig()
@@ -557,7 +565,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     URI savedUri = getUri(remoteUrl);
                                     if (!proposedUri.equals(savedUri)) {
                                         throw new IOException(String.format(
-                                                "Folder '%s' already contains local git repository but is configured for different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                                "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
                                                 local,
                                                 remoteUrl));
                                     }
@@ -568,7 +576,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     } else {
                         // Cannot overwrite existing files that is definitely not git repository
                         throw new IOException(String.format(
-                                "Folder '%s' already exists and is not empty. Delete it or choose another local path.",
+                                "Folder '%s' already exists and is not a git repository. Use another local path or delete the existing folder to create a git repository.",
                                 local));
                     }
                 } else {
@@ -585,12 +593,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 .setBranch(branch)
                                 .setCloneAllBranches(true);
 
-                        CredentialsProvider credentialsProvider = getCredentialsProvider();
+                        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.CLONE);
                         if (credentialsProvider != null) {
                             cloneCommand.setCredentialsProvider(credentialsProvider);
                         }
 
                         Git cloned = cloneCommand.call();
+                        successAuthentication(GitActionType.CLONE);
                         cloned.close();
                     } else {
                         Git repo = Git.init().setDirectory(local).call();
@@ -648,7 +657,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     }
                 } catch (RefAlreadyExistsException e) {
                     // the error may appear on non-case sensitive OS
-                    log.warn("The branch {} will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
+                    log.warn("The branch '{}' will not be tracked because a branch with the same name already exists. Branches with the same name, but different capitalization do not work on non-case sensitive OS.",
                             remoteBranch.getName());
                 }
             }
@@ -680,12 +689,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (getCredentialsProvider() == null) {
+                    if (credentialsProvider == null) {
                         String message = e.getMessage();
                         if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
                             throw new IOException(
                                     "Authentication is required but login and password has not been specified.");
                         }
+                    } else if (credentialsProvider.isHasAuthorizationFailure()) {
+                        throw new IOException("Incorrect login or password.");
                     }
                     // For other cases like temporary connection loss we should not fail. The local repository exists,
                     // will fetch later.
@@ -698,7 +709,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             } finally {
                 unlockSettings();
             }
-
+            if (credentialsProvider != null) {
+                credentialsProvider.successAuthentication(GitActionType.INIT);
+            }
             monitor = new ChangesMonitor(new GitRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             Throwable cause = ExceptionUtils.getRootCause(e);
@@ -709,11 +722,11 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             // Unknown host
             if (cause instanceof UnknownHostException) {
                 String error = "Invalid URL " + uri;
-                throw new RRepositoryException(error, new IllegalArgumentException(error));
+                throw new IllegalArgumentException(error);
             }
 
             // Other cases
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
@@ -779,7 +792,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
     }
 
-    public void setMaxAuthenticationAttempts(int maxAuthenticationAttempts) {
+    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
         this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
@@ -818,7 +831,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         if (treeWalk == null) {
             throw new FileNotFoundException(
-                    String.format("Did not find expected path '%s' in tree '%s'", path, tree.getName()));
+                    String.format("Missed expected path '%s' in tree '%s'.", path, tree.getName()));
         }
         return treeWalk;
     }
@@ -1197,7 +1210,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     private FetchResult fetchAll() throws GitAPIException, IOException {
         FetchCommand fetchCommand = git.fetch();
-        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {
             fetchCommand.setCredentialsProvider(credentialsProvider);
         }
@@ -1206,7 +1219,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         fetchCommand.setRemoveDeletedRefs(true);
         fetchCommand.setTimeout(connectionTimeout);
         FetchResult result = fetchCommand.call();
-        successAuthentication();
+        successAuthentication(GitActionType.FETCH_ALL);
         return result;
     }
 
@@ -1229,13 +1242,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new IOException(String.format("Cannot find branch '%s'", branch));
             }
 
-            CredentialsProvider credentialsProvider = getCredentialsProvider();
+            CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH);
             if (credentialsProvider != null) {
                 push.setCredentialsProvider(credentialsProvider);
             }
 
             Iterable<PushResult> results = push.call();
-            successAuthentication();
+            successAuthentication(GitActionType.PUSH);
             validatePushResults(results);
         } finally {
             remoteRepoLock.unlock();
@@ -1436,7 +1449,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     } catch (CorruptObjectException ex) {
                         log.error("git index file is corrupted and will be deleted", e);
                         if (!indexFile.delete() && indexFile.exists()) {
-                            log.warn("Can't delete corrupted index file {}.", indexFile);
+                            log.warn("Cannot delete corrupted index file {}.", indexFile);
                         }
                         resetCommand.call();
                     }
@@ -1488,7 +1501,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 try {
                     num = Integer.parseInt(name.substring(tagPrefix.length()));
                 } catch (NumberFormatException e) {
-                    log.debug("Tag {} is skipped because it does not contain version number", name);
+                    log.debug("Tag '{}' is skipped because it does not contain version number", name);
                     continue;
                 }
                 if (num > maxId) {
@@ -1534,6 +1547,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         trees[parentsNum] = commit.getTree();
         tw.reset(trees);
 
+        int[] changes = new int[parentsNum];
+
         while (tw.next()) {
             if (parentsNum == 0) {
                 // Path is changed but there are no parents. It's a first commit.
@@ -1545,8 +1560,45 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 int parentMode = tw.getRawMode(i);
                 if (currentMode != parentMode || !tw.idEqual(i, parentsNum)) {
                     // Path configured in tw was changed
-                    return true;
+                    changes[i]++;
                 }
+            }
+        }
+
+        if (parentsNum == 0) {
+            return false;
+        } else if (parentsNum == 1) {
+            return changes[0] > 0;
+        } else {
+            boolean allChanged = true;
+            boolean anyChanged = false;
+
+            for (int change : changes) {
+                if (change == 0) {
+                    allChanged = false;
+                } else {
+                    anyChanged = true;
+                }
+            }
+            if (allChanged) {
+                // Merge commit is modified comparing to both parents. Definitely we must show it in history.
+                return true;
+            }
+            if (anyChanged) {
+                // Merge commit is same as one of the parents for inspecting path.
+                // It can be in two cases:
+                // 1) it's a merge commit with overwriting changes of a user (ours or theirs).
+                // 2) merge commit doesn't introduce anything related to our path (merged changes are for other
+                // paths not related to the path interesting to us).
+                String fullMessage = commit.getFullMessage();
+                // We assume that if some of the parents contains a change, and message contains "conflict" word,
+                // then probably someone overwrites other user's changes in our project. So we should show that
+                // commit in history to show that overwrite step.
+                //
+                // Otherwise (if we don't contain "conflict" word), most probably that just means that their branch
+                // doesn't contain changes from our branch so that Merge commit isn't interesting for us because it
+                // doesn't introduce any change to our branch.
+                return fullMessage.contains("conflict") || fullMessage.contains("Conflict");
             }
         }
 
@@ -2239,13 +2291,13 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
         PushCommand push = git.push().setRefSpecs(refSpec).setTimeout(connectionTimeout);
 
-        CredentialsProvider credentialsProvider = getCredentialsProvider();
+        CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.PUSH_BRANCH);
         if (credentialsProvider != null) {
             push.setCredentialsProvider(credentialsProvider);
         }
 
         Iterable<PushResult> results = push.call();
-        successAuthentication();
+        successAuthentication(GitActionType.PUSH_BRANCH);
         validatePushResults(results);
     }
 
@@ -2413,16 +2465,16 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private CredentialsProvider getCredentialsProvider() throws IOException {
+    private CredentialsProvider getCredentialsProvider(GitActionType actionType) {
         if (credentialsProvider != null) {
-            credentialsProvider.validateAuthorizationState();
+            credentialsProvider.validateAuthorizationState(actionType);
         }
         return credentialsProvider;
     }
 
-    private void successAuthentication() {
+    private void successAuthentication(GitActionType actionType) {
         if (credentialsProvider != null) {
-            credentialsProvider.successAuthentication();
+            credentialsProvider.successAuthentication(actionType);
         }
     }
 

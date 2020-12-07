@@ -10,7 +10,7 @@ import org.openl.rules.data.DataNodeBinder;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.DtColumnsDefinitionMetaInfoReader;
-import org.openl.rules.utils.TableNameChecker;
+import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;

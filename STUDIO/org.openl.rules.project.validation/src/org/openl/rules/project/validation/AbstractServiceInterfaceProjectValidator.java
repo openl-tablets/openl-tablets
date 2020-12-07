@@ -20,10 +20,10 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.resolving.ProjectResource;
 import org.openl.rules.project.resolving.ProjectResourceLoader;
-import org.openl.rules.project.validation.base.ValidatedCompiledOpenClass;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationFactoryHelper;
 import org.openl.rules.ruleservice.core.interceptors.DynamicInterfaceAnnotationEnhancerHelper;
+import org.openl.validation.ValidatedCompiledOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -96,7 +96,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                 try {
                     return validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);
                 } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                    validatedCompiledOpenClass.addValidationMessage(
+                    validatedCompiledOpenClass.addMessage(
                         OpenLMessagesUtils.newWarnMessage(String.format("Failed to load a service class '%s'.%s",
                             serviceClassName,
                             StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
@@ -132,12 +132,12 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
                         rulesInstantiationStrategy.compile().getOpenClassWithErrors(),
                         resolveServiceClassLoader);
                 } else {
-                    validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils.newWarnMessage(String.format(
+                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
                         "Failed to apply annotation template class '%s'. Interface is expected, but class is found.",
                         annotationTemplateClassName)));
                 }
             } catch (Exception | NoClassDefFoundError e) {
-                validatedCompiledOpenClass.addValidationMessage(OpenLMessagesUtils
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newWarnMessage(String.format("Failed to load or apply annotation template class '%s'.%s",
                         annotationTemplateClassName,
                         StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));

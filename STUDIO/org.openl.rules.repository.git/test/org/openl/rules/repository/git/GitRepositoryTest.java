@@ -623,10 +623,13 @@ public class GitRepositoryTest {
             assertEquals("5 files existed and 2 files must be added (must be 7 files in total).",
                 7,
                 repository1.list("").size());
+            assertEquals("Rules_6", saved1.getVersion());
             assertEquals("Rules_5", saved2.getVersion());
-            assertEquals(repository1.check(saved1.getName()).getVersion(), saved1.getVersion());
-            assertEquals("Merge branch 'test' into test", saved1.getComment());
+            assertEquals(repository1.check(saved1.getName()).getVersion(), "Rules_6");
             assertEquals("Rules_6", repository1.listHistory(saved1.getName()).get(0).getVersion());
+
+            // Just ensure that last commit in the whole repository is merge commit
+            assertEquals("Merge branch 'test' into test", repository1.check("rules").getComment());
         }
     }
 

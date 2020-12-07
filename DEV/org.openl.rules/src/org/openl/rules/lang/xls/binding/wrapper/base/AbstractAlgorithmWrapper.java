@@ -77,8 +77,8 @@ public abstract class AbstractAlgorithmWrapper extends Algorithm {
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

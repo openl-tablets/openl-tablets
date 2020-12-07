@@ -234,4 +234,19 @@ public class StringUtilsTest {
         assertEquals("Returned string is not valid", "fOO", StringUtils.uncapitalize("FOO"));
         assertEquals("Returned string is not valid", "муУ", StringUtils.uncapitalize("МуУ"));
     }
+
+    @Test
+    public void testCamelToKebab() {
+        assertNull("Returned string is not valid", StringUtils.camelToKebab(null));
+        assertEquals("Returned string is not valid", "", StringUtils.camelToKebab(""));
+        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("FOO"));
+        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("Foo"));
+        assertEquals("Returned string is not valid", "foo", StringUtils.camelToKebab("foo"));
+        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("FooBar"));
+        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("fooBar"));
+        assertEquals("Returned string is not valid", "foo-bar", StringUtils.camelToKebab("FOOBar"));
+        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("ABar"));
+        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBar"));
+        assertEquals("Returned string is not valid", "a-bar", StringUtils.camelToKebab("aBAR"));
+    }
 }

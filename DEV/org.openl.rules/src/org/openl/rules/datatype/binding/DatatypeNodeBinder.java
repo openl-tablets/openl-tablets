@@ -8,7 +8,6 @@ import org.openl.OpenL;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -20,9 +19,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
-import org.openl.rules.utils.TableNameChecker;
+import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
@@ -95,9 +93,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]",
-                    tableSource.getUri());
-                IOpenClass arrayOpenClass = OpenLManager.makeType(openl, arrayAliasTypeSource, bindingContext);
+                IOpenClass arrayOpenClass = RuleRowHelper.getType(type + "[]", tableSource, bindingContext);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -110,15 +106,11 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             IDomain<?> domain = new EnumDomain<>(res);
 
-            // Create source code module for type definition.
             // Domain values are loaded as elements of array. We are create one
             // more type for it - array with appropriate type of elements.
-            //
-            IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
-
             // Create appropriate OpenL class for type definition.
             //
-            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, bindingContext);
+            IOpenClass baseOpenClass = RuleRowHelper.getType(type, tableSource, bindingContext);
 
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
@@ -139,9 +131,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 .getIdentifier()
                 .equals("extends")) {
 
-                String message = "Datatype table formats: [Datatype %typename%] " +
-                    "or [Datatype %typename% extends %parentTypeName%] " +
-                    "or [Datatype %typename% %<aliastype>%] ";
+                String message = "Datatype table formats: [Datatype %typename%] " + "or [Datatype %typename% extends %parentTypeName%] " + "or [Datatype %typename% %<aliastype>%] ";
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
             }
 

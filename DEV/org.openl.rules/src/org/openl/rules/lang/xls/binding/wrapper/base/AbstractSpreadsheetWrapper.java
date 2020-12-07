@@ -200,8 +200,8 @@ public class AbstractSpreadsheetWrapper extends Spreadsheet {
     }
 
     @Override
-    public void removeDebugInformation() {
-        delegate.removeDebugInformation();
+    public void clearForExecutionMode() {
+        delegate.clearForExecutionMode();
     }
 
     @Override

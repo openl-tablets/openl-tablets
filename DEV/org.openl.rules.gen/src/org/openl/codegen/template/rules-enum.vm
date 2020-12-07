@@ -3,13 +3,13 @@ package $enumPackage;
 public enum $enumName {
 
 #foreach( $valueDefinition in $values )
-    ${valueDefinition.Name}("$valueDefinition.DisplayName")#if( $velocityHasNext ),#else;#end
+    ${valueDefinition.get(0)}("$valueDefinition.get(1)")#if( $velocityHasNext ),#else;#end
 
 #end
 
     private final String displayName;
 
-    private $enumName(String displayName) {
+    $enumName(String displayName) {
         this.displayName = displayName;
     }
 

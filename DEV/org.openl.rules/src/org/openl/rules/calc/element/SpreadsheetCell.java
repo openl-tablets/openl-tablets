@@ -11,11 +11,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCell implements Invokable {
 
-    private int rowIndex;
-    private int columnIndex;
-    private ICell sourceCell;
+    private final int rowIndex;
+    private final int columnIndex;
+    private final ICell sourceCell;
 
-    private SpreadsheetCellType spreadsheetCellType;
+    private final SpreadsheetCellType spreadsheetCellType;
     private Object value;
     private IOpenClass type;
 

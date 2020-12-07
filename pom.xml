@@ -102,7 +102,7 @@
         <com.fasterxml.jackson.version>2.11.3</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.34.v20201102</jetty.server.version>
+        <jetty.server.version>9.4.35.v20201120</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.13</elasticsearch.version>
         <!-- It needs to detect memory leaks. -->
@@ -118,7 +118,9 @@
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
-        <org.apache.thrift.version>0.10.0</org.apache.thrift.version>
+        <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
+        <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
+        <owasp.version>6.0.3</owasp.version>
     </properties>
 
     <modules>
@@ -233,6 +235,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
+                            <openl.config.location/>
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -329,6 +332,11 @@
                             <version>1.4.199</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+                <plugin>
+                    <groupId>org.owasp</groupId>
+                    <artifactId>dependency-check-maven</artifactId>
+                    <version>${owasp.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -626,6 +634,24 @@
                                 <phase>${generate-application.properties}</phase>
                                 <goals>
                                     <goal>execute</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>owasp</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.owasp</groupId>
+                        <artifactId>dependency-check-maven</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>aggregate</goal>
                                 </goals>
                             </execution>
                         </executions>
@@ -1068,7 +1094,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.36.2</version>
+                <version>3.37.0</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>

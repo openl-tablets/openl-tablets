@@ -28,6 +28,7 @@ public class ProblemsBean {
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
 
+    private static final int MAX_PROBLEMS = 100;
     private static final MessageHandler messageHandler = new MessageHandler();
 
     public TreeNode getTree() {
@@ -89,6 +90,18 @@ public class ProblemsBean {
                 nodeName.toLowerCase(),
                 true);
             parent.addChild(nodeCount++, messageNode);
+            if (nodeCount > MAX_PROBLEMS) {
+                parent.addChild(nodeCount,
+                    new TreeNode(true,
+                        "Only first " + MAX_PROBLEMS + " " + nodeName + "s are shown. Fix them first.",
+                        "",
+                        url,
+                        0,
+                        0,
+                        nodeName.toLowerCase(),
+                        true));
+                break;
+            }
         }
     }
 

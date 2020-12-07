@@ -70,7 +70,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             Assert.assertEquals(1, messages.size());
             Assert.assertEquals(
-                "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, DZ, BY})",
+                "Ambiguous definition of properties values. Details: (country={AL, CN}) and (country={AL, BY, DZ})",
                 messages.get(0).getSummary());
         }
     }
@@ -86,7 +86,7 @@ public class DimensionalPropertyValidatorTest extends BaseOpenlBuilderHelper {
                 (TableSyntaxNode) method.getInfo().getSyntaxNode());
             Assert.assertEquals(1, messages.size());
             Assert.assertEquals(
-                "Ambiguous definition of properties values. Details: (country={AL, DZ, AR}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
+                "Ambiguous definition of properties values. Details: (country={AL, AR, DZ}, state={AL}) and (country={AL}, state={AL, AK, AZ})",
                 messages.get(0).getSummary());
         }
     }

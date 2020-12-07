@@ -450,8 +450,7 @@ public class StringUtils {
      * @see #capitalize(String)
      */
     public static String uncapitalize(final String str) {
-        int strLen;
-        if (str == null || (strLen = str.length()) == 0) {
+        if (isEmpty(str)) {
             return str;
         }
 
@@ -464,4 +463,47 @@ public class StringUtils {
         return Character.toLowerCase(firstChar) + str.substring(1);
     }
 
+    /**
+     * Converts CamelCased string to kebab-cased. It is useful for converting Java's fields or methods to case
+     * insensetive form, e.g. for properties keys, urls, MS Windows file names and e.t.c.
+     *
+     * <pre>
+     * StringUtils.camelToKebab(null)        = null
+     * StringUtils.camelToKebab("")          = ""
+     * StringUtils.camelToKebab("FOO")       = "foo"
+     * StringUtils.camelToKebab("Foo")       = "foo"
+     * StringUtils.camelToKebab("foo")       = "foo"
+     * StringUtils.camelToKebab("FooBar")    = "foo-bar"
+     * StringUtils.camelToKebab("fooBar")    = "foo-bar"
+     * StringUtils.camelToKebab("FOOBar")    = "foo-bar"
+     * StringUtils.camelToKebab("ABar")      = "a-bar"
+     * StringUtils.camelToKebab("aBar")      = "a-bar"
+     * StringUtils.camelToKebab("aBAR")      = "a-bar"
+     * </pre>
+     *
+     *
+     * @param camel - CamelCased string
+     * @return - kebab-cased string
+     */
+    public static String camelToKebab(String camel) {
+        if (isEmpty(camel)) {
+            return camel;
+        }
+        int length = camel.length();
+        StringBuilder sb = new StringBuilder(length + (length / 4) + 1); // Every 4th symbol expected to be Upper cased
+        for (int i = 0; i < length; i++) {
+            char c = camel.charAt(i);
+            if (Character.isUpperCase(c)) {
+                if (i > 0 && (i < (length - 1) && Character.isLowerCase(camel.charAt(i + 1)) || Character
+                        .isLowerCase(camel.charAt(i - 1)))) {
+                    sb.append("-");
+                }
+                c = Character.toLowerCase(c);
+                sb.append(c);
+            } else {
+                sb.append(c);
+            }
+        }
+        return sb.toString();
+    }
 }

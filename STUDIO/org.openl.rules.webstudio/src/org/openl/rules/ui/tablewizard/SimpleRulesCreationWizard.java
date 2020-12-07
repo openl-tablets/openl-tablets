@@ -29,7 +29,7 @@ import org.openl.rules.ui.tablewizard.util.JSONHolder;
 import org.openl.rules.ui.validation.StringPresentedGroup;
 import org.openl.rules.ui.validation.StringValidGroup;
 import org.openl.rules.ui.validation.TableNameConstraint;
-import org.openl.rules.utils.TableNameChecker;
+import org.openl.util.TableNameChecker;
 import org.openl.util.StringUtils;
 import org.richfaces.json.JSONException;
 import org.slf4j.Logger;

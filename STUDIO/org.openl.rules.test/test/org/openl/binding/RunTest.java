@@ -13,10 +13,9 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.CompositeOpenlException;
 
 public class RunTest {
     private static Object runExpression(String expression) {
@@ -39,15 +38,15 @@ public class RunTest {
         });
     }
 
-    private static void assertError(String expr, Class<? extends Throwable> expected) {
-        Throwable ex = null;
+    private static void assertError(String expr, String expected) {
         try {
             runExpression(expr);
-        } catch (Throwable t) {
-            ex = t;
+            Assert.fail("Non-reachable");
+        } catch (CompositeOpenlException t) {
+            Assert.assertEquals(expected, t.getErrors()[0].getMessage());
+        } catch (Exception t) {
+            Assert.assertEquals(expected, t.getMessage());
         }
-        Assert.assertNotNull(ex);
-        Assert.assertEquals(expected, ex.getClass());
     }
 
     @Test
@@ -82,7 +81,7 @@ public class RunTest {
         assertEquals("String x = \"abc\";String y = \"abc\"; x < y", false);
         assertEquals("String x = \"abc\";String y = \"abc\"; x <= y", true);
 
-        assertError("String x = \"abc\";Integer y = 10; x <= y", CompositeSyntaxNodeException.class);
+        assertError("String x = \"abc\";Integer y = 10; x <= y", "Operator 'le(java.lang.String, java.lang.Integer)' is not found.");
     }
 
     @Test
@@ -252,9 +251,9 @@ public class RunTest {
             "aaabbddZZZ");
 
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.getDay() < 5]",
-            CompositeSyntaxNodeException.class);
+            "Method 'getDay()' is not found.");
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(Date d) !@ d.getDay() < 5]",
-            CompositeSyntaxNodeException.class);
+            "Cannot cast 'java.lang.String' to 'java.util.Date'.");
 
         assertEquals("String[] ary = {\"a\", \"b\",\"c\" ,\"a\",\"d\",\"b\",}; ary[(x)~@ x][(str)*@str[0]].length", 4);
 
@@ -266,7 +265,7 @@ public class RunTest {
 
         assertError(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(Date d)!@ d.getDay() < 6]",
-            OpenLRuntimeException.class);
+            "Failure in the method: `bbccdd`.getDay(). Cause: object is not an instance of declaring class");
         assertEquals(
             "List list = new ArrayList(); list.add(\"bbccdd\"); list.add(\"dddee\");list.add(\"dddeedd\"); list[(String s)!@ s.contains(\"ee\")]",
             "dddee");
@@ -344,7 +343,7 @@ public class RunTest {
             "List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[(String s)^@s]",
             new String[] { "aaa", "bb", "ddd" });
         assertError("List list = new ArrayList(); list.add(\"bb\");list.add( \"ddd\");list.add(\"aaa\"); list[^@s]",
-            CompositeSyntaxNodeException.class);
+            "Identifier 's' is not found.");
     }
 
     @Test
@@ -413,10 +412,10 @@ public class RunTest {
         assertEquals("10d.class", double.class);
         assertEquals("int x = 5; x.class", int.class);
 
-        assertError("String.length()", CompositeSyntaxNodeException.class);
-        assertError("Double.isNaN()", CompositeSyntaxNodeException.class);
-        assertError("Double.getClass()", CompositeSyntaxNodeException.class);
-        assertError("int.getClass()", CompositeSyntaxNodeException.class);
+        assertError("String.length()", "Accessing to non-static method from a static class.");
+        assertError("Double.isNaN()", "Accessing to non-static method from a static class.");
+        assertError("Double.getClass()", "Accessing to non-static method from a static class.");
+        assertError("int.getClass()", "Method 'getClass()' is not found.");
     }
 
     @Test

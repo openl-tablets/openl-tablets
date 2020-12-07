@@ -2,7 +2,6 @@ package org.openl.rules.workspace.deploy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +21,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
@@ -84,11 +84,10 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile, boolean skipExist) throws Exception {
-        Repository deployRepo = null;
-        try {
+        try (Repository deployRepo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + prefix,
+            environment::getProperty)) {
             // Initialize repo
-            deployRepo = RepositoryInstatiator.newRepository(prefix, environment);
-            String deployPath = environment.getProperty("repository." + prefix + ".base.path");
+            String deployPath = environment.getProperty(Comments.REPOSITORY_PREFIX + prefix + ".base.path");
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
             } else if (!deployPath.isEmpty() && !deployPath.endsWith("/")) {
@@ -96,14 +95,6 @@ public class ProductionRepositoryDeployer {
             }
 
             deployInternal(zipFile, deployRepo, skipExist, deployPath);
-        } finally {
-            // Close repo
-            if (deployRepo != null) {
-                if (deployRepo instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) deployRepo);
-                }
-            }
         }
 
     }
@@ -166,12 +157,7 @@ public class ProductionRepositoryDeployer {
             String deploymentName = getDeploymentName(zipFolder);
 
             if (deploymentName == null) {
-                FileData fileData = createFileData(deployRepo,
-                    skipExist,
-                    deployPath,
-                    zipFolder,
-                    name,
-                    null);
+                FileData fileData = createFileData(deployRepo, skipExist, deployPath, zipFolder, name, null);
 
                 if (fileData == null) {
                     return;
@@ -181,12 +167,7 @@ public class ProductionRepositoryDeployer {
                 List<File> rulesConfigs = getRulesFolders(zipFolder);
                 List<FileItem> fileItems = new ArrayList<>();
                 for (File f : rulesConfigs) {
-                    FileData fileData = createFileData(deployRepo,
-                        skipExist,
-                        deployPath,
-                        f,
-                        name,
-                        deploymentName);
+                    FileData fileData = createFileData(deployRepo, skipExist, deployPath, f, name, deploymentName);
 
                     if (fileData == null) {
                         return;

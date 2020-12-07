@@ -1,6 +1,7 @@
 package org.openl.rules.repository.git;
 
-import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -12,21 +13,30 @@ import org.slf4j.LoggerFactory;
 public class NotResettableCredentialsProvider extends UsernamePasswordCredentialsProvider {
     private static final Logger LOG = LoggerFactory.getLogger(NotResettableCredentialsProvider.class);
 
+    private static final String FAIL_MESSAGE = "Problem communicating with '%s' Git server, will retry automatically in %s";
+    private static final String BLOCK_MESSAGE = "Problem communicating with '%s' Git server, please contact admin.";
+    private static final String INCORRECT_CRED_MESSAGE = "Incorrect login or password for '%s' Git repository.";
+
+
     private final int failedAuthorizationSeconds;
-    private final int maxAuthorizationAttempts;
+    private final Integer maxAuthorizationAttempts;
     private final String repositoryName;
 
     //When authentication attempt was unsuccessful the next authentication attempt does not occur immediately,
     //but after the time specified in the properties.
     private AtomicLong nextAttempt = new AtomicLong(0);
-    private AtomicInteger attemptNumber = new AtomicInteger(0);
+    private AtomicInteger failedAttempts = new AtomicInteger(0);
+
+    private final Set<GitActionType> currentActions = new HashSet<>();
+    private final Set<GitActionType> failedActions = new HashSet<>();
 
 
-    NotResettableCredentialsProvider(String username, String password, String repositoryName, int failedAuthorizationSeconds, int maxAuthorizationAttempts) {
+    NotResettableCredentialsProvider(String username, String password, String repositoryName, int failedAuthorizationSeconds, Integer maxAuthorizationAttempts) {
         super(username, password);
         this.repositoryName = repositoryName;
         this.failedAuthorizationSeconds = failedAuthorizationSeconds;
         this.maxAuthorizationAttempts = maxAuthorizationAttempts;
+        currentActions.add(GitActionType.INIT);
     }
 
     @Override
@@ -34,38 +44,43 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         // This method is called when authentication attempt was unsuccessful and need to provide correct credentials.
         // Our application works in non-interactive mode so we just throw exception.
         LOG.info("Reset the credentials provider for the URI: {}", uri);
-        if (!nextAttempt.compareAndSet(0, System.currentTimeMillis() + failedAuthorizationSeconds * 1000)) {
-            // The following condition will be false only in case of a simultaneous request to the repository by several threads
-            // It is necessary to increase the attempt counter so that the total number of attempts does not exceed the maximum number of attempts.
-            if (!attemptNumber.compareAndSet(0, 1)) {
-                //Means that the one more authentication attempt has failed
-                nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000);
-            }
+        synchronized (this) {
+            failedActions.addAll(currentActions);
         }
-        throw new InvalidCredentialsException(String.format("Problem communicating with '%s' Git server, will retry automatically in %s", repositoryName, getNextAttemptTime()));
+        if (currentActions.contains(GitActionType.INIT)) {
+            throw new InvalidCredentialsException(String.format(INCORRECT_CRED_MESSAGE, repositoryName));
+        }
+        if (maxAuthorizationAttempts != null && failedAttempts.incrementAndGet() >= maxAuthorizationAttempts) {
+            // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
+            nextAttempt.set(-1);
+            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
+        }
+        nextAttempt.set(System.currentTimeMillis() + failedAuthorizationSeconds * 1000L);
+        throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
     }
 
-    void validateAuthorizationState() throws IOException {
+    void validateAuthorizationState(GitActionType actionType) throws InvalidCredentialsException {
         long attemptTime = nextAttempt.get();
         if (attemptTime == 0) {
             // The last login attempt was successful, or this is the first attempt.
+            authTaken(actionType);
             return;
         } else if (attemptTime == -1) {
             // The maximum number of authorization attempts has been exceeded.
-            throw new IOException("Incorrect login or password for git repository.");
+            throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
         } else {
             if (System.currentTimeMillis() > attemptTime) {
-                if (attemptNumber.incrementAndGet() <= maxAuthorizationAttempts) {
-                    // Increase in the counter of attempts and permission for one more.
+                if (maxAuthorizationAttempts == null || failedAttempts.get() <= maxAuthorizationAttempts) {
+                    authTaken(actionType);
                     return;
                 } else {
                     // The maximum number of authorization attempts has been exceeded. No more attempts allowed.
                     nextAttempt.set(-1);
-                    throw new IOException("Incorrect login or password for git repository.");
+                    throw new InvalidCredentialsException(String.format(BLOCK_MESSAGE, repositoryName));
                 }
             } else {
                 // The time for the next try has not yet come
-                throw new IOException(String.format("Problem communicating with '%s' Git server, will retry automatically in %s", repositoryName, getNextAttemptTime()));
+                throw new InvalidCredentialsException(String.format(FAIL_MESSAGE, repositoryName, getNextAttemptTime()));
             }
         }
     }
@@ -80,9 +95,25 @@ public class NotResettableCredentialsProvider extends UsernamePasswordCredential
         }
     }
 
-    void successAuthentication() {
-        nextAttempt = new AtomicLong(0);
-        attemptNumber = new AtomicInteger(0);
+    private synchronized void authTaken(GitActionType actionType) {
+        if (actionType != null) {
+            currentActions.add(actionType);
+        }
+    }
+
+    void successAuthentication(GitActionType actionType) {
+        synchronized (this) {
+            currentActions.remove(actionType);
+            failedActions.remove(actionType);
+        }
+        if (failedActions.isEmpty()) {
+            nextAttempt = new AtomicLong(0);
+            failedAttempts = new AtomicInteger(0);
+        }
+    }
+
+    boolean isHasAuthorizationFailure() {
+        return !failedActions.isEmpty();
     }
 
 

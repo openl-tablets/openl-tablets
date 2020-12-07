@@ -177,7 +177,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         this.boundNode = node;
     }
 
-    public void removeDebugInformation() {
+    public void clearForExecutionMode() {
         setBoundNode(null);
         ITableProperties methodProperties = getMethodProperties();
         if (methodProperties != null) {

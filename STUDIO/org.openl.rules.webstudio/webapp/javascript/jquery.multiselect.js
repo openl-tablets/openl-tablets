@@ -29,7 +29,10 @@
             popup.append($("<div class='jquery-multiselect-popup-header' />").append(checkAll));
 
             var data = $("<div class='jquery-multiselect-popup-data' />");
-            currentSelect.children("option").each(function() {
+
+            currentSelect.find("option").sort(function(left, right) {
+                return left.text == right.text ? 0 : left.text < right.text ? -1 : 1;
+            }).each(function() {
                 var option = $(this);
                 var selected = this.getAttribute("selected") ? true : false;
                 values[option.val()] = selected;

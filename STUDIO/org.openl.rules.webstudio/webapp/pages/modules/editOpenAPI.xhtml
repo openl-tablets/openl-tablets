@@ -17,7 +17,6 @@
             vertical-align: middle;
         }
 
-
     </style>
 
     <rich:popupPanel id="importOpenAPIPopup" minwidth="470" autosized="true">
@@ -33,13 +32,13 @@
         <h:form prependId="true" id="importOpenAPIForm" class="fields">
             <section>
                 <div id="pathInfo">
-                    <table id="openapi-file-path" class="properties properties-form wide">
+                    <table id="openapi-file-path" class="properties properties-form">
                         <tr>
                             <td>
                                 <label class="openAPIRequired"> OpenAPI File:</label>
                             </td>
                             <td>
-                                <h:inputText id="openAPIPath" size="35" maxlength="70"
+                                <h:inputText id="openAPIPath" size="35" maxlength="70" styleClass="shortInput"
                                              validator="#{projectBean.validateOpenAPIPath}"/><br/>
                                 <a4j:outputPanel ajaxRendered="true">
                                     <h:message for="openAPIPath" styleClass="error"/>
@@ -47,14 +46,32 @@
                             </td>
                         </tr>
                         <tr>
+                            <td><label>Mode:</label></td>
                             <td>
-                                <label><input type="radio" name="mode" id="reconciliation" value="reconciliation"
-                                              checked="checked">Reconciliation</input></label>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td><label><input type="radio" name="mode" id="generation"
-                                              value="generation">Generation</input></label>
+                                <table>
+                                    <tr>
+                                        <td style="text-align: left; vertical-align: middle;">
+                                            <input type="radio" name="mode" id="reconciliation"
+                                                   value="reconciliation"
+                                                   checked="checked">Reconciliation</input>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <a class="imageButton"
+                                               onclick="showOpenAPIModeInfo('openAPIReconciliation');return false;"
+                                               style="background:url('webresource/images/info.png');"/>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="text-align: left; vertical-align: middle;"><input type="radio" name="mode" id="generation"
+                                                                                                     value="generation">Generation</input>
+                                        </td>
+                                        <td style="text-align: center; vertical-align: middle;">
+                                            <a class="imageButton"
+                                               onclick="showOpenAPIModeInfo('openAPIGeneration'); return false;"
+                                               style="background:url('webresource/images/info.png');"/>
+                                        </td>
+                                    </tr>
+                                </table>
                             </td>
                         </tr>
                     </table>
@@ -62,13 +79,13 @@
             </section>
             <section>
                 <div id="moduleNames">
-                    <table id="openapi-module-names" class="properties properties-form wide">
+                    <table id="openapi-module-names" class="properties properties-form">
                         <tr>
                             <td>
                                 <label class="openAPIRequired">Rules Module:</label>
                             </td>
                             <td>
-                                <h:inputText id="algorithmModuleName" size="35" maxlength="70"
+                                <h:inputText id="algorithmModuleName" size="35" maxlength="70" styleClass="shortInput"
                                              validator="#{projectBean.validateAlgorithmModuleName}"/><br/>
                                 <a4j:outputPanel ajaxRendered="true">
                                     <h:message for="algorithmModuleName" styleClass="error"/>
@@ -80,7 +97,7 @@
                                 <label class="openAPIRequired">Data Module:</label>
                             </td>
                             <td>
-                                <h:inputText id="modelModuleName" size="35" maxlength="70"
+                                <h:inputText id="modelModuleName" size="35" maxlength="70" styleClass="shortInput"
                                              validator="#{projectBean.validateModelModuleName}"/><br/>
                                 <a4j:outputPanel ajaxRendered="true">
                                     <h:message for="modelModuleName" styleClass="error"/>

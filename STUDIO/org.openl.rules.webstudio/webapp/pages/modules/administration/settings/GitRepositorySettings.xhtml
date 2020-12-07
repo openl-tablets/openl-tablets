@@ -38,7 +38,13 @@
             <li>{username} is replaced by username.</li>
             <li>{current-date} is replaced by current date.</li>
         </ul><br/><br/>
-        <b>NOTE: </b>Only latin letters, numbers, '_', '-' and '/' are allowed. 
+        <b>NOTE: </b>Must not contain the following characters: \ : * ? " ' &lt; &gt; | { } ~ ^
+    </div>
+    <div id="#{prependId}regexValidation" class="hidden">
+        Additional regular expression that will be used to validate the name of the new branch.
+    </div>
+    <div id="#{prependId}validationErrorMessage" class="hidden">
+        An error message that will be shown to the user when trying to create a new branch with a name that does not match the additional regular expression.
     </div>
 
     <h:panelGrid columns="3" columnClasses="titleColumn" id="#{prependId}gitSettings">
@@ -100,18 +106,42 @@
         <h:outputText value="" rendered="#{settings.remoteRepository}"/>
         <h:message for="#{prependId}gitBranch" styleClass="error" rendered="#{settings.remoteRepository}"/>
         <h:outputText value="" rendered="#{settings.remoteRepository}"/>
-        
-        <h:outputText value="New branch pattern:" rendered="#{isDesignRepo}"/>
+
+        <h:outputText value=" " rendered="#{isDesignRepo}"/>
+        <h:outputText value=""/>
+        <h:outputText value=""/>
+
+        <h:outputText value="New branch:" rendered="#{isDesignRepo}"/>
+        <h:outputText value=""/>
+        <h:outputText value=""/>
+
+        <h:outputText value="Pattern template:" rendered="#{isDesignRepo}"/>
         <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
                      id="#{prependId}newBranchTemplate" rendered="#{isDesignRepo}"
-                     validator="#{copyBean.newBranchNamePatternValidator}">
+                     validator="#{validators.newBranchNamePatternValidator}">
         </h:inputText>             
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}newBranchTemplateShowInfo');return false;" title="Details" rendered="#{isDesignRepo}"/>
-        
+
         <h:outputText value=""/>
         <h:message for="#{prependId}newBranchTemplate" styleClass="error"/>
         <h:outputText value=""/>
-        
+
+        <h:outputText value="Regex validation:" rendered="#{isDesignRepo}"/>
+        <h:inputText value="#{settings.newBranchRegex}" title="Additional regex for new branches."
+                     id="#{prependId}regexValidation" rendered="#{isDesignRepo}">
+        </h:inputText>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}regexValidation');return false;" title="Details" rendered="#{isDesignRepo}"/>
+
+        <h:outputText value="Validation error message:" rendered="#{isDesignRepo}"/>
+        <h:inputText value="#{settings.newBranchRegexError}" title="Error message for regex validation."
+                     id="#{prependId}validationErrorMessage" rendered="#{isDesignRepo}">
+        </h:inputText>
+        <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}validationErrorMessage');return false;" title="Details" rendered="#{isDesignRepo}"/>
+
+        <h:outputText value=" " rendered="#{isDesignRepo}"/>
+        <h:outputText value="" />
+        <h:outputText value=""/>
+
         <h:outputText value="Changes check interval (sec):" rendered="#{settings.remoteRepository}"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than zero."

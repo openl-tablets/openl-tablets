@@ -7,7 +7,6 @@ import org.openl.binding.impl.BindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -41,11 +40,7 @@ public class SourceCodeMethodCaller implements IMethodCaller {
                 signature,
                 null);
             BindingContext cxt = new BindingContext(op.getBinder(), null, op);
-            try {
-                method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
-            } catch (SyntaxNodeException e) {
-                throw new IllegalArgumentException(e);
-            }
+            method = OpenLManager.makeMethod(op, src, methodHeader, cxt);
         }
         return method;
     }

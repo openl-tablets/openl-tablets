@@ -1,7 +1,6 @@
 package org.openl.rules.method.table;
 
 import org.openl.binding.BindingDependencies;
-import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.rules.annotations.Executable;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -79,8 +78,8 @@ public class TableMethod extends ExecutableRulesMethod {
     }
 
     @Override
-    public void removeDebugInformation() {
-        super.removeDebugInformation();
+    public void clearForExecutionMode() {
+        super.clearForExecutionMode();
         getCompositeMethod().removeDebugInformation();
     }
 }

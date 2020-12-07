@@ -2,14 +2,15 @@ package org.openl.rules.constants;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.writers.DefaultValue;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.convertor.String2DataConvertorFactory;
@@ -21,22 +22,16 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.meta.ConstantsTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.ParserUtils;
-import org.openl.source.IOpenSourceCodeModule;
+import org.openl.util.ParserUtils;
+import org.openl.util.TableNameChecker;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionCollector;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.FieldMetaInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
-import org.openl.util.MessageUtils;
-import org.openl.util.text.LocationUtils;
-import org.openl.util.text.TextInterval;
+import org.openl.util.StringUtils;
 
 public class ConstantsTableBoundNode implements IMemberBoundNode {
 
@@ -47,7 +42,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
     private final OpenL openl;
     private Collection<ConstantOpenField> constantOpenFields = new ArrayList<>();
 
-    public ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
+    ConstantsTableBoundNode(TableSyntaxNode syntaxNode,
             XlsModuleOpenClass moduleOpenClass,
             ILogicalTable table,
             OpenL openl) {
@@ -69,135 +64,111 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
         return moduleOpenClass;
     }
 
-    /**
-     * Checks if the given row can be processed.
-     *
-     * @param rowSrc checked row
-     * @return false if row content is empty, or was commented with special symbols.
-     */
-    public static boolean canProcessRow(GridCellSourceCodeModule rowSrc) {
-        return !ParserUtils.isBlankOrCommented(rowSrc.getCode());
-    }
-
-    private static String getName(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
-        GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
-        IdentifierNode[] idn = DatatypeTableBoundNode.getIdentifierNode(nameCellSource);
-        if (idn.length != 1) {
-            String errorMessage = String.format("Bad constant name: %s", nameCellSource.getCode());
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, nameCellSource);
-        } else {
-            return idn[0].getIdentifier();
-        }
-    }
-
-    private IOpenClass getConstantType(IBindingContext bindingContext,
-            ILogicalTable row,
-            GridCellSourceCodeModule tableSrc) throws SyntaxNodeException {
-
-        IOpenClass fieldType = OpenLManager.makeType(openl, tableSrc, bindingContext);
-
-        if (fieldType == null || fieldType instanceof NullOpenClass) {
-            throw SyntaxNodeExceptionUtils
-                .createError(MessageUtils.getTypeNotFoundMessage(tableSrc.getCode()), null, null, tableSrc);
-        }
-
-        if (row.getWidth() < 2) {
-            String errorMessage = "Bad table structure: must be {header} / {type | name}";
-            throw SyntaxNodeExceptionUtils.createError(errorMessage, null, null, tableSrc);
-        }
-        return fieldType;
-    }
-
-    private void processRow(ILogicalTable row, IBindingContext cxt) throws OpenLCompilationException {
+    private void processRow(ILogicalTable row, IBindingContext cxt) {
 
         GridCellSourceCodeModule rowSrc = new GridCellSourceCodeModule(row.getSource(), cxt);
 
-        if (canProcessRow(rowSrc)) {
-            String constantName = getName(row, cxt);
+        if (ParserUtils.isBlankOrCommented(rowSrc.getCode())) {
+            return;
+        }
+        if (row.getWidth() < 2) {
+            String errorMessage = "Bad table structure: expected {header} / {type | name}.";
+            BindHelper.processError(errorMessage, rowSrc, cxt);
+            return;
+        }
 
-            IOpenClass constantType = getConstantType(cxt, row, rowSrc);
+        GridCellSourceCodeModule typeCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 0);
+        String typeName = typeCellSource.getCode();
+        RuleRowHelper.getType(typeName, typeCellSource, cxt);
+        IOpenClass constantType = RuleRowHelper.getType(typeName, typeCellSource, cxt);
 
-            Object objectValue;
-            String defaultValue = null;
-            GridCellSourceCodeModule defaultValueSrc = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
-            if (!ParserUtils.isCommented(defaultValueSrc.getCode())) {
-                IdentifierNode[] idn = DatatypeTableBoundNode.getIdentifierNode(defaultValueSrc);
-                if (idn.length > 0) {
-                    // if there is any valid identifier, consider it is a default
-                    // value
-                    //
-                    defaultValue = defaultValueSrc.getCode();
-                }
-            }
-            String value = defaultValue;
-            if (DefaultValue.DEFAULT.equals(value)) {
-                objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
-            } else if (RuleRowHelper.isFormula(value)) {
-                SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
-                OpenMethodHeader methodHeader = new OpenMethodHeader(
-                        constantName,
-                        constantType,
-                        new MethodSignature(),
-                        null
-                );
-                objectValue = OpenLManager.makeMethod(openl, source, methodHeader, cxt)
-                    .invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
-            } else if (String.class == constantType.getInstanceClass()) {
-                objectValue = value;
-            } else if (value == null) {
-                objectValue = null;
-            } else if (constantType.getName().startsWith("[[")) {
-                throw SyntaxNodeExceptionUtils.createError("Multi-dimensional arrays are not supported.",
-                    defaultValueSrc);
-            } else {
-                try {
-                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
-                    if (objectValue == null) {
-                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
-                    }
-                } catch (RuntimeException e) {
-                    String message = String.format("Cannot parse cell value '%s'", value);
-                    IOpenSourceCodeModule cellSourceCodeModule = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+        GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
+        String constantName = nameCellSource.getCode();
+        if (TableNameChecker.isInvalidJavaIdentifier(constantName)) {
+            String errorMessage = String.format("Bad constant name: %s", constantName);
+            BindHelper.processError(errorMessage, nameCellSource, cxt);
+        }
 
-                    if (e instanceof CompositeSyntaxNodeException) {
-                        CompositeSyntaxNodeException exception = (CompositeSyntaxNodeException) e;
-                        if (exception.getErrors() != null && exception.getErrors().length == 1) {
-                            SyntaxNodeException syntaxNodeException = exception.getErrors()[0];
-                            throw SyntaxNodeExceptionUtils
-                                .createError(message, null, syntaxNodeException.getLocation(), cellSourceCodeModule);
-                        }
-                        throw SyntaxNodeExceptionUtils.createError(message, cellSourceCodeModule);
-                    } else {
-                        TextInterval location = LocationUtils.createTextInterval(value);
-                        throw SyntaxNodeExceptionUtils.createError(message, e, location, cellSourceCodeModule);
-                    }
-                }
-            }
+        GridCellSourceCodeModule defaultValueSrc = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+        String value = defaultValueSrc.getCode();
+        if (ParserUtils.isCommented(value) || StringUtils.isBlank(value)) {
+            value = null;
+        }
 
+        Object objectValue;
+        if (DefaultValue.DEFAULT.equals(value)) {
+            objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
+        } else if (RuleRowHelper.isFormula(value)) {
+            SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
+            OpenMethodHeader methodHeader = new OpenMethodHeader(constantName,
+                constantType,
+                new MethodSignature(),
+                null);
             try {
-                FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
-                    constantName,
-                    tableSyntaxNode,
-                    tableSyntaxNode.getUri());
+                boolean noErrors;
+                CompositeMethod compositeMethod;
+                cxt.pushErrors();
+                // cxt.pushMessages();
+                try {
+                    compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
+                } finally {
 
-                ConstantOpenField constantField = new ConstantOpenField(constantName,
-                    objectValue,
-                    value,
-                    constantType,
-                    moduleOpenClass,
-                    fieldMetaInfo);
-
-                moduleOpenClass.addField(constantField);
-
-                constantOpenFields.add(constantField);
-            } catch (Exception t) {
-                throw SyntaxNodeExceptionUtils
-                    .createError(t.getMessage(), t, null, DatatypeTableBoundNode.getCellSource(row, cxt, 1));
+                    // cxt.popMessages();
+                    List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
+                    noErrors = syntaxNodeExceptions.isEmpty();
+                    syntaxNodeExceptions.forEach(cxt::addError);
+                }
+                if (noErrors) {
+                    objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
+                } else {
+                    objectValue = null;
+                }
+            } catch (Exception ex) {
+                BindHelper.processError(ex, defaultValueSrc, cxt);
+                objectValue = null;
             }
+        } else if (String.class == constantType.getInstanceClass()) {
+            objectValue = value;
+        } else if (value == null) {
+            objectValue = null;
+        } else if (constantType.getName().startsWith("[[")) {
+            BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
+            objectValue = null;
+        } else {
+            try {
+                objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
+                if (objectValue == null) {
+                    objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
+                }
+            } catch (RuntimeException e) {
+                String message = String.format("Cannot parse cell value '%s'", value);
+                BindHelper.processError(message, e, defaultValueSrc, cxt);
+                objectValue = null;
+            }
+        }
+
+        try {
+            FieldMetaInfo fieldMetaInfo = new FieldMetaInfo(constantType.getName(),
+                constantName,
+                tableSyntaxNode,
+                tableSyntaxNode.getUri());
+
+            ConstantOpenField constantField = new ConstantOpenField(constantName,
+                objectValue,
+                value,
+                constantType,
+                moduleOpenClass,
+                fieldMetaInfo);
+
+            moduleOpenClass.addField(constantField);
+
+            constantOpenFields.add(constantField);
+        } catch (Exception t) {
+            BindHelper.processError(t, rowSrc, cxt);
         }
     }
 
-    private void addConstants(final IBindingContext bindingContext) throws Exception {
+    private void addConstants(final IBindingContext bindingContext) {
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
         normalizedData = dataTable;
 
@@ -206,16 +177,13 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             tableHeight = dataTable.getHeight();
         }
 
-        SyntaxNodeExceptionCollector syntaxNodeExceptionCollector = new SyntaxNodeExceptionCollector();
         for (int i = 0; i < tableHeight; i++) {
-            final int index = i;
-            syntaxNodeExceptionCollector.run(() -> processRow(dataTable.getRow(index), bindingContext));
+            processRow(dataTable.getRow(i), bindingContext);
         }
-        syntaxNodeExceptionCollector.throwIfAny();
     }
 
     @Override
-    public void finalizeBind(IBindingContext bindingContext) throws Exception {
+    public void finalizeBind(IBindingContext bindingContext) {
         if (!bindingContext.isExecutionMode()) {
             getTableSyntaxNode().setMetaInfoReader(new ConstantsTableMetaInfoReader(this));
         }

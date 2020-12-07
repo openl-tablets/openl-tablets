@@ -54,22 +54,4 @@ public class OpenlToolTest extends TestCase {
         assertEquals(JavaOpenClass.DOUBLE, m.getType());
 
     }
-
-    public void testMakeType() {
-        String type = "String [] []";
-
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        IBindingContext bindingContext = openl.getBinder().makeBindingContext();
-
-        String[][] xx = { { "" } };
-
-        IOpenClass ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), bindingContext);
-        Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
-
-        type = "String [] []";
-        ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), bindingContext);
-        Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
-
-    }
-
 }

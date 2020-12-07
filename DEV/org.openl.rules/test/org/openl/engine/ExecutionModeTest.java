@@ -91,7 +91,7 @@ public class ExecutionModeTest {
         assertEquals(new DoubleValue(375), result);
 
         IOpenClass moduleOpenClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IOpenMethod openMethod = moduleOpenClass.getMethod("calc", new IOpenClass[] {});
+        IOpenMethod openMethod = moduleOpenClass.getMethod("calc", IOpenClass.EMPTY);
         if (openMethod instanceof Spreadsheet) {
             assertNull(((Spreadsheet) openMethod).getBoundNode());
         } else {

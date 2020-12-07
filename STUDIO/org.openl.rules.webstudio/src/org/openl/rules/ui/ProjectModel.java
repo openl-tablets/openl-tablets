@@ -15,10 +15,10 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
@@ -123,8 +123,10 @@ public class ProjectModel {
     // TODO Fix performance
     private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
     private final Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
-
+    private final Map<String, List<OpenLMessage>> warnTableCache = new HashMap<>();
+    private final Map<String, List<OpenLMessage>> errorTableCache = new HashMap<>();
     private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
+    private int errorNodesNumber = 0;
 
     private DependencyRulesGraph dependencyGraph;
     private String historyStoragePath;
@@ -156,16 +158,6 @@ public class ProjectModel {
         return findNode(parsedUrl);
     }
 
-    public String findTableUri(String partialUri) {
-        TableSyntaxNode tableSyntaxNode = findNode(partialUri);
-
-        if (tableSyntaxNode != null) {
-            return tableSyntaxNode.getUri();
-        }
-
-        return null;
-    }
-
     private boolean findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1) {
         for (IGridTable gridTable : compositeGrid.getGridTables()) {
             if (gridTable.getGrid() instanceof CompositeGrid) {
@@ -182,7 +174,6 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-        // TableSyntaxNode[] nodes = getTableSyntaxNodes();
         TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
 
         for (TableSyntaxNode node : nodes) {
@@ -205,25 +196,8 @@ public class ProjectModel {
         return null;
     }
 
-    // TODO Cache it
     public int getErrorNodesNumber() {
-        AtomicInteger count = new AtomicInteger();
-        if (compiledOpenClass != null) {
-            TableSyntaxNode[] nodes = getTableSyntaxNodes();
-            for (TableSyntaxNode tsn : nodes) {
-                XlsUrlParser parser = tsn.getUriParser();
-                getModuleMessages().stream()
-                        .filter(
-                                x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
-                                        x.getSourceLocation()).intersects(parser))
-                        .findFirst().ifPresent(t -> count.incrementAndGet());
-            }
-        }
-        return count.get();
-    }
-
-    public Map<String, TableSyntaxNode> getAllTableNodes() {
-        return uriTableCache;
+        return errorNodesNumber;
     }
 
     public TableSyntaxNode getTableByUri(String uri) {
@@ -234,21 +208,19 @@ public class ProjectModel {
         return idTableCache.get(id);
     }
 
+    public List<OpenLMessage> getWarnsByUri(String uri) {
+        return Collections.unmodifiableList(warnTableCache.getOrDefault(uri, Collections.emptyList()));
+    }
+
+    public List<OpenLMessage> getErrorsByUri(String uri) {
+        return Collections.unmodifiableList(errorTableCache.getOrDefault(uri, Collections.emptyList()));
+    }
+
     public ColorFilterHolder getFilterHolder() {
         return filterHolder;
     }
 
     public IOpenMethod getMethod(String tableUri) {
-        TableSyntaxNode tsn = getNode(tableUri);
-        if (tsn == null) {
-            return null;
-        }
-
-        return getMethod(tsn);
-    }
-
-    public IOpenMethod getMethod(TableSyntaxNode tsn) {
-
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
@@ -259,9 +231,9 @@ public class ProjectModel {
             IOpenMethod resolvedMethod;
 
             if (method instanceof OpenMethodDispatcher) {
-                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
+                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
             } else {
-                resolvedMethod = resolveMethod(method, tsn);
+                resolvedMethod = resolveMethod(method, tableUri);
             }
 
             if (resolvedMethod != null) {
@@ -272,18 +244,19 @@ public class ProjectModel {
         // for methods that exist in module but not included in
         // CompiledOpenClass
         // e.g. elder inactive versions of methods
-        if (tsn.getMember() instanceof IOpenMethod) {
+        TableSyntaxNode tsn = getNode(tableUri);
+        if (tsn != null && tsn.getMember() instanceof IOpenMethod) {
             return (IOpenMethod) tsn.getMember();
         }
 
         return null;
     }
 
-    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -293,11 +266,11 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -307,9 +280,9 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
-        if (isInstanceOfTable(method, syntaxNode)) {
+        if (isInstanceOfTable(method, uri)) {
             return method;
         }
 
@@ -322,15 +295,14 @@ public class ProjectModel {
      * {@link OpenMethodDispatcher} <code>false</code> value will be returned.
      *
      * @param method method to check
-     * @param syntaxNode syntax node
      * @return <code>true</code> if {@link IOpenMethod} object represents the given table syntax node;
      *         <code>false</code> - otherwise
      */
-    private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private boolean isInstanceOfTable(IOpenMethod method, String uri) {
 
         IMemberMetaInfo metaInfo = method.getInfo();
 
-        return metaInfo != null && metaInfo.getSyntaxNode() == syntaxNode;
+        return metaInfo != null && uri.equals(metaInfo.getSourceUrl());
     }
 
     public TableSyntaxNode getNode(String tableUri) {
@@ -561,8 +533,8 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isTestable(TableSyntaxNode tsn) {
-        IOpenMethod m = getMethod(tsn);
+    public boolean isTestable(String uri) {
+        IOpenMethod m = getMethod(uri);
         if (m == null) {
             return false;
         }
@@ -599,13 +571,7 @@ public class ProjectModel {
             }
         }
 
-        idTableCache.clear();
-        uriTableCache.clear();
         for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
-            // Cache tables
-            uriTableCache.put(tableSyntaxNode.getUri(), tableSyntaxNode);
-            idTableCache.put(tableSyntaxNode.getId(), tableSyntaxNode);
-
             ProjectTreeNode element = root;
             for (TreeNodeBuilder treeSorter : treeSorters) {
                 element = addToNode(element, tableSyntaxNode, treeSorter);
@@ -741,16 +707,12 @@ public class ProjectModel {
         if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
             TableSyntaxNode tsn = element.getTableSyntaxNode();
             url = WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
-            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode())) {
+            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode().getUri())) {
                 state = 2; // has tests
             }
 
-            XlsUrlParser parser = new XlsUrlParser(tsn.getUri());
-            numErrors = (int) getModuleMessages().stream()
-                .filter(
-                    x -> x.getSourceLocation() != null && x.getSeverity().equals(Severity.ERROR) && new XlsUrlParser(
-                        x.getSourceLocation()).intersects(parser))
-                .count();
+            String uri = tsn.getUri();
+            numErrors = getErrorsByUri(uri).size();
             ITableProperties tableProperties = tsn.getTableProperties();
             if (tableProperties != null) {
                 Boolean act = tableProperties.getActive();
@@ -956,8 +918,13 @@ public class ProjectModel {
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
         messageNodeIds.clear();
+        idTableCache.clear();
+        uriTableCache.clear();
+        warnTableCache.clear();
+        errorTableCache.clear();
         projectRoot = null;
         workbookSyntaxNodes = null;
+        errorNodesNumber = 0;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -1062,7 +1029,6 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
-            fillMessageNodeIds();
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
@@ -1082,6 +1048,7 @@ public class ProjectModel {
             } else {
                 workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
+            fillCaches();
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
             log.error("Failed to load.", t);
@@ -1141,13 +1108,51 @@ public class ProjectModel {
         }
     }
 
-    private void fillMessageNodeIds() {
-        for (OpenLMessage message : compiledOpenClass.getMessages()) {
-            TableSyntaxNode node = getNode(message.getSourceLocation());
-            if (node != null) {
-                messageNodeIds.put(message, node.getId());
+    private void fillCaches() {
+        messageNodeIds.clear();
+        idTableCache.clear();
+        uriTableCache.clear();
+        warnTableCache.clear();
+        errorTableCache.clear();
+
+        LinkedList<OpenLMessage> moduleMessages = new LinkedList<>(getModuleMessages());
+        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
+            // Cache tables
+            String tableUri = tsn.getUri();
+            String tableId = tsn.getId();
+            XlsUrlParser uriParser = tsn.getUriParser();
+            uriTableCache.put(tableUri, tsn);
+            idTableCache.put(tableId, tsn);
+
+            Iterator<OpenLMessage> iterator = moduleMessages.iterator();
+            while (iterator.hasNext()) {
+                OpenLMessage msg = iterator.next();
+                String msgUrl = msg.getSourceLocation();
+                if (msgUrl != null && new XlsUrlParser(msgUrl).intersects(uriParser)) {
+                    iterator.remove();
+                    messageNodeIds.put(msg, tableId);
+                    switch (msg.getSeverity()) {
+                        case ERROR:
+                            errorTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
+                            break;
+                        case WARN:
+                            warnTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
+                            break;
+                        default:
+                            // skip
+                            break;
+                    }
+                }
             }
         }
+        int count = 0;
+        TableSyntaxNode[] nodes = getTableSyntaxNodes(); // For the current module
+        for (TableSyntaxNode tsn : nodes) {
+            if (errorTableCache.containsKey(tsn.getUri())) {
+                count++;
+            }
+        }
+        errorNodesNumber = count;
     }
 
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
@@ -1351,8 +1356,7 @@ public class ProjectModel {
     }
 
     public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
-        TableSyntaxNode tsn = getNode(uri);
-        return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
+        return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
 
     private boolean isVirtualWorkbook() {

@@ -1,94 +1,72 @@
 package org.openl.codegen.tools;
 
+import java.io.FileWriter;
+import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-import org.openl.codegen.tools.generator.SourceGenerator;
-import org.openl.codegen.tools.loader.IEmptyLoader;
-import org.openl.codegen.tools.type.EnumerationDescriptor;
-import org.openl.rules.enumeration.properties.EnumPropertyDefinition;
-import org.openl.rules.runtime.RulesEngineFactory;
-import org.openl.types.IOpenClass;
-import org.openl.types.IOpenField;
-import org.openl.vm.IRuntimeEnv;
+import org.apache.commons.lang.StringUtils;
 
-public class GenRulesTypes {
+public final class GenRulesTypes {
+
+    private static Pattern CSV_PARSER = Pattern.compile("(?:^|,)\\s*(?:(?:\"((?:[^\"]|\"\")*)\")|(?:([^,\"\\n]*)))");
 
     public static void main(String[] args) throws Exception {
-        new GenRulesTypes().run();
-    }
-
-    public static String getEnumName(String sourceName) {
-
-        return String.format("%s%sEnum", sourceName.substring(0, 1).toUpperCase(), sourceName.substring(1));
-    }
-
-    private void run() throws Exception {
-
-        List<EnumerationDescriptor> enumerationDefinitions = loadEnumerations();
 
         System.out.println("Generating Rules enumerations...");
-        generateEnumerations(enumerationDefinitions);
-
+        Files.walk(Paths.get("enums")).filter(Files::isRegularFile).forEach(GenRulesTypes::generateEnumeration);
     }
 
-    private List<EnumerationDescriptor> loadEnumerations() {
+    private static void generateEnumeration(Path csvFile) {
 
-        List<EnumerationDescriptor> descriptors = new ArrayList<>();
+        System.out.println("Processing of " + csvFile);
+        String enumClass = csvFile.getFileName().toString().replace(".csv", "");
+        int x = enumClass.lastIndexOf('.');
 
-        RulesEngineFactory<IEmptyLoader> engineFactory = new RulesEngineFactory<>(CodeGenConstants.DEFINITIONS_XLS,
-            IEmptyLoader.class);
+        String enumName = enumClass.substring(x + 1);
+        String enumPackage = enumClass.substring(0, x);
+        String enumFile = enumClass.replace('.', '/') + ".java";
 
-        IOpenClass openClass = engineFactory.getCompiledOpenClass().getOpenClass();
-        IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
-        Object openClassInstance = openClass.newInstance(env);
+        try {
+            List<List<String>> table = Files.readAllLines(csvFile)
+                .stream()
+                .filter(StringUtils::isNotBlank)
+                .map(GenRulesTypes::parseCSVLine)
+                .collect(Collectors.toList());
 
-        for (IOpenField field : openClass.getFields()) {
-            IOpenClass type = field.getType();
-            Class<?> clazz = type.getInstanceClass();
-            if (clazz == EnumPropertyDefinition[].class) {
-                String name = field.getName();
-                String enumName = getEnumName(name);
+            Map<String, Object> vars = new HashMap<>();
+            vars.put("enumPackage", enumPackage);
+            vars.put("enumName", enumName);
+            vars.put("values", table);
 
-                EnumPropertyDefinition[] values = (EnumPropertyDefinition[]) field.get(openClassInstance, env);
+            String sourceFilePath = GenRulesCode.RULES_SOURCE_LOCATION + enumFile;
 
-                EnumerationDescriptor descriptor = new EnumerationDescriptor();
-                descriptor.setEnumName(enumName);
-                descriptor.setValues(values);
-
-                descriptors.add(descriptor);
+            try (Writer writer = new FileWriter(sourceFilePath)) {
+                SourceGenerator.generate("rules-enum.vm", vars, writer);
             }
-        }
-
-        return descriptors;
-    }
-
-    private void generateEnumerations(List<EnumerationDescriptor> enumerationDefinitions) throws Exception {
-
-        for (EnumerationDescriptor descriptor : enumerationDefinitions) {
-            String enumName = descriptor.getEnumName();
-            String sourceFilePath = CodeGenConstants.RULES_SOURCE_LOCATION + CodeGenConstants.ENUMS_PACKAGE_PATH + enumName + ".java";
-            Map<String, Object> variables = new HashMap<>();
-            variables.put("enumPackage", CodeGenConstants.ENUMS_PACKAGE);
-            generateEnumeration(descriptor, sourceFilePath, variables, "rules-enum.vm");
+            System.out.println("     > Enumeration " + sourceFilePath + " was generated successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
-    private void generateEnumeration(EnumerationDescriptor descriptor,
-            String sourceFilePath,
-            Map<String, Object> variables,
-            String template) throws Exception {
-        String enumName = descriptor.getEnumName();
-
-        Map<String, Object> vars = new HashMap<>(variables);
-        vars.put("enumName", enumName);
-        vars.put("values", descriptor.getValues());
-
-        SourceGenerator.getInstance().generateSource(sourceFilePath, template, vars);
-
-        System.out.println("Enumeration " + sourceFilePath + " was generated successfully.");
+    private static List<String> parseCSVLine(String input) {
+        Matcher matcher = CSV_PARSER.matcher(input);
+        ArrayList<String> result = new ArrayList<>();
+        while (matcher.find()) {
+            String escaped = matcher.group(1);
+            String text = matcher.group(2);
+            String element = escaped != null ? escaped.replace("\"\"", "\"") : text.trim();
+            result.add(element);
+        }
+        return result;
     }
-
 }

@@ -1,4 +1,4 @@
-#if ($tool.length($validatorsDefinitions) > 0)
+#if ($validatorsDefinitions.size() > 0)
     {
 #foreach( $validatorsDefinition in $validatorsDefinitions )
 #foreach( $validatorClass in $validatorsDefinition.ValidatorClasses )

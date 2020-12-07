@@ -19,7 +19,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
-import org.openl.rules.repository.LocalRepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -68,37 +67,14 @@ public class RulesDeployerService implements Closeable {
      * @param properties repository settings
      */
     public RulesDeployerService(Properties properties) {
-        Map<String, String> params = new HashMap<>();
-        params.put("id", "production-repository");
-        params.put("uri", properties.getProperty("production-repository.uri"));
-        params.put("login", properties.getProperty("production-repository.login"));
-        params.put("password", properties.getProperty("production-repository.password"));
-        // AWS S3 specific
-        params.put("bucketName", properties.getProperty("production-repository.bucket-name"));
-        params.put("regionName", properties.getProperty("production-repository.region-name"));
-        params.put("accessKey", properties.getProperty("production-repository.access-key"));
-        params.put("secretKey", properties.getProperty("production-repository.secret-key"));
-        // Git specific
-        params.put("localRepositoryPath", properties.getProperty("production-repository.local-repository-path"));
-        params.put("branch", properties.getProperty("production-repository.branch"));
-        params.put("tagPrefix", properties.getProperty("production-repository.tag-prefix"));
-        params.put("commentTemplate", properties.getProperty("production-repository.comment-template"));
-        params.put("connection-timeout", properties.getProperty("production-repository.connection-timeout"));
-        // AWS S3 and Git specific
-        params.put("listener-timer-period", properties.getProperty("production-repository.listener-timer-period"));
-        // Local File System specific
-        params.put("supportDeployments",
-            properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"));
+        this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::getProperty);
 
-        this.deployRepo = RepositoryInstatiator.newRepository(properties.getProperty("production-repository.factory"),
-            params);
-
-        if (StringUtils.isNotBlank(params.get("supportDeployments"))) {
-            this.supportDeployments = Boolean
-                .parseBoolean(params.get("supportDeployments")) || !(deployRepo instanceof LocalRepositoryFactory);
+        if (StringUtils.isNotBlank(properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"))) {
+            this.supportDeployments = Boolean.parseBoolean(properties.getProperty(
+                "ruleservice.datasource.filesystem.supportDeployments")) || !deployRepo.supports().isLocal();
         }
 
-        if (deployRepo instanceof LocalRepositoryFactory) {
+        if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
         } else {
@@ -108,7 +84,7 @@ public class RulesDeployerService implements Closeable {
     }
 
     public void setSupportDeployments(boolean supportDeployments) {
-        this.supportDeployments = supportDeployments || !(deployRepo instanceof LocalRepositoryFactory);
+        this.supportDeployments = supportDeployments || !deployRepo.supports().isLocal();
     }
 
     /**

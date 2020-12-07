@@ -240,6 +240,37 @@ public class LocalGitRepositoryTest {
         }
     }
 
+    @Test
+    public void testHistoryWhenMergeDifferentProjectModifications() throws IOException {
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+        assertEquals(1, repo.listHistory("rules/project1").size());
+        assertEquals(1, repo.listHistory("rules/project2").size());
+
+        String branch1 = "branch1";
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        GitRepository repoForBranch1 = repo.forBranch(branch1);
+
+        modifyFile(repo, "rules/project2/file1", "Modify project2 in 'master'");
+        modifyFile(repoForBranch1, "rules/project1/file1", "Modify project1 in 'branch1'");
+
+        assertEquals(1, repo.listHistory("rules/project1").size());
+        assertEquals(2, repoForBranch1.listHistory("rules/project1").size());
+        assertEquals(2, repo.listHistory("rules/project2").size());
+
+        repoForBranch1.merge(repo.getBranch(), "user1", null);
+        repo.merge(repoForBranch1.getBranch(), "user1", null);
+
+        List<FileData> historyForProject2 = repo.listHistory("rules/project2");
+        // See EPBDS-10480 for details.
+        assertEquals(2, historyForProject2.size());
+    }
+
+    private void modifyFile(GitRepository repository, String path, String text) throws IOException {
+        String comment = "'" + path + "' in the branch '" + repository.getBranch() + "' was modified";
+        writeSampleFile(repository, path, text, comment);
+    }
+
     private void writeSampleFile(Repository repository, String path, String comment) throws IOException {
         String text = "File located in " + path;
         writeSampleFile(repository, path, text, comment);

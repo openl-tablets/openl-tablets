@@ -1,6 +1,6 @@
 package org.openl.rules.ui.validation;
 
-import org.openl.rules.utils.TableNameChecker;
+import org.openl.util.TableNameChecker;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

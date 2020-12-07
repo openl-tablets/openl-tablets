@@ -55,7 +55,7 @@ public class Utils {
 
     public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
         VersionInfo versionInfo = version.getVersionInfo();
-        if (versionInfo == null) {
+        if (versionInfo == null || versionInfo.getCreatedAt() == null || versionInfo.getCreatedBy() == null) {
             return "Version not found";
         }
         String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(versionInfo.getCreatedAt());
@@ -83,7 +83,7 @@ public class Utils {
     }
 
     public String descriptiveProjectVersion(AProjectArtefact artefact) {
-        if (artefact == null) {
+        if (artefact == null || artefact.getVersion() == null) {
             return "";
         }
         return getDescriptiveVersion(artefact.getVersion(), dateTimeFormat);

@@ -21,6 +21,6 @@ public class LowerCaseStrategy extends SpreadsheetResultBeanPropertyNamingStrate
 
     @Override
     protected String transform(String column, String row) {
-        return transform(column) + "_" + transform(row);
+        return transform(column + row);
     }
 }

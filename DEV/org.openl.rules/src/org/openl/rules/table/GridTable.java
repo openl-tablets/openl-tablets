@@ -6,8 +6,8 @@ package org.openl.rules.table;
  */
 public class GridTable extends AGridTable {
 
-    private IGridRegion region;
-    private IGrid grid;
+    private final IGridRegion region;
+    private final IGrid grid;
 
     public GridTable(IGridRegion reg, IGrid grid) {
         this.region = reg;

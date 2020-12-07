@@ -5,8 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
@@ -67,7 +65,7 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            IBindingContext bindingContext) {
 
         return bindChildren(parentNode, bindingContext, 0, parentNode.getNumberOfChildren());
     }
@@ -75,7 +73,7 @@ public abstract class ANodeBinder implements INodeBinder {
     public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
             IBindingContext bindingContext,
             int from,
-            int to) throws SyntaxNodeException {
+            int to) {
 
         int n = to - from;
 
@@ -211,14 +209,12 @@ public abstract class ANodeBinder implements INodeBinder {
     }
 
     protected static IBoundNode makeErrorNode(String message, ISyntaxNode node, IBindingContext bindingContext) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, node);
-        bindingContext.addError(error);
+        BindHelper.processError(message, node, bindingContext);
         return new ErrorBoundNode(node);
     }
 
     private static IBoundNode makeErrorNode(Throwable e, ISyntaxNode node, IBindingContext bindingContext) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(e, node);
-        bindingContext.addError(error);
+        BindHelper.processError(e, node, bindingContext);
         return new ErrorBoundNode(node);
     }
 

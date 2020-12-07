@@ -8,7 +8,6 @@ import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.engine.OpenLManager;
@@ -32,7 +31,6 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
@@ -51,13 +49,13 @@ public class SpreadsheetStructureBuilder {
 
     public static final String DOLLAR_SIGN = "$";
 
-    private SpreadsheetComponentsBuilder componentsBuilder;
+    private final SpreadsheetComponentsBuilder componentsBuilder;
 
     private IBindingContext spreadsheetBindingContext;
 
-    private IOpenMethodHeader spreadsheetHeader;
+    private final IOpenMethodHeader spreadsheetHeader;
 
-    private SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
+    private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
@@ -70,13 +68,13 @@ public class SpreadsheetStructureBuilder {
         this.spreadsheetHeader = spreadsheetHeader;
     }
 
-    private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
-    private Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
-    private Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
+    private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
+    private final Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
+    private final Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
 
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+    private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
 
     public static final ThreadLocal<Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 
@@ -264,14 +262,11 @@ public class SpreadsheetStructureBuilder {
                     method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
                 spreadsheetCell.setValue(method);
-            } catch (CompositeSyntaxNodeException e) {
-                spreadsheetCell.setTypeUnknown(true);
-                BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);
                 String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
-                            .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
+                    .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
         } else if (spreadsheetCell.isConstantCell()) {

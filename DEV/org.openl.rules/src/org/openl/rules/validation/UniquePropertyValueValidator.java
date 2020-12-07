@@ -1,17 +1,17 @@
 package org.openl.rules.validation;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -40,9 +40,8 @@ public class UniquePropertyValueValidator extends TablesValidator {
         Collection<ExecutableRulesMethod> executableActiveMethods = selectActiveMethods(
             OpenMethodDispatcherHelper.extractMethods(openClass));
 
-        Map<Object, ExecutableRulesMethod> values = new HashMap<>();
-        Set<Object> addedMessageToExistingMethod = new HashSet<>();
-        Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        Map<Object, Set<ExecutableRulesMethod>> values = new HashMap<>();
+        Collection<OpenLMessage> messages = new ArrayList<>();
 
         for (ExecutableRulesMethod method : executableActiveMethods) {
             if (!method.isAlias()) {
@@ -70,42 +69,42 @@ public class UniquePropertyValueValidator extends TablesValidator {
                 // of processed values.
                 //
                 if (values.containsKey(value)) {
-                    ExecutableRulesMethod existingMethod = values.get(value);
-                    if (!Objects.equals(existingMethod, method)) {
-                        TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
-
-                        Severity errorSeverity = null;
-                        if (property != null) {
-                            errorSeverity = property.getErrorSeverity();
-                        }
-                        if (!addedMessageToExistingMethod.contains(value)) {
-                            OpenLMessage message1 = getMessage(
-                                String.format("Found non-unique value '%s' for table property '%s'.",
-                                    value,
-                                    propertyName),
-                                errorSeverity,
-                                existingMethod.getSyntaxNode());
-                            messages.add(message1);
-                            addedMessageToExistingMethod.add(value);
-                        }
-                        OpenLMessage message2 = getMessage(String
-                            .format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
-                            errorSeverity,
-                            method.getSyntaxNode());
-                        messages.add(message2);
-                    }
+                    values.get(value).add(method);
                 } else {
-                    values.put(value, method);
+                    Set<ExecutableRulesMethod> setOfExecutableRulesMethods = new HashSet<>();
+                    setOfExecutableRulesMethods.add(method);
+                    values.put(value, setOfExecutableRulesMethods);
                 }
             }
         }
 
+        for (Map.Entry<Object, Set<ExecutableRulesMethod>> entry : values.entrySet()) {
+            if (entry.getValue().size() > 1) {
+                TablePropertyDefinition property = TablePropertyDefinitionUtils.getPropertyByName(propertyName);
+                Severity errorSeverity = null;
+                if (property != null) {
+                    errorSeverity = property.getErrorSeverity();
+                }
+                Object value = entry.getKey();
+                for (ExecutableRulesMethod method : entry.getValue()) {
+                    OpenLMessage message = getMessage(
+                        String.format("Found non-unique value '%s' for table property '%s'.", value, propertyName),
+                        errorSeverity,
+                        method.getSyntaxNode());
+                    messages.add(message);
+                }
+            }
+        }
         return ValidationUtils.withMessages(messages);
     }
 
     private OpenLMessage getMessage(String message, Severity severity, TableSyntaxNode syntaxNode) {
         if (Severity.WARN.equals(severity)) {
-            return new OpenLWarnMessage(message, syntaxNode);
+            if (syntaxNode != null) {
+                return new OpenLWarnMessage(message, syntaxNode);
+            } else {
+                return OpenLMessagesUtils.newWarnMessage(message);
+            }
         } else if (Severity.ERROR.equals(severity)) {
             SyntaxNodeException sne = SyntaxNodeExceptionUtils.createError(message, syntaxNode);
             // error should be put inside tsn

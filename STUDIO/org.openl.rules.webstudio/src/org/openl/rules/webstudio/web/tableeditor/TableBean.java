@@ -9,7 +9,6 @@ import static org.openl.rules.security.Privileges.RUN;
 import static org.openl.rules.security.Privileges.TRACE;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -94,7 +92,6 @@ public class TableBean {
 
     private final PropertyResolver propertyResolver;
 
-    private boolean targetTablesHasErrors;
     private boolean hasErrors;
 
     public TableBean(PropertyResolver propertyResolver) {
@@ -201,55 +198,30 @@ public class TableBean {
     }
 
     private void initProblems() {
-        ArrayList<OpenLMessage> errors = new ArrayList<>();
-        ArrayList<OpenLMessage> warnings = new ArrayList<>();
 
         ProjectModel model = WebStudioUtils.getProjectModel();
-        XlsUrlParser tableUri = table.getUriParser();
+        String tableUri = table.getUri();
+        List<OpenLMessage> errors = new ArrayList<>(model.getErrorsByUri(tableUri));
+        List<OpenLMessage> warnings = new ArrayList<>(model.getWarnsByUri(tableUri));
 
-        Collection<OpenLMessage> messages = model.getModuleMessages();
-        for (OpenLMessage message : messages) {
-            String messageUri = message.getSourceLocation();
-            if (messageUri != null) {
-                XlsUrlParser msgUri = new XlsUrlParser(messageUri);
-                switch (message.getSeverity()) {
-                    case ERROR:
-                    case FATAL:
-                        if (tableUri.intersects(msgUri)) {
-                            hasErrors = true;
-                            // This message belong the current table
-                            if (errors.size() < MAX_PROBLEMS) {
-                                errors.add(message);
-                                if (errors.size() >= MAX_PROBLEMS) {
-                                    errors.add(OpenLMessagesUtils.newErrorMessage(
-                                        "Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
-                                }
-                            }
-                        } else {
-                            // Otherwise if the current table is a test
-                            // then check tested target tables on errors.
-                            for (TableDescription targetTable : targetTables) {
-                                if (!targetTablesHasErrors && new XlsUrlParser(targetTable.getUri())
-                                    .intersects(msgUri)) {
-                                    warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                                    targetTablesHasErrors = true;
-                                }
-                            }
-                        }
-                        break;
-                    case WARN:
-                        if (warnings.size() < MAX_PROBLEMS && tableUri.intersects(msgUri)) {
-                            warnings.add(message);
-                            if (warnings.size() >= MAX_PROBLEMS) {
-                                warnings.add(OpenLMessagesUtils.newErrorMessage(
-                                    "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
-                            }
-                        }
-                        break;
-                    default:
-                        // skip
-                        break;
-                }
+        if (warnings.size() >= MAX_PROBLEMS) {
+            warnings = warnings.subList(0, MAX_PROBLEMS);
+            warnings.add(OpenLMessagesUtils.newErrorMessage(
+                    "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+        }
+        if (errors.size() >= MAX_PROBLEMS) {
+            errors = errors.subList(0, MAX_PROBLEMS);
+            errors.add(OpenLMessagesUtils.newErrorMessage(
+                    "Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+        }
+
+        hasErrors = !errors.isEmpty();
+        // if the current table is a test then check tested target tables on errors.
+        for (TableDescription targetTable : targetTables) {
+            if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
+                warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                hasErrors = true;
+                break;
             }
         }
 
@@ -522,20 +494,16 @@ public class TableBean {
         return isEditable() && isGranted(REMOVE_TABLES);
     }
 
-    public boolean hasErrorsInTargetTables() {
-        return targetTablesHasErrors;
-    }
-
     public boolean getCanRun() {
-        return isGranted(RUN) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(RUN) && !isHasErrors();
     }
 
     public boolean getCanTrace() {
-        return isGranted(TRACE) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(TRACE) && !isHasErrors();
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(BENCHMARK) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(BENCHMARK) && !isHasErrors();
     }
 
     public Integer getRowIndex() {
