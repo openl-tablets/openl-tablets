@@ -17,7 +17,7 @@ public class RepositoryConfiguration {
     public static final Comparator<RepositoryConfiguration> COMPARATOR = new NameWithNumbersComparator();
 
     private String name;
-    private RepositoryType repositoryType;
+    private String repoType;
 
     private String oldName = null;
 
@@ -64,12 +64,13 @@ public class RepositoryConfiguration {
 
     private void load(String configName) {
         String factoryClassName = properties.getProperty(REPOSITORY_FACTORY);
-        repositoryType = RepositoryType.findByFactory(factoryClassName);
-        if (repositoryType == null) {
+        repoType = RepositoryInstatiator.getRefID(factoryClassName);
+        RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
+        if (repoType == null) {
             // Fallback to default value and save error message
-            repositoryType = RepositoryType.values()[0];
-            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repositoryType
-                .getFactoryClassName() + ".";
+            repositoryType = RepositoryType.GIT;
+            repoType = repositoryType.factoryId;
+            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repoType + ".";
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;
@@ -100,7 +101,7 @@ public class RepositoryConfiguration {
 
     private void store(PropertiesHolder propertiesHolder) {
         propertiesHolder.setProperty(REPOSITORY_NAME, StringUtils.trimToEmpty(name));
-        propertiesHolder.setProperty(REPOSITORY_FACTORY, repositoryType.getFactoryClassName());
+        propertiesHolder.setProperty(REPOSITORY_FACTORY, repoType);
         settings.store(propertiesHolder);
     }
 
@@ -137,30 +138,31 @@ public class RepositoryConfiguration {
     }
 
     public String getFormType() {
+        RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
         switch (repositoryType) {
             case DB:
             case JNDI:
                 return "common";
             default:
-                return getType();
+                return repositoryType.name().toLowerCase();
         }
     }
 
     public boolean isFolderRepository() {
-        return repositoryType == RepositoryType.GIT;
+        return RepositoryType.GIT.factoryId.equals(repoType);
     }
 
     public String getType() {
-        return repositoryType.name().toLowerCase();
+        return repoType;
     }
 
-    public void setType(String accessType) {
-        RepositoryType newRepositoryType = RepositoryType.findByAccessType(accessType);
-        if (repositoryType != newRepositoryType) {
+    public void setType(String newRepoType) {
+        if (!repoType.equals(newRepoType)) {
+            RepositoryType newRepositoryType = RepositoryType.findByFactory(newRepoType);
             if (newRepositoryType == null) {
-                throw new IllegalArgumentException(String.format("Access type %s is not supported", accessType));
+                throw new IllegalArgumentException(String.format("Access type %s is not supported", newRepoType));
             }
-            repositoryType = newRepositoryType;
+            repoType = newRepoType;
             errorMessage = null;
             RepositorySettings newSettings = createSettings(newRepositoryType, properties, nameWithPrefix);
             newSettings.copyContent(settings);

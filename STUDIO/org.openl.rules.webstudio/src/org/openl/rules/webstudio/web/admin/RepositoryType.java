@@ -1,15 +1,15 @@
 package org.openl.rules.webstudio.web.admin;
 
 public enum RepositoryType {
-    DB("org.openl.rules.repository.db.JdbcDBRepositoryFactory"),
-    JNDI("org.openl.rules.repository.db.DatasourceDBRepositoryFactory"),
-    AWS_S3("org.openl.rules.repository.aws.S3Repository"),
-    GIT("org.openl.rules.repository.git.GitRepository"),
-    LOCAL("org.openl.rules.repository.LocalRepositoryFactory");
+    DB("repo-jdbc"),
+    JNDI("repo-jndi"),
+    AWS_S3("repo-aws-s3"),
+    GIT("repo-git"),
+    LOCAL("repo-file");
 
-    public static RepositoryType findByAccessType(String accessType) {
+    public static RepositoryType findByFactory(String id) {
         for (RepositoryType repositoryType : values()) {
-            if (repositoryType.accessType.equals(accessType)) {
+            if (repositoryType.factoryId.equals(id)) {
                 return repositoryType;
             }
         }
@@ -17,25 +17,9 @@ public enum RepositoryType {
         return null;
     }
 
-    public static RepositoryType findByFactory(String className) {
-        for (RepositoryType repositoryType : values()) {
-            if (repositoryType.factoryClassName.equals(className)) {
-                return repositoryType;
-            }
-        }
-
-        return null;
-    }
-
-    private final String accessType;
-    private final String factoryClassName;
+    public final String factoryId;
 
     RepositoryType(String factoryId) {
-        this.factoryClassName = factoryId;
-        this.accessType = name().toLowerCase();
-    }
-
-    public String getFactoryClassName() {
-        return factoryClassName;
+        this.factoryId = factoryId;
     }
 }

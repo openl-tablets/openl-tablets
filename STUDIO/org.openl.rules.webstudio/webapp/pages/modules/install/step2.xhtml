@@ -83,10 +83,10 @@
                                             <h:outputText value="Type:" styleClass="required" />
                                             <h:selectOneMenu value="#{designRepository.type}">
                                                 <f:ajax event="change" render="designParameters deployConfigFolderStructureParams designRepoTypeMessage" />
-                                                <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
-                                                <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
-                                                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
-                                                <f:selectItem itemValue="git" itemLabel="Git" />
+                                                <f:selectItem itemValue="repo-jdbc" itemLabel="Database (JDBC)" />
+                                                <f:selectItem itemValue="repo-jndi" itemLabel="Database (JNDI)" />
+                                                <f:selectItem itemValue="repo-aws-s3" itemLabel="AWS S3" />
+                                                <f:selectItem itemValue="repo-git" itemLabel="Git" />
                                             </h:selectOneMenu>
                                             <h:outputText value=""/>
                                             <h:panelGroup id="designRepoTypeMessage">
@@ -152,10 +152,10 @@
                                                 <h:outputText value="Type:" styleClass="required" rendered="#{not installWizard.useDesignRepo}" />
                                                 <h:selectOneMenu value="#{deployConfigRepo.type}" rendered="#{not installWizard.useDesignRepo}">
                                                     <f:ajax event="change" render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage" />
-                                                    <f:selectItem itemValue="db" itemLabel="Database (JDBC)" />
-                                                    <f:selectItem itemValue="jndi" itemLabel="Database (JNDI)" />
-                                                    <f:selectItem itemValue="aws_s3" itemLabel="AWS S3" />
-                                                    <f:selectItem itemValue="git" itemLabel="Git" />
+                                                    <f:selectItem itemValue="repo-jdbc" itemLabel="Database (JDBC)" />
+                                                    <f:selectItem itemValue="repo-jndi" itemLabel="Database (JNDI)" />
+                                                    <f:selectItem itemValue="repo-aws-s3" itemLabel="AWS S3" />
+                                                    <f:selectItem itemValue="repo-git" itemLabel="Git" />
                                                 </h:selectOneMenu>
                                             </h:panelGrid>
                                             <h:outputText value=""/>

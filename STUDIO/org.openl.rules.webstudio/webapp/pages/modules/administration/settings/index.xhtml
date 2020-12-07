@@ -328,12 +328,12 @@
                                                             <h:selectOneMenu value="#{designRepository.type}">
                                                                 <f:ajax event="change"
                                                                         render="designParameters deployConfigFolderStructureParams designRepoTypeMessage"/>
-                                                                <f:selectItem itemValue="db"
+                                                                <f:selectItem itemValue="repo-jdbc"
                                                                               itemLabel="Database (JDBC)"/>
-                                                                <f:selectItem itemValue="jndi"
+                                                                <f:selectItem itemValue="repo-jndi"
                                                                               itemLabel="Database (JNDI)"/>
-                                                                <f:selectItem itemValue="aws_s3" itemLabel="AWS S3"/>
-                                                                <f:selectItem itemValue="git" itemLabel="Git"/>
+                                                                <f:selectItem itemValue="repo-aws-s3" itemLabel="AWS S3"/>
+                                                                <f:selectItem itemValue="repo-git" itemLabel="Git"/>
                                                             </h:selectOneMenu>
                                                             <h:outputText value=""/>
                                                             <h:panelGroup id="designRepoTypeMessage">
@@ -421,13 +421,13 @@
                                                                                  rendered="#{not systemSettingsBean.useDesignRepo}">
                                                                     <f:ajax event="change"
                                                                             render="deployConfigParameters deployConfigFolderStructureParams deployConfigRepoTypeMessage"/>
-                                                                    <f:selectItem itemValue="db"
+                                                                    <f:selectItem itemValue="repo-jdbc"
                                                                                   itemLabel="Database (JDBC)"/>
-                                                                    <f:selectItem itemValue="jndi"
+                                                                    <f:selectItem itemValue="repo-jndi"
                                                                                   itemLabel="Database (JNDI)"/>
-                                                                    <f:selectItem itemValue="aws_s3"
+                                                                    <f:selectItem itemValue="repo-aws-s3"
                                                                                   itemLabel="AWS S3"/>
-                                                                    <f:selectItem itemValue="git" itemLabel="Git"/>
+                                                                    <f:selectItem itemValue="repo-git" itemLabel="Git"/>
                                                                 </h:selectOneMenu>
                                                                 <h:outputText value=""/>
                                                                 <h:panelGroup id="deployConfigRepoTypeMessage">
@@ -515,14 +515,14 @@
                                                                     <h:selectOneMenu value="#{repository.type}">
                                                                         <f:ajax event="change"
                                                                                 render="productionParameters"/>
-                                                                        <f:selectItem itemValue="db"
+                                                                        <f:selectItem itemValue="repo-jdbc"
                                                                                       itemLabel="Database (JDBC)"/>
-                                                                        <f:selectItem itemValue="jndi"
+                                                                        <f:selectItem itemValue="repo-jndi"
                                                                                       itemLabel="Database (JNDI)"/>
-                                                                        <f:selectItem itemValue="aws_s3"
+                                                                        <f:selectItem itemValue="repo-aws-s3"
                                                                                       itemLabel="AWS S3"/>
-                                                                        <f:selectItem itemValue="git" itemLabel="Git"/>
-                                                                        <f:selectItem itemValue="local" itemLabel="Local"/>
+                                                                        <f:selectItem itemValue="repo-git" itemLabel="Git"/>
+                                                                        <f:selectItem itemValue="repo-file" itemLabel="Local"/>
                                                                     </h:selectOneMenu>
                                                                 </h:panelGrid>
                                                                 <h:panelGroup id="productionParameters">

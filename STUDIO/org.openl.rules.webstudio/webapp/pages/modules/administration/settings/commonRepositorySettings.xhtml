@@ -11,7 +11,7 @@
     <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
 
     <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
-        <h:outputText value="#{repository.type eq 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
+        <h:outputText value="#{repository.type eq 'LOCAL' ? 'Directory' : 'URL'}:" styleClass="required" />
         <h:inputText value="#{settings.path}" id="#{prependId}uri" validator="#{validators.url}"/>
         <h:outputText value=""/>
         <h:message for="#{prependId}uri" styleClass="error"/>
