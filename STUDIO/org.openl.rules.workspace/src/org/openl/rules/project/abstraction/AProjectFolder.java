@@ -405,6 +405,11 @@ public class AProjectFolder extends AProjectArtefact {
     }
 
     @Override
+    public ArtefactPath getArtefactPath() {
+        return new ArtefactPathImpl(getFolderPath());
+    }
+
+    @Override
     public String getInternalPath() {
         String projectPath = getProject().getFileData().getName();
         return folderPath.startsWith(projectPath + "/") ? folderPath.substring(projectPath.length() + 1) : folderPath;
