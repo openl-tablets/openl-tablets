@@ -251,7 +251,7 @@ public class ProjectBean {
             PropertiesFileNameProcessorBuilder propertiesFileNameProcessorBuilder = new PropertiesFileNameProcessorBuilder();
             try {
                 propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNameProcessorException | IOException e) {
+            } catch (InvalidFileNameProcessorException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNamePatternException ignore) {
                 // Ignore
@@ -272,7 +272,7 @@ public class ProjectBean {
                 projectDescriptor.setPropertiesFileNameProcessor((String) propertiesFileNameProcessorInput.getValue());
                 projectDescriptor.setPropertiesFileNamePatterns(patterns);
                 propertiesFileNameProcessorBuilder.build(projectDescriptor);
-            } catch (InvalidFileNamePatternException | IOException e) {
+            } catch (InvalidFileNamePatternException e) {
                 WebStudioUtils.throwValidationError(e.getMessage());
             } catch (InvalidFileNameProcessorException ignored) {
                 // Processed in other validator
@@ -1307,7 +1307,7 @@ public class ProjectBean {
                 builder.build(projectDescriptor).process(newFileName);
                 fileNameMatched = true;
             }
-        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException | IOException ignored) {
+        } catch (InvalidFileNameProcessorException | InvalidFileNamePatternException ignored) {
             // Cannot check for name correctness
         } catch (NoMatchFileNameException e) {
             fileNameMatched = false;
