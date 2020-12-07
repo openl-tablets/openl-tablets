@@ -3,18 +3,13 @@ package org.openl.rules.webstudio.web.repository;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
 import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
 
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.DESIGN_REPOSITORY_CONFIGS;
-import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCTION_REPOSITORY_CONFIGS;
-
-import java.io.Closeable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.admin.RepositoryEditor;
 import org.openl.util.IOUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -50,11 +45,11 @@ public class RepositoryFactoryProxy {
         return repoListConfig;
      }
 
-    public Repository getRepositoryInstance(String configName) throws RRepositoryException {
+    public Repository getRepositoryInstance(String configName) {
         if (!factories.containsKey(configName)) {
             synchronized (this) {
                 if (!factories.containsKey(configName)) {
-                    factories.put(configName, createFactory(configName));
+                    factories.put(configName, RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty));
                 }
             }
         }
@@ -66,10 +61,8 @@ public class RepositoryFactoryProxy {
         synchronized (this) {
             Repository repository = factories.get(configName);
             if (repository != null) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
                 factories.remove(configName);
             }
         }
@@ -78,21 +71,15 @@ public class RepositoryFactoryProxy {
     public void destroy() {
         synchronized (this) {
             for (Repository repository : factories.values()) {
-                if (repository instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) repository);
-                }
+                // Close repo connection after validation
+                IOUtils.closeQuietly(repository);
             }
             factories.clear();
         }
     }
 
-    private Repository createFactory(String configName) throws RRepositoryException {
-        return RepositoryInstatiator.newRepository(configName, propertyResolver);
-    }
-
     public String getBasePath(String configName) {
-        String key = "repository." + configName + ".base.path";
+        String key = Comments.REPOSITORY_PREFIX + configName + ".base.path";
         String basePath = propertyResolver.getProperty(key);
         if (basePath == null) {
             throw new IllegalArgumentException("Property " + key + " is absent");

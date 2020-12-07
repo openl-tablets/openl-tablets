@@ -12,8 +12,8 @@
     </bean>
 
     <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
-        <constructor-arg name="configName" value="settings"/>
-        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="prefix" value="repository.settings"/>
+        <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
     </bean>
 
     <bean name="repositorySettings" class="org.openl.rules.repository.api.RepositorySettings">
