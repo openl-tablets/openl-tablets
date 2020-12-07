@@ -12,7 +12,7 @@ import org.openl.rules.repository.api.Repository;
  * @author Yury Molchan
  */
 public class DatasourceDBRepositoryFactory implements RepositoryFactory {
-    private static final String ID = "repo-ds";
+    private static final String ID = "repo-jndi";
     private static final String OLD_ID = "org.openl.rules.repository.db.DatasourceDBRepositoryFactory";
 
     @Override
