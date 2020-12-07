@@ -174,6 +174,7 @@ public class InstallWizard implements Serializable {
 
                     if (!isUseDesignRepo()) {
                         RepositoryValidators.validate(deployConfigRepositoryConfiguration);
+                        RepositoryValidators.validateInstantiation(deployConfigRepositoryConfiguration);
                     }
 
                     productionRepositoryEditor.validate();
