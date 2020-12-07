@@ -61,7 +61,7 @@ public class RepositoryInstatiator {
                     String fieldName = method.getName().substring(3);
                     String propertyName = prefix + "." + StringUtils.camelToKebab(fieldName);
                     String propertyValue = props.apply(propertyName);
-                    if ("id".equals(fieldName)) {
+                    if ("Id".equals(fieldName)) {
                         // FIXME: Remove assumption that id is the last part of the prefix.
                         int dot = prefix.lastIndexOf('.');
                         propertyValue = prefix.substring(dot + 1);
