@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+  "VIN": "3GNEK12Z75G110880",
+  "model": "Audi",
+  "color": "Black"
+}

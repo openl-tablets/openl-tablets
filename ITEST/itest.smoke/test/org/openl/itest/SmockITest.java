@@ -71,4 +71,9 @@ public class SmockITest {
     public void testCors() {
         client.send("cors.enabled.options");
     }
+
+    @Test
+    public void testMultimodule() {
+        client.send("multiproject.findCarByVIN.post");
+    }
 }
