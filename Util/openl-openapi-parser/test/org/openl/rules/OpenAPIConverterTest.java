@@ -14,6 +14,7 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -311,6 +312,59 @@ public class OpenAPIConverterTest {
         Optional<InputParameter> sum = withPathParams.stream().filter(x -> x.getName().equals("sum")).findFirst();
         assertTrue(sum.isPresent());
         assertEquals("float", sum.get().getType());
+    }
+
+    @Test
+    public void testSettingReturnType() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter.extractProjectModel("test.converter/problems/EPBDS-10841-npe.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+
+        Optional<SpreadsheetModel> midStepSome1 = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("MidStepSome1"))
+            .findFirst();
+        assertTrue(midStepSome1.isPresent());
+        SpreadsheetModel midStepSome1Model = midStepSome1.get();
+        List<InputParameter> midStepSome1Params = midStepSome1Model.getParameters();
+        assertEquals(2, midStepSome1Params.size());
+        List<StepModel> midStepSome1ModelSteps = midStepSome1Model.getSteps();
+        assertEquals(1, midStepSome1ModelSteps.size());
+        StepModel step = midStepSome1ModelSteps.iterator().next();
+        assertEquals("Result", step.getName());
+        assertEquals("=MidStepSome()", step.getValue());
+
+        Optional<SpreadsheetModel> middleStepSome = spreadsheetResultModels.stream()
+            .filter(model -> model.getName().equals("MiddleStepSome"))
+            .findFirst();
+        assertTrue(middleStepSome.isPresent());
+        SpreadsheetModel middleStepSomeModel = middleStepSome.get();
+        assertEquals(3, middleStepSomeModel.getParameters().size());
+        assertEquals(2, middleStepSomeModel.getSteps().size());
+
+        Optional<SpreadsheetModel> setStepsSome = spreadsheetResultModels.stream()
+            .filter(model -> model.getName().equals("SetStepSome"))
+            .findFirst();
+        assertTrue(setStepsSome.isPresent());
+        SpreadsheetModel setStepsSomeModel = setStepsSome.get();
+        assertEquals(3, setStepsSomeModel.getParameters().size());
+        assertEquals(4, setStepsSomeModel.getSteps().size());
+
+        Optional<SpreadsheetModel> midStepSomeWithoutParams = spreadsheetResultModels.stream()
+            .filter(model -> model.getName().equals("MidStepSome") && model.getParameters().isEmpty())
+            .findFirst();
+        assertTrue(midStepSomeWithoutParams.isPresent());
+        SpreadsheetModel withoutParams = midStepSomeWithoutParams.get();
+        assertEquals(6, withoutParams.getSteps().size());
+
+        Optional<SpreadsheetModel> midStepSomeWithParams = spreadsheetResultModels.stream()
+            .filter(model -> model.getName().equals("MidStepSome") && !model.getParameters().isEmpty())
+            .findFirst();
+        assertTrue(midStepSomeWithParams.isPresent());
+        SpreadsheetModel withParams = midStepSomeWithParams.get();
+        assertEquals(6, withParams.getSteps().size());
+
+        assertEquals(withParams.getSteps(), withoutParams.getSteps());
+
     }
 
 }

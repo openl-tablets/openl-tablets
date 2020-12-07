@@ -218,7 +218,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         // create spreadsheet from potential models
         createLostSpreadsheets(openAPI, spreadsheetParserModels, refSpreadsheets, notUsedDataTypeWithRefToSpreadsheet);
         // change steps with in the spreadsheets to these potential models
-        setCallsToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
+        setCallsAndReturnTypeToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
@@ -235,11 +235,16 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
     }
 
-    private void setCallsToLostSpreadsheet(List<SpreadsheetParserModel> spreadsheetParserModels,
+    private void setCallsAndReturnTypeToLostSpreadsheet(List<SpreadsheetParserModel> spreadsheetParserModels,
             List<String> notUsedDataTypeWithRefToSpreadsheet) {
         if (!notUsedDataTypeWithRefToSpreadsheet.isEmpty()) {
             for (SpreadsheetParserModel spreadsheetParserModel : spreadsheetParserModels) {
-                for (StepModel model : spreadsheetParserModel.getModel().getSteps()) {
+                SpreadsheetModel sprModel = spreadsheetParserModel.getModel();
+                String returnType = OpenAPITypeUtils.removeArrayBrackets(sprModel.getType());
+                if (notUsedDataTypeWithRefToSpreadsheet.contains(returnType)) {
+                    sprModel.setType(SPREADSHEET_RESULT);
+                }
+                for (StepModel model : sprModel.getSteps()) {
                     String type = model.getType();
                     String simpleType = OpenAPITypeUtils.removeArrayBrackets(type);
                     if (notUsedDataTypeWithRefToSpreadsheet.contains(simpleType)) {
