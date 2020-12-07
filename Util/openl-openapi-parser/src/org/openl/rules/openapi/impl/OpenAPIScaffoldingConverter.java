@@ -318,7 +318,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .filter(x -> x.getModel()
                 .getPathInfo()
                 .getFormattedPath()
-                .toLowerCase()
                 .startsWith("get") && (CollectionUtils
                     .isEmpty(x.getModel().getParameters()) || containsOnlyRuntimeContext(x.getModel().getParameters())))
             .collect(Collectors.toList());

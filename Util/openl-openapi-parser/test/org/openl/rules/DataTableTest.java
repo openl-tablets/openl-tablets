@@ -15,6 +15,7 @@ import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
+import org.openl.rules.model.scaffolding.StepModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -134,24 +135,53 @@ public class DataTableTest {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(2, dataModels.size());
-        Optional<DataModel> dataLevelForeData = dataModels.stream().filter(x -> x.getName().equals("DalaLevelForeData")).findFirst();
+        Optional<DataModel> dataLevelForeData = dataModels.stream()
+            .filter(x -> x.getName().equals("DalaLevelForeData"))
+            .findFirst();
         assertTrue(dataLevelForeData.isPresent());
         DataModel dataLevelFore = dataLevelForeData.get();
         List<FieldModel> fields = dataLevelFore.getDatatypeModel().getFields();
         assertEquals(4, fields.size());
-        assertTrue(fields.stream().anyMatch(x->x.getName().equals("newField")));
-        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed1")));
-        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed2")));
-        assertTrue(fields.stream().anyMatch(x->x.getName().equals("filed4")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newField")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed1")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed2")));
+        assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed4")));
 
-        Optional<DataModel> dataLevelThreeData = dataModels.stream().filter(x -> x.getName().equals("Arlekino")).findFirst();
+        Optional<DataModel> dataLevelThreeData = dataModels.stream()
+            .filter(x -> x.getName().equals("Arlekino"))
+            .findFirst();
         assertTrue(dataLevelThreeData.isPresent());
         DataModel dataLevelThree = dataLevelThreeData.get();
         List<FieldModel> dltFields = dataLevelThree.getDatatypeModel().getFields();
         assertEquals(3, dltFields.size());
-        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("newField")));
-        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("filed1")));
-        assertTrue(dltFields.stream().anyMatch(x->x.getName().equals("filed2")));
+        assertTrue(dltFields.stream().anyMatch(x -> x.getName().equals("newField")));
+        assertTrue(dltFields.stream().anyMatch(x -> x.getName().equals("filed1")));
+        assertTrue(dltFields.stream().anyMatch(x -> x.getName().equals("filed2")));
 
+    }
+
+    @Test
+    public void testGetPathNaming() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter
+            .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+        List<DataModel> dataModels = pm.getDataModels();
+        List<DatatypeModel> datatypeModels = pm.getDatatypeModels();
+        assertTrue(dataModels.isEmpty());
+        assertEquals(1, datatypeModels.size());
+        DatatypeModel dm = datatypeModels.iterator().next();
+        assertEquals("JAXRSErrorResponse", dm.getName());
+
+        assertEquals(1, spreadsheetResultModels.size());
+        SpreadsheetModel sprModel = spreadsheetResultModels.iterator().next();
+        assertEquals("GetMyAlias", sprModel.getName());
+        assertEquals("String[]", sprModel.getType());
+        List<StepModel> steps = sprModel.getSteps();
+        assertEquals(1, steps.size());
+
+        StepModel step = steps.iterator().next();
+        assertEquals("Result", step.getName());
+        assertEquals("=new String[]{}", step.getValue());
     }
 }
