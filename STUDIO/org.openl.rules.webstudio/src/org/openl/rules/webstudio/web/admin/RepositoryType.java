@@ -1,11 +1,11 @@
 package org.openl.rules.webstudio.web.admin;
 
 public enum RepositoryType {
-    DB(org.openl.rules.repository.db.JdbcDBRepositoryFactory.class),
-    JNDI(org.openl.rules.repository.db.DatasourceDBRepositoryFactory.class),
-    AWS_S3(org.openl.rules.repository.aws.S3Repository.class),
-    GIT(org.openl.rules.repository.git.GitRepository.class),
-    LOCAL(org.openl.rules.repository.LocalRepositoryFactory.class);
+    DB("org.openl.rules.repository.db.JdbcDBRepositoryFactory"),
+    JNDI("org.openl.rules.repository.db.DatasourceDBRepositoryFactory"),
+    AWS_S3("org.openl.rules.repository.aws.S3Repository"),
+    GIT("org.openl.rules.repository.git.GitRepository"),
+    LOCAL("org.openl.rules.repository.LocalRepositoryFactory");
 
     public static RepositoryType findByAccessType(String accessType) {
         for (RepositoryType repositoryType : values()) {
@@ -30,8 +30,8 @@ public enum RepositoryType {
     private final String accessType;
     private final String factoryClassName;
 
-    RepositoryType(Class<?> factoryClass) {
-        this.factoryClassName = factoryClass.getName();
+    RepositoryType(String factoryId) {
+        this.factoryClassName = factoryId;
         this.accessType = name().toLowerCase();
     }
 
