@@ -33,6 +33,7 @@ public class RunLocalZippedRepositoryTest {
     public void testMultiProjectDeployment() {
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
         client.post("/yaml-project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
+        client.send("multiproject/multiproject.findCarByVIN.post");
     }
 
 }
