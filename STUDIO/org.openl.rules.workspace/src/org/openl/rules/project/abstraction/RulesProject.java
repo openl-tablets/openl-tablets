@@ -494,17 +494,6 @@ public class RulesProject extends UserWorkspaceProject {
         }
     }
 
-    @Override
-    public ArtefactPath getArtefactPath() {
-        // Return artefact name inside the project including project name. In the case of project it's just project
-        // name.
-        if (isOpened()) {
-            return super.getArtefactPath();
-        } else {
-            return new ArtefactPathImpl(getName());
-        }
-    }
-
     public String getDesignFolderName() {
         return designFolderName;
     }
