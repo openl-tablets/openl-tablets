@@ -1193,8 +1193,8 @@ public class RepositoryTreeController {
                 .getRepository(project.getRepository().getId());
             if (mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
                 .equals(branch)) {
-                studio.getModel().clearModuleInfo(); // Release resources like jars
-                project.close();
+                ProjectHistoryService.deleteHistory(project.getBusinessName());
+                closeProjectAndReleaseResources(project);
 
                 // Delete secondary branch
                 ((BranchRepository) mainRepo).deleteBranch(null, branch);
