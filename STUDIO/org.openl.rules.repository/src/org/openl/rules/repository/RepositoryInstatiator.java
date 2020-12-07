@@ -52,6 +52,17 @@ public class RepositoryInstatiator {
             repos.stream().collect(Collectors.joining(", "))));
     }
 
+    public static String getRefID(String factoryId) {
+        ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
+            RepositoryFactory.class.getClassLoader());
+        for (RepositoryFactory factory : factories) {
+            if (factory.accept(factoryId)) {
+                return factory.getRefID();
+            }
+        }
+        return null;
+    }
+
     public static void setParams(Object instance, Function<String, String> props) {
         Class<?> clazz = instance.getClass();
         try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
