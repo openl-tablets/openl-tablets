@@ -1,9 +1,11 @@
 package org.openl.rules.repository;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Repository;
@@ -26,40 +28,37 @@ import org.openl.util.StringUtils;
 public class RepositoryInstatiator {
 
     public static Repository newRepository(String prefix, Function<String, String> props) {
-        String factoryClass = props.apply(prefix + ".factory");
-        Repository repository = newInstance(factoryClass);
-        setParams(repository, props, prefix);
-        initialize(repository);
-        return repository;
+        ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
+            RepositoryFactory.class.getClassLoader());
+        String factoryId = props.apply(prefix + ".factory");
+        ArrayList<String> repos = new ArrayList<>();
+        for (RepositoryFactory factory : factories) {
+            repos.add(factory.getRefID());
+            if (factory.accept(factoryId)) {
+                return factory.create(key -> {
+                    if ("id".equals(key)) {
+                        // FIXME: Remove assumption that id is the last part of the prefix.
+                        int dot = prefix.lastIndexOf('.');
+                        return prefix.substring(dot + 1);
+                    }
+                    return props.apply(prefix + '.' + key);
+                });
+            }
+        }
+        throw new IllegalArgumentException(String.format(
+            "Cannot find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
+            factoryId,
+            prefix,
+            repos.stream().collect(Collectors.joining(", "))));
     }
 
-    private static Repository newInstance(String factory) {
-        Object instance;
-        try {
-            // Instantiate a repository
-            Class<?> clazz = Class.forName(factory);
-            instance = clazz.newInstance();
-        } catch (Exception e) {
-            throw new IllegalStateException("Failed to instantiate a repository: " + factory, e);
-        } catch (UnsupportedClassVersionError e) {
-            throw new IllegalStateException("Library is compiled using newer version of JDK.", e);
-        }
-        try {
-            return (Repository) instance;
-        } catch (ClassCastException e) {
-            throw new IllegalStateException(String.format("%s must be an implementation of %s.",
-                instance.getClass().getTypeName(),
-                Repository.class.getTypeName()), e);
-        }
-    }
-
-    private static void setParams(Object instance, Function<String, String> props, String prefix) {
+    public static void setParams(Object instance, Function<String, String> props) {
         Class<?> clazz = instance.getClass();
         try (Stream<Method> stream = Arrays.stream(clazz.getMethods())) {
             stream.filter(method -> method.getParameterCount() == 1 && method.getName().startsWith("set"))
                 .forEach(method -> {
                     String fieldName = method.getName().substring(3);
-                    String propertyName = prefix + "." + StringUtils.camelToKebab(fieldName);
+                    String propertyName = StringUtils.camelToKebab(fieldName);
                     String propertyValue = props.apply(propertyName);
                     boolean propertyExists = StringUtils.isNotBlank(propertyValue);
                     if (propertyExists) {
@@ -78,19 +77,6 @@ public class RepositoryInstatiator {
                         }
                     }
                 });
-        }
-    }
-
-    private static void initialize(Object instance) {
-        Class<?> clazz = instance.getClass();
-        try {
-            // Try to find initialize() method
-            Method initMethod = clazz.getMethod("initialize");
-            // Execute initialize() method to finish instantiation of the
-            // repository.
-            initMethod.invoke(instance);
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            throw new IllegalStateException(String.format("Failed on method '%s.initialize()' call.", clazz), e);
         }
     }
 }

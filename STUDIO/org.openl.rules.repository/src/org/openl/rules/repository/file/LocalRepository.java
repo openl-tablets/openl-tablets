@@ -1,4 +1,4 @@
-package org.openl.rules.repository;
+package org.openl.rules.repository.file;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,13 +9,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.file.FileSystemRepository;
 
 /**
  * Local File System Repository
  */
-public class LocalRepositoryFactory extends FileSystemRepository {
+public class LocalRepository extends FileSystemRepository {
 
     private static final File[] EMPTY_FILES = new File[0];
 
@@ -94,5 +95,10 @@ public class LocalRepositoryFactory extends FileSystemRepository {
         }
         //should never happen
         throw new IllegalStateException(String.format("Illegal state for LocalRepository. Unable to get list of folders from %s path.", path));
+    }
+
+    @Override
+    public Features supports() {
+        return new FeaturesBuilder(this).setVersions(false).setLocal(true).build();
     }
 }
