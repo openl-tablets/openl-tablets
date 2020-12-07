@@ -1,9 +1,11 @@
 package org.openl.rules.repository;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ServiceLoader;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Repository;
@@ -29,7 +31,9 @@ public class RepositoryInstatiator {
         ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
             RepositoryFactory.class.getClassLoader());
         String factoryId = props.apply(prefix + ".factory");
+        ArrayList<String> repos = new ArrayList<>();
         for (RepositoryFactory factory : factories) {
+            repos.add(factory.getRefID());
             if (factory.accept(factoryId)) {
                 return factory.create(key -> {
                     if ("id".equals(key)) {
@@ -41,8 +45,11 @@ public class RepositoryInstatiator {
                 });
             }
         }
-        throw new IllegalArgumentException(
-            String.format("Cannot find '%s' repository factory for '%s' configuration.", factoryId, prefix));
+        throw new IllegalArgumentException(String.format(
+            "Cannot find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
+            factoryId,
+            prefix,
+            repos.stream().collect(Collectors.joining(", "))));
     }
 
     public static void setParams(Object instance, Function<String, String> props) {
