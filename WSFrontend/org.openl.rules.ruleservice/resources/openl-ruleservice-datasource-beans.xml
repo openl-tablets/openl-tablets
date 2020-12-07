@@ -20,8 +20,7 @@
         <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
         <property name="enabled" value="${ruleservice.datasource.deploy.classpath.jars}"/>
         <!-- Workaround to allow projects overrides in LocalRepository after application startup -->
-        <property name="overrideable"
-                  value="#{'${production-repository.factory}' eq 'org.openl.rules.repository.LocalRepositoryFactory'}"/>
+        <property name="overrideable" value="#{'${production-repository.factory}' eq 'repo-file'}"/>
     </bean>
 
     <!-- Data source storage that provides information about deployments, projects

@@ -61,7 +61,7 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Properties properties = new Properties();
         if ("jdbc".equals(deployType)) {
-            properties.put("production-repository.factory", "org.openl.rules.repository.db.JdbcDBRepositoryFactory");
+            properties.put("production-repository.factory", "repo-jdbc");
         }
         properties.put("production-repository.uri", deployUrl);
         properties.put("production-repository.login", server.getUsername());
