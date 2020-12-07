@@ -1,23 +1,23 @@
-package org.openl.rules.repository.db;
+package org.openl.rules.repository.zip;
 
 import java.util.function.Function;
 
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.file.LocalRepository;
 
 /**
- * Database repository factory with connection using JDBC url.
+ * Zipped local file system repository factory.
  *
  * @author Yury Molchan
  */
-public class JdbcDBRepositoryFactory implements RepositoryFactory {
-    private static final String ID = "repo-jdbc";
-    private static final String OLD_ID = "org.openl.rules.repository.db.JdbcDBRepositoryFactory";
+public class ZipRepositoryFactory implements RepositoryFactory {
+    private static final String ID = "repo-zip";
 
     @Override
     public boolean accept(String factoryID) {
-        return factoryID.equals(ID) || factoryID.equals(OLD_ID);
+        return factoryID.equals(ID);
     }
 
     @Override
@@ -27,7 +27,7 @@ public class JdbcDBRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        JdbcDBRepository repository = new JdbcDBRepository();
+        ZippedLocalRepository repository = new ZippedLocalRepository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

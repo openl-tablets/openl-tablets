@@ -49,13 +49,13 @@ public class SpreadsheetStructureBuilder {
 
     public static final String DOLLAR_SIGN = "$";
 
-    private SpreadsheetComponentsBuilder componentsBuilder;
+    private final SpreadsheetComponentsBuilder componentsBuilder;
 
     private IBindingContext spreadsheetBindingContext;
 
-    private IOpenMethodHeader spreadsheetHeader;
+    private final IOpenMethodHeader spreadsheetHeader;
 
-    private SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
+    private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
@@ -68,13 +68,13 @@ public class SpreadsheetStructureBuilder {
         this.spreadsheetHeader = spreadsheetHeader;
     }
 
-    private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
-    private Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
-    private Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
+    private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
+    private final Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
+    private final Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
 
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+    private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
 
     public static final ThreadLocal<Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 

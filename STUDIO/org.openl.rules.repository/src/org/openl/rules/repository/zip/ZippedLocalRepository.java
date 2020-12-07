@@ -34,7 +34,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 
@@ -76,55 +75,51 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     private Map<String, Path> storage;
 
     @Override
-    public void initialize() throws RRepositoryException {
-        try {
-            init();
-        } catch (IOException e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        }
-    }
-
-    private void init() throws IOException {
+    public void initialize() {
         File rootFile = new File(uri);
         if (!rootFile.exists()) {
             rootFile.mkdirs();
         }
         this.root = rootFile.toPath();
         if (!Files.isDirectory(root)) {
-            throw new IOException(String.format("Failed to initialize the root directory: [%s].", root));
+            throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s].", root));
         }
         final Map<String, Path> localStorage = new HashMap<>();
         if (archives != null && archives.length > 0) {
             for (String archiveName : archives) {
                 if (StringUtils.isBlank(archiveName)) {
-                    throw new IOException("An archive name cannot be blank!");
+                    throw new IllegalStateException("An archive name cannot be blank!");
                 }
                 if (localStorage.containsKey(archiveName.toLowerCase())) {
-                    throw new IOException(String.format("An archive name [%s] is duplicated!", archiveName));
+                    throw new IllegalStateException(String.format("An archive name [%s] is duplicated!", archiveName));
                 }
                 if (PATH_SEP.matcher(archiveName).find()) {
-                    throw new IOException(String.format("An archive name [%s] must not contain characters of path separator!", archiveName));
+                    throw new IllegalStateException(String.format("An archive name [%s] must not contain characters of path separator!", archiveName));
                 }
                 Path pathToArchive = root.resolve(archiveName);
                 if (!Files.exists(pathToArchive)) {
-                    throw new IOException(String.format("The path [%s] does not exist.", archiveName));
+                    throw new IllegalStateException(String.format("The path [%s] does not exist.", archiveName));
                 }
                 if (!zipArchiveFilter(pathToArchive)) {
-                    throw new IOException(String.format("[%s] is not archive.", archiveName));
+                    throw new IllegalStateException(String.format("[%s] is not archive.", archiveName));
                 }
                 localStorage.put(archiveName.toLowerCase(), pathToArchive);
             }
         }
         if (localStorage.isEmpty()) {
-            Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
-                @Override
-                public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
-                    if (attrs.isDirectory() || zipArchiveFilter(p)) {
-                        localStorage.put(p.getFileName().toString().toLowerCase(), p);
+            try {
+                Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
+                        if (attrs.isDirectory() || zipArchiveFilter(p)) {
+                            localStorage.put(p.getFileName().toString().toLowerCase(), p);
+                        }
+                        return FileVisitResult.CONTINUE;
                     }
-                    return FileVisitResult.CONTINUE;
-                }
-            });
+                });
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to initialize a repository", e);
+            }
         }
         this.storage = Collections.unmodifiableMap(localStorage);
     }

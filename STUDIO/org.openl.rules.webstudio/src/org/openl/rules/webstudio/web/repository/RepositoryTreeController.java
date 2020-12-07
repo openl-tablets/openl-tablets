@@ -2410,7 +2410,7 @@ public class RepositoryTreeController {
             return false;
         }
         return Boolean.parseBoolean(
-            propertyResolver.getProperty("repository." + repositoryId + ".comment-template.use-custom-comments"));
+            propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".comment-template.use-custom-comments"));
     }
 
     /**

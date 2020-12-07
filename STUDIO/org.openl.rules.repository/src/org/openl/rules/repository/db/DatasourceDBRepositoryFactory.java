@@ -1,96 +1,35 @@
 package org.openl.rules.repository.db;
 
-import java.sql.Connection;
-import java.sql.SQLException;
+import java.util.function.Function;
 
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
+import org.openl.rules.repository.RepositoryFactory;
+import org.openl.rules.repository.RepositoryInstatiator;
+import org.openl.rules.repository.api.Repository;
 
-import org.openl.util.StringUtils;
+/**
+ * Database repository factory with connection using Datasource JNDI resource.
+ *
+ * @author Yury Molchan
+ */
+public class DatasourceDBRepositoryFactory implements RepositoryFactory {
+    private static final String ID = "repo-jndi";
+    private static final String OLD_ID = "org.openl.rules.repository.db.DatasourceDBRepositoryFactory";
 
-public class DatasourceDBRepositoryFactory extends DBRepository {
-
-    private DataSource dataSource;
-    private String uri;
-    private String login;
-    private String password;
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
-    }
-
-    public void setLogin(String login) {
-        this.login = login;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
+    @Override
+    public boolean accept(String factoryID) {
+        return factoryID.equals(ID) || factoryID.equals(OLD_ID);
     }
 
     @Override
-    protected Connection getConnection() throws SQLException {
-        if (StringUtils.isBlank(login)) {
-            return dataSource.getConnection();
-        } else {
-            return dataSource.getConnection(login, password);
-        }
+    public String getRefID() {
+        return ID;
     }
 
     @Override
-    public void initialize() {
-        init();
-        super.initialize();
-    }
-
-    private void init() {
-        if (dataSource != null) {
-            return;
-        }
-        if (StringUtils.isBlank(uri)) {
-            throw new IllegalStateException("Required 'uri' property is not defined.");
-        }
-        InitialContext initialContext = createInitialContext();
-
-        RuntimeException exception = null;
-        try {
-            this.dataSource = (DataSource) initialContext.lookup(uri);
-        } catch (Throwable e) {
-            exception = new IllegalStateException(String.format("Cannot determine JNDI [ %s ] name", uri), e);
-            throw exception;
-        } finally {
-            if (exception != null) {
-                try {
-                    initialContext.close();
-                } catch (Throwable e) {
-                    exception.addSuppressed(new IllegalStateException("Cannot close JNDI context", e));
-                }
-            } else {
-                closeInitialContext(initialContext);
-            }
-        }
-        if (dataSource == null) {
-            throw new IllegalStateException("DataSource is not found in JNDI context by 'uri' : " + uri);
-        }
-    }
-
-    private static InitialContext createInitialContext() {
-        try {
-            return new InitialContext();
-        } catch (NamingException e) {
-            throw new IllegalStateException("Cannot initialize JNDI context", e);
-        }
-    }
-
-    private static void closeInitialContext(InitialContext initialContext) {
-        try {
-            initialContext.close();
-        } catch (Throwable e) {
-            throw new IllegalStateException("Cannot close JNDI context", e);
-        }
+    public Repository create(Function<String, String> settings) {
+        DatasourceDBRepository repository = new DatasourceDBRepository();
+        RepositoryInstatiator.setParams(repository, settings);
+        repository.initialize();
+        return repository;
     }
 }

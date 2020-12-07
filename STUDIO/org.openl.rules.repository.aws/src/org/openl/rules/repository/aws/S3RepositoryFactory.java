@@ -1,4 +1,4 @@
-package org.openl.rules.repository.db;
+package org.openl.rules.repository.aws;
 
 import java.util.function.Function;
 
@@ -7,13 +7,13 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 
 /**
- * Database repository factory with connection using JDBC url.
+ * AWS S3 repository factory.
  *
  * @author Yury Molchan
  */
-public class JdbcDBRepositoryFactory implements RepositoryFactory {
-    private static final String ID = "repo-jdbc";
-    private static final String OLD_ID = "org.openl.rules.repository.db.JdbcDBRepositoryFactory";
+public class S3RepositoryFactory implements RepositoryFactory {
+    private static final String ID = "repo-aws-s3";
+    private static final String OLD_ID = "org.openl.rules.repository.aws.S3Repository";
 
     @Override
     public boolean accept(String factoryID) {
@@ -27,7 +27,7 @@ public class JdbcDBRepositoryFactory implements RepositoryFactory {
 
     @Override
     public Repository create(Function<String, String> settings) {
-        JdbcDBRepository repository = new JdbcDBRepository();
+        S3Repository repository = new S3Repository();
         RepositoryInstatiator.setParams(repository, settings);
         repository.initialize();
         return repository;

@@ -12,23 +12,21 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.exceptions.RRepositoryException;
-import org.openl.rules.repository.file.FileSystemRepository;
-import org.openl.rules.repository.git.GitRepository;
+import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.git.GitRepositoryFactory;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class ProjectVersionCacheMonitorTest {
 
     private File root;
-    private GitRepository repo;
+    private Repository repo;
     private ProjectVersionCacheMonitor projectVersionCacheMonitor;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private ProjectVersionH2CacheDB projectVersionCacheDB;
 
     @Before
-    public void setUp() throws IOException, RRepositoryException {
+    public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
         projectVersionCacheMonitor = new ProjectVersionCacheMonitor();
@@ -41,7 +39,7 @@ public class ProjectVersionCacheMonitorTest {
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() throws Exception {
         if (repo != null) {
             repo.close();
         }
@@ -69,15 +67,16 @@ public class ProjectVersionCacheMonitorTest {
         projectVersionCacheDB.closeDb();
     }
 
-    private GitRepository createRepository(File local) throws RRepositoryException {
-        GitRepository repo = new GitRepository();
-        repo.setLocalRepositoryPath(local.getAbsolutePath());
-        FileSystemRepository settingsRepository = new FileSystemRepository();
-        settingsRepository.setUri(local.getParent() + "/git-settings");
-        String locksRoot = new File(root, "locks").getAbsolutePath();
-        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
-        repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
-        repo.initialize();
+    private Repository createRepository(File local) {
+        Repository repo = new GitRepositoryFactory().create(s -> {
+            switch (s) {
+                case "local-repository-path":
+                    return local.getAbsolutePath();
+                case "comment-template":
+                    return "WebStudio: {commit-type}. {user-message}";
+            }
+            return null;
+        });
         return repo;
     }
 
