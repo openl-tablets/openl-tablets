@@ -63,7 +63,21 @@ public class AProjectArtefact {
     }
 
     public ArtefactPath getArtefactPath() {
-        return new ArtefactPathImpl(getFileData().getName());
+        AProject project = getProject();
+        if (project == this) {
+            return new ArtefactPathImpl(getName());
+        }
+        String projectPath = project.getFolderPath();
+        if (!projectPath.isEmpty() && !projectPath.endsWith("/")) {
+            projectPath += "/";
+        }
+
+        String artefactName = getFileData().getName();
+        if (artefactName.startsWith(projectPath)) {
+            return new ArtefactPathImpl(project.getName() + "/" + artefactName.substring(projectPath.length()));
+        } else {
+            return new ArtefactPathImpl(artefactName);
+        }
     }
 
     public String getInternalPath() {
