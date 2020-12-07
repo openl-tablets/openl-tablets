@@ -276,4 +276,13 @@ public class DataTypeConverterTest {
         assertEquals("BigDecimal", cdTCodeToBeProcessedStepModel.getType());
         assertEquals("=java.math.BigDecimal.ZERO", cdTCodeToBeProcessedStepModel.getValue());
     }
+
+    @Test
+    public void testLostDatatype() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter
+            .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
+        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals("NewNewDatatype")));
+    }
 }

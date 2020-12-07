@@ -149,7 +149,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts,
             childSet);
 
-        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI);
+        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI, spreadsheetResultRefs);
         // find not called potential spreadsheets, which are used as steps to make them data types
         findNotCalledPotentialDataTypes(spreadsheetParserModels);
         List<String> linkedRefs = spreadsheetParserModels.stream()
@@ -313,7 +313,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return step;
     }
 
-    private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels, OpenAPI openAPI) {
+    private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels,
+            OpenAPI openAPI,
+            Set<String> sprResultRefs) {
         List<SpreadsheetParserModel> potentialDataModels = spreadsheetModels.stream()
             .filter(x -> x.getModel()
                 .getPathInfo()
@@ -336,6 +338,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             boolean postAndRuntimeContext = parametersNotEmpty && operationMethod
                 .equals(PathItem.HttpMethod.POST.name());
             if (getAndNoParams || postAndRuntimeContext) {
+                String returnRef = potentialDataModel.getReturnRef();
+                if (returnRef != null) {
+                    sprResultRefs.remove(returnRef);
+                }
                 spreadsheetModels.remove(potentialDataModel);
                 String dataTableName = formatTableName(potentialDataModel.getModel().getName());
                 dataModels.add(new DataModel(dataTableName,
