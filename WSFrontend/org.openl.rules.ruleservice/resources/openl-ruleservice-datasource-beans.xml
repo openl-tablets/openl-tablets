@@ -7,8 +7,6 @@
     <bean name="repository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
         <constructor-arg name="prefix" value="production-repository"/>
         <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
-                <!-- Zip specific -->
-                <entry key="archives" value="${production-repository.archives}"/>
     </bean>
 
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">

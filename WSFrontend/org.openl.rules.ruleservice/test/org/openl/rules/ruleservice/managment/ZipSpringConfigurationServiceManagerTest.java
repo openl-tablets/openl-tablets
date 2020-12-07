@@ -16,7 +16,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {
-        "production-repository.factory = org.openl.rules.repository.zip.ZippedLocalRepository",
+        "production-repository.factory = repo-zip",
         "production-repository.uri = test-resources/openl-repository/deploy",
         "production-repository.archives = ErrorTest/ErrorTest, org.openl.tablets.tutorial4/org.openl.tablets.tutorial4"})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
