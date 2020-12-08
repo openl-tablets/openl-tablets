@@ -34,6 +34,16 @@ public class Migrator {
                     .replace("{2}", "{current-date}");
             props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
         }
+        rename(settings, props, "repository.deploy-config.comment-validation-pattern", "repository.deploy-config.comment-template.comment-validation-pattern");
+        rename(settings, props, "repository.deploy-config.invalid-comment-message", "repository.deploy-config.comment-template.invalid-comment-message");
+        rename(settings, props, "repository.design.comment-validation-pattern", "repository.design.comment-template.comment-validation-pattern");
+        rename(settings, props, "repository.design.invalid-comment-message", "repository.design.comment-template.invalid-comment-message");
         DynamicPropertySource.get().save(props);
+    }
+
+    private static void rename(DynamicPropertySource settings, HashMap<String, String> props, String oldKey, String newKey) {
+        String value = (String) settings.getProperty(oldKey);
+        props.put(oldKey, null);
+        props.put(newKey, value);
     }
 }

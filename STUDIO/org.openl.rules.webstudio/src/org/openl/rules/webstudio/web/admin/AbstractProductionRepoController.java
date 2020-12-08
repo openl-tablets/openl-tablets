@@ -82,7 +82,7 @@ public abstract class AbstractProductionRepoController {
 
     private RepositoryConfiguration createDummyRepositoryConfiguration() {
         RepositoryConfiguration rc = new RepositoryConfiguration(ConfigNames.PRODUCTION, properties);
-        rc.setType(RepositoryType.DB.name().toLowerCase());
+        rc.setType(RepositoryType.DB.factoryId);
         return rc;
     }
 
