@@ -22,20 +22,6 @@ public final class JsonUtils {
     private JsonUtils() {
     }
 
-    private static final class DefaultObjectMapperHolder {
-        private static final ObjectMapper INSTANCE;
-        static {
-            JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-            jacksonObjectMapperFactoryBean.setSupportVariations(true);
-            ObjectMapper objectMapper = null;
-            try {
-                objectMapper = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
-            } catch (ClassNotFoundException ignored) {
-            }
-            INSTANCE = objectMapper;
-        }
-    }
-
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
             return createJacksonObjectMapper(types, DefaultTypingMode.EVERYTHING);
@@ -57,7 +43,13 @@ public final class JsonUtils {
     }
 
     private static ObjectMapper getDefaultJacksonObjectMapper() {
-        return DefaultObjectMapperHolder.INSTANCE;
+        JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
+        jacksonObjectMapperFactoryBean.setSupportVariations(true);
+        try {
+            return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+        }
+        return null;
     }
 
     public static String toJSON(Object value) throws JsonProcessingException {
