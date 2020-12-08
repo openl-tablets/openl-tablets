@@ -55,6 +55,9 @@ public class RepositoryInstatiator {
     public static String getRefID(String factoryId) {
         ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
             RepositoryFactory.class.getClassLoader());
+        if (factoryId == null) {
+            return null;
+        }
         for (RepositoryFactory factory : factories) {
             if (factory.accept(factoryId)) {
                 return factory.getRefID();
