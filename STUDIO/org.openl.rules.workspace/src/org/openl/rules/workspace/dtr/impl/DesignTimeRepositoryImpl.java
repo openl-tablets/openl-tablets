@@ -167,11 +167,14 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
                 new Class[] { Repository.class },
                 (proxy, method, args) -> {
-                    if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
+                    final String methodName = method.getName();
+                    final Class<?> returnType = method.getReturnType();
+                    if (methodName.startsWith("set") && returnType == void.class) {
                         return null;
-                    }
-                    if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
+                    } else if ("supports".equals(methodName) && returnType == Features.class) {
                         return new FeaturesBuilder(null).setVersions(false).build();
+                    } else if ("close".equals(methodName) && returnType == void.class && args == null) {
+                        return null;
                     }
                     throw new IllegalStateException(message);
                 });
