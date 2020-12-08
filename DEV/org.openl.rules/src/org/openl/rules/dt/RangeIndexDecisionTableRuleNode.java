@@ -2,7 +2,6 @@ package org.openl.rules.dt;
 
 import java.util.BitSet;
 
-import org.openl.domain.BitSetIterator;
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
@@ -25,10 +24,14 @@ public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode imple
     public int[] getRules() {
         int[] result = new int[ruleSet.cardinality()];
         int i = 0;
-        BitSetIterator it = new BitSetIterator(ruleSet);
-        while (it.hasNext()) {
-            result[i++] = it.nextInt();
+
+        for (int rule = ruleSet.nextSetBit(0); rule >= 0; rule = ruleSet.nextSetBit(rule + 1)) {
+            result[i++] = rule;
+            if (rule == Integer.MAX_VALUE) {
+                break; // or (i+1) would overflow
+            }
         }
+
         return result;
     }
 

@@ -13,7 +13,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.impl.AAggregateInfo;
 import org.openl.types.impl.ArrayIndex;
-import org.openl.util.OpenIterator;
+import org.openl.util.AIndexedIterator;
 
 /**
  * @author snshor
@@ -49,7 +49,7 @@ public class JavaArrayAggregateInfo extends AAggregateInfo {
 
     @Override
     public Iterator<Object> getIterator(Object aggregate) {
-        return OpenIterator.fromArrayObj(aggregate);
+        return AIndexedIterator.fromArrayObj(aggregate);
     }
 
     @Override

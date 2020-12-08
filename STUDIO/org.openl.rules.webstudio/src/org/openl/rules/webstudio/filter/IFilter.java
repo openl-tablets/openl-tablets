@@ -1,11 +1,9 @@
 package org.openl.rules.webstudio.filter;
 
-import org.openl.util.ISelector;
-
 /**
  * Base interface for filters.
  */
-public interface IFilter<T> extends ISelector<T> {
+public interface IFilter<T> {
     /**
      * If given class is supported by this filter.
      *
@@ -13,4 +11,6 @@ public interface IFilter<T> extends ISelector<T> {
      * @return if <code>aClass</code> is supported.
      */
     boolean supports(Class<?> aClass);
+
+    boolean select(T obj);
 }

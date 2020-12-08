@@ -12,8 +12,8 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.AIndexedIterator;
 import org.openl.util.IntegerValuesUtils;
-import org.openl.util.OpenIterator;
 
 /**
  * @author snshor
@@ -69,7 +69,7 @@ public class DynamicArrayAggregateInfo extends AAggregateInfo {
 
     @Override
     public Iterator<Object> getIterator(Object aggregate) {
-        return OpenIterator.fromArrayObj(aggregate);
+        return AIndexedIterator.fromArrayObj(aggregate);
     }
 
     @Override

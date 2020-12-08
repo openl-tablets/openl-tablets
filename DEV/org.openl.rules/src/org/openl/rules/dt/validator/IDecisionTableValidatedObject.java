@@ -16,9 +16,6 @@ public interface IDecisionTableValidatedObject extends IValidatedObject {
     IDecisionTable getDecisionTable();
 
     @Deprecated
-    IConditionSelector getSelector();
-
-    @Deprecated
     IConditionTransformer getTransformer();
 
     /**
