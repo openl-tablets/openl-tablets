@@ -3,6 +3,7 @@ package org.openl.rules.fuzzy;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -619,8 +620,8 @@ public final class OpenLFuzzyUtils {
                     }
                     f[i] = c;
 
-                    source1.sort(String::compareTo);
-                    target1.sort(String::compareTo);
+                    source1.sort(Comparator.naturalOrder());
+                    target1.sort(Comparator.naturalOrder());
                 } else {
                     f[i] = 0;
                     source1.clear();

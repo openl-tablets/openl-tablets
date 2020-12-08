@@ -18,6 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
@@ -330,7 +331,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             result = new ArrayList<>(projects.values());
         }
 
-        result.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        result.sort(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER));
 
         return result;
     }

@@ -27,7 +27,7 @@ class HttpData {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     private final String firstLine;
-    private final Map<String, String> headers = new TreeMap<>(String::compareToIgnoreCase);
+    private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final byte[] body;
     private final String resource;
 
@@ -176,7 +176,7 @@ class HttpData {
     }
 
     private static Map<String, String> readHeaders(InputStream input) throws IOException {
-        TreeMap<String, String> headers = new TreeMap<>(String::compareToIgnoreCase);
+        TreeMap<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
 
         String header = readLine(input);
         while (!header.isEmpty()) {

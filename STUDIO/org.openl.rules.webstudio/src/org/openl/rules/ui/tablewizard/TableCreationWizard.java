@@ -3,6 +3,7 @@ package org.openl.rules.ui.tablewizard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -150,7 +151,7 @@ public abstract class TableCreationWizard extends BaseWizard {
             items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
 
-        Collections.sort(items, (item1, item2) -> item1.getLabel().compareToIgnoreCase(item2.getLabel()));
+        items.sort(Comparator.comparing(SelectItem::getLabel, String.CASE_INSENSITIVE_ORDER));
 
         return items;
     }

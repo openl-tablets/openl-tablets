@@ -41,17 +41,10 @@ public class TestBean {
 
     private final Logger log = LoggerFactory.getLogger(TestBean.class);
 
-    private static final Comparator<TestUnitsResults> TEST_COMPARATOR = (t1, t2) -> {
-        if (t2 != null && t1 != null) {
-            int cmp = t2.getNumberOfFailures() - t1.getNumberOfFailures();
-            if (cmp != 0) {
-                return cmp;
-            }
-            return t1.getName().compareTo(t2.getName());
-        } else {
-            return t1 == t2 ? 0 : t1 == null ? 1 : -1;
-        }
-    };
+    private static final Comparator<TestUnitsResults> TEST_COMPARATOR = Comparator
+        .nullsLast(Comparator.comparingInt(TestUnitsResults::getNumberOfFailures)
+            .reversed()
+            .thenComparing(TestUnitsResults::getName));
 
     private final MainBean mainBean;
 
