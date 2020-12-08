@@ -230,12 +230,8 @@ public class GitRepositorySettings extends RepositorySettings {
         this.failedAuthenticationSeconds = failedAuthenticationSeconds;
     }
 
-    public int getMaxAuthenticationAttempts() {
+    public Integer getMaxAuthenticationAttempts() {
         return maxAuthenticationAttempts;
-    }
-
-    public void setMaxAuthenticationAttempts(int maxAuthenticationAttempts) {
-        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
     @Override
