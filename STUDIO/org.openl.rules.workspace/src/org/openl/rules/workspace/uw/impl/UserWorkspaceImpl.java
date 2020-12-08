@@ -36,8 +36,8 @@ import org.slf4j.LoggerFactory;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> o1.getName()
-        .compareToIgnoreCase(o2.getName());
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator.comparing(AProject::getName,
+        String.CASE_INSENSITIVE_ORDER);
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;

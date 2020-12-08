@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
 
@@ -81,7 +82,7 @@ public class BenchmarkBean {
         }
         comparedBenchmarks = bi;
         benchmarkOrders = new ArrayList<>(bi);
-        benchmarkOrders.sort((o1, o2) -> (int) (o2.drunsunitsec() - o1.drunsunitsec()));
+        benchmarkOrders.sort(Comparator.comparingDouble(BenchmarkInfoView::drunsunitsec).reversed());
         return null;
     }
 
