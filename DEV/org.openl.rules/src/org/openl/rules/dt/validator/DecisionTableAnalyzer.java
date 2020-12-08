@@ -1,14 +1,15 @@
 package org.openl.rules.dt.validator;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.ILocalVar;
 import org.openl.domain.IDomain;
-import org.openl.domain.IntRangeDomain;
-import org.openl.domain.StringDomain;
 import org.openl.rules.binding.RulesBindingDependencies;
-import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.types.IMethodSignature;
@@ -68,50 +69,6 @@ public class DecisionTableAnalyzer {
         return usedParamsFromSignature.get(parameterName).getDomain();
     }
 
-    public IDomain<?> gatherDomainFromValues(IParameterDeclaration parameter, IBaseCondition condition) {
-        IDomain<?> result = null;
-        Class<?> type = parameter.getType().getInstanceClass();
-        if (String.class == type) {
-            result = gatherStringDomainFromValues(condition);
-        } else if (int.class == type) {
-            result = gatherIntDomainFromValues(condition);
-        }
-        return result;
-    }
-
-    private StringDomain gatherStringDomainFromValues(IBaseCondition condition) {
-        int nRules = condition.getNumberOfRules();
-        int np = condition.getNumberOfParams();
-        String[] enumValues = new String[nRules * np];
-        for (int ruleN = 0; ruleN < nRules; ruleN++) {
-            for (int pidx = 0; pidx < np; pidx++) {
-                enumValues[ruleN * np + pidx] = (String) condition.getParamValue(pidx, ruleN);
-            }
-        }
-        return new StringDomain(enumValues);
-    }
-
-    private IntRangeDomain gatherIntDomainFromValues(IBaseCondition condition) {
-        int min = Integer.MAX_VALUE;
-        int max = Integer.MIN_VALUE;
-        int nRules = condition.getNumberOfRules();
-        int np = condition.getNumberOfParams();
-        for (int ruleN = 0; ruleN < nRules; ruleN++) {
-            if (condition.isEmpty(ruleN)) {
-                continue;
-            }
-            for (int pidx = 0; pidx < np; pidx++) {
-                Integer cand = (Integer) condition.getParamValue(pidx, ruleN);
-                if (min > cand) {
-                    min = cand;
-                } else if (max < cand) {
-                    max = cand;
-                }
-            }
-        }
-        return new IntRangeDomain(min, max);
-    }
-
     /**
      * Goes through the condition in algorithm column and search the params that are income parameters from the
      * signature.
@@ -157,7 +114,7 @@ public class DecisionTableAnalyzer {
 
     /**
      * Takes the paramDeclarationFromSignature and transform its type to appropriate for validating. see
-     * {@link DecisionTableValidatedObject.#transformParameterType(IParameterDeclaration)}.
+     * {@link DecisionTableValidatedObject#transformParameterType(IParameterDeclaration)}.
      *
      * @param paramDeclarationFromSignature parameter declaration from the signature.
      * @param decisionTableToValidate decision table that is being validated.

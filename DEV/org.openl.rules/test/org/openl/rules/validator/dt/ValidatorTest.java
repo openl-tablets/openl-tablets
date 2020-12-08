@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.openl.domain.DateRangeDomain;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
-import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DateRangeDomainAdaptor;
@@ -136,7 +135,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testString() {
         String tableName = "Rules void helloString(String stringValue)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
-        StringDomain stringDomain = new StringDomain(new String[] { "value1", "value2", "value3" });
+        EnumDomain<String> stringDomain = new EnumDomain<>(new String[] { "value1", "value2", "value3" });
         EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
 
         domains.put("stringValue", enumDomainStrAdaptor);

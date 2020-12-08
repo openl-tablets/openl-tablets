@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -85,10 +86,7 @@ import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ASelector;
-import org.openl.util.ASelector.StringValueSelector;
 import org.openl.util.ClassUtils;
-import org.openl.util.ISelector;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.validation.ValidationManager;
@@ -260,28 +258,28 @@ public class XlsBinder implements IOpenBinder {
             //
             // Selectors
             //
-            ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
-            ASelector<ISyntaxNode> constantsSelector = getSelector(XlsNodeTypes.XLS_CONSTANTS);
-            ASelector<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
-            ASelector<ISyntaxNode> conditionsSelector = getSelector(XlsNodeTypes.XLS_CONDITIONS);
-            ASelector<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
-            ASelector<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
+            Predicate<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
+            Predicate<ISyntaxNode> constantsSelector = getSelector(XlsNodeTypes.XLS_CONSTANTS);
+            Predicate<ISyntaxNode> dataTypeSelector = getSelector(XlsNodeTypes.XLS_DATATYPE);
+            Predicate<ISyntaxNode> conditionsSelector = getSelector(XlsNodeTypes.XLS_CONDITIONS);
+            Predicate<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
+            Predicate<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
 
-            ISelector<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(returnsSelector).or(actionsSelector);
+            Predicate<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(returnsSelector).or(actionsSelector);
 
-            ISelector<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.not()
-                .and(dataTypeSelector.not())
-                .and(constantsSelector.not());
+            Predicate<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.negate()
+                .and(dataTypeSelector.negate())
+                .and(constantsSelector.negate());
 
-            ISelector<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
-            ISelector<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
-            ISelector<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
-            ISelector<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
+            Predicate<ISyntaxNode> spreadsheetSelector = getSelector(XlsNodeTypes.XLS_SPREADSHEET);
+            Predicate<ISyntaxNode> dtSelector = getSelector(XlsNodeTypes.XLS_DT);
+            Predicate<ISyntaxNode> testMethodSelector = getSelector(XlsNodeTypes.XLS_TEST_METHOD);
+            Predicate<ISyntaxNode> runMethodSelector = getSelector(XlsNodeTypes.XLS_RUN_METHOD);
 
-            ISelector<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeAndNotConstantsSelector
-                .and(spreadsheetSelector.not()
-                    .and(testMethodSelector.not()
-                        .and(runMethodSelector.not().and(dtSelector.not().and(dtDefinitionSelector.not())))));
+            Predicate<ISyntaxNode> commonTablesSelector = notPropertiesAndNotDatatypeAndNotConstantsSelector
+                .and(spreadsheetSelector.negate()
+                    .and(testMethodSelector.negate()
+                        .and(runMethodSelector.negate().and(dtSelector.negate().and(dtDefinitionSelector.negate())))));
 
             // Bind property node at first.
             //
@@ -308,9 +306,9 @@ public class XlsBinder implements IOpenBinder {
             TableSyntaxNode[] commonTables = selectNodes(moduleNode, commonTablesSelector);
 
             // Select and sort Spreadsheet tables
-            TableSyntaxNode[] spreadsheets = selectTableSyntaxNodes(moduleNode, spreadsheetSelector);
+            TableSyntaxNode[] spreadsheets = selectNodes(moduleNode, spreadsheetSelector);
 
-            TableSyntaxNode[] dts = selectTableSyntaxNodes(moduleNode, dtSelector);
+            TableSyntaxNode[] dts = selectNodes(moduleNode, dtSelector);
 
             TableSyntaxNode[] commonAndSpreadsheetTables = ArrayUtils.addAll(
                 ArrayUtils.addAll(ArrayUtils.addAll(dtHeaderDefinitionsNodes, dts), spreadsheets),
@@ -339,12 +337,8 @@ public class XlsBinder implements IOpenBinder {
         }
     }
 
-    private StringValueSelector<ISyntaxNode> getSelector(XlsNodeTypes selectorValue) {
-        return getSelector(selectorValue.toString());
-    }
-
-    private StringValueSelector<ISyntaxNode> getSelector(String selectorValue) {
-        return new ASelector.StringValueSelector<>(selectorValue, new SyntaxNodeConvertor());
+    private Predicate<ISyntaxNode> getSelector(XlsNodeTypes selectorValue) {
+        return syntaxNode -> selectorValue.toString().equals(syntaxNode.getType());
     }
 
     /**
@@ -371,10 +365,10 @@ public class XlsBinder implements IOpenBinder {
             XlsModuleOpenClass module,
             OpenL openl,
             RulesModuleBindingContext bindingContext) {
-        ASelector<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
-        ASelector<ISyntaxNode> otherNodesSelector = getSelector(XlsNodeTypes.XLS_OTHER);
-        ISelector<ISyntaxNode> notPropertiesAndNotOtherSelector = propertiesSelector.not()
-            .and(otherNodesSelector.not());
+        Predicate<ISyntaxNode> propertiesSelector = getSelector(XlsNodeTypes.XLS_PROPERTIES);
+        Predicate<ISyntaxNode> otherNodesSelector = getSelector(XlsNodeTypes.XLS_OTHER);
+        Predicate<ISyntaxNode> notPropertiesAndNotOtherSelector = propertiesSelector.negate()
+            .and(otherNodesSelector.negate());
 
         TableSyntaxNode[] tableSyntaxNodes = selectNodes(moduleNode, notPropertiesAndNotOtherSelector);
 
@@ -481,22 +475,13 @@ public class XlsBinder implements IOpenBinder {
         return osn == null ? getDefaultOpenLName() : osn.getOpenlName();
     }
 
-    private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode, ISelector<ISyntaxNode> childSelector) {
-        return selectTableSyntaxNodes(moduleSyntaxNode, childSelector);
-    }
+    private TableSyntaxNode[] selectNodes(XlsModuleSyntaxNode moduleSyntaxNode, Predicate<ISyntaxNode> childSelector) {
 
-    private TableSyntaxNode[] selectTableSyntaxNodes(XlsModuleSyntaxNode moduleSyntaxNode,
-            ISelector<ISyntaxNode> childSelector) {
-
-        ArrayList<TableSyntaxNode> childSyntaxNodes = new ArrayList<>();
-
-        for (TableSyntaxNode tsn : moduleSyntaxNode.getXlsTableSyntaxNodes()) {
-            if (childSelector == null || childSelector.select(tsn)) {
-                childSyntaxNodes.add(tsn);
-            }
-        }
-
-        return childSyntaxNodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
+        TableSyntaxNode[] xlsTableSyntaxNodes = moduleSyntaxNode.getXlsTableSyntaxNodes();
+        return Arrays.stream(xlsTableSyntaxNodes)
+            .filter(childSelector)
+            .collect(Collectors.toList())
+            .toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 
     private boolean isExecutableTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {

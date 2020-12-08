@@ -5,13 +5,12 @@ import java.util.HashSet;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.util.ASelector;
 import org.openl.util.StringUtils;
 
 /**
  * Filter for <code>ProjectResource</code>s based on their file extension.
  */
-public class RepositoryFileExtensionFilter extends ASelector<AProjectArtefact> implements IFilter<AProjectArtefact> {
+public class RepositoryFileExtensionFilter implements IFilter<AProjectArtefact> {
     /**
      * Arrays of accepted exceptions.
      */
