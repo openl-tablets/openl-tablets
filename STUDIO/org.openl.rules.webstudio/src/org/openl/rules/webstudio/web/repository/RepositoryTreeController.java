@@ -1327,7 +1327,7 @@ public class RepositoryTreeController {
         return getDescriptiveVersion(version, dateTimeFormat);
     }
 
-    public String descriptiveProjectVersion(AProject project) {
+    public String descriptiveProjectVersion(AProjectArtefact project) {
         if (project == null || project.getVersion() == null) {
             return "";
         }
