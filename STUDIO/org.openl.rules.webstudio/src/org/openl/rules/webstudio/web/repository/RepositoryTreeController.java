@@ -1328,13 +1328,14 @@ public class RepositoryTreeController {
     }
 
     public String descriptiveProjectVersion(AProject project) {
-        if (project == null) {
+        if (project == null || project.getVersion() == null) {
             return "";
         }
         return getDescriptiveVersion(project.getVersion());
     }
 
     public static String getDescriptiveVersion(ProjectVersion version, String dateTimeFormat) {
+
         VersionInfo versionInfo = version.getVersionInfo();
         if (versionInfo == null) {
             return "Version not found";
