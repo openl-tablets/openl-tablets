@@ -746,9 +746,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     public void setCommentTemplate(String commentTemplate) {
         this.commentTemplate = commentTemplate;
-        String ct = commentTemplate.replaceAll("\\{commit-type}", "{0}")
-                .replaceAll("\\{user-message}", "{1}")
-                .replaceAll("\\{username}", "{2}");
+        String ct = commentTemplate.replace("{commit-type}", "{0}")
+                .replace("{user-message}", "{1}")
+                .replace("{username}", "{2}");
         this.escapedCommentTemplate = escapeCurlyBrackets(ct);
         this.commitMessageParser = new CommitMessageParser(commentTemplate);
     }
