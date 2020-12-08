@@ -108,8 +108,8 @@
         <h:outputText value="" rendered="#{settings.remoteRepository}"/>
 
         <h:outputText value="New branch:" rendered="#{isDesignRepo}"/>
-        <h:outputText value=""/>
-        <h:outputText value=""/>
+        <h:outputText value="" rendered="#{isDesignRepo}"/>
+        <h:outputText value="" rendered="#{isDesignRepo}"/>
 
         <h:outputText value="Pattern template:" rendered="#{isDesignRepo}"/>
         <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
@@ -135,8 +135,8 @@
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}validationErrorMessage');return false;" title="Details" rendered="#{isDesignRepo}"/>
 
         <h:outputText value=" " rendered="#{isDesignRepo}"/>
-        <h:outputText value="" />
-        <h:outputText value=""/>
+        <h:outputText value="" rendered="#{isDesignRepo}"/>
+        <h:outputText value="" rendered="#{isDesignRepo}"/>
         <h:outputText value="Changes check interval (sec):" rendered="#{settings.remoteRepository}"/>
         <h:inputText value="#{settings.listenerTimerPeriod}" id="#{prependId}gitListenerTimerPeriod"
                      title="Repository changes check interval. Must be greater than zero."

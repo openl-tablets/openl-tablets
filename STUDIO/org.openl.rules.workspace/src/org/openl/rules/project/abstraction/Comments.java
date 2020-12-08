@@ -98,7 +98,7 @@ public final class Comments {
     public String getNewBranchNameTemplate() {
         if (newBranchNameTemplate == null) {
             newBranchNameTemplate = environment
-                    .getProperty(REPOSITORY_PREFIX + prefix + "new-branch-pattern");
+                    .getProperty(REPOSITORY_PREFIX + prefix + "new-branch.pattern");
         }
         return newBranchNameTemplate;
     }
