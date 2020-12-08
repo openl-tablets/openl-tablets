@@ -55,9 +55,9 @@ public class GitRepositorySettings extends RepositorySettings {
         USER_EMAIL = configPrefix + ".user-email";
         LOCAL_REPOSITORY_PATH = configPrefix + ".local-repository-path";
         BRANCH = configPrefix + ".branch";
-        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch-pattern";
-        NEW_BRANCH_REGEX = configPrefix + ".new-branch-regex";
-        NEW_BRANCH_REGEX_ERROR = configPrefix + ".new-branch-regex-error";
+        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch.pattern";
+        NEW_BRANCH_REGEX = configPrefix + ".new-branch.regex";
+        NEW_BRANCH_REGEX_ERROR = configPrefix + ".new-branch.regex-error";
         TAG_PREFIX = configPrefix + ".tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";

@@ -32,7 +32,8 @@ public class Migrator {
                     .replace("{0}", "{project-name}")
                     .replace("{1}", "{username}")
                     .replace("{2}", "{current-date}");
-            props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
+            props.put("repository.design.new-branch.pattern", migratedNewBranchPattern);
+            props.put("repository.design.new-branch-pattern", null);
         }
         rename(settings, props, "repository.deploy-config.comment-validation-pattern", "repository.deploy-config.comment-template.comment-validation-pattern");
         rename(settings, props, "repository.deploy-config.invalid-comment-message", "repository.deploy-config.comment-template.invalid-comment-message");
