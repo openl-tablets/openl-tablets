@@ -149,7 +149,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts,
             childSet);
 
-        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI);
+        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI, spreadsheetResultRefs);
         // find not called potential spreadsheets, which are used as steps to make them data types
         findNotCalledPotentialDataTypes(spreadsheetParserModels);
         List<String> linkedRefs = spreadsheetParserModels.stream()
@@ -218,7 +218,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         // create spreadsheet from potential models
         createLostSpreadsheets(openAPI, spreadsheetParserModels, refSpreadsheets, notUsedDataTypeWithRefToSpreadsheet);
         // change steps with in the spreadsheets to these potential models
-        setCallsToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
+        setCallsAndReturnTypeToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
@@ -235,11 +235,16 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
     }
 
-    private void setCallsToLostSpreadsheet(List<SpreadsheetParserModel> spreadsheetParserModels,
+    private void setCallsAndReturnTypeToLostSpreadsheet(List<SpreadsheetParserModel> spreadsheetParserModels,
             List<String> notUsedDataTypeWithRefToSpreadsheet) {
         if (!notUsedDataTypeWithRefToSpreadsheet.isEmpty()) {
             for (SpreadsheetParserModel spreadsheetParserModel : spreadsheetParserModels) {
-                for (StepModel model : spreadsheetParserModel.getModel().getSteps()) {
+                SpreadsheetModel sprModel = spreadsheetParserModel.getModel();
+                String returnType = OpenAPITypeUtils.removeArrayBrackets(sprModel.getType());
+                if (notUsedDataTypeWithRefToSpreadsheet.contains(returnType)) {
+                    sprModel.setType(SPREADSHEET_RESULT);
+                }
+                for (StepModel model : sprModel.getSteps()) {
                     String type = model.getType();
                     String simpleType = OpenAPITypeUtils.removeArrayBrackets(type);
                     if (notUsedDataTypeWithRefToSpreadsheet.contains(simpleType)) {
@@ -313,12 +318,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return step;
     }
 
-    private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels, OpenAPI openAPI) {
+    private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels,
+            OpenAPI openAPI,
+            Set<String> sprResultRefs) {
         List<SpreadsheetParserModel> potentialDataModels = spreadsheetModels.stream()
             .filter(x -> x.getModel()
                 .getPathInfo()
                 .getFormattedPath()
-                .toLowerCase()
                 .startsWith("get") && (CollectionUtils
                     .isEmpty(x.getModel().getParameters()) || containsOnlyRuntimeContext(x.getModel().getParameters())))
             .collect(Collectors.toList());
@@ -337,6 +343,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             boolean postAndRuntimeContext = parametersNotEmpty && operationMethod
                 .equals(PathItem.HttpMethod.POST.name());
             if (getAndNoParams || postAndRuntimeContext) {
+                String returnRef = potentialDataModel.getReturnRef();
+                if (returnRef != null) {
+                    sprResultRefs.remove(returnRef);
+                }
                 spreadsheetModels.remove(potentialDataModel);
                 String dataTableName = formatTableName(potentialDataModel.getModel().getName());
                 dataModels.add(new DataModel(dataTableName,

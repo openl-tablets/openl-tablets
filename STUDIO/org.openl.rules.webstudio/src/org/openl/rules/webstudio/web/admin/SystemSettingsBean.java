@@ -298,11 +298,11 @@ public class SystemSettingsBean {
 
         switch (repositoryMode) {
             case DESIGN:
-                accessType = RepositoryType.GIT.name().toLowerCase();
+                accessType = RepositoryType.GIT.factoryId;
                 configurations = getDesignRepositoryConfigurations();
                 break;
             case PRODUCTION:
-                accessType = RepositoryType.DB.name().toLowerCase();
+                accessType = RepositoryType.DB.factoryId;
                 configurations = getProductionRepositoryConfigurations();
                 break;
             default:

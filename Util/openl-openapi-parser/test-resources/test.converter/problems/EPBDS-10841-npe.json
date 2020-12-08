@@ -1,0 +1,293 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "ren-gb-di-ltd-rating-rules",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/bla",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/SetStepSome": {
+      "post": {
+        "summary": "SetStepSome SetStepSome(StepSome, Double, SpreadsheetResult[], Double)",
+        "description": "Rules method: SpreadsheetResultSetStepSome SetStepSome(org.openl.geneSomed.model.di.ltd.StepSome stepSome, java.lang.Double totalStepSomelope, SpreadsheetResultMidStepSome[] midStepSome, java.lang.Double monthlyCompositeStreetSome)",
+        "operationId": "SetStepSome",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SetStepSomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SetStepSome"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MidStepSome": {
+      "post": {
+        "summary": "MidStepSome MidStepSome(String, StepSome[])",
+        "description": "Rules method: SpreadsheetResultMidStepSome MidStepSome(AgeBand ageBand, org.openl.geneSomed.model.di.ltd.StepSome[] stepSome)",
+        "operationId": "MidStepSome",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MidStepSomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MidStepSome"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MidStepSome1": {
+      "post": {
+        "summary": "MidStepSome MidStepSome(PlanOutput, Double)",
+        "description": "Rules method: SpreadsheetResultMidStepSome MidStepSome(org.openl.geneSomed.model.di.ltd.PlanOutput planOutput, java.lang.Double blaCoveredTest)",
+        "operationId": "MidStepSome_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MidStepSomeRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MidStepSome"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MiddleStepSome": {
+      "post": {
+        "summary": "MiddleStepSome MiddleStepSome(StepSome, PlanOutput, Double)",
+        "description": "Rules method: SpreadsheetResultMiddleStepSome MiddleStepSome(org.openl.geneSomed.model.di.ltd.StepSome stepSome, org.openl.geneSomed.model.di.ltd.PlanOutput planOutput, java.lang.Double blaCoveredTest)",
+        "operationId": "MiddleStepSome",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MiddleStepSomeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MiddleStepSome"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PlanOutput": {
+        "type": "object",
+        "properties": {
+          "expAdjustedFactor": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Someummary": {
+        "type": "object",
+        "properties": {
+          "planOutput": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanOutput"
+            }
+          }
+        }
+      },
+      "StepSome": {
+        "type": "object",
+        "properties": {
+          "ageBand": {
+            "type": "string"
+          },
+          "streetRt": {
+            "type": "number",
+            "format": "double"
+          },
+          "coveredTest": {
+            "type": "number",
+            "format": "double"
+          },
+          "strtPremium": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MidStepSome": {
+        "type": "object",
+        "properties": {
+          "AgeBand": {
+            "type": "string"
+          },
+          "AgeBandInfo": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StepSome"
+            }
+          },
+          "SomeFromAllMyPerAgeBand": {
+            "type": "number",
+            "format": "double"
+          },
+          "CPFromAllMyPerAgeBand": {
+            "type": "number",
+            "format": "double"
+          },
+          "SomeMultiplyCP": {
+            "type": "number",
+            "format": "double"
+          },
+          "BlendedSome": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MiddleStepSome"
+            }
+          }
+        }
+      },
+      "MiddleStepSome": {
+        "type": "object",
+        "properties": {
+          "BlendedSome": {
+            "type": "number",
+            "format": "double"
+          },
+          "UpdateSome": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SetStepSome": {
+        "type": "object",
+        "properties": {
+          "MidStepSomePerAgeBand": {
+            "$ref": "#/components/schemas/MidStepSome"
+          },
+          "CoveredTest": {
+            "type": "number",
+            "format": "double"
+          },
+          "StreetSome": {
+            "type": "number",
+            "format": "double"
+          },
+          "StrtPremium": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SetStepSomeRequest": {
+        "type": "object",
+        "properties": {
+          "stepSome": {
+            "$ref": "#/components/schemas/StepSome"
+          },
+          "totalStepSomelope": {
+            "type": "number",
+            "format": "double"
+          },
+          "monthlyCompositeStreetSome": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MidStepSomeRequest": {
+        "type": "object",
+        "properties": {
+          "ageBand": {
+            "type": "string"
+          },
+          "stepSome": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/StepSome"
+            }
+          }
+        }
+      },
+      "MidStepSomeRequest1": {
+        "type": "object",
+        "properties": {
+          "planOutput": {
+            "$ref": "#/components/schemas/PlanOutput"
+          },
+          "blaCoveredTest": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "MiddleStepSomeRequest": {
+        "type": "object",
+        "properties": {
+          "stepSome": {
+            "$ref": "#/components/schemas/StepSome"
+          },
+          "planOutput": {
+            "$ref": "#/components/schemas/PlanOutput"
+          },
+          "blaCoveredTest": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
+}

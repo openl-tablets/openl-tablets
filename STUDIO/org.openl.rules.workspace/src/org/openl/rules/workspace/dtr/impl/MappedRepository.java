@@ -122,7 +122,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
     public FileData check(String name) throws IOException {
         ProjectIndex mapping = getUpToDateMapping(true);
         FileData check = delegate.check(toInternal(mapping, name));
-        if (delegate.supports().versions()) {
+        if (check != null && delegate.supports().versions()) {
             Optional<ProjectInfo> project = externalToInternal.getProjects()
                     .stream()
                     .filter(p -> name.equals(baseFolder + getMappedName(p)))
