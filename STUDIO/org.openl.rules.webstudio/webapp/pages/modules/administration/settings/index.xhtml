@@ -344,7 +344,7 @@
                                                         </h:panelGrid>
                                                         <h:panelGroup id="designParameters">
                                                             <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'common'}">
+                                                                    rendered="#{designRepository.type == 'repo-jdbc' or designRepository.type == 'repo-jndi'}">
                                                                 <ui:include
                                                                         src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                                     <ui:param name="prependId" value="design"/>
@@ -354,7 +354,7 @@
                                                                 </ui:include>
                                                             </h:panelGroup>
                                                             <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'aws_s3'}">
+                                                                    rendered="#{designRepository.type == 'repo-aws-s3'}">
                                                                 <ui:include
                                                                         src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                                     <ui:param name="prependId" value="design"/>
@@ -364,7 +364,7 @@
                                                                 </ui:include>
                                                             </h:panelGroup>
                                                             <h:panelGroup
-                                                                    rendered="#{designRepository.formType == 'git'}">
+                                                                    rendered="#{designRepository.type == 'repo-git'}">
                                                                 <ui:include
                                                                         src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                                     <ui:param name="prependId" value="design"/>
@@ -440,7 +440,7 @@
                                                             <h:panelGroup id="deployConfigParameters"
                                                                           rendered="#{not systemSettingsBean.useDesignRepo}">
                                                                 <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'common'}">
+                                                                        rendered="#{deployConfigRepo.type == 'repo-jdbc' or deployConfigRepo.type == 'repo-jndi'}">
                                                                     <ui:include
                                                                             src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                                         <ui:param name="prependId"
@@ -452,7 +452,7 @@
                                                                     </ui:include>
                                                                 </h:panelGroup>
                                                                 <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'aws_s3'}">
+                                                                        rendered="#{deployConfigRepo.type == 'repo-aws-s3'}">
                                                                     <ui:include
                                                                             src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                                         <ui:param name="prependId"
@@ -464,7 +464,7 @@
                                                                     </ui:include>
                                                                 </h:panelGroup>
                                                                 <h:panelGroup
-                                                                        rendered="#{deployConfigRepo.formType == 'git'}">
+                                                                        rendered="#{deployConfigRepo.type == 'repo-git'}">
                                                                     <ui:include
                                                                             src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                                         <ui:param name="prependId"
@@ -527,7 +527,7 @@
                                                                 </h:panelGrid>
                                                                 <h:panelGroup id="productionParameters">
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'common'}">
+                                                                            rendered="#{repository.type == 'repo-jdbc' or repository.type == 'repo-jndi'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/commonRepositorySettings.xhtml">
                                                                             <ui:param name="prependId"
@@ -540,7 +540,7 @@
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'aws_s3'}">
+                                                                            rendered="#{repository.type == 'repo-aws-s3'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/AWSS3RepositorySettings.xhtml">
                                                                             <ui:param name="prependId"
@@ -553,7 +553,7 @@
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'git'}">
+                                                                            rendered="#{repository.type == 'repo-git'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/GitRepositorySettings.xhtml">
                                                                             <ui:param name="prependId"
@@ -566,7 +566,7 @@
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                     <h:panelGroup
-                                                                            rendered="#{repository.formType == 'local'}">
+                                                                            rendered="#{repository.type == 'repo-file'}">
                                                                         <ui:include
                                                                                 src="/pages/modules/administration/settings/LocalRepositorySettings.xhtml">
                                                                             <ui:param name="prependId" value="production"/>

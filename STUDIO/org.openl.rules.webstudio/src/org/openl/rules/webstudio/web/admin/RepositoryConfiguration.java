@@ -137,17 +137,6 @@ public class RepositoryConfiguration {
         this.name = name;
     }
 
-    public String getFormType() {
-        RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
-        switch (repositoryType) {
-            case DB:
-            case JNDI:
-                return "common";
-            default:
-                return repositoryType.name().toLowerCase();
-        }
-    }
-
     public boolean isFolderRepository() {
         return RepositoryType.GIT.factoryId.equals(repoType);
     }
