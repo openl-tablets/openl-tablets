@@ -3,11 +3,16 @@ package org.openl.rules.webstudio.web.admin;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.repository.RepositoryMode;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
@@ -45,18 +50,26 @@ public class RepositoryEditor {
             createDefaultValueInvocationHandler(properties, repoConfigName));
     }
 
-    public static String getNewConfigName(List<RepositoryConfiguration> configurations, String configName) {
+    public static String getNewConfigName(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
         AtomicInteger max = new AtomicInteger(0);
-        configurations.forEach(rc -> {
-            if (rc.getConfigName().matches(configName + "\\d+")) {
-                String num = rc.getConfigName().substring(configName.length());
+        String configName = repoMode.getId();
+        Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors.toSet());
+
+        //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
+        String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
+        if (StringUtils.isNotEmpty(existingConfigNames)) {
+            configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
+        }
+        configNames.forEach(rc -> {
+            if (rc.matches(configName + "\\d+")) {
+                String num = rc.substring(configName.length());
                 int i = Integer.parseInt(num);
                 if (i > max.get()) {
                     max.set(i);
                 }
             }
         });
-        return configName + (max.get() + 1);
+        return configName + (max.incrementAndGet());
     }
 
     private static String getFirstConfigName(String configNames) {
