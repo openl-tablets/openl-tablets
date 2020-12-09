@@ -43,7 +43,7 @@ public class Spreadsheet extends ExecutableRulesMethod {
 
     private String[] columnTitles;
 
-    private boolean detailedPlainModel;
+    private boolean tableStructureDetails;
 
     /**
      * Type of the Spreadsheet with all its fields Is some type of internal. Is used on calculating the results of the
@@ -192,12 +192,12 @@ public class Spreadsheet extends ExecutableRulesMethod {
         return columnNames;
     }
 
-    public boolean isDetailedPlainModel() {
-        return detailedPlainModel;
+    public boolean isTableStructureDetails() {
+        return tableStructureDetails;
     }
 
-    public void setDetailedPlainModel(boolean detailedPlainModel) {
-        this.detailedPlainModel = detailedPlainModel;
+    public void getTableStructureDetails(boolean tableStructureDetails) {
+        this.tableStructureDetails = tableStructureDetails;
     }
 
     @Override

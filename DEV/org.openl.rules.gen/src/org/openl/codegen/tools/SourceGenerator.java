@@ -10,7 +10,7 @@ import org.apache.velocity.app.VelocityEngine;
 final class SourceGenerator {
 
     private static final VelocityTool TOOL = new VelocityTool();
-    private static VelocityEngine velocityEngine = new VelocityEngine("velocity.properties");
+    private static final VelocityEngine velocityEngine = new VelocityEngine("velocity.properties");
 
     static void generate(String templateName, Map<String, Object> variables, Writer writer) {
         Template template = velocityEngine.getTemplate(templateName);

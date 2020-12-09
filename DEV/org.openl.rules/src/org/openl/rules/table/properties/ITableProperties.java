@@ -278,9 +278,9 @@ public interface ITableProperties {
 
     void setPrecision(java.lang.String precision);
 
-    java.lang.Boolean getDetailedPlainModel();
+    java.lang.Boolean getTableStructureDetails();
 
-    void setDetailedPlainModel(java.lang.Boolean detailedPlainModel);
+    void setTableStructureDetails(java.lang.Boolean tableStructureDetails);
 
     java.lang.Boolean getAutoType();
 

@@ -6,6 +6,6 @@
     <property name="fieldsCoordinates" ignore="true"/>
     <property name="rowNamesForResultModel" ignore="true"/>
     <property name="columnNamesForResultModel" ignore="true"/>
-    <property name="detailedPlainModel" ignore="true"/>
+    <property name="tableStructureDetails" ignore="true"/>
  </mapping>
 </mappings>

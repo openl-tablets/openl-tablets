@@ -468,13 +468,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
-    public java.lang.Boolean getDetailedPlainModel() {
-        return (java.lang.Boolean) getPropertyValue("detailedPlainModel");
+    public java.lang.Boolean getTableStructureDetails() {
+        return (java.lang.Boolean) getPropertyValue("tableStructureDetails");
     }
 
     @Override
-    public void setDetailedPlainModel(java.lang.Boolean detailedPlainModel) {
-        setFieldValue("detailedPlainModel", detailedPlainModel);
+    public void setTableStructureDetails(java.lang.Boolean tableStructureDetails) {
+        setFieldValue("tableStructureDetails", tableStructureDetails);
         reset();
     }
 

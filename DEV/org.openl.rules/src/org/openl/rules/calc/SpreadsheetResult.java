@@ -45,7 +45,7 @@ public class SpreadsheetResult implements Serializable {
     transient String[] columnNamesForResultModel;
     transient Map<String, Point> fieldsCoordinates;
 
-    transient boolean detailedPlainModel;
+    transient boolean tableStructureDetails;
 
     /**
      * logical representation of calculated spreadsheet table it is needed for web studio to display results
@@ -93,7 +93,7 @@ public class SpreadsheetResult implements Serializable {
                 spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
-        this.detailedPlainModel = spr.detailedPlainModel;
+        this.tableStructureDetails = spr.tableStructureDetails;
     }
 
     public boolean isFieldUsedInModel(String fieldName) {
@@ -173,12 +173,12 @@ public class SpreadsheetResult implements Serializable {
     }
 
     @XmlTransient
-    public boolean isDetailedPlainModel() {
-        return detailedPlainModel;
+    public boolean isTableStructureDetails() {
+        return tableStructureDetails;
     }
 
-    public void setDetailedPlainModel(boolean detailedPlainModel) {
-        this.detailedPlainModel = detailedPlainModel;
+    public void setTableStructureDetails(boolean tableStructureDetails) {
+        this.tableStructureDetails = tableStructureDetails;
     }
 
     public Object getValue(int row, int column) {
@@ -384,8 +384,8 @@ public class SpreadsheetResult implements Serializable {
             long nonNullsRowsCount = Arrays.stream(rowNamesForResultModel).filter(Objects::nonNull).count();
             final boolean isSingleRow = nonNullsRowsCount == 1;
             final boolean isSingleColumn = nonNullsColumnsCount == 1;
-            final boolean isDetailedPlainModel = detailedPlainModel;
-            String[][] TableDetails = isDetailedPlainModel ? new String[rowNames.length][columnNames.length] : null;
+            final boolean isTableStructureDetailsPresented = tableStructureDetails;
+            String[][] TableDetails = isTableStructureDetailsPresented ? new String[rowNames.length][columnNames.length] : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
@@ -403,7 +403,7 @@ public class SpreadsheetResult implements Serializable {
                             .getRow()] != null) {
                             values.put(xmlNamesMap.get(e.getKey()),
                                 convertSpreadsheetResult(module, getValue(p.getRow(), p.getColumn())));
-                            if (isDetailedPlainModel) {
+                            if (isTableStructureDetailsPresented) {
                                 TableDetails[p.getRow()][p.getColumn()] = xmlNamesMap.get(e.getKey());
                             }
                         }
@@ -430,14 +430,14 @@ public class SpreadsheetResult implements Serializable {
                                 k++;
                             }
                             values.put(fNewName, convertSpreadsheetResult(module, getValue(i, j)));
-                            if (isDetailedPlainModel) {
+                            if (isTableStructureDetailsPresented) {
                                 TableDetails[i][j] = fNewName;
                             }
                         }
                     }
                 }
             }
-            if (detailedPlainModel) {
+            if (tableStructureDetails) {
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "TableDetails"),
                     TableDetails);
                 values.put(CustomSpreadsheetResultOpenClass.findNonConflictFieldName(values.keySet(), "RowNames"),

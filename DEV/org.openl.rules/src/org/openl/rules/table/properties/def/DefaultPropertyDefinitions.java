@@ -518,12 +518,12 @@ public final class DefaultPropertyDefinitions {
 
         definitions[35] = new TablePropertyDefinition();
         definitions[35].setDefaultValue("false");
-        definitions[35].setDescription("Controls generation additional fields in an plain model for the Spreadsheet.");
+        definitions[35].setDescription("Controls generation additional properties with table structure details in an output model");
         definitions[35].setDimensional(false);
-        definitions[35].setDisplayName("Detaled Plain Model");
+        definitions[35].setDisplayName("Table Structure Details");
         definitions[35].setGroup("Dev");
         definitions[35].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[35].setName("detailedPlainModel");
+        definitions[35].setName("tableStructureDetails");
         definitions[35].setPrimaryKey(false);
         definitions[35].setSecurityFilter("no");
         definitions[35].setSystem(false);

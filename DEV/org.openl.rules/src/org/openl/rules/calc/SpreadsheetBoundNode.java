@@ -80,7 +80,7 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             spreadsheet.getRowTitles(),
             spreadsheet.getColumnTitles(),
             getModule(),
-            spreadsheet.isDetailedPlainModel());
+            spreadsheet.isTableStructureDetails());
 
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
@@ -125,8 +125,8 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        spreadsheet.setDetailedPlainModel(
-            Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
+        spreadsheet.getTableStructureDetails(
+            Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
 
         if (spreadsheet.isCustomSpreadsheet()) {
             CustomSpreadsheetResultOpenClass type;

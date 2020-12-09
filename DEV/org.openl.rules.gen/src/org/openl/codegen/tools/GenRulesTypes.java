@@ -17,7 +17,7 @@ import org.apache.commons.lang.StringUtils;
 
 public final class GenRulesTypes {
 
-    private static Pattern CSV_PARSER = Pattern.compile("(?:^|,)\\s*(?:(?:\"((?:[^\"]|\"\")*)\")|(?:([^,\"\\n]*)))");
+    private static final Pattern CSV_PARSER = Pattern.compile("(?:^|,)\\s*(?:(?:\"((?:[^\"]|\"\")*)\")|(?:([^,\"\\n]*)))");
 
     public static void main(String[] args) throws Exception {
 

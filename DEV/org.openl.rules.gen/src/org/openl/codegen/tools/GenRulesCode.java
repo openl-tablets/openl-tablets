@@ -37,7 +37,6 @@ public final class GenRulesCode {
 
     private TablePropertyDefinition[] tablePropertyDefinitions;
     private ContextPropertyDefinition[] contextPropertyDefinitions;
-    private String[] tablePriorityRules;
 
     private TablePropertyDefinitionWrappers tablePropertyDefinitionWrappers;
     private TablePropertyValidatorsWrappers tablePropertyValidatorsWrappers;
@@ -123,9 +122,7 @@ public final class GenRulesCode {
         Map<String, Object> variables = new HashMap<>();
         variables.put("contextPropertyDefinitions", contextPropertyDefinitions);
 
-        String sourceFilePath = ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME;
-
-        processFile(sourceFilePath, "IRulesRuntimeContextUtils-properties.vm", variables);
+        processFile(ACTIVITI_IRULESRUNTIMECONTEXTUTILS_CLASSNAME, "IRulesRuntimeContextUtils-properties.vm", variables);
     }
 
     private void generateRulesCompileContextCode() throws IOException {
@@ -194,7 +191,7 @@ public final class GenRulesCode {
         contextPropertyDefinitions = loader.getContextDefinitions();
         contextPropertyDefinitionWrappers = new ContextPropertyDefinitionWrappers(contextPropertyDefinitions);
 
-        tablePriorityRules = loader.getTablesPriorityRules();
+        String[] tablePriorityRules = loader.getTablesPriorityRules();
         tablePriorityRuleWrappers = new TablePriorityRuleWrappers(tablePriorityRules);
     }
 
