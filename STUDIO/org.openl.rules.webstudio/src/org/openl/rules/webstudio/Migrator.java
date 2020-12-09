@@ -43,8 +43,10 @@ public class Migrator {
     }
 
     private static void rename(DynamicPropertySource settings, HashMap<String, String> props, String oldKey, String newKey) {
-        String value = (String) settings.getProperty(oldKey);
-        props.put(oldKey, null);
-        props.put(newKey, value);
+        if (settings.containsProperty(oldKey)) {
+            String value = (String) settings.getProperty(oldKey);
+            props.put(oldKey, null);
+            props.put(newKey, value);
+        }
     }
 }

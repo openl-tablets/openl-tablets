@@ -28,12 +28,12 @@ public class CommentValidator {
     }
 
     public static CommentValidator forDesignRepo() {
-        return new CommentValidator(Props.text("repository.design.comment-validation-pattern"),
-            Props.text("repository.design.invalid-comment-message"));
+        return new CommentValidator(Props.text("repository.design.comment-template.comment-validation-pattern"),
+            Props.text("repository.design.comment-template.invalid-comment-message"));
     }
 
     static CommentValidator forDeployConfigRepo() {
-        return new CommentValidator(Props.text("repository.deploy-config.comment-validation-pattern"),
-            Props.text("repository.deploy-config.invalid-comment-message"));
+        return new CommentValidator(Props.text("repository.deploy-config.comment-template.comment-validation-pattern"),
+            Props.text("repository.deploy-config.comment-template.invalid-comment-message"));
     }
 }
