@@ -29,7 +29,7 @@ public class TestTable {
         assertEquals(1, compiledOpenClass.getMessages().size());
         assertEquals("Field '$Value$no_such_field' is not found.", compiledOpenClass.getMessages().iterator().next().getSummary());
 
-        TestSuiteMethod hiTest = (TestSuiteMethod) openClass.getMethod("hiTest", new IOpenClass[0]);
+        TestSuiteMethod hiTest = (TestSuiteMethod) openClass.getMethod("hiTest", IOpenClass.EMPTY);
         assertNotNull(hiTest);
         assertTrue(hiTest.isRunmethodTestable());
     }
