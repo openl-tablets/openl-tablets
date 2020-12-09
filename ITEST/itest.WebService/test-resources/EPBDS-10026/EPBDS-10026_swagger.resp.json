@@ -73,11 +73,11 @@
         }
       }
     },
-    "/mySpr": {
+    "/arrSpreadsheetResult": {
       "post": {
-        "summary": "MySpr mySpr(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr",
+        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrSpreadsheetResult",
         "consumes": [
           "application/json"
         ],
@@ -98,74 +98,10 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "$ref": "#/definitions/MySpr"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/AnySpreadsheetResult"
               }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/mySpr2": {
-      "post": {
-        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "mySpr2",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/DefaultRulesRuntimeContext"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MySpr2"
             }
           },
           "422": {
@@ -277,11 +213,11 @@
         }
       }
     },
-    "/arrSpreadsheetResult": {
+    "/arrObjSpreadsheetResult": {
       "post": {
-        "summary": "AnySpreadsheetResult[] arrSpreadsheetResult(IRulesRuntimeContext)",
-        "description": "Method: org.openl.generated.spreadsheetresults.AnySpreadsheetResult[] arrSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrSpreadsheetResult",
+        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
+        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "arrObjSpreadsheetResult",
         "consumes": [
           "application/json"
         ],
@@ -304,7 +240,7 @@
             "schema": {
               "type": "array",
               "items": {
-                "$ref": "#/definitions/AnySpreadsheetResult"
+                "type": "object"
               }
             }
           },
@@ -347,11 +283,11 @@
         }
       }
     },
-    "/arrObjSpreadsheetResult": {
+    "/mySpr": {
       "post": {
-        "summary": "Object[] arrObjSpreadsheetResult(IRulesRuntimeContext)",
-        "description": "Method: java.lang.Object[] arrObjSpreadsheetResult(org.openl.rules.context.IRulesRuntimeContext)",
-        "operationId": "arrObjSpreadsheetResult",
+        "summary": "MySpr mySpr(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr mySpr(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr",
         "consumes": [
           "application/json"
         ],
@@ -372,10 +308,74 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "array",
-              "items": {
-                "type": "object"
+              "$ref": "#/definitions/MySpr"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
               }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/mySpr2": {
+      "post": {
+        "summary": "MySpr2 mySpr2(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.spreadsheetresults.MySpr2 mySpr2(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "mySpr2",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/DefaultRulesRuntimeContext"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MySpr2"
             }
           },
           "422": {
@@ -544,19 +544,19 @@
         "valueStep12": {
           "type": "boolean"
         },
-        "RowNames": {
+        "rowNames": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "ColumnNames": {
+        "columnNames": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "TableDetails": {
+        "tableDetails": {
           "type": "array",
           "items": {
             "type": "array",
@@ -700,19 +700,19 @@
           "type": "number",
           "format": "double"
         },
-        "RowNames": {
+        "rowNames": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "ColumnNames": {
+        "columnNames": {
           "type": "array",
           "items": {
             "type": "string"
           }
         },
-        "TableDetails": {
+        "tableDetails": {
           "type": "array",
           "items": {
             "type": "array",
@@ -968,12 +968,105 @@
         "country": {
           "type": "string",
           "enum": [
-            "AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN",
-            "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR",
-            "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU",
-            "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT",
-            "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW",
-            "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA"
+            "AE",
+            "AL",
+            "AR",
+            "AS",
+            "AT",
+            "AU",
+            "BA",
+            "BE",
+            "BG",
+            "BH",
+            "BO",
+            "BR",
+            "BY",
+            "CA",
+            "CH",
+            "CK",
+            "CL",
+            "CN",
+            "CO",
+            "CR",
+            "CS",
+            "CY",
+            "CZ",
+            "DE",
+            "DK",
+            "DO",
+            "DZ",
+            "EC",
+            "EE",
+            "EG",
+            "ES",
+            "FI",
+            "FJ",
+            "FR",
+            "GB",
+            "GR",
+            "GT",
+            "HK",
+            "HN",
+            "HR",
+            "HU",
+            "ID",
+            "IE",
+            "IL",
+            "IN",
+            "IQ",
+            "IS",
+            "IT",
+            "JO",
+            "JP",
+            "KW",
+            "LB",
+            "LT",
+            "LU",
+            "LV",
+            "MA",
+            "MK",
+            "MT",
+            "MX",
+            "MY",
+            "NI",
+            "NL",
+            "NO",
+            "NZ",
+            "OM",
+            "PA",
+            "PE",
+            "PG",
+            "PH",
+            "PL",
+            "PR",
+            "PT",
+            "PY",
+            "QA",
+            "RO",
+            "RU",
+            "SA",
+            "SB",
+            "SD",
+            "SE",
+            "SG",
+            "SI",
+            "SK",
+            "SV",
+            "SY",
+            "TH",
+            "TN",
+            "TO",
+            "TR",
+            "TW",
+            "UA",
+            "US",
+            "UY",
+            "VE",
+            "VN",
+            "VU",
+            "WS",
+            "YE",
+            "ZA"
           ]
         },
         "usRegion": {

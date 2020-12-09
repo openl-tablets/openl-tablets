@@ -53,7 +53,7 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
         return sb.toString();
     }
 
-    protected String transform(String defaultName, SpreadsheetCell spreadsheetCell) {
+    protected String transform(SpreadsheetCell spreadsheetCell) {
         if (spreadsheetCell.simpleRefByColumn()) {
             return transform(spreadsheetCell.column());
         } else if (spreadsheetCell.simpleRefByRow()) {
@@ -67,18 +67,28 @@ abstract class SpreadsheetResultBeanPropertyNamingStrategyBase extends PropertyN
     public String nameForField(MapperConfig<?> config, AnnotatedField field, String defaultName) {
         if (field.hasAnnotation(SpreadsheetCell.class)) {
             SpreadsheetCell spreadsheetCell = field.getAnnotation(SpreadsheetCell.class);
-            String ret = transform(defaultName, spreadsheetCell);
+            String ret = transform(spreadsheetCell);
             int c = 0;
             int duplicates = 0;
             for (Field f : field.getDeclaringClass().getDeclaredFields()) {
                 SpreadsheetCell sc = f.getAnnotation(SpreadsheetCell.class);
                 if (sc != null) {
-                    if (Objects.equals(ret, transform(defaultName, sc))) {
+                    if (Objects.equals(ret, transform(sc))) {
                         duplicates++;
                     }
                 }
             }
             return duplicates < 2 ? ret : defaultName;
+        }
+        boolean g = false;
+        for (Field f : field.getDeclaringClass().getDeclaredFields()) {
+            if (f.isAnnotationPresent(SpreadsheetCell.class)) {
+                g = true;
+                break;
+            }
+        }
+        if (g) {
+            return transform(defaultName);
         }
         return defaultName;
     }
