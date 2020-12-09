@@ -19,7 +19,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
 
-public class AProjectArtefact {
+public class AProjectArtefact implements IProjectArtefact {
     private AProject project;
     private Repository repository;
     private FileData fileData;

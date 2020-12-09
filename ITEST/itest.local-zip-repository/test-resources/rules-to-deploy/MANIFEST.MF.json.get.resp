@@ -1,0 +1,13 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "entries": {},
+    "mainAttributes": {
+        "Implementation-Title": "rules-to-deploy",
+        "Implementation-Version": "0.0.0-SNAPSHOT",
+        "Manifest-Version": "1.0",
+        "Implementation-Vendor": "OpenL Tablets"
+    }
+}
+

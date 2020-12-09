@@ -467,6 +467,13 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         }
     }
 
+    @Override
+    public void addFileData(FileData fileData) throws IOException {
+        updateConfigFile(fileData);
+        FileMappingData additionalData = fileData.getAdditionalData(FileMappingData.class);
+        fileData.setName(toExternal(getUpToDateMapping(true), additionalData.getInternalPath()));
+    }
+
     private Optional<ProjectInfo> findProject(ProjectIndex projectIndex, FileData data) {
         FileMappingData mappingData = data.getAdditionalData(FileMappingData.class);
         if (mappingData != null) {

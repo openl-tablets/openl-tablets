@@ -134,7 +134,7 @@ public abstract class AbstractSmartRedeployController {
             deployConfigName,
             null,
             folderStructure);
-        return deployment.getProject(wsProject.getName());
+        return (AProject) deployment.getProject(wsProject.getName());
     }
 
     private List<DeploymentProjectItem> getItems4Project(AProject project, String repositoryConfigName) {

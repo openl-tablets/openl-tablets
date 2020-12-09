@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.StandardOpenOption;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -63,8 +64,8 @@ public class ProjectDescriptorManager {
         return serializer.deserialize(source);
     }
 
-    public ProjectDescriptor readDescriptor(File file) throws IOException, ValidationException {
-        FileInputStream inputStream = new FileInputStream(file);
+    public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException {
+        InputStream inputStream = Files.newInputStream(file);
 
         ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
         IOUtils.closeQuietly(inputStream);
@@ -77,7 +78,7 @@ public class ProjectDescriptorManager {
 
     public ProjectDescriptor readDescriptor(String filename) throws IOException, ValidationException {
         File source = new File(filename);
-        return readDescriptor(source);
+        return readDescriptor(source.toPath());
     }
 
     public ProjectDescriptor readOriginalDescriptor(File filename) throws FileNotFoundException, ValidationException {
@@ -129,18 +130,18 @@ public class ProjectDescriptorManager {
         List<Module> modules = new ArrayList<>();
 
         String ptrn = pathPattern.trim();
-        Path rootPath = descriptor.getProjectFolder().toPath();
+        Path rootPath = descriptor.getProjectFolder();
 
         Files.walkFileTree(rootPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
                 String relativePath = rootPath.relativize(file).toString().replace("\\", "/");
                 if (isNotTemporaryFile(file) && pathMatcher.match(ptrn, relativePath)) {
-                    String moduleFile = file.toAbsolutePath().toString();
+                    Path modulePath = file.toAbsolutePath();
                     Module m = new Module();
                     m.setProject(descriptor);
-                    m.setRulesRootPath(new PathEntry(moduleFile));
-                    m.setName(FileUtils.getBaseName(moduleFile));
+                    m.setRulesRootPath(new PathEntry(relativePath));
+                    m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
                     m.setWildcardRulesRootPath(pathPattern);
                     m.setWildcardName(module.getName());
@@ -167,26 +168,19 @@ public class ProjectDescriptorManager {
         return true;
     }
 
-    private boolean containsInProcessedModules(Collection<Module> modules, Module m, File projectRoot) {
-        PathEntry pathEntry = m.getRulesRootPath();
-        if (!new File(m.getRulesRootPath().getPath()).isAbsolute()) {
-            pathEntry = new PathEntry(new File(projectRoot, m.getRulesRootPath().getPath()).getAbsolutePath());
-        }
+    private boolean containsInProcessedModules(Collection<Module> modules, Module m, Path projectRoot) {
+        final Path targetModulePath = projectRoot.resolve(m.getRulesRootPath().getPath());
 
         for (Module module : modules) {
-            PathEntry modulePathEntry = module.getRulesRootPath();
-            if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                modulePathEntry = new PathEntry(
-                    new File(projectRoot, module.getRulesRootPath().getPath()).getAbsolutePath());
-            }
-            if (pathEntry.getPath().equals(modulePathEntry.getPath())) {
+            Path modulePath = projectRoot.resolve(module.getRulesRootPath().getPath());
+            if (targetModulePath.equals(modulePath)) {
                 return true;
             }
         }
         return false;
     }
 
-    private void processModulePathPatterns(ProjectDescriptor descriptor, File projectRoot) throws IOException {
+    private void processModulePathPatterns(ProjectDescriptor descriptor, Path projectRoot) throws IOException {
         List<Module> modulesWasRead = descriptor.getModules();
         List<Module> processedModules = new ArrayList<>(modulesWasRead.size());
         // Process modules without wildcard path
@@ -214,8 +208,8 @@ public class ProjectDescriptorManager {
         descriptor.setModules(processedModules);
     }
 
-    private void postProcess(ProjectDescriptor descriptor, File projectDescriptorFile) throws IOException {
-        File projectRoot = projectDescriptorFile.getParentFile().getCanonicalFile();
+    private void postProcess(ProjectDescriptor descriptor, Path projectDescriptorFile) throws IOException {
+        Path projectRoot = projectDescriptorFile.getParent().toRealPath();
         descriptor.setProjectFolder(projectRoot);
         processModulePathPatterns(descriptor, projectRoot);
 
@@ -225,23 +219,24 @@ public class ProjectDescriptorManager {
                 module.setMethodFilter(new MethodFilter());
             }
             if (module.getMethodFilter().getExcludes() == null) {
-                module.getMethodFilter().setExcludes(new HashSet<String>());
+                module.getMethodFilter().setExcludes(new HashSet<>());
             } else {
                 // Remove empty nodes
                 module.getMethodFilter().getExcludes().removeAll(Arrays.asList("", null));
             }
 
             if (module.getMethodFilter().getIncludes() == null) {
-                module.getMethodFilter().setIncludes(new HashSet<String>());
+                module.getMethodFilter().setIncludes(new HashSet<>());
             } else {
                 // Remove empty nodes
                 module.getMethodFilter().getIncludes().removeAll(Arrays.asList("", null));
             }
 
-            if (!new File(module.getRulesRootPath().getPath()).isAbsolute()) {
-                PathEntry absolutePath = new PathEntry(
-                    new File(projectRoot, module.getRulesRootPath().getPath()).getCanonicalFile().getAbsolutePath());
-                module.setRulesRootPath(absolutePath);
+            Path modulePath = Paths.get(module.getRulesRootPath().getPath());
+            if (modulePath.isAbsolute()) {
+                modulePath = projectRoot.relativize(modulePath);
+                PathEntry relativePath = new PathEntry(modulePath.toString());
+                module.setRulesRootPath(relativePath);
             }
         }
     }

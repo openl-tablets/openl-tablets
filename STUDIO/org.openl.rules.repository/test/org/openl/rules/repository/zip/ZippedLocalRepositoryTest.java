@@ -69,7 +69,7 @@ public class ZippedLocalRepositoryTest {
         singleDeployment.put("rules.xml", "foo".getBytes());
         singleDeployment.put("rules/Algorithm.xlsx", "bar".getBytes());
         singleDeployment.put("rules/dir/", null);
-        generateZipFile("", "singleDeployment.zip", singleDeployment);
+        generateZipFile("", "singleDeployment", singleDeployment);
         this.singleDeployment = Collections.unmodifiableMap(singleDeployment);
 
         Map<String, byte[]> multiDeployment = new HashMap<>();
@@ -111,14 +111,14 @@ public class ZippedLocalRepositoryTest {
         List<FileData> fileDataRoot = repository.listFolders("/");
         assertEquals(2, fileDataRoot.size());
         Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
-        assertExistsFolderFileData(fileMap.get("singleDeployment.zip"));
+        assertExistsFolderFileData(fileMap.get("singleDeployment"));
         assertExistsFolderFileData(fileMap.get("multiDeployment.zip"));
 
         //test project folders
-        fileDataRoot = repository.listFolders("/singleDeployment.zip");
+        fileDataRoot = repository.listFolders("/singleDeployment");
         assertEquals(1, fileDataRoot.size());
         fileMap = flatMap(fileDataRoot, FileData::getName);
-        assertExistsFolderFileData(fileMap.get("singleDeployment.zip/rules"));
+        assertExistsFolderFileData(fileMap.get("singleDeployment/rules"));
 
         fileDataRoot = repository.listFolders("/multiDeployment.zip");
         assertEquals(2, fileDataRoot.size());
@@ -130,11 +130,11 @@ public class ZippedLocalRepositoryTest {
     @Test
     public void listFilesTest() throws IOException {
         //test folder files
-        List<FileData> fileDataRoot = repository.listFiles("/singleDeployment.zip", null);
+        List<FileData> fileDataRoot = repository.listFiles("/singleDeployment", null);
         assertEquals(2, fileDataRoot.size());
         Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
-        assertExistsFileData(fileMap.get("singleDeployment.zip/rules.xml"));
-        assertExistsFileData(fileMap.get("singleDeployment.zip/rules/Algorithm.xlsx"));
+        assertExistsFileData(fileMap.get("singleDeployment/rules.xml"));
+        assertExistsFileData(fileMap.get("singleDeployment/rules/Algorithm.xlsx"));
 
         fileDataRoot = repository.listFiles("/multiDeployment.zip/project1", null);
         assertEquals(2, fileDataRoot.size());
@@ -154,8 +154,8 @@ public class ZippedLocalRepositoryTest {
         List<FileData> fileDataRoot = repository.list("/");
         assertEquals(6, fileDataRoot.size());
         Map<String, FileData> fileMap = flatMap(fileDataRoot, FileData::getName);
-        assertExistsFileData(fileMap.get("singleDeployment.zip/rules.xml"));
-        assertExistsFileData(fileMap.get("singleDeployment.zip/rules/Algorithm.xlsx"));
+        assertExistsFileData(fileMap.get("singleDeployment/rules.xml"));
+        assertExistsFileData(fileMap.get("singleDeployment/rules/Algorithm.xlsx"));
         assertExistsFileData(fileMap.get("multiDeployment.zip/project1/rules.xml"));
         assertExistsFileData(fileMap.get("multiDeployment.zip/project1/rules/Algorithm1.xlsx"));
         assertExistsFileData(fileMap.get("multiDeployment.zip/project2/rules.xml"));
@@ -164,8 +164,8 @@ public class ZippedLocalRepositoryTest {
 
     @Test
     public void readTest() throws IOException {
-        assertSingleDeployment("/singleDeployment.zip/rules.xml", "rules.xml");
-        assertSingleDeployment("/singleDeployment.zip/rules/Algorithm.xlsx", "rules/Algorithm.xlsx");
+        assertSingleDeployment("/singleDeployment/rules.xml", "rules.xml");
+        assertSingleDeployment("/singleDeployment/rules/Algorithm.xlsx", "rules/Algorithm.xlsx");
         assertMultiDeployment("/multiDeployment.zip/project1/rules.xml", "project1/rules.xml");
         assertMultiDeployment("/multiDeployment.zip/project1/rules/Algorithm1.xlsx", "project1/rules/Algorithm1.xlsx");
         assertMultiDeployment("/multiDeployment.zip/project2/rules.xml", "project2/rules.xml");
@@ -175,24 +175,24 @@ public class ZippedLocalRepositoryTest {
     @Test
     public void initializationTest() throws IOException {
         try {
-            configureZipRepository("");
-            fail("Ooops...");
+            configureZipRepository("", null);
+            configureZipRepository("target\\test-zip-repository\\singleDeployment", null);
         } catch (IllegalStateException e) {
-            assertEquals("An archive name cannot be blank!", e.getMessage());
+            fail("Ooops...");
         }
 
         try {
-            configureZipRepository("multiDeployment.zip", "MuLtIdEpLoYmEnT.zip");
+            configureZipRepository("multiDeployment.zip", "multiDeployment.zip");
             fail("Ooops...");
         } catch (IllegalStateException e) {
-            assertEquals("An archive name [MuLtIdEpLoYmEnT.zip] is duplicated!", e.getMessage());
+            assertEquals("An archive name [multiDeployment.zip] is duplicated!", e.getMessage());
         }
 
         try {
             configureZipRepository("/multiDeployment.zip");
             fail("Ooops...");
         } catch (IllegalStateException e) {
-            assertEquals("An archive name [/multiDeployment.zip] must not contain characters of path separator!", e.getMessage());
+            assertEquals("The path [/multiDeployment.zip] does not exist.", e.getMessage());
         }
 
         try {
@@ -251,10 +251,10 @@ public class ZippedLocalRepositoryTest {
         assertExistsFolderFileData(fileMap.get("multiDeployment.zip/project2"));
 
         try {
-            repository.listFiles("/singleDeployment.zip", null);
+            repository.listFiles("/singleDeployment", null);
             fail("Ooops...");
         } catch (IOException e) {
-            assertEquals("Unable to resolve the path [/singleDeployment.zip].", e.getMessage());
+            assertEquals("Unable to resolve the path [/singleDeployment].", e.getMessage());
         }
     }
 

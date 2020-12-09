@@ -13,10 +13,10 @@ import java.util.jar.Manifest;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IDeployment;
+import org.openl.rules.project.abstraction.IProject;
+import org.openl.rules.project.abstraction.IProjectArtefact;
+import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
@@ -52,18 +52,18 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
     public final Collection<ServiceDescription> getServicesToBeDeployed(RuleServiceLoader ruleServiceLoader) {
         log.debug("Calculate services to be deployed...");
 
-        Collection<Deployment> deployments = ruleServiceLoader.getDeployments();
+        Collection<IDeployment> deployments = ruleServiceLoader.getDeployments();
 
         Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
         Set<String> serviceURLs = new HashSet<>();
-        for (Deployment deployment : deployments) {
+        for (IDeployment deployment : deployments) {
             if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
                 continue;
             }
             String deploymentName = deployment.getDeploymentName();
             CommonVersion deploymentVersion = deployment.getCommonVersion();
             DeploymentDescription deploymentDescription = new DeploymentDescription(deploymentName, deploymentVersion);
-            for (AProject project : deployment.getProjects()) {
+            for (IProject project : deployment.getProjects()) {
                 if (project.isDeleted()) {
                     continue;
                 }
@@ -82,9 +82,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                     if (!modulesOfProject.isEmpty()) {
                         RulesDeploy rulesDeploy = null;
                         try {
-                            AProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
-                            if (artifact instanceof AProjectResource) {
-                                AProjectResource resource = (AProjectResource) artifact;
+                            IProjectArtefact artifact = project.getArtefact(RULES_DEPLOY_XML);
+                            if (artifact instanceof IProjectResource) {
+                                IProjectResource resource = (IProjectResource) artifact;
                                 try (InputStream content = resource.getContent()) {
                                     rulesDeploy = getRulesDeploySerializer().deserialize(content);
                                     serviceDescriptionBuilder.setRulesDeploy(rulesDeploy);
@@ -174,11 +174,11 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         return serviceDescriptions;
     }
 
-    private Manifest readManifestFile(AProject project) {
+    private Manifest readManifestFile(IProject project) {
         try {
-            AProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
-            if (artifact instanceof AProjectResource) {
-                try (InputStream content = ((AProjectResource) artifact).getContent()) {
+            IProjectArtefact artifact = project.getArtefact(JarFile.MANIFEST_NAME);
+            if (artifact instanceof IProjectResource) {
+                try (InputStream content = ((IProjectResource) artifact).getContent()) {
                     return new Manifest(content);
                 }
             }
@@ -216,7 +216,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         return true;
     }
 
-    private String buildServiceName(Deployment deployment, String projectName, RulesDeploy rulesDeploy) {
+    private String buildServiceName(IDeployment deployment, String projectName, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
             if (StringUtils.isNotEmpty(rulesDeploy.getServiceName())) {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {
@@ -234,7 +234,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         return deployment.getDeploymentName() + '_' + projectName;
     }
 
-    private String buildServiceUrl(Deployment deployment, String projectName, RulesDeploy rulesDeploy) {
+    private String buildServiceUrl(IDeployment deployment, String projectName, RulesDeploy rulesDeploy) {
         if (rulesDeploy != null) {
             if (StringUtils.isNotEmpty(rulesDeploy.getUrl())) {
                 if (StringUtils.isNotEmpty(rulesDeploy.getVersion())) {

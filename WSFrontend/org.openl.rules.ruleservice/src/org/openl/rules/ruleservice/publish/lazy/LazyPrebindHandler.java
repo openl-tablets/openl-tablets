@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
-import java.io.File;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Collection;
 import java.util.Map;
 
@@ -171,13 +170,11 @@ class LazyPrebindHandler implements IPrebindHandler {
         if (modules.size() == 1) {
             return modules.iterator().next();
         }
+        //FIXME is it unreachable code?
         for (Module module : modules) {
-            String modulePath = module.getRulesRootPath().getPath();
+            Path modulePath = module.getRulesPath();
             try {
-                if (Paths.get(sourceUrl)
-                    .normalize()
-                    .equals(Paths.get(new File(modulePath).getCanonicalFile().toURI().toURL().toExternalForm())
-                        .normalize())) {
+                if (sourceUrl.equals(modulePath.toRealPath().toUri().toURL().toExternalForm())) {
                     return module;
                 }
             } catch (Exception e) {

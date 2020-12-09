@@ -10,7 +10,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 
-public class AProjectResource extends AProjectArtefact {
+public class AProjectResource extends AProjectArtefact implements IProjectResource {
     private ResourceTransformer resourceTransformer;
 
     public AProjectResource(AProject project, Repository repository, FileData fileData) {

@@ -2,7 +2,6 @@ package org.openl.itest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
@@ -14,7 +13,7 @@ public class RunLocalZippedRepositoryTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.start();
+        server = JettyServer.startSharingClassLoader();
         client = server.client();
     }
 
@@ -24,15 +23,17 @@ public class RunLocalZippedRepositoryTest {
     }
 
     @Test
-    @Ignore
     public void testSingleProjectDeployment() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
+        client.send("simple-jar/doSomething.json.post");
+        client.send("rules-to-deploy/MANIFEST.MF.json.get");
     }
 
     @Test
     public void testMultiProjectDeployment() {
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
         client.post("/yaml-project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
+        client.send("multiproject/multiproject.findCarByVIN.post");
     }
 
 }

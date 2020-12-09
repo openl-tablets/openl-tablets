@@ -1,5 +1,6 @@
 package org.openl.rules.project.model;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 public class Module {
@@ -53,6 +54,10 @@ public class Module {
 
     public PathEntry getRulesRootPath() {
         return rulesRootPath;
+    }
+
+    public Path getRulesPath() {
+        return project.getProjectFolder().resolve(rulesRootPath.getPath()).toAbsolutePath();
     }
 
     public void setRulesRootPath(PathEntry rulesRootPath) {

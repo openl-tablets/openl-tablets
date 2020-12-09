@@ -23,7 +23,7 @@ import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AProjectFolder extends AProjectArtefact {
+public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
     private static final Logger LOG = LoggerFactory.getLogger(AProject.class);
 
     private Map<String, AProjectArtefact> artefacts;

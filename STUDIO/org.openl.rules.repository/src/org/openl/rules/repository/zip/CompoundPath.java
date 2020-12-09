@@ -11,15 +11,17 @@ class CompoundPath {
 
     static final String PATH_SEPARATOR = "/";
 
+    private final Path root;
     private final Path resolvedPath;
     private final Path pathToArchive;
     private BasicFileAttributes attributes;
 
-    CompoundPath(Path resolvedPath, Path pathToArchive) {
-        this(resolvedPath, pathToArchive, null);
+    CompoundPath(Path root, Path resolvedPath, Path pathToArchive) {
+        this(root, resolvedPath, pathToArchive, null);
     }
 
-    CompoundPath(Path resolvedPath, Path pathToArchive, BasicFileAttributes attributes) {
+    CompoundPath(Path root, Path resolvedPath, Path pathToArchive, BasicFileAttributes attributes) {
+        this.root = Objects.requireNonNull(root);
         this.resolvedPath = Objects.requireNonNull(resolvedPath);
         this.pathToArchive = pathToArchive;
         this.attributes = attributes;
@@ -48,6 +50,10 @@ class CompoundPath {
         return getAttributes().isRegularFile();
     }
 
+    boolean exists() {
+        return Files.exists(resolvedPath);
+    }
+
     Date getModifiedAt() throws IOException {
         return new Date(getAttributes().lastModifiedTime().toMillis());
     }
@@ -56,7 +62,7 @@ class CompoundPath {
         return getAttributes().size();
     }
 
-    String relativize(Path root) {
+    String relativize() {
         String name;
         if (pathToArchive == null) {
             name = root.relativize(resolvedPath)
@@ -73,4 +79,7 @@ class CompoundPath {
         return name.replace('\\', PATH_SEPARATOR.charAt(0));
     }
 
+    public Path getRoot() {
+        return root;
+    }
 }
