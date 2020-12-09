@@ -182,10 +182,10 @@ public class ZippedLocalRepositoryTest {
         }
 
         try {
-            configureZipRepository("multiDeployment.zip", "MuLtIdEpLoYmEnT.zip");
+            configureZipRepository("multiDeployment.zip", "multiDeployment.zip");
             fail("Ooops...");
         } catch (IllegalStateException e) {
-            assertEquals("An archive name [MuLtIdEpLoYmEnT.zip] is duplicated!", e.getMessage());
+            assertEquals("An archive name [multiDeployment.zip] is duplicated!", e.getMessage());
         }
 
         try {
