@@ -39,7 +39,7 @@ public class ProjectResourceLoader {
                 ResolvingStrategy resolvingStrategy = ProjectResolver.getInstance().isRulesProject(projectFolder);
                 if (resolvingStrategy != null) {
                     try {
-                        ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder);
+                        ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder.toPath());
                         URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[] { url });
                         URL resourceURL = urlClassLoader1.getResource(name);
                         if (resourceURL != null) {

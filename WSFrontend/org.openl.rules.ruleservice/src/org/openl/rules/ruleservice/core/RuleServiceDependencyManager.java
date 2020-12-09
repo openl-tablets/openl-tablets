@@ -17,10 +17,10 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.IRulesDeploySerializer;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
-import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IDeployment;
+import org.openl.rules.project.abstraction.IProject;
+import org.openl.rules.project.abstraction.IProjectArtefact;
+import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.project.instantiation.AbstractDependencyManager;
 import org.openl.rules.project.instantiation.DependencyLoaderInitializationException;
 import org.openl.rules.project.instantiation.IDependencyLoader;
@@ -149,10 +149,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     @Override
     protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
         Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
-        Deployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
+        IDeployment rslDeployment = ruleServiceLoader.getDeployment(deployment.getName(), deployment.getVersion());
         String deploymentName = rslDeployment.getDeploymentName();
         CommonVersion deploymentVersion = rslDeployment.getCommonVersion();
-        for (AProject aProject : rslDeployment.getProjects()) {
+        for (IProject aProject : rslDeployment.getProjects()) {
             String projectName = aProject.getName();
             try {
                 Collection<Module> modules = ruleServiceLoader
@@ -165,10 +165,10 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
                     InputStream content = null;
                     RulesDeploy rulesDeploy;
                     try {
-                        AProjectArtefact artifact = aProject
+                        IProjectArtefact artifact = aProject
                             .getArtefact(LastVersionProjectsServiceConfigurer.RULES_DEPLOY_XML);
-                        if (artifact instanceof AProjectResource) {
-                            AProjectResource resource = (AProjectResource) artifact;
+                        if (artifact instanceof IProjectResource) {
+                            IProjectResource resource = (IProjectResource) artifact;
                             content = resource.getContent();
                             rulesDeploy = getRulesDeploySerializer().deserialize(content);
                             RulesDeploy.WildcardPattern[] compilationPatterns = rulesDeploy

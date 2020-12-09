@@ -1,14 +1,15 @@
 package org.openl.util;
 
-import org.junit.Assert;
-import org.junit.Test;
-
 import java.io.File;
 import java.math.BigInteger;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
+import org.junit.Assert;
+import org.junit.Test;
+
 public class ObjectUtilsTest {
+
     @Test
     public void convertTest() {
         Assert.assertNull(ObjectUtils.convert(null, Object.class));
@@ -25,5 +26,8 @@ public class ObjectUtilsTest {
         Assert.assertEquals(RoundingMode.UP, ObjectUtils.convert("UP", RoundingMode.class));
         Assert.assertEquals(LocalDateTime.parse("2020-07-12T12:24:59"), ObjectUtils.convert("2020-07-12T12:24:59", LocalDateTime.class));
         Assert.assertEquals(new File("."), ObjectUtils.convert(".", File.class));
+        Assert.assertArrayEquals(new int[]{1, 2, 3, 4, 5}, (int[]) ObjectUtils.convert("1,2,3,4,5", int[].class));
+        Assert.assertArrayEquals(new Double[]{1.1d, 2.2d, 3.3d, 4.4d, 5d}, (Double[]) ObjectUtils.convert("1.1,2.2,3.3,4.4,5", Double[].class));
+        Assert.assertArrayEquals(new String[]{"foo", " bar  "}, (String[]) ObjectUtils.convert("foo, bar  ", String[].class));
     }
 }

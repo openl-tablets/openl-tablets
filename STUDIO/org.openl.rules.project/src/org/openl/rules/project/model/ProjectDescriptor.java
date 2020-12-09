@@ -1,22 +1,33 @@
 package org.openl.rules.project.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.util.AntPathMatcher;
 
 public class ProjectDescriptor {
     private String id;
     private String name;
     private String comment;
-    private File projectFolder;
+    private Path projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
     private OpenAPI openapi;
@@ -49,11 +60,11 @@ public class ProjectDescriptor {
         this.dependencies = dependencies;
     }
 
-    public File getProjectFolder() {
+    public Path getProjectFolder() {
         return projectFolder;
     }
 
-    public void setProjectFolder(File projectRoot) {
+    public void setProjectFolder(Path projectRoot) {
         this.projectFolder = projectRoot;
     }
 
@@ -119,7 +130,7 @@ public class ProjectDescriptor {
         }
         URL projectUrl;
         try {
-            projectUrl = projectFolder.toURI().normalize().toURL();
+            projectUrl = projectFolder.toUri().normalize().toURL();
         } catch (MalformedURLException e) {
             return new URL[] {};
         }
@@ -135,6 +146,21 @@ public class ProjectDescriptor {
             } catch (URISyntaxException | MalformedURLException e1) {
                 try {
                     url = new URL(projectUrl, path).toURI().normalize().toURL();
+                    //FIXME
+                    if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+                        try {
+                            Path temp = Files.createTempFile(FileUtils.getBaseName(path), FileUtils.getExtension(path));
+                            temp.toFile().deleteOnExit();
+                            try (InputStream is = url.openStream()) {
+                                Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+                            }
+                            url = temp.toUri().normalize().toURL();
+                        } catch (FileNotFoundException ignored) {
+                            //do nothing. It's OK
+                        } catch (IOException e) {
+                            throw RuntimeExceptionWrapper.wrap(e);
+                        }
+                    }
                 } catch (URISyntaxException | MalformedURLException e2) {
                     continue;
                 }
@@ -168,7 +194,7 @@ public class ProjectDescriptor {
                     if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
                         processedClasspath.add(path + "/");
-                    } else if (new File(projectFolder, path).isDirectory()) {
+                    } else if (Files.isDirectory(projectFolder.resolve(path))) {
                         // it is a folder
                         processedClasspath.add(path + "/");
                     } else {
@@ -181,20 +207,24 @@ public class ProjectDescriptor {
         return processedClasspath;
     }
 
-    private void check(File folder, Collection<String> matched, String pathPattern, File rootFolder) {
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    check(file, matched, pathPattern, rootFolder);
-                } else {
-                    String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
+    private void check(Path folder, Collection<String> matched, String pathPattern, Path rootFolder) {
+        try {
+            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    if (attrs.isDirectory()) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    String relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
                     if (new AntPathMatcher().match(pathPattern, relativePath)) {
                         matched.add(relativePath);
                     }
+                    return FileVisitResult.CONTINUE;
                 }
-            }
+            });
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
         }
     }
 }

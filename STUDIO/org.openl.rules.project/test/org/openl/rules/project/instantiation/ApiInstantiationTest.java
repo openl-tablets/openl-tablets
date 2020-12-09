@@ -19,15 +19,15 @@ import org.openl.runtime.IEngineWrapper;
 public class ApiInstantiationTest {
 
     @Test
-    public void testXlsWithErrors() throws ClassNotFoundException {
+    public void testXlsWithErrors() {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName("project1");
-        project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test-resources/excel/"));
+        project.setClasspath(new ArrayList<>());
+        project.setProjectFolder(new File("test-resources/excel/").toPath());
         Module module = new Module();
         module.setName("Rules2");
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test-resources/excel/Rules2.xls"));
+        module.setRulesRootPath(new PathEntry("Rules2.xls"));
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
@@ -46,12 +46,12 @@ public class ApiInstantiationTest {
     public void testInterface() throws Exception {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName("project1");
-        project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test-resources/excel/"));
+        project.setClasspath(new ArrayList<>());
+        project.setProjectFolder(new File("test-resources/excel/").toPath());
         Module module = new Module();
         module.setName("Rules");
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test-resources/excel/Rules.xls"));
+        module.setRulesRootPath(new PathEntry("Rules.xls"));
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections

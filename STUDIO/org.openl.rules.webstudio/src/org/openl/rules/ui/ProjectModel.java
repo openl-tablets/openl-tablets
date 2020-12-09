@@ -431,7 +431,7 @@ public class ProjectModel {
         }
 
         if (isModified()) {
-            getLocalRepository().getProjectState(moduleInfo.getRulesRootPath().getPath()).notifyModified();
+            getLocalRepository().getProjectState(moduleInfo.getRulesPath().toString()).notifyModified();
             return true;
         }
         return false;
@@ -961,7 +961,7 @@ public class ProjectModel {
             idTableCache.clear();
         }
 
-        File projectFolder = moduleInfo.getProject().getProjectFolder();
+        File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
         if (reloadType == ReloadType.FORCED) {
             ProjectResolver projectResolver = studio.getProjectResolver();
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
@@ -1069,7 +1069,7 @@ public class ProjectModel {
             return false;
         }
         long modificationTime = moduleLastModified;
-        moduleLastModified = new File(moduleInfo.getRulesRootPath().getPath()).lastModified();
+        moduleLastModified = moduleInfo.getRulesPath().toFile().lastModified();
         return modificationTime != moduleLastModified;
     }
 

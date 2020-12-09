@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.lang.reflect.Method;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -23,6 +24,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IProject;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.SimpleDependencyManager;
 import org.openl.rules.project.model.Module;
@@ -109,8 +111,9 @@ public class ServiceInterfaceMethodInterceptingTest {
         projectDescriptor.setName("service");
         modules.add(module);
         projectDescriptor.setModules(modules);
+        projectDescriptor.setProjectFolder(Paths.get("./test-resources/ServiceInterfaceMethodInterceptingTest").toAbsolutePath());
         module.setProject(projectDescriptor);
-        module.setRulesRootPath(new PathEntry("./test-resources/ServiceInterfaceMethodInterceptingTest/Overload.xls"));
+        module.setRulesRootPath(new PathEntry("Overload.xls"));
 
         serviceDescription = new ServiceDescription.ServiceDescriptionBuilder()
             .setServiceClassName(OverloadInterface.class.getName())
@@ -129,7 +132,7 @@ public class ServiceInterfaceMethodInterceptingTest {
             deploymentDescription.getVersion(),
             projectDescriptor.getName())).thenReturn(modules);
         Deployment deployment = mock(Deployment.class);
-        List<AProject> projects = new ArrayList<>();
+        List<IProject> projects = new ArrayList<>();
         AProject project = mock(AProject.class);
         projects.add(project);
         when(project.getName()).thenReturn("service");

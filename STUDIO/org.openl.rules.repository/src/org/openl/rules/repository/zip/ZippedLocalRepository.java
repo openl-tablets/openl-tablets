@@ -5,12 +5,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.RandomAccessFile;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
@@ -21,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -49,22 +50,31 @@ import org.openl.util.StringUtils;
  */
 public class ZippedLocalRepository implements FolderRepository, RRepositoryFactory, Closeable  {
 
-    private static final Pattern PATH_SEP = Pattern.compile("[\\\\/]");
-    private static final String ZIP_EXT = "zip";
+    private static final int REGULAR_ARCHIVE_FILE_SIGN = 0x504B0304;
+    private static final int EMPTY_ARCHIVE_FILE_SIGN = 0x504B0506;
+    private static final int SPANNED_ARCHIVE_FILE_SIGN = 0x504B0708;
 
     private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
 
-    private static boolean zipArchiveFilter(Path path) {
+    /**
+     * Verifies if it's an archive
+     * @see <a href="https://en.wikipedia.org/wiki/List_of_file_signatures">List of file signatures</a>
+     *
+     * @param path path to archive
+     * @return {@code true} if it's archive, otherwise {@code false}
+     */
+    public static boolean zipArchiveFilter(Path path) {
         if (!Files.isRegularFile(path)) {
             return false;
         }
-        String name = path.getFileName().toString();
-        int idx = name.lastIndexOf('.');
-        if (idx > -1) {
-            String extension = name.substring(idx + 1);
-            return ZIP_EXT.equals(extension);
+        try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
+            int sign = raf.readInt();
+            return sign == REGULAR_ARCHIVE_FILE_SIGN
+                    || sign == EMPTY_ARCHIVE_FILE_SIGN
+                    || sign == SPANNED_ARCHIVE_FILE_SIGN;
+        } catch (Exception ignored) {
+            return false;
         }
-        return false;
     }
 
     private String uri;
@@ -86,22 +96,27 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         }
         final Map<String, Path> localStorage = new HashMap<>();
         if (archives != null && archives.length > 0) {
-            for (String archiveName : archives) {
-                if (StringUtils.isBlank(archiveName)) {
-                    throw new IllegalStateException("An archive name cannot be blank!");
+            for (String archive : archives) {
+                if (StringUtils.isBlank(archive)) {
+                    continue;
                 }
-                if (localStorage.containsKey(archiveName.toLowerCase())) {
-                    throw new IllegalStateException(String.format("An archive name [%s] is duplicated!", archiveName));
-                }
-                if (PATH_SEP.matcher(archiveName).find()) {
-                    throw new IllegalStateException(String.format("An archive name [%s] must not contain characters of path separator!", archiveName));
-                }
-                Path pathToArchive = root.resolve(archiveName);
-                if (!Files.exists(pathToArchive)) {
-                    throw new IllegalStateException(String.format("The path [%s] does not exist.", archiveName));
+                archive = archive.trim().replace('\\', '/');
+                Path pathToArchive = Paths.get(archive);
+                boolean exists = Files.exists(pathToArchive);
+                boolean isArchive = exists && zipArchiveFilter(pathToArchive);
+                if (!pathToArchive.isAbsolute() && (!exists || !isArchive)) {
+                    //if path is not absolute, try to resolve it from root folder
+                    pathToArchive = root.resolve(archive);
+                    if (!Files.exists(pathToArchive) && !exists) {
+                        throw new IllegalStateException(String.format("The path [%s] does not exist.", archive));
+                    }
                 }
                 if (!zipArchiveFilter(pathToArchive)) {
-                    throw new IllegalStateException(String.format("[%s] is not archive.", archiveName));
+                    throw new IllegalStateException(String.format("[%s] is not archive.", archive));
+                }
+                String archiveName = pathToArchive.getFileName().toString();
+                if (localStorage.containsKey(archiveName.toLowerCase())) {
+                    throw new IllegalStateException(String.format("An archive name [%s] is duplicated!", archiveName));
                 }
                 localStorage.put(archiveName.toLowerCase(), pathToArchive);
             }
@@ -160,32 +175,35 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     public List<FileData> list(String path) throws IOException {
         LinkedList<FileData> files = new LinkedList<>();
         CompoundPath resolvedPath = resolvePath(path);
+        if (zipArchiveFilter(resolvedPath.getPath())) {
+            resolvedPath = new CompoundPath(resolvedPath.getRoot(), enterZipArchive(resolvedPath.getPath()), resolvedPath.getPath());
+        }
         if (!resolvedPath.isDirectory()) {
             return files;
         }
         if (resolvedPath.getPath().equals(root)) {
             for (Path p : storage.values()) {
-                listFiles(files, null, p);
+                listFiles(files, p.getParent(), null, p);
             }
         } else {
-            listFiles(files, resolvedPath.getPathToArchive(), resolvedPath.getPath());
+            listFiles(files, resolvedPath.getRoot(), resolvedPath.getPathToArchive(), resolvedPath.getPath());
         }
         return files;
     }
 
-    private void listFiles(List<FileData> files, Path pathToArchive, Path resolvedPath) throws IOException {
+    private void listFiles(List<FileData> files, Path root, Path pathToArchive, Path resolvedPath) throws IOException {
         Files.walkFileTree(resolvedPath, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
                 if (pathToArchive == null && zipArchiveFilter(p)) {
                     try {
                         Path zip = enterZipArchive(p);
-                        listFiles(files, p, zip);
+                        listFiles(files, root, p, zip);
                     } catch (IOException ignored) {
                         //it's not an archive
                     }
                 } else {
-                    CompoundPath cp = new CompoundPath(p, pathToArchive, attr);
+                    CompoundPath cp = new CompoundPath(root, p, pathToArchive, attr);
                     FileData data = getFileData(cp);
                     files.add(data);
                 }
@@ -196,9 +214,10 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     private FileData getFileData(CompoundPath path) throws IOException {
         FileData data = new FileData();
-        data.setName(path.relativize(root));
+        data.setName(path.relativize());
         data.setModifiedAt(path.getModifiedAt());
         data.setSize(path.getSize());
+        data.setPath(path.getPath());
         return data;
     }
 
@@ -206,20 +225,28 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     @Override
     public List<FileData> listFolders(String path) throws IOException {
         List<FileData> files = new LinkedList<>();
-        final CompoundPath resolvedPath = resolvePath(path);
+        CompoundPath resolvedPath = resolvePath(path);
+        if (zipArchiveFilter(resolvedPath.getPath())) {
+            resolvedPath = new CompoundPath(resolvedPath.getRoot(),
+                    enterZipArchive(resolvedPath.getPath()),
+                    resolvedPath.getPath());
+        }
         if (!resolvedPath.isDirectory()) {
             return files;
         }
-        Stream<Path> stream = resolvedPath.getPath().equals(root) ? storage.values().stream()
-                : Files.walk(resolvedPath.getPath(), 1).filter(p -> !resolvedPath.getPath().equals(p));
+        final Path walkRoot = resolvedPath.getPath();
+        Stream<Path> stream = walkRoot.equals(root) ? storage.values().stream()
+                : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p));
         List<Path> found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p))
                 .collect(Collectors.toList());
         for (Path p : found) {
-            CompoundPath cp = new CompoundPath(p, resolvedPath.getPathToArchive());
+            CompoundPath cp = new CompoundPath(walkRoot.equals(root) ? p.getParent() : resolvedPath.getRoot(), p,
+                    resolvedPath.getPathToArchive());
             FileData data = new FileData();
-            data.setName(cp.relativize(root));
+            data.setName(cp.relativize());
             data.setModifiedAt(cp.getModifiedAt());
             data.setVersion(String.valueOf(getHashVersion(p)));
+            data.setPath(cp.getPath());
             files.add(data);
         }
         return files;
@@ -227,21 +254,28 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     private CompoundPath resolvePath(String p) throws IOException {
         if (StringUtils.isEmpty(p) || CompoundPath.PATH_SEPARATOR.equals(p)) {
-            return new CompoundPath(root, null);
+            return new CompoundPath(root, root, null);
         }
         Path resolvedPath = root;
         Path archivePath = null;
+        Path localRoot = null;
         String[] folderNames = p.split(CompoundPath.PATH_SEPARATOR);
         int i = 0;
         for (String folderName : folderNames) {
             if (StringUtils.isEmpty(folderName)) {
                 continue;
             }
-            resolvedPath = i == 0 ? storage.get(folderName.toLowerCase()) : resolvedPath.resolve(folderName);
+            if (i == 0) {
+                resolvedPath = storage.get(folderName.toLowerCase());
+                localRoot = resolvedPath != null ? resolvedPath.getParent() : null;
+            } else {
+                resolvedPath = resolvedPath.resolve(folderName);
+            }
             if (resolvedPath == null) {
                 throw new IOException(String.format("Unable to resolve the path [%s].", p));
             }
-            if (archivePath == null && zipArchiveFilter(resolvedPath)) {
+            //don't enter an archive if it's the last token in the path
+            if (i < folderNames.length - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
                 try {
                     Path tmp = resolvedPath;
                     resolvedPath = enterZipArchive(resolvedPath);
@@ -255,7 +289,7 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
         if ((archivePath != null && !Files.exists(archivePath)) || !Files.exists(resolvedPath)) {
             throw new FileNotFoundException(String.format("File [%s] does not exist.", p));
         }
-        return new CompoundPath(resolvedPath, archivePath);
+        return new CompoundPath(localRoot, resolvedPath, archivePath);
     }
 
     private synchronized Path enterZipArchive(Path path) throws IOException {
@@ -303,11 +337,15 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
 
     @Override
     public FileData check(String name) throws IOException {
-        CompoundPath path = resolvePath(name);
-        if (!path.isRegularFile()) {
+        try {
+            CompoundPath path = resolvePath(name);
+            if (!path.exists()) {
+                return null;
+            }
+            return getFileData(path);
+        } catch (FileNotFoundException e) {
             return null;
         }
-        return getFileData(path);
     }
 
     @Override
