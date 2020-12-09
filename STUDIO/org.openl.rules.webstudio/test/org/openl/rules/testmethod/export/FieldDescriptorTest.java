@@ -28,6 +28,8 @@ public class FieldDescriptorTest {
 
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), emptyList()));
         assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int.class), asList(1, 2, 3)));
+        assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(int[].class), asList(1, 2, 3)));
+        assertNull(FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(Integer[][].class), asList(1, 2, 3)));
 
         descriptors = FieldDescriptor.nonEmptyFields(aType, emptyList());
         assertNotNull(descriptors);
@@ -66,8 +68,27 @@ public class FieldDescriptorTest {
     public void arrayTypes() {
         List<FieldDescriptor> descriptors = FieldDescriptor.nonEmptyFields(bType, singletonList(B2));
         assertNotNull(descriptors);
+        assertEquals(2, descriptors.size());
         assertFalse(descriptors.get(0).isArray());
+        assertEquals("id", descriptors.get(0).getField().getName());
         assertTrue(descriptors.get(1).isArray());
+        assertEquals("aValues", descriptors.get(1).getField().getName());
+
+        descriptors = FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(B[].class), asList(B1, B2));
+        assertNotNull(descriptors);
+        assertEquals(2, descriptors.size());
+        assertFalse(descriptors.get(0).isArray());
+        assertEquals("id", descriptors.get(0).getField().getName());
+        assertTrue(descriptors.get(1).isArray());
+        assertEquals("aValues", descriptors.get(1).getField().getName());
+
+        descriptors = FieldDescriptor.nonEmptyFields(JavaOpenClass.getOpenClass(B[][].class), asList(B1, B2));
+        assertNotNull(descriptors);
+        assertEquals(2, descriptors.size());
+        assertFalse(descriptors.get(0).isArray());
+        assertEquals("id", descriptors.get(0).getField().getName());
+        assertTrue(descriptors.get(1).isArray());
+        assertEquals("aValues", descriptors.get(1).getField().getName());
     }
 
     @Test
