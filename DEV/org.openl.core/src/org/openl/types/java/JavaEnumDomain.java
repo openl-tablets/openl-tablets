@@ -1,10 +1,10 @@
 package org.openl.types.java;
 
+import java.util.Arrays;
 import java.util.Iterator;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
-import org.openl.util.OpenIterator;
 
 public class JavaEnumDomain implements IDomain<Object> {
 
@@ -17,7 +17,7 @@ public class JavaEnumDomain implements IDomain<Object> {
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Iterator iterator() {
-        return OpenIterator.fromArray(enumClass.getInstanceClass().getEnumConstants());
+        return Arrays.asList(enumClass.getInstanceClass().getEnumConstants()).iterator();
     }
 
     public int size() {

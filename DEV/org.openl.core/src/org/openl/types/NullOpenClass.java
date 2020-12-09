@@ -14,7 +14,7 @@ import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
+import org.openl.util.AIndexedIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -48,7 +48,7 @@ public final class NullOpenClass implements IOpenClass {
 
         @Override
         public Iterator<Object> getIterator(Object aggregate) {
-            return OpenIterator.fromArrayObj(aggregate);
+            return AIndexedIterator.fromArrayObj(aggregate);
         }
 
         @Override

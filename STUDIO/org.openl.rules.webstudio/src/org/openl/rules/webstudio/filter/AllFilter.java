@@ -1,13 +1,11 @@
 package org.openl.rules.webstudio.filter;
 
-import org.openl.util.ASelector;
-
 /**
  * <code>Filter</code> that accepts all the objects.
  *
  * @author Aliaksandr Antonik.
  */
-public class AllFilter<T> extends ASelector<T> implements IFilter<T> {
+public class AllFilter<T> implements IFilter<T> {
     /**
      * Returns <code>true</code> for any object, including <code>null</code>.
      *

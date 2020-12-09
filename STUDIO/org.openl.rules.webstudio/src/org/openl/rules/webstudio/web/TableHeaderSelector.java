@@ -1,19 +1,20 @@
 package org.openl.rules.webstudio.web;
 
+import java.util.function.Predicate;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.util.ASelector;
 import org.openl.util.StringUtils;
 
-class TableHeaderSelector extends ASelector<TableSyntaxNode> {
+class TableHeaderSelector implements Predicate<TableSyntaxNode> {
 
     private final String value;
 
-    public TableHeaderSelector(String value) {
+    TableHeaderSelector(String value) {
         this.value = value;
     }
 
     @Override
-    public boolean select(TableSyntaxNode node) {
+    public boolean test(TableSyntaxNode node) {
         if (StringUtils.isBlank(value)) {
             return true;
         }

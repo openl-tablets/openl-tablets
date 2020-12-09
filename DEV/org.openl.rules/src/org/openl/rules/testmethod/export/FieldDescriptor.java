@@ -5,6 +5,7 @@ import static org.openl.types.java.JavaOpenClass.CLASS;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -62,7 +63,7 @@ class FieldDescriptor {
             }
         }
 
-        result.sort((FieldDescriptor o1, FieldDescriptor o2) -> Boolean.compare(o1.isArray(), o2.isArray()));
+        result.sort(Comparator.comparing(FieldDescriptor::isArray));
 
         return result;
     }

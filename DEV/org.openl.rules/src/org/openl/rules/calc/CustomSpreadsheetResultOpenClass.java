@@ -5,11 +5,20 @@ import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toSet;
 
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.Consumer;
 import java.util.stream.IntStream;
 
-import org.apache.commons.collections4.ComparatorUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.AnnotationVisitor;
@@ -554,13 +563,8 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
         return new String[3];
     }
 
-    private static final Comparator<Pair<Point, IOpenField>> COMP = (a, b) -> {
-        @SuppressWarnings("unchecked")
-        Comparator<Point> c = ComparatorUtils.chainedComparator(
-            Comparator.nullsLast(Comparator.comparingInt(Point::getRow)),
-            Comparator.nullsLast(Comparator.comparingInt(Point::getColumn)));
-        return c.compare(a.getLeft(), b.getLeft());
-    };
+    private static final Comparator<Pair<Point, IOpenField>> COMP = Comparator.comparing(Pair::getLeft,
+        Comparator.nullsLast(Comparator.comparingInt(Point::getRow).thenComparingInt(Point::getColumn)));
 
     private void addFieldsToJavaClassBuilder(JavaBeanClassBuilder beanClassBuilder,
             List<Pair<Point, IOpenField>> fields,

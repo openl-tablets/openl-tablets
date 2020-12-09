@@ -5,6 +5,8 @@ import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 import org.openl.ie.tools.ReusableImpl;
 
+import java.util.Comparator;
+
 public class IntExpArrayElement1 extends IntExpImpl {
     static class AdvancedMapping implements Mapping {
         java.util.HashMap valueToArrayIdx = new java.util.HashMap();
@@ -1013,22 +1015,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
         int[] values = new int[arMax - arMin + 1];
         int valCounter = 0;
 
-        class IntExpComparator implements java.util.Comparator {
-            @Override
-            public int compare(Object a1, Object a2) {
-
-                if (((IntExp) a1).min() < ((IntExp) a2).min()) {
-                    return -1;
-                }
-                if (((IntExp) a1).min() == ((IntExp) a2).min()) {
-                    return 0;
-                }
-                return 1;
-            }
-        }
-
         IntExpArray tmp = makeExtraction(_index, _ary);
-        tmp.sort(new IntExpComparator());
+        tmp.sort(Comparator.comparingInt(IntExp::min));
 
         for (int i = tmp.get(0).min(); i <= tmp.get(0).max(); i++) {
             if (tmp.get(0).contains(i)) {

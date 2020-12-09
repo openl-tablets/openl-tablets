@@ -27,13 +27,10 @@ import org.openl.util.StringUtils;
  * @author Aleh Bykhavets
  */
 public final class RepositoryUtils {
-    public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = (o1, o2) -> {
-        if (o1.isFolder() == o2.isFolder()) {
-            return o1.getName().compareTo(o2.getName());
-        } else {
-            return o1.isFolder() ? -1 : 1;
-        }
-    };
+    public static final Comparator<AProjectArtefact> ARTEFACT_COMPARATOR = Comparator
+        .comparing(AProjectArtefact::isFolder)
+        .reversed()
+        .thenComparing(AProjectArtefact::getName);
 
     private RepositoryUtils() {
     }
@@ -61,11 +58,11 @@ public final class RepositoryUtils {
     }
 
     public static void archive(FolderRepository folderRepository,
-                               String rulesPath,
-                               String projectName,
-                               String version,
-                               OutputStream out,
-                               Manifest manifest) throws IOException {
+            String rulesPath,
+            String projectName,
+            String version,
+            OutputStream out,
+            Manifest manifest) throws IOException {
         ZipOutputStream zipOutputStream = null;
         try {
             zipOutputStream = new DeploymentOutputStream(out, manifest);
@@ -77,7 +74,7 @@ public final class RepositoryUtils {
             for (FileData file : files) {
                 String internalPath = file.getName().substring(projectPath.length());
                 if (JarFile.MANIFEST_NAME.equals(internalPath)) {
-                    //skip old manifest
+                    // skip old manifest
                     continue;
                 }
                 zipOutputStream.putNextEntry(new ZipEntry(internalPath));
@@ -97,17 +94,20 @@ public final class RepositoryUtils {
 
     /**
      * Includes generated manifest to the first position of deployed archive. The old manifest file will be skipped
+     * 
      * @param in project input stream
      * @param out target output stream
      * @param manifest manifest file to include
      * @throws IOException
      */
-    public static void includeManifestAndRepackArchive(InputStream in, OutputStream out, Manifest manifest) throws IOException {
+    public static void includeManifestAndRepackArchive(InputStream in,
+            OutputStream out,
+            Manifest manifest) throws IOException {
         try (ZipInputStream zipIn = new ZipInputStream(in);
-             ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
+                ZipOutputStream zipOut = new DeploymentOutputStream(out, manifest)) {
             byte[] buffer = new byte[64 * 1024];
             ZipEntry entry = zipIn.getNextEntry();
-            while ( entry != null) {
+            while (entry != null) {
                 if (!entry.isDirectory() && !JarFile.MANIFEST_NAME.equals(entry.getName())) {
                     zipOut.putNextEntry(entry);
                     IOUtils.copy(zipIn, zipOut, buffer);
@@ -149,6 +149,7 @@ public final class RepositoryUtils {
 
     /**
      * Build project version using the following pattern {@code %modifiedBy%-%modifiedAt:yyyy-MM-dd_HH-mm-ss%}
+     * 
      * @param fileData project file data
      * @return project version
      */

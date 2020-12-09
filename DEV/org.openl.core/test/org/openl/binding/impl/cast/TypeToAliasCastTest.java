@@ -3,15 +3,15 @@ package org.openl.binding.impl.cast;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
-import org.openl.domain.StringDomain;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class TypeToAliasCastTest {
     @Test
     public void testSingle() {
-        IDomain<String> strDomain = new StringDomain(new String[] { "Val1", "Val2" });
+        IDomain<String> strDomain = new EnumDomain<>(new String[] { "Val1", "Val2" });
         DomainOpenClass domain = new DomainOpenClass("TestDomain", JavaOpenClass.STRING, strDomain, null);
         TypeToAliasCast cast = new TypeToAliasCast(domain);
 

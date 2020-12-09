@@ -49,18 +49,10 @@ import org.xml.sax.InputSource;
 public class UserWorkspaceImpl implements UserWorkspace {
     private final Logger log = LoggerFactory.getLogger(UserWorkspaceImpl.class);
 
-    private static final Comparator<AProject> PROJECTS_COMPARATOR = (o1, o2) -> {
-        int compare = o1.getBusinessName().compareToIgnoreCase(o2.getBusinessName());
-        if (compare != 0) {
-            return compare;
-        }
-        compare = o1.getRepository().getId().compareTo(o2.getRepository().getId());
-        if (compare != 0) {
-            return compare;
-        }
-        compare = o1.getRealPath().compareToIgnoreCase(o2.getRealPath());
-        return compare;
-    };
+    private static final Comparator<AProject> PROJECTS_COMPARATOR = Comparator.comparing(AProject::getBusinessName,
+        String.CASE_INSENSITIVE_ORDER)
+        .thenComparing(o -> o.getRepository().getId())
+        .thenComparing(AProject::getRealPath, String.CASE_INSENSITIVE_ORDER);
 
     private final WorkspaceUser user;
     private final LocalWorkspace localWorkspace;
