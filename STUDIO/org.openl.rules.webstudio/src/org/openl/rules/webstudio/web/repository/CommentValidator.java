@@ -31,8 +31,8 @@ public class CommentValidator {
     public static CommentValidator forRepo(String repoId) {
         boolean customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
         if (customComments) {
-            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-validation-pattern"),
-                Props.text(Comments.REPOSITORY_PREFIX + repoId + ".invalid-comment-message"));
+            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
+                Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
         } else {
             return new CommentValidator(null, null);
         }
