@@ -189,10 +189,10 @@ public class ZippedLocalRepositoryTest {
         }
 
         try {
-            configureZipRepository("/multiDeployment.zip");
+            configureZipRepository("/foo/bar/multiDeployment.zip");
             fail("Ooops...");
         } catch (IllegalStateException e) {
-            assertEquals("The path [/multiDeployment.zip] does not exist.", e.getMessage());
+            assertEquals("The path [/foo/bar/multiDeployment.zip] does not exist.", e.getMessage());
         }
 
         try {
