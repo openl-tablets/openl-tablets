@@ -469,34 +469,36 @@
 
             <rich:tab header="Workspace">
                 <h:form id="uploadWorkspaceProjectForm" prependId="false" style="padding-top: 6px">
-                    <div style="max-height: 286px; overflow:auto">
-                        <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
-                            <rich:dataTable value="#{localUpload.projects4Upload}"
-                                            rendered="#{not empty localUpload.projects4Upload}"
-                                            var="item" styleClass="table" id="uploadPrjFromLocalTable"
-                                            style="width: 98%">
-                                <f:facet name="header">
-                                    <rich:columnGroup>
-                                        <rich:column>
-                                            <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'"
-                                                                     value="#{localUpload.selectAll}"
-                                                                     onclick="changeStatus(this);"/>
-                                        </rich:column>
-                                        <rich:column>
-                                            <h:outputText value="Name"/>
-                                        </rich:column>
-                                    </rich:columnGroup>
-                                </f:facet>
+                    <div style="max-height: 286px;">
+                        <div style="max-height: 250px; overflow:auto">
+                            <h:panelGrid style="width: 100%" id="uploadPrjFromLocalDiv">
+                                <rich:dataTable value="#{localUpload.projects4Upload}"
+                                                rendered="#{not empty localUpload.projects4Upload}"
+                                                var="item" styleClass="table" id="uploadPrjFromLocalTable"
+                                                style="width: 98%">
+                                    <f:facet name="header">
+                                        <rich:columnGroup>
+                                            <rich:column>
+                                                <h:selectBooleanCheckbox id="selectAll" title="Select/Deselect All'"
+                                                                         value="#{localUpload.selectAll}"
+                                                                         onclick="changeStatus(this);"/>
+                                            </rich:column>
+                                            <rich:column>
+                                                <h:outputText value="Name"/>
+                                            </rich:column>
+                                        </rich:columnGroup>
+                                    </f:facet>
 
-                                <rich:column style="text-align: center; width: 20px;">
-                                    <h:selectBooleanCheckbox value="#{item.selected}"
-                                                             onclick="changeAllProjectCheck(this)"/>
-                                </rich:column>
-                                <rich:column>
-                                    <h:outputText value="#{item.projectName}"/>
-                                </rich:column>
-                            </rich:dataTable>
-                        </h:panelGrid>
+                                    <rich:column style="text-align: center; width: 20px;">
+                                        <h:selectBooleanCheckbox value="#{item.selected}"
+                                                                 onclick="changeAllProjectCheck(this)"/>
+                                    </rich:column>
+                                    <rich:column>
+                                        <h:outputText value="#{item.projectName}"/>
+                                    </rich:column>
+                                </rich:dataTable>
+                            </h:panelGrid>
+                        </div>
                         <h:panelGrid id="uploadPrjFromLocalMessageDiv">
                             <h:outputText value="All projects are already in repository"
                                           rendered="#{empty localUpload.projects4Upload}"/>
