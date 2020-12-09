@@ -27,16 +27,16 @@ public class ObjectUtils {
             return Enum.valueOf((Class<Enum>) type, value);
         } else if (type.isAssignableFrom(String.class)) {
             return value;
+        } else if (type.isArray()) {
+            final Class<?> componentType = type.getComponentType();
+            String[] values = value.split(",");
+            Object res = Array.newInstance(componentType, values.length);
+            for (int i = 0; i < values.length; i++) {
+                Array.set(res, i, convert(values[i], componentType));
+            }
+            return res;
         } else {
-            if (type.isArray()) {
-                final Class<?> componentType = type.getComponentType();
-                String[] values = value.split(",");
-                Object res = Array.newInstance(componentType, values.length);
-                for (int i = 0; i < values.length; i++) {
-                    Array.set(res, i, convert(values[i], componentType));
-                }
-                return res;
-            } else if (type.isPrimitive()) {
+            if (type.isPrimitive()) {
                 type = ClassUtils.primitiveToWrapper(type);
             }
             try {
