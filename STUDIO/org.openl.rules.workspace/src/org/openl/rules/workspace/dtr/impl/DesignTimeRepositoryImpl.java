@@ -18,6 +18,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
@@ -176,17 +177,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
                     new Class[]{Repository.class},
                     (proxy, method, args) -> {
-                        if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
+                        final String methodName = method.getName();
+                        final Class<?> returnType = method.getReturnType();
+                        if (methodName.startsWith("set") && returnType == void.class) {
                             return null;
-                        }
-                        if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
+                        } else if ("supports".equals(methodName) && returnType == Features.class) {
                             return new FeaturesBuilder(null).setVersions(false).build();
-                        }
-                        if ("getId".equals(method.getName()) && method.getReturnType() == String.class) {
+                        } else if ("close".equals(methodName) && returnType == void.class && args == null) {
+                            return null;
+                        } else if ("getId".equals(methodName) && returnType == String.class) {
                             return configName;
                         }
                         String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
-                        if ("getName".equals(method.getName()) && method.getReturnType() == String.class) {
+                        if ("getName".equals(methodName) && returnType == String.class) {
                             return repoName;
                         }
                         throw new IllegalStateException(String.format("Repository '%s' : %s", repoName, message));
@@ -328,7 +331,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             result = new ArrayList<>(projects.values());
         }
 
-        result.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        result.sort(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER));
 
         return result;
     }

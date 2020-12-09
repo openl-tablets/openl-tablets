@@ -98,7 +98,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertTrue("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size() == d);
+            assertEquals("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size(), d);
         } else {
             fail("Cannot find expected table");
         }
@@ -148,7 +148,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                 }
             }
 
-            assertTrue("Method contains expected dependencies", expectedRuledDependencies.size() == d);
+            assertEquals("Method contains expected dependencies", expectedRuledDependencies.size(), d);
         } else {
             fail("Cannot find expected table");
         }
@@ -157,7 +157,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     @Test
     public void tesTestTable() {
         IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
-        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", new IOpenClass[0]);
+        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
 
         BindingDependencies bindDep = testMethod.getDependencies();
         Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();

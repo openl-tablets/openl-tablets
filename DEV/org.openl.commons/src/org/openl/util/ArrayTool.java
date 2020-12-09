@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
 public final class ArrayTool {
 
@@ -42,7 +43,8 @@ public final class ArrayTool {
     public static boolean contains(Object array, Object test) {
         int size = Array.getLength(array);
         for (int i = 0; i < size; ++i) {
-            if (ASelector.selectObject(test).select(Array.get(array, i))) {
+            Object obj = Array.get(array, i);
+            if (Objects.equals(test, obj)) {
                 return true;
             }
         }

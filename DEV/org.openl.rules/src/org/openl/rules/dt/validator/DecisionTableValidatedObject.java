@@ -63,11 +63,6 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     }
 
     @Override
-    public IConditionSelector getSelector() {
-        return null;
-    }
-
-    @Override
     public IConditionTransformer getTransformer() {
         return this;
     }

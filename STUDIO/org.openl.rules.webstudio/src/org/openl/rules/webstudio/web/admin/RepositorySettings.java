@@ -33,8 +33,8 @@ public abstract class RepositorySettings {
 
     RepositorySettings(PropertiesHolder propertyResolver, String configPrefix) {
         USE_CUSTOM_COMMENTS = configPrefix + ".comment-template.use-custom-comments";
-        COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-validation-pattern";
-        INVALID_COMMENT_MESSAGE = configPrefix + ".invalid-comment-message";
+        COMMENT_VALIDATION_PATTERN = configPrefix + ".comment-template.comment-validation-pattern";
+        INVALID_COMMENT_MESSAGE = configPrefix + ".comment-template.invalid-comment-message";
         COMMENT_TEMPLATE = configPrefix + ".comment-template";
         DEFAULT_COMMENT_SAVE = configPrefix + ".comment-template.user-message.default.save";
         DEFAULT_COMMENT_CREATE = configPrefix + ".comment-template.user-message.default.create";

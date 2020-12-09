@@ -300,6 +300,7 @@ public class SystemSettingsBean {
             case DESIGN:
                 accessType = RepositoryType.GIT.factoryId;
                 configurations = getDesignRepositoryConfigurations();
+
                 break;
             case PRODUCTION:
                 accessType = RepositoryType.DB.factoryId;
@@ -312,7 +313,7 @@ public class SystemSettingsBean {
         RepositoryConfiguration templateConfig = new RepositoryConfiguration(configName, properties);
         templateConfig.setType(accessType);
 
-        String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode.getId());
+        String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
         
         RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
         repoConfig.commit();

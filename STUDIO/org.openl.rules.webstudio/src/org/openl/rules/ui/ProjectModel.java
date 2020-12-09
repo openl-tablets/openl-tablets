@@ -19,6 +19,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Predicate;
 
 import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.CompiledOpenClass;
@@ -89,7 +90,6 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
-import org.openl.util.ISelector;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -886,7 +886,7 @@ public class ProjectModel {
         }
     }
 
-    public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
+    public List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
         List<IOpenLTable> searchResults = new ArrayList<>();
 
@@ -895,7 +895,7 @@ public class ProjectModel {
             if (!XlsNodeTypes.XLS_TABLEPART.toString().equals(table.getType()) // Exclude
                     // TablePart
                     // tables
-                    && selectors.select(table)) {
+                    && selectors.test(table)) {
                 searchResults.add(new TableSyntaxNodeAdapter(table));
             }
         }

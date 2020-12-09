@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
 import org.openl.rules.table.properties.expressions.sequence.IntersectedPropertiesPriorityRule;
 import org.openl.types.IOpenMethod;
 
@@ -25,70 +24,10 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
 
     private void initTablesPriorityRules() {
         // <<< INSERT >>>
-        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("startRequestDate") {
-            @Override
-            public String getOperationName() {
-                return "MAX";
-            }
-
-            @Override
-            public java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getStartRequestDate();
-            }
-
-            @Override
-            public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
-                return MAX(propertyValue1, propertyValue2);
-            }
-        });
-        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("endRequestDate") {
-            @Override
-            public String getOperationName() {
-                return "MIN";
-            }
-
-            @Override
-            public java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getEndRequestDate();
-            }
-
-            @Override
-            public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
-                return MIN(propertyValue1, propertyValue2);
-            }
-        });
-        maxMinPriorityRules.add(new ASimplePriorityRule<java.util.Date>("effectiveDate") {
-            @Override
-            public String getOperationName() {
-                return "MAX";
-            }
-
-            @Override
-            public java.util.Date getPropertyValue(ITableProperties properties) {
-                return properties.getEffectiveDate();
-            }
-
-            @Override
-            public int compareNotNulls(java.util.Date propertyValue1, java.util.Date propertyValue2) {
-                return MAX(propertyValue1, propertyValue2);
-            }
-        });
-        maxMinPriorityRules.add(new ASimplePriorityRule<org.openl.rules.enumeration.OriginsEnum>("origin") {
-            @Override
-            public String getOperationName() {
-                return "MAX";
-            }
-
-            @Override
-            public org.openl.rules.enumeration.OriginsEnum getPropertyValue(ITableProperties properties) {
-                return properties.getOrigin();
-            }
-
-            @Override
-            public int compareNotNulls(org.openl.rules.enumeration.OriginsEnum propertyValue1, org.openl.rules.enumeration.OriginsEnum propertyValue2) {
-                return MAX(propertyValue1, propertyValue2);
-            }
-        });
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::getStartRequestDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::getEndRequestDate, Comparator.nullsLast(Comparator.naturalOrder())));
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::getEffectiveDate, Comparator.nullsLast(Comparator.reverseOrder())));
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::getOrigin, Comparator.nullsLast(Comparator.reverseOrder())));
         // <<< END INSERT >>>
         tablesPriorityRules.addAll(maxMinPriorityRules);
         tablesPriorityRules.add(new IntersectedPropertiesPriorityRule());

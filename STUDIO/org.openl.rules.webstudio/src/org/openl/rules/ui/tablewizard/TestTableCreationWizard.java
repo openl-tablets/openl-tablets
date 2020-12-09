@@ -2,6 +2,7 @@ package org.openl.rules.ui.tablewizard;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -161,7 +162,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
         }
 
         tableItems = result.toArray(new SelectItem[result.size()]);
-        Arrays.sort(tableItems, (o1, o2) -> o1.getValue().toString().compareTo(o2.getValue().toString()));
+        Arrays.sort(tableItems, Comparator.comparing(o -> o.getValue().toString()));
     }
 
     private String getNodeName(TableSyntaxNode syntaxNode) {

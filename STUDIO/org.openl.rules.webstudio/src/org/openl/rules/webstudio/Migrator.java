@@ -152,14 +152,27 @@ public class Migrator {
                     .replace("{0}", "{project-name}")
                     .replace("{1}", "{username}")
                     .replace("{2}", "{current-date}");
-            props.put("repository.design.new-branch-pattern", migratedNewBranchPattern);
+            props.put("repository.design.new-branch.pattern", migratedNewBranchPattern);
+            props.put("repository.design.new-branch-pattern", null);
         }
+        rename(settings, props, "repository.deploy-config.comment-validation-pattern", "repository.deploy-config.comment-template.comment-validation-pattern");
+        rename(settings, props, "repository.deploy-config.invalid-comment-message", "repository.deploy-config.comment-template.invalid-comment-message");
+        rename(settings, props, "repository.design.comment-validation-pattern", "repository.design.comment-template.comment-validation-pattern");
+        rename(settings, props, "repository.design.invalid-comment-message", "repository.design.comment-template.invalid-comment-message");
 
         // migrate deployment repository path
         if (settings.getProperty(
             "repository.production.local-repository-path") == null && "org.openl.rules.repository.git.GitRepository"
                 .equals(settings.getProperty("repository.production.factory"))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");
+        }
+    }
+
+    private static void rename(DynamicPropertySource settings, HashMap<String, String> props, String oldKey, String newKey) {
+        if (settings.containsProperty(oldKey)) {
+            String value = (String) settings.getProperty(oldKey);
+            props.put(oldKey, null);
+            props.put(newKey, value);
         }
     }
 

@@ -97,7 +97,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     public void setSupportedPublishers(Map<String, RuleServicePublisher> supportedPublishers) {
-        this.supportedPublishers = new TreeMap<>(String::compareToIgnoreCase);
+        this.supportedPublishers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
         this.supportedPublishers.putAll(supportedPublishers);
     }
 
@@ -322,7 +322,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             try {
                 return Arrays.stream(service.getServiceClass().getMethods())
                     .map(this::toDescriptor)
-                    .sorted(Comparator.comparing(MethodDescriptor::getName, String::compareToIgnoreCase))
+                    .sorted(Comparator.comparing(MethodDescriptor::getName, String.CASE_INSENSITIVE_ORDER))
                     .collect(Collectors.toList());
             } catch (RuleServiceInstantiationException ignore) {
                 // Ignore

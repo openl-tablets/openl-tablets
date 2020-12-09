@@ -2,9 +2,8 @@ package org.openl.rules.webstudio.web.repository;
 
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.webstudio.filter.IFilter;
-import org.openl.util.ASelector;
 
-class AndFilterIfSupport extends ASelector<AProjectArtefact> implements IFilter<AProjectArtefact> {
+class AndFilterIfSupport implements IFilter<AProjectArtefact> {
     private final IFilter<AProjectArtefact> filter1;
     private final IFilter<AProjectArtefact> filter2;
 

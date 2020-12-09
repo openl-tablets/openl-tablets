@@ -7,15 +7,36 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
 import org.junit.Assert;
 import org.junit.Test;
-import org.openl.meta.*;
+import org.openl.meta.ByteValue;
+import org.openl.meta.DoubleValue;
+import org.openl.meta.FloatValue;
+import org.openl.meta.IntValue;
+import org.openl.meta.LongValue;
+import org.openl.meta.ShortValue;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.serialization.JsonUtils;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
 public class JsonUtilsTest {
+
+    @Test
+    public void defaultJacksonObjectMapperTest() throws NoSuchMethodException,
+                                                 InvocationTargetException,
+                                                 IllegalAccessException {
+        Method getDefaultJacksonObjectMapperMethod = JsonUtils.class.getDeclaredMethod("getDefaultJacksonObjectMapper");
+        getDefaultJacksonObjectMapperMethod.setAccessible(true);
+        Assert.assertNotEquals(
+            JsonUtils.class.getTypeName() + "." + getDefaultJacksonObjectMapperMethod
+                .getName() + " must return different instances.",
+            getDefaultJacksonObjectMapperMethod.invoke(null),
+            getDefaultJacksonObjectMapperMethod.invoke(null));
+    }
 
     @Test
     public void spreadsheetResultTest() throws Exception {

@@ -17,11 +17,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
     private Object[] values;
 
     public EnumDomainAdaptor(EnumDomain<?> domain) {
-        values = domain.getEnum().getAllObjects();
-    }
-
-    public EnumDomainAdaptor(Object[] values) {
-        this.values = values;
+        values = domain.getAllObjects();
     }
 
     @Override

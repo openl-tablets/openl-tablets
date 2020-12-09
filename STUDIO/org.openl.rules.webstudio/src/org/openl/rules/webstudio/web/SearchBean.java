@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,6 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.CollectionUtils;
-import org.openl.util.ISelector;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.RequestScope;
@@ -30,23 +30,22 @@ public class SearchBean {
 
     // TODO Move table names to Rules Core
     private static final SelectItem[] tableTypeItems = new SelectItem[] {
-        new SelectItem ("Decision", XlsNodeTypes.XLS_DT.toString()),
-        new SelectItem ("Spreadsheet", XlsNodeTypes.XLS_SPREADSHEET.toString()),
-        new SelectItem ("TBasic", XlsNodeTypes.XLS_TBASIC.toString()),
-        new SelectItem ("Column Match", XlsNodeTypes.XLS_COLUMN_MATCH.toString()),
-        new SelectItem ("Datatype", XlsNodeTypes.XLS_DATATYPE.toString()),
-        new SelectItem ("Data", XlsNodeTypes.XLS_DATA.toString()),
-        new SelectItem ("Method", XlsNodeTypes.XLS_METHOD.toString()),
-        new SelectItem ("Test", XlsNodeTypes.XLS_TEST_METHOD.toString()),
-        new SelectItem ("Run", XlsNodeTypes.XLS_RUN_METHOD.toString()),
-        new SelectItem ("Constants", XlsNodeTypes.XLS_CONSTANTS.toString()),
-        new SelectItem ("Conditions", XlsNodeTypes.XLS_CONDITIONS.toString()),
-        new SelectItem ("Actions", XlsNodeTypes.XLS_ACTIONS.toString()),
-        new SelectItem ("Returns", XlsNodeTypes.XLS_RETURNS.toString()),
-        new SelectItem ("Environment", XlsNodeTypes.XLS_ENVIRONMENT.toString()),
-        new SelectItem ("Properties", XlsNodeTypes.XLS_PROPERTIES.toString()),
-        new SelectItem ("Other", XlsNodeTypes.XLS_OTHER.toString())
-    };
+            new SelectItem("Decision", XlsNodeTypes.XLS_DT.toString()),
+            new SelectItem("Spreadsheet", XlsNodeTypes.XLS_SPREADSHEET.toString()),
+            new SelectItem("TBasic", XlsNodeTypes.XLS_TBASIC.toString()),
+            new SelectItem("Column Match", XlsNodeTypes.XLS_COLUMN_MATCH.toString()),
+            new SelectItem("Datatype", XlsNodeTypes.XLS_DATATYPE.toString()),
+            new SelectItem("Data", XlsNodeTypes.XLS_DATA.toString()),
+            new SelectItem("Method", XlsNodeTypes.XLS_METHOD.toString()),
+            new SelectItem("Test", XlsNodeTypes.XLS_TEST_METHOD.toString()),
+            new SelectItem("Run", XlsNodeTypes.XLS_RUN_METHOD.toString()),
+            new SelectItem("Constants", XlsNodeTypes.XLS_CONSTANTS.toString()),
+            new SelectItem("Conditions", XlsNodeTypes.XLS_CONDITIONS.toString()),
+            new SelectItem("Actions", XlsNodeTypes.XLS_ACTIONS.toString()),
+            new SelectItem("Returns", XlsNodeTypes.XLS_RETURNS.toString()),
+            new SelectItem("Environment", XlsNodeTypes.XLS_ENVIRONMENT.toString()),
+            new SelectItem("Properties", XlsNodeTypes.XLS_PROPERTIES.toString()),
+            new SelectItem("Other", XlsNodeTypes.XLS_OTHER.toString()) };
 
     private String query;
     private String[] tableTypes;
@@ -58,7 +57,8 @@ public class SearchBean {
     public SearchBean() {
         initProperties();
 
-        if (((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI().contains("search.xhtml")) {
+        if (((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getRequestURI()
+            .contains("search.xhtml")) {
             initSearchQuery();
             search();
         }
@@ -125,7 +125,7 @@ public class SearchBean {
         // Init properties query
         for (TableProperty property : properties) {
             String propertyValue = WebStudioUtils.getRequestParameter(property.getName());
-            if (propertyValue!= null) {
+            if (propertyValue != null) {
                 property.setStringValue(propertyValue);
             }
         }
@@ -147,7 +147,7 @@ public class SearchBean {
     private void search() {
         ProjectModel projectModel = WebStudioUtils.getProjectModel();
 
-        ISelector<TableSyntaxNode> selectors = new CellValueSelector(query);
+        Predicate<TableSyntaxNode> selectors = new CellValueSelector(query);
 
         if (CollectionUtils.isNotEmpty(tableTypes)) {
             selectors = selectors.and(new TableTypeSelector(tableTypes));

@@ -1,20 +1,9 @@
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.simplePriorityRuleWrappers )
-        maxMinPriorityRules.add(new ASimplePriorityRule<$priorityRuleWrapper.propertyType>("$priorityRuleWrapper.propertyName") {
-            @Override
-            public String getOperationName() {
-                return "$priorityRuleWrapper.operationName";
-            }
-
-            @Override
-            public $priorityRuleWrapper.propertyType getPropertyValue(ITableProperties properties) {
-                return properties.get$tool.formatAccessorName($priorityRuleWrapper.propertyName)();
-            }
-
-            @Override
-            public int compareNotNulls($priorityRuleWrapper.propertyType propertyValue1, $priorityRuleWrapper.propertyType propertyValue2) {
-                return ${priorityRuleWrapper.operationName}(propertyValue1, propertyValue2);
-            }
-        });
+#if (${priorityRuleWrapper.operationName} == 'MAX')
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::get$tool.formatAccessorName($priorityRuleWrapper.propertyName), Comparator.nullsLast(Comparator.reverseOrder())));
+#else
+        maxMinPriorityRules.add(Comparator.comparing(ITableProperties::get$tool.formatAccessorName($priorityRuleWrapper.propertyName), Comparator.nullsLast(Comparator.naturalOrder())));
+#end
 #end
 #foreach( $priorityRuleWrapper in $priorityRuleWrappers.javaClassPriorityRuleWrappers )
         maxMinPriorityRules.add(new JavaClassTablesComparator(new ${priorityRuleWrapper.className}()}));

@@ -5,6 +5,7 @@ import static org.openl.types.java.JavaOpenClass.CLASS;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import org.openl.binding.impl.CastToWiderType;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.util.ClassUtils;
+import org.openl.util.OpenClassUtils;
 
 class FieldDescriptor {
     private final IOpenField field;
@@ -31,9 +33,7 @@ class FieldDescriptor {
     }
 
     private static List<FieldDescriptor> nonEmptyFieldsForFlatten(IOpenClass type, List<?> values) {
-        if (type.isArray()) {
-            type = type.getComponentClass();
-        }
+        type = OpenClassUtils.getRootComponentClass(type);
 
         if (type.isSimple() || ClassUtils.isAssignable(type.getInstanceClass(), Map.class)) {
             return null;
@@ -62,7 +62,7 @@ class FieldDescriptor {
             }
         }
 
-        result.sort((FieldDescriptor o1, FieldDescriptor o2) -> Boolean.compare(o1.isArray(), o2.isArray()));
+        result.sort(Comparator.comparing(FieldDescriptor::isArray));
 
         return result;
     }
