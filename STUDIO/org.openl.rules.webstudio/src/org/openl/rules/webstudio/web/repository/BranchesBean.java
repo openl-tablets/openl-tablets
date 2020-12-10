@@ -266,7 +266,7 @@ public class BranchesBean {
                         ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
                     } catch (Exception e) {
                         // Report error and continue with local copy of git repository.
-                        log.error(e.getMessage(), e);
+                        LOG.error(e.getMessage(), e);
                         WebStudioUtils.addErrorMessage(e.getMessage());
                     }
                 }
