@@ -262,7 +262,13 @@ public class BranchesBean {
                 this.businessName = project.getBusinessName();
                 Repository repository = project.getDesignRepository();
                 if (repository.supports().branches()) {
-                    ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
+                    try {
+                        ((BranchRepository) repository).pull(getUserWorkspace().getUser().getUserId());
+                    } catch (Exception e) {
+                        // Report error and continue with local copy of git repository.
+                        LOG.error(e.getMessage(), e);
+                        WebStudioUtils.addErrorMessage(e.getMessage());
+                    }
                 }
                 branches = getBranches(project);
                 currentBranch = project.getBranch();
@@ -272,6 +278,7 @@ public class BranchesBean {
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage(e.getMessage());
         }
     }
 
