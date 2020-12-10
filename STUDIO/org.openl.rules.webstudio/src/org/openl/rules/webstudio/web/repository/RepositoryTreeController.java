@@ -1032,7 +1032,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addInfoMessage("Project was erased successfully.");
         } catch (Exception e) {
             repositoryTreeState.invalidateTree();
-            String msg = "Cannot erase project '" + project.getName() + "'.";
+            String msg = e.getCause() instanceof IOException ? e.getMessage() : "Cannot erase project '" + project.getName() + "'.";
             log.error(msg, e);
             WebStudioUtils.addErrorMessage(msg);
         }
