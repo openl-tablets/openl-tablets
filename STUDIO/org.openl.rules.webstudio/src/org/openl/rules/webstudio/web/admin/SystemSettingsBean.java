@@ -4,6 +4,7 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.*;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.List;
 
 import javax.faces.context.FacesContext;
@@ -252,9 +253,7 @@ public class SystemSettingsBean {
         //This is necessary to reset some parameters such as: information about blocking authentication attempts in git,
         //when the maximum number of attempts is exceeded.
         //Should be removed after the ticket EPBDS-10431 is closed
-        String dateTimeFormat = WebStudioFormats.getInstance().dateTime();
-        String modifiedOnStr = new SimpleDateFormat(dateTimeFormat).format(System.currentTimeMillis());
-        properties.setProperty("_last.modified.time", modifiedOnStr);
+        properties.setProperty("_last.modified.time", Instant.now().toString());
 
         DynamicPropertySource.get().save(properties.getConfig());
 
