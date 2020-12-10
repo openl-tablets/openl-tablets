@@ -155,8 +155,8 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     public static class Builder {
-        private DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
-        private DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+        private final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
+        private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
         private Map<Object, DecisionTableRuleNodeBuilder> map = null;
         private Map<Object, int[]> result = null;

@@ -43,9 +43,9 @@ public class NestedSpreadsheetResultConverter<T extends CalculationStep, Q exten
 
     private static final Logger LOG = LoggerFactory.getLogger(NestedSpreadsheetResultConverter.class);
 
-    private NestedSpreadsheetConfiguration<T, Q> conf;
+    private final NestedSpreadsheetConfiguration<T, Q> conf;
 
-    private int currentNestingLevel;
+    private final int currentNestingLevel;
 
     /**
      * @param currentNestingLevel the number of the current nesting level

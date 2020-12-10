@@ -4,7 +4,7 @@ import org.openl.types.IOpenField;
 
 public class BooleanFieldAdaptor extends BooleanTypeAdaptor {
 
-    private IOpenField field;
+    private final IOpenField field;
 
     public BooleanFieldAdaptor(IOpenField field) {
         this.field = field;

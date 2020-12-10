@@ -9,9 +9,9 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
 
     private int major = MAX_MM_INT;
     private int minor = MAX_MM_INT;
-    private String revision;
+    private final String revision;
     private transient String versionName;
-    private VersionInfo versionInfo;
+    private final VersionInfo versionInfo;
 
     private String versionComment;
     private boolean deleted = false;

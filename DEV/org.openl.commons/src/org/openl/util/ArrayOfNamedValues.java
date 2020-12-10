@@ -11,8 +11,8 @@ import java.util.Date;
  */
 public class ArrayOfNamedValues {
 
-    private String[] names;
-    private Object[] values;
+    private final String[] names;
+    private final Object[] values;
 
     public ArrayOfNamedValues(String[] names, Object[] values) {
         this.names = names;

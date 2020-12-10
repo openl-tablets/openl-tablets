@@ -22,7 +22,7 @@ public class DynamicObject implements IDynamicObject {
 
     private IOpenClass type;
 
-    private HashMap<String, Object> fieldValues = new HashMap<>();
+    private final HashMap<String, Object> fieldValues = new HashMap<>();
 
     /*
      * Added to support deployment of OpenL project as web services

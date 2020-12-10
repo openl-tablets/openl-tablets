@@ -14,7 +14,7 @@ public class XmlRulesDeploySerializer implements IRulesDeploySerializer {
     public static final String MODULE_NAME = "module";
     public static final String LAZY_MODULES_FOR_COMPILATION = "lazy-modules-for-compilation";
 
-    private XStream xstream;
+    private final XStream xstream;
 
     public XmlRulesDeploySerializer() {
         xstream = new XStream(new DomDriver());

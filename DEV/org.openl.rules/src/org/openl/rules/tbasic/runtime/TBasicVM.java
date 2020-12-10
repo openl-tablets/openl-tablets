@@ -15,10 +15,10 @@ import org.openl.vm.Tracer;
  *
  */
 public class TBasicVM {
-    private TBasicVMDataContext mainContext;
+    private final TBasicVMDataContext mainContext;
     private TBasicVMDataContext currentContext;
 
-    private IOpenClass tbasicType;
+    private final IOpenClass tbasicType;
 
     /**
      * Create an instance of <code>TBasicVM</code> initialized with main Algorithm method operations and labels

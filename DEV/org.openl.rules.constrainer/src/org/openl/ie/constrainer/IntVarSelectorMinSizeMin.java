@@ -26,7 +26,7 @@ package org.openl.ie.constrainer;
  * @see GoalGenerate
  */
 public class IntVarSelectorMinSizeMin implements IntVarSelector {
-    private IntExpArray _intvars;
+    private final IntExpArray _intvars;
 
     /**
      * Constructor from the IntExpArray.

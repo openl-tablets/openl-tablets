@@ -10,9 +10,9 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 public class TestDomainImpl extends TestCase {
-    private Constrainer C = new Constrainer("TestDomainImpl");
-    private IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
-    private DomainImpl _probeDomainImpl = new DomainImpl(_var, _var.min(), _var.max());
+    private final Constrainer C = new Constrainer("TestDomainImpl");
+    private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
+    private final DomainImpl _probeDomainImpl = new DomainImpl(_var, _var.min(), _var.max());
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestDomainImpl.class));
@@ -33,12 +33,12 @@ public class TestDomainImpl extends TestCase {
         try {
             assertTrue(!db.setValue(db.max() + 1));
             fail("test failed due to incorrect work of TestDomainImpl.setValue(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
         try {
             assertTrue(!db.setValue(db.min() - 1));
             fail("test failed due to incorrect work of TestDomainImpl.setValue(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -173,7 +173,7 @@ public class TestDomainImpl extends TestCase {
         try {
             db.removeValue(start_min + start_size - 1);
             fail("test failed");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 
@@ -187,7 +187,7 @@ public class TestDomainImpl extends TestCase {
         try {
             db.setMax(_var.min() - 1);
             fail("test of DomainImpl failed due to incorrect work of setMax(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
@@ -213,7 +213,7 @@ public class TestDomainImpl extends TestCase {
         try {
             db.setMin(_var.max() + 1);
             fail("test of DomainImpl failed due to incorrect work of setMin(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }

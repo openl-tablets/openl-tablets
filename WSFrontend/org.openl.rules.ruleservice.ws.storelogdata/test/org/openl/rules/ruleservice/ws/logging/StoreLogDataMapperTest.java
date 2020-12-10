@@ -2,7 +2,6 @@ package org.openl.rules.ruleservice.ws.logging;
 
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;

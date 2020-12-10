@@ -9,7 +9,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class AssignVariableOperation extends RuntimeOperation {
 
-    private String elementName;
+    private final String elementName;
 
     public AssignVariableOperation(String label, String elementName) {
         this.elementName = elementName;

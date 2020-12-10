@@ -11,10 +11,10 @@ import org.openl.rules.table.ui.filters.IGridFilter;
  */
 public class FilteredGrid extends AGrid {
 
-    private IGridFilter[] formatFilters;
+    private final IGridFilter[] formatFilters;
 
-    private IGrid delegate;
-    private MetaInfoReader metaInfoReader;
+    private final IGrid delegate;
+    private final MetaInfoReader metaInfoReader;
 
     public FilteredGrid(IGrid delegate, IGridFilter[] formatFilters, MetaInfoReader metaInfoReader) {
         this.delegate = delegate;

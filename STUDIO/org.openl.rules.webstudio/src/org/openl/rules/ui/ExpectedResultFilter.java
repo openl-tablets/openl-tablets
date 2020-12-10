@@ -14,7 +14,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 
 class ExpectedResultFilter extends AGridFilter {
 
-    private Map<Point, ComparedResult> spreadsheetCellsForTest;
+    private final Map<Point, ComparedResult> spreadsheetCellsForTest;
 
     public ExpectedResultFilter(Map<Point, ComparedResult> spreadsheetCellsForTest) {
         this.spreadsheetCellsForTest = new HashMap<>(spreadsheetCellsForTest);

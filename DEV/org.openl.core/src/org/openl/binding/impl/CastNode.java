@@ -12,8 +12,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class CastNode extends ABoundNode {
 
-    IOpenCast cast;
-    IOpenClass castedType;
+    final IOpenCast cast;
+    final IOpenClass castedType;
 
     /**
      * @param syntaxNode

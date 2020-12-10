@@ -66,7 +66,7 @@ public abstract class TableCreationWizard extends BaseWizard {
      */
     private String newTableURI;
 
-    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
+    private final Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -254,7 +254,7 @@ public abstract class TableCreationWizard extends BaseWizard {
                     return false;
                 }
 
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 

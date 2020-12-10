@@ -4,7 +4,7 @@ import org.junit.Test;
 import org.openl.binding.exception.AmbiguousMethodException;
 
 public class MethodSearchOverloadClassesTest extends AbstractMethodSearchTest {
-    private Class<?> target = OverloadedMethods.class;
+    private final Class<?> target = OverloadedMethods.class;
 
     @Test
     public void testSearch() throws AmbiguousMethodException {

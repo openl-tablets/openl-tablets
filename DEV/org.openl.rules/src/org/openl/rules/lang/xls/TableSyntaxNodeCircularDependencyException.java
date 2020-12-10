@@ -7,7 +7,7 @@ class TableSyntaxNodeCircularDependencyException extends OpenlNotCheckedExceptio
 
     private static final long serialVersionUID = 4568066045442587374L;
 
-    private TableSyntaxNode[] tableSyntaxNodes;
+    private final TableSyntaxNode[] tableSyntaxNodes;
 
     public TableSyntaxNodeCircularDependencyException(TableSyntaxNode[] tableSyntaxNodes) {
         super(

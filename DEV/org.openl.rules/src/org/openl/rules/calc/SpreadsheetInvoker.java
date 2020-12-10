@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
 
     private static final Object[][] EMPTY_RESULT = new Object[0][0];
-    protected Object[][] preFetchedResult;
+    protected final Object[][] preFetchedResult;
 
     public SpreadsheetInvoker(Spreadsheet spreadsheet) {
         super(spreadsheet);
@@ -52,8 +52,6 @@ public class SpreadsheetInvoker extends RulesMethodInvoker<Spreadsheet> {
                                                                   : SpreadsheetResultCalculator.EMPTY_CELL;
                         break;
                     case VALUE:
-                        res[i][j] = cell.getValue();
-                        break;
                     case CONSTANT:
                         res[i][j] = cell.getValue();
                         break;

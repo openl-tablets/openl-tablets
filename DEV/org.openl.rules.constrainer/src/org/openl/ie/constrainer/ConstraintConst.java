@@ -19,7 +19,7 @@ package org.openl.ie.constrainer;
  * construction.
  */
 public final class ConstraintConst extends ConstraintImpl {
-    private boolean _flag;
+    private final boolean _flag;
 
     /**
      * Constructs the constraint.

@@ -40,7 +40,7 @@ public class FieldDescriptionTest {
         FieldDescription field = FieldDescriptionBuilder.create(Integer.class.getName())
             .setDefaultValueAsString(DEFAULT_INTEGER_VALUE)
             .build();
-        assertEquals(Integer.valueOf(25), field.getDefaultValue());
+        assertEquals(25, field.getDefaultValue());
     }
 
     @Test

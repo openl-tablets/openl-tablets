@@ -10,7 +10,7 @@ import java.util.regex.Pattern;
  */
 public class RegexpValueConstraint extends AbstractConstraint {
     public static final String CONSTRAINT_MATCH = "^\\s*regexp\\s*:\\s*(\\S+)\\s*";
-    private String regexp;
+    private final String regexp;
 
     public RegexpValueConstraint(String value) {
         super(value);

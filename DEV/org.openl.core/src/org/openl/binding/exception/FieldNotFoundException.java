@@ -17,9 +17,9 @@ public class FieldNotFoundException extends OpenLCompilationException {
 
     private static final long serialVersionUID = 1L;
 
-    private String fieldName;
+    private final String fieldName;
 
-    private IOpenClass type;
+    private final IOpenClass type;
 
     public FieldNotFoundException(String msg, String fieldName, IOpenClass type) {
         super(msg);

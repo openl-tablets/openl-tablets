@@ -19,7 +19,7 @@ public final class ResourceUtils {
     private ResourceUtils() {
     }
 
-    private static IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private static final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
     public static RulesDeploy readRulesDeploy(File openlProjectFolder) throws IOException {
         File rulesDeployXmlFile = new File(openlProjectFolder, RULES_DEPLOY_XML);
@@ -48,12 +48,7 @@ public final class ResourceUtils {
             IOUtils.copyAndClose(inputStream, fos);
         }
 
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                FileUtils.deleteQuietly(workspaceFolder);
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> FileUtils.deleteQuietly(workspaceFolder)));
         return workspaceFolder;
     }
 }

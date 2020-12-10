@@ -4,8 +4,8 @@ import org.openl.rules.dt.DTScale.RowScale;
 
 public class ScaledStorage extends ReadOnlyStorage {
 
-    private RowScale scale;
-    private IStorage s;
+    private final RowScale scale;
+    private final IStorage s;
 
     ScaledStorage(RowScale scale, IStorage s, StorageInfo info) {
         super(info);

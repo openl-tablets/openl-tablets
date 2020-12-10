@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 public abstract class ReadOnlyStorage<T> implements IStorage<T> {
 
-    private StorageInfo info;
+    private final StorageInfo info;
 
     ReadOnlyStorage(StorageInfo info) {
         this.info = info;

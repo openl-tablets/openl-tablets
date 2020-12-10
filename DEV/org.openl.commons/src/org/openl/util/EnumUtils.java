@@ -24,7 +24,7 @@ public final class EnumUtils {
                 names.add(getName((Enum<?>) constant));
             }
         }
-        return names.toArray(new String[names.size()]);
+        return names.toArray(new String[0]);
     }
 
     public static String[] getValues(Object[] constants) {
@@ -32,7 +32,7 @@ public final class EnumUtils {
         for (Object constant : constants) {
             values.add(((Enum<?>) constant).toString());
         }
-        return values.toArray(new String[values.size()]);
+        return values.toArray(new String[0]);
     }
 
     public static String[] getNames(Class<?> enumClass) {
@@ -46,7 +46,7 @@ public final class EnumUtils {
         for (Object constant : constants) {
             values.add(((Enum<?>) constant).toString());
         }
-        return values.toArray(new String[values.size()]);
+        return values.toArray(new String[0]);
     }
 
     public static Object[] getEnumConstants(Class<?> enumClass) {

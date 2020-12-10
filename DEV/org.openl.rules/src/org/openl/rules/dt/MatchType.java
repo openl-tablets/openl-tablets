@@ -11,9 +11,9 @@ enum MatchType {
     METHOD_PARAMS_RENAMED_CASTED(7),
     METHOD_LOCAL_PARAMS_RENAMED_CASTED(8);
 
-    int priority;
+    final int priority;
 
-    private MatchType(int priority) {
+    MatchType(int priority) {
         this.priority = priority;
     }
 

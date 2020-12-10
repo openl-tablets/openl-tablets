@@ -20,11 +20,11 @@ import org.openl.rules.calc.SpreadsheetResult;
  */
 public class ColumnToExtract {
 
-    private String columnName;
+    private final String columnName;
 
-    private String[] propertyNames;
+    private final String[] propertyNames;
 
-    private Class<?>[] propertyTypes;
+    private final Class<?>[] propertyTypes;
 
     private int nestedPriority = Integer.MAX_VALUE - 1;
 

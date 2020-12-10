@@ -9,8 +9,8 @@ public class TablePart implements Comparable<TablePart> {
     boolean vertical;
     int size;
 
-    IGridTable table;
-    XlsSheetSourceCodeModule source;
+    final IGridTable table;
+    final XlsSheetSourceCodeModule source;
 
     public TablePart(IGridTable table, XlsSheetSourceCodeModule source) {
         this.table = table;

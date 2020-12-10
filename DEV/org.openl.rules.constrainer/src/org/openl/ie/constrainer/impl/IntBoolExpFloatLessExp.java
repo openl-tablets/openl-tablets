@@ -24,10 +24,11 @@ public class IntBoolExpFloatLessExp extends IntBoolExpForSubject {
 
     } // ~ObserverMinMax
 
-    protected FloatExp _left, _right;
-    protected double _offset;
+    protected final FloatExp _left;
+    protected final FloatExp _right;
+    protected final double _offset;
 
-    private Observer _observer;
+    private final Observer _observer;
 
     public IntBoolExpFloatLessExp(FloatExp left, FloatExp right) {
         this(left, right, 0, left.constrainer(), "");

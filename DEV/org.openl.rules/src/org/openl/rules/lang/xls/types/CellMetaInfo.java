@@ -7,10 +7,10 @@ import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
 public class CellMetaInfo {
-    private static final int MULTI = 1 << 0;
+    private static final int MULTI = 1;
     private static final int RETURN_CELL = 1 << 1;
 
-    private IOpenClass domain;
+    private final IOpenClass domain;
     private int flags;
     private List<? extends NodeUsage> usedNodes;
 

@@ -9,7 +9,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 public class TestConstraintExpLessExp extends TestCase {
-    private Constrainer C = new Constrainer("TestConstraintExpLessExp");
+    private final Constrainer C = new Constrainer("TestConstraintExpLessExp");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestConstraintExpLessExp.class));
@@ -25,7 +25,7 @@ public class TestConstraintExpLessExp extends TestCase {
         try {
             C.postConstraint(new ConstraintExpLessExp(var, var2, 0));
             fail("the second variable is always less then the first one");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -53,7 +53,7 @@ public class TestConstraintExpLessExp extends TestCase {
             var.setMin(var3.min() + 1);
             var.propagate();
             fail("minimal value of the lesser variable is greater than that of the bigger one");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 }

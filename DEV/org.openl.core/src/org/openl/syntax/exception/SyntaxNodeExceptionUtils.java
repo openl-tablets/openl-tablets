@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class SyntaxNodeExceptionUtils {
 
-    private static Map<Class<?>, ExceptionMessageFormatter> formatters = new HashMap<>();
+    private static final Map<Class<?>, ExceptionMessageFormatter> formatters = new HashMap<>();
 
     static {
         formatters.put(ArrayIndexOutOfBoundsException.class, new IndexOutOfBoundsExceptionFormatter());

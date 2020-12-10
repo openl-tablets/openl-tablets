@@ -37,7 +37,7 @@ public class MergedRegionsTest {
      */
     private static class TestDesctiption {
         private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
-        private static Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
+        private static final Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
 
         private IGridRegion testRegion;
         private IGridRegion expectedResultRegion;
@@ -85,9 +85,9 @@ public class MergedRegionsTest {
                 } else if ("original".equals(key)) {
                     test.originalTableRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("from".equals(key)) {
-                    test.from = Integer.valueOf(value);
+                    test.from = Integer.parseInt(value);
                 } else if ("count".equals(key)) {
-                    test.count = Integer.valueOf(value);
+                    test.count = Integer.parseInt(value);
                 }
             }
             return test;
@@ -102,8 +102,8 @@ public class MergedRegionsTest {
      */
     private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;
-        private ICell resultCell;
-        private ICell expectedCell;
+        private final ICell resultCell;
+        private final ICell expectedCell;
 
         public ICell getResultCell() {
             return resultCell;
@@ -120,7 +120,7 @@ public class MergedRegionsTest {
 
     }
 
-    private static String __src = "test/rules/MergedRegions.xls";
+    private static final String __src = "test/rules/MergedRegions.xls";
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
         List<TestDesctiption> result = new ArrayList<>();

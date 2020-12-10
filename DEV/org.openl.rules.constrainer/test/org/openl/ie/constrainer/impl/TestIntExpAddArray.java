@@ -7,7 +7,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 public class TestIntExpAddArray extends TestCase {
-    private Constrainer C = new Constrainer("TestIntExpAddArray");
+    private final Constrainer C = new Constrainer("TestIntExpAddArray");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntExpAddArray.class));
@@ -120,7 +120,7 @@ public class TestIntExpAddArray extends TestCase {
         try {
             sum.setMax(9);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         array = new IntExpArray(C, 10, 1, 10, "array");
@@ -134,7 +134,7 @@ public class TestIntExpAddArray extends TestCase {
         try {
             sum.setMax(10);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -147,7 +147,7 @@ public class TestIntExpAddArray extends TestCase {
             array.get(1).setMin(7);
             C.propagate();
             fail("test failed");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 
@@ -170,7 +170,7 @@ public class TestIntExpAddArray extends TestCase {
         try {
             sum.setMin(-9);
             fail("allow to assign minvalue that greater then sum[i=1..n](array[i].max())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         array = new IntExpArray(C, 10, -10, -1, "array");
@@ -184,7 +184,7 @@ public class TestIntExpAddArray extends TestCase {
         try {
             sum.setMin(-10);
             fail("allow to assign minvalue that greater then sum[i=1..n](array[i].max())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -197,7 +197,7 @@ public class TestIntExpAddArray extends TestCase {
             array.get(1).setMax(-7);
             C.propagate();
             fail("test failed");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 

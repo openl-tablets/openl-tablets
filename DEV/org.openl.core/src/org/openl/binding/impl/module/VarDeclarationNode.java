@@ -13,11 +13,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class VarDeclarationNode extends ABoundNode implements IMemberBoundNode {
 
-    DynamicObjectField field;
+    final DynamicObjectField field;
 
-    IOpenCast cast;
+    final IOpenCast cast;
 
-    IBoundNode initNode;
+    final IBoundNode initNode;
 
     VarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, DynamicObjectField field, IOpenCast cast) {
         super(syntaxNode, initNode);

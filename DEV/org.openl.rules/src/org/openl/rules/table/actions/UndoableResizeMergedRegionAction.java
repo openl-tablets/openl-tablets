@@ -12,7 +12,7 @@ import org.openl.rules.table.IWritableGrid;
  */
 public class UndoableResizeMergedRegionAction implements IUndoableGridTableAction {
 
-    private IGridRegion initialRegion;
+    private final IGridRegion initialRegion;
     private IGridRegion newRegion;
 
     public UndoableResizeMergedRegionAction(IGridRegion initialRegion,

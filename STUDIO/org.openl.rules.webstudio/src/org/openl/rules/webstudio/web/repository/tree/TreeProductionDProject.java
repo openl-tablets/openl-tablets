@@ -17,7 +17,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 public class TreeProductionDProject extends TreeProductFolder {
-    private IFilter<AProjectArtefact> filter;
+    private final IFilter<AProjectArtefact> filter;
 
     public TreeProductionDProject(String id, String name, IFilter<AProjectArtefact> filter) {
         super(id, name, filter);

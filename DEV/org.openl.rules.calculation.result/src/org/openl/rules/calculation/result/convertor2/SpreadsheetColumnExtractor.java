@@ -23,7 +23,7 @@ public class SpreadsheetColumnExtractor<S extends CalculationStep> {
 
     private static final Logger LOG = LoggerFactory.getLogger(SpreadsheetColumnExtractor.class);
 
-    private NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
+    private final NestedSpreadsheetConfiguration<? extends CalculationStep, ? extends CompoundStep> conf;
 
     /**
      * column to extract

@@ -73,11 +73,11 @@ public class SimpleVM implements IOpenVM {
 
     public static class SimpleRuntimeEnv implements IRuntimeEnv {
 
-        IOpenRunner runner;
+        final IOpenRunner runner;
 
-        protected ArrayDeque<Object> thisStack = new ArrayDeque<>();
+        protected final ArrayDeque<Object> thisStack = new ArrayDeque<>();
 
-        protected ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
+        protected final ArrayDeque<Object[]> frameStack = new ArrayDeque<>();
 
         protected ArrayDeque<IRuntimeContext> contextStack;
 

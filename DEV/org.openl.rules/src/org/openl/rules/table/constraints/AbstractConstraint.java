@@ -7,7 +7,7 @@ import java.util.Objects;
  */
 public abstract class AbstractConstraint implements Constraint {
 
-    private String value;
+    private final String value;
 
     public AbstractConstraint(String value) {
         this.value = Objects.requireNonNull(value, "value cannot be null");

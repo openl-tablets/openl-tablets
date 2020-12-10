@@ -35,7 +35,7 @@ public class DoubleRangeParsingTest {
         try {
             DoubleRangeParser.getInstance().parse(x);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

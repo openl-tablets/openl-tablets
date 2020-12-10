@@ -43,7 +43,7 @@ class HttpData {
             return 200; // OK
         }
         String[] status = firstLine.split(" ", 3);
-        return Integer.valueOf(status[1]);
+        return Integer.parseInt(status[1]);
     }
 
     static HttpData readFile(String resource) throws IOException {

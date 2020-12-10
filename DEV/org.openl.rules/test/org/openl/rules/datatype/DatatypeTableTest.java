@@ -9,7 +9,7 @@ import org.openl.types.IOpenClass;
 
 public class DatatypeTableTest extends BaseOpenlBuilderHelper {
 
-    private static String src = "test/rules/datatype/DatatypeTableTest.xls";
+    private static final String src = "test/rules/datatype/DatatypeTableTest.xls";
 
     public DatatypeTableTest() {
         super(src);

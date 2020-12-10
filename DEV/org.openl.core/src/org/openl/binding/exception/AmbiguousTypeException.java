@@ -17,8 +17,8 @@ import org.openl.types.IOpenClass;
  */
 public class AmbiguousTypeException extends OpenlNotCheckedException {
 
-    private List<IOpenClass> matchingTypes;
-    private String typeName;
+    private final List<IOpenClass> matchingTypes;
+    private final String typeName;
 
     public AmbiguousTypeException(String typeName, List<IOpenClass> matchingTypes) {
         this.typeName = typeName;

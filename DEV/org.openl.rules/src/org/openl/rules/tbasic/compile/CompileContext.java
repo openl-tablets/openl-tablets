@@ -16,9 +16,9 @@ public class CompileContext {
     /***************************************************************************
      * Compiler output
      **************************************************************************/
-    private List<RuntimeOperation> operations;
-    private Map<String, RuntimeOperation> localLabelsRegister;
-    private Map<String, AlgorithmTreeNode> existingLables;
+    private final List<RuntimeOperation> operations;
+    private final Map<String, RuntimeOperation> localLabelsRegister;
+    private final Map<String, AlgorithmTreeNode> existingLables;
 
     public CompileContext() {
         operations = new ArrayList<>();

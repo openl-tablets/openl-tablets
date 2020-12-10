@@ -21,9 +21,9 @@ import org.openl.ie.constrainer.*;
  */
 public final class ConstraintExpEqualsExp extends ConstraintImpl {
     // PRIVATE MEMBERS
-    private IntExp _exp1;
-    private IntExp _exp2;
-    private int _offset;
+    private final IntExp _exp1;
+    private final IntExp _exp2;
+    private final int _offset;
 
     public ConstraintExpEqualsExp(IntExp exp1, IntExp exp2) {
         this(exp1, exp2, 0);

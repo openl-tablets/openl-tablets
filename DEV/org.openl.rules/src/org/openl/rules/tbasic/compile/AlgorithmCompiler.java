@@ -39,15 +39,15 @@ public class AlgorithmCompiler {
     /***************************************************************************
      * Initial data
      **************************************************************************/
-    private IBindingContext context;
-    private IOpenMethodHeader header;
-    private List<AlgorithmTreeNode> nodesToCompile;
+    private final IBindingContext context;
+    private final IOpenMethodHeader header;
+    private final List<AlgorithmTreeNode> nodesToCompile;
 
     /***************************************************************************
      * Intermediate values
      **************************************************************************/
     private CompileContext mainCompileContext;
-    private List<AlgorithmFunctionCompiler> functions = new ArrayList<>();
+    private final List<AlgorithmFunctionCompiler> functions = new ArrayList<>();
     private LabelManager labelManager;
 
     /***************************************************************************
@@ -57,9 +57,9 @@ public class AlgorithmCompiler {
 
     private IBindingContext thisContext;
 
-    private Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<>();
+    private final Map<String, OperationPreprocessor> operationPreprocessors = new HashMap<>();
 
-    private Stack<Collection<IOpenField>> variablesStack = new Stack<>();
+    private final Stack<Collection<IOpenField>> variablesStack = new Stack<>();
 
     {
         operationPreprocessors.put(OperationType.COMPILE.toString(), new CompilePreprocessor());

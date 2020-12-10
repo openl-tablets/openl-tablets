@@ -20,10 +20,10 @@ class RefPropertySource extends PropertySource<Object> {
             return null;
         }
         String subName = name;
-        String sufix = "";
+        StringBuilder sufix = new StringBuilder();
         int dot = name.length();
         do {
-            sufix = subName.substring(dot) + sufix;
+            sufix.insert(0, subName.substring(dot));
             subName = subName.substring(0, dot);
             String ref = subName + REF;
             String refProp = StringUtils.trimToNull(getPropValue(ref));

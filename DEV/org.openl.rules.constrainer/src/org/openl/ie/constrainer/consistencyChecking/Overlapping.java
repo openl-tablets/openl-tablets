@@ -37,7 +37,7 @@ public class Overlapping {
             this.bit = bit;
         }
 
-        int bit;
+        final int bit;
 
         public int getBit() {
             return bit;
@@ -121,7 +121,6 @@ public class Overlapping {
 
     @Override
     public String toString() {
-        String rep = "{ solution: " + getSolution() + " obeys the following rules: " + _overlapped + "}";
-        return rep;
+        return "{ solution: " + getSolution() + " obeys the following rules: " + _overlapped + "}";
     }
 }

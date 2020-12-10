@@ -80,7 +80,6 @@ public class Vehicle {
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Vehicle)) {
-            ;
             return false;
         }
         Vehicle another = (Vehicle) obj;

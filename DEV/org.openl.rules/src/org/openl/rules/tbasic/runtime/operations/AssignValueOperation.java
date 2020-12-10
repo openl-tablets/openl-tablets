@@ -15,7 +15,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class AssignValueOperation extends RuntimeOperation {
 
-    private String variableName;
+    private final String variableName;
 
     /**
      * Create an instance of <code>AssignValueOperation</code>.

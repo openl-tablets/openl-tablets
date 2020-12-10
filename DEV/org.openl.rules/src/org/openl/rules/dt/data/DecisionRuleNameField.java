@@ -11,8 +11,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DecisionRuleNameField implements IOpenField {
 
-    private DecisionTableDataType decisionTableDataType;
-    private RuleRow ruleRow;
+    private final DecisionTableDataType decisionTableDataType;
+    private final RuleRow ruleRow;
 
     DecisionRuleNameField(DecisionTableDataType decisionTableDataType, RuleRow ruleRow) {
         this.decisionTableDataType = decisionTableDataType;

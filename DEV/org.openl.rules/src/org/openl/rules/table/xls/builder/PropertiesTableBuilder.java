@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -38,8 +37,7 @@ public class PropertiesTableBuilder extends TableBuilder {
             throw new IllegalStateException("beginTable() has to be called");
         }
         Set<String> keys = properties.keySet();
-        for (Iterator<String> iterator = keys.iterator(); iterator.hasNext();) {
-            String key = iterator.next();
+        for (String key : keys) {
             writeCell(0, getCurrentRow(), 1, 1, key, style);
             Object value = properties.get(key);
             writeCell(1, getCurrentRow(), 1, 1, value, style);

@@ -4,9 +4,9 @@ import org.openl.rules.table.IWritableGrid;
 
 public abstract class AConditionBuilder implements IDecisionTableColumnBuilder {
 
-    private IDecisionTableColumn condition;
+    private final IDecisionTableColumn condition;
 
-    private int conditionNumber;
+    private final int conditionNumber;
 
     AConditionBuilder(IDecisionTableColumn condition, int conditionNumber) {
         this.condition = condition;

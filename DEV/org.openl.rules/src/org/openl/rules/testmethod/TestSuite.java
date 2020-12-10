@@ -11,7 +11,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuite implements INamedThing {
-    public static String VIRTUAL_TEST_SUITE = "Virtual test suite";
+    public static final String VIRTUAL_TEST_SUITE = "Virtual test suite";
     private TestSuiteMethod testSuiteMethod;
     private final TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());

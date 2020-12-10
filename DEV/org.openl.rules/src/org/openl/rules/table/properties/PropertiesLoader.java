@@ -32,9 +32,9 @@ public class PropertiesLoader {
 
     private static final String PROPERTIES_SECTION_NAME = "Properties_Section";
 
-    private OpenL openl;
-    private RulesModuleBindingContext bindingContext;
-    private XlsModuleOpenClass module;
+    private final OpenL openl;
+    private final RulesModuleBindingContext bindingContext;
+    private final XlsModuleOpenClass module;
 
     public PropertiesLoader(OpenL openl, RulesModuleBindingContext cxt, XlsModuleOpenClass module) {
         this.openl = openl;

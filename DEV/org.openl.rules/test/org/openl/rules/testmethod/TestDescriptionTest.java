@@ -25,8 +25,8 @@ public class TestDescriptionTest {
     private Object target;
 
     private SomeArgument[] arguments;
-    private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
-    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+    private final TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
+    private final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     @Before
     public void setUp() {

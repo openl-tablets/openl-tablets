@@ -5,7 +5,7 @@ public enum SuitablityAsReturn {
     SUITABLE(1),
     NONE(0);
 
-    private int value;
+    private final int value;
 
     public static SuitablityAsReturn lessSuitable(SuitablityAsReturn first, SuitablityAsReturn second) {
         if (first.value < second.value) {
@@ -15,7 +15,7 @@ public enum SuitablityAsReturn {
         }
     }
 
-    private SuitablityAsReturn(int value) {
+    SuitablityAsReturn(int value) {
         this.value = value;
     }
 }

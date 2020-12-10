@@ -5,8 +5,8 @@ import org.openl.types.IParameterDeclaration;
 
 public class DecisionTableParameterInfo implements IDecisionTableParameterInfo {
 
-    private int index;
-    private IDecisionRow row;
+    private final int index;
+    private final IDecisionRow row;
 
     DecisionTableParameterInfo(int index, IDecisionRow row) {
         this.index = index;

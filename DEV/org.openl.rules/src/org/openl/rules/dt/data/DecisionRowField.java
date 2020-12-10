@@ -9,9 +9,9 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DecisionRowField implements IOpenField {
 
-    private IDecisionRow conditionOrAction;
-    private DecisionTableDataType decisionTableDataType;
-    private ConditionOrActionDataType dataType;
+    private final IDecisionRow conditionOrAction;
+    private final DecisionTableDataType decisionTableDataType;
+    private final ConditionOrActionDataType dataType;
 
     DecisionRowField(IDecisionRow condOrAction,
             ConditionOrActionDataType dataType,

@@ -12,11 +12,9 @@ public class CommonRepositorySettings extends RepositorySettings {
     private final String uriPath;
     private final String loginPath;
     private final String passwordPath;
-    private final String configPathPrefix;
 
     public CommonRepositorySettings(PropertiesHolder properties, String configPrefix, RepositoryType repositoryType) {
         super(properties, configPrefix);
-        configPathPrefix = configPrefix;
         this.repositoryType = repositoryType;
         uriPath = configPrefix + ".uri";
         loginPath = configPrefix + ".login";

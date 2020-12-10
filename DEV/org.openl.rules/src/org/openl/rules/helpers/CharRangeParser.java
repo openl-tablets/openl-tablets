@@ -9,7 +9,6 @@ public final class CharRangeParser extends ARangeParser<Character> {
     }
 
     private final RangeParser[] parsers;
-    private final Pattern[] patterns;
 
     private static final String MIN_MAX_PATTERN = "\\s*(\\S)\\s*([-;…]|\\.{3}|\\.{2})\\s*(\\S)\\s*";
     private static final String BRACKETS_PATTERN =
@@ -21,7 +20,7 @@ public final class CharRangeParser extends ARangeParser<Character> {
 
     private CharRangeParser() {
         CharacterRangeBoundAdapter adapter = new CharacterRangeBoundAdapter();
-        patterns = new Pattern[] { Pattern.compile(BRACKETS_PATTERN),
+        Pattern[] patterns = new Pattern[] { Pattern.compile(BRACKETS_PATTERN),
                 Pattern.compile(MIN_MAX_PATTERN),
                 Pattern.compile(VERBAL_PATTERN),
                 Pattern.compile(MORE_LESS_PATTERN),

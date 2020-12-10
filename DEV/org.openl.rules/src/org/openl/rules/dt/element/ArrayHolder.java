@@ -9,8 +9,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ArrayHolder {
 
-    private CompositeMethod[] methods;
-    private IOpenClass componentType;
+    private final CompositeMethod[] methods;
+    private final IOpenClass componentType;
 
     public ArrayHolder(IOpenClass componentType, CompositeMethod[] methods) {
         this.methods = methods;

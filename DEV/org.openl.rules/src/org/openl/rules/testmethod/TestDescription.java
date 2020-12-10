@@ -24,9 +24,9 @@ public class TestDescription {
 
     private final Logger log = LoggerFactory.getLogger(TestDescription.class);
 
-    private ParameterWithValueDeclaration[] executionParams;
-    private IOpenMethod testedMethod;
-    private DynamicObject testObject;
+    private final ParameterWithValueDeclaration[] executionParams;
+    private final IOpenMethod testedMethod;
+    private final DynamicObject testObject;
     private int index;
     private List<IOpenField> fields = new ArrayList<>();
 

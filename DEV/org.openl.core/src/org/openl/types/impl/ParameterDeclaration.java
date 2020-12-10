@@ -12,8 +12,8 @@ import org.openl.util.ClassUtils;
  */
 public class ParameterDeclaration implements IParameterDeclaration {
 
-    private IOpenClass type;
-    private String name;
+    private final IOpenClass type;
+    private final String name;
 
     public ParameterDeclaration(IOpenClass type, String name) {
         this.type = type;

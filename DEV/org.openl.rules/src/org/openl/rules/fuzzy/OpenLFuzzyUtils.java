@@ -485,11 +485,11 @@ public final class OpenLFuzzyUtils {
     }
 
     public static final class FuzzyResult implements Comparable<FuzzyResult> {
-        Token token;
-        int foundTokensCount;
-        int missedTokensCount;
-        int unmatchedTokensCount;
-        double acceptableSimilarity;
+        final Token token;
+        final int foundTokensCount;
+        final int missedTokensCount;
+        final int unmatchedTokensCount;
+        final double acceptableSimilarity;
 
         public FuzzyResult(Token token,
                 int foundTokensCount,
@@ -559,9 +559,9 @@ public final class OpenLFuzzyUtils {
         private List<Pair<String, String>> similarity;
         private int maxMatchedTokens;
         private int[] f;
-        private double acceptableSimilarity;
-        private Token[] tokens;
-        private double[][][] distances;
+        private final double acceptableSimilarity;
+        private final Token[] tokens;
+        private final double[][][] distances;
 
         public BuildBySimilarity(double[][][] distances,
                 double acceptableSimilarity,

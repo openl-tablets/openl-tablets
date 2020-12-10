@@ -16,7 +16,7 @@ import org.openl.util.CategorizedMap;
  */
 public class TypeFactoryConfiguration extends AConfigurationElement implements IConfigurationElement {
 
-    private CategorizedMap map = new CategorizedMap();
+    private final CategorizedMap map = new CategorizedMap();
 
     public void addConfiguredTypeLibrary(NameSpacedTypeConfiguration library) {
         map.put(library.getNamespace(), library);

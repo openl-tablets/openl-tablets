@@ -9,7 +9,7 @@ class BracketMatcher {
         CURLY("{}"),
         SQUARE("[]");
 
-        private String brackets;
+        private final String brackets;
 
         Brackets(String brackets) {
             this.brackets = brackets;
@@ -48,8 +48,8 @@ class BracketMatcher {
             return errorCode;
         }
 
-        Brackets bracket;
-        Object id;
+        final Brackets bracket;
+        final Object id;
         ErrorType errorCode;
 
         BracketsStackObject(Brackets bracket, Object id, ErrorType errorCode) {
@@ -66,7 +66,7 @@ class BracketMatcher {
         }
     }
 
-    private Stack<BracketsStackObject> stack = new Stack<>();
+    private final Stack<BracketsStackObject> stack = new Stack<>();
 
     BracketsStackObject addToken(String image, Object id) {
 

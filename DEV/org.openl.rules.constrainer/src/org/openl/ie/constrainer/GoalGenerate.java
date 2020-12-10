@@ -31,11 +31,11 @@ import org.openl.ie.tools.FastVector;
  * @see GoalInstantiate
  */
 public class GoalGenerate extends GoalImpl {
-    private IntExpArray _intvars;
-    private IntVarSelector _var_selector;
-    private boolean _dichotomize;
-    private IntValueSelector _value_selector;
-    private boolean _recursiveInstantiate = true;
+    private final IntExpArray _intvars;
+    private final IntVarSelector _var_selector;
+    private final boolean _dichotomize;
+    private final IntValueSelector _value_selector;
+    private final boolean _recursiveInstantiate = true;
 
     /**
      * The search goals that instantiate each variable.

@@ -50,9 +50,9 @@ public class DeploymentManager implements InitializingBean {
 
     private String[] initialProductionRepositoryConfigNames;
     private DesignTimeRepository designRepository;
-    private IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
+    private final IRulesDeploySerializer rulesDeploySerializer = new XmlRulesDeploySerializer();
 
-    private Set<String> deployers = new HashSet<>();
+    private final Set<String> deployers = new HashSet<>();
     public RepositoryFactoryProxy repositoryFactoryProxy;
 
     public void addRepository(String repositoryConfigName) {

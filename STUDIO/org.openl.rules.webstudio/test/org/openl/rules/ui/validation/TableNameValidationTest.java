@@ -7,7 +7,7 @@ import static org.junit.Assert.assertTrue;
 
 public class TableNameValidationTest {
 
-    private TableNameValidator validator = new TableNameValidator();
+    private final TableNameValidator validator = new TableNameValidator();
 
     @Test
     public void testValidName() {

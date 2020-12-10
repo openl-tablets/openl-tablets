@@ -10,8 +10,8 @@ import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
  * @author PUdalau
  */
 public class TableSyntaxNodeKey {
-    private TableSyntaxNode tsn;
-    private DimensionPropertiesMethodKey methodKey;
+    private final TableSyntaxNode tsn;
+    private final DimensionPropertiesMethodKey methodKey;
 
     public TableSyntaxNodeKey(TableSyntaxNode tsn) {
         this.tsn = tsn;

@@ -12,7 +12,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
 public class IteratorNextOperation extends RuntimeOperation {
 
     public static final String ITERATOR = "iterator";
-    private String elementName;
+    private final String elementName;
 
     public IteratorNextOperation(String elementName) {
         this.elementName = elementName;

@@ -15,7 +15,7 @@ import org.openl.rules.ruleservice.storelogdata.ProcessingException;
 
 public class AegisObjectSerializer implements ObjectSerializer {
 
-    private AegisDatabinding aegisDatabinding;
+    private final AegisDatabinding aegisDatabinding;
 
     public AegisObjectSerializer(AegisDatabinding aegisDatabinding) {
         this.aegisDatabinding = aegisDatabinding;

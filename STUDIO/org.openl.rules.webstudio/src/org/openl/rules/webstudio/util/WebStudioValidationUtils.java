@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.util;
 import java.io.File;
 import java.io.IOException;
 
-import javax.faces.application.FacesMessage;
-import javax.faces.validator.ValidatorException;
-
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;

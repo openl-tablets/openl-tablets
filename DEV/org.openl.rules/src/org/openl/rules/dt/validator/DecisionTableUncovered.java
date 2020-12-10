@@ -11,7 +11,7 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DecisionTableUncovered {
 
-    private ArrayOfNamedValues values;
+    private final ArrayOfNamedValues values;
 
     public DecisionTableUncovered(ArrayOfNamedValues values) {
         this.values = values;

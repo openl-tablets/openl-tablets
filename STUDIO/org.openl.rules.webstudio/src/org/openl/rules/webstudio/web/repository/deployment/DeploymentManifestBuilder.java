@@ -23,7 +23,7 @@ import org.openl.util.StringUtils;
  */
 public class DeploymentManifestBuilder {
 
-    private Map<String, String> entries;
+    private final Map<String, String> entries;
 
     public DeploymentManifestBuilder() {
         this.entries = new HashMap<>();

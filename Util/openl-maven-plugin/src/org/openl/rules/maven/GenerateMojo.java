@@ -309,7 +309,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * A utility class to convert Java classes in CodeModel class descriptors. It is required for managing generated
      * beans because of they have not a classloader.
      */
-    private class CodeHelper {
+    private static class CodeHelper {
         JCodeModel model = new JCodeModel();
 
         AbstractJClass get(Class<?> clazz) throws JCodeModelException {

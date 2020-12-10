@@ -107,23 +107,22 @@ public class RunTest {
         assertEquals("String x=\"abc\"; x == null || x.length() < 10", true);
         assertEquals("String x=\"abc\"; x != null && x.length() < 10", true);
 
-        assertEquals("int x = 5; x += 4", new Integer(9));
+        assertEquals("int x = 5; x += 4", 9);
         assertEquals(
-            "DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1.getValue()",
-            new Double(9));
-        assertEquals("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", new Integer(45));
+            "DoubleValue d1 = new DoubleValue(5); DoubleValue d2 = new DoubleValue(4); d1 += d2; d1.getValue()", 9.0);
+        assertEquals("int i=0; for(int j=0; j < 10; ) {i += j;j++;} i", 45);
 
         // Testing new implementation of s1 == s2 for Strings. To achieve old
         // identity test Strings must be upcasted to Object
-        assertEquals("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", new Boolean(true));
-        assertEquals("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", new Boolean(false));
-        assertEquals("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", new Boolean(false));
-        assertEquals("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", new Boolean(true));
-        assertEquals("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", new Boolean(true));
-        assertEquals("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", new Boolean(false));
+        assertEquals("String a=\"a\"; String b = \"b\"; a + b == a + 'b'", Boolean.TRUE);
+        assertEquals("String a=\"a\"; String b = \"b\"; a + b == a + 'c'", Boolean.FALSE);
+        assertEquals("String a=\"a\"; String b = \"b\"; a + b != a + 'b'", Boolean.FALSE);
+        assertEquals("String a=\"a\"; String b = \"b\"; a + b != a + 'c'", Boolean.TRUE);
+        assertEquals("String a=\"a\"; String b = \"b\"; (Object)(a + b) == (Object)(a + 'b')", Boolean.TRUE);
+        assertEquals("String a=\"a\"; String b = \"b\"; (Object)(a + b) ==== (Object)(a + 'b')", Boolean.FALSE);
 
-        assertEquals("boolean a=true; boolean b = false; a == !b", new Boolean(true));
-        assertEquals("boolean a=true; boolean b = false; a != b", new Boolean(true));
+        assertEquals("boolean a=true; boolean b = false; a == !b", Boolean.TRUE);
+        assertEquals("boolean a=true; boolean b = false; a != b", Boolean.TRUE);
 
         assertEquals("Integer x = 1; \"aaa\".substring(x)", "aaa".substring(1));
 

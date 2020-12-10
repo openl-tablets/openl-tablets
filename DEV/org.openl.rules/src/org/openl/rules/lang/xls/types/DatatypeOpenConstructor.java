@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DatatypeOpenConstructor extends JavaOpenConstructor {
 
-    private static final IParameterDeclaration[] EMPTY = new IParameterDeclaration[0];
+    private static final IParameterDeclaration[] EMPTY = IParameterDeclaration.EMPTY;
 
     private final JavaOpenConstructor delegator;
     private final IOpenClass declaringClass;

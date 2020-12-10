@@ -10,8 +10,8 @@ package org.openl.domain;
 public interface IIntSelector {
 
     final class IntSelectIterator extends AIntIterator {
-        IIntSelector selector;
-        IIntIterator it;
+        final IIntSelector selector;
+        final IIntIterator it;
         int next;
         boolean hasNext = false;
 

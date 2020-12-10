@@ -49,7 +49,7 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
 
     }
 
-    CategorizedMap map = new CategorizedMap();
+    final CategorizedMap map = new CategorizedMap();
 
     public void addConfiguredBinder(SingleBinderFactory factory) {
         map.put(factory.getNode(), factory);

@@ -162,8 +162,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
 
         for (int i = 0; i < nConditions; i++) {
-            final int index = i;
-            evaluators[index] = prepareCondition(ruleExecutionType, conditionBindingContext, index);
+            evaluators[i] = prepareCondition(ruleExecutionType, conditionBindingContext, i);
         }
 
         return evaluators;

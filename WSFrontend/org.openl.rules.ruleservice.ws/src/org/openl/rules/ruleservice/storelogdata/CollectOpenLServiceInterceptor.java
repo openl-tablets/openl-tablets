@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class CollectOpenLServiceInterceptor extends AbstractPhaseInterceptor<Message> {
     private static final Logger LOG = LoggerFactory.getLogger(CollectOpenLServiceInterceptor.class);
 
-    private OpenLService service;
+    private final OpenLService service;
 
     public CollectOpenLServiceInterceptor(String phase, OpenLService service) {
         super(phase);

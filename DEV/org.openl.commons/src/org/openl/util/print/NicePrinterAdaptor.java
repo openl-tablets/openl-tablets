@@ -50,7 +50,7 @@ public class NicePrinterAdaptor {
 
     }
 
-    static Class<?>[] primitiveClasses = { Integer.class,
+    static final Class<?>[] primitiveClasses = { Integer.class,
             Double.class,
             Boolean.class,
             Character.class,
@@ -65,8 +65,8 @@ public class NicePrinterAdaptor {
 
     public static boolean isPrimitiveClass(Class<?> c) {
 
-        for (int i = 0; i < primitiveClasses.length; i++) {
-            if (primitiveClasses[i] == c) {
+        for (Class<?> primitiveClass : primitiveClasses) {
+            if (primitiveClass == c) {
                 return true;
             }
         }

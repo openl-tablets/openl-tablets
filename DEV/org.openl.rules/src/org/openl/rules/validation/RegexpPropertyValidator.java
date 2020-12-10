@@ -21,8 +21,8 @@ import org.openl.validation.ValidationResult;
  * @author PUdalau
  */
 public class RegexpPropertyValidator extends TablesValidator {
-    private String propertyName;
-    private String constraintsStr;
+    private final String propertyName;
+    private final String constraintsStr;
 
     public RegexpPropertyValidator(String propertyName, String constraintsStr) {
         this.propertyName = propertyName;

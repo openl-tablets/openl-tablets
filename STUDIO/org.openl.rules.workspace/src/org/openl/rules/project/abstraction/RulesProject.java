@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 public class RulesProject extends UserWorkspaceProject {
     private final Logger log = LoggerFactory.getLogger(RulesProject.class);
 
-    private LocalRepository localRepository;
+    private final LocalRepository localRepository;
     private String localFolderName;
 
     private Repository designRepository;

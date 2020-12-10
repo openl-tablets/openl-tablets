@@ -20,7 +20,7 @@ public class MethodNode extends ABoundNode implements IBoundMethodNode, IMemberB
 
     int localFrameSize, parametersSize;
 
-    DeferredMethod deferredMethod;
+    final DeferredMethod deferredMethod;
 
     public MethodNode(ISyntaxNode syntaxNode, DeferredMethod deferredMethod) {
         super(syntaxNode);

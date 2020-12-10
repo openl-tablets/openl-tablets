@@ -72,7 +72,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
     public enum DependencyCompilationType {
         NONLAZY,
         LAZY,
-        UNLOADABLE;
+        UNLOADABLE
     }
 
     public void compilationCompleted(IDependencyLoader dependencyLoader,

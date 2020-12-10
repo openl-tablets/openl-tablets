@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
 public class ChangesMonitor implements Runnable {
     private static final Logger LOG = LoggerFactory.getLogger(ChangesMonitor.class);
     private RevisionGetter getter;
-    private int period;
+    private final int period;
 
     private ScheduledExecutorService scheduledPool;
     private ScheduledFuture<?> scheduled;
@@ -108,8 +108,8 @@ public class ChangesMonitor implements Runnable {
         if (scheduledPool != null) {
             try {
                 scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (InterruptedException e) {
+                LOG.debug("Ignored error: ", e);
             }
             scheduledPool = null;
         }

@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     private final Logger log = LoggerFactory.getLogger(SimpleStoreLogDataManager.class);
 
-    private Collection<StoreLogDataService> storeLogDataServices;
+    private final Collection<StoreLogDataService> storeLogDataServices;
 
     public SimpleStoreLogDataManager(Collection<StoreLogDataService> storeLogDataServices) {
         Objects.requireNonNull(storeLogDataServices);

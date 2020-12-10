@@ -23,7 +23,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
 
     private RulesFrontend frontend = new RulesFrontendImpl();
 
-    private Map<String, OpenLService> runningServices = new HashMap<>();
+    private final Map<String, OpenLService> runningServices = new HashMap<>();
 
     public RulesFrontend getFrontend() {
         return frontend;

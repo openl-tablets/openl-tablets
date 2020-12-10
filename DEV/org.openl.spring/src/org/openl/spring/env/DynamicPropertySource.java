@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
@@ -79,8 +78,7 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     public File getFile() {
         String property = resolver.getProperty(OPENL_HOME_SHARED);
-        File file = new File(property, appName + ".properties");
-        return file;
+        return new File(property, appName + ".properties");
     }
 
     @Override

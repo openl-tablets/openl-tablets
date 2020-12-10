@@ -7,10 +7,10 @@ import org.openl.rules.table.ui.ICellStyle;
 
 class GridTableCell implements ICell {
 
-    private int column;
-    private int row;
-    private IGridTable table;
-    private ICell cell;
+    private final int column;
+    private final int row;
+    private final IGridTable table;
+    private final ICell cell;
 
     @Override
     public ICell getTopLeftCellFromRegion() {

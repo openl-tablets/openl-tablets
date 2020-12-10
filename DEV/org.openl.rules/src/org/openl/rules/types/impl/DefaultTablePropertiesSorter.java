@@ -12,8 +12,8 @@ import org.openl.rules.table.properties.expressions.sequence.IntersectedProperti
 import org.openl.types.IOpenMethod;
 
 public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
-    private List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<>();
-    private List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<>();
+    private final List<Comparator<ITableProperties>> maxMinPriorityRules = new ArrayList<>();
+    private final List<Comparator<ITableProperties>> tablesPriorityRules = new ArrayList<>();
 
     private Comparator<IOpenMethod> methodsComparator;
 

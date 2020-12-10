@@ -16,7 +16,7 @@ public class JarClassLocator implements ClassLocator {
     private final List<LocatorExceptionHandler> handlers;
 
     public JarClassLocator() {
-        this(new ArrayList<LocatorExceptionHandler>());
+        this(new ArrayList<>());
     }
 
     public JarClassLocator(List<? extends LocatorExceptionHandler> handlers) {

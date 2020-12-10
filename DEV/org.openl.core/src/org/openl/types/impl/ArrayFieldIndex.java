@@ -14,8 +14,8 @@ import org.openl.types.IOpenIndex;
 import org.openl.util.IntegerValuesUtils;
 
 public class ArrayFieldIndex implements IOpenIndex {
-    private IOpenClass elementType;
-    private IOpenField indexField;
+    private final IOpenClass elementType;
+    private final IOpenField indexField;
 
     public ArrayFieldIndex(IOpenClass elementType, IOpenField indexField) {
         this.elementType = elementType;

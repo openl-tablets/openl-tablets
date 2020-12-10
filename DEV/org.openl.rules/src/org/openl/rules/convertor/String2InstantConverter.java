@@ -23,8 +23,7 @@ public class String2InstantConverter implements IString2DataConvertor<Instant> {
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
-                Instant instantDate = dtFormat.parse(data, Instant::from);
-                return instantDate;
+                return dtFormat.parse(data, Instant::from);
             } catch (DateTimeParseException e) {
                 // Loop on
             }

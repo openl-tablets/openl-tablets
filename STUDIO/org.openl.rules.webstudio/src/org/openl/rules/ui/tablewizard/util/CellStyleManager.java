@@ -5,8 +5,8 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.richfaces.json.JSONObject;
 
 public class CellStyleManager {
-    private CellStyleCreator styleFactory;
-    private JSONHolder table;
+    private final CellStyleCreator styleFactory;
+    private final JSONHolder table;
 
     public CellStyleManager(XlsSheetGridModel gridModel, JSONHolder table) {
         this.styleFactory = new CellStyleCreator(gridModel);

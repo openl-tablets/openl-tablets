@@ -21,7 +21,7 @@ import org.openl.util.ZipUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
     private static final String SEPARATOR = "--------------------------------------------------";
-    private static Collection<String> OPENL_FILES = Arrays.asList("rules.xml", "rules-deploy.xml");
+    private static final Collection<String> OPENL_FILES = Arrays.asList("rules.xml", "rules-deploy.xml");
 
     /**
      * Folder that contains all OpenL Tablets-related resources such as rules and project descriptor, for example,

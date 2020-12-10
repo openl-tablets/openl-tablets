@@ -8,11 +8,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TracerKeyNode<T, E extends IRuntimeEnv> {
 
-    private Invokable<? super T, E> executor;
-    private T target;
-    private Object[] params;
-    private E env;
-    private Object source;
+    private final Invokable<? super T, E> executor;
+    private final T target;
+    private final Object[] params;
+    private final E env;
+    private final Object source;
 
     public TracerKeyNode(Invokable<? super T, E> executor, T target, Object[] params, E env, Object source) {
         this.executor = executor;

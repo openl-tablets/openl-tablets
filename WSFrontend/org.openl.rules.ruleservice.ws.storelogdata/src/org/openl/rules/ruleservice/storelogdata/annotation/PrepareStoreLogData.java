@@ -19,7 +19,7 @@ public @interface PrepareStoreLogData {
 
     boolean before() default false;
 
-    public static class Default implements ServiceMethodAdvice {
+    class Default implements ServiceMethodAdvice {
     }
 
 }

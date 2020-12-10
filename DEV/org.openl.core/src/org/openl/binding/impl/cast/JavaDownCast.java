@@ -8,8 +8,8 @@ import org.openl.types.java.JavaOpenClass;
 
 final class JavaDownCast implements IOpenCast {
 
-    private IOpenClass to;
-    private ICastFactory castFactory;
+    private final IOpenClass to;
+    private final ICastFactory castFactory;
 
     JavaDownCast(IOpenClass to, ICastFactory castFactory) {
         this.to = Objects.requireNonNull(to, "to cannot be null");

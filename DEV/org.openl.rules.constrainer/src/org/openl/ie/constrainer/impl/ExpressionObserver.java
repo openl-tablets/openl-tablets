@@ -40,8 +40,8 @@ public abstract class ExpressionObserver extends Observer {
     /**
      * A generic implementation of the EventMap interface.
      */
-    class EventMapImpl implements EventMap {
-        private int[] _masks;
+    static class EventMapImpl implements EventMap {
+        private final int[] _masks;
 
         EventMapImpl(int[] masks) {
             _masks = masks;
@@ -66,7 +66,7 @@ public abstract class ExpressionObserver extends Observer {
     static final private int[] trival_event_map = { MIN, MIN, MAX, MAX, VALUE, VALUE, REMOVE, REMOVE };
 
     // protected Expression _expression;
-    private EventMap _event_map;
+    private final EventMap _event_map;
 
     /**
      * The mask for event in which the observer is interested in.

@@ -15,7 +15,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MethodBoundNode extends ATargetBoundNode {
 
-    protected IMethodCaller boundMethod;
+    protected final IMethodCaller boundMethod;
 
     public MethodBoundNode(ISyntaxNode syntaxNode, IMethodCaller methodCaller, IBoundNode... child) {
         this(syntaxNode, null, methodCaller, child);

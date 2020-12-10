@@ -35,12 +35,13 @@ import org.openl.ie.constrainer.impl.IntExpCard;
  *
  */
 public final class IntArrayCards extends Observer {
-    int _min, _max;
+    final int _min;
+    final int _max;
 
-    IntExpArray _vars;
-    IntExpArray _cards;
+    final IntExpArray _vars;
+    final IntExpArray _cards;
 
-    HashMap _index_map = new HashMap();
+    final HashMap _index_map = new HashMap();
 
     /**
      * Creates an array of cardinalities for an <b>IntExpArray </b> that associates itself with each elements of
@@ -62,7 +63,7 @@ public final class IntArrayCards extends Observer {
 
         for (int i = 0; i < var_data.length; ++i) {
             var_data[i].attachObserver(this);
-            _index_map.put(var_data[i], new Integer(i));
+            _index_map.put(var_data[i], i);
         }
 
         int size = Math.max(1, _max - _min + 1);

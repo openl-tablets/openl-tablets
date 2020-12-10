@@ -35,7 +35,7 @@ public class ClassFactory extends AConfigurationElement {
         } catch (ClassNotFoundException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
-            LOG.debug("Potential problem loading class: {0}", name, ex);
+            LOG.debug("Potential problem loading class: {}", name, ex);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
             LOG.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",

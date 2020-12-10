@@ -2,7 +2,8 @@ package org.openl.ie.constrainer.consistencyChecking;
 
 public class IntPair {
 
-    private int x, y;
+    private final int x;
+    private final int y;
 
     public IntPair(int x, int y) {
         super();

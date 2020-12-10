@@ -11,7 +11,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class IteratorHasNextOperation extends RuntimeOperation {
 
-    private String elementName;
+    private final String elementName;
 
     public IteratorHasNextOperation(String elementName) {
         this.elementName = elementName;

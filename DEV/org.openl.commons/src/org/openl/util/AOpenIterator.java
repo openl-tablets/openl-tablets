@@ -35,7 +35,7 @@ public abstract class AOpenIterator<T> implements IOpenIterator<T> {
     }
 
     abstract static class IteratorWrapper<T, C> extends AOpenIterator<C> {
-        protected Iterator<T> it;
+        protected final Iterator<T> it;
 
         IteratorWrapper(Iterator<T> it) {
             this.it = it;

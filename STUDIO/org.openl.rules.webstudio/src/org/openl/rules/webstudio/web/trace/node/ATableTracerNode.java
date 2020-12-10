@@ -7,9 +7,9 @@ import org.slf4j.LoggerFactory;
 
 public class ATableTracerNode extends SimpleTracerObject {
     private static final Logger LOG = LoggerFactory.getLogger(ATableTracerNode.class);
-    private Object[] params;
-    private ExecutableRulesMethod method;
-    private String prefix;
+    private final Object[] params;
+    private final ExecutableRulesMethod method;
+    private final String prefix;
     private final IRuntimeContext context;
 
     ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
@@ -29,9 +29,9 @@ public class ATableTracerNode extends SimpleTracerObject {
             Object[] clonedParams;
             try {
                 clonedParams = cloner.deepClone(params);
-            } catch (Throwable ignored) {
+            } catch (Throwable e) {
                 // ignore cloning exception if any, use params itself
-                LOG.debug("Ignored error: ", ignored);
+                LOG.debug("Ignored error: ", e);
                 clonedParams = params;
             }
             this.params = clonedParams;

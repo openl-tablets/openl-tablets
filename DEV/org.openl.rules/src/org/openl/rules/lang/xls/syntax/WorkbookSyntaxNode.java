@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -9,7 +10,7 @@ import org.openl.syntax.impl.NaryNode;
 
 public class WorkbookSyntaxNode extends NaryNode {
 
-    private TableSyntaxNode[] mergedTableParts;
+    private final TableSyntaxNode[] mergedTableParts;
 
     public WorkbookSyntaxNode(WorksheetSyntaxNode[] nodes,
             TableSyntaxNode[] mergedTableParts,
@@ -42,14 +43,10 @@ public class WorkbookSyntaxNode extends NaryNode {
 
         for (WorksheetSyntaxNode sheetNode : sheetNodes) {
             TableSyntaxNode[] tableSyntaxNodes = sheetNode.getTableSyntaxNodes();
-            for (TableSyntaxNode tsn : tableSyntaxNodes) {
-                tnodes.add(tsn);
-            }
+            tnodes.addAll(Arrays.asList(tableSyntaxNodes));
         }
 
-        for (TableSyntaxNode tnode : mergedTableParts) {
-            tnodes.add(tnode);
-        }
+        tnodes.addAll(Arrays.asList(mergedTableParts));
         tableSyntaxNodes = tnodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
     }
 

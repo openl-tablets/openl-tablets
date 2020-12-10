@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -178,8 +177,7 @@ public class TestTableBuilder extends TableBuilder {
         }
         int column = 0;
         Set<String> names = params.keySet();
-        for (Iterator<String> iterator = names.iterator(); iterator.hasNext();) {
-            String name = iterator.next();
+        for (String name : names) {
             writeCell(column, getCurrentRow(), 1, 1, name);
             String title = params.get(name);
             writeCell(column, getCurrentRow() + 1, 1, 1, title);

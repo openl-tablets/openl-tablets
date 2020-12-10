@@ -18,7 +18,7 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 
 public class OpenLEngine {
 
-    public static final Object findAndInvokeMethod(String methodName,
+    public static Object findAndInvokeMethod(String methodName,
             Object target,
             Class<?> interfaceClass,
             Object... args) throws IllegalAccessException, InvocationTargetException {

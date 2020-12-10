@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 class IntMappedStorage extends MappedStorage {
 
-    private int[] map;
+    private final int[] map;
 
     IntMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
         super(uniqueValues, info);

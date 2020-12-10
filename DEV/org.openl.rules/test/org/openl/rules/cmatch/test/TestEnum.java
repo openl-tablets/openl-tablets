@@ -9,5 +9,5 @@ public enum TestEnum {
     FIVE,
     THREE,
     TWO,
-    ONE;
+    ONE
 }

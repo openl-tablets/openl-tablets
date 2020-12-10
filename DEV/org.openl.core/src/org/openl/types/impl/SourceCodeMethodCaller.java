@@ -20,9 +20,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class SourceCodeMethodCaller implements IMethodCaller {
     IOpenMethod method;
-    String sourceCode;
-    IMethodSignature signature;
-    IOpenClass resultType;
+    final String sourceCode;
+    final IMethodSignature signature;
+    final IOpenClass resultType;
 
     public SourceCodeMethodCaller(IMethodSignature signature, IOpenClass resultType, String sourceCode) {
         this.signature = Objects.requireNonNull(signature, "signature cannot be null");

@@ -13,7 +13,7 @@ import org.openl.rules.ruleservice.core.ResourceLoader;
 
 class ResourceLoaderImpl implements ResourceLoader {
 
-    private IProject project;
+    private final IProject project;
 
     public ResourceLoaderImpl(IProject project) {
         this.project = Objects.requireNonNull(project, "project cannot be null");

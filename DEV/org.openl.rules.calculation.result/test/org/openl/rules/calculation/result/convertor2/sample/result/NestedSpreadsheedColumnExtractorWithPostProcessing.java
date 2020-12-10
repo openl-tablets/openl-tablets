@@ -13,7 +13,7 @@ import org.openl.rules.calculation.result.convertor2.NestedSpreadsheetConfigurat
  */
 public class NestedSpreadsheedColumnExtractorWithPostProcessing extends NestedSpreadsheedColumnExtractor {
 
-    private CompoundStepPostProcessor compoundStepPostProcessor = new CompoundStepPostProcessor();
+    private final CompoundStepPostProcessor compoundStepPostProcessor = new CompoundStepPostProcessor();
 
     NestedSpreadsheedColumnExtractorWithPostProcessing(int nestingLevel,
             NestedSpreadsheetConfiguration<?, ?> configuration,

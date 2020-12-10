@@ -12,7 +12,7 @@ public abstract class AConditionEvaluator implements IConditionEvaluator {
 
     private String optimizedSourceCode;
 
-    protected ConditionCasts conditionCasts;
+    protected final ConditionCasts conditionCasts;
 
     public AConditionEvaluator(ConditionCasts conditionCasts) {
         this.conditionCasts = Objects.requireNonNull(conditionCasts, "conditionCasts cannot be null");

@@ -13,9 +13,9 @@ import org.openl.util.CollectionUtils;
 
 public class TableModel {
 
-    private ICellModel[][] cells;
+    private final ICellModel[][] cells;
 
-    private IGridTable gridTable;
+    private final IGridTable gridTable;
 
     private int numRowsToDisplay = -1;
 

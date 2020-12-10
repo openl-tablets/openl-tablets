@@ -9,9 +9,9 @@ import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
  * The <code>TBasicVMDataContext</code> contains context for running <code>TBasicVM</code>.
  */
 public class TBasicVMDataContext {
-    private List<RuntimeOperation> operations;
-    private Map<String, RuntimeOperation> labels;
-    private boolean isMainMethodContext;
+    private final List<RuntimeOperation> operations;
+    private final Map<String, RuntimeOperation> labels;
+    private final boolean isMainMethodContext;
 
     /**
      * Create a new instance of <code>TBasicVMDataContext</code>.

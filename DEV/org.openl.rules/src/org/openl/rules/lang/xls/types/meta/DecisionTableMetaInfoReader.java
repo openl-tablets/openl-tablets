@@ -564,8 +564,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private static class ReturnMetaInfo {
-        String details;
-        String uri;
+        final String details;
+        final String uri;
 
         public ReturnMetaInfo(String details, String uri) {
             super();

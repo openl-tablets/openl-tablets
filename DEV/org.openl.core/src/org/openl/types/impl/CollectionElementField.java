@@ -19,8 +19,8 @@ import org.openl.vm.IRuntimeEnv;
 public class CollectionElementField extends AOpenField {
     private int elementIndex;
     private Object mapKey;
-    private IOpenField field;
-    private CollectionType collectionType;
+    private final IOpenField field;
+    private final CollectionType collectionType;
 
     public CollectionElementField(IOpenField field, int elementIndex, IOpenClass type, CollectionType collectionType) {
         super(getName(field.getName(), String.valueOf(elementIndex)), type);

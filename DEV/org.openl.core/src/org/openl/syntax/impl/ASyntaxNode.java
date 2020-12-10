@@ -18,11 +18,11 @@ public abstract class ASyntaxNode implements ISyntaxNode {
 
     private String type;
 
-    private IOpenSourceCodeModule module;
+    private final IOpenSourceCodeModule module;
 
     private ISyntaxNode parent;
 
-    private ILocation location;
+    private final ILocation location;
 
     public ASyntaxNode(String type, ILocation location, IOpenSourceCodeModule module) {
         this.type = type;

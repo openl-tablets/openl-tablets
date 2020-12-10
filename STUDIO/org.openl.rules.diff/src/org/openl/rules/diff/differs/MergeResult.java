@@ -53,6 +53,6 @@ public class MergeResult {
     }
 
     static String[] toSA(Set<String> set) {
-        return set.toArray(new String[set.size()]);
+        return set.toArray(new String[0]);
     }
 }

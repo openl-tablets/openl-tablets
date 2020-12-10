@@ -61,11 +61,11 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Identifier of the node.
      */
-    private String id;
+    private final String id;
     /**
      * Display name
      */
-    private String name;
+    private final String name;
 
     /**
      * Reference on parent node. For upper level node(s) it is <code>null</code>
@@ -76,7 +76,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      * When <code>true</code> then the node cannot have children. Any operation that implies adding/getting/removing
      * children will lead to {@link UnsupportedOperationException}.
      */
-    private boolean isLeafOnly;
+    private final boolean isLeafOnly;
 
     private AProjectArtefact data;
 

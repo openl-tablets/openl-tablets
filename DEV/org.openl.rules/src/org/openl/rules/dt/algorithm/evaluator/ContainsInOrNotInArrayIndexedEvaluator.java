@@ -25,7 +25,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ContainsInOrNotInArrayIndexedEvaluator implements IConditionEvaluator {
 
-    private BooleanTypeAdaptor adaptor;
+    private final BooleanTypeAdaptor adaptor;
 
     public ContainsInOrNotInArrayIndexedEvaluator(BooleanTypeAdaptor adaptor) {
         this.adaptor = adaptor;

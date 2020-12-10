@@ -34,7 +34,7 @@ public class IntRangeParsingTest {
         try {
             IntRangeParser.getInstance().parse(x);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 

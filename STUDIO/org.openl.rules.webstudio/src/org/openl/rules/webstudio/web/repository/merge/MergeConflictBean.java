@@ -17,7 +17,6 @@ import java.util.stream.Collectors;
 import javax.annotation.PreDestroy;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.model.Module;

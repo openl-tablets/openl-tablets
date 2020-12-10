@@ -14,9 +14,9 @@ import org.openl.types.NullOpenClass;
 
 public class LazyCompiledOpenClass extends CompiledOpenClass {
 
-    private LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
-    private RuleServiceDependencyManager dependencyManager;
-    private IDependency dependency;
+    private final LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
+    private final RuleServiceDependencyManager dependencyManager;
+    private final IDependency dependency;
 
     LazyCompiledOpenClass(RuleServiceDependencyManager dependencyManager,
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,

@@ -41,8 +41,8 @@ public class AlgorithmBuilder {
 
     // Section Description Operation Condition Action Before After
     private static final class AlgorithmColumn {
-        private String id;
-        private int columnIndex;
+        private final String id;
+        private final int columnIndex;
 
         private AlgorithmColumn(String id, int columnIndex) {
             this.id = id;

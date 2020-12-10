@@ -32,14 +32,12 @@ public class IntSetEvent extends EventOfInterest {
         int ALL = 8;
     }
 
-    static ReusableFactory _factory = new ReusableFactory() {
+    static final ReusableFactory _factory = new ReusableFactory() {
         @Override
         protected Reusable createNewElement() {
             return new IntSetEvent();
         }
     };
-    private IntSetVar _var;
-    private int _val;
 
     private int _type;
 
@@ -50,8 +48,6 @@ public class IntSetEvent extends EventOfInterest {
     }
 
     void init(IntSetVar var, int val, int type) {
-        _var = var;
-        _val = val;
         _type = type;
     }
 

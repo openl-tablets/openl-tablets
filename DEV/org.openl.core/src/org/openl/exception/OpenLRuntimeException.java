@@ -21,7 +21,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
 
     private static final long serialVersionUID = -8422089115244904493L;
 
-    private LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
+    private final LinkedList<IBoundNode> openlCallStack = new LinkedList<>();
     private ILocation location;
     private String sourceLocation;
     private String sourceCode;
@@ -142,9 +142,7 @@ public class OpenLRuntimeException extends RuntimeException implements OpenLExce
             SourceCodeURLTool.printSourceLocation(getSourceLocation(), writer);
         }
 
-        LinkedList<IBoundNode> nodes = openlCallStack;
-
-        for (IBoundNode node : nodes) {
+        for (IBoundNode node : openlCallStack) {
             ISyntaxNode syntaxNode = node.getSyntaxNode();
             if (syntaxNode != null) {
                 String sourceLocation = SourceCodeURLTool.makeSourceLocationURL(syntaxNode.getSourceLocation(),

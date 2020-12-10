@@ -9,7 +9,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.openl.rules.table.xls.builder.TableBuilder;
 
 public class TableServiceImpl {
-    private MetaInfoWriter metaInfoWriter;
+    private final MetaInfoWriter metaInfoWriter;
 
     public TableServiceImpl() {
         this(null);

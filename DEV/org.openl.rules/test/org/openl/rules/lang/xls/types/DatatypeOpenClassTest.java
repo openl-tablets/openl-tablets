@@ -14,9 +14,9 @@ import org.openl.types.impl.ComponentTypeArrayOpenClass;
  */
 public class DatatypeOpenClassTest {
 
-    private final String DEFAULT_PACKAGE = "default.test";
-    private final String DEFAULT_NAME = "DatatypeTest";
-    private final String ANY_URL = "file://hello";
+    private final static String DEFAULT_PACKAGE = "default.test";
+    private final static String DEFAULT_NAME = "DatatypeTest";
+    private final static String ANY_URL = "file://hello";
 
     private IOpenClass from;
 

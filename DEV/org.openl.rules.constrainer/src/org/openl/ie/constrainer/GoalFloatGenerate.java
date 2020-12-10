@@ -27,8 +27,8 @@ import org.openl.ie.tools.FastVector;
  * </ul>
  */
 public class GoalFloatGenerate extends GoalImpl {
-    private FloatExpArray _vars;
-    private FloatVarSelector _var_selector;
+    private final FloatExpArray _vars;
+    private final FloatVarSelector _var_selector;
 
     /**
      * The search goals that instantiate each variable.

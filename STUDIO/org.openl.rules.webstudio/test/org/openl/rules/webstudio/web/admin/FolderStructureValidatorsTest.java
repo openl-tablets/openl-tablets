@@ -9,7 +9,7 @@ import org.junit.Test;
 import org.openl.rules.webstudio.util.NameChecker;
 
 public class FolderStructureValidatorsTest {
-    private FolderStructureValidators validators = new FolderStructureValidators();
+    private final FolderStructureValidators validators = new FolderStructureValidators();
 
     @Test
     public void pathInRepository() {

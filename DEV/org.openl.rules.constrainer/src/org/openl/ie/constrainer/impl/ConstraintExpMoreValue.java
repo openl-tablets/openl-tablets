@@ -51,10 +51,10 @@ public final class ConstraintExpMoreValue extends ConstraintImpl {
     } // ~ ObserverMoreValue
       // PRIVATE MEMBERS
 
-    private IntExp _exp;
-    private int _value;
+    private final IntExp _exp;
+    private final int _value;
 
-    private Constraint _opposite;
+    private final Constraint _opposite;
 
     public ConstraintExpMoreValue(IntExp exp, int value) {
         super(exp.constrainer());

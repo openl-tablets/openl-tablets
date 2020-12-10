@@ -1,7 +1,6 @@
 package org.openl.rules.method;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 

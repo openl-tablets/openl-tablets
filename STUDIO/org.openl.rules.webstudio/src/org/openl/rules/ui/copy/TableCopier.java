@@ -71,7 +71,7 @@ public class TableCopier extends TableCreationWizard {
     /**
      * Bean - container of all properties for new copy of the original table.
      */
-    private PropertiesBean propertiesManager;
+    private final PropertiesBean propertiesManager;
 
     private UIRepeat propsTable;
 

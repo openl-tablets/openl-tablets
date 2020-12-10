@@ -8,7 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JacksonObjectSerializer implements ObjectSerializer {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public JacksonObjectSerializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;

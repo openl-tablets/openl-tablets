@@ -29,7 +29,7 @@ import org.openl.util.formatters.IFormatter;
 // TODO Reimplement
 public class CellEditorSelector {
 
-    private ICellEditorFactory factory = new CellEditorFactory();
+    private final ICellEditorFactory factory = new CellEditorFactory();
 
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
         if (cell.getFormula() != null) {

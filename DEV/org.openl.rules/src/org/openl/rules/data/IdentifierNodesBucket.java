@@ -7,7 +7,7 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public class IdentifierNodesBucket {
 
-    private IdentifierNode[] node;
+    private final IdentifierNode[] node;
     private int length;
     private String[] ids;
 

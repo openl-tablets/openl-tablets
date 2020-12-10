@@ -22,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenField implements IOpenField {
 
-    Field field;
+    final Field field;
     String contextProperty;
 
     JavaOpenField(Field field) {

@@ -18,13 +18,13 @@ public class JavaBeanClassBuilder {
 
     protected final String beanName;
     protected TypeDescription parentType = POJOByteCodeGenerator.OBJECT_TYPE_DESCRIPTION;
-    protected LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
-    protected LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
+    protected final LinkedHashMap<String, FieldDescription> parentFields = new LinkedHashMap<>(0);
+    protected final LinkedHashMap<String, FieldDescription> fields = new LinkedHashMap<>(0);
 
     protected boolean additionalConstructor = true;
     protected boolean publicFields = false;
     protected boolean equalsHashCodeToStringMethods = true;
-    protected LinkedHashSet<Consumer<ClassWriter>> typeWriters = new LinkedHashSet<>();
+    protected final LinkedHashSet<Consumer<ClassWriter>> typeWriters = new LinkedHashSet<>();
 
     public JavaBeanClassBuilder(String beanName) {
         this.beanName = beanName.replace('.', '/');

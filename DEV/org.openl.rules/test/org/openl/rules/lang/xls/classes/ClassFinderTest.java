@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.classes;
 
 import static org.junit.Assert.assertEquals;
 
-import java.io.IOException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -44,7 +43,7 @@ public class ClassFinderTest {
         return new ClassLoader() {
 
             @Override
-            public Enumeration<URL> getResources(String name) throws IOException {
+            public Enumeration<URL> getResources(String name) {
                 return Collections.enumeration(Arrays.asList(urls));
             }
 

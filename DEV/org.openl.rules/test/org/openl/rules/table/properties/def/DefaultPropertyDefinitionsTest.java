@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,9 +17,7 @@ public class DefaultPropertyDefinitionsTest {
             if (tablePropertyDefinition.isDimensional()) {
                 InheritanceLevel[] inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
                 Set<InheritanceLevel> set = new HashSet<>();
-                for (InheritanceLevel inheritanceLevel : inheritanceLevels) {
-                    set.add(inheritanceLevel);
-                }
+                set.addAll(Arrays.asList(inheritanceLevels));
                 if (!set.contains(InheritanceLevel.CATEGORY)) {
                     Assert.fail("All dimensional properties must have CATEGORY inheritance level.");
                 }
@@ -45,9 +44,7 @@ public class DefaultPropertyDefinitionsTest {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
                 Set<XlsNodeTypes> set = new HashSet<>();
-                for (XlsNodeTypes xlsNodeType : tablePropertyDefinition.getTableType()) {
-                    set.add(xlsNodeType);
-                }
+                set.addAll(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     Assert.fail(failMessage);
@@ -107,9 +104,7 @@ public class DefaultPropertyDefinitionsTest {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
                 Set<XlsNodeTypes> set = new HashSet<>();
-                for (XlsNodeTypes xlsNodeType : tablePropertyDefinition.getTableType()) {
-                    set.add(xlsNodeType);
-                }
+                set.addAll(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     Assert.fail(failMessage);

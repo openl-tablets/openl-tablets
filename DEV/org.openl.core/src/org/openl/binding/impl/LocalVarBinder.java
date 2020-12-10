@@ -21,7 +21,7 @@ import org.openl.types.IOpenClass;
  */
 public class LocalVarBinder extends ANodeBinder {
 
-    public static final IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
+    public static IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
             String name,
             ISyntaxNode initializationNode,
             IOpenClass varType,

@@ -21,7 +21,6 @@ import org.elasticsearch.action.ActionFuture;
 import org.elasticsearch.action.search.SearchRequest;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
-import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.search.SearchHit;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -61,7 +60,7 @@ import net.mguenther.kafka.junit.ObserveKeyValues;
 import net.mguenther.kafka.junit.SendKeyValues;
 
 public class RunStoreLogDataITest {
-    private static Logger log = Logger.getLogger(RunStoreLogDataITest.class);
+    private static final Logger log = Logger.getLogger(RunStoreLogDataITest.class);
 
     public static final int POLL_INTERVAL_IN_MILLISECONDS = 500;
     private static final int AWAIT_TIMEOUT = 60;
@@ -113,13 +112,10 @@ public class RunStoreLogDataITest {
 
         elasticRunner = new ElasticsearchClusterRunner();
         System.setProperty("elasticsearch.cluster", DEFAULT_ELASTIC_CLUSTER_NAME);
-        elasticRunner.onBuild(new ElasticsearchClusterRunner.Builder() {
-            @Override
-            public void build(final int number, final Settings.Builder settingsBuilder) {
-                settingsBuilder.put("http.cors.enabled", true);
-                settingsBuilder.put("http.cors.allow-origin", "*");
-                settingsBuilder.putList("discovery.zen.ping.unicast.hosts", "localhost:9301-9305");
-            }
+        elasticRunner.onBuild((number, settingsBuilder) -> {
+            settingsBuilder.put("http.cors.enabled", true);
+            settingsBuilder.put("http.cors.allow-origin", "*");
+            settingsBuilder.putList("discovery.zen.ping.unicast.hosts", "localhost:9301-9305");
         }).build(newConfigs().clusterName(DEFAULT_ELASTIC_CLUSTER_NAME).numOfNode(1));
         elasticRunner.ensureYellow();
         esClient = elasticRunner.client();
@@ -297,7 +293,6 @@ public class RunStoreLogDataITest {
     @Test
     public void testKafkaMethodServiceFail() throws Exception {
         final String REQUEST = "5";
-        final String RESPONSE = REQUEST;
 
         truncateTableIfExists(KEYSPACE, DEFAULT_TABLE_NAME);
         given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
@@ -314,8 +309,7 @@ public class RunStoreLogDataITest {
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         assertEquals(1, observedValuesDlt.size());
 
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
+        ExpectedLogValues values = new ExpectedLogValues(REQUEST, REQUEST,
             HELLO_METHOD_NAME,
             SIMPLE1_SERVICE_NAME,
             KAFKA_PUBLISHER_TYPE);
@@ -872,9 +866,7 @@ public class RunStoreLogDataITest {
             // delete all files
             elasticRunner.clean();
         });
-        doQuite(() -> {
-            EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
-        });
+        doQuite(EmbeddedCassandraServerHelper::cleanEmbeddedCassandra);
         doQuite(() -> {
             cluster.stop();
         });

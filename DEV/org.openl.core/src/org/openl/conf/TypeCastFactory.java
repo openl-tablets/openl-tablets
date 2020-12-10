@@ -28,7 +28,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         this.configuration = configuration;
     }
 
-    private IOpenLConfiguration configuration;
+    private final IOpenLConfiguration configuration;
 
     public class JavaCastComponent extends AConfigurationElement {
         private final String libraryClassName;
@@ -82,7 +82,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
     }
 
-    private List<JavaCastComponent> components = new ArrayList<>();
+    private final List<JavaCastComponent> components = new ArrayList<>();
 
     public void addJavaCast(JavaCastComponent cmp) {
         components.add(cmp);

@@ -5,11 +5,11 @@ import java.util.Map;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 
 class MatchedDefinition {
-    String statement;
-    int[] usedMethodParameterIndexes;
-    MatchType matchType;
-    Map<String, String> renamedLocalParameters;
-    DTColumnsDefinition dtColumnsDefinition;
+    final String statement;
+    final int[] usedMethodParameterIndexes;
+    final MatchType matchType;
+    final Map<String, String> renamedLocalParameters;
+    final DTColumnsDefinition dtColumnsDefinition;
 
     public MatchedDefinition(DTColumnsDefinition dtColumnsDefinition,
             String statement,

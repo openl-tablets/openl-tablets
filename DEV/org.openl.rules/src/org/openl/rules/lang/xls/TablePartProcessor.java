@@ -17,7 +17,7 @@ import org.openl.source.IOpenSourceCodeModule;
 
 public class TablePartProcessor {
 
-    private Collection<OpenLMessage> messages = new LinkedHashSet<>();
+    private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
     /**
      *
@@ -48,9 +48,7 @@ public class TablePartProcessor {
         int dimension = 0;
         TablePart first = null;
 
-        for (Iterator<TablePart> it = set.iterator(); it.hasNext();) {
-
-            TablePart tablePart = it.next();
+        for (TablePart tablePart : set) {
 
             if (tablePart.getPart() != cnt + 1) {
                 String message = "TablePart number " + tablePart.getPart() + " is out of order";
@@ -58,8 +56,7 @@ public class TablePartProcessor {
             }
 
             if (tablePart.getSize() != n) {
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart
-                    .getPart() + " has wrong number of parts: " + tablePart
+                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong number of parts: " + tablePart
                         .getSize() + ". There are " + n + " parts with the same name";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
             }
@@ -68,8 +65,7 @@ public class TablePartProcessor {
 
             IGridTable table = tablePart.getTable().getRows(cell00.getHeight());
             if (table == null) {
-                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart
-                    .getPart() + " has wrong content.";
+                String message = "TablePart " + tablePart.getPartName() + " number " + tablePart.getPart() + " has wrong content.";
                 throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
 
             }
@@ -82,20 +78,21 @@ public class TablePartProcessor {
                 dimension = myDim;
             } else {
                 if (myVert != vertical) {
-                    String message = "TablePart number " + tablePart
-                        .getPart() + " must use " + (vertical ? "row" : "column");
+                    String message = "TablePart number " + tablePart.getPart() + " must use " + (vertical ?
+                                                                                                 "row" :
+                                                                                                 "column");
                     throw new OpenLCompilationException(message, null, null, makeSourceModule(tablePart.getTable()));
                 }
 
                 if (myDim != dimension) {
-                    String message = "TablePart number " + tablePart
-                        .getPart() + " has " + (vertical ? "width"
-                                                         : "height") + " = " + myDim + " instead of " + dimension;
+                    String message = "TablePart number " + tablePart.getPart() + " has " + (vertical ?
+                                                                                            "width" :
+                                                                                            "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {
                         throw new OpenLCompilationException(message,
-                            null,
-                            null,
-                            makeSourceModule(tablePart.getTable()));
+                                null,
+                                null,
+                                makeSourceModule(tablePart.getTable()));
                     } else {
                         messages.add(OpenLMessagesUtils.newErrorMessage(message));
                     }
@@ -115,7 +112,7 @@ public class TablePartProcessor {
         return new GridTableSourceCodeModule(table);
     }
 
-    Map<String, TreeSet<TablePart>> tableParts = new HashMap<>();
+    final Map<String, TreeSet<TablePart>> tableParts = new HashMap<>();
 
     public void register(IGridTable table, XlsSheetSourceCodeModule source) throws OpenLCompilationException {
         TablePart tablePart = new TablePart(table, source);

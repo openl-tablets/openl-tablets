@@ -26,9 +26,9 @@ public class DecisionValue {
     public static final DecisionValue SPECIAL_FALSE_VALUE = new DecisionValue(SPECIAL_FALSE, false, true);
     public static final DecisionValue SPECIAL_TRUE_VALUE = new DecisionValue(SPECIAL_TRUE, true, true);
 
-    private int type;
-    private boolean booleanValue;
-    private boolean special;
+    private final int type;
+    private final boolean booleanValue;
+    private final boolean special;
 
     public DecisionValue(int type, boolean booleanValue, boolean special) {
         this.type = type;

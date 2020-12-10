@@ -13,7 +13,7 @@ public class DirectoryClassLocator implements ClassLocator {
     private final List<LocatorExceptionHandler> handlers;
 
     public DirectoryClassLocator() {
-        this(new ArrayList<LocatorExceptionHandler>());
+        this(new ArrayList<>());
     }
 
     public DirectoryClassLocator(List<? extends LocatorExceptionHandler> handlers) {

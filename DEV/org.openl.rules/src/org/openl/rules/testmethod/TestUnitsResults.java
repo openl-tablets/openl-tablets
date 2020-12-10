@@ -15,8 +15,8 @@ import org.openl.util.ClassUtils;
  */
 public class TestUnitsResults implements INamedThing {
 
-    private TestSuite testSuite;
-    private ArrayList<ITestUnit> testUnits = new ArrayList<>();
+    private final TestSuite testSuite;
+    private final ArrayList<ITestUnit> testUnits = new ArrayList<>();
 
     private boolean testedRulesHaveErrors = false;
 
@@ -174,7 +174,7 @@ public class TestUnitsResults implements INamedThing {
                 }
             }
         }
-        return displayNames.toArray(new String[displayNames.size()]);
+        return displayNames.toArray(new String[0]);
     }
 
     public String[] getContextColumnDisplayNames() {

@@ -18,10 +18,10 @@ import org.openl.types.IOpenClass;
  */
 public class AlgorithmFunctionCompiler {
 
-    private List<AlgorithmTreeNode> functionBody;
-    private CompileContext compileContext;
-    private AlgorithmCompiler compiler;
-    private AlgorithmFunction method;
+    private final List<AlgorithmTreeNode> functionBody;
+    private final CompileContext compileContext;
+    private final AlgorithmCompiler compiler;
+    private final AlgorithmFunction method;
 
     /**
      * Create an instance of <code>AlgorithmFunctionCompiler</code>.

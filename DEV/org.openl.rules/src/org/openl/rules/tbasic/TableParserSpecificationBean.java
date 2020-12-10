@@ -11,7 +11,7 @@ public class TableParserSpecificationBean {
     public enum ValueNecessity {
         REQUIRED,
         OPTIONAL,
-        PROHIBITED;
+        PROHIBITED
     }
 
     private String keyword;

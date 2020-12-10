@@ -193,8 +193,11 @@ public class TableViewer {
             buff.append(escapeHtml4(formattedValue.substring(nextSymbolIndex)));
 
             if (metaInfo.isReturnCell()) {
-                buff.append("<span class=\"title title-" + NodeType.OTHER.toString()
-                    .toLowerCase() + " " + Constants.TABLE_EDITOR_META_INFO_CLASS + "\">");
+                buff.append("<span class=\"title title-")
+                        .append(NodeType.OTHER.toString().toLowerCase())
+                        .append(" ")
+                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                        .append("\">");
                 buff.append("  &#9733;");
                 buff.append("<em>RETURN</em></span>");
             }

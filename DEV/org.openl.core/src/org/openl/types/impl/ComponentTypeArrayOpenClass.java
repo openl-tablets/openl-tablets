@@ -17,8 +17,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ComponentTypeArrayOpenClass extends AOpenClass {
 
-    protected IOpenClass componentClass;
-    protected HashMap<String, IOpenField> fieldMap;
+    protected final IOpenClass componentClass;
+    protected final HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
     private final String javaName;
     private static final Collection<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);

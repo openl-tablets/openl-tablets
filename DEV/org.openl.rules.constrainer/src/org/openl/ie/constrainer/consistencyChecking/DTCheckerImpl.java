@@ -15,9 +15,8 @@ import org.openl.ie.constrainer.*;
 
 public class DTCheckerImpl implements DTChecker {
     static public class CDecisionTableImpl implements CDecisionTable {
-        private IntBoolExp[][] _data = null;
-        private IntBoolExp[] _rules = null;
-        private IntExpArray _vars = null;
+        private final IntBoolExp[] _rules;
+        private final IntExpArray _vars;
         boolean overrideAscending;
 
         public CDecisionTableImpl(IntBoolExp[][] data, IntExpArray vars, boolean overrideAscending) {
@@ -26,16 +25,15 @@ public class DTCheckerImpl implements DTChecker {
                     "DecisionTableImpl(IntBoolExp[][] _data, IntExpArray vars) : " +
                         "cannot be created based on null data array.");
             }
-            _data = data;
             _vars = vars;
             this.overrideAscending = overrideAscending;
-            int nbRules = _data.length;
+            int nbRules = data.length;
             _rules = new IntBoolExp[nbRules];
             java.util.Arrays.fill(_rules, new IntBoolExpConst(_vars.constrainer(), true));
-            for (int i = 0; i < _data.length; i++) {
-                int nbVars = _data[i].length;
+            for (int i = 0; i < data.length; i++) {
+                int nbVars = data[i].length;
                 for (int j = 0; j < nbVars; j++) {
-                    _rules[i] = _rules[i].and(_data[i][j]);
+                    _rules[i] = _rules[i].and(data[i][j]);
                 }
             }
         }
@@ -81,33 +79,31 @@ public class DTCheckerImpl implements DTChecker {
             }
         }
 
-        private Constrainer C = null;
-
         @Override
         public List<Uncovered> check() {
             IntBoolExp[] rules = _dt.getRules();
-            C = rules[0].constrainer();
-            int stackSize = C.getStackSize();
-            IntExpArray ruleArray = new IntExpArray(C, rules.length);
+            Constrainer c = rules[0].constrainer();
+            int stackSize = c.getStackSize();
+            IntExpArray ruleArray = new IntExpArray(c, rules.length);
             for (int i = 0; i < rules.length; i++) {
                 ruleArray.set(rules[i], i);
             }
             Constraint incompleteness = ruleArray.sum().equals(0);
-            Goal save = new GoalSaveSolutions(C);
+            Goal save = new GoalSaveSolutions(c);
             Goal generate = new GoalGenerate(_dt.getVars());
             Goal target = new GoalAnd(new GoalAnd(incompleteness, generate), save);
-            C.execute(target, true);
-            C.backtrackStack(stackSize);
+            c.execute(target, true);
+            c.backtrackStack(stackSize);
             return _uncoveredRegions;
         }
     }
 
-    private CDecisionTable _dt = null;
-    private CompletenessChecker _cpChecker = new CompletenessCheckerImpl();
+    private CDecisionTable _dt;
+    private final CompletenessChecker _cpChecker = new CompletenessCheckerImpl();
 
-    private OverlappingChecker _opChecker; // = new OverlappingCheckerImpl();
+    private final OverlappingChecker _opChecker; // = new OverlappingCheckerImpl();
 
-    private List<Uncovered> _uncoveredRegions = new ArrayList<>();
+    private final List<Uncovered> _uncoveredRegions = new ArrayList<>();
 
     public DTCheckerImpl(CDecisionTable dtable) {
         _dt = dtable;

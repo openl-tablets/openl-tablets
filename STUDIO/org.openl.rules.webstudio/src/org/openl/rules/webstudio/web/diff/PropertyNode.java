@@ -4,7 +4,7 @@ import org.openl.rules.diff.tree.DiffStatus;
 import org.openl.rules.diff.tree.DiffTreeNode;
 
 public class PropertyNode extends TreeNode {
-    private String title;
+    private final String title;
 
     public PropertyNode(DiffTreeNode node, String title) {
         super(node, true);
@@ -21,8 +21,7 @@ public class PropertyNode extends TreeNode {
     @Override
     public String getIcon() {
         // TODO use UiConst.ICON_DIFF_DIFFERS
-        String icon = "/webresource/images/diff/propmodified.gif";
-        return icon;
+        return "/webresource/images/diff/propmodified.gif";
     }
 
     // @Override

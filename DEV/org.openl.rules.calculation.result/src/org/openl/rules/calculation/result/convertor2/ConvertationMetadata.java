@@ -28,7 +28,7 @@ public class ConvertationMetadata {
         this.spreadsheetResult = spreadsheetResult;
     }
 
-    private Map<String, SpreadsheetResultPoint> data = new HashMap<>();
+    private final Map<String, SpreadsheetResultPoint> data = new HashMap<>();
 
     public void addPropertyMetadata(String propertyName, int rowIndex, int columnIndex) {
         data.put(propertyName, new SpreadsheetResultPoint(rowIndex, columnIndex));

@@ -33,9 +33,9 @@ public final class OpenLRulesHelper {
     }
 
     @SuppressWarnings("rawtypes")
-    private Map<String, DeploymentCache<ProjectEngineFactory>> cache = new HashMap<>();
+    private final Map<String, DeploymentCache<ProjectEngineFactory>> cache = new HashMap<>();
 
-    private Map<String, DeploymentCache<Object>> cacheInstance = new HashMap<>();
+    private final Map<String, DeploymentCache<Object>> cacheInstance = new HashMap<>();
 
     public Object getInstance(String deploymentId, String resource) {
         // First find in cache

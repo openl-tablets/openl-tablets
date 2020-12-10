@@ -250,10 +250,10 @@ public class StringOperators {
         }
 
         if (value1 == null) {
-            return new FloatValue(Float.valueOf(value2));
+            return new FloatValue(Float.parseFloat(value2));
         }
 
-        float v = Float.valueOf(value2);
+        float v = Float.parseFloat(value2);
 
         return new org.openl.meta.FloatValue(value1,
             new FloatValue(v),
@@ -267,10 +267,10 @@ public class StringOperators {
         }
 
         if (value2 == null) {
-            return new FloatValue(Float.valueOf(value1));
+            return new FloatValue(Float.parseFloat(value1));
         }
 
-        float v = Float.valueOf(value1);
+        float v = Float.parseFloat(value1);
 
         return new org.openl.meta.FloatValue(new FloatValue(v),
             value2,
@@ -420,7 +420,7 @@ public class StringOperators {
     }
 
     public static float autocast(String x, float y) {
-        return Float.valueOf(x);
+        return Float.parseFloat(x);
     }
 
     public static Integer distance(String x, float y) {
@@ -436,7 +436,7 @@ public class StringOperators {
     }
 
     public static double autocast(String x, double y) {
-        return Double.valueOf(x);
+        return Double.parseDouble(x);
     }
 
     public static Integer distance(String x, double y) {
@@ -677,7 +677,7 @@ public class StringOperators {
         if (x == null) {
             return null;
         }
-        return new FloatValue(Float.valueOf(x));
+        return new FloatValue(Float.parseFloat(x));
     }
 
     public static Integer distance(String x, FloatValue y) {

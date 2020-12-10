@@ -26,7 +26,7 @@ public class NestedSpreadsheedColumnExtractor extends SpreadsheetColumnExtractor
     /**
      * Indicates the current level of nesting.
      */
-    private int nestingLevel;
+    private final int nestingLevel;
 
     /**
      * Configuration for each level of converting.

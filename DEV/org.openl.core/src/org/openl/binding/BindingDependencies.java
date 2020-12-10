@@ -18,14 +18,14 @@ public class BindingDependencies {
     /**
      * All methods.
      */
-    private HashMap<IOpenMethod, IBoundNode> methods = new HashMap<>();
+    private final HashMap<IOpenMethod, IBoundNode> methods = new HashMap<>();
 
     /**
      * Dependencies to executable Openl rules.
      */
-    private HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
+    private final HashMap<ExecutableMethod, IBoundNode> rulesMethods = new HashMap<>();
 
-    private HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
+    private final HashMap<IBoundNode, IOpenField> fields = new HashMap<>();
 
     public void addAssign(IBoundNode target, IBoundNode node) {
         target.updateAssignFieldDependency(this);

@@ -16,10 +16,10 @@ import org.openl.validation.IOpenLValidator;
 
 public class TablePropertyValidatorsWrapper {
 
-    private List<Class<? extends IOpenLValidator>> validatorClasses = new ArrayList<>();
-    private String name;
+    private final List<Class<? extends IOpenLValidator>> validatorClasses = new ArrayList<>();
+    private final String name;
     private String constraintsStr;
-    private Constraints constraints;
+    private final Constraints constraints;
 
     TablePropertyValidatorsWrapper(TablePropertyDefinition tablePropertyDefinition) {
         name = tablePropertyDefinition.getName();

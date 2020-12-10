@@ -36,13 +36,13 @@ public class PropertyFileLoader {
 
     public static final Properties NO_PROPERTIES = new Properties();
 
-    private String propertiesFileDefaultName;
+    private final String propertiesFileDefaultName;
 
-    private String propertiesFileProperty;
+    private final String propertiesFileProperty;
 
     private Properties properties = null;
 
-    private IConfigurableResourceContext context;
+    private final IConfigurableResourceContext context;
 
     private PropertyFileLoader parent = null;
 

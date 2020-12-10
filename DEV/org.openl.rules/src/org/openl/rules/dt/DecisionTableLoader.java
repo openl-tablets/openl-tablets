@@ -108,9 +108,9 @@ public class DecisionTableLoader {
         int height = tableBody == null ? 0 : tableBody.getHeight();
         int width = tableBody == null ? 0 : tableBody.getWidth();
         boolean firstTransposedThenNormal = width > height && width >= MAX_COLUMNS_IN_DT;
-        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-            loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext);
-        }, bindingContext);
+        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+            () -> loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext),
+            bindingContext);
         final DTInfo dtInfo = decisionTable.getDtInfo();
         if (loadAndBindErrors != null) {
             // If table have errors, try to compile transposed variant.
@@ -357,10 +357,10 @@ public class DecisionTableLoader {
     }
 
     private static class CompilationErrors {
-        private List<SyntaxNodeException> bindingSyntaxNodeException;
-        private Collection<OpenLMessage> openLMessages;
-        private Exception ex;
-        private DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
+        private final List<SyntaxNodeException> bindingSyntaxNodeException;
+        private final Collection<OpenLMessage> openLMessages;
+        private final Exception ex;
+        private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
 
         private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                 Collection<OpenLMessage> openLMessages,

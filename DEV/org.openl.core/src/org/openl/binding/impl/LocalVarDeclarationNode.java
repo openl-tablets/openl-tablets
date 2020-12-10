@@ -10,8 +10,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class LocalVarDeclarationNode extends ABoundNode {
 
-    ILocalVar var;
-    IBoundNode initNode;
+    final ILocalVar var;
+    final IBoundNode initNode;
 
     public LocalVarDeclarationNode(ISyntaxNode syntaxNode, IBoundNode initNode, ILocalVar var) {
         super(syntaxNode, initNode);

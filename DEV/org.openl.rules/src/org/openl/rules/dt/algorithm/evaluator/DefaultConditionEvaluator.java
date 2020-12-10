@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class DefaultConditionEvaluator implements IConditionEvaluator {
-    public static IConditionEvaluator INSTANCE = new DefaultConditionEvaluator();
+    public static final IConditionEvaluator INSTANCE = new DefaultConditionEvaluator();
 
     private DefaultConditionEvaluator() {
     }

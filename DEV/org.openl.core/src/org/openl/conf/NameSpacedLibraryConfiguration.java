@@ -22,7 +22,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
     String namespace;
 
-    ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<>();
+    final ArrayList<IMethodFactoryConfigurationElement> factories = new ArrayList<>();
 
     public void addJavalib(JavaLibraryConfiguration factory) {
         factories.add(factory);
@@ -49,7 +49,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
             }
         }
 
-        return methods.toArray(new IOpenMethod[] {});
+        return methods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
     /**

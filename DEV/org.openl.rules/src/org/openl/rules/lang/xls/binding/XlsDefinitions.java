@@ -8,9 +8,9 @@ import org.openl.types.IParameterDeclaration;
 
 public class XlsDefinitions {
 
-    private Collection<DTColumnsDefinition> dtColumnsDefinitions = new LinkedHashSet<>();
+    private final Collection<DTColumnsDefinition> dtColumnsDefinitions = new LinkedHashSet<>();
 
-    private static final boolean theSame(DTColumnsDefinition dtColumnDefinition1,
+    private static boolean theSame(DTColumnsDefinition dtColumnDefinition1,
             DTColumnsDefinition dtColumnDefinition2) {
 
         if (!Objects.equals(dtColumnDefinition1.getType(), dtColumnDefinition2.getType())) {

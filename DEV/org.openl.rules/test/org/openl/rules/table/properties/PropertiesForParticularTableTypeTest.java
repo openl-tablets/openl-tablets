@@ -13,7 +13,7 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
-    private static String __src = "test/rules/PropertiesForParticularTableType.xls";
+    private static final String __src = "test/rules/PropertiesForParticularTableType.xls";
 
     public PropertiesForParticularTableTypeTest() {
         super(__src);

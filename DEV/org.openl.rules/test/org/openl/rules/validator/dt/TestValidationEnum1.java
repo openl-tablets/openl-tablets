@@ -5,5 +5,5 @@ import org.junit.Ignore;
 @Ignore
 public enum TestValidationEnum1 {
     V1,
-    V2;
+    V2
 }

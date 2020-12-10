@@ -5,7 +5,7 @@ import org.openl.types.IOpenMethod;
 public class BooleanMethodAdaptor extends BooleanTypeAdaptor {
 
     private static final Object[] NO_PARAMS = new Object[0];
-    private IOpenMethod method;
+    private final IOpenMethod method;
 
     public BooleanMethodAdaptor(IOpenMethod method) {
         this.method = method;

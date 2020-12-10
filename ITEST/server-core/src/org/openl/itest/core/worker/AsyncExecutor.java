@@ -85,7 +85,7 @@ public class AsyncExecutor {
      */
     private static final class Wrapper implements Runnable {
 
-        private List<Throwable> errors = new ArrayList<>();
+        private final List<Throwable> errors = new ArrayList<>();
         private final Runnable delegate;
         private volatile boolean run = true;
 

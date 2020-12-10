@@ -17,7 +17,7 @@ import org.openl.util.CategorizedMap;
  */
 public class LibraryFactoryConfiguration extends AConfigurationElement implements IConfigurationElement {
 
-    CategorizedMap map = new CategorizedMap();
+    final CategorizedMap map = new CategorizedMap();
 
     public void addConfiguredLibrary(NameSpacedLibraryConfiguration library) {
         map.put(library.getNamespace(), library);
@@ -31,7 +31,7 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
      */
     public IOpenMethod[] getMethods(String namespace, String name, IConfigurableResourceContext cxt) {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
-        return lib == null ? new IOpenMethod[] {} : lib.getMethods(name, cxt);
+        return lib == null ? IOpenMethod.EMPTY_ARRAY : lib.getMethods(name, cxt);
     }
 
     public IOpenField getVar(String namespace,

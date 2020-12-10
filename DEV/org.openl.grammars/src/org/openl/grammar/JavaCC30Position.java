@@ -7,8 +7,8 @@ public class JavaCC30Position implements IPosition {
 
     private static final int JAVACC30_TABSIZE = 8;
 
-    private int jcc30line;
-    private int jcc30col;
+    private final int jcc30line;
+    private final int jcc30col;
 
     public JavaCC30Position(int jcc30line, int jcc30col) {
 

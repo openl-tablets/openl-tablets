@@ -5,7 +5,6 @@ import java.util.function.Function;
 import org.openl.rules.repository.RepositoryFactory;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.file.LocalRepository;
 
 /**
  * Zipped local file system repository factory.

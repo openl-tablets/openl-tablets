@@ -16,7 +16,7 @@ import org.openl.types.IMethodCaller;
  *
  */
 public class ReturnOperation<ResultValueType> extends OpenLEvaluationOperation {
-    private boolean hasReturnValue;
+    private final boolean hasReturnValue;
 
     /**
      * Create an instance of <code>ReturnOperation</code>.

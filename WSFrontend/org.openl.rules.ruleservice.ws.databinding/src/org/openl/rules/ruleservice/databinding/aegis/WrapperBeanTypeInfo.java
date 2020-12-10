@@ -22,7 +22,7 @@ import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
  *
  */
 public class WrapperBeanTypeInfo extends BeanTypeInfo {
-    private List<String> ignoredProperties;
+    private final List<String> ignoredProperties;
 
     public WrapperBeanTypeInfo(Class<?> typeClass, String defaultNamespace, List<String> ignoredProperties) {
         super(typeClass, defaultNamespace);

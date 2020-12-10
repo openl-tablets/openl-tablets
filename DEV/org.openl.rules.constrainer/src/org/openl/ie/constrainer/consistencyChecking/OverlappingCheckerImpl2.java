@@ -11,12 +11,12 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
     private static final int MAX_OVERLOADS = 50;
     private CDecisionTable _dt = null;
 
-    List<Overlapping> overlappings = new ArrayList<>();
+    final List<Overlapping> overlappings = new ArrayList<>();
 
-    HashSet<IntPair> checkedPairs = new HashSet<>();
+    final HashSet<IntPair> checkedPairs = new HashSet<>();
 
-    boolean[] removed;
-    boolean[] hadBeenRemoved;
+    final boolean[] removed;
+    final boolean[] hadBeenRemoved;
     int nRemoved = 0;
 
     private void remove(int i) {
@@ -36,7 +36,7 @@ public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
         private static final long serialVersionUID = 4298252562811799305L;
 
-        List<Overlapping> overlappingRules;
+        final List<Overlapping> overlappingRules;
 
         public GoalSaveSolutions(Constrainer c, List<Overlapping> ovlRules) {
             super(c);

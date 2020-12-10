@@ -23,9 +23,9 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
-    private IOpenLConfiguration config;
+    private final IOpenLConfiguration config;
     private ClassLoader classLoader;
-    private String[] fileSystemRoots;
+    private final String[] fileSystemRoots;
     private Properties properties;
 
     public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
@@ -76,8 +76,8 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         if (file.isAbsolute() && file.exists()) {
             return file;
         } else {
-            for (int i = 0; i < fileSystemRoots.length; i++) {
-                file = new File(fileSystemRoots[i], url);
+            for (String fileSystemRoot : fileSystemRoots) {
+                file = new File(fileSystemRoot, url);
                 if (file.exists()) {
                     return file;
                 }

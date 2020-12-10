@@ -11,7 +11,7 @@ import org.slf4j.LoggerFactory;
 
 public class RTExceptionWrapper extends RuntimeException {
 
-    Throwable _t;
+    final Throwable _t;
 
     public static RuntimeException wrap(String s, Throwable t) {
         return wrap(s, t, false);

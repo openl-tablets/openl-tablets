@@ -10,8 +10,8 @@ public class CellModel implements ICellModel {
 
     public static final String CANNOT_SHOW_FORMULA_HINT = "double click to show formula";
 
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
 
     private int colspan = 1;
     private int rowspan = 1;

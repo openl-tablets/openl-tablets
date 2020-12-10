@@ -16,9 +16,9 @@ public final class PrivilegesEvaluator {
     }
 
     public static Collection<Privilege> createPrivileges(User user) {
-        Collection<Privilege> grantedList = new ArrayList<Privilege>();
+        Collection<Privilege> grantedList = new ArrayList<>();
 
-        Set<Group> visitedGroups = new HashSet<Group>();
+        Set<Group> visitedGroups = new HashSet<>();
         Set<Group> groups = user.getGroups();
         for (Group group : groups) {
             Collection<Privilege> privileges = createPrivileges(group, visitedGroups);
@@ -28,13 +28,13 @@ public final class PrivilegesEvaluator {
     }
 
     public static SimpleGroup wrap(Group group) {
-        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(group, new HashSet<Group>());
+        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(group, new HashSet<>());
         return new SimpleGroup(group.getName(), group.getDescription(), privileges);
     }
 
     private static Collection<Privilege> createPrivileges(Group group, Set<Group> visitedGroups) {
         visitedGroups.add(group);
-        Collection<Privilege> grantedList = new ArrayList<Privilege>();
+        Collection<Privilege> grantedList = new ArrayList<>();
 
         Set<Group> groups = group.getIncludedGroups();
         for (Group persistGroup : groups) {

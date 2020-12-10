@@ -8,7 +8,7 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 
 public final class IRulesRuntimeContextUtils {
     // IRulesRuntimeContextUtils converts only simple OpenL types, so we can hold it in static field.
-    private static ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+    private static final ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
     private IRulesRuntimeContextUtils() {
     }

@@ -26,7 +26,7 @@ public class PercentNodeBinder extends ANodeBinder {
             return new LiteralBoundNode(node, Float.valueOf(s.substring(0, len - 1)), JavaOpenClass.FLOAT);
         }
 
-        return new LiteralBoundNode(node, Double.valueOf(s.substring(0, len - 1)) / 100, JavaOpenClass.DOUBLE);
+        return new LiteralBoundNode(node, Double.parseDouble(s.substring(0, len - 1)) / 100, JavaOpenClass.DOUBLE);
     }
 
     @Override

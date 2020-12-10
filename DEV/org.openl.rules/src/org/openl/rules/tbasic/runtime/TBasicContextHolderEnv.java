@@ -14,10 +14,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class TBasicContextHolderEnv implements IRuntimeEnv {
-    private IRuntimeEnv env;
-    private TBasicVM tbasicVm;
-    private DelegatedDynamicObject tbasicTarget;
-    private Object[] tbasicParams;
+    private final IRuntimeEnv env;
+    private final TBasicVM tbasicVm;
+    private final DelegatedDynamicObject tbasicTarget;
+    private final Object[] tbasicParams;
 
     /**
      * Create an instance of <code>TBasicContextHolderEnv</code> initialized with environment,

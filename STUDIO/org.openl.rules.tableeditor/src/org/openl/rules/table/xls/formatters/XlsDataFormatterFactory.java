@@ -28,8 +28,8 @@ public final class XlsDataFormatterFactory {
     private XlsDataFormatterFactory() {
     }
 
-    private static Locale locale = Locale.US;
-    private static DataFormatter dataFormatter = new DataFormatter(locale);
+    private static final Locale locale = Locale.US;
+    private static final DataFormatter dataFormatter = new DataFormatter(locale);
 
     /**
      * Determine formatter depending on type retrieved from Excel. Warning! Don't invoke this method from core. It can

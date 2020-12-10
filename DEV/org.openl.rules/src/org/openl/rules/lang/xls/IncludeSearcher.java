@@ -18,7 +18,7 @@ import org.openl.source.impl.URLSourceCodeModule;
 public class IncludeSearcher {
 
     private static final String INCLUDE = "include/";
-    private IConfigurableResourceContext ucxt;
+    private final IConfigurableResourceContext ucxt;
 
     public IncludeSearcher(IConfigurableResourceContext ucxt) {
         this.ucxt = ucxt;

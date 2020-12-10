@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 class ShortExtMappedStorage extends MappedStorage {
 
-    private short[] bmap;
+    private final short[] bmap;
 
     ShortExtMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
         super(uniqueValues, info);

@@ -22,7 +22,7 @@ public abstract class ABoundNode implements IBoundNode {
 
     protected ISyntaxNode syntaxNode;
 
-    protected IBoundNode[] children;
+    protected final IBoundNode[] children;
 
     protected ABoundNode(ISyntaxNode syntaxNode, IBoundNode... children) {
         this.syntaxNode = syntaxNode;
@@ -41,10 +41,8 @@ public abstract class ABoundNode implements IBoundNode {
         try {
             Object res = evaluateRuntime(env);
             return res != null ? res : getType().nullObject();
-        } catch (OpenLRuntimeException ore) {
+        } catch (OpenLRuntimeException | ControlSignal ore) {
             throw ore;
-        } catch (ControlSignal controlSignal) {
-            throw controlSignal;
         } catch (Exception t) {
             throw new OpenLRuntimeException(t, this);
         }

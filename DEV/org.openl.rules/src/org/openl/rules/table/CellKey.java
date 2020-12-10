@@ -9,8 +9,8 @@ package org.openl.rules.table;
  */
 public final class CellKey {
 
-    private int col;
-    private int row;
+    private final int col;
+    private final int row;
 
     private CellKey(int col, int row) {
         this.col = col;

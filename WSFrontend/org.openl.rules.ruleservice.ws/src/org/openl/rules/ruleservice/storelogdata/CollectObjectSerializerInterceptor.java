@@ -13,7 +13,7 @@ import org.apache.cxf.phase.Phase;
  */
 public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private ObjectSerializer objectSerializer;
+    private final ObjectSerializer objectSerializer;
 
     public CollectObjectSerializerInterceptor(String phase, ObjectSerializer objectSerializer) {
         super(phase);

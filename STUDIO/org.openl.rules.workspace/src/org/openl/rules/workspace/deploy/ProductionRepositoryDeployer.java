@@ -52,8 +52,8 @@ import org.yaml.snakeyaml.Yaml;
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
-    private PropertyResolver environment;
-    private String prefix;
+    private final PropertyResolver environment;
+    private final String prefix;
 
     /**
      *

@@ -20,15 +20,15 @@ public class DimensionPropertiesDomainsCollector {
     /**
      * Map of domain collectors. Key: property name. Value: domain collector for this property.
      */
-    private Map<String, IDomainCollector> domainCollectors = new HashMap<>();
+    private final Map<String, IDomainCollector> domainCollectors = new HashMap<>();
 
     /**
      * Map of domains for appropriate properties.
      */
-    private Map<String, IDomainAdaptor> propertiesDomains = new HashMap<>();
+    private final Map<String, IDomainAdaptor> propertiesDomains = new HashMap<>();
 
     // date domain collector should be one for all dates in project.
-    private DateDomainCollector dateDomainCollector = new DateDomainCollector();
+    private final DateDomainCollector dateDomainCollector = new DateDomainCollector();
 
     // FIXME: remove this variable
     protected static final String CURRENT_DATE_PARAM = "currentDate";

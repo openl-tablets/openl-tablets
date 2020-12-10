@@ -29,12 +29,12 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 public abstract class NestedSpreadsheetConfiguration<T extends CalculationStep, Q extends CompoundStep> {
 
     /** Map of columns that gonna be extracted on each level of extracting **/
-    private Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels;
+    private final Map<Integer, List<ColumnToExtract>> columnsToExtractForLevels;
 
     /** Row filter **/
     private RowFilter rowFilter;
 
-    private ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
+    private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
     public ObjectToDataOpenCastConvertor getObjectToDataOpenCastConvertor() {
         return objectToDataOpenCastConvertor;

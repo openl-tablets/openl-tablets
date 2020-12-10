@@ -15,7 +15,7 @@ public class XlsArrayFormatTest {
 
         private final String displayName;
 
-        private TestConstants(String displayName) {
+        TestConstants(String displayName) {
             this.displayName = displayName;
         }
 

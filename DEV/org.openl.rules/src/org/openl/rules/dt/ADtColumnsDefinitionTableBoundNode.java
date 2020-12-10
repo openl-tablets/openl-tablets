@@ -351,7 +351,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             .flatMap(List::stream)
             .filter(e -> e != null && e.getName() != null)
             .collect(Collectors.toList())
-            .toArray(new IParameterDeclaration[] {});
+            .toArray(IParameterDeclaration.EMPTY);
 
         IMethodSignature newSignature = ((MethodSignature) header.getSignature()).merge(allParameterDeclarations);
 

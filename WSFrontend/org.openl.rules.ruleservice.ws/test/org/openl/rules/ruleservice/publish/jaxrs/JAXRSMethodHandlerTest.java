@@ -16,12 +16,12 @@ public class JAXRSMethodHandlerTest {
 
     @Test
     public void checkNotNullConstructorArguments() {
-        new JAXRSMethodHandler(new Object(), new HashMap<Method, Method>());
+        new JAXRSMethodHandler(new Object(), new HashMap<>());
     }
 
     @Test(expected = NullPointerException.class)
     public void checkNullTargetConstructorArgument() {
-        new JAXRSMethodHandler(null, new HashMap<Method, Method>());
+        new JAXRSMethodHandler(null, new HashMap<>());
     }
 
     @Test(expected = NullPointerException.class)

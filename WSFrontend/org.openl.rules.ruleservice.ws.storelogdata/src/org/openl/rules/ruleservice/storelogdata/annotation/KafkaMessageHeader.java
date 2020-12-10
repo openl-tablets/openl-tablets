@@ -16,7 +16,7 @@ public @interface KafkaMessageHeader {
 
     Class<? extends Converter<byte[], ?>> converter() default ByteArrayToStringConverter.class;
 
-    public enum Type {
+    enum Type {
         PRODUCER_RECORD,
         CONSUMER_RECORD
     }

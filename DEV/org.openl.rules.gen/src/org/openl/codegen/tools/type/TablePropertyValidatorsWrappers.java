@@ -7,7 +7,7 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 
 public class TablePropertyValidatorsWrappers {
 
-    private List<TablePropertyValidatorsWrapper> wrappers = new ArrayList<>();
+    private final List<TablePropertyValidatorsWrapper> wrappers = new ArrayList<>();
 
     public TablePropertyValidatorsWrappers(TablePropertyDefinition[] definitions) {
         init(definitions);

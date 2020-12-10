@@ -75,7 +75,7 @@ public class PredefinedTemplatesResolver extends TemplatesResolver {
         }
 
         return templateFiles.isEmpty() ? new ProjectFile[0]
-                                       : templateFiles.toArray(new ProjectFile[templateFiles.size()]);
+                                       : templateFiles.toArray(new ProjectFile[0]);
     }
 
     private Resource[] getFolderResources(String folderPattern) throws IOException {

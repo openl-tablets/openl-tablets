@@ -8,7 +8,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private PublisherType publisherType;
+    private final PublisherType publisherType;
 
     public CollectPublisherTypeInterceptor(String phase, PublisherType publisherType) {
         super(phase);

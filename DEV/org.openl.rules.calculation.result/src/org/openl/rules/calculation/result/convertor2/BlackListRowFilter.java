@@ -16,7 +16,7 @@ import java.util.Set;
 
 public final class BlackListRowFilter implements RowFilter {
 
-    private Set<String> blackList;
+    private final Set<String> blackList;
 
     private BlackListRowFilter(Set<String> blackList) {
         this.blackList = blackList;

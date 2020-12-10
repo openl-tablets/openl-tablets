@@ -31,7 +31,7 @@ public class Action extends FunctionalRow implements IAction {
     private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
     private boolean isSingleReturnParam;
     private IOpenClass returnType;
-    private ActionType actionType;
+    private final ActionType actionType;
 
     public Action(String name, int row, ILogicalTable decisionTable, ActionType actionType, DTScale.RowScale scale) {
         super(name, row, decisionTable, scale);

@@ -21,8 +21,8 @@ class RuntimeContextInstantiationStrategyEnhancerInvocationHandler extends Abstr
     private final Logger log = LoggerFactory
         .getLogger(RuntimeContextInstantiationStrategyEnhancerInvocationHandler.class);
 
-    private Map<Method, Method> methodsMap;
-    private Object serviceClassInstance;
+    private final Map<Method, Method> methodsMap;
+    private final Object serviceClassInstance;
 
     @Override
     public Method getTargetMember(Method key) {

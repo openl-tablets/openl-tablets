@@ -18,7 +18,7 @@ import org.openl.util.StringUtils;
  */
 public class UndoableSetValueAction extends AUndoableCellAction {
 
-    private Object newValue;
+    private final Object newValue;
 
     public UndoableSetValueAction(int col, int row, Object value, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

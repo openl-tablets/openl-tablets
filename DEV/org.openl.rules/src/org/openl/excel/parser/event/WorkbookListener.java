@@ -44,7 +44,7 @@ public class WorkbookListener implements HSSFListener {
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
-    private Map<String, Object[][]> cellsMap = new HashMap<>();
+    private final Map<String, Object[][]> cellsMap = new HashMap<>();
 
     private boolean use1904Windowing = false;
 

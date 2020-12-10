@@ -110,8 +110,8 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getField(String fname) {
         try {
             return getField(fname, true);
-        } catch (AmbiguousVarException ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (AmbiguousVarException e) {
+            LOG.debug("Ignored error: ", e);
             return null;
         }
     }

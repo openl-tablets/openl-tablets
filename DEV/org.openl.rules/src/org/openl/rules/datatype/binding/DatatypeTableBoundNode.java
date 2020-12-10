@@ -151,9 +151,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         List<SyntaxNodeException> errors;
         try {
             for (int i = 0; i < tableHeight; i++) {
-                final int index = i;
-                final boolean withTransientSuffix = useTransientSuffix;
-                processRow(dataTable.getRow(index), bindingContext, fields, index == 0, withTransientSuffix);
+                processRow(dataTable.getRow(i), bindingContext, fields, i == 0, useTransientSuffix);
             }
             checkInheritedFieldsDuplication(bindingContext);
         } finally {
@@ -365,8 +363,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                                 }
                             }
                         }
-                    } catch (ReflectiveOperationException | LinkageError ignored) {
-                        LOG.debug("Ignored error: ", ignored);
+                    } catch (ReflectiveOperationException | LinkageError e) {
+                        LOG.debug("Ignored error: ", e);
                     }
                     if (f) {
                         String errorMessage = String.format(
@@ -421,8 +419,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                             datatypeClass.getSuperclass().getTypeName());
                         BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
                     }
-                } catch (NoSuchFieldException ignored) {
-                    LOG.debug("Ignored error: ", ignored);
+                } catch (NoSuchFieldException e) {
+                    LOG.debug("Ignored error: ", e);
                 }
             }
             boolean g = false;

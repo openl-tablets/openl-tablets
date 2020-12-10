@@ -5,8 +5,8 @@ import java.util.IdentityHashMap;
 import java.util.Map;
 
 public class ObjectRegistry<T> {
-    private IdentityHashMap<T, Integer> value2id = new IdentityHashMap<>();
-    private Map<Integer, T> id2value = new HashMap<>();
+    private final IdentityHashMap<T, Integer> value2id = new IdentityHashMap<>();
+    private final Map<Integer, T> id2value = new HashMap<>();
 
     private int uniqueId = 0;
 

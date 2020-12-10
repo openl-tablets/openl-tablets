@@ -3,7 +3,7 @@ package org.openl.codegen.tools.type;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class TablePriorityRuleWrapper {
-    private String priorityRule;
+    private final String priorityRule;
 
     public TablePriorityRuleWrapper(String priorityRule) {
         this.priorityRule = priorityRule;
@@ -14,9 +14,9 @@ public class TablePriorityRuleWrapper {
     }
 
     public static class SimplePriorityRuleWrapper extends TablePriorityRuleWrapper {
-        private String operationName;
-        private String propertyName;
-        private Class<?> propertyType;
+        private final String operationName;
+        private final String propertyName;
+        private final Class<?> propertyType;
 
         public SimplePriorityRuleWrapper(String priorityRule, String operationName, String propertyName) {
             super(priorityRule);
@@ -39,7 +39,7 @@ public class TablePriorityRuleWrapper {
     }
 
     public static class JavaClassPriorityRuleWrapper extends TablePriorityRuleWrapper {
-        private String className;
+        private final String className;
 
         public JavaClassPriorityRuleWrapper(String priorityRule, String className) {
             super(priorityRule);

@@ -91,7 +91,7 @@ public final class DeployUtils {
         String prefix = project + SEPARATOR;
         for (Deployment deployment : lastDeploymentProjects) {
             if (deployment.getName().startsWith(prefix)) {
-                version = Integer.valueOf(deployment.getCommonVersion().getRevision()) + 1;
+                version = Integer.parseInt(deployment.getCommonVersion().getRevision()) + 1;
                 break;
             }
         }

@@ -4,7 +4,7 @@ import static org.openl.rules.dt.storage.IStorage.StorageType.ELSE;
 
 public class ObjectStorage implements IStorage<Object> {
 
-    private Object[] values;
+    private final Object[] values;
     private StorageInfo info;
 
     ObjectStorage(int size) {

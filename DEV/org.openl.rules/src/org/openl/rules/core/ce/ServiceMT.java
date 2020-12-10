@@ -12,7 +12,7 @@ import org.openl.vm.Tracer;
 
 public final class ServiceMT {
 
-    private ForkJoinPool forkJoinPool = new ForkJoinPool();
+    private final ForkJoinPool forkJoinPool = new ForkJoinPool();
 
     private static class ServiceMTHolder {
         private static final ServiceMT INSTANCE = new ServiceMT();

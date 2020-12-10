@@ -9,8 +9,8 @@ import org.openl.util.StringTool;
  */
 public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
 
-    private int categoryLevel;
-    private String separators;
+    private final int categoryLevel;
+    private final String separators;
 
     public CategoryNTreeNodeBuilder(int categoryLevel, String separators) {
         this.categoryLevel = categoryLevel;

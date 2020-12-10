@@ -8,13 +8,13 @@ public class MinimalStyleTable {
     /**
      * Contains number format indexes only.
      */
-    private List<Integer> numberFormatIdList = new ArrayList<>();
-    private Map<Integer, Short> indentMap = new HashMap<>();
+    private final List<Integer> numberFormatIdList = new ArrayList<>();
+    private final Map<Integer, Short> indentMap = new HashMap<>();
 
     /**
      * Contains number format string for each number format index.
      */
-    private SortedMap<Integer, String> formatStrings = new TreeMap<>();
+    private final SortedMap<Integer, String> formatStrings = new TreeMap<>();
 
     public NumberFormat getFormat(int styleIndex) {
         if (numberFormatIdList.isEmpty()) {

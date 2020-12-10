@@ -25,7 +25,7 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
 
-    private Collection<Module> modules;
+    private final Collection<Module> modules;
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules,
             IDependencyManager dependencyManager,

@@ -14,7 +14,7 @@ import org.openl.meta.number.NumberOperations;
  */
 public class FunctionExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
-    private NumberOperations function;
+    private final NumberOperations function;
     private T[] params;
 
     public FunctionExplanationValue(NumberOperations function, T[] params) {

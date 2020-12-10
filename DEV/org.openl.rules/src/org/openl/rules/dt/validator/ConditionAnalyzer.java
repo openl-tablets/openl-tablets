@@ -6,7 +6,7 @@ import org.openl.types.IParameterDeclaration;
 
 public class ConditionAnalyzer {
 
-    private IBaseDecisionRow condition;
+    private final IBaseDecisionRow condition;
 
     public ConditionAnalyzer(IBaseDecisionRow condition) {
         this.condition = condition;

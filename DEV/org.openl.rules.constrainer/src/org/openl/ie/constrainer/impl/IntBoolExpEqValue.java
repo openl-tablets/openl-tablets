@@ -24,9 +24,9 @@ public final class IntBoolExpEqValue extends IntBoolExpForSubject {
 
     } // ~ObserverMinMax
 
-    private IntExp _exp;
+    private final IntExp _exp;
 
-    private int _value;
+    private final int _value;
 
     public IntBoolExpEqValue(IntExp exp, int value) {
         super(exp.constrainer());

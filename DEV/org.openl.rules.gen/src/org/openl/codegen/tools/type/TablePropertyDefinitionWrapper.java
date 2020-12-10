@@ -5,7 +5,7 @@ import org.openl.rules.table.properties.expressions.match.MatchingExpression;
 
 public class TablePropertyDefinitionWrapper {
 
-    private TablePropertyDefinition tablePropertyDefinition;
+    private final TablePropertyDefinition tablePropertyDefinition;
     private String operationName;
     private String contextVar;
     private String propertyVar;

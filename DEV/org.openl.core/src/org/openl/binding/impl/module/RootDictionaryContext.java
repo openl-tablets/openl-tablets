@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 public class RootDictionaryContext implements VariableInContextFinder {
 
     static class ContextField extends OpenFieldDelegator {
-        IOpenField parent;
+        final IOpenField parent;
 
         protected ContextField(IOpenField parent, IOpenField delegate) {
             super(delegate);
@@ -72,11 +72,11 @@ public class RootDictionaryContext implements VariableInContextFinder {
 
     }
 
-    protected IOpenField[] roots;
+    protected final IOpenField[] roots;
 
-    protected int maxDepthLevel;
+    protected final int maxDepthLevel;
 
-    protected HashMap<String, List<IOpenField>> fields = new HashMap<>();
+    protected final HashMap<String, List<IOpenField>> fields = new HashMap<>();
 
     public RootDictionaryContext(IOpenField[] roots, int maxDepthLevel) {
         this.roots = roots;

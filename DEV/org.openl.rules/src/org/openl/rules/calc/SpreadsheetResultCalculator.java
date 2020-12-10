@@ -15,21 +15,21 @@ public class SpreadsheetResultCalculator implements IDynamicObject {
     public static final Object METHOD_VALUE = new Object();
     public static final Object EMPTY_CELL = new Object();
 
-    private Spreadsheet spreadsheet;
+    private final Spreadsheet spreadsheet;
     /**
      * OpenL module
      */
-    protected IDynamicObject targetModule;
+    protected final IDynamicObject targetModule;
     /**
      * Copy of the spreadsheet call parameters.
      */
-    protected Object[] params;
+    protected final Object[] params;
     /**
      * Copy of the call environment.
      */
-    protected IRuntimeEnv env;
+    protected final IRuntimeEnv env;
 
-    private Object[][] results;
+    private final Object[][] results;
 
     public SpreadsheetResultCalculator(Spreadsheet spreadsheet,
             IDynamicObject targetModule,

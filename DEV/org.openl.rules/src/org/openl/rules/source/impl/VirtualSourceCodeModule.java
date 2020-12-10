@@ -11,7 +11,7 @@ public class VirtualSourceCodeModule extends ASourceCodeModule {
     public static final String SOURCE_URI = "<virtual_uri>";
     private static final String VIRTUAL_SHEET_NAME = "$virtual_sheet$";
 
-    private Workbook workbook;
+    private final Workbook workbook;
 
     public VirtualSourceCodeModule() {
         workbook = new HSSFWorkbook();

@@ -15,7 +15,7 @@ import org.openl.util.StringUtils;
 
 public class TableSyntaxNodeAdapter implements IOpenLTable {
 
-    private TableSyntaxNode tsn;
+    private final TableSyntaxNode tsn;
 
     public TableSyntaxNodeAdapter(TableSyntaxNode tsn) {
         this.tsn = Objects.requireNonNull(tsn, "tsn cannot be null");

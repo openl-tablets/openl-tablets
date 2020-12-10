@@ -10,11 +10,11 @@ import org.openl.gen.TypeDescription;
 
 public abstract class DefaultBeanByteCodeWriter implements BeanByteCodeWriter {
 
-    private String beanNameWithPackage;
+    private final String beanNameWithPackage;
 
-    private TypeDescription parentType;
+    private final TypeDescription parentType;
 
-    private Map<String, FieldDescription> beanFields;
+    private final Map<String, FieldDescription> beanFields;
 
     /**
      *

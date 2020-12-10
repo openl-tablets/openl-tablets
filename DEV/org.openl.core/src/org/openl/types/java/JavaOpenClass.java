@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.*;
 
 import org.openl.base.INamedThing;
@@ -471,8 +470,6 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaOpenInterface extends JavaOpenClass {
-        @SuppressWarnings("unused")
-        private final Class<?> proxyClass;
 
         private volatile Class<?> generatedImplClass;
 
@@ -490,7 +487,6 @@ public class JavaOpenClass extends AOpenClass {
 
         protected JavaOpenInterface(Class<?> instanceClass) {
             super(instanceClass);
-            proxyClass = Proxy.getProxyClass(instanceClass.getClassLoader(), instanceClass);
         }
 
         @Override

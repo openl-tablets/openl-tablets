@@ -8,7 +8,7 @@ import junit.textui.TestRunner;
 
 public class TestIntExpCard extends TestCase {
 
-    private Constrainer C = new Constrainer("TestIntExpCard");
+    private final Constrainer C = new Constrainer("TestIntExpCard");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntExpCard.class));

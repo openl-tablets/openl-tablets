@@ -9,9 +9,9 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescriptionHolder {
 
-    protected SpreadsheetCell cell;
-    private SpreadsheetStructureBuilderHolder structureBuilderContainer;
-    private SpreadsheetCellRefType refType;
+    protected final SpreadsheetCell cell;
+    private final SpreadsheetStructureBuilderHolder structureBuilderContainer;
+    private final SpreadsheetCellRefType refType;
     private IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,

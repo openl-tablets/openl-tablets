@@ -5,7 +5,7 @@ import org.openl.rules.table.ui.filters.IColorFilter;
 
 public class CellModelDelegator implements ICellModel {
 
-    private CellModel model;
+    private final CellModel model;
 
     public CellModelDelegator(CellModel model) {
         this.model = model;

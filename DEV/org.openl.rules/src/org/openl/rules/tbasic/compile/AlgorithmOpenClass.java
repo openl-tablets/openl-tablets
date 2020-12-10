@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 public class AlgorithmOpenClass extends ComponentOpenClass {
     private static final Logger LOG = LoggerFactory.getLogger(AlgorithmOpenClass.class);
 
-    private Set<String> invisibleFields = new HashSet<>();
+    private final Set<String> invisibleFields = new HashSet<>();
 
     public AlgorithmOpenClass(String name, OpenL openl) {
         super(name, openl);

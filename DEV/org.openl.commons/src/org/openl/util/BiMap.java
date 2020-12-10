@@ -12,8 +12,8 @@ import java.util.IdentityHashMap;
  *
  */
 public class BiMap<K, T> {
-    private HashMap<K, T> idObjMap = new HashMap<>(1);
-    private IdentityHashMap<T, K> objIdMap = new IdentityHashMap<>(1);
+    private final HashMap<K, T> idObjMap = new HashMap<>(1);
+    private final IdentityHashMap<T, K> objIdMap = new IdentityHashMap<>(1);
 
     public T get(K key) {
         return idObjMap.get(key);

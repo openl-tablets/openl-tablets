@@ -48,7 +48,7 @@ public final class IntExpAddExp extends IntExpImpl {
 
     static final class IntEventAddExp extends IntEvent {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventAddExp();
@@ -121,18 +121,18 @@ public final class IntExpAddExp extends IntExpImpl {
 
     }
 
-    private IntExp _exp1;
+    private final IntExp _exp1;
 
-    private IntExp _exp2;
+    private final IntExp _exp2;
 
     // static final private int[] event_map = { MIN, MIN,
     // MAX, MAX,
     // MIN | MAX | VALUE, VALUE
     // };
 
-    private Observer _observer;
+    private final Observer _observer;
 
-    private IntVar _sum;
+    private final IntVar _sum;
 
     public IntExpAddExp(IntExp exp1, IntExp exp2) {
         super(exp1.constrainer());

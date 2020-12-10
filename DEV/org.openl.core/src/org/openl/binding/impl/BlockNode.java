@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class BlockNode extends ABoundNode implements IBoundMethodNode {
 
-    private int localFrameSize;
+    private final int localFrameSize;
 
     public BlockNode(ISyntaxNode node, int localFrameSize, IBoundNode... children) {
         super(node, children);

@@ -12,7 +12,7 @@ package org.openl.binding.impl;
  */
 public class ControlSignalReturn extends ControlSignal {
 
-    Object returnValue;
+    final Object returnValue;
 
     public ControlSignalReturn(Object returnValue) {
         this.returnValue = returnValue;

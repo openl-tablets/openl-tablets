@@ -64,7 +64,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final FloatExp getFloatExp(Class clazz, double value) {
-        return (FloatExp) getExpression(clazz, new Object[] { constrainer(), new Double(value) }, ARGS_Double);
+        return (FloatExp) getExpression(clazz, new Object[] { constrainer(), value }, ARGS_Double);
     }
 
     protected final FloatExp getFloatExp(Class clazz, FloatExp exp) {
@@ -72,7 +72,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final FloatExp getFloatExp(Class clazz, FloatExp exp, double value) {
-        return (FloatExp) getExpression(clazz, new Object[] { exp, new Double(value) }, ARGS_FloatExpDouble);
+        return (FloatExp) getExpression(clazz, new Object[] { exp, value }, ARGS_FloatExpDouble);
     }
 
     protected final FloatExp getFloatExp(Class clazz, FloatExp exp1, FloatExp exp2) {
@@ -80,7 +80,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final FloatExp getFloatExp(Class clazz, FloatExp exp, int value) {
-        return (FloatExp) getExpression(clazz, new Object[] { exp, new Integer(value) }, ARGS_FloatExpInt);
+        return (FloatExp) getExpression(clazz, new Object[] { exp, value }, ARGS_FloatExpInt);
     }
 
     protected final FloatExp getFloatExp(Class clazz, IntExp exp) {
@@ -88,7 +88,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final IntBoolExp getIntBoolExp(Class clazz, boolean value) {
-        return (IntBoolExp) getExpression(clazz, new Object[] { constrainer(), new Boolean(value) }, ARGS_Boolean);
+        return (IntBoolExp) getExpression(clazz, new Object[] { constrainer(), value }, ARGS_Boolean);
     }
 
     protected final IntBoolExp getIntBoolExp(Class clazz, FloatExp exp1, FloatExp exp2) {
@@ -108,7 +108,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final IntBoolExp getIntBoolExp(Class clazz, IntExp exp, int value) {
-        return (IntBoolExp) getExpression(clazz, new Object[] { exp, new Integer(value) }, ARGS_IntExpInt);
+        return (IntBoolExp) getExpression(clazz, new Object[] { exp, value }, ARGS_IntExpInt);
     }
 
     protected final IntBoolExp getIntBoolExp(Class clazz, IntExp exp1, IntExp exp2) {
@@ -116,11 +116,11 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final IntBoolExp getIntBoolExp(Class clazz, IntExp exp1, IntExp exp2, int value) {
-        return (IntBoolExp) getExpression(clazz, new Object[] { exp1, exp2, new Integer(value) }, ARGS_IntExpIntExpInt);
+        return (IntBoolExp) getExpression(clazz, new Object[] { exp1, exp2, value }, ARGS_IntExpIntExpInt);
     }
 
     protected final IntExp getIntExp(Class clazz, int value) {
-        return (IntExp) getExpression(clazz, new Object[] { constrainer(), new Integer(value) }, ARGS_Int);
+        return (IntExp) getExpression(clazz, new Object[] { constrainer(), value }, ARGS_Int);
     }
 
     protected final IntExp getIntExp(Class clazz, IntExp exp) {
@@ -128,7 +128,7 @@ public abstract class ExpressionImpl extends SubjectImpl implements Expression {
     }
 
     protected final IntExp getIntExp(Class clazz, IntExp exp, int value) {
-        return (IntExp) getExpression(clazz, new Object[] { exp, new Integer(value) }, ARGS_IntExpInt);
+        return (IntExp) getExpression(clazz, new Object[] { exp, value }, ARGS_IntExpInt);
     }
 
     protected final IntExp getIntExp(Class clazz, IntExp exp1, IntExp exp2) {

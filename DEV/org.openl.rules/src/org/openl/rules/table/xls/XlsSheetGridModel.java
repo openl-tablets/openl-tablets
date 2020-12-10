@@ -33,11 +33,11 @@ import org.openl.util.StringUtils;
  */
 public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
-    private XlsSheetSourceCodeModule sheetSource;
+    private final XlsSheetSourceCodeModule sheetSource;
 
     private RegionsPool mergedRegionsPool;
 
-    private Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
+    private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;

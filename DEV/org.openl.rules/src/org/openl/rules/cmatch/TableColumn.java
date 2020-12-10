@@ -1,8 +1,8 @@
 package org.openl.rules.cmatch;
 
 public class TableColumn {
-    private String id;
-    private int columnIndex;
+    private final String id;
+    private final int columnIndex;
 
     public TableColumn(String id, int columnIndex) {
         this.columnIndex = columnIndex;

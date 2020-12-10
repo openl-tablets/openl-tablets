@@ -26,7 +26,7 @@ public class IntBoolExpConst extends IntExpConst implements IntBoolExp {
         // return new IntBoolExpConst(constrainer(),value);
         return (IntBoolExpConst) c.expressionFactory()
             .getExpression(IntBoolExpConst.class,
-                new Object[] { c, new Boolean(value) },
+                new Object[] { c, value },
                 new Class[] { Constrainer.class, boolean.class });
     }
 

@@ -4,7 +4,7 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 public class TestFloatCalc extends TestCase {
-    private double[] temp = new double[] { 1.0,
+    private final double[] temp = new double[] { 1.0,
             2.123,
             Math.E,
             Math.PI,

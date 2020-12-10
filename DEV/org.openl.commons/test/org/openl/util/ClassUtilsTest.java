@@ -117,6 +117,6 @@ public class ClassUtilsTest {
         assertEquals("setBBB", ClassUtils.setter("BBB"));
     }
 
-    class InnerClass {
+    static class InnerClass {
     }
 }

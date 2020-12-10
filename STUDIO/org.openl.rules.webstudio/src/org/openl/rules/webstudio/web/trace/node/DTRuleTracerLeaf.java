@@ -10,7 +10,7 @@ import org.openl.rules.table.ILogicalTable;
  */
 public class DTRuleTracerLeaf extends ATableTracerNode {
 
-    private int[] ruleIndexes;
+    private final int[] ruleIndexes;
 
     DTRuleTracerLeaf(int[] ruleIndexes) {
         super("rule", null, null, null);

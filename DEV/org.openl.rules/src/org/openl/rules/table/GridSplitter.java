@@ -15,10 +15,10 @@ import java.util.List;
  */
 public class GridSplitter {
 
-    private List<IGridTable> tables = new ArrayList<>();
-    private RegionsPool pool = new RegionsPool(null);
+    private final List<IGridTable> tables = new ArrayList<>();
+    private final RegionsPool pool = new RegionsPool(null);
 
-    private IGrid grid;
+    private final IGrid grid;
 
     public GridSplitter(IGrid grid) {
         this.grid = grid;
@@ -52,27 +52,26 @@ public class GridSplitter {
 
     void defineTableBoundaries(int col, int row, int endX) {
         int y, x;
-        int stX = col;
         x = endX;
         while (containsCell(x, row)) {
             ++x;
         }
         for (y = row; containsRow(col, x, y); ++y) {
-            int newX = expandLeft(y, stX);
-            if (newX < stX) {
+            int newX = expandLeft(y, col);
+            if (newX < col) {
                 defineTableBoundaries(newX, row, x);
                 return;
             }
 
             int newEndX = expandRight(y, x);
             if (newEndX > x) {
-                defineTableBoundaries(stX, row, newEndX);
+                defineTableBoundaries(col, row, newEndX);
                 return;
             }
 
         }
 
-        IGridTable table = new GridTable(row, stX, y - 1, x - 1, grid);
+        IGridTable table = new GridTable(row, col, y - 1, x - 1, grid);
         tables.add(table);
         pool.add(table.getRegion());
     }

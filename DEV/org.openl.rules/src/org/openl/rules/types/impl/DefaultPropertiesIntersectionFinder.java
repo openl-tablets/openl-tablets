@@ -7,7 +7,7 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class DefaultPropertiesIntersectionFinder {
 
-    private Map<String, IntersectionConstraint<?>> constraints = new HashMap<>();
+    private final Map<String, IntersectionConstraint<?>> constraints = new HashMap<>();
 
     public DefaultPropertiesIntersectionFinder() {
         initialize();

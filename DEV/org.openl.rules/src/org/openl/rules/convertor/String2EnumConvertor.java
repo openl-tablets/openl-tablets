@@ -2,7 +2,7 @@ package org.openl.rules.convertor;
 
 class String2EnumConvertor<E extends Enum<E>> implements IString2DataConvertor<E> {
 
-    private Class<E> enumType;
+    private final Class<E> enumType;
 
     public String2EnumConvertor(Class<E> clazz) {
         this.enumType = clazz;

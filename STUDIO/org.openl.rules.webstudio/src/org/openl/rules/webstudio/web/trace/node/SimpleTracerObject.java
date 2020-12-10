@@ -1,10 +1,10 @@
 package org.openl.rules.webstudio.web.trace.node;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.ArrayList;
 import java.util.Collections;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class SimpleTracerObject implements ITracerObject {
     private static final Logger LOG = LoggerFactory.getLogger(SimpleTracerObject.class);
@@ -13,7 +13,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
     private ArrayList<ITracerObject> children;
     private Object result;
     private Throwable error;
-    private String type;
+    private final String type;
 
     protected SimpleTracerObject(String type) {
         this.type = type;
@@ -73,10 +73,10 @@ public abstract class SimpleTracerObject implements ITracerObject {
             Object clonedResult;
             try {
                 clonedResult = cloner.deepClone(result);
-            } catch (Throwable ignore) {
+            } catch (Throwable e) {
                 // ignore cloning exception if any, use params itself
                 clonedResult = result;
-                LOG.debug("Ignored error: ", ignore);
+                LOG.debug("Ignored error: ", e);
             }
             this.result = clonedResult;
         } else {

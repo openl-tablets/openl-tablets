@@ -4,7 +4,7 @@ import org.openl.rules.context.properties.ContextPropertyDefinition;
 
 public class ContextPropertyDefinitionWrapper {
 
-    private ContextPropertyDefinition contextPropertyDefinition;
+    private final ContextPropertyDefinition contextPropertyDefinition;
 
     public ContextPropertyDefinitionWrapper(ContextPropertyDefinition contextPropertyDefinition) {
         this.contextPropertyDefinition = contextPropertyDefinition;

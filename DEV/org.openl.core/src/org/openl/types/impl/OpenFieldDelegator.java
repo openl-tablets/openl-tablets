@@ -16,7 +16,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class OpenFieldDelegator implements IOpenField {
-    protected IOpenField field;
+    protected final IOpenField field;
 
     public OpenFieldDelegator(IOpenField field) {
         this.field = field;

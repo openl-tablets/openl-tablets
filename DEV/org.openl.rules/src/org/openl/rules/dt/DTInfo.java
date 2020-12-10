@@ -2,8 +2,8 @@ package org.openl.rules.dt;
 
 public class DTInfo {
 
-    private int numberHConditions;
-    private int numberVConditions;
+    private final int numberHConditions;
+    private final int numberVConditions;
     private DTScale scale = DTScale.STANDARD;
 
     DTInfo(int numberHConditions, int numberVConditions, DTScale scale) {

@@ -15,7 +15,7 @@ import org.openl.types.IOpenField;
  *
  */
 public class DataTableUserDefinedTypeField extends DataTableField {
-    private IOpenClass type;
+    private final IOpenClass type;
 
     private List<DataTableField> availableFields;
 

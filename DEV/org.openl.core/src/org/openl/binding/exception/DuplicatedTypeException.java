@@ -6,7 +6,7 @@ public class DuplicatedTypeException extends OpenlNotCheckedException {
 
     private static final long serialVersionUID = 1L;
 
-    private String type;
+    private final String type;
 
     public DuplicatedTypeException(String msg, String type) {
         super(msg);

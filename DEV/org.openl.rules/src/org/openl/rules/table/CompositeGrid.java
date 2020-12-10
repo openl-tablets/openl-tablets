@@ -18,7 +18,7 @@ import org.openl.rules.table.properties.PropertiesHelper;
  */
 public class CompositeGrid extends AGrid {
 
-    private IGridTable[] gridTables;
+    private final IGridTable[] gridTables;
 
     /**
      * Regions on current grid, to which each grid table belongs to. So, the first gridTable belongs to first
@@ -33,7 +33,7 @@ public class CompositeGrid extends AGrid {
      * Indicates in which direction we are going to compose the tables. If true, we are going to compose up to down. If
      * false, we are going to compose from left to right.
      */
-    private boolean vertical;
+    private final boolean vertical;
 
     private int width;
 
@@ -350,19 +350,19 @@ public class CompositeGrid extends AGrid {
         /**
          * grid
          */
-        private IGrid grid;
+        private final IGrid grid;
 
         /**
          * column index on grid
          */
-        private int col;
+        private final int col;
 
         /**
          * row index on grid.
          */
-        private int row;
+        private final int row;
 
-        private IGridTable gridTable;
+        private final IGridTable gridTable;
 
         public Transform(IGrid grid, IGridTable gridTable, int col, int row) {
             this.grid = grid;

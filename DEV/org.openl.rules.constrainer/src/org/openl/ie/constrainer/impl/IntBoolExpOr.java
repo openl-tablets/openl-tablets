@@ -21,7 +21,7 @@ import org.openl.ie.constrainer.*;
  */
 final class IntBoolExpOr extends IntBoolExpForSubject {
     class ObserverBoolExpOr extends Observer {
-        IntBoolExp _exp2;
+        final IntBoolExp _exp2;
 
         public ObserverBoolExpOr(IntBoolExp exp2) {
             _exp2 = exp2;
@@ -55,7 +55,8 @@ final class IntBoolExpOr extends IntBoolExpForSubject {
 
     }
 
-    private IntBoolExp _exp1, _exp2;
+    private final IntBoolExp _exp1;
+    private final IntBoolExp _exp2;
 
     public IntBoolExpOr(IntBoolExp exp1, IntBoolExp exp2) {
         super(exp1.constrainer());

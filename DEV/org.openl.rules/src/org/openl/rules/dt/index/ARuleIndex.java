@@ -11,8 +11,8 @@ import org.openl.rules.dt.element.ConditionCasts;
  */
 public abstract class ARuleIndex implements IRuleIndex {
 
-    private DecisionTableRuleNode emptyOrFormulaNodes;
-    private ConditionCasts conditionCasts;
+    private final DecisionTableRuleNode emptyOrFormulaNodes;
+    private final ConditionCasts conditionCasts;
 
     ARuleIndex(DecisionTableRuleNode emptyOrFormulaNodes, ConditionCasts conditionCasts) {
         this.emptyOrFormulaNodes = emptyOrFormulaNodes;

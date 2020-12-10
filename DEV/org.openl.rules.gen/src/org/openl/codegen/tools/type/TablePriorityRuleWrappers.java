@@ -13,8 +13,8 @@ public class TablePriorityRuleWrappers {
     private static final String PREFIX = "javaclass:";
     private static final String MIN_OPERATION_NAME = "MIN";
     private static final String MAX_OPERATION_NAME = "MAX";
-    private SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
-    private JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
+    private final SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
+    private final JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
 
     public TablePriorityRuleWrappers(SimplePriorityRuleWrapper[] simplePriorityRuleWrappers,
             JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {

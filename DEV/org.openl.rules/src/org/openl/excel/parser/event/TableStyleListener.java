@@ -68,7 +68,7 @@ public class TableStyleListener implements HSSFListener {
     private final int[][] cellIndexes;
     private PaletteRecord palette;
     private DirectoryNode directory;
-    private List<RecordBase> shapeRecords = new ArrayList<>();
+    private final List<RecordBase> shapeRecords = new ArrayList<>();
 
     private FormulaRecord currentFormula;
     private SharedValueManager sharedValueManager;

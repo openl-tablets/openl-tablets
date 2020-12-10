@@ -19,8 +19,8 @@ public class FieldDescriptorTest {
     private static final B B2 = new B("id2", A3);
     private static final B B3 = new B("id3", A1, A2, A3);
 
-    private JavaOpenClass aType = JavaOpenClass.getOpenClass(A.class);
-    private JavaOpenClass bType = JavaOpenClass.getOpenClass(B.class);
+    private final JavaOpenClass aType = JavaOpenClass.getOpenClass(A.class);
+    private final JavaOpenClass bType = JavaOpenClass.getOpenClass(B.class);
 
     @Test
     public void commonCases() {

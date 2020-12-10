@@ -9,7 +9,7 @@ import org.openl.util.text.TextInterval;
  */
 public class LiteralNode extends TerminalNode {
 
-    private String image;
+    private final String image;
 
     public LiteralNode(String type, TextInterval location, String image, IOpenSourceCodeModule module) {
         super(type, location, module);

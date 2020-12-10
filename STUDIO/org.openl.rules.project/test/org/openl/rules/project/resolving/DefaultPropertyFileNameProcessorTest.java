@@ -40,8 +40,8 @@ public class DefaultPropertyFileNameProcessorTest {
         assertArrayEquals(props.getLob(), new String[] { "AL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.NY });
         assertEquals(props.getNature(), "BL-CL-GL");
-        assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
-        assertEquals(props.getStartRequestDate(), new Date(118, 04, 03, 0, 0, 0));
+        assertEquals(props.getEffectiveDate(), new Date(118, 6, 1, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(118, 4, 3, 0, 0, 0));
 
         props = new DefaultPropertiesFileNameProcessor(
             "%lob%-%nature%-%state%-%effectiveDate:yyyyMMdd%-%startRequestDate:yyyyMMdd%")
@@ -49,8 +49,8 @@ public class DefaultPropertyFileNameProcessorTest {
         assertArrayEquals(props.getLob(), new String[] { "AL", "BL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.DE, UsStatesEnum.OH });
         assertEquals(props.getNature(), "CL,GL");
-        assertEquals(props.getEffectiveDate(), new Date(118, 06, 01, 0, 0, 0));
-        assertEquals(props.getStartRequestDate(), new Date(117, 05, 21, 0, 0, 0));
+        assertEquals(props.getEffectiveDate(), new Date(118, 6, 1, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(117, 5, 21, 0, 0, 0));
 
         props = new DefaultPropertiesFileNameProcessor(
             "%lob%-%state%-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%")
@@ -58,8 +58,8 @@ public class DefaultPropertyFileNameProcessorTest {
         assertArrayEquals(props.getLob(), new String[] { "AL", "BL-CL", "GL" });
         assertArrayEquals(props.getState(), new UsStatesEnum[] { UsStatesEnum.CA });
         assertNull(props.getNature());
-        assertEquals(props.getEffectiveDate(), new Date(119, 06, 20, 0, 0, 0));
-        assertEquals(props.getStartRequestDate(), new Date(120, 05, 21, 0, 0, 0));
+        assertEquals(props.getEffectiveDate(), new Date(119, 6, 20, 0, 0, 0));
+        assertEquals(props.getStartRequestDate(), new Date(120, 5, 21, 0, 0, 0));
     }
 
     @Test

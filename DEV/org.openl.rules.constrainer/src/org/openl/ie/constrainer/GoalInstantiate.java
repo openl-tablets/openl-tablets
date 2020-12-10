@@ -72,7 +72,7 @@ public class GoalInstantiate extends GoalImpl {
      * Recursive instantiation.
      */
     class RecursiveImpl implements Impl {
-        private GoalSetValue _goal_value;
+        private final GoalSetValue _goal_value;
         private GoalRemoveValue _goal_remove;
         private GoalSetMin _goal_min;
         private GoalSetMax _goal_max;
@@ -112,11 +112,11 @@ public class GoalInstantiate extends GoalImpl {
 
     } // ~RecursiveImpl
 
-    private IntVar _intvar;
+    private final IntVar _intvar;
 
-    private IntValueSelector _selector;
+    private final IntValueSelector _selector;
 
-    private Impl _impl;
+    private final Impl _impl;
 
     /**
      * Creates GoalInstantiate using <code>IntValueSelectorMin</code> as a default ValueSelector. The goal constructed

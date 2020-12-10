@@ -38,7 +38,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     private final Logger log = LoggerFactory.getLogger(DecisionTableValidatedObject.class);
 
-    private IDecisionTable decisionTable;
+    private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
 
     public DecisionTableValidatedObject(IDecisionTable decisionTable) {

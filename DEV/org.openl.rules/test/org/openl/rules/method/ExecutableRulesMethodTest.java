@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ExecutableRulesMethodTest {
 
-    private static String __src = "test/rules/MethodArgumentsCacheTest.xls";
+    private static final String __src = "test/rules/MethodArgumentsCacheTest.xls";
 
     private RulesEngineFactory<A1> engineFactory;
     private A1 instance;
@@ -46,7 +46,7 @@ public class ExecutableRulesMethodTest {
     }
 
     private static class MyRunnable implements Runnable {
-        private A1 instance;
+        private final A1 instance;
 
         public MyRunnable(A1 instance) {
             this.instance = instance;

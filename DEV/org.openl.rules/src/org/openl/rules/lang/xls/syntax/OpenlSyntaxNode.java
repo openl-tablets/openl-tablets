@@ -17,7 +17,7 @@ import org.openl.util.text.ILocation;
  */
 public class OpenlSyntaxNode extends TerminalNode {
 
-    private String openlName;
+    private final String openlName;
 
     public OpenlSyntaxNode(String openlName, ILocation location, IOpenSourceCodeModule module) {
         super(XlsNodeTypes.XLS_OPENL.toString(), location, module);

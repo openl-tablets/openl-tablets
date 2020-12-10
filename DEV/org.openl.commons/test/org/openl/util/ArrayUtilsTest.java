@@ -11,22 +11,22 @@ import org.junit.Test;
 
 public class ArrayUtilsTest {
 
-    C[] array1D = new C[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
-    A[] resultArray1D = new A[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
+    final C[] array1D = new C[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
+    final A[] resultArray1D = new A[] { new C("c1", "c1@email"), new C("c2", "c2@email"), new C("c3", "c3@email") };
 
-    C[][] array2D = new C[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
+    final C[][] array2D = new C[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
             { new C("c21", "email"), new C("c22", "email"), new C("c23", "email") } };
 
-    A[][] resultArray2D = new A[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
+    final A[][] resultArray2D = new A[][] { { new C("c11", "email"), new C("c12", "email"), new C("c13", "email") },
             { new C("c21", "email"), new C("c22", "email"), new C("c23", "email") } };
 
-    C[][][] array3DWithEmptyElements = new C[][][] {
+    final C[][][] array3DWithEmptyElements = new C[][][] {
             { { new C("c111", "email"), new C("c111", "email"), new C("c111", "email") },
                     { new C("c211", "email"), new C("c211", "email") },
                     {} },
             { {} } };
 
-    C[][][] array3D = new C[][][] {
+    final C[][][] array3D = new C[][][] {
             { { new C("c111", "email"), new C("c121", "email"), new C("c131", "email") },
                     { new C("c211", "email"), new C("c221", "email") },
                     { new C("c311", "email"), new C("c321", "email") }, },
@@ -34,7 +34,7 @@ public class ArrayUtilsTest {
                     { new C("c212", "email"), new C("c222", "email") },
                     { new C("c312", "email"), new C("c322", "email") } } };
 
-    C[][][] resultArray3D = new C[][][] {
+    final C[][][] resultArray3D = new C[][][] {
             { { new C("c111", "email"), new C("c121", "email"), new C("c131", "email") },
                     { new C("c211", "email"), new C("c221", "email") },
                     { new C("c311", "email"), new C("c321", "email") }, },
@@ -42,14 +42,14 @@ public class ArrayUtilsTest {
                     { new C("c212", "email"), new C("c222", "email") },
                     { new C("c312", "email"), new C("c322", "email") } } };
 
-    A[][][] resultArray3DWithEmptyElements = new A[][][] {
+    final A[][][] resultArray3DWithEmptyElements = new A[][][] {
             { { new C("c111", "email"), new C("c111", "email"), new C("c111", "email") },
                     { new C("c211", "email"), new C("c211", "email") },
                     {} },
             { {} } };
 
-    C[][][][][] array5D = new C[][][][][] { { array3D, array3D, array3D }, { array3D, }, { {}, {}, {}, {}, {}, {} } };
-    A[][][][][] resultArray5D = new A[][][][][] { { array3D, array3D, array3D },
+    final C[][][][][] array5D = new C[][][][][] { { array3D, array3D, array3D }, { array3D, }, { {}, {}, {}, {}, {}, {} } };
+    final A[][][][][] resultArray5D = new A[][][][][] { { array3D, array3D, array3D },
             { array3D, },
             { {}, {}, {}, {}, {}, {} } };
 
@@ -144,7 +144,7 @@ public class ArrayUtilsTest {
 }
 
 class A {
-    String name;
+    final String name;
 
     public A(String name) {
         this.name = name;
@@ -169,7 +169,7 @@ class A {
 }
 
 class B {
-    String name;
+    final String name;
 
     public B(String name) {
         this.name = name;
@@ -177,7 +177,7 @@ class B {
 }
 
 class C extends A {
-    String email;
+    final String email;
 
     public C(String name, String email) {
         super(name);

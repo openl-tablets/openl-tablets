@@ -12,18 +12,18 @@ import org.openl.rules.table.ILogicalTable;
 
 public class RuleRow {
 
-    private int row;
-    private ILogicalTable table;
+    private final int row;
+    private final ILogicalTable table;
 
     public RuleRow(int row, ILogicalTable table) {
         this.row = row;
         this.table = table;
     }
 
-    private Map<Integer, String> cache = new HashMap<>();
-    private ReadWriteLock lock = new ReentrantReadWriteLock();
-    private Lock readLock = lock.readLock();
-    private Lock writeLock = lock.writeLock();
+    private final Map<Integer, String> cache = new HashMap<>();
+    private final ReadWriteLock lock = new ReentrantReadWriteLock();
+    private final Lock readLock = lock.readLock();
+    private final Lock writeLock = lock.writeLock();
 
     public String getRuleName(int col) {
         try {

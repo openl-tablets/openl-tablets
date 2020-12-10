@@ -27,11 +27,11 @@ public class StyleIndexHandler extends DefaultHandler {
 
     private CellAddress current;
     private boolean readFormula;
-    private StringBuilder formula = new StringBuilder();
-    private Map<String, SharedFormulaDefinition> sharedFormulas = new HashMap<>();
+    private final StringBuilder formula = new StringBuilder();
+    private final Map<String, SharedFormulaDefinition> sharedFormulas = new HashMap<>();
     private String sharedFormulaIndex;
     private String sharedFormulaRef;
-    private SAXFormulaParsingWorkbook formulaParsingWorkbook;
+    private final SAXFormulaParsingWorkbook formulaParsingWorkbook;
 
     public StyleIndexHandler(IGridRegion tableRegion, int sheetIndex) {
         this.tableRegion = tableRegion;

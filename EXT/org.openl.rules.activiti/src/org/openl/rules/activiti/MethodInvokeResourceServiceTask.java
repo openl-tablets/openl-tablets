@@ -19,7 +19,7 @@ public class MethodInvokeResourceServiceTask extends AbstractOpenLResourceServic
     protected Expression resultVariable;
 
     private Object compiledInstance;
-    private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+    private final ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
     @Override
     protected IRulesRuntimeContext buildRuntimeContext(DelegateExecution execution) {

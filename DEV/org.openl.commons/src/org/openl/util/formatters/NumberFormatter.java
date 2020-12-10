@@ -18,7 +18,7 @@ public class NumberFormatter implements IFormatter {
 
     private final Logger log = LoggerFactory.getLogger(NumberFormatter.class);
 
-    private NumberFormat format;
+    private final NumberFormat format;
 
     public NumberFormatter() {
         this(new DecimalFormat());

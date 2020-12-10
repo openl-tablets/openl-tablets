@@ -76,8 +76,8 @@ public class ComplexVariation extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         Object[] arguments = originalArguments;
-        for (int i = 0; i < variations.length; i++) {
-            arguments = variations[i].applyModification(arguments);
+        for (Variation variation : variations) {
+            arguments = variation.applyModification(arguments);
         }
         return arguments;
     }

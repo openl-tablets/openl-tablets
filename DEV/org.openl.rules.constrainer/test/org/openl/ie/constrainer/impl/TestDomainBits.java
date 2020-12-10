@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.util.Arrays;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
@@ -10,9 +12,9 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 public class TestDomainBits extends TestCase {
-    private Constrainer C = new Constrainer("TestDomainBits");
-    private IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
-    private DomainBits _probeDomainBits = new DomainBits(_var, _var.min(), _var.max());
+    private final Constrainer C = new Constrainer("TestDomainBits");
+    private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
+    private final DomainBits _probeDomainBits = new DomainBits(_var, _var.min(), _var.max());
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestDomainBits.class));
@@ -31,16 +33,14 @@ public class TestDomainBits extends TestCase {
     public void setValue(int value) {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         boolean[] mask = new boolean[db.size()];
-        for (int i = 0; i < mask.length; i++) {
-            mask[i] = true;
-        }
+        Arrays.fill(mask, true);
         mask[5] = false;
         db.forceBits(mask);
 
         try {
             db.setValue(5);
             fail("test failed");
-        } catch (Failure e) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -224,7 +224,7 @@ public class TestDomainBits extends TestCase {
         try {
             db.setMax(_var.min() - 1);
             fail("test of DomainBits failed due to incorrect work of setMax(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
@@ -250,7 +250,7 @@ public class TestDomainBits extends TestCase {
         try {
             db.setMin(_var.min() - 1);
             fail("test of DomainBits failed due to incorrect work of setMax(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }

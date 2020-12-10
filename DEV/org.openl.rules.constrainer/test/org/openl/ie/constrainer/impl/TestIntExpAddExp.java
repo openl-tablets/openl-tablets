@@ -25,7 +25,7 @@ import junit.textui.TestRunner;
  */
 
 public class TestIntExpAddExp extends TestCase {
-    private Constrainer C = new Constrainer("TestIntExpAbs");
+    private final Constrainer C = new Constrainer("TestIntExpAbs");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntExpAddExp.class));
@@ -152,7 +152,7 @@ public class TestIntExpAddExp extends TestCase {
         try {
             sum.setMax(1);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         intvar1 = C.addIntVar(1, 10, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -168,7 +168,7 @@ public class TestIntExpAddExp extends TestCase {
         try {
             sum.setMax(2);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -181,7 +181,7 @@ public class TestIntExpAddExp extends TestCase {
             intvar2.setMin(7);
             C.propagate();
             fail("test failed");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 
@@ -210,7 +210,7 @@ public class TestIntExpAddExp extends TestCase {
         try {
             sum.setMin(-1);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         intvar1 = C.addIntVar(-10, -1, "intvar", IntVar.DOMAIN_BIT_FAST);
@@ -226,7 +226,7 @@ public class TestIntExpAddExp extends TestCase {
         try {
             sum.setMin(-2);
             fail("allow to assign maxvalue that less then sum[i=1..n](array[i].min())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -239,7 +239,7 @@ public class TestIntExpAddExp extends TestCase {
             intvar2.setMax(-7);
             C.propagate();
             fail("test failed");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 
@@ -250,14 +250,14 @@ public class TestIntExpAddExp extends TestCase {
         try {
             sum.setValue(-1);
             fail("allow to assign a value that greater then sum[i=1..10](array[i].max())");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
             sum.setValue(-20);
             assertEquals(-10, intvar1.value());
             assertEquals(-10, intvar2.value());
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
     }
 

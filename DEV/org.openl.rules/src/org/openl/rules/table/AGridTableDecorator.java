@@ -5,7 +5,7 @@ package org.openl.rules.table;
  */
 public abstract class AGridTableDecorator extends AGridTable {
 
-    protected IGridTable table;
+    protected final IGridTable table;
 
     public AGridTableDecorator(IGridTable table) {
         this.table = table;

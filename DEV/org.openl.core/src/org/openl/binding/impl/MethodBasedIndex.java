@@ -6,8 +6,8 @@ import org.openl.types.IOpenIndex;
 
 public class MethodBasedIndex implements IOpenIndex {
 
-    private IMethodCaller reader;
-    private IMethodCaller writer;
+    private final IMethodCaller reader;
+    private final IMethodCaller writer;
 
     public MethodBasedIndex(IMethodCaller reader, IMethodCaller writer) {
         this.reader = reader;

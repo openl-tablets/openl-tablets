@@ -37,8 +37,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ObjectToDataConvertorFactory {
     public static class ClassCastPair {
-        private Class<?> from;
-        private Class<?> to;
+        private final Class<?> from;
+        private final Class<?> to;
 
         public ClassCastPair(Class<?> from, Class<?> to) {
             this.from = from;
@@ -69,7 +69,7 @@ public class ObjectToDataConvertorFactory {
     }
 
     public static class MatchedConstructorConvertor implements IObjectToDataConvertor {
-        private Constructor<?> ctr;
+        private final Constructor<?> ctr;
 
         public MatchedConstructorConvertor(Constructor<?> ctr) {
             this.ctr = ctr;
@@ -91,7 +91,7 @@ public class ObjectToDataConvertorFactory {
      * @author DLiauchuk
      */
     public static class StaticMethodConvertor implements IObjectToDataConvertor {
-        private Method staticMethod;
+        private final Method staticMethod;
 
         public StaticMethodConvertor(Method staticMethod) {
             if (!Modifier.isStatic(staticMethod.getModifiers())) {
@@ -119,7 +119,7 @@ public class ObjectToDataConvertorFactory {
             return data;
         }
 
-        public static CopyConvertor the = new CopyConvertor();
+        public static final CopyConvertor the = new CopyConvertor();
     }
 
     /**
@@ -149,7 +149,7 @@ public class ObjectToDataConvertorFactory {
         }
     }
 
-    private static Map<ClassCastPair, IObjectToDataConvertor> converters = new ConcurrentHashMap<>();
+    private static final Map<ClassCastPair, IObjectToDataConvertor> converters = new ConcurrentHashMap<>();
 
     static {
         try {
@@ -171,35 +171,30 @@ public class ObjectToDataConvertorFactory {
             });
 
             converters.put(new ClassCastPair(Date.class, LocalDate.class), e -> {
-                LocalDate localDate = Instant.ofEpochMilli(((Date) e).getTime())
+                return Instant.ofEpochMilli(((Date) e).getTime())
                     .atZone(ZoneId.systemDefault())
                     .toLocalDate();
-                return localDate;
             });
 
             converters.put(new ClassCastPair(Date.class, ZonedDateTime.class), e -> {
-                ZonedDateTime zonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) e).getTime()),
+                return ZonedDateTime.ofInstant(Instant.ofEpochMilli(((Date) e).getTime()),
                     ZoneId.systemDefault());
-                return zonedDateTime;
             });
 
             converters.put(new ClassCastPair(Date.class, Instant.class), e -> {
-                Instant instant = ((Date) e).toInstant();
-                return instant;
+                return ((Date) e).toInstant();
             });
 
             converters.put(new ClassCastPair(Date.class, LocalTime.class), e -> {
-                LocalTime localTime = Instant.ofEpochMilli(((Date) e).getTime())
+                return Instant.ofEpochMilli(((Date) e).getTime())
                     .atZone(ZoneId.systemDefault())
                     .toLocalTime();
-                return localTime;
             });
 
             converters.put(new ClassCastPair(Date.class, LocalDateTime.class), e -> {
-                LocalDateTime localDateTime = Instant.ofEpochMilli(((Date) e).getTime())
+                return Instant.ofEpochMilli(((Date) e).getTime())
                     .atZone(ZoneId.systemDefault())
                     .toLocalDateTime();
-                return localDateTime;
             });
 
             /*

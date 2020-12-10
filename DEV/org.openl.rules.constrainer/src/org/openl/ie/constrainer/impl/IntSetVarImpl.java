@@ -11,7 +11,7 @@ import org.openl.ie.tools.ReusableFactory;
 public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     class ElementsObserver extends Observer {
-        private int _val;
+        private final int _val;
 
         public ElementsObserver(int val) {
             _val = val;
@@ -50,7 +50,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     static public class UndoPossibleSetReduction extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoPossibleSetReduction();
@@ -78,7 +78,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
     private IntExpArray _set;
 
-    private HashMap _values2index = new HashMap();
+    private final HashMap _values2index = new HashMap();
 
     private int _unboundsCounter;
 
@@ -97,7 +97,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         for (int i = 0; i < size; i++) {
             _set.set(C.addIntBoolVarInternal(name() + "[" + array[i] + "]"), i);
             _set.get(i).attachObserver(new ElementsObserver(array[i]));
-            _values2index.put(new Integer(array[i]), new Integer(i));
+            _values2index.put(array[i], i);
         }
         _unboundsCounter = size;
     }
@@ -117,9 +117,8 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         if (!_values2index.keySet().containsAll(anotherSet)) {
             return false;
         }
-        Iterator iter = anotherSet.iterator();
-        while (iter.hasNext()) {
-            int val = ((Integer) iter.next());
+        for (Object o : anotherSet) {
+            int val = ((Integer) o);
             if (!possible(val)) {
                 return false;
             }
@@ -133,7 +132,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
     }
 
     private IntBoolVar hasElem(int i) {
-        int idx = ((Integer) _values2index.get(new Integer(i)));
+        int idx = ((Integer) _values2index.get(i));
         return (IntBoolVar) _set.get(idx);
     }
 
@@ -165,8 +164,7 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
         int[] intersection = new int[counter];
         System.arraycopy(tmp, 0, intersection, 0, counter);
         IntSetVarImpl result = (IntSetVarImpl) constrainer().addIntSetVar(intersection);
-        for (int i = 0; i < intersection.length; i++) {
-            int val = intersection[i];
+        for (int val : intersection) {
             try {
                 result.hasElem(val).equals(hasElem(val).and(anotherSet.hasElem(val))).execute();
             } catch (Failure f) {/* it would be never thrown */
@@ -202,9 +200,8 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
     @Override
     public Set requiredSet() {
         java.util.HashSet values = new java.util.HashSet();
-        Iterator iter = _values2index.keySet().iterator();
-        while (iter.hasNext()) {
-            Integer curValue = (Integer) iter.next();
+        for (Object o : _values2index.keySet()) {
+            Integer curValue = (Integer) o;
             if (hasElem(curValue).min() == 1) {
                 values.add(curValue);
             }
@@ -244,10 +241,9 @@ public class IntSetVarImpl extends SubjectImpl implements IntSetVar {
 
         IntSetVarImpl result = (IntSetVarImpl) constrainer().addIntSetVar(union);
 
-        for (int i = 0; i < union.length; i++) {
-            int val = union[i];
-            if (values1.contains(new Integer(val))) {
-                if (values2.contains(new Integer(val))) {
+        for (int val : union) {
+            if (values1.contains(val)) {
+                if (values2.contains(val)) {
                     try {
                         result.hasElem(val).equals(hasElem(val).or(anotherSet.hasElem(val))).execute();
                     } catch (Failure f) {/* it would be never thrown */

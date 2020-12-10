@@ -10,10 +10,10 @@ import org.slf4j.LoggerFactory;
 
 class TableValueFilter extends AGridFilter {
 
-    private SpreadsheetResult res;
+    private final SpreadsheetResult res;
 
-    private int startX;
-    private int startY;
+    private final int startX;
+    private final int startY;
 
     public TableValueFilter(final SpreadsheetResult res) {
         this.res = res;

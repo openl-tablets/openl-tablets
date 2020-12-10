@@ -68,7 +68,6 @@ public class Driver {
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Driver)) {
-            ;
             return false;
         }
         Driver another = (Driver) obj;

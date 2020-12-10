@@ -10,8 +10,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class NoParamMethodField implements IOpenField {
 
-    private String fieldName;
-    private AlgorithmSubroutineMethod methodToInvoke;
+    private final String fieldName;
+    private final AlgorithmSubroutineMethod methodToInvoke;
 
     public NoParamMethodField(String theFieldName, AlgorithmSubroutineMethod theMethodToInvoke) {
         assert theMethodToInvoke.getSignature().getParameterTypes().length == 0;

@@ -18,7 +18,7 @@ package org.openl.ie.constrainer;
  * An implementation of a {@link Goal} that sets the upper bound of a domain of the integer variable.
  */
 public class GoalSetMax extends GoalImpl {
-    private IntExp _exp;
+    private final IntExp _exp;
     private int _max;
 
     // private UndoableInt _maxI;

@@ -5,7 +5,7 @@ import java.util.Map;
 public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
     private static final int MIN_MAPPED_SIZE = 16;
-    ObjectStorage storage;
+    final ObjectStorage storage;
 
     ObjectStorageBuilder(int size) {
         this.storage = new ObjectStorage(size);

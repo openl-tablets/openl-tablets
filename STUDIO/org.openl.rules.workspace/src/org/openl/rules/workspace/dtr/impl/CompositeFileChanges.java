@@ -22,7 +22,7 @@ public class CompositeFileChanges implements Iterable<FileItem> {
     public Iterator<FileItem> iterator() {
         return new Iterator<FileItem>() {
             private Iterator<FileItem> firstIterator = first.iterator();
-            private Iterator<FileItem> secondIterator = second.iterator();
+            private final Iterator<FileItem> secondIterator = second.iterator();
 
             @Override
             public boolean hasNext() {

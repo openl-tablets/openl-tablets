@@ -68,7 +68,7 @@ public class ProjectVersionCacheMonitorTest {
     }
 
     private Repository createRepository(File local) {
-        Repository repo = new GitRepositoryFactory().create(s -> {
+        return new GitRepositoryFactory().create(s -> {
             switch (s) {
                 case "local-repository-path":
                     return local.getAbsolutePath();
@@ -77,7 +77,6 @@ public class ProjectVersionCacheMonitorTest {
             }
             return null;
         });
-        return repo;
     }
 
     private FileData createFileData(String path, String text) {

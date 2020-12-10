@@ -7,7 +7,7 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetBoldAction extends AUndoableCellAction {
 
-    private boolean bold;
+    private final boolean bold;
 
     public SetBoldAction(int col, int row, boolean bold, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

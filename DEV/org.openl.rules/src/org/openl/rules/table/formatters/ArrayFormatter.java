@@ -34,7 +34,7 @@ public class ArrayFormatter implements IFormatter {
      */
     private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private IFormatter elementFormat;
+    private final IFormatter elementFormat;
 
     /**
      * @param elementFormat formatter for the component type of array.

@@ -87,14 +87,14 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
             xwriter = new PrettyPrintXMLStreamWriter(xwriter, 2);
             try (InputStream in = cos.getInputStream()) {
                 StaxUtils.copy(new StreamSource(in), xwriter);
-            } catch (XMLStreamException ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (XMLStreamException e) {
+                LOG.debug("Ignored error: ", e);
             } finally {
                 try {
                     xwriter.flush();
                     xwriter.close();
-                } catch (XMLStreamException ignored) {
-                    LOG.debug("Ignored error: ", ignored);
+                } catch (XMLStreamException e) {
+                    LOG.debug("Ignored error: ", e);
                 }
             }
 
@@ -102,7 +102,7 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
             if (result.length() < limit || limit == -1) {
                 builder.append(swriter.toString());
             } else {
-                builder.append(swriter.toString().substring(0, limit));
+                builder.append(swriter.toString(), 0, limit);
             }
 
         } else {
@@ -131,7 +131,7 @@ public abstract class AbstractProcessLoggingMessageInterceptor extends AbstractP
             if (result.length() < limit || limit == -1) {
                 builder.append(swriter.toString());
             } else {
-                builder.append(swriter.toString().substring(0, limit));
+                builder.append(swriter.toString(), 0, limit);
             }
 
         } else {

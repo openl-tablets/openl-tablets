@@ -22,8 +22,7 @@ public class String2LocalDateTimeConvertor implements IString2DataConvertor<Loca
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
-                LocalDateTime localDateTime = LocalDateTime.parse(data, dtFormat);
-                return localDateTime;
+                return LocalDateTime.parse(data, dtFormat);
             } catch (DateTimeParseException e) {
                 // Loop on
             }

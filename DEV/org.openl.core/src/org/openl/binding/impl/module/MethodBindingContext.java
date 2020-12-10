@@ -20,13 +20,13 @@ public class MethodBindingContext extends BindingContextDelegator {
 
     public static final int DEFAULT_CONTEXT_LEVEL = 1;
 
-    LocalFrameBuilder localFrame = new LocalFrameBuilder();
+    final LocalFrameBuilder localFrame = new LocalFrameBuilder();
 
     IOpenClass returnType;
-    IOpenMethodHeader header;
+    final IOpenMethodHeader header;
 
-    boolean searchInParameterContext;
-    int parameterContextDepthLevel;
+    final boolean searchInParameterContext;
+    final int parameterContextDepthLevel;
 
     ILocalVar[] paramVars;
 

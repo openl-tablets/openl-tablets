@@ -26,8 +26,8 @@ public class GridCellSourceCodeModule implements IOpenSourceCodeModule {
     private IGridTable table;
     private String code;
 
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
 
     private String uri;
 

@@ -2,13 +2,11 @@ package org.openl.spring.env;
 
 import java.io.InputStream;
 import java.net.URL;
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;

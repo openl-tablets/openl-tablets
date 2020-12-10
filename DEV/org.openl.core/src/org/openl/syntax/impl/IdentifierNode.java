@@ -14,7 +14,7 @@ import org.openl.util.text.ILocation;
  */
 public class IdentifierNode extends TerminalNode {
 
-    private String identifier;
+    private final String identifier;
 
     public IdentifierNode(String type, ILocation location, String identifier, IOpenSourceCodeModule module) {
         super(type, location, module);

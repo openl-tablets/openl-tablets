@@ -22,10 +22,10 @@ import org.openl.types.impl.ParameterDeclaration;
 
 public class DecisionTableAnalyzer {
 
-    private IDecisionTable decisionTable;
+    private final IDecisionTable decisionTable;
 
-    private Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<>();
-    private Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<>();
+    private final Map<IBaseDecisionRow, ConditionAnalyzer> conditionAnalyzers = new HashMap<>();
+    private final Map<String, DecisionTableParamDescription> usedParamsFromSignature = new HashMap<>();
 
     public DecisionTableAnalyzer(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
@@ -109,7 +109,7 @@ public class DecisionTableAnalyzer {
             }
         }
 
-        return paramDeclarations.toArray(new IParameterDeclaration[paramDeclarations.size()]);
+        return paramDeclarations.toArray(new IParameterDeclaration[0]);
     }
 
     /**

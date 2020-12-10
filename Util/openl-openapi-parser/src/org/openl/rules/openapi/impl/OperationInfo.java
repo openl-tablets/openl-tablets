@@ -1,9 +1,9 @@
 package org.openl.rules.openapi.impl;
 
 public class OperationInfo {
-    private String method;
-    private String produces;
-    private String consumes;
+    private final String method;
+    private final String produces;
+    private final String consumes;
 
     public OperationInfo(String method, String produces, String consumes) {
         this.method = method;

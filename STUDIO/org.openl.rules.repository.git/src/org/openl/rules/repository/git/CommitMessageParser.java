@@ -1,13 +1,13 @@
 package org.openl.rules.repository.git;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parses {@code {commit-type}}, {@code {user-message}}
@@ -146,8 +146,8 @@ class CommitMessageParser {
         private String getValue(String groupName) {
             try {
                 return matcher.group(groupName);
-            } catch (IllegalArgumentException | IllegalStateException ignored) {
-                LOG.debug("Error occurred: ", ignored);
+            } catch (IllegalArgumentException | IllegalStateException e) {
+                LOG.debug("Error occurred: ", e);
             }
             return null;
         }

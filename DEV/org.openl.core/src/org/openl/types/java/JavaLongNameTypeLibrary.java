@@ -21,11 +21,11 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
     // this.blockedClassPatterns = blockedClassPatterns;
     // }
 
-    private Map<String, IOpenClass> foundClasses = new HashMap<>();
+    private final Map<String, IOpenClass> foundClasses = new HashMap<>();
 
     // private Set<String> blocked = new HashSet<String>();
 
-    private ClassLoader loader;
+    private final ClassLoader loader;
 
     public JavaLongNameTypeLibrary(ClassLoader classLoader) {
         this.loader = classLoader;
@@ -54,7 +54,7 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
             ioc = JavaOpenClass.getOpenClass(c);
             foundClasses.put(typename, ioc);
             return ioc;
-        } catch (Throwable t) {
+        } catch (Throwable ignored) {
         }
         return null;
     }

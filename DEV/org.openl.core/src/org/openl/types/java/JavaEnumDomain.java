@@ -8,7 +8,7 @@ import org.openl.domain.IType;
 
 public class JavaEnumDomain implements IDomain<Object> {
 
-    private JavaOpenEnum enumClass;
+    private final JavaOpenEnum enumClass;
 
     public JavaEnumDomain(JavaOpenEnum enumClass) {
         this.enumClass = enumClass;

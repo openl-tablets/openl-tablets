@@ -9,10 +9,10 @@ import org.openl.types.IOpenIndex;
 
 public class ArrayResultBuilder implements IResultBuilder {
 
-    private IOpenClass type;
-    private SpreadsheetCell[] cells;
-    private IOpenCast[] openCasts;
-    private boolean calculateAllCells;
+    private final IOpenClass type;
+    private final SpreadsheetCell[] cells;
+    private final IOpenCast[] openCasts;
+    private final boolean calculateAllCells;
 
     public ArrayResultBuilder(SpreadsheetCell[] cells,
             IOpenCast[] openCasts,

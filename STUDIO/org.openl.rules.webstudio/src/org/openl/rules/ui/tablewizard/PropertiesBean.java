@@ -21,7 +21,7 @@ public class PropertiesBean {
     private List<TableProperty> properties = new ArrayList<>();
     private String propNameToAdd;
     private TableProperty propToRemove;
-    private Set<String> possibleToAddProps;
+    private final Set<String> possibleToAddProps;
 
     /**
      * Creates PropertiesBean with specified pack of possible properties.

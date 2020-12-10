@@ -28,12 +28,11 @@ public class ShowMessageBean {
         }
 
         Collection<OpenLMessage> moduleMessages = WebStudioUtils.getWebStudio().getModel().getModuleMessages();
-        List<OpenLMessage> openLMessage = moduleMessages.stream()
+
+        return moduleMessages.stream()
             .filter(m -> m.getId() == openLMessageId)
             .findFirst()
             .map(Collections::singletonList)
             .orElse(Collections.emptyList());
-
-        return openLMessage;
     }
 }

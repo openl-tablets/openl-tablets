@@ -732,15 +732,15 @@ public class XlsBinder implements IOpenBinder {
     }
 
     class XlsBinderExecutableMethodBind implements RecursiveOpenMethodPreBinder {
-        TableSyntaxNode tableSyntaxNode;
-        RulesModuleBindingContext rulesModuleBindingContext;
-        OpenL openl;
-        XlsModuleOpenClass module;
-        IMemberBoundNode[] childrens;
-        int index;
-        OpenMethodHeader openMethodHeader;
+        final TableSyntaxNode tableSyntaxNode;
+        final RulesModuleBindingContext rulesModuleBindingContext;
+        final OpenL openl;
+        final XlsModuleOpenClass module;
+        final IMemberBoundNode[] childrens;
+        final int index;
+        final OpenMethodHeader openMethodHeader;
         boolean preBinding = false;
-        SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
+        final SyntaxNodeExceptionHolder syntaxNodeExceptionHolder;
         boolean completed = false;
 
         XlsBinderExecutableMethodBind(XlsModuleOpenClass module,

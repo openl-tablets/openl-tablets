@@ -119,11 +119,8 @@ public class TopClassOpenMethodWrapperCacheTest {
 
     private static class SomeOpenMethod extends AMethod {
 
-        private IOpenClass openClass;
-
         SomeOpenMethod(IOpenClass openClass) {
             super(null);
-            this.openClass = openClass;
         }
 
         @Override

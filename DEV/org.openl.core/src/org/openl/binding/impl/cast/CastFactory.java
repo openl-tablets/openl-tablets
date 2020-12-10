@@ -34,7 +34,7 @@ public class CastFactory implements ICastFactory {
     private static final Set<Class<?>> INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS = Collections
         .unmodifiableSet(new HashSet<>(Arrays.asList(Serializable.class, Cloneable.class, Comparable.class)));
 
-    private static Predicate<IOpenClass> isNotIgnorableInParentSearch = (
+    private static final Predicate<IOpenClass> isNotIgnorableInParentSearch = (
             e) -> e != null && e.getInstanceClass() != null && !INTERFACES_IGNORABLE_IN_SEARCH_PARENT_CLASS
                 .contains(e.getInstanceClass()) && e.getInstanceClass().getPackage() != null && !Objects
                     .equals(e.getInstanceClass().getPackage().getName(), "java.lang.constant");
@@ -1004,8 +1004,8 @@ public class CastFactory implements ICastFactory {
                 castCaller = methodFactory.getMethod(AUTO_CAST_METHOD_NAME,
                     new IOpenClass[] { openClassFrom, openClassTo });
             }
-        } catch (AmbiguousMethodException ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (AmbiguousMethodException e) {
+            LOG.debug("Ignored error: ", e);
         }
 
         // If appropriate auto cast method is not found try to find explicit
@@ -1048,8 +1048,8 @@ public class CastFactory implements ICastFactory {
                         new IOpenClass[] { openClassFrom, openClassTo });
                 }
 
-            } catch (AmbiguousMethodException ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (AmbiguousMethodException e) {
+                LOG.debug("Ignored error: ", e);
             }
         }
 
@@ -1062,8 +1062,8 @@ public class CastFactory implements ICastFactory {
         try {
             distanceCaller = methodFactory.getMethod(DISTANCE_METHOD_NAME,
                 new IOpenClass[] { fromOpenClass, toOpenClass });
-        } catch (AmbiguousMethodException ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (AmbiguousMethodException e) {
+            LOG.debug("Ignored error: ", e);
         }
 
         if (distanceCaller != null) {

@@ -3,8 +3,8 @@ package org.openl.rules.dt.element;
 import org.openl.binding.impl.cast.IOpenCast;
 
 public final class ConditionCasts {
-    private IOpenCast castToInputType;
-    private IOpenCast castToConditionType;
+    private final IOpenCast castToInputType;
+    private final IOpenCast castToConditionType;
 
     ConditionCasts(IOpenCast castToInputType, IOpenCast castToConditionType) {
         super();

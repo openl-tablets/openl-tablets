@@ -7,11 +7,11 @@ package org.openl.rules.table;
  */
 public class SubGridTable extends AGridTableDecorator {
 
-    private int fromColumn;
-    private int fromRow;
-    private int width;
-    private int height;
-    private IGridRegion region;
+    private final int fromColumn;
+    private final int fromRow;
+    private final int width;
+    private final int height;
+    private final IGridRegion region;
 
     public SubGridTable(IGridTable table, int fromColumn, int fromRow, int width, int height) {
         super(table);

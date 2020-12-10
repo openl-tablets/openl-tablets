@@ -3,10 +3,10 @@ package org.openl.rules.dt;
 import java.util.Arrays;
 
 abstract class DTHeader {
-    int[] methodParameterIndexes;
-    int column;
-    String statement;
-    int width;
+    final int[] methodParameterIndexes;
+    final int column;
+    final String statement;
+    final int width;
 
     DTHeader(int[] methodParameterIndexes, String statement, int column, int width) {
         this.methodParameterIndexes = methodParameterIndexes;

@@ -429,7 +429,7 @@ public class HTMLRenderer {
                     StringBuilder cellId = new StringBuilder();
                     cellId.append(editorId)
                         .append(Constants.ID_POSTFIX_CELL)
-                        .append(String.valueOf(row + 1))
+                        .append((row + 1))
                         .append(":")
                         .append(col + 1);
 

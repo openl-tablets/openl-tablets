@@ -17,7 +17,7 @@ public class NoAntOpenLTask {
 
     private boolean inheritExtendedConfigurationLoader = false;
 
-    OpenLConfiguration conf = new OpenLConfiguration();
+    final OpenLConfiguration conf = new OpenLConfiguration();
 
     private String category;
 

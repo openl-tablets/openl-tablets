@@ -342,8 +342,8 @@ public class TableProperty {
      */
     public static class TablePropertyBuilder {
         // Required parameters
-        private String name;
-        private Class<?> type;
+        private final String name;
+        private final Class<?> type;
         private final Formats formats;
 
         // Optional parameters

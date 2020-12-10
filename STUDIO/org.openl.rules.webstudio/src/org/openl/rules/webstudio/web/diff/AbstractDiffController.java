@@ -29,7 +29,7 @@ public abstract class AbstractDiffController {
 
     private TreeNode richDiffTree;
     private TreeNode selectedNode;
-    private List<File> tempFiles = new ArrayList<>();
+    private final List<File> tempFiles = new ArrayList<>();
 
     public abstract String compare();
 
@@ -111,7 +111,7 @@ public abstract class AbstractDiffController {
         if (regions.isEmpty()) {
             return null;
         }
-        IGridRegion[] aRegions = regions.toArray(new IGridRegion[0]);
+        IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
             new ColorFilterHolder().makeFilter());
     }

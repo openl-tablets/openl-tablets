@@ -21,7 +21,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     private volatile IUserContext userContext;
 
     private String openlName;
-    private String userHome;
+    private final String userHome;
 
     protected IRuntimeEnvBuilder runtimeEnvBuilder;
 

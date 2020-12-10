@@ -4,10 +4,10 @@ public class SAMLSettings {
     private String webStudioUrl;
     private String samlServerMetadataUrl;
     private int requestTimeout;
-    private String keystoreFilePath;
-    private String keystorePassword;
-    private String keystoreSpAlias;
-    private String keystoreSpPassword;
+    private final String keystoreFilePath;
+    private final String keystorePassword;
+    private final String keystoreSpAlias;
+    private final String keystoreSpPassword;
     private String defaultGroup;
     private String usernameAttribute;
     private String firstNameAttribute;

@@ -4,7 +4,7 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.IGridRegion;
 
 public final class EmptyMetaInfoReader implements MetaInfoReader {
-    private static EmptyMetaInfoReader ourInstance = new EmptyMetaInfoReader();
+    private static final EmptyMetaInfoReader ourInstance = new EmptyMetaInfoReader();
 
     public static EmptyMetaInfoReader getInstance() {
         return ourInstance;

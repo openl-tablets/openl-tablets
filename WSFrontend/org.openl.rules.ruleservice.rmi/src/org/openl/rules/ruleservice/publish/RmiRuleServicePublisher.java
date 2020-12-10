@@ -26,7 +26,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(RmiRuleServicePublisher.class);
 
-    private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
+    private final Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
     private int rmiPort = 1099; // Default RMI port
     private String rmiHost = "127.0.0.1"; // Default RMI host
 
@@ -132,8 +132,8 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
     }
 
     private static class ServiceServer {
-        private String name;
-        private Remote rmiHandler;
+        private final String name;
+        private final Remote rmiHandler;
 
         public ServiceServer(String name, Remote rmiHandler) {
             this.name = Objects.requireNonNull(name, "name cannot be null");

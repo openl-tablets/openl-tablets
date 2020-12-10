@@ -89,7 +89,7 @@ public abstract class JavaCC30Grammar implements IGrammar {
 
     public abstract void ReInit(Reader r);
 
-    private LinkedList<ISyntaxNode> stack = new LinkedList<>();
+    private final LinkedList<ISyntaxNode> stack = new LinkedList<>();
 
     @Override
     public ISyntaxNode getTopNode() {

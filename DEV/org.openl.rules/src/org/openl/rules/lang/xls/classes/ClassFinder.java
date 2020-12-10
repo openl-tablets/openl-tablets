@@ -16,7 +16,7 @@ public class ClassFinder {
     private static final Class[] NO_CLASSES = new Class[0];
     private static final Logger LOG = LoggerFactory.getLogger(ClassFinder.class);
 
-    private Map<String, ClassLocator> locators = new HashMap<>();
+    private final Map<String, ClassLocator> locators = new HashMap<>();
 
     public ClassFinder() {
         this(Arrays.asList(new LoggingExceptionHandler()));
@@ -72,7 +72,7 @@ public class ClassFinder {
                 }
             }
         }
-        return classes.toArray(new Class[classes.size()]);
+        return classes.toArray(new Class[0]);
     }
 
     private void initDefaultLocators(List<? extends LocatorExceptionHandler> handlers) {

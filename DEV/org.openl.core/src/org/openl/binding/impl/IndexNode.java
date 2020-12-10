@@ -13,7 +13,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class IndexNode extends ATargetBoundNode {
 
-    IOpenIndex index;
+    final IOpenIndex index;
 
     /**
      * @param syntaxNode

@@ -20,8 +20,8 @@ import org.openl.types.java.JavaOpenClass;
  *
  */
 public class ReturnAnalyzer {
-    private IOpenClass returnType;
-    private AlgorithmCompiler compiler;
+    private final IOpenClass returnType;
+    private final AlgorithmCompiler compiler;
 
     /**
      * Create an instance of <code>ReturnAnalyzer</code> for analysis of some function from TBasic compiler.

@@ -10,6 +10,6 @@ import java.lang.annotation.Target;
 public @interface StoreLogDataToHive {
     Class<?>[] value() default DEFAULT.class;
 
-    public static interface DEFAULT {
+    interface DEFAULT {
     }
 }

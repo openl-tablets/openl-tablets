@@ -66,8 +66,8 @@ public class ComplexParameterTreeNode extends ParameterDeclarationTreeNode {
                 for (IOpenField field : getType().getFields()) {
                     fieldMap.put(NumericComparableString.valueOf(field.getName()), field);
                 }
-            } catch (LinkageError ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (LinkageError e) {
+                LOG.debug("Ignored error: ", e);
                 return fields;
             }
 

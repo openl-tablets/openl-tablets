@@ -70,9 +70,7 @@ class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
         ArrayList<Object> objects = new ArrayList<>();
         for (Object element : map.values()) {
             if (element instanceof OrderList) {
-                for (Object item : (OrderList) element) {
-                    objects.add(item);
-                }
+                objects.addAll((OrderList) element);
             } else {
                 objects.add(element);
             }

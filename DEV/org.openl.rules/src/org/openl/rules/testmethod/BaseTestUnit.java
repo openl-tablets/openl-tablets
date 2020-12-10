@@ -230,7 +230,7 @@ public class BaseTestUnit implements ITestUnit {
 
     public static final class Builder implements ITestResultBuilder {
 
-        private static Builder instance = new Builder();
+        private static final Builder instance = new Builder();
 
         private Builder() {
             /* NON */

@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class CollectResponseMessageOutInterceptor extends AbstractProcessLoggingMessageInterceptor {
     private static final Logger LOG = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
-    private StoreLogDataManager storeLoggingManager;
+    private final StoreLogDataManager storeLoggingManager;
 
     public StoreLogDataManager getStoreLoggingManager() {
         return storeLoggingManager;
@@ -168,7 +168,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         public void close() throws IOException {
             LoggingMessage buffer = setupBuffer(message);
             if (count >= lim) {
-                buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
             }
             StringWriter w2 = out2;
             if (w2 == null) {
@@ -177,8 +177,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             String ct = (String) message.get(Message.CONTENT_TYPE);
             try {
                 writePayload(buffer.getPayload(), w2, ct);
-            } catch (Exception ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (Exception e) {
+                LOG.debug("Ignored error: ", e);
             }
             String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
             LoggingMessage loggingMessage = new LoggingMessage(null, id);
@@ -237,20 +237,20 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             if (cos.getTempFile() == null) {
                 // buffer.append("Outbound Message:\n");
                 if (cos.size() >= lim) {
-                    buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
                 }
             } else {
                 buffer.getMessage().append("Outbound Message (saved to tmp file):\n");
-                buffer.getMessage().append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
+                buffer.getMessage().append("Filename: ").append(cos.getTempFile().getAbsolutePath()).append("\n");
                 if (cos.size() >= lim) {
-                    buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
                 }
             }
             try {
                 String encoding = (String) message.get(Message.ENCODING);
                 writePayload(buffer.getPayload(), cos, encoding, ct);
-            } catch (Exception ignored) {
-                LOG.debug("Error occurred: ", ignored);
+            } catch (Exception e) {
+                LOG.debug("Error occurred: ", e);
             }
 
             handleMessage(buffer);
@@ -258,8 +258,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
                 // empty out the cache
                 cos.lockOutputStream();
                 cos.resetOut(null, false);
-            } catch (Exception ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (Exception e) {
+                LOG.debug("Ignored error: ", e);
             }
             message.setContent(OutputStream.class, origStream);
         }

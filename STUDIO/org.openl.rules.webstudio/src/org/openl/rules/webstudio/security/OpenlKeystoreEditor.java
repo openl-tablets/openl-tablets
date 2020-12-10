@@ -14,10 +14,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 public class OpenlKeystoreEditor {
-    private Resource keyStoreFile;
-    private String keystorePassword;
-    private String serverCertificate;
-    private String serverKeyAlias;
+    private final Resource keyStoreFile;
+    private final String keystorePassword;
+    private final String serverCertificate;
+    private final String serverKeyAlias;
 
     private final Logger log = LoggerFactory.getLogger(OpenlKeystoreEditor.class);
 

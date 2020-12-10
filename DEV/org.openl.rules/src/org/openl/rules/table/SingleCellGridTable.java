@@ -7,8 +7,8 @@ package org.openl.rules.table;
  */
 public class SingleCellGridTable extends AGridTableDecorator {
 
-    private int fromColumn;
-    private int fromRow;
+    private final int fromColumn;
+    private final int fromRow;
 
     public SingleCellGridTable(IGridTable table, int fromColumn, int fromRow) {
         super(table);

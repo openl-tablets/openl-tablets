@@ -24,7 +24,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
     }
 
     static class AnyArrayIterator extends AIndexedIterator<Object> {
-        Object ary;
+        final Object ary;
 
         AnyArrayIterator(Object ary) {
             super(0, Array.getLength(ary), 1);
@@ -43,7 +43,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     }
 
-    int from;
+    final int from;
     int current;
 
     int step = 1;

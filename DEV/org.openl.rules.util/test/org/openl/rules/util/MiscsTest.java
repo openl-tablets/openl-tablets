@@ -46,7 +46,7 @@ public class MiscsTest {
             }
         }));
 
-        assertTrue(isEmpty((Iterable) () -> Collections.emptyIterator()));
+        assertTrue(isEmpty((Iterable) Collections::emptyIterator));
         assertFalse(isEmpty((Iterable) () -> new Scanner("NotEmptyString")));
     }
 
@@ -77,7 +77,7 @@ public class MiscsTest {
             }
         }));
 
-        assertFalse(isNotEmpty((Iterable) () -> Collections.emptyIterator()));
+        assertFalse(isNotEmpty((Iterable) Collections::emptyIterator));
         assertTrue(isNotEmpty((Iterable) () -> new Scanner("NotEmptyString")));
     }
 

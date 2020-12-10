@@ -20,8 +20,8 @@ import org.openl.util.fast.FastStringReader;
  */
 public class StringSourceCodeModule implements IOpenSourceCodeModule {
 
-    private String code;
-    private String uri;
+    private final String code;
+    private final String uri;
 
     private Map<String, Object> params;
 

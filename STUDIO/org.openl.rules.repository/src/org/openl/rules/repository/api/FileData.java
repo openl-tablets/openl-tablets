@@ -24,7 +24,7 @@ public class FileData {
     private String branch;
     private String uniqueId;
     private Path path;
-    private Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
+    private final Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
 
     /**
      * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder

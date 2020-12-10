@@ -12,9 +12,9 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DecisionTableOverlapping {
 
-    private int[] rulesIndexes;
-    private ArrayOfNamedValues value;
-    private Overlapping.OverlappingStatus status;
+    private final int[] rulesIndexes;
+    private final ArrayOfNamedValues value;
+    private final Overlapping.OverlappingStatus status;
 
     public Overlapping.OverlappingStatus getStatus() {
         return status;

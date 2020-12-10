@@ -7,7 +7,7 @@ package org.openl.rules.table;
  */
 public class TransformedGridTable extends AGridTableDecorator {
 
-    private CoordinatesTransformer transformer;
+    private final CoordinatesTransformer transformer;
 
     public TransformedGridTable(IGridTable gridTable, CoordinatesTransformer transformer) {
         super(gridTable);

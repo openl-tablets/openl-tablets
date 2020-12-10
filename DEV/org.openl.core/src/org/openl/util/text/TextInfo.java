@@ -16,7 +16,7 @@ import java.util.List;
  */
 public class TextInfo {
 
-    String text;
+    final String text;
 
     int[] lineTable;
 

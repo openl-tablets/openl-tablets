@@ -11,9 +11,9 @@ package org.openl.rules.table;
  */
 public class LogicalTable extends ALogicalTable {
 
-    private int[] rowOffset;
+    private final int[] rowOffset;
 
-    private int[] columnOffset;
+    private final int[] columnOffset;
 
     public LogicalTable(IGridTable table, int width, int height) {
         super(table);

@@ -11,11 +11,11 @@ import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class TransformIndexNode extends ABoundNode {
-    private ILocalVar tempVar;
-    private IBoundNode transformer;
-    private IBoundNode targetNode;
-    private Class<?> componentClass;
-    private IOpenClass resultType;
+    private final ILocalVar tempVar;
+    private final IBoundNode transformer;
+    private final IBoundNode targetNode;
+    private final Class<?> componentClass;
+    private final IOpenClass resultType;
 
     TransformIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode transformer, ILocalVar tempVar) {
         super(syntaxNode, targetNode, transformer);

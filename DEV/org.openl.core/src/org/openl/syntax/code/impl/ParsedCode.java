@@ -20,13 +20,13 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public class ParsedCode implements IParsedCode {
 
-    private ISyntaxNode topNode;
-    private SyntaxNodeException[] syntaxErrors;
-    private Collection<OpenLMessage> messages;
-    private IOpenSourceCodeModule source;
+    private final ISyntaxNode topNode;
+    private final SyntaxNodeException[] syntaxErrors;
+    private final Collection<OpenLMessage> messages;
+    private final IOpenSourceCodeModule source;
 
     private Map<String, Object> params;
-    private IDependency[] dependencies;
+    private final IDependency[] dependencies;
 
     private Set<CompiledDependency> compiledDependencies = new HashSet<>();
 

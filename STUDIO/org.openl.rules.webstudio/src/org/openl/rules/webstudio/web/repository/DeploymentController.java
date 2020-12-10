@@ -294,7 +294,7 @@ public class DeploymentController {
             }
         }
 
-        return selectItems.toArray(new SelectItem[selectItems.size()]);
+        return selectItems.toArray(new SelectItem[0]);
     }
 
     /*

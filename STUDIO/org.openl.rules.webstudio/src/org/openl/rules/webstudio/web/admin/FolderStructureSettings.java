@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web.admin;
 
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.project.abstraction.Comments;
-import org.openl.rules.repository.RepositoryInstatiator;
 
 public class FolderStructureSettings {
     private final String FLAT_FOLDER_STRUCTURE;

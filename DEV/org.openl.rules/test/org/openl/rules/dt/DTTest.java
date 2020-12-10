@@ -181,7 +181,7 @@ public class DTTest {
 
     @Test
     public void greeting12() {
-        Collection result = result = TestUtils.invoke(instance, "Greeting12", 0);
+        Collection result = TestUtils.invoke(instance, "Greeting12", 0);
         assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);
         result = TestUtils.invoke(instance, "Greeting12", 11);
         assertEquals(buildCollection("Good Morning, World!", "Good Afternoon, World!"), result);

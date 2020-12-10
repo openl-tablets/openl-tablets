@@ -16,7 +16,7 @@ public class UndoableMoveTableAction extends UndoableEditTableAction {
 
     private IGridRegion prevRegion = null;
     private IGridRegion newRegion = null;
-    private MetaInfoWriter metaInfoWriter;
+    private final MetaInfoWriter metaInfoWriter;
 
     public UndoableMoveTableAction(MetaInfoWriter metaInfoWriter) {
         this.metaInfoWriter = metaInfoWriter;

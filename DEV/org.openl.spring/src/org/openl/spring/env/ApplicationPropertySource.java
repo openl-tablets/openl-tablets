@@ -101,8 +101,8 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
     private static Object getInfo(Resource resource) {
         try {
             return resource.getURL();
-        } catch (Exception ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             return resource;
         }
     }

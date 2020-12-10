@@ -31,8 +31,8 @@ package org.openl.ie.constrainer;
  *
  */
 public class GoalAnd extends GoalImpl {
-    private Goal _g1;
-    private Goal _g2;
+    private final Goal _g1;
+    private final Goal _g2;
 
     /**
      * Constructor of two arguments

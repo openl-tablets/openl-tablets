@@ -22,8 +22,8 @@ import org.openl.util.StringUtils;
  *
  */
 final class PassCoder {
-    private static byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    private static IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
+    private static final byte[] bytes = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    private static final IvParameterSpec algorithmParameterSpec = new IvParameterSpec(bytes);
 
     private PassCoder() {
     }

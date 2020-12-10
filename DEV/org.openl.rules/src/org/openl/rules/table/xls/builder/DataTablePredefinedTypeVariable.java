@@ -11,7 +11,7 @@ import java.util.List;
  * @author NSamatov
  */
 public final class DataTablePredefinedTypeVariable extends DataTableField {
-    private List<DataTableField> availableFields;
+    private final List<DataTableField> availableFields;
 
     /**
      * Create a variable of a given type

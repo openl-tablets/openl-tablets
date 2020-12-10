@@ -93,12 +93,12 @@ public class GapOverlapValidator extends TablesValidator {
 
         for (IBaseCondition condition : dt.getConditionRows()) {
             IParameterDeclaration[] pd = analyzer.referencedSignatureParams(condition);
-            for (int i = 0; i < pd.length; i++) {
-                IDomain<?> domain = pd[i].getType().getDomain();
+            for (IParameterDeclaration iParameterDeclaration : pd) {
+                IDomain<?> domain = iParameterDeclaration.getType().getDomain();
                 if (domain == null) {
                     domain = condition.getConditionEvaluator().getRuleParameterDomain(condition);
                     IDomainAdaptor adaptor = DomainAdaptorFactory.getAdaptor(domain);
-                    domainsMap.put(pd[i].getName(), adaptor);
+                    domainsMap.put(iParameterDeclaration.getName(), adaptor);
                 }
             }
 

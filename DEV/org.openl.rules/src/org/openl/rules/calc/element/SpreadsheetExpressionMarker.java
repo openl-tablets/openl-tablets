@@ -8,7 +8,7 @@ public enum SpreadsheetExpressionMarker {
     CLOSED_CURLY_BRACKET("}"),
     EQUALS_SIGN("=");
 
-    private String symbol;
+    private final String symbol;
 
     SpreadsheetExpressionMarker(String marker) {
         this.symbol = marker;

@@ -6,8 +6,8 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 
 public class ResultValue {
 
-    private Object value;
-    private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+    private final Object value;
+    private final ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
     public ResultValue(Object value) {
         this.value = value;

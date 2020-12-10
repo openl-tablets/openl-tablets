@@ -19,16 +19,16 @@ public class FormattedCell implements ICell {
 
     private final Logger log = LoggerFactory.getLogger(FormattedCell.class);
 
-    private ICell delegate;
+    private final ICell delegate;
 
     @Override
     public ICell getTopLeftCellFromRegion() {
         return delegate.getTopLeftCellFromRegion();
     }
 
-    private ICellFont font;
+    private final ICellFont font;
 
-    private ICellStyle style;
+    private final ICellStyle style;
 
     private IGridFilter filter;
 

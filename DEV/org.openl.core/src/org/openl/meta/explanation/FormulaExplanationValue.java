@@ -13,10 +13,10 @@ import org.openl.meta.number.Formulas;
  */
 public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
-    private Formulas operand;
+    private final Formulas operand;
 
-    private T v1;
-    private T v2;
+    private final T v1;
+    private final T v2;
 
     public FormulaExplanationValue(T v1, T v2, Formulas operand) {
         this.v1 = v1;

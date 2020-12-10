@@ -18,7 +18,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private static volatile AlgorithmTableParserManager INSTANCE;
 
-    private static Object synchObjectForInstance = new Object();
+    private static final Object synchObjectForInstance = new Object();
 
     private final IAlgorithmTableParserManager rulesWrapperInstance;
 
@@ -26,9 +26,9 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private volatile ConversionRuleBean[] fixedConvertionRules;
 
-    private Object synchObjectForConvertionRules = new Object();
+    private final Object synchObjectForConvertionRules = new Object();
 
-    private Object synchObjectForFixedConvertionRules = new Object();
+    private final Object synchObjectForFixedConvertionRules = new Object();
 
     public static AlgorithmTableParserManager getInstance() {
         lazyLoadInstance();

@@ -213,49 +213,44 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     }
 
     private static void pushLocalDate(GeneratorAdapter mg, Type type, LocalDate value) {
-        LocalDate ld = value;
-        mg.push(ld.getYear());
-        mg.push(ld.getMonthValue());
-        mg.push(ld.getDayOfMonth());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
         mg.invokeStatic(type, LOCAL_DATE_OF);
     }
 
     private static void pushZonedDateTime(GeneratorAdapter mg, Type type, ZonedDateTime value) {
-        ZonedDateTime zdt = value;
-        mg.push(zdt.getYear());
-        mg.push(zdt.getMonthValue());
-        mg.push(zdt.getDayOfMonth());
-        mg.push(zdt.getHour());
-        mg.push(zdt.getMinute());
-        mg.push(zdt.getSecond());
-        mg.push(zdt.getNano());
-        mg.push(zdt.getZone().getId());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
+        mg.push(value.getNano());
+        mg.push(value.getZone().getId());
         mg.invokeStatic(Type.getType(ZoneId.class), ZONE_ID_OF);
         mg.invokeStatic(type, ZONED_DATETIME_OF);
     }
 
     private static void pushInstant(GeneratorAdapter mg, Type type, Instant value) {
-        Instant instantDate = value;
-        mg.push(instantDate.toEpochMilli());
+        mg.push(value.toEpochMilli());
         mg.invokeStatic(type, INSTANT_OF);
     }
 
     private static void pushLocalDateTime(GeneratorAdapter mg, Type type, LocalDateTime value) {
-        LocalDateTime ldt = value;
-        mg.push(ldt.getYear());
-        mg.push(ldt.getMonthValue());
-        mg.push(ldt.getDayOfMonth());
-        mg.push(ldt.getHour());
-        mg.push(ldt.getMinute());
-        mg.push(ldt.getSecond());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
         mg.invokeStatic(type, LOCAL_DATETIME_OF);
     }
 
     private static void pushLocalTime(GeneratorAdapter mg, Type type, LocalTime value) {
-        LocalTime lt = value;
-        mg.push(lt.getHour());
-        mg.push(lt.getMinute());
-        mg.push(lt.getSecond());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
         mg.invokeStatic(type, LOCAL_TIME_OF);
     }
 

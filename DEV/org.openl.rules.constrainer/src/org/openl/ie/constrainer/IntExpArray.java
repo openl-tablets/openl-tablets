@@ -14,7 +14,7 @@ import org.openl.ie.tools.FastVector;
  */
 public final class IntExpArray extends ConstrainerObjectImpl {
 
-    private IntExp[] _data;
+    private final IntExp[] _data;
 
     private IntArrayCards _cards = null;
 
@@ -271,8 +271,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public int max() {
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int maxi = _data[i].max();
+        for (IntExp datum : _data) {
+            int maxi = datum.max();
             if (maxi > max) {
                 max = maxi;
             }
@@ -307,8 +307,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public int min() {
         int min = Integer.MAX_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int mini = _data[i].min();
+        for (IntExp datum : _data) {
+            int mini = datum.min();
             if (mini < min) {
                 min = mini;
             }
@@ -350,7 +350,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             case 0:
                 // return new IntExpConst(constrainer(),0);
                 return (IntExp) _constrainer.expressionFactory()
-                    .getExpression(IntExpConst.class, new Object[] { _constrainer, new Integer(0) });
+                    .getExpression(IntExpConst.class, new Object[] { _constrainer, 0 });
 
             case 1:
                 return _data[0];

@@ -10,7 +10,7 @@ public enum InheritanceLevel {
     CATEGORY("Category"),
     TABLE("Table");
 
-    private String displayName;
+    private final String displayName;
 
     InheritanceLevel(String displayName) {
         this.displayName = displayName;

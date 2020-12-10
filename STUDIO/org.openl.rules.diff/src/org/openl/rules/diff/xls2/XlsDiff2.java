@@ -49,7 +49,7 @@ public class XlsDiff2 {
     // Same Sheet, Header
     private static final String GUESS_MAY_BE_SAME = "4-mayBeSame";
 
-    private Map<String, List<DiffPair>> diffGuess;
+    private final Map<String, List<DiffPair>> diffGuess;
 
     public XlsDiff2() {
         // TreeMap -- Key as a weight

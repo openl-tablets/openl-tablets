@@ -25,8 +25,8 @@ package org.openl.ie.constrainer;
  * @see GoalInstantiate
  */
 public class GoalDichotomize extends GoalImpl {
-    private IntVar _var;
-    private boolean _recursive;
+    private final IntVar _var;
+    private final boolean _recursive;
 
     public GoalDichotomize(IntVar var, boolean recursive) {
         super(var.constrainer(), "Dichotomize(" + var.name() + ")");

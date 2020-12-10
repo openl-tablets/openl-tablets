@@ -9,7 +9,7 @@ import junit.framework.TestSuite;
 import junit.textui.TestRunner;
 
 public class TestConstraintExpEqualsValue extends TestCase {
-    Constrainer C = new Constrainer("TestConstraintExpEqualsValue");
+    final Constrainer C = new Constrainer("TestConstraintExpEqualsValue");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestConstraintExpEqualsValue.class));
@@ -24,12 +24,12 @@ public class TestConstraintExpEqualsValue extends TestCase {
         try {
             C.postConstraint(new ConstraintExpEqualsValue(var, var.min() - 1));
             fail("test failed: the value is out of the variable's domain");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
         try {
             C.postConstraint(new ConstraintExpEqualsValue(var, var.max() + 1));
             fail("test failed: the value is out of the variable's domain");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
         try {
             var.removeValue(3);
@@ -40,7 +40,7 @@ public class TestConstraintExpEqualsValue extends TestCase {
         try {
             C.postConstraint(new ConstraintExpEqualsValue(var, 3));
             fail("test failed: the value is missing in the variable's domain");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
         try {
             C.postConstraint(new ConstraintExpEqualsValue(var, 7));

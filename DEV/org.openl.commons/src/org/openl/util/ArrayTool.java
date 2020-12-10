@@ -13,8 +13,8 @@ public final class ArrayTool {
 
     static class ArrayIterator<T> implements Iterator<T> {
         int _index;
-        int _size;
-        T[] _array;
+        final int _size;
+        final T[] _array;
 
         ArrayIterator(T[] array) {
             _size = Array.getLength(array);
@@ -210,12 +210,12 @@ public final class ArrayTool {
 
     public static String[] intersection(String[] ary1, String[] ary2) {
         List<String> v = new ArrayList<>();
-        for (int j = 0; j < ary2.length; ++j) {
-            if (contains(ary1, ary2[j])) {
-                v.add(ary2[j]);
+        for (String s : ary2) {
+            if (contains(ary1, s)) {
+                v.add(s);
             }
         }
-        return v.toArray(new String[v.size()]);
+        return v.toArray(new String[0]);
     }
 
     /**

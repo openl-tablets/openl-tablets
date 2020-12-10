@@ -53,8 +53,7 @@ class FullClassnameSupport {
                                 syntaxNode.getSourceLocation(),
                                 fieldName,
                                 syntaxNode.getModule()));
-                    } catch (NoSuchFieldException e) {
-                    } catch (IllegalAccessException e) {
+                    } catch (IllegalAccessException | NoSuchFieldException ignored) {
                     }
                 }
             } catch (OpenlNotCheckedException e) {

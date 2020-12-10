@@ -8,8 +8,8 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 
 public class ProjectTreeNode {
 
-    private String[] displayName;
-    private TableSyntaxNode tableSyntaxNode;
+    private final String[] displayName;
+    private final TableSyntaxNode tableSyntaxNode;
 
     public ProjectTreeNode(String[] displayName, String type, TableSyntaxNode tsn) {
         this.type = type;
@@ -33,7 +33,7 @@ public class ProjectTreeNode {
     /**
      * String that represent the node type.
      */
-    private String type;
+    private final String type;
 
     /**
      * {@inheritDoc}

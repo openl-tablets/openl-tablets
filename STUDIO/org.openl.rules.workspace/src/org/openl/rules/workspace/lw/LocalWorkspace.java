@@ -1,7 +1,6 @@
 package org.openl.rules.workspace.lw;
 
 import java.io.File;
-import java.util.List;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.impl.local.LocalRepository;

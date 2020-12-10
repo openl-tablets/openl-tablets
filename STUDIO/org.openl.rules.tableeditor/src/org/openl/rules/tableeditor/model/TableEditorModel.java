@@ -50,10 +50,10 @@ public class TableEditorModel {
      */
     private static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
-    private IOpenLTable table;
+    private final IOpenLTable table;
 
-    private IGridTable gridTable;
-    private String view;
+    private final IGridTable gridTable;
+    private final String view;
     private boolean showFormulas = false;
     private boolean collapseProps = false;
     private String beforeEditAction;

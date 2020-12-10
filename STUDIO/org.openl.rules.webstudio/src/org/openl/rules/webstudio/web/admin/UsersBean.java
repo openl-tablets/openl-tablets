@@ -47,7 +47,7 @@ public class UsersBean {
     public static final String VALIDATION_USERNAME_BEGIN_END = "The name should not end or begin with '.'.";
     public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.'.";
 
-    {}
+    static {}
 
     public static final String VALIDATION_GROUPS = "Please select at least one group";
 

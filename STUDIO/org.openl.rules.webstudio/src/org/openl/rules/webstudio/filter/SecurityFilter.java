@@ -21,7 +21,7 @@ import org.springframework.security.web.WebAttributes;
 
 public class SecurityFilter implements Filter {
 
-    private Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
+    private final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
 
     @Override
     public void doFilter(ServletRequest servletRequest,

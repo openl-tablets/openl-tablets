@@ -26,11 +26,11 @@ import org.openl.ie.constrainer.*;
  * the expressions as their export presentation (???).
  */
 public class ModelExport {
-    IntExpArray _vars;
-    IntExp _cost;
-    IntExpArray _violations;
+    final IntExpArray _vars;
+    final IntExp _cost;
+    final IntExpArray _violations;
     String _sumViolationsName = "sumViolations";
-    String _constraintMethodName = "createConstraint";
+    final String _constraintMethodName = "createConstraint";
 
     static Collection getDependentConstraints(IntExpArray arr) {
         Collection result = new HashSet();
@@ -44,8 +44,7 @@ public class ModelExport {
 
         Vector v = new Vector();
 
-        for (Iterator iter = s.allDependents().iterator(); iter.hasNext();) {
-            Object element = iter.next();
+        for (Object element : s.allDependents()) {
             if (element instanceof Constraint) {
                 v.add(element);
 

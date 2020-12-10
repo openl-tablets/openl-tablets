@@ -15,7 +15,7 @@ import org.openl.rules.common.ArtefactPath;
 public class ArtefactPathImpl implements ArtefactPath {
     public static final char SEGMENT_DELIMITER = '/';
     private String stringValue;
-    private List<String> segments = new LinkedList<>();
+    private final List<String> segments = new LinkedList<>();
 
     public ArtefactPathImpl(ArtefactPath artefactPath) {
         segments.addAll(artefactPath.getSegments());

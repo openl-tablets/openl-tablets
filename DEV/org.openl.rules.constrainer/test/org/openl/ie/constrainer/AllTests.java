@@ -9,8 +9,8 @@ public class AllTests extends TestSuite {
 
     public static Test suite() {
         TestSuite suite = new TestSuite();
-        for (int i = 0; i < _testClasses.length; ++i) {
-            suite.addTestSuite(_testClasses[i]);
+        for (Class testClass : _testClasses) {
+            suite.addTestSuite(testClass);
         }
         return suite;
     }

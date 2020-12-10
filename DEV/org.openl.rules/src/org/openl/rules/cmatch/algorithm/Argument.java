@@ -5,11 +5,11 @@ import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
 public class Argument {
-    private int index;
+    private final int index;
     /**
      * Type of argument
      */
-    private IOpenClass type;
+    private final IOpenClass type;
     private IOpenField field;
 
     public Argument(int index, IOpenClass type) {

@@ -8,8 +8,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ConditionOrActionParameterField implements IOpenField {
 
-    private IBaseDecisionRow conditionOrAction;
-    private int paramNum;
+    private final IBaseDecisionRow conditionOrAction;
+    private final int paramNum;
 
     ConditionOrActionParameterField(IBaseDecisionRow conditionOrAction, int paramNum) {
         super();

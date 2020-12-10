@@ -59,10 +59,10 @@ public final class ConstraintFloatExpEqualsExp extends ConstraintImpl {
     } // ~ ObserverFloatEqual
       // PRIVATE MEMBERS
 
-    private FloatExp _exp1;
-    private FloatExp _exp2;
+    private final FloatExp _exp1;
+    private final FloatExp _exp2;
 
-    private double _offset;
+    private final double _offset;
 
     public ConstraintFloatExpEqualsExp(FloatExp exp1, FloatExp exp2) {
         this(exp1, exp2, 0d);

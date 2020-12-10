@@ -9,8 +9,8 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
 
-    private IDecisionTableAlgorithm va;
-    private IDecisionTableAlgorithm ha;
+    private final IDecisionTableAlgorithm va;
+    private final IDecisionTableAlgorithm ha;
 
     TwoDimensionalAlgorithm(IDecisionTableAlgorithm va, IDecisionTableAlgorithm ha) {
         super();
@@ -32,9 +32,9 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
         return ih.isResetable() ? new TwoDScaleIterator(iv, ih) : new TwoDScaleIteratorNotResetable(iv, ih);
     }
 
-    class TwoDScaleIterator extends AIntIterator {
-        IIntIterator iv;
-        IIntIterator ih;
+    static class TwoDScaleIterator extends AIntIterator {
+        final IIntIterator iv;
+        final IIntIterator ih;
         int vValue = -1;
 
         TwoDScaleIterator(IIntIterator iv, IIntIterator ih) {
@@ -94,9 +94,9 @@ public class TwoDimensionalAlgorithm implements IDecisionTableAlgorithm {
         }
     }
 
-    class TwoDScaleIteratorNotResetable extends TwoDScaleIterator {
+    static class TwoDScaleIteratorNotResetable extends TwoDScaleIterator {
 
-        ArrayList<Integer> storeIh = new ArrayList<>();
+        final ArrayList<Integer> storeIh = new ArrayList<>();
         Iterator<Integer> itH;
 
         TwoDScaleIteratorNotResetable(IIntIterator iv, IIntIterator ih) {

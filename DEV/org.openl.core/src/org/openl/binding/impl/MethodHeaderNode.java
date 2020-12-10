@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class MethodHeaderNode extends ABoundNode implements IBoundMethodHeader {
 
-    IOpenMethodHeader methodHeader;
+    final IOpenMethodHeader methodHeader;
 
     MethodHeaderNode(ISyntaxNode syntaxNode, IOpenMethodHeader methodHeader) {
         super(syntaxNode);

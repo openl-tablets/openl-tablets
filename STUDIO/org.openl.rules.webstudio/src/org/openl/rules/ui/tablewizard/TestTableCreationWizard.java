@@ -161,7 +161,7 @@ public class TestTableCreationWizard extends TableCreationWizard {
             }
         }
 
-        tableItems = result.toArray(new SelectItem[result.size()]);
+        tableItems = result.toArray(new SelectItem[0]);
         Arrays.sort(tableItems, Comparator.comparing(o -> o.getValue().toString()));
     }
 

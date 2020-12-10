@@ -8,7 +8,7 @@ public class EnumFormatter implements IFormatter {
 
     private final Logger log = LoggerFactory.getLogger(EnumFormatter.class);
 
-    private Class<?> enumClass;
+    private final Class<?> enumClass;
 
     public EnumFormatter(Class<?> enumType) {
         this.enumClass = enumType;

@@ -19,7 +19,7 @@ package org.openl.ie.constrainer;
  * variable becomes "bound"
  */
 public class GoalSetValue extends GoalImpl {
-    private IntExp _exp;
+    private final IntExp _exp;
     private int _value;
 
     /**

@@ -19,7 +19,7 @@ public class OperationFactory {
     private static final String OPERATIONS_PACKAGE = "org.openl.rules.tbasic.runtime.operations";
     private static final String OPERATION_SUFFIX = "Operation";
 
-    private ParameterConverterManager parameterConverter;
+    private final ParameterConverterManager parameterConverter;
 
     public OperationFactory(ParameterConverterManager parameterConverter) {
         this.parameterConverter = parameterConverter;

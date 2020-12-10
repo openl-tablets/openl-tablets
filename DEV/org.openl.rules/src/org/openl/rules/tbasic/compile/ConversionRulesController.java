@@ -11,7 +11,7 @@ import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
 
 public final class ConversionRulesController {
-    private ConversionRuleBean[] conversionRules;
+    private final ConversionRuleBean[] conversionRules;
 
     public static ConversionRulesController getInstance() {
         return new ConversionRulesController();

@@ -32,11 +32,11 @@ public class TableDetailsBean {
     private boolean editable;
     private List<PropertyRow> propertyRows;
     private Map<String, List<TableProperty>> groups;
-    private Set<String> propsToRemove = new HashSet<>();
+    private final Set<String> propsToRemove = new HashSet<>();
 
     private String newTableId;
     private String propertyToAdd;
-    private String id;
+    private final String id;
 
     private final PropertyResolver propertyResolver;
 
@@ -102,11 +102,7 @@ public class TableDetailsBean {
 
     private void storeProperty(TableProperty prop) {
         String group = prop.getGroup();
-        List<TableProperty> groupList = groups.get(group);
-        if (groupList == null) {
-            groupList = new ArrayList<>();
-            groups.put(group, groupList);
-        }
+        List<TableProperty> groupList = groups.computeIfAbsent(group, k -> new ArrayList<>());
         if (!groupList.contains(prop)) {
             groupList.add(prop);
         }

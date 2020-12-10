@@ -6,12 +6,12 @@ import org.openl.rules.table.IWritableGrid;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class SetBorderStyleAction extends AUndoableCellAction {
-    private int col;
-    private int row;
+    private final int col;
+    private final int row;
 
     private boolean clearCell = true;
 
-    private ICellStyle newCellStyle;
+    private final ICellStyle newCellStyle;
 
     public SetBorderStyleAction(int col, int row, ICellStyle newCellStyle, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

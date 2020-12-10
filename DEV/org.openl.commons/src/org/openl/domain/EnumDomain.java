@@ -15,8 +15,8 @@ import java.util.Map;
  */
 public class EnumDomain<T> implements IDomain<T> {
 
-    private T[] elements;
-    private Map<T, Integer> indexMap;
+    private final T[] elements;
+    private final Map<T, Integer> indexMap;
 
     public EnumDomain(T[] elements) {
         this.elements = elements;

@@ -14,8 +14,8 @@ import org.openl.util.text.IPosition;
  */
 public class GridLocation implements ILocation {
 
-    private GridPosition start;
-    private GridPosition end;
+    private final GridPosition start;
+    private final GridPosition end;
 
     public GridLocation(IGridTable table) {
 

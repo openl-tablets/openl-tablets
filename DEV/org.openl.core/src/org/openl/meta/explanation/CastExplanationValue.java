@@ -7,8 +7,8 @@ import org.openl.meta.number.CastOperand;
 
 @SuppressWarnings("rawtypes")
 public class CastExplanationValue extends SingleValueExplanation {
-    private ExplanationNumberValue<?> value;
-    private CastOperand operand;
+    private final ExplanationNumberValue<?> value;
+    private final CastOperand operand;
 
     public CastExplanationValue(ExplanationNumberValue<?> value, CastOperand operand) {
         this.value = value;

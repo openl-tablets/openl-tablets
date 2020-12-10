@@ -20,13 +20,13 @@ import org.slf4j.LoggerFactory;
 public class ExcelLauncher {
     private static final int LOCK_DETECT_TIMEOUT = 20000;
 
-    private static Logger LOG = LoggerFactory.getLogger(ExcelLauncher.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ExcelLauncher.class);
 
-    private String scriptPath;
+    private final String scriptPath;
 
-    private String workbookPath;
-    private String workbookName;
-    private String worksheetName;
+    private final String workbookPath;
+    private final String workbookName;
+    private final String worksheetName;
     private String range;
 
     public ExcelLauncher(String scriptPath, String wbPath, String wbName, String wsName, String range) {

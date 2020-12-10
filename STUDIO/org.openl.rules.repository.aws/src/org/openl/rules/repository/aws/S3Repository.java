@@ -399,13 +399,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             if (version == null) {
                 deleteAllVersions(name);
 
-                onModified();
-                return true;
             } else {
                 s3.deleteVersion(bucketName, name, version);
-                onModified();
-                return true;
             }
+            onModified();
+            return true;
         } catch (SdkClientException e) {
             log.error(e.getMessage(), e);
             throw new IOException(e.getMessage(), e);

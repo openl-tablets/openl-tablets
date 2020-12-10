@@ -132,10 +132,8 @@ public class LaunchFileServlet extends HttpServlet {
 
         String remote = request.getRemoteAddr();
         // TODO: think about proper implementation
-        boolean b = isLoopbackAddress(remote);// ||
         // request.getLocalAddr().equals(remote);
-        boolean local = b;
-        if (local) { // local mode
+        if (isLoopbackAddress(remote)) { // local mode
             try {
                 String excelScriptPath = getServletContext().getRealPath("/scripts/LaunchExcel.vbs");
                 ExcelLauncher.launch(excelScriptPath, wbPath, wbName, wsName, range);

@@ -67,7 +67,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private static final Logger LOG = LoggerFactory.getLogger(ModuleOpenClass.class);
 
-    private IDataBase dataBase;
+    private final IDataBase dataBase;
 
     /**
      * Whether DecisionTable should be used as a dispatcher for overloaded tables. By default(this flag equals false)

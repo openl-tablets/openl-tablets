@@ -15,7 +15,7 @@ import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.types.IOpenMethod;
 
 public class TestVersionedTreeNode {
-    private Map<String, TableSyntaxNode> tables = new HashMap<>();
+    private final Map<String, TableSyntaxNode> tables = new HashMap<>();
 
     @Before
     public void getTables() {

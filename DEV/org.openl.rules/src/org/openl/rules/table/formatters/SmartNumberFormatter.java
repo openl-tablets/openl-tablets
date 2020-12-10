@@ -10,7 +10,7 @@ import org.openl.util.formatters.NumberFormatter;
 
 public class SmartNumberFormatter implements IFormatter {
 
-    private Locale locale;
+    private final Locale locale;
 
     public SmartNumberFormatter() {
         locale = Locale.US;

@@ -4,10 +4,10 @@ import org.openl.syntax.impl.IdentifierNode;
 
 public class SymbolicTypeDefinition {
 
-    private IdentifierNode name;
-    private IdentifierNode type;
-    private boolean asterisk;
-    private boolean tilde;
+    private final IdentifierNode name;
+    private final IdentifierNode type;
+    private final boolean asterisk;
+    private final boolean tilde;
 
     public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean asterisk, boolean tilde) {
         this.name = name;

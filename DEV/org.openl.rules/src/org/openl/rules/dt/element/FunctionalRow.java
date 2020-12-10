@@ -43,8 +43,8 @@ public abstract class FunctionalRow implements IDecisionRow {
     private static final String NO_PARAM = "P";
     private static final Object[] NO_PARAMS = new Object[0];
 
-    private String name;
-    private int row;
+    private final String name;
+    private final int row;
 
     protected CompositeMethod method;
 
@@ -58,7 +58,7 @@ public abstract class FunctionalRow implements IDecisionRow {
     private ILogicalTable codeTable;
     private ILogicalTable presentationTable;
 
-    private DTScale.RowScale scale;
+    private final DTScale.RowScale scale;
 
     private int noParamsIndex = 0;
 

@@ -8,7 +8,7 @@ import org.openl.rules.table.ILogicalTable;
 public final class StubSpreadSheetResult extends SpreadsheetResult {
     private static final long serialVersionUID = 1L;
 
-    private Map<String, Object> values = new HashMap<>();
+    private final Map<String, Object> values = new HashMap<>();
 
     @Override
     public int getHeight() {

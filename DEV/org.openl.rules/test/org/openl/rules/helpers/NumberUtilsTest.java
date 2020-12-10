@@ -69,11 +69,11 @@ public class NumberUtilsTest {
 
     @Test
     public void testRoundValue() {
-        assertEquals(0.35, NumberUtils.roundValue(0.35, 2).doubleValue(), 0.001);
+        assertEquals(0.35, NumberUtils.roundValue(0.35, 2), 0.001);
 
-        assertEquals(0.3, NumberUtils.roundValue(0.34, 1).doubleValue(), 0.01);
-        assertEquals(0.4, NumberUtils.roundValue(0.35, 1).doubleValue(), 0.01);
-        assertEquals(0.4, NumberUtils.roundValue(0.36, 1).doubleValue(), 0.01);
+        assertEquals(0.3, NumberUtils.roundValue(0.34, 1), 0.01);
+        assertEquals(0.4, NumberUtils.roundValue(0.35, 1), 0.01);
+        assertEquals(0.4, NumberUtils.roundValue(0.36, 1), 0.01);
 
         assertNull(NumberUtils.roundValue(null, 1));
     }

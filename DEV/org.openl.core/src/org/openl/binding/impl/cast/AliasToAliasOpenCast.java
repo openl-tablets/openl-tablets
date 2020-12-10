@@ -4,8 +4,8 @@ import java.util.Objects;
 
 public class AliasToAliasOpenCast implements IOpenCast {
 
-    private IOpenCast openCast;
-    private boolean implicit;
+    private final IOpenCast openCast;
+    private final boolean implicit;
 
     public AliasToAliasOpenCast(IOpenCast openCast) {
         this.openCast = Objects.requireNonNull(openCast, "openCast cannot be null");

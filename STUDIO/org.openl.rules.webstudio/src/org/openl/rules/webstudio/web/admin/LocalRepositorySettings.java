@@ -14,11 +14,9 @@ public class LocalRepositorySettings extends RepositorySettings {
     private final String uriProperty;
     private final String baseDeployPathProperty;
     private final String supportDeploymentsProperty;
-    private final String configPathPrefix;
 
     public LocalRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        this.configPathPrefix = configPrefix;
         this.uriProperty = configPrefix + ".uri";
         this.baseDeployPathProperty = configPrefix + ".base.path";
         this.supportDeploymentsProperty = configPrefix + ".support-deployments";

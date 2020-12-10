@@ -14,13 +14,13 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     private static final int HCONDITION_HEADERS_HEIGHT = 3;
 
     // width of simple(vertical) conditions in columns
-    private int conditionsWidth;
-    private int hConditionsCount;
-    private int lookupValuesTableHeight;
-    private int lookupValuesTableWidth;
-    private int retTableWidth;
+    private final int conditionsWidth;
+    private final int hConditionsCount;
+    private final int lookupValuesTableHeight;
+    private final int lookupValuesTableWidth;
+    private final int retTableWidth;
 
-    private int dtHeaderHeight;
+    private final int dtHeaderHeight;
 
     /**
      * @param entireTable The entire table with two dimensions(WITHOUT a header).

@@ -74,48 +74,48 @@ public final class Constrainer implements Serializable {
     static public double FLOAT_PRECISION = 1.0e-6;
 
     // PRIVATE MEMBERS
-    private String _name;
+    private final String _name;
     private int _labelsCounter;
-    private FastVector _intvars;
-    private FastVector _floatvars;
-    private FastVector _intsetvars;
+    private final FastVector _intvars;
+    private final FastVector _floatvars;
+    private final FastVector _intsetvars;
 
-    private FastVector _constraints;
+    private final FastVector _constraints;
 
     private int _choice_point = 0;
 
     private GoalStack _goal_stack;
 
-    private UndoStack _reversibility_stack;
+    private final UndoStack _reversibility_stack;
     private int _number_of_choice_points = 0;
     private int _number_of_failures = 0;
     private int _number_of_undos = 0;
-    private long _time_limit = 0; // in seconds (0-no limit)
-    private long _failures_limit = 0; // in failures (0-no limit)
-    private FastVector _choice_point_objects;
-    private FastVector _failure_objects;
-    private boolean _trace_failure_stack;
+    private final long _time_limit = 0; // in seconds (0-no limit)
+    private final long _failures_limit = 0; // in failures (0-no limit)
+    private final FastVector _choice_point_objects;
+    private final FastVector _failure_objects;
+    private final boolean _trace_failure_stack;
 
-    private int _failure_display_frequency;
-    private FastVector _backtrack_objects;
+    private final int _failure_display_frequency;
+    private final FastVector _backtrack_objects;
 
-    private boolean _trace_goals;
+    private final boolean _trace_goals;
 
     private boolean _show_internal_names;
-    private boolean _show_variable_names;
+    private final boolean _show_variable_names;
 
-    private long _initial_memory;
+    private final long _initial_memory;
     private long _max_occupied_memory;
     private long _number_of_notifications;
 
-    private boolean _print_information;
+    private final boolean _print_information;
     private long _execution_time = 0;
 
-    private FastQueue _propagation_queue;
+    private final FastQueue _propagation_queue;
 
-    private ExpressionFactory _expressionFactory;
+    private final ExpressionFactory _expressionFactory;
 
-    private FastStack _active_undoable_once;
+    private final FastStack _active_undoable_once;
 
     transient private PrintStream _out = System.out;
 
@@ -600,8 +600,8 @@ public final class Constrainer implements Serializable {
 
         FastVector cards = new FastVector();
 
-        for (int i = 0; i < values.length; ++i) {
-            cards.addElement(vcards.cardAt(values[i]));
+        for (int value : values) {
+            cards.addElement(vcards.cardAt(value));
             // cards.addElement(addIntVar(0,vars.size(),"Count of "+values[i]));
         }
         // redundant constraint
@@ -833,11 +833,11 @@ public final class Constrainer implements Serializable {
         java.util.HashMap map = new java.util.HashMap(size);
         Object[] vars = _floatvars.data();
         for (int i = 0; i < vars.length; i++) {
-            map.put(vars[i], new Integer(i));
+            map.put(vars[i], i);
         }
         int validsCounter = 0;
-        for (int i = 0; i < size; i++) {
-            Integer idx = (Integer) map.get(floatVars[i]);
+        for (FloatVar floatVar : floatVars) {
+            Integer idx = (Integer) map.get(floatVar);
             if (idx != null) {
                 indices[validsCounter] = idx;
                 validsCounter++;
@@ -857,11 +857,11 @@ public final class Constrainer implements Serializable {
         java.util.HashMap map = new java.util.HashMap(size);
         Object[] vars = _intvars.data();
         for (int i = 0; i < vars.length; i++) {
-            map.put(vars[i], new Integer(i));
+            map.put(vars[i], i);
         }
         int validsCounter = 0;
-        for (int i = 0; i < size; i++) {
-            Integer idx = (Integer) map.get(intVars[i]);
+        for (IntVar intVar : intVars) {
+            Integer idx = (Integer) map.get(intVar);
             if (idx != null) {
                 indices[validsCounter] = idx;
                 validsCounter++;

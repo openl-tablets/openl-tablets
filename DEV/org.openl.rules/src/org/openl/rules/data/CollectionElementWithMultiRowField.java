@@ -11,11 +11,11 @@ import org.openl.types.impl.CollectionType;
 import org.openl.vm.IRuntimeEnv;
 
 public class CollectionElementWithMultiRowField extends AOpenField {
-    private IOpenField field;
-    private String fieldPathFromRoot;
-    private boolean pkField;
-    private CollectionType collectionType;
-    private IOpenClass arrayType;
+    private final IOpenField field;
+    private final String fieldPathFromRoot;
+    private final boolean pkField;
+    private final CollectionType collectionType;
+    private final IOpenClass arrayType;
 
     public CollectionElementWithMultiRowField(IOpenField field,
             String fieldPathFromRoot,

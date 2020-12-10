@@ -7,8 +7,8 @@ import org.openl.rules.common.VersionInfo;
 public class RepositoryVersionInfoImpl implements VersionInfo {
     private static final long serialVersionUID = 5338481693656986251L;
 
-    private Date createdAt;
-    private String createdBy;
+    private final Date createdAt;
+    private final String createdBy;
 
     public RepositoryVersionInfoImpl(Date createdAt, String createdBy) {
         this.createdAt = createdAt;

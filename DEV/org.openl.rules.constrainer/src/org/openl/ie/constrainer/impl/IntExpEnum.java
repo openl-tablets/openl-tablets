@@ -35,7 +35,7 @@ public final class IntExpEnum extends IntExpImpl {
     } // ~IndexObserver
 
     static class IntEventEnum extends IntEvent {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventEnum();
@@ -129,7 +129,7 @@ public final class IntExpEnum extends IntExpImpl {
                 if (i != min) {
                     buf.append(" ");
                 }
-                buf.append(String.valueOf(_values[i]));
+                buf.append(_values[i]);
             }
         }
         buf.append("]");

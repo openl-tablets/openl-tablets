@@ -48,7 +48,6 @@ public class Policy {
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Policy)) {
-            ;
             return false;
         }
         Policy another = (Policy) obj;

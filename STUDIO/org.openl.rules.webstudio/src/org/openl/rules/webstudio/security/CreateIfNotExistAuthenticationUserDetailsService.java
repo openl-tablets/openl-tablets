@@ -25,7 +25,7 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
     private static final Logger LOG = LoggerFactory.getLogger(CreateIfNotExistAuthenticationUserDetailsService.class);
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
-    private String defaultGroup;
+    private final String defaultGroup;
 
     public CreateIfNotExistAuthenticationUserDetailsService(UserManagementService userManagementService,
             GroupManagementService groupManagementService,

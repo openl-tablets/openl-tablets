@@ -32,7 +32,7 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     private final Logger log = LoggerFactory.getLogger(XlsWorkbookSourceCodeModule.class);
 
-    protected IOpenSourceCodeModule src;
+    protected final IOpenSourceCodeModule src;
 
     private final WorkbookLoader workbookLoader;
 

@@ -24,8 +24,8 @@ import org.openl.ie.constrainer.*;
  */
 public final class ConstraintFloatExpEqualsValue extends ConstraintImpl {
     // PRIVATE MEMBERS
-    private FloatExp _exp;
-    private double _value;
+    private final FloatExp _exp;
+    private final double _value;
     private Constraint _opposite;
 
     public ConstraintFloatExpEqualsValue(FloatExp exp, double value) {

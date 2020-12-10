@@ -15,7 +15,7 @@ import org.openl.rules.table.properties.ITableProperties;
  */
 class DispatcherTableRules {
 
-    private List<ITableProperties> dimensionTableProperties;
+    private final List<ITableProperties> dimensionTableProperties;
 
     DispatcherTableRules(List<ITableProperties> dimensionTableProperties) {
         if (dimensionTableProperties == null || dimensionTableProperties.isEmpty()) {

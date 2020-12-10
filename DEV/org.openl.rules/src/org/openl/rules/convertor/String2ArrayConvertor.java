@@ -24,7 +24,7 @@ class String2ArrayConvertor<C, T> implements IString2DataConvertor<T>, IString2D
      */
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private Class<C> componentType;
+    private final Class<C> componentType;
 
     /**
      * @param componentType a component type of an array.

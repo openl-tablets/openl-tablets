@@ -89,7 +89,7 @@ public class ActivePropertyValidator extends TablesValidator {
                 ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) tsn.getMember();
                 DimensionPropertiesMethodKey key = new DimensionPropertiesMethodKey(executableMethod);
                 if (!groupedMethods.containsKey(key)) {
-                    groupedMethods.put(key, new ArrayList<TableSyntaxNode>());
+                    groupedMethods.put(key, new ArrayList<>());
                 }
                 groupedMethods.get(key).add(tsn);
             }

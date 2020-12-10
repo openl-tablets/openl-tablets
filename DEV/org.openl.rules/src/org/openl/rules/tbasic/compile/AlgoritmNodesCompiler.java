@@ -18,12 +18,12 @@ import org.openl.types.IOpenClass;
  *
  */
 public class AlgoritmNodesCompiler {
-    private LabelManager labelManager;
-    private CompileContext currentCompileContext;
-    private ParameterConverterManager parameterConverter;
-    private OperationFactory operationFactory;
+    private final LabelManager labelManager;
+    private final CompileContext currentCompileContext;
+    private final ParameterConverterManager parameterConverter;
+    private final OperationFactory operationFactory;
 
-    private List<OperationAnalyzer> operationAnalyzers = new ArrayList<>();
+    private final List<OperationAnalyzer> operationAnalyzers = new ArrayList<>();
 
     {
         operationAnalyzers.add(new CommonOperations());
@@ -239,11 +239,11 @@ public class AlgoritmNodesCompiler {
         public List<RuntimeOperation> getOperations(List<AlgorithmTreeNode> nodesToCompile,
                 ConversionRuleStep conversionStep,
                 IBindingContext bindingContext) {
-            List<RuntimeOperation> emittedOperations = new ArrayList<>();
             List<AlgorithmTreeNode> nodesToProcess;
             nodesToProcess = AlgorithmCompilerTool
                 .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
-            emittedOperations.addAll(compileNestedNodes(nodesToProcess, bindingContext));
+            List<RuntimeOperation> emittedOperations = new ArrayList<>(compileNestedNodes(nodesToProcess,
+                    bindingContext));
             return emittedOperations;
         }
     }

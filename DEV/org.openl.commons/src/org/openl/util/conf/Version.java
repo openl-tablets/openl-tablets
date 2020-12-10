@@ -24,7 +24,7 @@ public class Version implements Comparable<Version> {
 
     class Parser {
         int pos;
-        String s;
+        final String s;
 
         Parser(String s, int from) {
             this.s = s;
@@ -82,7 +82,7 @@ public class Version implements Comparable<Version> {
 
     public static final String JAVA_VERSION_PATTERN = ".._";
 
-    int[] version = new int[] { -1, -1, -1, -1 };
+    final int[] version = new int[] { -1, -1, -1, -1 };
 
     String pattern = JAVA_VERSION_PATTERN;
 

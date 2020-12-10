@@ -230,7 +230,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
-    Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
+    final Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
     @Override
     public IOpenClass getType(String namespace, String name) throws AmbiguousTypeException {
@@ -345,8 +345,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     private static class Key {
-        IOpenClass openClass1;
-        IOpenClass openClass2;
+        final IOpenClass openClass1;
+        final IOpenClass openClass2;
 
         public Key(IOpenClass openClass1, IOpenClass openClass2) {
             super();

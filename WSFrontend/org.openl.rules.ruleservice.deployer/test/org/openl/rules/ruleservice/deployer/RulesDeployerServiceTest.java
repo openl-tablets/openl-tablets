@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 import java.io.IOException;
@@ -25,10 +24,10 @@ import org.openl.rules.repository.folder.FileChangesFromZip;
 
 public class RulesDeployerServiceTest {
 
-    private static String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
-    private static String SINGLE_DEPLOYMENT = "single-deployment.zip";
-    private static String NO_NAME_DEPLOYMENT = "no-name-deployment.zip";
-    private static String DEPLOY_PATH = "deploy/";
+    private static final String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
+    private static final String SINGLE_DEPLOYMENT = "single-deployment.zip";
+    private static final String NO_NAME_DEPLOYMENT = "no-name-deployment.zip";
+    private static final String DEPLOY_PATH = "deploy/";
 
     private Repository mockedDeployRepo;
     private RulesDeployerService deployer;
@@ -85,7 +84,7 @@ public class RulesDeployerServiceTest {
             deployer.deploy("customName",is, true);
         }
         verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), any(InputStream.class));
-        final FileData actualFileData = fileDataCaptor.getValue();;
+        final FileData actualFileData = fileDataCaptor.getValue();
         assertEquals("deploy/customName/customName", actualFileData.getName());
     }
 

@@ -24,8 +24,8 @@ public class Deployment extends AProjectFolder implements IDeployment {
     private static final Logger LOG = LoggerFactory.getLogger(Deployment.class);
     private Map<String, IProject> projects;
 
-    private String deploymentName;
-    private CommonVersion commonVersion;
+    private final String deploymentName;
+    private final CommonVersion commonVersion;
     private final boolean folderStructure;
 
     public Deployment(Repository repository,

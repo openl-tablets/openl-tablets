@@ -21,7 +21,7 @@ public class TreeFolder extends AbstractTreeNode {
      */
     private Map<Object, TreeNode> elements;
 
-    private IFilter<AProjectArtefact> filter;
+    private final IFilter<AProjectArtefact> filter;
 
     public TreeFolder(String id, String name, IFilter<AProjectArtefact> filter) {
         super(id, name);
@@ -81,7 +81,7 @@ public class TreeFolder extends AbstractTreeNode {
     }
 
     protected Collection<AProjectArtefact> getFilteredArtefacts(AProjectFolder folder) {
-        AProjectFolder filteredFolder = new AProjectFolder(new HashMap<String, AProjectArtefact>(),
+        AProjectFolder filteredFolder = new AProjectFolder(new HashMap<>(),
             folder.getProject(),
             folder.getRepository(),
             folder.getFolderPath());

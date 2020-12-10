@@ -19,13 +19,13 @@ public class DecisionTableTraceFilterFactory {
     private final ITracerObject selectedTraceObject;
     private final IColorFilter defaultColorFilter;
 
-    private List<IGridRegion> successfulChecks = new ArrayList<>();
-    private List<IGridRegion> unsuccessfulChecks = new ArrayList<>();
-    private List<IGridRegion> resultRegions = new ArrayList<>();
-    private List<IGridRegion> allCheckedRegions = new ArrayList<>();
-    private List<IGridRegion> successfulSelectedRegions = new ArrayList<>();
-    private List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<>();
-    private List<IGridRegion> indexedRegions = new ArrayList<>();
+    private final List<IGridRegion> successfulChecks = new ArrayList<>();
+    private final List<IGridRegion> unsuccessfulChecks = new ArrayList<>();
+    private final List<IGridRegion> resultRegions = new ArrayList<>();
+    private final List<IGridRegion> allCheckedRegions = new ArrayList<>();
+    private final List<IGridRegion> successfulSelectedRegions = new ArrayList<>();
+    private final List<IGridRegion> unsuccessfulSelectedRegions = new ArrayList<>();
+    private final List<IGridRegion> indexedRegions = new ArrayList<>();
 
     public DecisionTableTraceFilterFactory(ITracerObject selectedTraceObject, IColorFilter defaultColorFilter) {
         this.selectedTraceObject = selectedTraceObject;
@@ -39,7 +39,7 @@ public class DecisionTableTraceFilterFactory {
 
         List<IGridFilter> filters = buildFilters();
 
-        return filters.toArray(new IGridFilter[filters.size()]);
+        return filters.toArray(new IGridFilter[0]);
     }
 
     private ITracerObject getRoot() {
@@ -178,7 +178,7 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private IGridRegion[] toArray(Collection<IGridRegion> regions) {
-        return regions.toArray(new IGridRegion[regions.size()]);
+        return regions.toArray(new IGridRegion[0]);
     }
 
     private ColorGridFilter createColorFilter(IGridRegion[] region, final short[] rewriteColor, int scope) {

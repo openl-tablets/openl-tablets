@@ -642,12 +642,12 @@ class DependentParametersOptimizedAlgorithm {
         GT(">", "<", false, Bound.LOWER),
         EQ("==", "==", false, null);
 
-        String func;
-        String opposite;
-        boolean lessThan;
-        Bound incBound;
+        final String func;
+        final String opposite;
+        final boolean lessThan;
+        final Bound incBound;
 
-        private RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
+        RelationType(String func, String opposite, boolean lessThan, Bound incBound) {
             this.func = func;
             this.opposite = opposite;
             this.lessThan = lessThan;
@@ -681,9 +681,9 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     static class RelationRangeAdaptor<C extends Comparable<C>> implements IRangeAdaptor<Object, C> {
-        EvaluatorFactory evaluatorFactory;
-        ITypeAdaptor<Object, C> typeAdaptor;
-        ConditionCasts conditionCasts;
+        final EvaluatorFactory evaluatorFactory;
+        final ITypeAdaptor<Object, C> typeAdaptor;
+        final ConditionCasts conditionCasts;
 
         @SuppressWarnings("unchecked")
         RelationRangeAdaptor(EvaluatorFactory evaluatorFactory,
@@ -745,10 +745,10 @@ class DependentParametersOptimizedAlgorithm {
     static class RangeEvaluatorFactory {
 
         Pattern pattern;
-        String regex;
-        int numberOfparams;
-        int minDelta;
-        int maxDelta;
+        final String regex;
+        final int numberOfparams;
+        final int minDelta;
+        final int maxDelta;
 
         public RangeEvaluatorFactory(String regex, int numberOfparams, int minDelta, int maxDelta) {
             super();
@@ -760,7 +760,7 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     public static class OneParameterEqualsIndexedEvaluator extends EqualsIndexedEvaluator {
-        private OneParameterEqualsFactory oneParameterEqualsFactory;
+        private final OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluator(OneParameterEqualsFactory oneParameterEqualsFactory,
                 ConditionCasts conditionCasts) {
@@ -781,7 +781,7 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     public static class OneParameterEqualsIndexedEvaluatorV2 extends EqualsIndexedEvaluatorV2 {
-        private OneParameterEqualsFactory oneParameterEqualsFactory;
+        private final OneParameterEqualsFactory oneParameterEqualsFactory;
 
         public OneParameterEqualsIndexedEvaluatorV2(OneParameterEqualsFactory oneParameterEqualsFactory,
                 ConditionCasts conditionCasts) {
@@ -803,8 +803,8 @@ class DependentParametersOptimizedAlgorithm {
 
     abstract static class EvaluatorFactory {
 
-        IParameterDeclaration signatureParam;
-        String expression;
+        final IParameterDeclaration signatureParam;
+        final String expression;
 
         EvaluatorFactory(IParameterDeclaration signatureParam, String expression) {
             super();
@@ -851,8 +851,8 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     static class OneParameterRangeFactory extends EvaluatorFactory {
-        IParameterDeclaration conditionParam;
-        RelationType relation;
+        final IParameterDeclaration conditionParam;
+        final RelationType relation;
 
         public OneParameterRangeFactory(IParameterDeclaration signatureParam,
                 IParameterDeclaration conditionParam,
@@ -882,10 +882,10 @@ class DependentParametersOptimizedAlgorithm {
     }
 
     static class TwoParameterRangeFactory extends EvaluatorFactory {
-        IParameterDeclaration conditionParam1;
-        IParameterDeclaration conditionParam2;
-        RelationType relation1;
-        RelationType relation2;
+        final IParameterDeclaration conditionParam1;
+        final IParameterDeclaration conditionParam2;
+        final RelationType relation1;
+        final RelationType relation2;
 
         public TwoParameterRangeFactory(IParameterDeclaration signatureParam,
                 IParameterDeclaration conditionParam1,

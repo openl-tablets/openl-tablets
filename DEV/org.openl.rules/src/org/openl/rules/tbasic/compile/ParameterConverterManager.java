@@ -18,14 +18,14 @@ import org.openl.types.IOpenClass;
  * Created by dl on 9/16/14.
  */
 public class ParameterConverterManager {
-    private AlgorithmCompiler compiler;
+    private final AlgorithmCompiler compiler;
 
     /** return type for some contexts that are represented as functions **/
-    private IOpenClass returnType;
+    private final IOpenClass returnType;
 
-    private LabelManager labelManager;
+    private final LabelManager labelManager;
 
-    private Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
+    private final Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
 
     {
         parameterConverters.put(String.class, new StringConverter());
@@ -83,7 +83,7 @@ public class ParameterConverterManager {
         }
     }
 
-    private final class BooleanConverter implements ParameterConverter {
+    private static final class BooleanConverter implements ParameterConverter {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,

@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.util.Arrays;
+
 import org.openl.ie.constrainer.Constrainer;
 import org.openl.ie.constrainer.Failure;
 import org.openl.ie.constrainer.IntExp;
@@ -28,9 +30,9 @@ import junit.textui.TestRunner;
  */
 
 public class TestDomainBits2 extends TestCase {
-    private Constrainer C = new Constrainer("TestDomainBits2");
-    private IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
-    private DomainBits2 _probeDomainBits2 = new DomainBits2(_var, _var.min(), _var.max());
+    private final Constrainer C = new Constrainer("TestDomainBits2");
+    private final IntVar _var = C.addIntVar(0, 10, IntVar.DOMAIN_BIT_FAST);
+    private final DomainBits2 _probeDomainBits2 = new DomainBits2(_var, _var.min(), _var.max());
 
     static private int[] bitsToBits2(boolean[] bits) {
         final int BITS_PER_INT = 32;
@@ -67,16 +69,14 @@ public class TestDomainBits2 extends TestCase {
     public void setValue(int value) {
         DomainBits2 db = new DomainBits2(_var, _var.min(), _var.max());
         boolean[] mask = new boolean[db.size()];
-        for (int i = 0; i < mask.length; i++) {
-            mask[i] = true;
-        }
+        Arrays.fill(mask, true);
         mask[5] = false;
         db.forceBits(bitsToBits2(mask));
 
         try {
             db.setValue(5);
             fail("test failed");
-        } catch (Failure e) {
+        } catch (Failure ignored) {
         }
 
         try {
@@ -110,9 +110,7 @@ public class TestDomainBits2 extends TestCase {
         IntVar intvar = C.addIntVar(0, 1024);
         DomainBits2 db2 = new DomainBits2(intvar, intvar.min(), intvar.max());
         int[] mask = new int[db2.size() / 32 + 1];
-        for (int i = 0; i < mask.length; i++) {
-            mask[i] = 1;
-        }
+        Arrays.fill(mask, 1);
         db2.forceBits(mask);
         for (int i = 0; i <= db2.size(); i++) {
             if (i % 32 == 0) {
@@ -274,7 +272,7 @@ public class TestDomainBits2 extends TestCase {
         try {
             db.setMax(_var.min() - 1);
             fail("test of DomainBits2 failed due to incorrect work of setMax(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }
@@ -300,7 +298,7 @@ public class TestDomainBits2 extends TestCase {
         try {
             db.setMin(_var.min() - 1);
             fail("test of DomainBits2 failed due to incorrect work of setMax(int)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         } catch (Throwable e) {
             fail("Unexpected exception has been thrown.");
         }

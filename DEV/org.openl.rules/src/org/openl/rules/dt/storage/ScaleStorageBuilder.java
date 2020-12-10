@@ -4,8 +4,8 @@ import org.openl.rules.dt.DTScale.RowScale;
 
 public class ScaleStorageBuilder implements IStorageBuilder {
 
-    private RowScale scale;
-    private StorageBuilder sb;
+    private final RowScale scale;
+    private final StorageBuilder sb;
 
     ScaleStorageBuilder(RowScale scale, StorageBuilder sb) {
         super();

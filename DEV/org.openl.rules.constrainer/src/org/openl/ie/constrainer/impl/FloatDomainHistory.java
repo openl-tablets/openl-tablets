@@ -31,7 +31,7 @@ public final class FloatDomainHistory {
      * An implementation of the event about change in the floating-point domain.
      */
     static final class FloatEventDomain extends FloatEvent {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new FloatEventDomain();
@@ -95,12 +95,12 @@ public final class FloatDomainHistory {
     final static int MAX_IDX = 1;
 
     final static int LAST_IDX = 2;
-    FloatVar _var;
+    final FloatVar _var;
     double _min;
 
     double _max;
     int _mask;
-    FastVectorDouble _history;
+    final FastVectorDouble _history;
 
     int _currentIndex = -1;
 

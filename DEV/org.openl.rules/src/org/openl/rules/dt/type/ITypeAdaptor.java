@@ -13,7 +13,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     C increment(C value);
 
-    abstract static class NumberTypeAdaptor<N extends Number, C extends Comparable<C>> implements ITypeAdaptor<N, C> {
+    abstract class NumberTypeAdaptor<N extends Number, C extends Comparable<C>> implements ITypeAdaptor<N, C> {
         @Override
         @SuppressWarnings("unchecked")
         public C convert(N param) {
@@ -418,7 +418,7 @@ public interface ITypeAdaptor<T, C extends Comparable<C>> {
 
     ITypeAdaptor<Date, Integer> DATE = new ITypeAdaptor<Date, Integer>() {
 
-        static final long MS_IN_DAY = 1000 * 3600 * 24l;
+        static final long MS_IN_DAY = 1000 * 3600 * 24L;
 
         @Override
         public Integer convert(Date date) {

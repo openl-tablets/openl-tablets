@@ -8,7 +8,7 @@ public class StorageInfo {
     private int numberOfFormulas = 0;
     private int numberOfElses = 0;
 
-    private Map<Object, Integer> uniqueIndex = new HashMap<>();
+    private final Map<Object, Integer> uniqueIndex = new HashMap<>();
 
     public int getNumberOfSpaces() {
         return numberOfSpaces;

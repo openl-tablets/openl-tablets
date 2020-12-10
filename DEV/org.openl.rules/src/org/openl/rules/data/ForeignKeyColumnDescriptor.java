@@ -49,7 +49,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
-    private CellKey foreignKeyCellCoordinate;
+    private final CellKey foreignKeyCellCoordinate;
 
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
@@ -615,8 +615,8 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     static class ResultChainObject {
-        private Object value;
-        private IOpenClass type;
+        private final Object value;
+        private final IOpenClass type;
 
         ResultChainObject(Object value, IOpenClass type) {
             this.value = value;

@@ -8,7 +8,7 @@ import org.openl.rules.table.ICellComment;
  */
 public class XlsCellComment implements ICellComment {
 
-    private Comment xlxComment;
+    private final Comment xlxComment;
 
     public XlsCellComment(Comment xlsComment) {
         this.xlxComment = xlsComment;

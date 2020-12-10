@@ -4,7 +4,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 public class PrecisionFieldChain extends FieldChain {
-    private Integer precision;
+    private final Integer precision;
 
     public PrecisionFieldChain(IOpenClass type, IOpenField[] fields, Integer precision) {
         super(type, fields);

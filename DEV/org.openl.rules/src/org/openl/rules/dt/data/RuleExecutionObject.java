@@ -16,7 +16,7 @@ import org.openl.types.impl.DelegatedDynamicObject;
  */
 public class RuleExecutionObject extends DelegatedDynamicObject {
 
-    private int ruleNum; // the index of the current rule that is being executed
+    private final int ruleNum; // the index of the current rule that is being executed
 
     public RuleExecutionObject(IOpenClass rulesType, IDynamicObject target, int ruleNum) {
         super(rulesType, target);

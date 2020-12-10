@@ -938,8 +938,8 @@ public class DataTableBindHelper {
             String txtIndex = fieldName.substring(fieldName.indexOf('(') + 1, fieldName.indexOf(')'));
 
             return Integer.parseInt(txtIndex);
-        } catch (Exception ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             return null;
         }
     }

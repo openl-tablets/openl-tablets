@@ -8,7 +8,7 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class DefaultPropertiesContextMatcher implements IPropertiesContextMatcher {
 
-    private Map<String, MatchingConstraint<?, ?>> constraints = new HashMap<>();
+    private final Map<String, MatchingConstraint<?, ?>> constraints = new HashMap<>();
 
     public DefaultPropertiesContextMatcher() {
         initialize();

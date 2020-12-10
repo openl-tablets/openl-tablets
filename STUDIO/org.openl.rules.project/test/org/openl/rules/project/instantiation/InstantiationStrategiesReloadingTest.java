@@ -44,7 +44,7 @@ public class InstantiationStrategiesReloadingTest {
             int.class);
     }
 
-    private static ProjectResolver resolver = ProjectResolver.getInstance();
+    private static final ProjectResolver resolver = ProjectResolver.getInstance();
     private ApiBasedInstantiationStrategy apiStrategy;
     private SingleModuleInstantiationStrategy dynamicStrategy;
 
@@ -109,9 +109,9 @@ public class InstantiationStrategiesReloadingTest {
 
     @SuppressWarnings("rawtypes")
     public static class MethodDescription {
-        private String name;
-        private Class[] paramTypes;
-        private Class<?> returnType;
+        private final String name;
+        private final Class[] paramTypes;
+        private final Class<?> returnType;
 
         public MethodDescription(String name, Class[] paramTypes, Class<?> returnType) {
             this.name = name;

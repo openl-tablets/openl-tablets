@@ -27,7 +27,7 @@ import junit.textui.TestRunner;
  */
 
 public class TestIntDomainHistory extends TestCase {
-    private Constrainer C = new Constrainer("TestIntDomainHistory");
+    private final Constrainer C = new Constrainer("TestIntDomainHistory");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntDomainHistory.class));

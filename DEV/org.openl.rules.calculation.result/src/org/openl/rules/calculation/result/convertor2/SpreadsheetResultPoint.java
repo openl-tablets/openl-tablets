@@ -16,8 +16,8 @@ public class SpreadsheetResultPoint implements Serializable {
 
     private static final long serialVersionUID = 5186952375131099814L;
 
-    private int columnIndex;
-    private int rowIndex;
+    private final int columnIndex;
+    private final int rowIndex;
 
     public SpreadsheetResultPoint(int rowIndex, int columnIndex) {
         this.columnIndex = columnIndex;

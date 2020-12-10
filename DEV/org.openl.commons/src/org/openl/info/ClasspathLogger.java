@@ -1,11 +1,11 @@
 package org.openl.info;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 final class ClasspathLogger extends OpenLLogger {
 
@@ -53,8 +53,8 @@ final class ClasspathLogger extends OpenLLogger {
             if (getNameStr != null) {
                 name += "  Name: " + getNameStr.toString();
             }
-        } catch (Exception ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             // Ignore
         }
         return name;

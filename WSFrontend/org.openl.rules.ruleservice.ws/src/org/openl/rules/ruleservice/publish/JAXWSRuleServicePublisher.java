@@ -172,8 +172,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     }
 
     private static class ServiceServer {
-        private Server server;
-        private DataBinding databinding;
+        private final Server server;
+        private final DataBinding databinding;
 
         public ServiceServer(Server server, DataBinding dataBinding) {
             this.server = Objects.requireNonNull(server, "server cannot be null");

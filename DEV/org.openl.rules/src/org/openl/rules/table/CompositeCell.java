@@ -7,11 +7,11 @@ import org.openl.rules.table.ui.ICellStyle;
 
 class CompositeCell implements ICell {
 
-    private int column;
-    private int row;
-    private IGridRegion region;
-    private ICell delegate;
-    private IGridTable gridTable;
+    private final int column;
+    private final int row;
+    private final IGridRegion region;
+    private final ICell delegate;
+    private final IGridTable gridTable;
 
     @Override
     public ICell getTopLeftCellFromRegion() {

@@ -47,7 +47,7 @@ final class AlgorithmErrorHelper {
      */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
         IOpenClass algorithmType = environment.getTbasicTarget().getType();
-        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", new IOpenClass[] {});
+        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", IOpenClass.EMPTY);
 
         if (errorMethod != null) {
             IOpenField errorField = algorithmType.getField("ERROR");

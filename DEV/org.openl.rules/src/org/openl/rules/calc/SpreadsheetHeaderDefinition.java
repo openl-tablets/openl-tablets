@@ -4,11 +4,11 @@ import org.openl.types.IOpenClass;
 
 public class SpreadsheetHeaderDefinition {
 
-    private int row;
-    private int column;
+    private final int row;
+    private final int column;
 
     private IOpenClass type;
-    private SymbolicTypeDefinition definition;
+    private final SymbolicTypeDefinition definition;
 
     public SpreadsheetHeaderDefinition(SymbolicTypeDefinition definition, int row, int column) {
         this.definition = definition;

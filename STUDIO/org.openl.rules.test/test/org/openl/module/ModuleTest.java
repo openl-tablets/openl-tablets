@@ -35,7 +35,7 @@ public class ModuleTest extends TestCase {
     /**
      * Attributes of this class are referenced in expressions from Person context
      */
-    public class Address {
+    public static class Address {
         String street;
 
         String zip;
@@ -70,7 +70,7 @@ public class ModuleTest extends TestCase {
     /**
      * Data context class for arithmetic expressions
      */
-    public class Order {
+    public static class Order {
         int quantity;
 
         double price;
@@ -173,8 +173,7 @@ public class ModuleTest extends TestCase {
      */
     private boolean executeBooleanOpenLExprression(Object context, String expr) throws SyntaxNodeException {
         IOpenClass retType = JavaOpenClass.BOOLEAN;
-        Boolean res = (Boolean) executeOpenLExprression(context, expr, retType);
-        return res;
+        return (Boolean) executeOpenLExprression(context, expr, retType);
     }
 
     /**
@@ -258,9 +257,7 @@ public class ModuleTest extends TestCase {
 
         ModuleBindingContext moduleBindingContext = new ModuleBindingContext(cxt, module);
 
-        IOpenMethod method = OpenLManager.makeMethod(op, src, methodHeader, moduleBindingContext);
-
-        return method;
+        return OpenLManager.makeMethod(op, src, methodHeader, moduleBindingContext);
     }
 
     /*

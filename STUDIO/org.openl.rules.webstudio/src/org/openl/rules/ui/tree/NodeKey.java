@@ -8,12 +8,12 @@ public class NodeKey implements Comparable<Object> {
     /**
      * Triple of names.
      */
-    private String[] value;
+    private final String[] value;
 
     /**
      * Node weight.
      */
-    private int weight;
+    private final int weight;
 
     /**
      * Creates new node key.

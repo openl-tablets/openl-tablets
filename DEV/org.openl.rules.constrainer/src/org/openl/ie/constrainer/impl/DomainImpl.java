@@ -12,8 +12,8 @@ import org.openl.ie.constrainer.*;
  */
 public class DomainImpl implements Domain {
     protected IntVar _variable;
-    protected int _initial_min;
-    protected int _initial_max;
+    protected final int _initial_min;
+    protected final int _initial_max;
     protected int _min;
     protected int _max;
 

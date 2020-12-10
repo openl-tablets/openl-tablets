@@ -10,7 +10,7 @@ import java.util.LinkedHashMap;
  * in the file.
  */
 public class PropertiesStorage {
-    private ExternalizedProperties properties = new ExternalizedProperties(new LinkedHashMap<>());
+    private final ExternalizedProperties properties = new ExternalizedProperties(new LinkedHashMap<>());
 
     /**
      * Returns keys in properties. Keeps the order in the file.

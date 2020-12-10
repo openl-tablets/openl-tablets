@@ -20,11 +20,11 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.util.RuntimeExceptionWrapper;
 
 public class AProjectArtefact implements IProjectArtefact {
-    private AProject project;
+    private final AProject project;
     private Repository repository;
     private FileData fileData;
 
-    private Date modifiedTime;
+    private final Date modifiedTime;
 
     public AProjectArtefact(AProject project, Repository repository, FileData fileData) {
         this.project = project;

@@ -495,8 +495,8 @@ public class BetaRepositoryService {
             XPath xPath = factory.newXPath();
             XPathExpression xPathExpression = xPath.compile("/project/name");
             return StringUtils.trimToNull(xPathExpression.evaluate(inputSource));
-        } catch (FileNotFoundException | XPathExpressionException ignored) {
-            LOG.debug("Error occurred on getting project name: ", ignored);
+        } catch (FileNotFoundException | XPathExpressionException e) {
+            LOG.debug("Error occurred on getting project name: ", e);
             return null;
         }
     }

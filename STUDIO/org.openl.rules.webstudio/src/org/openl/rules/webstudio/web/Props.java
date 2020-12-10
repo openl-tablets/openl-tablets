@@ -2,7 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import org.openl.spring.env.DisablePropertySource;
 import org.openl.util.StringUtils;
-import org.springframework.context.EnvironmentAware;
 import org.springframework.core.env.Environment;
 
 public class Props {

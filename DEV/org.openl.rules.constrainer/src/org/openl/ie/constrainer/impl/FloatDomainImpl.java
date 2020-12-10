@@ -28,8 +28,8 @@ import org.openl.ie.constrainer.FloatVar;
  */
 public class FloatDomainImpl implements FloatDomain {
     private FloatVar _variable;
-    private double _initial_min;
-    private double _initial_max;
+    private final double _initial_min;
+    private final double _initial_max;
     private double _min;
     private double _max;
 

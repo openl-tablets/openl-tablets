@@ -26,7 +26,7 @@ import junit.textui.TestRunner;
  */
 
 public class TestUndoableIntImpl extends TestCase {
-    private Constrainer C = new Constrainer("TestUndoableIntImpl");
+    private final Constrainer C = new Constrainer("TestUndoableIntImpl");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestUndoableIntImpl.class));

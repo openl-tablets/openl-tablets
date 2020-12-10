@@ -15,7 +15,6 @@
 package org.openl.ie.tools;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 // "implements serializable"  was added by Eugeny Tseitlin 18.06.2003
 public final class FastVector implements Cloneable, java.io.Serializable {
@@ -32,9 +31,8 @@ public final class FastVector implements Cloneable, java.io.Serializable {
     public FastVector(Collection c) {
         this(c.size());
 
-        Iterator it = c.iterator();
-        while (it.hasNext()) {
-            add(it.next());
+        for (Object o : c) {
+            add(o);
         }
     }
 

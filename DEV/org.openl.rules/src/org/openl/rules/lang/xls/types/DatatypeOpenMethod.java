@@ -11,10 +11,10 @@ import org.openl.types.java.JavaOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class DatatypeOpenMethod extends JavaOpenMethod {
-    JavaOpenMethod method;
-    IOpenClass[] parameterTypes;
-    IOpenClass declaringClass;
-    IOpenClass type;
+    final JavaOpenMethod method;
+    final IOpenClass[] parameterTypes;
+    final IOpenClass declaringClass;
+    final IOpenClass type;
 
     public DatatypeOpenMethod(JavaOpenMethod method,
             IOpenClass declaringClass,

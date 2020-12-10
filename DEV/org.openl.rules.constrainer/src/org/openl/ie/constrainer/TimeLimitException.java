@@ -12,7 +12,7 @@ package org.openl.ie.constrainer;
 
 public class TimeLimitException extends RuntimeException {
 
-    private String _msg;
+    private final String _msg;
     private ChoicePointLabel _label = null;
 
     /**

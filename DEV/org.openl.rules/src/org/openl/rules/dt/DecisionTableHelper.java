@@ -2838,7 +2838,7 @@ public final class DecisionTableHelper {
                 for (String s : definition.getTitles()) {
                     if (s.equals(title)) {
                         columnParameters[i] = definition.getLocalParameters(title)
-                            .toArray(new IParameterDeclaration[] {});
+                            .toArray(IParameterDeclaration.EMPTY);
                         break;
                     }
                 }
@@ -3509,9 +3509,9 @@ public final class DecisionTableHelper {
     }
 
     private static final class ParameterTokens {
-        Token[] tokens;
-        Map<Token, Integer> tokensToParameterIndex;
-        Map<Token, IOpenField[]> tokenToFieldsChain;
+        final Token[] tokens;
+        final Map<Token, Integer> tokensToParameterIndex;
+        final Map<Token, IOpenField[]> tokenToFieldsChain;
 
         ParameterTokens(Token[] tokens,
                 Map<Token, Integer> tokensToParameterIndex,
@@ -3535,9 +3535,9 @@ public final class DecisionTableHelper {
     }
 
     private static class NumberOfColumnsUnderTitleCounter {
-        ILogicalTable logicalTable;
-        int firstColumnHeight;
-        Map<Integer, List<Integer>> numberOfColumnsMap = new HashMap<>();
+        final ILogicalTable logicalTable;
+        final int firstColumnHeight;
+        final Map<Integer, List<Integer>> numberOfColumnsMap = new HashMap<>();
 
         private List<Integer> init(int column) {
             int w = logicalTable.getSource().getCell(column, 0).getWidth();
@@ -3568,7 +3568,7 @@ public final class DecisionTableHelper {
     }
 
     private static class FuzzyContext {
-        ParameterTokens parameterTokens;
+        final ParameterTokens parameterTokens;
         Token[] returnTokens = null;
         Map<Token, IOpenField[][]> returnTypeFuzzyTokens = null;
         IOpenClass fuzzyReturnType;

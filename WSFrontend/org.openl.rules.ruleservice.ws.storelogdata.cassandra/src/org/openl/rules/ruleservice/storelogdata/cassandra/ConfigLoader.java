@@ -22,7 +22,7 @@ import com.typesafe.config.impl.Parseable;
 
 final class ConfigLoader {
 
-    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);;
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
 
     private ConfigLoader() {
     }

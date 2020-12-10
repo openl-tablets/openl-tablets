@@ -1,13 +1,13 @@
 package org.openl.util.print;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -35,8 +35,8 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
         final PropertyDescriptor[] propertyDescriptors;
         try {
             propertyDescriptors = Introspector.getBeanInfo(obj.getClass()).getPropertyDescriptors();
-        } catch (Exception ignored) {
-            LOG.debug("Ignored error: ", ignored);
+        } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             return Collections.emptyMap();
         }
         Map<String, Object> fieldMap = new HashMap<>();
@@ -47,8 +47,8 @@ public class BeanNicePrinterAdaptor extends NicePrinterAdaptor {
                     Object propertyValue = descriptor.getReadMethod().invoke(obj, EMPTY);
                     fieldMap.put(propertyName, propertyValue);
                 }
-            } catch (Exception ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (Exception e) {
+                LOG.debug("Ignored error: ", e);
             }
         }
         return fieldMap;

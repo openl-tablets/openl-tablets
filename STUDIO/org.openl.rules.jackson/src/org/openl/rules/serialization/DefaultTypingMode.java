@@ -15,5 +15,5 @@ public enum DefaultTypingMode {
     NON_CONCRETE_AND_ARRAYS,
     NON_FINAL,
     EVERYTHING,
-    DISABLED;
+    DISABLED
 }

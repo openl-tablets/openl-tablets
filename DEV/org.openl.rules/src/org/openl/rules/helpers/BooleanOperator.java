@@ -44,42 +44,42 @@ public class BooleanOperator {
         <T extends Comparable<T>> boolean compare(T c1, T c2);
     }
 
-    static ComparableOperator LT = new ComparableOperator() {
+    static final ComparableOperator LT = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) < 0;
         }
     };
 
-    static ComparableOperator LE = new ComparableOperator() {
+    static final ComparableOperator LE = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) <= 0;
         }
     };
 
-    static ComparableOperator GE = new ComparableOperator() {
+    static final ComparableOperator GE = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) >= 0;
         }
     };
 
-    static ComparableOperator GT = new ComparableOperator() {
+    static final ComparableOperator GT = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) > 0;
         }
     };
 
-    static ComparableOperator EQ = new ComparableOperator() {
+    static final ComparableOperator EQ = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) == 0;
         }
     };
 
-    static ComparableOperator NE = new ComparableOperator() {
+    static final ComparableOperator NE = new ComparableOperator() {
         @Override
         public <T extends Comparable<T>> boolean compare(T c1, T c2) {
             return c1.compareTo(c2) != 0;

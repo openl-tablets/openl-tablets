@@ -31,8 +31,8 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
     }
 
     static class ExpressionKeyImpl implements ExpressionKey {
-        private Class _clazz;
-        private Object[] _args;
+        private final Class _clazz;
+        private final Object[] _args;
 
         static boolean equalArgs(Object arg1, Object arg2) {
             // are references the same?
@@ -158,7 +158,7 @@ public final class ExpressionFactoryImpl extends UndoableOnceImpl implements Exp
      */
     static class UndoExpressionFactory extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoExpressionFactory();

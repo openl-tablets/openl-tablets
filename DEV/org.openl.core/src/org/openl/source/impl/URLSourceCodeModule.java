@@ -17,7 +17,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  * @author snshor
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
-    private URL url;
+    private final URL url;
 
     public URLSourceCodeModule(URL url) {
         this.url = url;

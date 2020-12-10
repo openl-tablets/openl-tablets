@@ -5,7 +5,7 @@ import org.openl.rules.table.IGridRegion;
 
 /* internal */ class XlsGridRegion implements IGridRegion {
 
-    private CellRangeAddress poiXlsRegion;
+    private final CellRangeAddress poiXlsRegion;
 
     /* internal */ XlsGridRegion(CellRangeAddress poiXlsRegion) {
         this.poiXlsRegion = poiXlsRegion;

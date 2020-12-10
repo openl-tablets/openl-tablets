@@ -12,7 +12,7 @@ public class LocalDeployment implements IDeployment {
 
     private final String deploymentName;
     private final  CommonVersion version;
-    private Map<String, IProject> projects;
+    private final Map<String, IProject> projects;
 
     public LocalDeployment(String deploymentName, CommonVersion version, Map<String, IProject> projects) {
         this.deploymentName = deploymentName;

@@ -5,7 +5,7 @@ import org.openl.ie.constrainer.IntVar;
 
 public class IntRangeDomainAdaptor implements IDomainAdaptor {
 
-    private IntRangeDomain irange;
+    private final IntRangeDomain irange;
 
     public IntRangeDomainAdaptor(IntRangeDomain irange) {
         this.irange = irange;

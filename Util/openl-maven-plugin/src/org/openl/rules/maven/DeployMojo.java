@@ -74,12 +74,7 @@ public class DeployMojo extends BaseOpenLMojo {
     }
 
     private File findZipFile() {
-        File[] zipZiles = outputDirectory.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.contains(finalName) && name.endsWith(".zip");
-            }
-        });
+        File[] zipZiles = outputDirectory.listFiles((dir, name) -> name.contains(finalName) && name.endsWith(".zip"));
         if (zipZiles == null) {
             throw new IllegalStateException("Cannot deploy the rules project, as the zip file does not exist");
         }

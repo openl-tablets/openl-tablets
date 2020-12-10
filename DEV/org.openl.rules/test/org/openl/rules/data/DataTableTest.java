@@ -3,6 +3,7 @@ package org.openl.rules.data;
 import static org.junit.Assert.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -34,9 +35,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         String[] stringData = (String[]) member.getTable().getDataArray();
         assertTrue(stringData.length == 5);
         List<String> dataList = new ArrayList<>();
-        for (String data : stringData) {
-            dataList.add(data);
-        }
+        dataList.addAll(Arrays.asList(stringData));
         assertTrue(dataList.contains("StringValue1"));
         assertTrue(dataList.contains("StringValue2"));
         assertTrue(dataList.contains("StringValue3"));
@@ -129,9 +128,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 2);
         List<String> dataList = new ArrayList<>();
-        for (String token : typeWitharray[0].getStringArray()) {
-            dataList.add(token);
-        }
+        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("Hello Denis! My name is vova."));
         assertTrue(dataList.contains("Yeah you are right."));
     }
@@ -146,9 +143,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 4);
         List<String> dataList = new ArrayList<>();
-        for (String token : typeWitharray[0].getStringArray()) {
-            dataList.add(token);
-        }
+        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("One"));
         assertTrue(dataList.contains("two"));
         assertTrue(dataList.contains("three,continue this"));
@@ -165,9 +160,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
         assertTrue(typeWitharray[0].getStringArray().length == 4);
         List<String> dataList = new ArrayList<>();
-        for (String token : typeWitharray[0].getStringArray()) {
-            dataList.add(token);
-        }
+        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("One"));
         assertTrue(dataList.contains("two"));
         assertTrue(dataList.contains("three,continue this"));

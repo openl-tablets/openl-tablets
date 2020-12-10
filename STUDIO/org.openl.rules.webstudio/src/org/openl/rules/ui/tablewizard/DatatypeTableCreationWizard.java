@@ -140,10 +140,8 @@ public class DatatypeTableCreationWizard extends TableCreationWizard {
 
     @Override
     protected void onStepFirstVisit(int step) {
-        switch (step) {
-            case 3:
-                initWorkbooks();
-                break;
+        if (step == 3) {
+            initWorkbooks();
         }
     }
 

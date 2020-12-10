@@ -8,8 +8,8 @@ import java.io.InputStream;
  * @author Yury Molchan
  */
 public class FileItem implements Closeable {
-    private FileData data;
-    private InputStream stream;
+    private final FileData data;
+    private final InputStream stream;
 
     /**
      * @param name the full path name from the root folder.

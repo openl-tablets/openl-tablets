@@ -32,8 +32,8 @@ class ContextPropertiesInjector {
                     .filter(IOpenField::isContextProperty)
                     .forEach(field -> contextInjections.put(field.getContextProperty(),
                         createContextInjection(paramIndex, field, castFactory)));
-            } catch (Exception | LinkageError ignored) {
-                LOG.debug("Ignored error: ", ignored);
+            } catch (Exception | LinkageError e) {
+                LOG.debug("Ignored error: ", e);
             }
             i++;
         }

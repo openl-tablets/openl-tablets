@@ -9,7 +9,7 @@ import org.richfaces.model.TreeNodeImpl;
 
 public class TreeNode extends TreeNodeImpl {
 
-    private DiffTreeNode diffTreeNode;
+    private final DiffTreeNode diffTreeNode;
 
     public TreeNode(DiffTreeNode node) {
         this(node, false);

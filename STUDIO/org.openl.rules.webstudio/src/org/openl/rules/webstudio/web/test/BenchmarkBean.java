@@ -24,7 +24,7 @@ public class BenchmarkBean {
 
     private final RunTestHelper runTestHelper;
 
-    private List<BenchmarkInfoView> benchmarks = new ArrayList<>();
+    private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private List<BenchmarkInfoView> comparedBenchmarks = Collections.emptyList();
     private List<BenchmarkInfoView> benchmarkOrders;
 

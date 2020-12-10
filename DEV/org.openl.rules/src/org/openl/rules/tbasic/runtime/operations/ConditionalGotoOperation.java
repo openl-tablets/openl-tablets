@@ -16,7 +16,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class ConditionalGotoOperation extends GotoOperation {
 
-    private boolean expectedCondition;
+    private final boolean expectedCondition;
 
     /**
      * Create an instance of <code>ConditionalGotoOperation</code>.

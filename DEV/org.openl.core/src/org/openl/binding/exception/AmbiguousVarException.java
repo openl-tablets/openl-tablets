@@ -18,9 +18,9 @@ import org.openl.types.IOpenField;
  */
 public class AmbiguousVarException extends OpenlNotCheckedException {
 
-    private List<IOpenField> matchingFields;
+    private final List<IOpenField> matchingFields;
 
-    private String varName;
+    private final String varName;
 
     public AmbiguousVarException(String varName, List<IOpenField> matchingFields) {
         this.varName = varName;

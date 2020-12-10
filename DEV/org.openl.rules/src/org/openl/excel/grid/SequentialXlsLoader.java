@@ -55,14 +55,14 @@ import org.slf4j.LoggerFactory;
 
 public class SequentialXlsLoader {
     private final Logger log = LoggerFactory.getLogger(SequentialXlsLoader.class);
-    private Collection<String> imports = new HashSet<>();
-    private IncludeSearcher includeSeeker;
+    private final Collection<String> imports = new HashSet<>();
+    private final IncludeSearcher includeSeeker;
     private OpenlSyntaxNode openl;
-    private List<SyntaxNodeException> errors = new ArrayList<>();
-    private Collection<OpenLMessage> messages = new LinkedHashSet<>();
-    private Set<String> preprocessedWorkBooks = new HashSet<>();
-    private List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
-    private List<IDependency> dependencies = new ArrayList<>();
+    private final List<SyntaxNodeException> errors = new ArrayList<>();
+    private final Collection<OpenLMessage> messages = new LinkedHashSet<>();
+    private final Set<String> preprocessedWorkBooks = new HashSet<>();
+    private final List<WorkbookSyntaxNode> workbookNodes = new ArrayList<>();
+    private final List<IDependency> dependencies = new ArrayList<>();
 
     public SequentialXlsLoader(IncludeSearcher includeSeeker) {
         this.includeSeeker = includeSeeker;
@@ -128,19 +128,19 @@ public class SequentialXlsLoader {
 
         addInnerImports();
 
-        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[workbookNodes.size()]);
+        WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[0]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
             source,
             openl,
             Collections.unmodifiableCollection(imports));
 
-        SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
+        SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[0]);
 
         return new ParsedCode(syntaxNode,
             source,
             parsingErrors,
             messages,
-            dependencies.toArray(new IDependency[dependencies.size()]));
+            dependencies.toArray(new IDependency[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -360,7 +360,7 @@ public class SequentialXlsLoader {
             }
         }
 
-        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[tableNodes.size()]), sheetSource);
+        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[0]), sheetSource);
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {

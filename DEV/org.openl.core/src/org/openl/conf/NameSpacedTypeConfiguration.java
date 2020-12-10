@@ -20,7 +20,7 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
 
     private String namespace;
 
-    private List<ITypeFactoryConfigurationElement> factories = new ArrayList<>();
+    private final List<ITypeFactoryConfigurationElement> factories = new ArrayList<>();
 
     public void addConfiguration(ITypeFactoryConfigurationElement factory) {
         factories.add(factory);

@@ -43,7 +43,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
     @TableNameConstraint(groups = StringValidGroup.class)
     private String tableName;
     private IOpenClass tableOpenClass;
-    private DataTableTree tree = new DataTableTree();
+    private final DataTableTree tree = new DataTableTree();
 
     private List<String> domainTypes;
     private List<TableSyntaxNode> allDataTables;
@@ -127,7 +127,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
         String s = super.next();
 
         // Switched to a next page
-        LOG.debug("Go to page {0}", getStep());
+        LOG.debug("Go to page {}", getStep());
 
         if (Page.COLUMNS_CONFIGURATION == Page.valueOf(getStep())) {
             initTree();
@@ -279,13 +279,7 @@ public class DataTableCreationWizard extends TableCreationWizard {
             tree.setRoot(new DataTableTreeNode(new DataTablePredefinedTypeVariable(tableType), true));
         } else {
             DataTableField field = new DataTableUserDefinedTypeField(tableOpenClass,
-                tableType,
-                new DataTableUserDefinedTypeField.PredefinedTypeChecker() {
-                    @Override
-                    public boolean isPredefined(IOpenClass type) {
-                        return getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null;
-                    }
-                });
+                tableType, type -> getUserDefinedType(type.getDisplayName(INamedThing.SHORT)) == null);
 
             tree.setRoot(new DataTableTreeNode(field, true));
         }

@@ -15,7 +15,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class GotoOperation extends RuntimeOperation {
 
-    private String label;
+    private final String label;
 
     /**
      * Create an instance of <code>GotoOperation</code>.

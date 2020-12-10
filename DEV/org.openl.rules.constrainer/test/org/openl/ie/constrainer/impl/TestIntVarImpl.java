@@ -28,13 +28,13 @@ import junit.textui.TestRunner;
  */
 
 public class TestIntVarImpl extends TestCase {
-    private Constrainer C = new Constrainer("TestIntVarImpl");
-    private int size = 21;
-    private int min = -10;
-    private int max = 10;
-    private IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
-    private IntVar bit_small = new IntVarImpl(C, min, max, "intvar2", IntVar.DOMAIN_BIT_SMALL);
-    private IntVar plain = new IntVarImpl(C, min, max, "intvar3", IntVar.DOMAIN_PLAIN);
+    private final Constrainer C = new Constrainer("TestIntVarImpl");
+    private final int size = 21;
+    private final int min = -10;
+    private final int max = 10;
+    private final IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
+    private final IntVar bit_small = new IntVarImpl(C, min, max, "intvar2", IntVar.DOMAIN_BIT_SMALL);
+    private final IntVar plain = new IntVarImpl(C, min, max, "intvar3", IntVar.DOMAIN_PLAIN);
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntVarImpl.class));
@@ -169,19 +169,19 @@ public class TestIntVarImpl extends TestCase {
         try {
             bit_fast.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
             bit_small.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
             plain.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_PLAIN)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of bound()", bit_fast.bound());

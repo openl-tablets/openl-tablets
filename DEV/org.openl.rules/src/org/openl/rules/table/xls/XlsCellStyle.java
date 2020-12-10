@@ -11,8 +11,8 @@ import org.openl.rules.table.ui.ICellStyle;
  */
 public class XlsCellStyle implements ICellStyle {
 
-    private CellStyle xlsStyle;
-    private Workbook workbook;
+    private final CellStyle xlsStyle;
+    private final Workbook workbook;
 
     public XlsCellStyle(CellStyle xlsStyle, Workbook workbook) {
         this.xlsStyle = xlsStyle;

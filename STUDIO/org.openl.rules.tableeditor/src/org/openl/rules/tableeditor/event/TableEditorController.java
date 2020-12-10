@@ -689,7 +689,7 @@ public class TableEditorController extends BaseTableEditorController {
         private String html;
         private String message;
         private String id;
-        private TableEditorModel model;
+        private final TableEditorModel model;
 
         public TableModificationResponse(String html, String message, TableEditorModel model) {
             this.html = html;

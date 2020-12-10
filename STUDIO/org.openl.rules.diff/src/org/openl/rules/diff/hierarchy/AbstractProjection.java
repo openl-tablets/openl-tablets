@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.List;
 
 public class AbstractProjection implements Projection {
-    private String name;
-    private String type;
-    private PropertySet properties;
-    private List<Projection> children;
+    private final String name;
+    private final String type;
+    private final PropertySet properties;
+    private final List<Projection> children;
 
     public AbstractProjection(String name, String type) {
         this.name = name;

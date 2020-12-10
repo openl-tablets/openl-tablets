@@ -9,8 +9,8 @@ import org.slf4j.LoggerFactory;
 public class CassandraEntitySaver {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraEntitySaver.class);
 
-    private Object dao;
-    private EntityOperations<Object, Object> entityOperations;
+    private final Object dao;
+    private final EntityOperations<Object, Object> entityOperations;
 
     public CassandraEntitySaver(EntityOperations<Object, Object> entityOperations, Object dao) {
         super();

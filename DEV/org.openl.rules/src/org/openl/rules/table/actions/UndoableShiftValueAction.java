@@ -10,7 +10,8 @@ import org.openl.rules.table.*;
  */
 public class UndoableShiftValueAction extends AUndoableCellAction {
 
-    private int colFrom, rowFrom;
+    private final int colFrom;
+    private final int rowFrom;
 
     private IGridRegion toRestore;
     private IGridRegion toRemove;

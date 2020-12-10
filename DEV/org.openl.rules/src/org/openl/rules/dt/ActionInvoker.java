@@ -49,8 +49,8 @@ public class ActionInvoker implements Invokable {
     private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
             int c = 0;
-            for (int i = 0; i < f.length; i++) {
-                if (f[i]) {
+            for (boolean b : f) {
+                if (b) {
                     c++;
                 }
             }
