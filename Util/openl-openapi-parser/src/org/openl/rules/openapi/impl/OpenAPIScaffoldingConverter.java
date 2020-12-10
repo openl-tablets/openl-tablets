@@ -421,7 +421,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 String stepType = step.getType();
                 boolean isArray = stepType.endsWith("[]");
                 String type = OpenAPITypeUtils.removeArrayBrackets(step.getType());
-                if (sprResultNames.stream().anyMatch(x -> x.equals(type))) {
+                if (type.equals(ANY_SPREADSHEET_RESULT)) {
+                    step.setValue(isArray ? makeArrayCall(stepType, "", "") : createNewInstance(SPREADSHEET_RESULT));
+                } else if (sprResultNames.stream().anyMatch(x -> x.equals(type))) {
                     Optional<SpreadsheetParserModel> foundSpr = models.stream()
                         .filter(x -> x.getReturnRef() != null && type.equals(getSimpleName(x.getReturnRef())) && !x
                             .getModel()

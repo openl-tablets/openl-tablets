@@ -419,9 +419,6 @@ public class CopyBean {
                 String simplifiedProjectName = getBusinessName().replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                String pattern = applicationContext.getEnvironment()
-                        .getProperty("repository.design.new-branch-pattern");
-                Objects.requireNonNull(pattern);
                 newBranchName = designRepoComments.newBranch(simplifiedProjectName, userName, date);
             }
         } catch (Exception e) {

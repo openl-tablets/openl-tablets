@@ -838,7 +838,8 @@ public class SpreadsheetsConverterTest {
         List<StepModel> mySpr2Steps = mySpr2.get().getSteps();
         StepModel step = mySpr2Steps.iterator().next();
         assertEquals("Step1", step.getName());
-        assertEquals("=mySmart(null)", step.getValue());
+        assertEquals("AnySpreadsheetResult", step.getType());
+        assertEquals("=new SpreadsheetResult()", step.getValue());
 
         ProjectModel pathProjectWithLostAny = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAnyAsLost.json");
