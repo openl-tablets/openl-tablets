@@ -51,7 +51,7 @@
                     </h:selectOneMenu>
 
                     <h:outputLabel id="projectFolderLabel" for="projectFolder" value="Path:" rendered="#{copyBean.supportsMappedFolders}"/>
-                    <h:panelGroup rendered="#{copyBean.supportsMappedFolders}">
+                    <h:panelGroup rendered="#{copyBean.supportsMappedFolders}" style="display: inline-block; white-space: nowrap;">
                         <h:inputText id="projectFolder" value="#{copyBean.projectFolder}"
                                      styleClass="with-button-select"/>
                         <input type="button" value="..." class="button-select"
