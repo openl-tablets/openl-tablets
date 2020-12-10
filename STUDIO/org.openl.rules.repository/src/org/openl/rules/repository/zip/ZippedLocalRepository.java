@@ -107,9 +107,10 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
                 if (!pathToArchive.isAbsolute() && (!exists || !isArchive)) {
                     //if path is not absolute, try to resolve it from root folder
                     pathToArchive = root.resolve(archive);
-                    if (!Files.exists(pathToArchive) && !exists) {
-                        throw new IllegalStateException(String.format("The path [%s] does not exist.", archive));
-                    }
+                    exists |= Files.exists(pathToArchive);
+                }
+                if (!exists) {
+                    throw new IllegalStateException(String.format("The path [%s] does not exist.", archive));
                 }
                 if (!zipArchiveFilter(pathToArchive)) {
                     throw new IllegalStateException(String.format("[%s] is not archive.", archive));
