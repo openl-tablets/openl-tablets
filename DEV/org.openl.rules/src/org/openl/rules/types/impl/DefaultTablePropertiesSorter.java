@@ -51,7 +51,7 @@ public class DefaultTablePropertiesSorter implements ITablePropertiesSorter {
     @Override
     public List<IOpenMethod> sort(Collection<IOpenMethod> candidates) {
         List<IOpenMethod> result = new ArrayList<>(candidates);
-        Collections.sort(result, methodsComparator);
+        result.sort(methodsComparator);
         return result;
     }
 

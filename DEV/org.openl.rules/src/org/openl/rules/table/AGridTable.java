@@ -16,8 +16,8 @@ public abstract class AGridTable implements IGridTable {
         int left = getGridColumn(0, 0);
         int top = getGridRow(0, 0);
 
-        int right = -1;
-        int bottom = -1;
+        int right;
+        int bottom;
 
         if (isNormalOrientation()) {
             right = getGridColumn(getWidth() - 1, 0);

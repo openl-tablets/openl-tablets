@@ -118,14 +118,12 @@ public class DecisionTableLoader {
             // for smart tables
             if (tableBody == null || !isSmart(
                 tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT) {
-                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-                    loadAndBind(tableSyntaxNode,
-                        decisionTable,
-                        openl,
-                        module,
-                        !firstTransposedThenNormal,
-                        bindingContext);
-                }, bindingContext);
+                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> loadAndBind(tableSyntaxNode,
+                    decisionTable,
+                    openl,
+                    module,
+                    !firstTransposedThenNormal,
+                    bindingContext), bindingContext);
                 if (altLoadAndBindErrors == null) {
                     return;
                 } else {

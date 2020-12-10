@@ -20,7 +20,7 @@ public class DomainOpenClassTest {
 
         assertEquals(baseClass, domainClass.getBaseClass());
 
-        assertEquals(null, domainClass.getComponentClass());
+        assertNull(domainClass.getComponentClass());
 
         assertEquals(String.class, domainClass.getInstanceClass());
 

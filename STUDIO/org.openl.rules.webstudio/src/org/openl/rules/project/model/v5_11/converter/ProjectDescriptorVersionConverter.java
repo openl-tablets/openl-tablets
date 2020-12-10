@@ -22,8 +22,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setComment(oldVersion.getComment());
         descriptor.setClasspath(oldVersion.getClasspath());
 
-        List<Module> modules = CollectionUtils.map(oldVersion.getModules(),
-                input -> moduleVersionConverter.fromOldVersion(input));
+        List<Module> modules = CollectionUtils.map(oldVersion.getModules(), moduleVersionConverter::fromOldVersion);
         descriptor.setModules(modules);
 
         return descriptor;
@@ -39,7 +38,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setClasspath(currentVersion.getClasspath());
 
         List<Module_v5_11> modules = CollectionUtils.map(currentVersion.getModules(),
-                input -> moduleVersionConverter.toOldVersion(input));
+                moduleVersionConverter::toOldVersion);
         descriptor.setModules(modules);
 
         return descriptor;

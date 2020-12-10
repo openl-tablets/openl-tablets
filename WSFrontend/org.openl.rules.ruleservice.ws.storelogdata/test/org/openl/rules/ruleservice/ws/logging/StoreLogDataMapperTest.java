@@ -40,7 +40,7 @@ public class StoreLogDataMapperTest {
         // validation
         Assert.assertEquals(customString2, testEntity1.getValue2());
         Assert.assertEquals(customString2, testEntity1.getStringValue2());
-        Assert.assertEquals(null, testEntity1.getValue1());
+        Assert.assertNull(testEntity1.getValue1());
 
         final PublisherType publisher2 = PublisherType.WEBSERVICE;
         storeLogData.setPublisherType(publisher2);
@@ -49,7 +49,7 @@ public class StoreLogDataMapperTest {
         mapper.map(storeLogData, testEntity2);
 
         // validation
-        Assert.assertEquals(null, testEntity2.getValue2());
+        Assert.assertNull(testEntity2.getValue2());
         Assert.assertEquals(customString1, testEntity2.getValue1());
     }
 

@@ -134,7 +134,7 @@ public class SequentialXlsLoader {
             openl,
             Collections.unmodifiableCollection(imports));
 
-        SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[0]);
+        SyntaxNodeException[] parsingErrors = errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
 
         return new ParsedCode(syntaxNode,
             source,
@@ -360,7 +360,7 @@ public class SequentialXlsLoader {
             }
         }
 
-        return new WorksheetSyntaxNode(tableNodes.toArray(new TableSyntaxNode[0]), sheetSource);
+        return new WorksheetSyntaxNode(tableNodes.toArray(TableSyntaxNode.EMPTY_ARRAY), sheetSource);
     }
 
     private void setOpenl(OpenlSyntaxNode openl) {

@@ -19,7 +19,7 @@ public class NicePrinter {
 
     final int identStep = 2;
 
-    StringBuilder buffer = null;
+    StringBuilder buffer;
 
     int ident = 0;
 

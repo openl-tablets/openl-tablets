@@ -58,7 +58,7 @@ public class RulesLoaderTest {
             .map(IProjectFolder::getName)
             .sorted()
             .collect(Collectors.toList());
-        assertEquals(Arrays.asList("project1"), d1);
+        assertEquals(Collections.singletonList("project1"), d1);
 
         updateProject(repository, "deployment1", "project2", false);
         List<String> d2 = ruleServiceLoader.getDeployments()

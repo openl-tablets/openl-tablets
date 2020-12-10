@@ -62,17 +62,13 @@ public class DecisionTableTraceFilterFactory {
                 if (conditionTrace.isSuccessful()) {
                     successfulChecks.addAll(regions);
                     for (IGridRegion region : regions) {
-                        if (unsuccessfulChecks.contains(region)) {
-                            unsuccessfulChecks.remove(region);
-                        }
+                        unsuccessfulChecks.remove(region);
                     }
                     allCheckedRegions.addAll(regions);
                 } else {
                     unsuccessfulChecks.addAll(regions);
                     for (IGridRegion region : regions) {
-                        if (successfulChecks.contains(region)) {
-                            successfulChecks.remove(region);
-                        }
+                        successfulChecks.remove(region);
                     }
                     allCheckedRegions.addAll(regions);
                 }
@@ -92,14 +88,10 @@ public class DecisionTableTraceFilterFactory {
             for (IGridRegion region : selectedRegions) {
                 if (successfulChecks.contains(region) || resultRegions.contains(region)) {
                     successfulSelectedRegions.add(region);
-                    if (unsuccessfulSelectedRegions.contains(region)) {
-                        unsuccessfulSelectedRegions.remove(region);
-                    }
+                    unsuccessfulSelectedRegions.remove(region);
                 } else if (unsuccessfulChecks.contains(region)) {
                     unsuccessfulSelectedRegions.add(region);
-                    if (successfulSelectedRegions.contains(region)) {
-                        successfulSelectedRegions.remove(region);
-                    }
+                    successfulSelectedRegions.remove(region);
 
                 }
             }
@@ -178,7 +170,7 @@ public class DecisionTableTraceFilterFactory {
     }
 
     private IGridRegion[] toArray(Collection<IGridRegion> regions) {
-        return regions.toArray(new IGridRegion[0]);
+        return regions.toArray(IGridRegion.EMPTY_REGION);
     }
 
     private ColorGridFilter createColorFilter(IGridRegion[] region, final short[] rewriteColor, int scope) {

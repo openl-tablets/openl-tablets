@@ -23,7 +23,7 @@ public class BlockBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        IBoundNode[] children = null;
+        IBoundNode[] children;
 
         try {
             bindingContext.pushLocalVarContext();

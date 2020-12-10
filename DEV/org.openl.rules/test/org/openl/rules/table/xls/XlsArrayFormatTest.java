@@ -34,7 +34,7 @@ public class XlsArrayFormatTest {
         assertNotNull(result);
 
         String[] resStr = (String[]) result;
-        assertTrue(resStr.length == 3);
+        assertEquals(3, resStr.length);
         assertEquals("tag1", resStr[0]);
         assertEquals("tag2", resStr[1]);
         assertEquals("tag3", resStr[2]);

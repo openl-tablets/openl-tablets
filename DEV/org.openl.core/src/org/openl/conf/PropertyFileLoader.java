@@ -44,7 +44,7 @@ public class PropertyFileLoader {
 
     private final IConfigurableResourceContext context;
 
-    private PropertyFileLoader parent = null;
+    private PropertyFileLoader parent;
 
     public PropertyFileLoader(String propertiesFileDefaultName,
             String propertiesFileProperty,

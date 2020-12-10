@@ -82,14 +82,14 @@ public final class Constrainer implements Serializable {
 
     private final FastVector _constraints;
 
-    private int _choice_point = 0;
+    private int _choice_point;
 
     private GoalStack _goal_stack;
 
     private final UndoStack _reversibility_stack;
-    private int _number_of_choice_points = 0;
-    private int _number_of_failures = 0;
-    private int _number_of_undos = 0;
+    private int _number_of_choice_points;
+    private int _number_of_failures;
+    private int _number_of_undos;
     private final long _time_limit = 0; // in seconds (0-no limit)
     private final long _failures_limit = 0; // in failures (0-no limit)
     private final FastVector _choice_point_objects;

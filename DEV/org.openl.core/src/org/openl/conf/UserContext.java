@@ -60,9 +60,7 @@ public final class UserContext extends AUserContext {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("home=").append(userHome).append("cl=").append(printClassloader(userClassLoader));
-        return sb.toString();
+        return "home=" + userHome + "cl=" + printClassloader(userClassLoader);
     }
 
     private final Map<String, IOpenLConfiguration> configurations = new HashMap<>();

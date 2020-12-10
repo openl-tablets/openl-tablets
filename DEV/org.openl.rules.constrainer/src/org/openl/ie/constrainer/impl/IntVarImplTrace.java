@@ -21,7 +21,7 @@ import org.openl.ie.constrainer.Failure;
  * An implementation of the IntVar with tracing capabilities.
  */
 public class IntVarImplTrace extends IntVarImpl {
-    int _trace_flags = 0;
+    int _trace_flags;
 
     public IntVarImplTrace(Constrainer constrainer, int min, int max, String name, int type, int trace_flags) {
         super(constrainer, min, max, name, type);

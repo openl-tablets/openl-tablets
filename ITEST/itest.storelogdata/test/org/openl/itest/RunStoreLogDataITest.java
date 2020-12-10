@@ -867,9 +867,7 @@ public class RunStoreLogDataITest {
             elasticRunner.clean();
         });
         doQuite(EmbeddedCassandraServerHelper::cleanEmbeddedCassandra);
-        doQuite(() -> {
-            cluster.stop();
-        });
+        doQuite(() -> cluster.stop());
     }
 
 }

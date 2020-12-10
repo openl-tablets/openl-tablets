@@ -50,7 +50,7 @@ public class BigDecimalvalueTest {
     public void testAutocastLong() {
         BigDecimalValue expectedResult = new BigDecimalValue("2000000000");
 
-        Long value = Long.parseLong("2000000000");
+        long value = Long.parseLong("2000000000");
         BigDecimalValue result = BigDecimalValue.autocast(value, null);
 
         assertEquals(expectedResult, result);
@@ -103,10 +103,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("5.23"), BigDecimalValue.min(la));
 
         BigDecimalValue[] nullArray = null;
-        assertEquals(null, BigDecimalValue.min(nullArray));
+        assertNull(BigDecimalValue.min(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        assertEquals(null, BigDecimalValue.min(emptyArray));
+        assertNull(BigDecimalValue.min(emptyArray));
     }
 
     private BigDecimalValue[] getTestArray() {
@@ -121,10 +121,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("100.56"), BigDecimalValue.max(la));
 
         BigDecimalValue[] nullArray = null;
-        assertEquals(null, BigDecimalValue.max(nullArray));
+        assertNull(BigDecimalValue.max(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        assertEquals(null, BigDecimalValue.max(emptyArray));
+        assertNull(BigDecimalValue.max(emptyArray));
     }
 
     @Test
@@ -133,10 +133,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("38.676667"), BigDecimalValue.avg(la));
 
         BigDecimalValue[] nullArray = null;
-        assertEquals(null, BigDecimalValue.avg(nullArray));
+        assertNull(BigDecimalValue.avg(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        assertEquals(null, BigDecimalValue.avg(emptyArray));
+        assertNull(BigDecimalValue.avg(emptyArray));
     }
 
     @Test
@@ -145,10 +145,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("116.03"), BigDecimalValue.sum(la));
 
         BigDecimalValue[] nullArray = null;
-        assertEquals(null, BigDecimalValue.sum(nullArray));
+        assertNull(BigDecimalValue.sum(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        assertEquals(null, BigDecimalValue.sum(emptyArray));
+        assertNull(BigDecimalValue.sum(emptyArray));
     }
 
     @Test
@@ -157,10 +157,10 @@ public class BigDecimalvalueTest {
         assertEquals(new BigDecimalValue("5385.510912"), BigDecimalValue.product(la));
 
         BigDecimalValue[] nullArray = null;
-        assertEquals(null, BigDecimalValue.product(nullArray));
+        assertNull(BigDecimalValue.product(nullArray));
 
         BigDecimalValue[] emptyArray = new BigDecimalValue[0];
-        assertEquals(null, BigDecimalValue.product(emptyArray));
+        assertNull(BigDecimalValue.product(emptyArray));
     }
 
     @Test
@@ -169,9 +169,9 @@ public class BigDecimalvalueTest {
             BigDecimalValue.quotient(new BigDecimalValue("26.77"), new BigDecimalValue("5.13")));
 
         BigDecimalValue nullObj = null;
-        assertEquals(null, BigDecimalValue.quotient(nullObj, new BigDecimalValue("5")));
+        assertNull(BigDecimalValue.quotient(nullObj, new BigDecimalValue("5")));
 
-        assertEquals(null, BigDecimalValue.quotient(new BigDecimalValue("5"), nullObj));
+        assertNull(BigDecimalValue.quotient(new BigDecimalValue("5"), nullObj));
     }
 
     @Test(expected = ArithmeticException.class)
@@ -185,9 +185,9 @@ public class BigDecimalvalueTest {
             BigDecimalValue.mod(new BigDecimalValue("55.24"), new BigDecimalValue("3.1")));
 
         BigDecimalValue nullObj = null;
-        assertEquals(null, BigDecimalValue.mod(nullObj, new BigDecimalValue("5")));
+        assertNull(BigDecimalValue.mod(nullObj, new BigDecimalValue("5")));
 
-        assertEquals(null, BigDecimalValue.mod(new BigDecimalValue("5"), nullObj));
+        assertNull(BigDecimalValue.mod(new BigDecimalValue("5"), nullObj));
     }
 
     @Test(expected = ArithmeticException.class)

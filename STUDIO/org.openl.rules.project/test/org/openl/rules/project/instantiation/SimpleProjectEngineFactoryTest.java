@@ -72,7 +72,7 @@ public class SimpleProjectEngineFactoryTest {
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
             .getMethod("sayHello", VariationsPack.class);
         Assert.assertNotNull(sayHelloMethod);
-        Assert.assertTrue(sayHelloMethod.getReturnType().equals(VariationsResult.class));
+        Assert.assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
     }
 
     @Test
@@ -88,7 +88,7 @@ public class SimpleProjectEngineFactoryTest {
         Method sayHelloMethod = simpleProjectEngineFactory.getInterfaceClass()
             .getMethod("sayHello", IRulesRuntimeContext.class, VariationsPack.class);
         Assert.assertNotNull(sayHelloMethod);
-        Assert.assertTrue(sayHelloMethod.getReturnType().equals(VariationsResult.class));
+        Assert.assertEquals(sayHelloMethod.getReturnType(), VariationsResult.class);
     }
 
     public interface SayHello {
@@ -121,7 +121,7 @@ public class SimpleProjectEngineFactoryTest {
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.assertNotNull(instance);
         Assert.assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
-        Assert.assertTrue(simpleProjectEngineFactory.getInterfaceClass().equals(SayHello.class));
+        Assert.assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHello.class);
         Assert.assertTrue(instance instanceof SayHello);
     }
 
@@ -147,7 +147,7 @@ public class SimpleProjectEngineFactoryTest {
             .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.assertNotNull(instance);
-        Assert.assertTrue(simpleProjectEngineFactory.getInterfaceClass().equals(SayHelloWithRuntimeContext.class));
+        Assert.assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithRuntimeContext.class);
         Assert.assertTrue(instance instanceof SayHelloWithRuntimeContext);
     }
 
@@ -162,8 +162,8 @@ public class SimpleProjectEngineFactoryTest {
             .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.assertNotNull(instance);
-        Assert.assertTrue(
-            simpleProjectEngineFactory.getInterfaceClass().equals(SayHelloWithRuntimeContextAndVariation.class));
+        Assert.assertEquals(simpleProjectEngineFactory.getInterfaceClass(),
+                SayHelloWithRuntimeContextAndVariation.class);
         Assert.assertTrue(instance instanceof SayHelloWithRuntimeContextAndVariation);
     }
 
@@ -177,7 +177,7 @@ public class SimpleProjectEngineFactoryTest {
             .build();
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.assertNotNull(instance);
-        Assert.assertTrue(simpleProjectEngineFactory.getInterfaceClass().equals(SayHelloWithVariation.class));
+        Assert.assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHelloWithVariation.class);
         Assert.assertTrue(instance instanceof SayHelloWithVariation);
     }
 
@@ -192,7 +192,7 @@ public class SimpleProjectEngineFactoryTest {
         Object instance = simpleProjectEngineFactory.newInstance();
         Assert.assertNotNull(instance);
         Assert.assertNotNull(simpleProjectEngineFactory.getInterfaceClass());
-        Assert.assertTrue(simpleProjectEngineFactory.getInterfaceClass().equals(SayHello.class));
+        Assert.assertEquals(simpleProjectEngineFactory.getInterfaceClass(), SayHello.class);
         Assert.assertTrue(instance instanceof SayHello);
     }
 

@@ -9,7 +9,7 @@ public class ISO8601DateFormater {
     private static final String ISO8601_SHORT_DATE_FORMAT = "yyyy-MM-dd";
 
     public static String format(Date date) {
-        SimpleDateFormat dateFormat = null;
+        SimpleDateFormat dateFormat;
         boolean zeroTime = date.getHours() == 0 && date.getMinutes() == 0 && date.getSeconds() == 0;
         if (!zeroTime) {
             dateFormat = new SimpleDateFormat(ISO8601_DATE_FORMAT, Locale.US);

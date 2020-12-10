@@ -186,7 +186,7 @@ public class TestIntExpCard extends TestCase {
                     fail("test failed due to incorrect behaviour of IntVar.value()");
                 }
             } else {
-                assertTrue(!array.get(i).bound());
+                assertFalse(array.get(i).bound());
             }
         }
     }
@@ -221,7 +221,7 @@ public class TestIntExpCard extends TestCase {
         // in their domains
         for (int i = 0; i < array.size(); i++) {
             if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
-                assertTrue(!array.get(i).contains(cardValue));
+                assertFalse(array.get(i).contains(cardValue));
             } else {
                 assertTrue(array.get(i).contains(cardValue));
             }
@@ -250,7 +250,7 @@ public class TestIntExpCard extends TestCase {
         // have to contain cardValue
         for (int i = 0; i < array.size(); i++) {
             if (i != indexToBeRemoved[0] && i != indexToBeRemoved[1]) {
-                assertTrue(!array.get(i).contains(cardValue));
+                assertFalse(array.get(i).contains(cardValue));
             } else {
                 assertTrue(array.get(i).contains(cardValue));
             }

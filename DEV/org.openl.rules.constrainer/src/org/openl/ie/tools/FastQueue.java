@@ -40,7 +40,6 @@ public final class FastQueue implements java.io.Serializable {
             capacity = DEFAULT_CAPACITY;
         }
         if (grow_factor == 0) {
-            grow_factor = DEFAULT_FREE_SPACE_GROW_FACTOR;
         }
         m_data = new Object[capacity];
     }

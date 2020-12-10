@@ -23,8 +23,8 @@ public class ParametersDeclarationTest {
 
     @Test
     public void testEquals() {
-        assertTrue(paramDecl1.equals(paramDecl2));
-        assertFalse(paramDecl1.equals(paramDecl3));
+        assertEquals(paramDecl1, paramDecl2);
+        assertNotEquals(paramDecl1, paramDecl3);
     }
 
     @Test
@@ -32,7 +32,7 @@ public class ParametersDeclarationTest {
         // same hash codes for equal objects
         assertEquals(paramDecl1.hashCode(), paramDecl2.hashCode());
         // not the same hash codes for unequal objects
-        assertFalse(paramDecl1.hashCode() == paramDecl3.hashCode());
+        assertNotEquals(paramDecl1.hashCode(), paramDecl3.hashCode());
     }
 
 }

@@ -59,7 +59,7 @@ public abstract class VariationsFactory {
             Object valueToSet,
             boolean cloneArguments) {
         // TODO check null ID
-        Variation variation = null;
+        Variation variation;
         if (path.equals(THIS_POINTER)) {
             variation = new ArgumentReplacementVariation(vairationId, argumentIndex, valueToSet);
         } else {

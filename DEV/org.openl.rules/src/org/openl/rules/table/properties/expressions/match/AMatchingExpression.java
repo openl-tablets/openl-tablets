@@ -35,12 +35,7 @@ public abstract class AMatchingExpression implements IMatchingExpression {
     @Override
     public String getCodeExpression(String param) {
         if (StringUtils.isNotEmpty(param)) {
-            return new StringBuilder(64).append(param)
-                .append(' ')
-                .append(getOperation())
-                .append(' ')
-                .append(contextAttribute)
-                .toString();
+            return param + ' ' + getOperation() + ' ' + contextAttribute;
         }
         return null;
     }

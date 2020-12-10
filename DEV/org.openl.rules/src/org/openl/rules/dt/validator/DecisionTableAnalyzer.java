@@ -109,7 +109,7 @@ public class DecisionTableAnalyzer {
             }
         }
 
-        return paramDeclarations.toArray(new IParameterDeclaration[0]);
+        return paramDeclarations.toArray(IParameterDeclaration.EMPTY);
     }
 
     /**

@@ -12,8 +12,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("7.5.17");
         assertEquals(0, version1.compareTo(version2));
         assertEquals(0, version2.compareTo(version1));
-        assertTrue(version1.equals(version2));
-        assertTrue(version2.equals(version1));
+        assertEquals(version1, version2);
+        assertEquals(version2, version1);
     }
 
     @Test
@@ -22,8 +22,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("7.5.0");
         assertEquals(0, version1.compareTo(version2));
         assertEquals(0, version2.compareTo(version1));
-        assertTrue(version1.equals(version2));
-        assertTrue(version2.equals(version1));
+        assertEquals(version1, version2);
+        assertEquals(version2, version1);
     }
 
     @Test
@@ -32,8 +32,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test
@@ -42,8 +42,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test
@@ -52,8 +52,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test
@@ -62,8 +62,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test
@@ -72,8 +72,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.3.1");
         assertEquals(1, version1.compareTo(version2));
         assertEquals(-1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test
@@ -82,8 +82,8 @@ public class CommonVersionImplTest {
         CommonVersionImpl version2 = new CommonVersionImpl("2.4.1");
         assertEquals(-1, version1.compareTo(version2));
         assertEquals(1, version2.compareTo(version1));
-        assertFalse(version1.equals(version2));
-        assertFalse(version2.equals(version1));
+        assertNotEquals(version1, version2);
+        assertNotEquals(version2, version1);
     }
 
     @Test

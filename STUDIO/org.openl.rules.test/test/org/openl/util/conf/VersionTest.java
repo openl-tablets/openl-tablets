@@ -58,7 +58,7 @@ public class VersionTest extends TestCase {
 
         Assert.assertTrue(new Version(11, 1, 1, -1, null).compareTo(v9_1_44) > 0);
 
-        Assert.assertTrue(new Version(9, 1, 44, -1, null).compareTo(v9_1_44) == 0);
+        Assert.assertEquals(0, new Version(9, 1, 44, -1, null).compareTo(v9_1_44));
 
         Assert.assertTrue(new Version(9, 1, 43, -1, null).compareTo(v9_1_44) < 0);
 

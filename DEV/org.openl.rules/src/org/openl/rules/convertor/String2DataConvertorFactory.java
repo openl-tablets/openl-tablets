@@ -123,7 +123,7 @@ public class String2DataConvertorFactory {
             readLock.unlock();
         }
 
-        IString2DataConvertor<T> convertor = null;
+        IString2DataConvertor<T> convertor;
 
         // FIXME String2EnumConvertor and String2ConstructorConvertor hold strong reference
         // to Class, so classloader for them cannot be unloaded without unregisterClassLoader() method.

@@ -198,7 +198,6 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                     throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
                 result = chainRes.getValue();
-                resType = chainRes.getType();
             }
 
         } catch (SyntaxNodeException ex) {
@@ -234,7 +233,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         Object result = null;
 
         int foreignKeyIndex = 0;
-        String columnName = NOT_INITIALIZED;
+        String columnName;
 
         if (foreignKey != null) {
             columnName = foreignKey.getIdentifier();

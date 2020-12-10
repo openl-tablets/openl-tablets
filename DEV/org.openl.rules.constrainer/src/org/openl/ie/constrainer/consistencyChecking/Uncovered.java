@@ -23,8 +23,8 @@ import org.openl.ie.constrainer.consistencyChecking.DTChecker.Utils;
  * @version 1.0
  */
 public class Uncovered {
-    protected String[] _solutionNames = null;
-    protected int[] _solutionValues = null;
+    protected String[] _solutionNames;
+    protected int[] _solutionValues;
 
     public Uncovered(IntExpArray array) {
         _solutionNames = Utils.IntExpArray2Names(array);

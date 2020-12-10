@@ -830,7 +830,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
 
     private final IntExpArray _ary;
 
-    private AryElementsObserver[] _aryElementsObservers = null;
+    private AryElementsObserver[] _aryElementsObservers;
 
     private final IntExp _indexExp;
 

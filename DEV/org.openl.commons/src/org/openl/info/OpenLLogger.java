@@ -105,7 +105,7 @@ abstract class OpenLLogger {
                 }
             }
         } else if (!isSimpleType(value)) {
-            BeanInfo bi = null;
+            BeanInfo bi;
             try {
                 bi = Introspector.getBeanInfo(value.getClass());
             } catch (Exception e) {

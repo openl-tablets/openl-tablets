@@ -8,12 +8,12 @@ public class RuleServicePublisherListenerTestListener implements RuleServicePubl
     public static volatile int onUndeployCount = 0;
 
     @Override
-    public void onDeploy(OpenLService service) {
+    public synchronized void onDeploy(OpenLService service) {
         onDeployCount++;
     }
 
     @Override
-    public void onUndeploy(String serviceName) {
+    public synchronized void onUndeploy(String serviceName) {
         onUndeployCount++;
     }
 }

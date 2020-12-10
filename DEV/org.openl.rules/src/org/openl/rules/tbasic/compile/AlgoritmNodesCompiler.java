@@ -242,9 +242,8 @@ public class AlgoritmNodesCompiler {
             List<AlgorithmTreeNode> nodesToProcess;
             nodesToProcess = AlgorithmCompilerTool
                 .getNestedInstructionsBlock(nodesToCompile, conversionStep.getOperationParam1(), bindingContext);
-            List<RuntimeOperation> emittedOperations = new ArrayList<>(compileNestedNodes(nodesToProcess,
+            return new ArrayList<>(compileNestedNodes(nodesToProcess,
                     bindingContext));
-            return emittedOperations;
         }
     }
 

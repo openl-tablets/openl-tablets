@@ -17,7 +17,7 @@ public class H2CacheDB {
 
     JdbcConnectionPool cp = JdbcConnectionPool.create(jdbcDataSource);
 
-    private String cacheName = "";
+    private String cacheName;
 
     public H2CacheDB(String cacheName) {
         this.cacheName = cacheName;

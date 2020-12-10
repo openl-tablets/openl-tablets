@@ -47,8 +47,8 @@ public class Overlapping {
 
     private List<Integer> _overlapped = null;
 
-    protected String[] _solutionNames = null;
-    protected int[] _solutionValues = null;
+    protected String[] _solutionNames;
+    protected int[] _solutionValues;
 
     private OverlappingStatus status;
 

@@ -95,7 +95,7 @@ public class ModuleTest extends TestCase {
     /**
      * Sample data model to use in expressions Person is container, contains one address object
      */
-    public class Person {
+    public static class Person {
         String name;
 
         int age;
@@ -344,7 +344,7 @@ public class ModuleTest extends TestCase {
      */
     public void testOpenLGet() throws SyntaxNodeException {
         Object obj = executeOpenLGetExpression(data, OPENL_GET_ADDRESS);
-        assertTrue(obj == data.getAddress());
+        assertSame(obj, data.getAddress());
     }
 
     /**

@@ -92,8 +92,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             lp = localProjects.values()
                 .stream()
                 .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                    .toLowerCase()
-                    .equals(name.toLowerCase()))
+                    .equalsIgnoreCase(name))
                 .findFirst()
                 .orElse(null);
         }
@@ -130,8 +129,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             Optional<AProject> lp = localProjects.values()
                 .stream()
                 .filter(p -> (repositoryId == null || repositoryId.equals(p.getRepository().getId())) && p.getName()
-                    .toLowerCase()
-                    .equals(name.toLowerCase()))
+                    .equalsIgnoreCase(name))
                 .findFirst();
             return lp.isPresent();
         }

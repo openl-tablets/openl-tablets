@@ -60,7 +60,7 @@ public class TestDomainBits extends TestCase {
         db.forceBits(bits);
         boolean[] bt = db.bits();
         for (int i = 0; i < bits.length; i++) {
-            assertTrue(bits[i] == bt[i]);
+            assertEquals(bits[i], bt[i]);
         }
     }
 
@@ -69,7 +69,7 @@ public class TestDomainBits extends TestCase {
         int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
         for (int i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainBits.contains(goodArray[i]));
-            assertTrue(!_probeDomainBits.contains(badArray[i]));
+            assertFalse(_probeDomainBits.contains(badArray[i]));
         }
     }
 
@@ -78,7 +78,7 @@ public class TestDomainBits extends TestCase {
         boolean[] bits = new boolean[] { false, true, false, true, false, true };
         db.forceBits(bits);
         for (int i = 5; i <= _var.max(); i++) {
-            assertTrue("does not contain " + i, db.contains(i) == bits[i - 5]);
+            assertEquals("does not contain " + i, db.contains(i), bits[i - 5]);
         }
     }
 
@@ -126,7 +126,7 @@ public class TestDomainBits extends TestCase {
 
         // intersection of range to be removed and the domain is an empty set
         try {
-            assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
+            assertFalse(di.removeRange(start_min - 3, start_min - 1)); // nothing
             // is to
             // be
             // done
@@ -189,7 +189,7 @@ public class TestDomainBits extends TestCase {
                 assertTrue(di.contains(i));
             }
             for (int i = newmin + 1; i < newmax - 1; i++) {
-                assertTrue(!di.contains(i));
+                assertFalse(di.contains(i));
             }
         } catch (Failure f) {
             fail("test failed");
@@ -208,7 +208,7 @@ public class TestDomainBits extends TestCase {
             } catch (Throwable ex) {
                 fail("Unexpected exception hasa been thrown");
             }
-            assertTrue(!db.contains(i));
+            assertFalse(db.contains(i));
             assertEquals(start_size - (i - start_min + 1), db.size());
             assertEquals(i + 1, db.min());
         }
@@ -217,7 +217,7 @@ public class TestDomainBits extends TestCase {
     public void testSetMax() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
-            assertTrue(!db.setMax(_var.max() + 1));
+            assertFalse(db.setMax(_var.max() + 1));
         } catch (Failure f) {
             fail("test failed.");
         }
@@ -243,7 +243,7 @@ public class TestDomainBits extends TestCase {
     public void testSetMin(int m) {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
-            assertTrue(!db.setMin(_var.max() + 1));
+            assertFalse(db.setMin(_var.max() + 1));
         } catch (Failure f) {
             fail("test failed.");
         }

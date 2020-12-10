@@ -117,7 +117,7 @@ class HttpData {
                     Comparators.xml("Difference", expected.body, this.body);
                     break;
                 case "application/json":
-                    JsonNode actualNode = null;
+                    JsonNode actualNode;
                     actualNode = OBJECT_MAPPER.readTree(this.body);
                     JsonNode expectedNode = OBJECT_MAPPER.readTree(expected.body);
                     Comparators.compareJsonObjects(expectedNode, actualNode, "");

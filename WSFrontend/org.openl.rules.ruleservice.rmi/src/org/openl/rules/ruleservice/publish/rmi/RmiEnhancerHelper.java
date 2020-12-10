@@ -40,7 +40,7 @@ public class RmiEnhancerHelper {
         Class<?> serviceClass = service.getServiceClass();
         Map<String, List<Method>> methodMap = new HashMap<>();
         for (Method method : serviceClass.getMethods()) {
-            List<Method> methods = null;
+            List<Method> methods;
             if (methodMap.containsKey(method.getName())) {
                 methods = methodMap.get(method.getName());
             } else {

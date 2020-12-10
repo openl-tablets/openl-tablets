@@ -41,7 +41,7 @@ public class TestUtils {
         private final int[] _array;
         private final int _start;
         private final int _end;
-        private IntFindPredicate _predicate = null;
+        private IntFindPredicate _predicate;
 
         public Finder(int[] array, int start, int end, IntFindPredicate predicate) {
             _array = array;

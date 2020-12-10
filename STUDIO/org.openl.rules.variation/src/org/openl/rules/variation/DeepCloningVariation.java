@@ -69,7 +69,7 @@ public class DeepCloningVariation extends Variation {
     }
 
     private Object[] clone(Object[] originalArguments) {
-        Object[] clonedParams = null;
+        Object[] clonedParams;
         if (originalArguments != null) {
             try {
                 clonedParams = cloner.deepClone(originalArguments);

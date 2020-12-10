@@ -1,10 +1,11 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import javax.faces.context.FacesContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.rules.table.IGridRegion;
@@ -302,19 +303,7 @@ public class HTMLRenderer {
 
     protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
         editor = editor == null || editor.equals("") ? "" : editor + ".";
-        StringBuilder result = new StringBuilder();
-        result.append("<img id=\"")
-            .append(itemId)
-            .append("\" src=\"")
-            .append(internalPath(imgSrc))
-            .append("\" title=\"")
-            .append(title)
-            .append("\" onclick=\"")
-            .append(editor)
-            .append(action)
-            .append("\" class='te_toolbar_item te_toolbar_item_disabled'")
-            .append("></img>");
-        return result.toString();
+        return "<img id=\"" + itemId + "\" src=\"" + internalPath(imgSrc) + "\" title=\"" + title + "\" onclick=\"" + editor + action + "\" class='te_toolbar_item te_toolbar_item_disabled'" + "></img>";
     }
 
     public String renderJS(String jsPath) {

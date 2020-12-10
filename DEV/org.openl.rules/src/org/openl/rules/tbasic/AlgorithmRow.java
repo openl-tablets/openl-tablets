@@ -146,12 +146,7 @@ public class AlgorithmRow {
     @Override
     public String toString() {
         String delimeter = " | ";
-        StringBuilder buf = new StringBuilder();
-        buf.append(label).append(delimeter);
-        buf.append(description).append(delimeter);
-        buf.append(operation).append(delimeter);
-        buf.append(condition).append(delimeter);
-        buf.append(action).append(delimeter);
-        return buf.toString();
+        String buf = label + delimeter + description + delimeter + operation + delimeter + condition + delimeter + action + delimeter;
+        return buf;
     }
 }

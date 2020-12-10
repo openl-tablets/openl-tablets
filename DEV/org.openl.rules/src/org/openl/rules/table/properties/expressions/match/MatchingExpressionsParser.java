@@ -10,8 +10,8 @@ public class MatchingExpressionsParser {
 
     public static IMatchingExpression parse(String matchingExpressionStr) {
 
-        String operationName = null;
-        String contextAttribute = null;
+        String operationName;
+        String contextAttribute;
         if (StringUtils.isNotEmpty(matchingExpressionStr)) {
             int openBracketIndex = matchingExpressionStr.indexOf("(");
             int closeBracketIndex = matchingExpressionStr.lastIndexOf(")");

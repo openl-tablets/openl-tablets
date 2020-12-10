@@ -2,7 +2,6 @@ package org.openl.rules.maven;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.util.Properties;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;

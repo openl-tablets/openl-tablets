@@ -55,7 +55,7 @@ public class DtColumnsDefinitionMetaInfoReader extends BaseMetaInfoReader<ADtCol
         if (value != null) {
             String stringValue = value.getValue();
             if (stringValue != null) {
-                List<NodeUsage> nodeUsages = null;
+                List<NodeUsage> nodeUsages;
                 CompositeMethod method = value.getKey();
                 int startIndex = 0;
                 List<NodeUsage> parsedNodeUsages = MetaInfoReaderUtils

@@ -31,7 +31,7 @@ public class TreeNode extends TreeNodeImpl {
     }
 
     public String getIcon() {
-        String icon = null;
+        String icon;
 
         switch (diffTreeNode.getElement(1).getDiffStatus()) {
             case ADDED:

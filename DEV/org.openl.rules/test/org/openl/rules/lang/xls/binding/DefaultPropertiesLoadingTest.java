@@ -24,8 +24,8 @@ public class DefaultPropertiesLoadingTest extends BaseOpenlBuilderHelper {
                 resultTsn.getTableProperties().getTableProperties().size(),
                 0);
 
-            assertTrue("Tsn does not have properties defined in appropriate table in excel",
-                !resultTsn.hasPropertiesDefinedInTable());
+            assertFalse("Tsn does not have properties defined in appropriate table in excel",
+                    resultTsn.hasPropertiesDefinedInTable());
         } else {
             fail();
         }

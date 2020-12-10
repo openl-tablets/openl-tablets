@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,7 +19,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
      */
     public DataTablePredefinedTypeVariable(String typeName) {
         super(typeName, typeName.toUpperCase());
-        availableFields = Collections.<DataTableField> unmodifiableList(Arrays.asList(new ThisField()));
+        availableFields = Collections.unmodifiableList(Collections.singletonList(new ThisField()));
     }
 
     /**

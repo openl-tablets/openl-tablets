@@ -25,9 +25,9 @@ public class BusinessIntNodeBinder extends BusinessNumberNodeBinder {
     protected IBoundNode makeNumber(String literal, int multiplier, ISyntaxNode node) throws SyntaxNodeException {
         final char FRACTION_DELIMITER = '.';
 
-        Long parsedNumber;
+        long parsedNumber;
         if (literal.indexOf(FRACTION_DELIMITER) >= 0) {
-            Double x = Double.parseDouble(literal) * multiplier;
+            double x = Double.parseDouble(literal) * multiplier;
             parsedNumber = Math.round(x);
         } else {
             parsedNumber = Long.parseLong(literal) * multiplier;

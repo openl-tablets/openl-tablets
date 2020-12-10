@@ -174,11 +174,7 @@ public class RunRestRulesDeploymentTest {
         AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
 
-        AsyncExecutor deployers = new AsyncExecutor(() -> {
-            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
-        }, () -> {
-            client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
-        });
+        AsyncExecutor deployers = new AsyncExecutor(() -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201), () -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201));
 
         deployers.start();
         TimeUnit.SECONDS.sleep(1);

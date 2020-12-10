@@ -161,7 +161,7 @@ public class ActionInvoker implements Invokable {
                         }
                     }
                 } else {
-                    int i = 0;
+                    int i;
                     Object actionResult = null;
                     for (i = 0; i < rules.length; i++) {
                         if (action.isReturnAction()) {

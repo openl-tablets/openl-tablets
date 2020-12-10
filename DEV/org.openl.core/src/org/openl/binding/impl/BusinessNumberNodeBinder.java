@@ -41,7 +41,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
         char lastCharacter = Character.toUpperCase(literal.charAt(literalLength - 1));
 
-        IBoundNode parsedNumber = null;
+        IBoundNode parsedNumber;
 
         if (multiplierSuffixes.containsKey(lastCharacter)) {
             String literalWithoutSuffix = literal.substring(0, literalLength - 1);

@@ -31,7 +31,7 @@ public class PropertyRow {
 
     @Override
     public String toString() {
-        return new StringBuilder().append(type).append("-").append(data).toString();
+        return type + "-" + data;
     }
 
 }

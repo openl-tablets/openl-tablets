@@ -30,7 +30,7 @@ public final class EnumUtils {
     public static String[] getValues(Object[] constants) {
         List<String> values = new ArrayList<>();
         for (Object constant : constants) {
-            values.add(((Enum<?>) constant).toString());
+            values.add(constant.toString());
         }
         return values.toArray(new String[0]);
     }
@@ -44,7 +44,7 @@ public final class EnumUtils {
         Object[] constants = getEnumConstants(enumClass);
         List<String> values = new ArrayList<>();
         for (Object constant : constants) {
-            values.add(((Enum<?>) constant).toString());
+            values.add(constant.toString());
         }
         return values.toArray(new String[0]);
     }

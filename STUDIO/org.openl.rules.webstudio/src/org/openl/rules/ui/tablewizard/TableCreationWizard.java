@@ -228,7 +228,7 @@ public abstract class TableCreationWizard extends BaseWizard {
      */
     public void validateTechnicalName(FacesContext context, UIComponent toValidate, Object value) {
         FacesMessage message = new FacesMessage();
-        ValidatorException validEx = null;
+        ValidatorException validEx;
 
         try {
             String name = ((String) value).toUpperCase();

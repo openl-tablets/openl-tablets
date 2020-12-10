@@ -110,7 +110,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testGetValueAsString() {
-        String result = null;
+        String result;
         String propertyNameValue = "MyName";
         result = getPropertyValueAsString(PROPERTY_NAME, propertyNameValue);
         assertEquals(propertyNameValue, result);

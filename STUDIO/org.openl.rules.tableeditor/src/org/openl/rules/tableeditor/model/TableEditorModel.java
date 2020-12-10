@@ -54,7 +54,7 @@ public class TableEditorModel {
 
     private final IGridTable gridTable;
     private final String view;
-    private boolean showFormulas = false;
+    private boolean showFormulas;
     private boolean collapseProps = false;
     private String beforeEditAction;
     private String beforeSaveAction;

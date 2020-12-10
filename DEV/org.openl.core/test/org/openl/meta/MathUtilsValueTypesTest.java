@@ -1,6 +1,7 @@
 package org.openl.meta;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
@@ -26,8 +27,8 @@ public class MathUtilsValueTypesTest {
                 new ByteValue((byte) 7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((ByteValue[]) null));
-        assertEquals(null, MathUtils.median(new ByteValue[0]));
+        assertNull(MathUtils.median((ByteValue[]) null));
+        assertNull(MathUtils.median(new ByteValue[0]));
 
         values = new ByteValue[] { null,
                 new ByteValue((byte) 4),
@@ -64,8 +65,8 @@ public class MathUtilsValueTypesTest {
                 new ShortValue((short) 7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((ShortValue[]) null));
-        assertEquals(null, MathUtils.median(new ShortValue[0]));
+        assertNull(MathUtils.median((ShortValue[]) null));
+        assertNull(MathUtils.median(new ShortValue[0]));
 
         values = new ShortValue[] { null,
                 new ShortValue((short) 4),
@@ -96,8 +97,8 @@ public class MathUtilsValueTypesTest {
         values = new IntValue[] { new IntValue(4), new IntValue(5), new IntValue(1), new IntValue(7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((IntValue[]) null));
-        assertEquals(null, MathUtils.median(new IntValue[0]));
+        assertNull(MathUtils.median((IntValue[]) null));
+        assertNull(MathUtils.median(new IntValue[0]));
 
         values = new IntValue[] { null,
                 new IntValue(4),
@@ -128,8 +129,8 @@ public class MathUtilsValueTypesTest {
         values = new LongValue[] { new LongValue(4), new LongValue(5), new LongValue(1), new LongValue(7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((LongValue[]) null));
-        assertEquals(null, MathUtils.median(new LongValue[0]));
+        assertNull(MathUtils.median((LongValue[]) null));
+        assertNull(MathUtils.median(new LongValue[0]));
 
         values = new LongValue[] { null,
                 new LongValue(4),
@@ -160,8 +161,8 @@ public class MathUtilsValueTypesTest {
         values = new FloatValue[] { new FloatValue(4), new FloatValue(5), new FloatValue(1), new FloatValue(7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((FloatValue[]) null));
-        assertEquals(null, MathUtils.median(new FloatValue[0]));
+        assertNull(MathUtils.median((FloatValue[]) null));
+        assertNull(MathUtils.median(new FloatValue[0]));
 
         values = new FloatValue[] { null,
                 new FloatValue(4),
@@ -192,8 +193,8 @@ public class MathUtilsValueTypesTest {
         values = new DoubleValue[] { new DoubleValue(4), new DoubleValue(5), new DoubleValue(1), new DoubleValue(7) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((DoubleValue[]) null));
-        assertEquals(null, MathUtils.median(new DoubleValue[0]));
+        assertNull(MathUtils.median((DoubleValue[]) null));
+        assertNull(MathUtils.median(new DoubleValue[0]));
 
         values = new DoubleValue[] { null,
                 new DoubleValue(4),
@@ -230,8 +231,8 @@ public class MathUtilsValueTypesTest {
                 new BigIntegerValue(BigInteger.valueOf(7)) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((BigIntegerValue[]) null));
-        assertEquals(null, MathUtils.median(new BigIntegerValue[0]));
+        assertNull(MathUtils.median((BigIntegerValue[]) null));
+        assertNull(MathUtils.median(new BigIntegerValue[0]));
 
         values = new BigIntegerValue[] { null,
                 new BigIntegerValue(BigInteger.valueOf(4)),
@@ -268,8 +269,8 @@ public class MathUtilsValueTypesTest {
                 new BigDecimalValue(BigDecimal.valueOf(7)) };
         assertEquals(4.5d, MathUtils.median(values), 0.1);
 
-        assertEquals(null, MathUtils.median((BigDecimalValue[]) null));
-        assertEquals(null, MathUtils.median(new BigDecimalValue[0]));
+        assertNull(MathUtils.median((BigDecimalValue[]) null));
+        assertNull(MathUtils.median(new BigDecimalValue[0]));
 
         values = new BigDecimalValue[] { null,
                 new BigDecimalValue(BigDecimal.valueOf(4)),

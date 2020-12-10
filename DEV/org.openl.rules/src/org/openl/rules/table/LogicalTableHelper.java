@@ -258,7 +258,7 @@ public class LogicalTableHelper {
         int[] columnOffset = new int[width + 1];
         int offset = 0;
 
-        for (int i = 0, cellWidth = 0; i < width; offset += cellWidth, ++i) {
+        for (int i = 0, cellWidth; i < width; offset += cellWidth, ++i) {
             columnOffset[i] = offset;
             cellWidth = gt.getCell(offset, 0).getWidth();
         }
@@ -271,7 +271,7 @@ public class LogicalTableHelper {
         int[] rowOffset = new int[height + 1];
         int offset = 0;
 
-        for (int i = 0, cellHeight = 0; i < height; offset += cellHeight, ++i) {
+        for (int i = 0, cellHeight; i < height; offset += cellHeight, ++i) {
             rowOffset[i] = offset;
             cellHeight = gt.getCell(0, offset).getHeight();
         }

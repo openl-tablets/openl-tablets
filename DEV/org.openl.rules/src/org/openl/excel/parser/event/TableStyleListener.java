@@ -150,7 +150,7 @@ public class TableStyleListener implements HSSFListener {
                 BOFRecord bof = (BOFRecord) record;
                 if (bof.getType() == BOFRecord.TYPE_WORKSHEET) {
                     if (!sheetsSorted) {
-                        Collections.sort(sheets, Comparator.comparingInt(EventSheetDescriptor::getOffset));
+                        sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
                         sheetsSorted = true;
                     }
 

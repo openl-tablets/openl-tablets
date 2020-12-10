@@ -147,6 +147,6 @@ public class JAXWSOpenLServiceEnhancerTest {
             }
         }
 
-        Assert.assertTrue("Method is not found.", i == 3);
+        Assert.assertEquals("Method is not found.", 3, i);
     }
 }

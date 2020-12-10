@@ -129,7 +129,7 @@ public class CollectionUtilsTest {
 
     @Test
     public void testMap() {
-        CollectionUtils.Mapper<Integer, String> mapper = i -> i.toString();
+        CollectionUtils.Mapper<Integer, String> mapper = Object::toString;
         assertNull("Collection is not null", CollectionUtils.map(null, mapper));
         assertArrayEquals("Returned collection is not correct",
             new String[] { "1", "2", "3" },

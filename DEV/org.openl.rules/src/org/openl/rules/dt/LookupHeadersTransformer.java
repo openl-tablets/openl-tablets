@@ -39,15 +39,15 @@ import org.openl.rules.table.IGridTable;
 public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranformer {
 
     // physical index in grid table, indicating the beginning of return section
-    private int retStartIndex = 0;
+    private int retStartIndex;
 
     // physical index in grid table, indicating the beginning of the first HC
     // column after return section
-    private int hcColumnStartAfterRet = 0;
+    private int hcColumnStartAfterRet;
 
     // physical index in grid table, indicating the first empty cell after all
     // headers
-    private int firstEmptyCell = 0;
+    private int firstEmptyCell;
 
     LookupHeadersTransformer(IGridTable entireTable,
             IGridTable lookupValuesTable,

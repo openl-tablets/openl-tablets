@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AOpenClass implements IOpenClass {
     private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
-    protected static final Map<MethodKey, IOpenMethod> STUB = Collections.unmodifiableMap(Collections.emptyMap());
+    protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
     private IOpenField indexField;
 
     protected IMetaInfo xlsMetaInfo;

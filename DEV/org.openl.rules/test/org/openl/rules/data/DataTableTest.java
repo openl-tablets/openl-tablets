@@ -33,9 +33,8 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         String[] stringData = (String[]) member.getTable().getDataArray();
-        assertTrue(stringData.length == 5);
-        List<String> dataList = new ArrayList<>();
-        dataList.addAll(Arrays.asList(stringData));
+        assertEquals(5, stringData.length);
+        List<String> dataList = new ArrayList<>(Arrays.asList(stringData));
         assertTrue(dataList.contains("StringValue1"));
         assertTrue(dataList.contains("StringValue2"));
         assertTrue(dataList.contains("StringValue3"));
@@ -51,7 +50,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getIntArray().length == 4);
+        assertEquals(4, typeWitharray[0].getIntArray().length);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(typeWitharray[0].getIntArray()[i]);
@@ -70,7 +69,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getIntArray().length == 5);
+        assertEquals(5, typeWitharray[0].getIntArray().length);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(typeWitharray[0].getIntArray()[i]);
@@ -90,7 +89,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getIntArray().length == 1);
+        assertEquals(1, typeWitharray[0].getIntArray().length);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(typeWitharray[0].getIntArray()[i]);
@@ -106,7 +105,7 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getIntArray().length == 5);
+        assertEquals(5, typeWitharray[0].getIntArray().length);
         List<Integer> dataList = new ArrayList<>();
         for (int i = 0; i < typeWitharray[0].getIntArray().length; i++) {
             dataList.add(typeWitharray[0].getIntArray()[i]);
@@ -126,9 +125,8 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getStringArray().length == 2);
-        List<String> dataList = new ArrayList<>();
-        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
+        assertEquals(2, typeWitharray[0].getStringArray().length);
+        List<String> dataList = new ArrayList<>(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("Hello Denis! My name is vova."));
         assertTrue(dataList.contains("Yeah you are right."));
     }
@@ -141,9 +139,8 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getStringArray().length == 4);
-        List<String> dataList = new ArrayList<>();
-        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
+        assertEquals(4, typeWitharray[0].getStringArray().length);
+        List<String> dataList = new ArrayList<>(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("One"));
         assertTrue(dataList.contains("two"));
         assertTrue(dataList.contains("three,continue this"));
@@ -158,9 +155,8 @@ public class DataTableTest extends BaseOpenlBuilderHelper {
         DataOpenField member = (DataOpenField) resultTsn.getMember();
         assertNotNull(member);
         TypeWithArray[] typeWitharray = (TypeWithArray[]) member.getTable().getDataArray();
-        assertTrue(typeWitharray[0].getStringArray().length == 4);
-        List<String> dataList = new ArrayList<>();
-        dataList.addAll(Arrays.asList(typeWitharray[0].getStringArray()));
+        assertEquals(4, typeWitharray[0].getStringArray().length);
+        List<String> dataList = new ArrayList<>(Arrays.asList(typeWitharray[0].getStringArray()));
         assertTrue(dataList.contains("One"));
         assertTrue(dataList.contains("two"));
         assertTrue(dataList.contains("three,continue this"));

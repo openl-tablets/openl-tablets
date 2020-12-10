@@ -19,7 +19,7 @@ public class ClassFinder {
     private final Map<String, ClassLocator> locators = new HashMap<>();
 
     public ClassFinder() {
-        this(Arrays.asList(new LoggingExceptionHandler()));
+        this(Collections.singletonList(new LoggingExceptionHandler()));
     }
 
     public ClassFinder(List<? extends LocatorExceptionHandler> handlers) {

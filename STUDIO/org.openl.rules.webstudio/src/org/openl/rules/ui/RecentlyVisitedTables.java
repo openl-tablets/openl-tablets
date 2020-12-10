@@ -33,9 +33,7 @@ public class RecentlyVisitedTables {
         VisitedTableWrapper vtw = new VisitedTableWrapper(table);
 
         synchronized (lock) {
-            if (tables.contains(vtw)) {
-                tables.remove(vtw);
-            }
+            tables.remove(vtw);
 
             if (tables.size() >= size) {
                 tables.removeLast();

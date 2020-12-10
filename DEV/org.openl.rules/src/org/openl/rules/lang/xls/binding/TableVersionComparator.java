@@ -42,7 +42,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
 
     @Override
     public int compare(ITableProperties first, ITableProperties second) {
-        Boolean firstActive = first.getActive() == null || first.getActive();
+        boolean firstActive = first.getActive() == null || first.getActive();
         Boolean secondActive = second.getActive() == null || second.getActive();
 
         if (firstActive != secondActive) {

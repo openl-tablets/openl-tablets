@@ -9,7 +9,7 @@ import org.openl.ie.constrainer.*;
 public class OverlappingCheckerImpl2 implements OverlappingChecker {
 
     private static final int MAX_OVERLOADS = 50;
-    private CDecisionTable _dt = null;
+    private CDecisionTable _dt;
 
     final List<Overlapping> overlappings = new ArrayList<>();
 

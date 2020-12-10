@@ -361,7 +361,6 @@ public class Table implements ITable {
                             ITableModel dataModel = foreignTable.getDataModel();
                             ColumnDescriptor d1 = dataModel.getDescriptors()[0];
                             if (d1.isPrimaryKey()) {
-                                foreignKeyIndex = d1.getColumnIdx();
                             } else {
                                 ColumnDescriptor firstColDescriptor = dataModel.getDescriptor(0);
                                 if (firstColDescriptor.isPrimaryKey()) {

@@ -13,7 +13,7 @@ package org.openl.ie.constrainer;
 public class TimeLimitException extends RuntimeException {
 
     private final String _msg;
-    private ChoicePointLabel _label = null;
+    private ChoicePointLabel _label;
 
     /**
      * Constructor for a TimeLimitException with a given description and label.

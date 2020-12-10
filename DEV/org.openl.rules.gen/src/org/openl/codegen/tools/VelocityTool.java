@@ -60,11 +60,7 @@ public final class VelocityTool {
 
     public String formatAccessorName(String name) {
 
-        StringBuilder builder = new StringBuilder();
-
-        builder.append(name.substring(0, 1).toUpperCase()).append(name.substring(1));
-
-        return builder.toString();
+        return name.substring(0, 1).toUpperCase() + name.substring(1);
     }
 
     public List<PropertyDescriptor> getPropertyDescriptors(Object bean) throws Exception {

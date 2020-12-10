@@ -17,13 +17,7 @@ public class ContextParameterTreeNode extends ComplexParameterTreeNode {
     protected LinkedHashMap<Object, ParameterDeclarationTreeNode> initChildrenMap() {
         LinkedHashMap<Object, ParameterDeclarationTreeNode> children = super.initChildrenMap();
 
-        Iterator<ParameterDeclarationTreeNode> iterator = children.values().iterator();
-        while (iterator.hasNext()) {
-            ParameterDeclarationTreeNode node = iterator.next();
-            if (node.getValue() == null) {
-                iterator.remove();
-            }
-        }
+        children.values().removeIf(node -> node.getValue() == null);
         return children;
     }
 }

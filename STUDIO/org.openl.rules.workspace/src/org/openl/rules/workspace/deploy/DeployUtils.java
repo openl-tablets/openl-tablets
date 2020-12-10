@@ -44,7 +44,7 @@ public final class DeployUtils {
             int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
 
             String deploymentName = deploymentFolderName;
-            Integer version = 0;
+            int version = 0;
             CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);

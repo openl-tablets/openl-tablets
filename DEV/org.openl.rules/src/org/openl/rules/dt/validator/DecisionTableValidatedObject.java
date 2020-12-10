@@ -210,7 +210,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     @Override
     public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {
-        Object result = intValue;
+        Object result;
 
         DecisionTableParamDescription pd = dtAnalyzer.getUsedParams().get(name);
 

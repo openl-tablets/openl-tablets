@@ -31,12 +31,12 @@ public class TestDomainImpl extends TestCase {
     public void setValue(int value) {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
-            assertTrue(!db.setValue(db.max() + 1));
+            assertFalse(db.setValue(db.max() + 1));
             fail("test failed due to incorrect work of TestDomainImpl.setValue(int)");
         } catch (Failure ignored) {
         }
         try {
-            assertTrue(!db.setValue(db.min() - 1));
+            assertFalse(db.setValue(db.min() - 1));
             fail("test failed due to incorrect work of TestDomainImpl.setValue(int)");
         } catch (Failure ignored) {
         }
@@ -55,7 +55,7 @@ public class TestDomainImpl extends TestCase {
         int[] badArray = { -1, -2, 12, 14, 17, 18, 23, 24, 25, -34, 11 };
         for (int i = 0; i < goodArray.length; i++) {
             assertTrue(_probeDomainImpl.contains(goodArray[i]));
-            assertTrue(!_probeDomainImpl.contains(badArray[i]));
+            assertFalse(_probeDomainImpl.contains(badArray[i]));
         }
     }
 
@@ -90,7 +90,7 @@ public class TestDomainImpl extends TestCase {
 
         // intersection of range to be removed and the domain is an empty set
         try {
-            assertTrue(!di.removeRange(start_min - 3, start_min - 1)); // nothing
+            assertFalse(di.removeRange(start_min - 3, start_min - 1)); // nothing
             // is to
             // be
             // done
@@ -141,7 +141,7 @@ public class TestDomainImpl extends TestCase {
         // include
         // neither left nor right end of the domain
         try {
-            assertTrue(!di.removeRange(newmin + 1, newmax - 1)); // nothing
+            assertFalse(di.removeRange(newmin + 1, newmax - 1)); // nothing
             // is to be
             // done
             assertEquals(newmin, di.min());// hasn't changed
@@ -164,7 +164,7 @@ public class TestDomainImpl extends TestCase {
             } catch (Throwable ex) {
                 fail("Unexpected exception has been thrown");
             }
-            assertTrue(!db.contains(start_min + i));
+            assertFalse(db.contains(start_min + i));
             assertEquals(start_size - i - 1, db.size());
             assertEquals(db.min(), start_min + i + 1);
         }
@@ -180,7 +180,7 @@ public class TestDomainImpl extends TestCase {
     public void testSetMax() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
-            assertTrue(!db.setMax(_var.max() + 1));
+            assertFalse(db.setMax(_var.max() + 1));
         } catch (Failure f) {
             fail("test failed.");
         }
@@ -206,7 +206,7 @@ public class TestDomainImpl extends TestCase {
     public void testSetMin() {
         DomainBits db = new DomainBits(_var, _var.min(), _var.max());
         try {
-            assertTrue(!db.setMin(_var.min() - 1));
+            assertFalse(db.setMin(_var.min() - 1));
         } catch (Failure f) {
             fail("test failed.");
         }

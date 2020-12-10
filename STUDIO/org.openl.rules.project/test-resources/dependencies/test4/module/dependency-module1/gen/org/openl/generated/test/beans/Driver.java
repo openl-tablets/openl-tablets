@@ -88,28 +88,7 @@ public class Driver {
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Driver {");
-        builder.append(" name=");
-        builder.append(getName());
-        builder.append(" gender=");
-        builder.append(getGender());
-        builder.append(" age=");
-        builder.append(getAge());
-        builder.append(" maritalStatus=");
-        builder.append(getMaritalStatus());
-        builder.append(" state=");
-        builder.append(getState());
-        builder.append(" numAccidents=");
-        builder.append(getNumAccidents());
-        builder.append(" numMovingViolations=");
-        builder.append(getNumMovingViolations());
-        builder.append(" numDUI=");
-        builder.append(getNumDUI());
-        builder.append(" hadTraining=");
-        builder.append(getHadTraining());
-        builder.append(" }");
-        return builder.toString();
+        return "Driver {" + " name=" + getName() + " gender=" + getGender() + " age=" + getAge() + " maritalStatus=" + getMaritalStatus() + " state=" + getState() + " numAccidents=" + getNumAccidents() + " numMovingViolations=" + getNumMovingViolations() + " numDUI=" + getNumDUI() + " hadTraining=" + getHadTraining() + " }";
     }
 
     public java.lang.String getState() {

@@ -43,7 +43,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertNotNull(tableProperties);
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
-            assertTrue(categoryProperties.size() == 5);
+            assertEquals(5, categoryProperties.size());
             // check that we have all properties from category level
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), categoryProperties.get("scope"));
             assertEquals("My Category", categoryProperties.get("category"));
@@ -55,9 +55,9 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties",
                 9,
                 allProperties.size());
-            assertTrue(
-                "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
-                !allProperties.containsKey("scope"));
+            assertFalse(
+                    "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
+                    allProperties.containsKey("scope"));
 
         } else {
             fail();

@@ -134,7 +134,7 @@ public final class BindHelper {
 
     public static void checkOnDeprecation(ISyntaxNode node, IBindingContext context, IOpenClass aClass) {
         if (aClass instanceof JavaOpenClass) {
-            Class<?> javaClass = ((JavaOpenClass) aClass).getInstanceClass();
+            Class<?> javaClass = aClass.getInstanceClass();
             if (javaClass.isAnnotationPresent(Deprecated.class)) {
                 String msg = String.format("DEPRECATED '%s' class will be removed in the next version.",
                     javaClass.getTypeName());

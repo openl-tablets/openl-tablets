@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -41,10 +42,10 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
 
     @Test
     public void testEquals() {
-        assertTrue(new TableSyntaxNodeKey(driverAgeTypeTables.get(0))
-            .equals(new TableSyntaxNodeKey(driverAgeTypeTables.get(1))));
-        assertTrue(!new TableSyntaxNodeKey(driverEligibilityTables.get(0))
-            .equals(new TableSyntaxNodeKey(driverEligibilityTables.get(1))));
+        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)),
+                new TableSyntaxNodeKey(driverAgeTypeTables.get(1)));
+        assertFalse(new TableSyntaxNodeKey(driverEligibilityTables.get(0)).equals(new TableSyntaxNodeKey(
+                driverEligibilityTables.get(1))));
 
     }
 

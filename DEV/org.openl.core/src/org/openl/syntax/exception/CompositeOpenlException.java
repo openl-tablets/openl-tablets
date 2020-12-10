@@ -71,7 +71,7 @@ public class CompositeOpenlException extends RuntimeException {
 
         printWriter.close();
 
-        return new StringBuilder().append(superMessage).append(stringWriter.toString()).toString();
+        return superMessage + stringWriter.toString();
     }
 
     public OpenLMessage[] getErrorMessages() {

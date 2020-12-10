@@ -49,8 +49,8 @@ public class RangeSelector implements IIntSelector {
 
         condition.loadValues(realParams, 0, ruleN, target, this.params, env);
 
-        Comparable<Object> vFrom = null;
-        Comparable<Object> vTo = null;
+        Comparable<Object> vFrom;
+        Comparable<Object> vTo;
 
         if (adaptor == null) {
             vFrom = (Comparable<Object>) realParams[0];

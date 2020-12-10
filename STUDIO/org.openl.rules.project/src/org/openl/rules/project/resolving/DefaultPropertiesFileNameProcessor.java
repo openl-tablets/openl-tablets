@@ -121,7 +121,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
                 }
                 final String[] propertyGroup = multyPropertyNames.split(",");
                 Class<?> returnType = null;
-                String pattern = null;
+                String pattern;
                 StringBuilder finalPattern = null;
                 for (String propertyName : propertyGroup) {
                     if (!TablePropertyDefinitionUtils.isPropertyExist(propertyName)) {

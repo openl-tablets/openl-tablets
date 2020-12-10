@@ -87,7 +87,7 @@ public class DimensionPropertiesValidator extends TablesValidator {
     private DecisionTableValidationResult validate(TableSyntaxNode tsn,
             Map<String, IDomainAdaptor> propertiesDomains,
             IOpenClass openClass) {
-        DecisionTableValidationResult tableValidationResult = null;
+        DecisionTableValidationResult tableValidationResult;
         try {
             tableValidationResult = DecisionTableValidator
                 .validateTable((IDecisionTable) tsn.getMember(), propertiesDomains, openClass);

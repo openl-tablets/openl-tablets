@@ -229,7 +229,7 @@ public class PropertiesLoader {
             ITableProperties externalProperties = (ITableProperties) externalParams.get(EXTERNAL_MODULE_PROPERTIES_KEY);
             if (moduleProperties != null) {
                 for (String key : externalProperties.getAllProperties().keySet()) {
-                    if (moduleProperties.getAllProperties().keySet().contains(key)) {
+                    if (moduleProperties.getAllProperties().containsKey(key)) {
                         bindingContext.addMessage(OpenLMessagesUtils.newErrorMessage(
                             String.format("Property '%s' is already defined via external properties.", key)));
                     }

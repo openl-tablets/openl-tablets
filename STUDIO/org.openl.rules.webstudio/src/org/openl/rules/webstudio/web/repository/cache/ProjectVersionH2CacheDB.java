@@ -256,7 +256,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public void closeDb() throws IOException {
-        Connection connection = null;
+        Connection connection;
         try {
             connection = getDBConnection();
             connection.createStatement().execute("SHUTDOWN");

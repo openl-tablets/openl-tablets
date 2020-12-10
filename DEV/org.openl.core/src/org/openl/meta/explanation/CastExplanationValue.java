@@ -2,6 +2,7 @@ package org.openl.meta.explanation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 
 import org.openl.meta.number.CastOperand;
 
@@ -25,7 +26,7 @@ public class CastExplanationValue extends SingleValueExplanation {
 
     @Override
     public Collection<ExplanationNumberValue<?>> getChildren() {
-        return Arrays.asList(value);
+        return Collections.singletonList(value);
     }
 
     @Override

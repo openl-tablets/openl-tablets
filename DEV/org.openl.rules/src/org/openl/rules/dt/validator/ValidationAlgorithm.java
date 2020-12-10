@@ -50,7 +50,7 @@ public class ValidationAlgorithm {
         IDecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(decisionTable);
 
-        DecisionTableValidationResult result = null;
+        DecisionTableValidationResult result;
 
         if (canValidateDecisionTable(decisionTable, analyzer)) {
             int n = decisionTable.getNumberOfConditions();
@@ -211,7 +211,7 @@ public class ValidationAlgorithm {
 
         parameters.addAll(getTransformedLocalParams(paramDeclarations));
 
-        return new MethodSignature(parameters.toArray(new IParameterDeclaration[0]));
+        return new MethodSignature(parameters.toArray(IParameterDeclaration.EMPTY));
     }
 
     @SuppressWarnings("deprecation")
