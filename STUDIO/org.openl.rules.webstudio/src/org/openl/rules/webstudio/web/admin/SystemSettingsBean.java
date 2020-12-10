@@ -246,6 +246,12 @@ public class SystemSettingsBean {
             deployConfigRepositoryConfiguration.commit();
         }
 
+        //Temporary solution. Made so that when saving settings, if there were no changes, active users are still logged out.
+        //This is necessary to reset some parameters such as: information about blocking authentication attempts in git,
+        //when the maximum number of attempts is exceeded.
+        //Should be removed after the ticket EPBDS-10431 is closed
+        properties.setProperty("last.update.time", System.currentTimeMillis());
+
         DynamicPropertySource.get().save(properties.getConfig());
 
         refreshConfig();
