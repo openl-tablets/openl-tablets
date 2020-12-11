@@ -44,7 +44,7 @@ public class UsersBean {
     public static final String VALIDATION_EMPTY = "Cannot be empty";
     public static final String VALIDATION_MAX = "Must be less than 25";
     public static final String VALIDATION_USERNAME_CHARACTERS = "The name must not contain the following characters: / \\ : * ? \" < > | { } ~ ^";
-    public static final String VALIDATION_USERNAME_BEGIN_END = "The name should not end or begin with '.'.";
+    public static final String VALIDATION_USERNAME_BEGIN_END = "The name should not end or begin with '.' or a whitespace.";
     public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.'.";
 
     static {}
@@ -61,7 +61,7 @@ public class UsersBean {
     @Size(max = 25, message = VALIDATION_MAX)
     @Pattern.List({
             @Pattern(regexp = "(.(?<![.]{2}))+", message = VALIDATION_USERNAME_CONSECUTIVE),
-            @Pattern(regexp = "^[^.].*[^.]", message = VALIDATION_USERNAME_BEGIN_END),
+            @Pattern(regexp = "^[^.\\s].*[^.\\s]", message = VALIDATION_USERNAME_BEGIN_END),
             @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = VALIDATION_USERNAME_CHARACTERS),
     })
     private String username;
