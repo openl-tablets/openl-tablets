@@ -1,9 +1,6 @@
 package org.openl.spring.env;
 
-import java.time.Instant;
-import java.time.ZonedDateTime;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.info.OpenLVersion;
 import org.openl.util.StringUtils;
@@ -16,13 +13,7 @@ public class SysInfoPropertySource extends EnumerablePropertySource<Map<String, 
     public static final String PROPS_NAME = "OpenL Info";
 
     SysInfoPropertySource() {
-        super(PROPS_NAME, new ConcurrentHashMap<>());
-        source.put("openl.site", OpenLVersion.getUrl());
-        source.put("openl.version", OpenLVersion.getVersion());
-        source.put("openl.build.date", OpenLVersion.getBuildDate());
-        source.put("openl.build.number", OpenLVersion.getBuildNumber());
-        source.put("openl.start.time", ZonedDateTime.now().toString());
-        source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
+        super(PROPS_NAME, OpenLVersion.get());
     }
 
     @Override
