@@ -87,8 +87,8 @@ public class GitRepositorySettings extends RepositorySettings {
         connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
         settingsPath = properties.getProperty(SETTINGS_PATH);
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
-        failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("default.failed-authentication-seconds")));
-        String authsAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("default.max-authentication-attempts"));
+        failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("repo-git.failed-authentication-seconds")));
+        String authsAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("repo-git.max-authentication-attempts"));
         if(StringUtils.isNotBlank(authsAttempts)){
             maxAuthenticationAttempts = Integer.parseInt(authsAttempts);
         }
