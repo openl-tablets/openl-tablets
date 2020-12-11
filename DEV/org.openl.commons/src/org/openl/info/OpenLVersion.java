@@ -1,6 +1,11 @@
 package org.openl.info;
 
 import java.io.InputStream;
+import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import org.openl.util.IOUtils;
@@ -19,6 +24,7 @@ public final class OpenLVersion {
     private static String version;
     private static String buildDate;
     private static String buildNumber;
+    public static Map<String, String> info;
 
     static {
         Properties props = new Properties();
@@ -38,6 +44,15 @@ public final class OpenLVersion {
         version = props.getProperty("openl.version", "???");
         buildDate = props.getProperty("openl.build.date", "????-??-??");
         buildNumber = props.getProperty("openl.commit.hash", "????");
+
+        HashMap<String, String> source = new HashMap<>(6);
+        source.put("openl.site", OpenLVersion.getUrl());
+        source.put("openl.version", OpenLVersion.getVersion());
+        source.put("openl.build.date", OpenLVersion.getBuildDate());
+        source.put("openl.build.number", OpenLVersion.getBuildNumber());
+        source.put("openl.start.time", ZonedDateTime.now().toString());
+        source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
+        info = Collections.unmodifiableMap(source);
     }
 
     public static String getUrl() {
@@ -56,4 +71,7 @@ public final class OpenLVersion {
         return buildNumber;
     }
 
+    public static Map<String, String> get() {
+        return info;
+    }
 }
