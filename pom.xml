@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.23.9-SNAPSHOT</version>
+    <version>5.23.9</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -69,7 +69,7 @@
         <connection>scm:hg:${staging.hg.repo.url}</connection>
         <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
         <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
-        <tag>HEAD</tag>
+        <tag>release-5.23.9</tag>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -223,7 +223,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
-                            <openl.config.location/>
+                            <openl.config.location />
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
