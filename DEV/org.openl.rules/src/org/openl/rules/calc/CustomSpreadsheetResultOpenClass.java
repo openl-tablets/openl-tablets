@@ -341,21 +341,27 @@ public class CustomSpreadsheetResultOpenClass extends ADynamicClass implements M
                 type = type.getComponentClass();
                 dim++;
             }
+            IOpenClass t = null;
             if (type instanceof SpreadsheetResultOpenClass) {
-                IOpenClass t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+                t = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            } else if (type instanceof ModuleSpecificType) {
+                t = module.findType(type.getName());
+            }
+            if (t != null) {
+                IOpenClass declaringClass = openField.getDeclaringClass();
+                if (declaringClass instanceof SpreadsheetResultOpenClass) {
+                    declaringClass = module.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+                } else if (declaringClass instanceof ModuleSpecificType) {
+                    declaringClass = module.findType(declaringClass.getName());
+                }
                 if (dim > 0) {
                     t = t.getArrayType(dim);
                 }
-                fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
-            } else if (type instanceof ModuleSpecificType) {
-                IOpenClass openClass = module.findType(type.getName());
-                if (openClass != null) {
-                    IOpenClass t = openClass;
-                    if (dim > 0) {
-                        t = t.getArrayType(dim);
-                    }
-                    fieldMap().put(fieldName, new CustomSpreadsheetResultField(module, fieldName, t));
-                }
+                fieldMap().put(fieldName,
+                    new CustomSpreadsheetResultField(
+                        declaringClass != null ? declaringClass : openField.getDeclaringClass(),
+                        fieldName,
+                        t));
             }
         }
     }

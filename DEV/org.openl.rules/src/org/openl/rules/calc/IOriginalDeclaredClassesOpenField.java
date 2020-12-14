@@ -4,6 +4,6 @@ import org.openl.types.IOpenClass;
 
 public interface IOriginalDeclaredClassesOpenField {
 
-    IOpenClass[] getDeclaredClasses();
+    IOpenClass[] getDeclaringClasses();
 
 }
