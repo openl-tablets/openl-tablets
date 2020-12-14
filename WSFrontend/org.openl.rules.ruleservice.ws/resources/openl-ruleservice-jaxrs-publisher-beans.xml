@@ -2,6 +2,12 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean id="swaggerObjectMapperConfiguration"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperConfigurationBean"/>
+
+    <bean id="jaxrsOpenApiObjectMapperConfiguration"
+          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationBean"/>
+
     <bean id="jaxrsServicesLoggingFeature" class="org.openl.rules.ruleservice.storelogdata.LoggingFeature">
         <property name="loggingEnabled" value="${ruleservice.logging.enabled}"/>
     </bean>
@@ -49,7 +55,8 @@
     </bean>
 
     <bean id="jaxrsSchemaDatabindingFactoryBeanParent"
-          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" abstract="true">
+          class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean" abstract="true"
+          depends-on="swaggerObjectMapperConfiguration,jaxrsOpenApiObjectMapperConfiguration">
         <property name="defaultTypingMode" ref="jaxrsServiceConfigurationDefaultTypingModeFactoryBean"/>
         <property name="overrideTypes" ref="serviceConfigurationRootClassNamesBindingFactoryBean"/>
         <property name="supportVariations" ref="serviceConfigurationSupportVariationsFactoryBean"/>
@@ -97,34 +104,25 @@
     </bean>
 
     <bean id="jaxrsSwaggerObjectMapper"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperConfigurationFactoryBean"
-          scope="prototype">
-        <property name="objectMapper">
-            <bean class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean">
-                <property name="jacksonObjectMapperFactoryBean">
-                    <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
-                          parent="jaxrsSchemaDatabindingFactoryBeanParent">
-                        <property name="objectMapperFactory">
-                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
-                        </property>
-                    </bean>
+          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="jacksonObjectMapperFactoryBean">
+            <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+                  parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                <property name="objectMapperFactory">
+                    <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.SwaggerObjectMapperFactory"/>
                 </property>
             </bean>
         </property>
     </bean>
 
+
     <bean id="jaxrsOpenApiObjectMapper"
-          class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperConfigurationFactoryBean"
-          scope="prototype">
-        <property name="objectMapper">
-            <bean class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean">
-                <property name="jacksonObjectMapperFactoryBean">
-                    <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
-                          parent="jaxrsSchemaDatabindingFactoryBeanParent">
-                        <property name="objectMapperFactory">
-                            <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
-                        </property>
-                    </bean>
+          class="org.openl.rules.ruleservice.databinding.OpenLServiceObjectMapperEnhancerFactoryBean" scope="prototype">
+        <property name="jacksonObjectMapperFactoryBean">
+            <bean class="org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean"
+                  parent="jaxrsSchemaDatabindingFactoryBeanParent">
+                <property name="objectMapperFactory">
+                    <bean class="org.openl.rules.ruleservice.publish.jaxrs.swagger.jackson.OpenApiObjectMapperFactory"/>
                 </property>
             </bean>
         </property>

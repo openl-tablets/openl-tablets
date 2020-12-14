@@ -93,7 +93,7 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
                                     mergedField = new CastingCustomSpreadsheetResultField(
                                         customSpreadsheetResultOpenClass,
                                         fieldName,
-                                        (CustomSpreadsheetResultField) f,
+                                        f,
                                         mergedField);
                                 }
                             }
