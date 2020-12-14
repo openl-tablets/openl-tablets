@@ -20,7 +20,7 @@ public class TypeDescription {
      * @param typeName type name
      * @throws NullPointerException if type name is null
      */
-    public TypeDescription(String typeName) {
+    TypeDescription(String typeName) {
         this(typeName, AnnotationDescription.EMPTY_ANNOTATIONS);
     }
 
@@ -31,7 +31,7 @@ public class TypeDescription {
      * @param annotations type annotations
      * @throws NullPointerException if type name is null
      */
-    public TypeDescription(String typeName, AnnotationDescription[] annotations) {
+    TypeDescription(String typeName, AnnotationDescription[] annotations) {
         this.typeName = Objects.requireNonNull(typeName, "Type name is null.");
         switch (typeName) {
             case "byte":

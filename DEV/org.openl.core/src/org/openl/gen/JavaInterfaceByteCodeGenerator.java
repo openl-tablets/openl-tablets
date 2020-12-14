@@ -12,7 +12,7 @@ import org.openl.gen.writers.ChainedBeanByteCodeWriter;
  *
  * @author Vladyslav Pikus
  */
-public class JavaInterfaceGenerator {
+class JavaInterfaceByteCodeGenerator {
 
     static final String DEFAULT_PACKAGE = "org.openl.generated.";
 
@@ -25,7 +25,7 @@ public class JavaInterfaceGenerator {
      * @param nameWithPackage interface java name with package
      * @param methods method descriptions to generate
      */
-    public JavaInterfaceGenerator(String nameWithPackage, List<MethodDescription> methods) {
+    JavaInterfaceByteCodeGenerator(String nameWithPackage, List<MethodDescription> methods) {
         this.nameWithPackage = nameWithPackage.replace('.', '/');
         if (methods != null) {
             ChainedBeanByteCodeWriter writerChain = null;

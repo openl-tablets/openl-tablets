@@ -21,23 +21,23 @@ import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 import org.openl.util.ClassUtils;
 
-public class JavaInterfaceGeneratorTest {
+public class JavaInterfaceByteCodeGeneratorTest {
 
     private static final Class<?>[] NO_ARGS = new Class<?>[0];
 
     @Test
     public void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
-        final String expectedName = JavaInterfaceGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
-        JavaInterfaceGenerator generator = new JavaInterfaceGenerator(expectedName, Collections.emptyList());
+        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
+        JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName, Collections.emptyList());
         Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
         assertInterfaceDescription(expectedName, interfaceClass);
     }
 
     @Test
     public void testGenerateWithMethods() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
-        final String expectedName = JavaInterfaceGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
+        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[]{Object.class, int.class, Date.class};
-        final JavaInterfaceGenerator generator = new JavaInterfaceGenerator(expectedName, Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
+        final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName, Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
                 new MethodDescription("doSomething2", int.class, args2),
                 new MethodDescription("doSomething3", void.class, NO_ARGS)));
 
@@ -54,10 +54,10 @@ public class JavaInterfaceGeneratorTest {
 
     @Test
     public void testGenerateWithMethodsAndAnnotations() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
-        final String expectedName = JavaInterfaceGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
-        final JavaInterfaceGenerator generator = new JavaInterfaceGenerator(expectedName, Collections.singletonList(
-                new MethodDescription("doSomething", Object.class, toArray(new TypeDescription(Object.class.getName()),
+        final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName, Collections.singletonList(
+                new MethodDescription("doSomething", Object.class.getName(), toArray(new TypeDescription(Object.class.getName()),
                         new TypeDescription(Object.class.getName(),
                                 toArray(new AnnotationDescription(MyAnnotation.class, null),
                                         new AnnotationDescription(MyAnnotation2.class,
@@ -71,6 +71,55 @@ public class JavaInterfaceGeneratorTest {
                         ))));
 
         final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        assertInterfaceDescription(expectedName, interfaceClass);
+
+        assertEquals(1, interfaceClass.getDeclaredMethods().length);
+        final Method method = interfaceClass.getMethod("doSomething", args2);
+
+        assertEquals(3, method.getAnnotations().length);
+        assertNotNull(method.getAnnotation(MyAnnotation.class));
+
+        MyAnnotation2 annotation2 = method.getAnnotation(MyAnnotation2.class);
+        assertEquals("foo", annotation2.value());
+        assertEquals("", annotation2.field());
+
+        MyAnnotation3 annotation3 = method.getAnnotation(MyAnnotation3.class);
+        assertEquals("foo", annotation3.value());
+        assertEquals("bar", annotation3.field());
+
+        assertEquals(0, method.getParameters()[0].getAnnotations().length);
+        assertEquals(2, method.getParameters()[1].getAnnotations().length);
+        assertNotNull(method.getParameters()[1].getAnnotation(MyAnnotation.class));
+
+        MyAnnotation2 paramAnno2 = method.getParameters()[1].getAnnotation(MyAnnotation2.class);
+        assertEquals("foo", paramAnno2.value());
+        assertEquals("", paramAnno2.field());
+    }
+
+    @Test
+    public void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
+        final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
+        final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
+        final byte[] byteCode = JavaInterfaceByteCodeBuilder.createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+                .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation2.class)
+                                .withProperty("value", "foo")
+                                .build())
+                        .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation3.class)
+                                .withProperty("value", "foo")
+                                .withProperty("field", "bar")
+                                .build())
+                        .addParameter(MethodParameterBuilder.create(Object.class).build())
+                        .addParameter(MethodParameterBuilder.create(Object.class)
+                                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
+                                .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation2.class)
+                                        .withProperty("value", "foo").build())
+                                .build())
+                        .build())
+                .buildAndGetByteCode();
+
+        final Class<?> interfaceClass = defineClass(expectedName, byteCode);
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);

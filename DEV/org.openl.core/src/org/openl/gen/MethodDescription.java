@@ -41,7 +41,7 @@ public class MethodDescription {
      * @throws NullPointerException if method name or return type is null
      */
     public MethodDescription(String name, Class<?> returnType, Class<?>[] argsTypes, AnnotationDescription[] annotations) {
-        this(name, returnType,
+        this(name, returnType.getName(),
                 Stream.of(argsTypes)
                         .map(Class::getName)
                         .map(TypeDescription::new)
@@ -58,10 +58,10 @@ public class MethodDescription {
      * @param annotations method annotation descriptions
      * @throws NullPointerException if method name or return type is null
      */
-    public MethodDescription(String name, Class<?> returnType, TypeDescription[] argsTypes, AnnotationDescription[] annotations) {
+    public MethodDescription(String name, String returnType, TypeDescription[] argsTypes, AnnotationDescription[] annotations) {
         Objects.requireNonNull(returnType, "Method return type is null.");
         this.name = Objects.requireNonNull(name, "Method name is null.");
-        this.returnType = new TypeDescription(returnType.getName());
+        this.returnType = new TypeDescription(returnType);
         this.argsTypes = Optional.ofNullable(argsTypes).orElse(NO_ARGS);
         this.annotations = Optional.ofNullable(annotations).orElse(AnnotationDescription.EMPTY_ANNOTATIONS);
     }

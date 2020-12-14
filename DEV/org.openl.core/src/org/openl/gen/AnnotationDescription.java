@@ -10,7 +10,7 @@ import java.util.Optional;
  */
 public class AnnotationDescription {
 
-    private static final AnnotationProperty[] EMPTY_PROPS = new AnnotationProperty[0];
+    static final AnnotationProperty[] EMPTY_PROPS = new AnnotationProperty[0];
     static final AnnotationDescription[] EMPTY_ANNOTATIONS = new AnnotationDescription[0];
 
     private final TypeDescription annotationType;
@@ -23,9 +23,13 @@ public class AnnotationDescription {
      * @param properties annotation properties
      * @throws NullPointerException if {@code annotationType} is {@code null}
      */
-    public AnnotationDescription(Class<?> annotationType, AnnotationProperty[] properties) {
+    AnnotationDescription(Class<?> annotationType, AnnotationProperty[] properties) {
+        this(annotationType.getName(), properties);
+    }
+
+    AnnotationDescription(String annotationType, AnnotationProperty[] properties) {
         Objects.requireNonNull(annotationType, "Annotation type is null.");
-        this.annotationType = new TypeDescription(annotationType.getName());
+        this.annotationType = new TypeDescription(annotationType);
         this.properties = Optional.ofNullable(properties).orElse(EMPTY_PROPS);
     }
 
@@ -64,7 +68,7 @@ public class AnnotationDescription {
          * @param value property value
          * @throws NullPointerException if any argument is {@code null}
          */
-        public AnnotationProperty(String name, Object value) {
+        AnnotationProperty(String name, Object value) {
             this.name = Objects.requireNonNull(name, "Annotation property name is null.");
             this.value = Objects.requireNonNull(value, "Annotation property value is null.");
         }

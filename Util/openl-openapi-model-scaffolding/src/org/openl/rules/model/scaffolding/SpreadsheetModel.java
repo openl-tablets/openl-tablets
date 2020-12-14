@@ -1,8 +1,10 @@
 package org.openl.rules.model.scaffolding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public class SpreadsheetModel implements Model {
 
@@ -29,7 +31,7 @@ public class SpreadsheetModel implements Model {
     }
 
     public void setParameters(List<InputParameter> parameters) {
-        this.parameters = parameters;
+        this.parameters = Optional.ofNullable(parameters).orElseGet(Collections::emptyList);
     }
 
     public String getType() {
