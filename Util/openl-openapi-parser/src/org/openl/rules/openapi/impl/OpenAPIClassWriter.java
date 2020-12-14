@@ -41,7 +41,7 @@ public class OpenAPIClassWriter {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
                 .createWithDefaultPackage("OpenAPIService");
         writeOpenAPIInterfaceMethods(projectModel.getSpreadsheetResultModels(), javaInterfaceBuilder);
-        byteCode = javaInterfaceBuilder.buildAndGetByteCode();
+        byteCode = javaInterfaceBuilder.build().byteCode();
     }
 
     byte[] getByteCode() {

@@ -7,6 +7,8 @@ import java.util.List;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 
 /**
+ * Annotation Description Builder
+ *
  * @author Vladyslav Pikus
  */
 public class AnnotationDescriptionBuilder {
@@ -20,19 +22,42 @@ public class AnnotationDescriptionBuilder {
         this.annotationType = annotationType;
     }
 
+    /**
+     * Add annotation property
+     *
+     * @param propertyName property name
+     * @param propertyValue property value
+     * @return {@link this}
+     */
     public AnnotationDescriptionBuilder withProperty(String propertyName, Object propertyValue) {
         properties.add(new AnnotationProperty(propertyName, propertyValue));
         return this;
     }
 
+    /**
+     * Build {@link AnnotationDescription} object
+     * @return instance of {@link AnnotationDescription}
+     */
     public AnnotationDescription build() {
         return new AnnotationDescription(annotationType, properties.toArray(AnnotationDescription.EMPTY_PROPS));
     }
 
+    /**
+     * Create annotation builder from {@link Class} type
+     *
+     * @param annotationType annotation type
+     * @return annotation builder
+     */
     public static AnnotationDescriptionBuilder create(Class<? extends Annotation> annotationType) {
         return new AnnotationDescriptionBuilder(annotationType.getName());
     }
 
+    /**
+     * Create annotation builder from custom type
+     *
+     * @param annotationType annotation type
+     * @return annotation builder
+     */
     public static AnnotationDescriptionBuilder create(String annotationType) {
         return new AnnotationDescriptionBuilder(annotationType);
     }

@@ -12,7 +12,7 @@ import org.openl.gen.writers.ChainedBeanByteCodeWriter;
  *
  * @author Vladyslav Pikus
  */
-class JavaInterfaceByteCodeGenerator {
+public class JavaInterfaceByteCodeGenerator {
 
     static final String DEFAULT_PACKAGE = "org.openl.generated.";
 

@@ -100,7 +100,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     public void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException, NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[]{Object.class, Object.class};
-        final byte[] byteCode = JavaInterfaceByteCodeBuilder.createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
+        final JavaInterfaceByteCodeGenerator generator = JavaInterfaceByteCodeBuilder.createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
                 .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
                         .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation2.class)
@@ -117,9 +117,9 @@ public class JavaInterfaceByteCodeGeneratorTest {
                                         .withProperty("value", "foo").build())
                                 .build())
                         .build())
-                .buildAndGetByteCode();
+                .build();
 
-        final Class<?> interfaceClass = defineClass(expectedName, byteCode);
+        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
