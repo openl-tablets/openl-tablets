@@ -20,7 +20,7 @@ public class TypeDescription {
      * @param typeName type name
      * @throws NullPointerException if type name is null
      */
-    TypeDescription(String typeName) {
+    public TypeDescription(String typeName) {
         this(typeName, AnnotationDescription.EMPTY_ANNOTATIONS);
     }
 
