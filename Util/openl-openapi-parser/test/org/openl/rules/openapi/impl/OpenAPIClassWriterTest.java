@@ -27,7 +27,8 @@ public class OpenAPIClassWriterTest {
 
     }
 
-    private static Class<?> defineClass(String name, byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
+    private static Class<?> defineClass(String name,
+            byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             ClassLoader newClassLoader = new OpenLBundleClassLoader(oldClassLoader);

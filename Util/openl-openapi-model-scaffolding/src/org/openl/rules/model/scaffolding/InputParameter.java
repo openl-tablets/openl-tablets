@@ -4,5 +4,5 @@ public interface InputParameter {
 
     String getName();
 
-    String getType();
+    TypeInfo getType();
 }

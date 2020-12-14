@@ -201,7 +201,7 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(apiTodo.isPresent());
         InputParameter inputParameter = apiTodo.get().getParameters().iterator().next();
-        assertEquals("AnotherDatatype", inputParameter.getType());
+        assertEquals("AnotherDatatype", inputParameter.getType().getSimpleName());
         assertEquals("anotherDatatype", inputParameter.getName());
     }
 

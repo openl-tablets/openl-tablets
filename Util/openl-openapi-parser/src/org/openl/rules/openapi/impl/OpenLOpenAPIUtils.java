@@ -3,6 +3,7 @@ package org.openl.rules.openapi.impl;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -20,6 +21,7 @@ import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -579,16 +581,19 @@ public class OpenLOpenAPIUtils {
             }
         }
         if (parameterModels.size() > MAX_PARAMETERS_COUNT) {
-            DatatypeModel dt = new DatatypeModel(getDataTypeName(path));
+            String dataTypeName = getDataTypeName(path);
+            DatatypeModel dt = new DatatypeModel(dataTypeName);
             List<FieldModel> fields = new ArrayList<>();
             for (InputParameter parameterModel : parameterModels) {
-                FieldModel fm = new FieldModel(parameterModel.getName(), parameterModel.getType(), null);
+                FieldModel fm = new FieldModel(parameterModel.getName(),
+                    parameterModel.getType().getSimpleName(),
+                    null);
                 fields.add(fm);
             }
             dt.setFields(fields);
             dts.add(dt);
-            parameterModels = Collections
-                .singletonList(new ParameterModel(dt.getName(), StringUtils.uncapitalize(dt.getName())));
+            parameterModels = Collections.singletonList(
+                new ParameterModel(new TypeInfo(dataTypeName, true), StringUtils.uncapitalize(dt.getName())));
         }
         return parameterModels;
     }
@@ -644,8 +649,9 @@ public class OpenLOpenAPIUtils {
                     int propertiesCount = properties.size();
                     if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
                         String name = OpenAPITypeUtils.getSimpleName(ref);
+                        String capitalizedName = StringUtils.capitalize(name);
                         parameterModels = new ArrayList<>(Collections.singletonList(
-                            new ParameterModel(StringUtils.capitalize(name), StringUtils.uncapitalize(name))));
+                            new ParameterModel(new TypeInfo(capitalizedName, true), StringUtils.uncapitalize(name))));
                         refsToExpand.remove(ref);
                     } else {
                         parameterModels = properties.entrySet()
@@ -656,7 +662,8 @@ public class OpenLOpenAPIUtils {
                 }
             } else {
                 // non expandable
-                String type = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(), false);
+                TypeInfo typeInfo = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(), false);
+                String type = typeInfo.getSimpleName();
                 if (StringUtils.isBlank(type)) {
                     parameterModels = Collections.emptyList();
                 } else {
@@ -667,10 +674,10 @@ public class OpenLOpenAPIUtils {
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
                         parameter += "Param";
                     } else {
-                        type = StringUtils.capitalize(type);
+                        typeInfo.setSimpleName(StringUtils.capitalize(type));
                     }
                     parameterModels = new ArrayList<>(
-                        Collections.singletonList(new ParameterModel(type, StringUtils.uncapitalize(parameter))));
+                        Collections.singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter)))));
                 }
             }
         }
@@ -680,7 +687,7 @@ public class OpenLOpenAPIUtils {
     public static ParameterModel extractParameter(Map.Entry<String, Schema> property) {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
-        String typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
+        TypeInfo typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
         return new ParameterModel(typeModel, normalizeName(propertyName));
     }
 

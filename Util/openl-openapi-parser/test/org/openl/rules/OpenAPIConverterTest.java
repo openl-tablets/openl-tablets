@@ -78,7 +78,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("RequestModel", param.getType());
+        assertEquals("RequestModel", param.getType().getSimpleName());
     }
 
     @Test
@@ -94,7 +94,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = sprResult.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("RequestModel", param.getType());
+        assertEquals("RequestModel", param.getType().getSimpleName());
     }
 
     @Test
@@ -153,7 +153,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = sprModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter ip = parameters.iterator().next();
-        assertEquals("Body", ip.getType());
+        assertEquals("Body", ip.getType().getSimpleName());
     }
 
     @Test
@@ -242,7 +242,7 @@ public class OpenAPIConverterTest {
         assertEquals(1, parameters.size());
         InputParameter integerParam = parameters.iterator().next();
         assertEquals("integer", integerParam.getName());
-        assertEquals("Integer", integerParam.getType());
+        assertEquals("Integer", integerParam.getType().getSimpleName());
 
         Optional<SpreadsheetModel> requestBodyTextPlain = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("myTestWithDoubleRBTP"))
@@ -254,7 +254,7 @@ public class OpenAPIConverterTest {
         assertEquals(1, paramsPrimitive.size());
         InputParameter doubleParam = paramsPrimitive.iterator().next();
         assertEquals("double", doubleParam.getName());
-        assertEquals("Double", doubleParam.getType());
+        assertEquals("Double", doubleParam.getType().getSimpleName());
 
         Optional<SpreadsheetModel> myTst = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("myTst"))
@@ -273,7 +273,7 @@ public class OpenAPIConverterTest {
         assertEquals("Boolean[]", doubleArrayParamModel.getType());
         List<InputParameter> doubleArrayParam = doubleArrayParamModel.getParameters();
         InputParameter param = doubleArrayParam.iterator().next();
-        assertEquals("Double[]", param.getType());
+        assertEquals("Double[]", param.getType().getSimpleName());
         assertEquals("double", param.getName());
 
         Optional<SpreadsheetModel> myTestWithLong = spreadsheetResultModels.stream()
@@ -284,7 +284,7 @@ public class OpenAPIConverterTest {
         assertEquals("long", longModel.getType());
         List<InputParameter> longParams = longModel.getParameters();
         InputParameter longParam = longParams.iterator().next();
-        assertEquals("Long", longParam.getType());
+        assertEquals("Long", longParam.getType().getSimpleName());
         assertEquals("long", longParam.getName());
 
         Optional<SpreadsheetModel> myTestWithParams = spreadsheetResultModels.stream()
@@ -295,7 +295,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parametersList = testWithParams.getParameters();
         assertEquals(1, parametersList.size());
         InputParameter oneParam = parametersList.iterator().next();
-        assertEquals("long", oneParam.getType());
+        assertEquals("long", oneParam.getType().getSimpleName());
         assertEquals("simpleId", oneParam.getName());
 
         Optional<SpreadsheetModel> myTestWithPathParams = spreadsheetResultModels.stream()
@@ -307,11 +307,11 @@ public class OpenAPIConverterTest {
         assertEquals(2, withPathParams.size());
         Optional<InputParameter> pidId = withPathParams.stream().filter(x -> x.getName().equals("pidId")).findFirst();
         assertTrue(pidId.isPresent());
-        assertEquals("double", pidId.get().getType());
+        assertEquals("double", pidId.get().getType().getSimpleName());
 
         Optional<InputParameter> sum = withPathParams.stream().filter(x -> x.getName().equals("sum")).findFirst();
         assertTrue(sum.isPresent());
-        assertEquals("float", sum.get().getType());
+        assertEquals("float", sum.get().getType().getSimpleName());
     }
 
     @Test

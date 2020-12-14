@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNotEquals;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.PathInfo;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 
 public class DataModelTest {
@@ -14,11 +15,11 @@ public class DataModelTest {
 
     @Test
     public void testDataModelCreation() {
-        PathInfo pi = new PathInfo("a/b/c", "abc", "GET", "Bank", APPLICATION_JSON, APPLICATION_JSON);
+        PathInfo pi = new PathInfo("a/b/c", "abc", "GET", new TypeInfo("Bank", true), APPLICATION_JSON, APPLICATION_JSON);
         PathInfo qualityInfo = new PathInfo("/qualityI",
             "/qI",
             "GET",
-            "QualityIndicators",
+            new TypeInfo("QualityIndicators", true),
             APPLICATION_JSON,
             APPLICATION_JSON);
         DatatypeModel dtm = new DatatypeModel("test");

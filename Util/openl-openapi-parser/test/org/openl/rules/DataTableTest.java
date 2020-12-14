@@ -40,7 +40,7 @@ public class DataTableTest {
         assertEquals("getpetsB", info.getFormattedPath());
         assertEquals("application/json", info.getProduces());
         assertNull(info.getConsumes());
-        assertEquals("Object", info.getReturnType());
+        assertEquals("Pet[]", info.getReturnType().getSimpleName());
 
         DatatypeModel datatypeModel = petsB.getDatatypeModel();
         assertEquals("Pet", datatypeModel.getName());

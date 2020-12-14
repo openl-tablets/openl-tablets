@@ -124,7 +124,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = helloKittyModel.getParameters();
         assertFalse(parameters.isEmpty());
         InputParameter next = parameters.iterator().next();
-        assertEquals("Integer", next.getType());
+        assertEquals("Integer", next.getType().getSimpleName());
         assertEquals("integer", next.getName());
         assertFalse(helloKittyModel.getSteps().isEmpty());
         StepModel kittyStep = helloKittyModel.getSteps().iterator().next();
@@ -272,7 +272,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(objFieldOptional.isPresent());
         InputParameter objParameter = objFieldOptional.get();
-        assertEquals("Object", objParameter.getType());
+        assertEquals("Object", objParameter.getType().getSimpleName());
         assertEquals("objField", objParameter.getName());
 
         Optional<InputParameter> mapFieldOptional = parameters.stream()
@@ -280,7 +280,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(mapFieldOptional.isPresent());
         InputParameter mapParameter = mapFieldOptional.get();
-        assertEquals("Object", mapParameter.getType());
+        assertEquals("Object", mapParameter.getType().getSimpleName());
         assertEquals("mapField", mapParameter.getName());
 
         Optional<InputParameter> listFieldOptional = parameters.stream()
@@ -288,7 +288,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(listFieldOptional.isPresent());
         InputParameter listParameter = listFieldOptional.get();
-        assertEquals("Object[]", listParameter.getType());
+        assertEquals("Object[]", listParameter.getType().getSimpleName());
         assertEquals("listField", listParameter.getName());
 
         Optional<InputParameter> doubleFieldOptional = parameters.stream()
@@ -296,7 +296,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(doubleFieldOptional.isPresent());
         InputParameter doubleParameter = doubleFieldOptional.get();
-        assertEquals("Double", doubleParameter.getType());
+        assertEquals("Double", doubleParameter.getType().getSimpleName());
         assertEquals("doubleField", doubleParameter.getName());
 
         Optional<SpreadsheetModel> mySpr2Optional = spreadsheetModels.stream()
@@ -308,7 +308,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> spr2Parameters = mySpr2Model.getParameters();
         assertEquals(1, spr2Parameters.size());
         InputParameter objectParam = spr2Parameters.iterator().next();
-        assertEquals("Object", objectParam.getType());
+        assertEquals("Object", objectParam.getType().getSimpleName());
         assertEquals("object", objectParam.getName());
 
         List<StepModel> objSteps = mySpr2Model.getSteps();
@@ -377,7 +377,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("Double[]", param.getType());
+        assertEquals("Double[]", param.getType().getSimpleName());
         assertEquals("double", param.getName());
     }
 
@@ -422,14 +422,14 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(someField.isPresent());
         InputParameter inputParameter = someField.get();
-        assertEquals("Date", inputParameter.getType());
+        assertEquals("Date", inputParameter.getType().getSimpleName());
 
         Optional<InputParameter> oneMoreField = parameters.stream()
             .filter(x -> x.getName().equals("oneMoreField"))
             .findFirst();
         assertTrue(oneMoreField.isPresent());
         InputParameter oneMoreFieldParam = oneMoreField.get();
-        assertEquals("Date[][][]", oneMoreFieldParam.getType());
+        assertEquals("Date[][][]", oneMoreFieldParam.getType().getSimpleName());
     }
 
     @Test
@@ -650,7 +650,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter next = parameters.iterator().next();
-        assertEquals("WrapperObject", next.getType());
+        assertEquals("WrapperObject", next.getType().getSimpleName());
         assertEquals("wrapperObject", next.getName());
     }
 
@@ -671,7 +671,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("application/json", apiBlaModelPathInfo.getConsumes());
         assertEquals("text/plain", apiBlaModelPathInfo.getProduces());
         assertEquals("POST", apiBlaModelPathInfo.getOperation());
-        assertEquals("Object", apiBlaModelPathInfo.getReturnType());
+        assertEquals("AnotherDatatype", apiBlaModelPathInfo.getReturnType().getSimpleName());
 
         Optional<SpreadsheetModel> apiTodoOptional = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("apiTodo"))
@@ -684,7 +684,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("text/csv", apiTodoModelPathInfo.getConsumes());
         assertEquals("text/html", apiTodoModelPathInfo.getProduces());
         assertEquals("POST", apiTodoModelPathInfo.getOperation());
-        assertEquals("Integer", apiTodoModelPathInfo.getReturnType());
+        assertEquals("Integer", apiTodoModelPathInfo.getReturnType().getSimpleName());
 
     }
 
