@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.core.interceptors;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -98,8 +99,17 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                                 }
                                             }
                                         } else if (annotation instanceof RulesType) {
-                                            Class<?> type = findOrLoadType((RulesType) annotation);
-                                            if (Objects.equals(Type.getType(type), typesInCurrentMethod[i])) {
+                                            RulesType rulesType = (RulesType) annotation;
+                                            Class<?> type = findOrLoadType(rulesType);
+                                            Type paramTypeInRules = typesInCurrentMethod[i];
+                                            if (rulesType.arrayDims() < 0) {
+                                                String d = paramTypeInRules.getDescriptor();
+                                                while (d.length() > 0 && d.startsWith("[")) {
+                                                    d = d.substring(1);
+                                                }
+                                                paramTypeInRules = Type.getType(d);
+                                            }
+                                            if (Objects.equals(Type.getType(type), paramTypeInRules)) {
                                                 isCompatibleParameter = true;
                                             }
                                         }
@@ -136,7 +146,16 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     for (int i = 0; i < templateMethod.getParameterCount(); i++) {
                         for (Annotation annotation : templateMethod.getParameterAnnotations()[i]) {
                             if (annotation instanceof RulesType) {
-                                Class<?> type = findOrLoadType((RulesType) annotation);
+                                RulesType paramRulesType = (RulesType) annotation;
+                                Class<?> type = findOrLoadType(paramRulesType);
+                                Type paramTypeInRules = methodParameterTypes[i];
+                                if (paramRulesType.arrayDims() < 0) {
+                                    String d = paramTypeInRules.getDescriptor();
+                                    while (d.length() > 0 && d.startsWith("[")) {
+                                        d = d.substring(1);
+                                        type = Array.newInstance(type, 0).getClass();
+                                    }
+                                }
                                 methodParameterTypes[i] = Type.getType(type);
                             }
                         }
@@ -172,7 +191,12 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         private Class<?> findOrLoadType(RulesType rulesType) {
             String typeName = rulesType.value();
             try {
-                return classLoader.loadClass(typeName);
+                Class<?> t = classLoader.loadClass(typeName);
+                if (rulesType.arrayDims() > 0) {
+                    int[] dims = (int[]) Array.newInstance(int.class, rulesType.arrayDims());
+                    t = Array.newInstance(t, dims).getClass();
+                }
+                return t;
             } catch (ClassNotFoundException e) {
                 for (IOpenClass type : openClass.getTypes()) {
                     if (Objects.equals(type.getName(), typeName)) {
