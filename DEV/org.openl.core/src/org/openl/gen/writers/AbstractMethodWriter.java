@@ -3,6 +3,7 @@ package org.openl.gen.writers;
 import static org.objectweb.asm.Opcodes.ACC_ABSTRACT;
 import static org.objectweb.asm.Opcodes.ACC_PUBLIC;
 
+import java.lang.reflect.Array;
 import java.util.Objects;
 
 import org.objectweb.asm.AnnotationVisitor;
@@ -40,10 +41,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
     private void visitMethodAnnotations(MethodVisitor mv) {
         for (AnnotationDescription annotation : description.getAnnotations()) {
             AnnotationVisitor av = mv.visitAnnotation(annotation.getAnnotationType().getTypeDescriptor(), true);
-            for (AnnotationDescription.AnnotationProperty property : annotation.getProperties()) {
-                av.visit(property.getName(), property.getValue());
-            }
-            av.visitEnd();
+            visitAnnotationProperty(av, annotation);
         }
     }
 
@@ -59,13 +57,36 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
                 AnnotationVisitor av = mv.visitParameterAnnotation(i,
                         annotation.getAnnotationType().getTypeDescriptor(),
                         true);
-                for (AnnotationDescription.AnnotationProperty property : annotation.getProperties()) {
-                    av.visit(property.getName(), property.getValue());
-                }
-                av.visitEnd();
+                visitAnnotationProperty(av, annotation);
             }
             i++;
         }
+    }
+
+    /**
+     * Writes annotation property with value
+     *
+     * @param av annotation visitor
+     * @param annotation annotation description
+     */
+    private void visitAnnotationProperty(AnnotationVisitor av, AnnotationDescription annotation) {
+        for (AnnotationDescription.AnnotationProperty property : annotation.getProperties()) {
+            if (property.isArray()) {
+                AnnotationVisitor arrV = av.visitArray(property.getName());
+                final Object value = property.getValue();
+                if (value.getClass().isArray()) {
+                    for (int i = 0; i < Array.getLength(value); i++) {
+                        arrV.visit(null, Array.get(value, i));
+                    }
+                } else {
+                    arrV.visit(null, value);
+                }
+                arrV.visitEnd();
+            } else {
+                av.visit(property.getName(), property.getValue());
+            }
+        }
+        av.visitEnd();
     }
 
     /**

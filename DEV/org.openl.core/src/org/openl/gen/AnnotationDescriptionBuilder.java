@@ -35,6 +35,19 @@ public class AnnotationDescriptionBuilder {
     }
 
     /**
+     * Add annotation property
+     *
+     * @param propertyName property name
+     * @param propertyValue property value
+     * @param array determines if this property is array or not
+     * @return {@link this}
+     */
+    public AnnotationDescriptionBuilder withProperty(String propertyName, Object propertyValue, boolean array) {
+        properties.add(new AnnotationProperty(propertyName, propertyValue, array));
+        return this;
+    }
+
+    /**
      * Build {@link AnnotationDescription} object
      * @return instance of {@link AnnotationDescription}
      */

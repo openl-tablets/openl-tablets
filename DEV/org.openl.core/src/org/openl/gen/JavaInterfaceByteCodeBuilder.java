@@ -39,6 +39,10 @@ public class JavaInterfaceByteCodeBuilder {
         return this;
     }
 
+    public String getNameWithPackage() {
+        return nameWithPackage;
+    }
+
     /**
      * Create Java Interface Builder with custom class name. Package name will be added by default
      *
