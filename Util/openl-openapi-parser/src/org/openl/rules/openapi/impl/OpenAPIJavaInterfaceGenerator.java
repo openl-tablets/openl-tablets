@@ -19,6 +19,7 @@ import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.JavaInterfaceByteCodeBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
+import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -28,28 +29,28 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
  * This is not junit test, it's only for the testing the results of the generation. This class functionality must be
  * used int the OpenAPIProjectCreator for the generation and RepositoryTreeController in case of the regeneration.
  */
-public class OpenAPIClassWriter {
+public class OpenAPIJavaInterfaceGenerator {
 
     private final ProjectModel projectModel;
-    private byte[] byteCode;
 
-    public OpenAPIClassWriter(ProjectModel projectModel) {
+    public OpenAPIJavaInterfaceGenerator(ProjectModel projectModel) {
         this.projectModel = projectModel;
     }
 
-    public void generateInterface() {
+    public GeneratedJavaInterface generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
             .createWithDefaultPackage("OpenAPIService");
-        writeOpenAPIInterfaceMethods(projectModel.getSpreadsheetResultModels(), javaInterfaceBuilder);
-        byteCode = javaInterfaceBuilder.build().byteCode();
+        boolean hasMethods = writeOpenAPIInterfaceMethods(projectModel.getSpreadsheetResultModels(), javaInterfaceBuilder);
+        if (hasMethods) {
+            return new GeneratedJavaInterface(javaInterfaceBuilder.getNameWithPackage(),
+                    javaInterfaceBuilder.build().byteCode());
+        } else {
+            return GeneratedJavaInterface.EMPTY;
+        }
     }
 
-    byte[] getByteCode() {
-        return byteCode;
-    }
-
-    private void writeOpenAPIInterfaceMethods(List<SpreadsheetModel> spreadsheetResultModels,
-            JavaInterfaceByteCodeBuilder javaInterfaceBuilder) {
+    private boolean writeOpenAPIInterfaceMethods(List<SpreadsheetModel> spreadsheetResultModels, JavaInterfaceByteCodeBuilder javaInterfaceBuilder) {
+        boolean hasMethods = false;
         for (SpreadsheetModel sprModel : spreadsheetResultModels) {
             PathInfo pathInfo = sprModel.getPathInfo();
             String originalPath = pathInfo.getOriginalPath();
@@ -60,7 +61,7 @@ public class OpenAPIClassWriter {
                 continue;
             }
             MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
-                pathInfo.getReturnType().getJavaName());
+                    pathInfo.getReturnType().getJavaName());
 
             for (InputParameter parameter : sprModel.getParameters()) {
                 MethodParameterBuilder methodParameterBuilder = MethodParameterBuilder
@@ -73,14 +74,16 @@ public class OpenAPIClassWriter {
             methodBuilder.addAnnotation(
                 AnnotationDescriptionBuilder.create(Path.class).withProperty("value", originalPath).build());
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Consumes.class)
-                .withProperty("value", pathInfo.getConsumes())
+                .withProperty("value", pathInfo.getConsumes(), true)
                 .build());
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Produces.class)
-                .withProperty("value", pathInfo.getProduces())
+                .withProperty("value", pathInfo.getProduces(), true)
                 .build());
 
             javaInterfaceBuilder.addAbstractMethod(methodBuilder.build());
+            hasMethods = true;
         }
+        return hasMethods;
     }
 
     private Class<? extends Annotation> chooseOperationAnnotation(String operation) {
@@ -101,14 +104,4 @@ public class OpenAPIClassWriter {
         }
         throw new IllegalStateException("Unable to find operation annotation.");
     }
-
-    /*
-     * @Override public void visit(int version, int access, String name, String signature, String superName, String[]
-     * interfaces) { super.visit(version, access, name, signature, superName, interfaces); if
-     * (CollectionUtils.isNotEmpty(projectModel.getSpreadsheetResultModels())) { // there is a need to append
-     * RuntimeContext for the input parameters writeOpenAPIInterface(projectModel.getSpreadsheetResultModels()); }
-     * 
-     * if (CollectionUtils.isNotEmpty(projectModel.getNotOpenLModels())) {
-     * writeOpenAPIInterface(projectModel.getNotOpenLModels()); } }
-     */
 }

@@ -14,11 +14,13 @@ import org.openl.rules.common.OpenAPIProjectException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
+import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
+import org.openl.rules.openapi.impl.OpenAPIJavaInterfaceGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
@@ -43,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * Project creator from OpenAPI files, generates models, spreadsheets and rules.xml files.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
+    public static final String DEF_JAVA_CLASS_PATH = "classes";
     public static final String RULES_FILE_NAME = "rules.xml";
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
@@ -173,10 +176,20 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 uploadedOpenAPIFile.getInput(),
                 uploadedOpenAPIFile.getName(),
                 "Error uploading openAPI file.");
-            InputStream rulesFile = generateRulesFile();
+
+            GeneratedJavaInterface annotationTemplInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
+            if (annotationTemplInterface.hasInterface()) {
+                String javaInterfacePath = DEF_JAVA_CLASS_PATH + "/" + annotationTemplInterface.getPath();
+                addFile(projectBuilder,
+                        annotationTemplInterface.toInputStream(),
+                        javaInterfacePath,
+                        "Error uploading generated interface file.");
+            }
+
+            InputStream rulesFile = generateRulesFile(annotationTemplInterface.hasInterface());
             addFile(projectBuilder, rulesFile, RULES_FILE_NAME, "Error uploading rules.xml file.");
             addFile(projectBuilder,
-                generateRulesDeployFile(projectModel),
+                generateRulesDeployFile(projectModel, annotationTemplInterface.getJavaNameWithPackage()),
                 RULES_DEPLOY_XML,
                 "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
@@ -228,15 +241,18 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
     }
 
-    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel) {
+    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel, String annotationTemplateClass) {
         RulesDeploy rd = new RulesDeploy();
+        if (StringUtils.isNotBlank(annotationTemplateClass)) {
+            rd.setAnnotationTemplateClassName(annotationTemplateClass);
+        }
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
         rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
         return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
     }
 
-    private InputStream generateRulesFile() throws IOException, ValidationException {
-        ProjectDescriptor descriptor = defineDescriptor();
+    private InputStream generateRulesFile(boolean genJavaClasses) throws IOException, ValidationException {
+        ProjectDescriptor descriptor = defineDescriptor(genJavaClasses);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             projectDescriptorManager.writeDescriptor(descriptor, baos);
             byte[] descriptorBytes = baos.toByteArray();
@@ -244,7 +260,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
     }
 
-    private ProjectDescriptor defineDescriptor() {
+    private ProjectDescriptor defineDescriptor(boolean genJavaClasses) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         OpenAPI openAPI = new OpenAPI();
         openAPI.setAlgorithmModuleName(algorithmsModuleName);
@@ -266,6 +282,12 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         openAPI.setPath(uploadedOpenAPIFile.getName());
         descriptor.setOpenapi(openAPI);
         descriptor.setModules(modules);
+
+        List<PathEntry> classpath = new ArrayList<>();
+        if (genJavaClasses) {
+            classpath.add(new PathEntry(DEF_JAVA_CLASS_PATH));
+        }
+        descriptor.setClasspath(classpath);
         return descriptor;
     }
 
