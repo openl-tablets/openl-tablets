@@ -1,0 +1,443 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "simple1",
+        "version": "1.0.0"
+    },
+    "servers": [{
+            "url": "/ws/simple1",
+            "variables": {}
+        }
+    ],
+    "paths": {
+        "/api/policyProxy": {
+            "post": {
+                "summary": "Policy policyProxy(Policy)",
+                "description": "Rules method: org.openl.generated.beans.Policy policyProxy(org.openl.generated.beans.Policy policy)",
+                "operationId": "policyProxy",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Policy"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Policy"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/policyProxy2": {
+            "post": {
+                "summary": "Policy policyProxy2(Policy)",
+                "description": "Rules method: org.openl.generated.beans.Policy policyProxy2(org.openl.generated.beans.Policy policy)",
+                "operationId": "policyProxy2_1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Policy"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Policy"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/policyProxy2": {
+            "post": {
+                "summary": "Policy[] policyProxy2(Policy[])",
+                "description": "Rules method: org.openl.generated.beans.Policy[] policyProxy2(org.openl.generated.beans.Policy[] policy)",
+                "operationId": "policyProxy2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Policy"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Policy"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/doSomething": {
+            "post": {
+                "summary": "DoSomething doSomething(Policy)",
+                "description": "Rules method: SpreadsheetResultdoSomething doSomething(org.openl.generated.beans.Policy policy)",
+                "operationId": "doSomething",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Policy"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DoSomething"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/policyProxy3": {
+            "post": {
+                "summary": "Policy[] policyProxy3(Policy, Policy)",
+                "description": "Rules method: org.openl.generated.beans.Policy[] policyProxy3(org.openl.generated.beans.Policy policy1, org.openl.generated.beans.Policy policy2)",
+                "operationId": "policyProxy3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PolicyProxy3Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Policy"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "JAXRSErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+                    },
+                    "details": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "Coverage": {
+                "type": "object",
+                "properties": {
+                    "coverageName": {
+                        "type": "string"
+                    },
+                    "price": {
+                        "type": "number",
+                        "format": "double"
+                    }
+                }
+            },
+            "Policy": {
+                "type": "object",
+                "properties": {
+                    "policyName": {
+                        "type": "string"
+                    },
+                    "coverages": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Coverage"
+                        }
+                    },
+                    "type": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DoSomething": {
+                "type": "object",
+                "properties": {
+                    "Step1": {
+                        "$ref": "#/components/schemas/Policy"
+                    }
+                }
+            },
+            "PolicyProxy3Request": {
+                "type": "object",
+                "properties": {
+                    "policy1": {
+                        "$ref": "#/components/schemas/Policy"
+                    },
+                    "policy2": {
+                        "$ref": "#/components/schemas/Policy"
+                    }
+                }
+            }
+        }
+    }
+}

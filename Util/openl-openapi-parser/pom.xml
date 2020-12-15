@@ -31,8 +31,7 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
-            <artifactId>openl-excel-builder</artifactId>
-            <scope>test</scope>
+            <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
@@ -53,6 +52,11 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-excel-builder</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

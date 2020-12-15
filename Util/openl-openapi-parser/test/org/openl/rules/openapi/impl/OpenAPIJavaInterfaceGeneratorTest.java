@@ -21,6 +21,7 @@ import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.ProjectModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.util.ClassUtils;
 
@@ -68,6 +69,34 @@ public class OpenAPIJavaInterfaceGeneratorTest {
 
         Produces method2Produces = method2.getAnnotation(Produces.class);
         assertArrayEquals(new String[]{"text/plain"}, method2Produces.value());
+    }
+
+    @Test
+    public void testOpenAPIJavaInterfaceGenerator() throws Throwable {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
+
+        GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
+        assertNotNull(javaInterface);
+        writeToFile(javaInterface.getByteCode());
+
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+    }
+
+    @Test
+    public void resolveTypeTest() {
+        TypeInfo typeInfo = new TypeInfo("Policy", true);
+        assertEquals(Object.class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+
+        typeInfo.setDimension(1);
+        assertEquals(Object[].class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+
+        typeInfo.setDimension(3);
+        assertEquals(Object[][][].class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+
+        typeInfo = new TypeInfo(Integer.class.getName(), Integer.class.getSimpleName());
+        assertEquals(Integer.class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
     }
 
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
