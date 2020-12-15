@@ -1,0 +1,12 @@
+<project>
+  <name>http-statuses-test</name>
+  <modules>
+    <module>
+      <name>http-statuses-test</name>
+      <rules-root path="MAIN.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="lib/*.jar"/>
+  </classpath>
+</project>

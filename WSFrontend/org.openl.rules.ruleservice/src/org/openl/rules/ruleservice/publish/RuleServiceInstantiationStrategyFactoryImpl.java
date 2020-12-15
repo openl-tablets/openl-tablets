@@ -27,7 +27,7 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
 
     private final Logger log = LoggerFactory.getLogger(RuleServiceInstantiationStrategyFactoryImpl.class);
 
-    private boolean lazyCompilation = true;
+    private boolean lazyCompilation = false;
 
     public void setLazyCompilation(boolean lazyCompilation) {
         this.lazyCompilation = lazyCompilation;

@@ -508,10 +508,6 @@ public class RunWebservicesITest {
     public void EPBDS_7757_testHttpStatuses() {
         client.get("/REST/http-statuses-test/throwUserException", 422, "/EPBDS-7757/rest_USER_ERROR_response.json");
         client.get("/REST/http-statuses-test/throwOpenLException", 500, "/EPBDS-7757/rest_RULES_RUNTIME_response.json");
-        client.post("/REST/http-statuses-lazycompilation-test/throwCompilationError",
-            "EPBDS-7757/rest_COMPULATION_request.json",
-            500,
-            "/EPBDS-7757/rest_COMPULATION_response.json");
         client.get("/REST/http-statuses-test/throwValidationException",
             422,
             "/EPBDS-7757/rest_RULES_RUNTIME_validation_exception_response.json");
@@ -550,10 +546,6 @@ public class RunWebservicesITest {
             "/EPBDS-7757/statuses-validation.req.xml",
             500,
             "/EPBDS-7757/statuses-validation.resp.xml");
-        client.post("/http-statuses-lazycompilation-test",
-            "/EPBDS-7757/statuses-lazycompilation.req.xml",
-            500,
-            "/EPBDS-7757/statuses-lazycompilation.resp.xml");
         client
             .post("/http-statuses-test", "/EPBDS-7757/statuses-npe.req.xml", 500, "/EPBDS-7757/statuses-npe.resp.xml");
         client
@@ -609,8 +601,6 @@ public class RunWebservicesITest {
     @Test
     public void EPBDS_10699() {
         client.get("/admin/services/EPBDS-10699_EPBDS-10699/errors","/EPBDS-10699/EPBDS-10699_error.resp.json");
-        client.get("/REST/EPBDS-10699/EPBDS-10699/openapi.json", "/EPBDS-10699/EPBDS-10699_openapi.resp.json");
-        client.post("/REST/EPBDS-10699/EPBDS-10699/m", "/EPBDS-10699/EPBDS-10699_call.req.json",500,"/EPBDS-10699/EPBDS-10699_call.resp.json");
     }
 
     @Test

@@ -32,6 +32,7 @@
         <module>itest.dateTimeFormat</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
+        <module>itest.WebService-lazy</module>
         <module>itest.SpreadsheetResult</module>
         <module>itest.storelogdata</module>
         <module>itest.BigServiceDeploy</module>
