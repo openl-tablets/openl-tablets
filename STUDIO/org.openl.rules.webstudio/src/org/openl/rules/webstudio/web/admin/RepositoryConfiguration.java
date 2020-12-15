@@ -72,10 +72,13 @@ public class RepositoryConfiguration {
         repoType = RepositoryInstatiator.getRefID(factoryClassName);
         RepositoryType repositoryType = RepositoryType.findByFactory(repoType);
         if (repoType == null) {
-            // Fallback to default value and save error message
+            // Fallback to default value
             repositoryType = RepositoryType.GIT;
             repoType = repositoryType.factoryId;
-            errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repoType + ".";
+            if (factoryClassName != null) {
+                //add error message
+                errorMessage = "Unsupported repository type. Repository factory: " + factoryClassName + ". Was replaced with " + repoType + ".";
+            }
         }
         name = properties.getProperty(REPOSITORY_NAME);
         oldName = name;

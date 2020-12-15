@@ -66,7 +66,7 @@ public final class FieldUsageSearcher {
             String uri = null;
             if (boundField instanceof IOriginalDeclaredClassesOpenField) {
                 IOriginalDeclaredClassesOpenField combinedOpenField = (IOriginalDeclaredClassesOpenField) boundField;
-                IOpenClass[] declaredClasses = combinedOpenField.getDeclaredClasses();
+                IOpenClass[] declaredClasses = combinedOpenField.getDeclaringClasses();
                 Map<IOpenClass, List<IOpenClass>> types = Arrays.stream(declaredClasses)
                     .collect(Collectors.groupingBy(c -> c.getField(boundField.getName()).getType()));
                 StringBuilder classNames = new StringBuilder();

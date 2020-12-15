@@ -136,8 +136,16 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
             synchronized (this) {
                 if (this.customSpreadsheetResultOpenClass == null) {
                     // HERE
+                    String anySpreadsheetResultName = "AnySpreadsheetResult";
+                    int i = 0;
+                    boolean nameExists = this.module.getTypes().stream().anyMatch(t -> t.getName().equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + "AnySpreadsheetResult"));
+                    while (nameExists) {
+                        anySpreadsheetResultName = "AnySpreadsheetResult" + i++;
+                        String anySpreadsheetResultName0 = anySpreadsheetResultName;
+                        nameExists = this.module.getTypes().stream().anyMatch(t -> t.getName().equals(Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + anySpreadsheetResultName0));
+                    }
                     CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
-                        "AnySpreadsheetResult",
+                            anySpreadsheetResultName,
                         this.module,
                         null);
                     for (IOpenClass openClass : module.getTypes()) {

@@ -4,7 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import io.swagger.models.ModelImpl;
+import io.swagger.models.AbstractModel;
 import io.swagger.models.properties.Property;
 import io.swagger.util.Json;
 
@@ -13,7 +13,7 @@ public final class SwaggerObjectMapperConfigurationBean implements InitializingB
     @Override
     public void afterPropertiesSet() {
         ObjectMapper objectMapper = Json.mapper();
-        objectMapper.addMixIn(ModelImpl.class, SwaggerXmlIgnoreMixIn.class);
+        objectMapper.addMixIn(AbstractModel.class, SwaggerXmlIgnoreMixIn.class);
         objectMapper.addMixIn(Property.class, SwaggerXmlIgnoreMixIn.class);
     }
 }
