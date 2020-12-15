@@ -20,4 +20,6 @@ import java.lang.annotation.Target;
 @Target({ ElementType.PARAMETER, ElementType.METHOD })
 public @interface RulesType {
     String value();
+
+    int arrayDims() default -1;
 }
