@@ -52,6 +52,7 @@
         <property name="address" value=""/>
         <property name="serviceBeans">
             <list>
+                <ref bean="sysInfoService"/>
                 <ref bean="betaRepositoryService"/>
                 <ref bean="repositoryService"/>
                 <ref bean="traceService"/>

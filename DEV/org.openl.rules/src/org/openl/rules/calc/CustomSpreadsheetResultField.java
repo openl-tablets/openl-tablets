@@ -16,17 +16,17 @@ import org.slf4j.LoggerFactory;
 public class CustomSpreadsheetResultField extends ASpreadsheetField implements IOriginalDeclaredClassesOpenField {
     private static final Logger LOG = LoggerFactory.getLogger(CustomSpreadsheetResultField.class);
     protected IOpenField field;
-    private final IOpenClass[] declaredClasses;
+    private final IOpenClass[] declaringClasses;
 
     public CustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass, IOpenField field) {
         super(declaringClass, field.getName(), null);
         this.field = Objects.requireNonNull(field, "field cannot be null");
-        this.declaredClasses = new IOpenClass[] { field.getDeclaringClass() };
+        this.declaringClasses = new IOpenClass[] { declaringClass };
     }
 
     public CustomSpreadsheetResultField(IOpenClass declaringClass, String name, IOpenClass type) {
         super(declaringClass, name, type);
-        this.declaredClasses = new IOpenClass[] { declaringClass };
+        this.declaringClasses = new IOpenClass[] { declaringClass };
     }
 
     @Override
@@ -96,8 +96,8 @@ public class CustomSpreadsheetResultField extends ASpreadsheetField implements I
     }
 
     @Override
-    public IOpenClass[] getDeclaredClasses() {
-        return declaredClasses;
+    public IOpenClass[] getDeclaringClasses() {
+        return declaringClasses;
     }
 
 }
