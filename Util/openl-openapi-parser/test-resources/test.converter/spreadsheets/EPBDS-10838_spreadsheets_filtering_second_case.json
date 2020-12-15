@@ -1,0 +1,102 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "SprBug1_SprBug1",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/MySecondSpr": {
+      "post": {
+        "summary": "MyFirsSpr[] MySecondSpr(MyDatatype[])",
+        "description": "Rules method: SpreadsheetResultmyFirsSpr[] MySecondSpr(org.openl.generated.beans.MyDatatype[] a)",
+        "operationId": "MySecondSpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/MyDatatype"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyFirsSpr"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/myFirsSpr": {
+      "post": {
+        "summary": "MyFirsSpr myFirsSpr(MyDatatype)",
+        "description": "Rules method: SpreadsheetResultmyFirsSpr myFirsSpr(org.openl.generated.beans.MyDatatype a)",
+        "operationId": "myFirsSpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyDatatype"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyFirsSpr"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyFirsSpr": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "string"
+          },
+          "Step2": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "MyDatatype": {
+        "type": "object",
+        "properties": {
+          "intField": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "strArr": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

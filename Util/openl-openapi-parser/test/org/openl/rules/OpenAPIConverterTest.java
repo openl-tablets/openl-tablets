@@ -331,7 +331,7 @@ public class OpenAPIConverterTest {
         assertEquals(1, midStepSome1ModelSteps.size());
         StepModel step = midStepSome1ModelSteps.iterator().next();
         assertEquals("Result", step.getName());
-        assertEquals("=MidStepSome()", step.getValue());
+        assertEquals("=MidStepSome(null,null)", step.getValue());
 
         Optional<SpreadsheetModel> middleStepSome = spreadsheetResultModels.stream()
             .filter(model -> model.getName().equals("MiddleStepSome"))
@@ -349,21 +349,63 @@ public class OpenAPIConverterTest {
         assertEquals(3, setStepsSomeModel.getParameters().size());
         assertEquals(4, setStepsSomeModel.getSteps().size());
 
-        Optional<SpreadsheetModel> midStepSomeWithoutParams = spreadsheetResultModels.stream()
-            .filter(model -> model.getName().equals("MidStepSome") && model.getParameters().isEmpty())
+        Optional<SpreadsheetModel> midStepSomeWithTwoParams = spreadsheetResultModels.stream()
+            .filter(model -> model.getName().equals("MidStepSome") && model.getParameters().size() == 2)
             .findFirst();
-        assertTrue(midStepSomeWithoutParams.isPresent());
-        SpreadsheetModel withoutParams = midStepSomeWithoutParams.get();
+        assertTrue(midStepSomeWithTwoParams.isPresent());
+        SpreadsheetModel withoutParams = midStepSomeWithTwoParams.get();
         assertEquals(6, withoutParams.getSteps().size());
 
-        Optional<SpreadsheetModel> midStepSomeWithParams = spreadsheetResultModels.stream()
-            .filter(model -> model.getName().equals("MidStepSome") && !model.getParameters().isEmpty())
-            .findFirst();
-        assertTrue(midStepSomeWithParams.isPresent());
-        SpreadsheetModel withParams = midStepSomeWithParams.get();
-        assertEquals(6, withParams.getSteps().size());
+    }
 
-        assertEquals(withParams.getSteps(), withoutParams.getSteps());
+    @Test
+    public void testFiltering() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> mySecondSpr = spreadsheetResultModels.stream()
+            .filter(x -> x.getName().equals("MySecondSpr"))
+            .findFirst();
+        assertTrue(mySecondSpr.isPresent());
+        SpreadsheetModel mySecondSprModel = mySecondSpr.get();
+        assertEquals("SpreadsheetResultMyFirsSpr[]", mySecondSprModel.getType());
+
+        assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
+    }
+
+    @Test
+    public void testFilteringIfArrayReturns() throws IOException {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel pm = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering_second_case.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
+        Optional<SpreadsheetModel> myFirsSpr = spreadsheetResultModels.stream()
+            .filter(spr -> spr.getName().equals("myFirsSpr"))
+            .findFirst();
+        assertTrue(myFirsSpr.isPresent());
+        SpreadsheetModel firsSprModel = myFirsSpr.get();
+        assertEquals("MyFirsSpr", firsSprModel.getType());
+        List<StepModel> steps = firsSprModel.getSteps();
+        assertEquals(1, steps.size());
+        StepModel resultStep = steps.iterator().next();
+        assertEquals("Result", resultStep.getName());
+        assertEquals("MyFirsSpr", resultStep.getType());
+        assertEquals("=new MyFirsSpr()", resultStep.getValue());
+
+        Optional<SpreadsheetModel> mySecondSpr = spreadsheetResultModels.stream()
+            .filter(spr -> spr.getName().equals("MySecondSpr"))
+            .findFirst();
+        assertTrue(mySecondSpr.isPresent());
+        SpreadsheetModel secondModel = mySecondSpr.get();
+        assertEquals("MyFirsSpr[]", secondModel.getType());
+        List<StepModel> secondModelSteps = secondModel.getSteps();
+        assertEquals(1, secondModelSteps.size());
+        StepModel secondModelResultStep = secondModelSteps.iterator().next();
+        assertEquals("Result", secondModelResultStep.getName());
+        assertEquals("MyFirsSpr[]", secondModelResultStep.getType());
+        assertEquals("=new MyFirsSpr[]{}", secondModelResultStep.getValue());
+        assertTrue(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
 
     }
 
