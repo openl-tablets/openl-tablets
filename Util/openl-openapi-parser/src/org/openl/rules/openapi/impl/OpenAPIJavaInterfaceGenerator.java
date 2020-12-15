@@ -45,7 +45,8 @@ public class OpenAPIJavaInterfaceGenerator {
     public GeneratedJavaInterface generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
                 .createWithDefaultPackage("OpenAPIService");
-        boolean hasMethods = writeOpenAPIInterfaceMethods(projectModel.getSpreadsheetResultModels(), javaInterfaceBuilder);
+        boolean hasMethods = visitInterfaceMethods(projectModel.getSpreadsheetResultModels(),
+                javaInterfaceBuilder);
         if (hasMethods) {
             return new GeneratedJavaInterface(javaInterfaceBuilder.getNameWithPackage(),
                     javaInterfaceBuilder.build().byteCode());
@@ -54,7 +55,8 @@ public class OpenAPIJavaInterfaceGenerator {
         }
     }
 
-    private boolean writeOpenAPIInterfaceMethods(List<SpreadsheetModel> spreadsheetResultModels, JavaInterfaceByteCodeBuilder javaInterfaceBuilder) {
+    private boolean visitInterfaceMethods(List<SpreadsheetModel> spreadsheetResultModels,
+                                          JavaInterfaceByteCodeBuilder javaInterfaceBuilder) {
         boolean hasMethods = false;
         for (SpreadsheetModel sprModel : spreadsheetResultModels) {
             PathInfo pathInfo = sprModel.getPathInfo();
