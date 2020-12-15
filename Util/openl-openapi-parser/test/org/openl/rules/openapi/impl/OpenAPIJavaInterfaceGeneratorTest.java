@@ -23,12 +23,13 @@ import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.openapi.OpenAPIModelConverter;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.util.ClassUtils;
 
 public class OpenAPIJavaInterfaceGeneratorTest {
 
     @Test
-    public void testOpenAPIPathInfo() throws Throwable {
+    public void testOpenAPIPathInfo() throws Exception {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/slashProblem.json");
 
@@ -45,43 +46,93 @@ public class OpenAPIJavaInterfaceGeneratorTest {
 
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
-
-        Path method1Path = method1.getAnnotation(Path.class);
-        assertEquals("/api/Todo", method1Path.value());
-
-        Consumes method1Consumes = method1.getAnnotation(Consumes.class);
-        assertArrayEquals(new String[]{"text/csv"}, method1Consumes.value());
-
-        Produces method1Produces = method1.getAnnotation(Produces.class);
-        assertArrayEquals(new String[]{"text/html"}, method1Produces.value());
+        assertEquals("/api/Todo", method1.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"text/csv"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/html"}, method1.getAnnotation(Produces.class).value());
+        assertEquals(0, method1.getParameters()[0].getDeclaredAnnotations().length);
 
         Method method2 = interfaceClass.getDeclaredMethod("apiBla", Integer.class);
         assertEquals(SpreadsheetResult.class, method2.getReturnType());
 
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
-
-        Path method2Path = method2.getAnnotation(Path.class);
-        assertEquals("/api/Bla", method2Path.value());
-
-        Consumes method2Consumes = method2.getAnnotation(Consumes.class);
-        assertArrayEquals(new String[]{"application/json"}, method2Consumes.value());
-
-        Produces method2Produces = method2.getAnnotation(Produces.class);
-        assertArrayEquals(new String[]{"text/plain"}, method2Produces.value());
+        assertEquals("/api/Bla", method2.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method2.getAnnotation(Produces.class).value());
+        assertEquals(0, method2.getParameters()[0].getDeclaredAnnotations().length);
     }
 
     @Test
-    public void testOpenAPIJavaInterfaceGenerator() throws Throwable {
+    public void testOpenAPIJavaInterfaceGenerator() throws Exception {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
 
         GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
         assertNotNull(javaInterface);
-        writeToFile(javaInterface.getByteCode());
 
         Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
         assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+
+        assertEquals(4, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("apipolicyProxy2", Object[].class);
+        assertEquals(Object[].class, method1.getReturnType());
+        assertEquals(5, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(POST.class));
+        assertEquals("/api/policyProxy2", method1.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
+
+        assertEquals(1, method1.getParameters()[0].getAnnotations().length);
+        assertEquals("Policy", method1.getParameters()[0].getAnnotation(RulesType.class).value());
+
+        Method method2 = interfaceClass.getDeclaredMethod("apipolicyProxy3", Object.class, Object.class);
+        assertEquals(Object[].class, method2.getReturnType());
+        assertEquals(5, method2.getDeclaredAnnotations().length);
+        assertNotNull(method2.getAnnotation(POST.class));
+        assertEquals("/api/policyProxy3", method2.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Produces.class).value());
+        assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
+
+        assertEquals(1, method2.getParameters()[0].getAnnotations().length);
+        assertEquals("Policy", method2.getParameters()[0].getAnnotation(RulesType.class).value());
+        assertEquals(1, method2.getParameters()[1].getAnnotations().length);
+        assertEquals("Policy", method2.getParameters()[1].getAnnotation(RulesType.class).value());
+
+        Method method3 = interfaceClass.getDeclaredMethod("apipolicyProxy", Object.class);
+        assertEquals(Object.class, method3.getReturnType());
+        assertEquals(5, method3.getDeclaredAnnotations().length);
+        assertNotNull(method3.getAnnotation(POST.class));
+        assertEquals("/api/policyProxy", method3.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Produces.class).value());
+        assertEquals("Policy", method3.getAnnotation(RulesType.class).value());
+
+        assertEquals(1, method3.getParameters()[0].getAnnotations().length);
+        assertEquals("Policy", method3.getParameters()[0].getAnnotation(RulesType.class).value());
+
+        Method method4 = interfaceClass.getDeclaredMethod("apidoSomething", Object.class);
+        assertEquals(SpreadsheetResult.class, method4.getReturnType());
+        assertEquals(4, method4.getDeclaredAnnotations().length);
+        assertNotNull(method4.getAnnotation(POST.class));
+        assertEquals("/api/doSomething", method4.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Produces.class).value());
+
+        assertEquals(1, method4.getParameters()[0].getAnnotations().length);
+        assertEquals("Policy", method4.getParameters()[0].getAnnotation(RulesType.class).value());
+    }
+
+    @Test
+    public void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
+        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
+
+        GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
+        assertNotNull(javaInterface);
+        ///writeToFile(javaInterface.getByteCode());
     }
 
     @Test
