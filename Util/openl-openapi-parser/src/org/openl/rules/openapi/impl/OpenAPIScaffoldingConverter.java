@@ -60,6 +60,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
     private static final Set<String> IGNORED_FIELDS = Collections
         .unmodifiableSet(new HashSet<>(Collections.singletonList("@class")));
+    public static final String SPREADSHEET_RESULT_CLASS_NAME = "org.openl.rules.calc.SpreadsheetResult";
 
     private boolean generateUnusedModels = true;
 
@@ -246,7 +247,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             PathInfo pathInfo = model.getPathInfo();
             if (pathInfo != null) {
                 TypeInfo returnType = pathInfo.getReturnType();
-                returnType.setIsDatatype(dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(returnType.getSimpleName())));
+                returnType.setIsDatatype(
+                    dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(returnType.getSimpleName())));
             }
 
             List<InputParameter> parameters = model.getParameters();
@@ -590,7 +592,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
         TypeInfo typeInfo = extractType(responseSchema, TEXT_PLAIN.equals(pathInfo.getProduces()));
         if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
-            typeInfo.setJavaName(SPREADSHEET_RESULT);
+            typeInfo.setJavaName(SPREADSHEET_RESULT_CLASS_NAME);
         }
         String usedSchemaInResponse = typeInfo.getSimpleName();
         pathInfo.setReturnType(typeInfo);
