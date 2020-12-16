@@ -20,8 +20,8 @@ import org.openl.gen.JavaInterfaceByteCodeBuilder;
 import org.openl.gen.MethodDescription;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
+import org.openl.gen.TypeDescription;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -33,18 +33,18 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType;
  * This is not junit test, it's only for the testing the results of the generation. This class functionality must be
  * used int the OpenAPIProjectCreator for the generation and RepositoryTreeController in case of the regeneration.
  */
-public class OpenAPIJavaInterfaceGenerator {
+public class OpenAPIJavaClassGenerator {
 
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
-    private static final Class<?> RULES_CTX_CLASS = IRulesRuntimeContext.class;
+    private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
 
     private final ProjectModel projectModel;
 
-    public OpenAPIJavaInterfaceGenerator(ProjectModel projectModel) {
+    public OpenAPIJavaClassGenerator(ProjectModel projectModel) {
         this.projectModel = projectModel;
     }
 
-    public GeneratedJavaInterface generate() {
+    public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
                 .createWithDefaultPackage("OpenAPIService");
         boolean hasMethods = false;
@@ -58,12 +58,12 @@ public class OpenAPIJavaInterfaceGenerator {
                 hasMethods = true;
             }
         }
+        OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         if (hasMethods) {
-            return new GeneratedJavaInterface(javaInterfaceBuilder.getNameWithPackage(),
-                    javaInterfaceBuilder.build().byteCode());
-        } else {
-            return GeneratedJavaInterface.EMPTY;
+            builder.setAnnotationTemplateClass(new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(),
+                    javaInterfaceBuilder.build().byteCode()));
         }
+        return builder.build();
     }
 
     private MethodDescription visitInterfaceMethod(SpreadsheetModel sprModel, boolean runtimeContext) {
@@ -73,19 +73,12 @@ public class OpenAPIJavaInterfaceGenerator {
                 resolveType(returnTypeInfo));
 
         if (runtimeContext) {
-            methodBuilder.addParameter(MethodParameterBuilder.create(RULES_CTX_CLASS.getName()).build());
+            methodBuilder.addParameter(MethodParameterBuilder.create(RULES_CTX_CLASS).build());
         }
 
-        for (InputParameter parameter : sprModel.getParameters()) {
-            final TypeInfo paramType = parameter.getType();
-            MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
-            if (paramType.isDatatype()) {
-                methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
-                        .withProperty("value", removeArray(paramType.getSimpleName()))
-                        .build());
-            }
-            methodBuilder.addParameter(methodParamBuilder.build());
-        }
+        sprModel.getParameters().stream()
+                .map(this::visitMethodParameter)
+                .forEach(methodBuilder::addParameter);
 
         if (returnTypeInfo.isDatatype()) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
@@ -93,6 +86,23 @@ public class OpenAPIJavaInterfaceGenerator {
                     .build());
         }
 
+        writeWebServiceAnnotations(methodBuilder, pathInfo);
+
+        return methodBuilder.build();
+    }
+
+    private TypeDescription visitMethodParameter(InputParameter parameter) {
+        final TypeInfo paramType = parameter.getType();
+        MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
+        if (paramType.isDatatype()) {
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
+                    .withProperty("value", removeArray(paramType.getSimpleName()))
+                    .build());
+        }
+        return methodParamBuilder.build();
+    }
+
+    private void writeWebServiceAnnotations(MethodDescriptionBuilder methodBuilder, PathInfo pathInfo) {
         methodBuilder.addAnnotation(AnnotationDescriptionBuilder
                 .create(chooseOperationAnnotation(pathInfo.getOperation()))
                 .build());
@@ -105,8 +115,6 @@ public class OpenAPIJavaInterfaceGenerator {
         methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Produces.class)
                 .withProperty("value", pathInfo.getProduces(), true)
                 .build());
-
-        return methodBuilder.build();
     }
 
     static String resolveType(TypeInfo typeInfo) {

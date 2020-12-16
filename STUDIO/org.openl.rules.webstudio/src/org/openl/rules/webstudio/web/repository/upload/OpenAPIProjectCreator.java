@@ -14,13 +14,14 @@ import org.openl.rules.common.OpenAPIProjectException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
-import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
-import org.openl.rules.openapi.impl.OpenAPIJavaInterfaceGenerator;
+import org.openl.rules.openapi.impl.JavaClassFile;
+import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
+import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.model.Module;
@@ -177,19 +178,15 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 uploadedOpenAPIFile.getName(),
                 "Error uploading openAPI file.");
 
-            GeneratedJavaInterface annotationTemplInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
-            if (annotationTemplInterface.hasInterface()) {
-                String javaInterfacePath = DEF_JAVA_CLASS_PATH + "/" + annotationTemplInterface.getPath();
-                addFile(projectBuilder,
-                        annotationTemplInterface.toInputStream(),
-                        javaInterfacePath,
-                        "Error uploading generated interface file.");
+            OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+            if (generated.hasAnnotationTemplateClass()) {
+                addJavaClassFile(projectBuilder, generated.getAnnotationTemplateClass());
             }
 
-            InputStream rulesFile = generateRulesFile(annotationTemplInterface.hasInterface());
+            InputStream rulesFile = generateRulesFile(generated.hasAnnotationTemplateClass());
             addFile(projectBuilder, rulesFile, RULES_FILE_NAME, "Error uploading rules.xml file.");
             addFile(projectBuilder,
-                generateRulesDeployFile(projectModel, annotationTemplInterface.getJavaNameWithPackage()),
+                generateRulesDeployFile(projectModel, generated),
                 RULES_DEPLOY_XML,
                 "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
@@ -198,6 +195,16 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
 
         return projectBuilder;
+    }
+
+    private void addJavaClassFile(RulesProjectBuilder projectBuilder, JavaClassFile javaClassFile)
+            throws ProjectException {
+
+        String javaInterfacePath = DEF_JAVA_CLASS_PATH + "/" + javaClassFile.getPath();
+        addFile(projectBuilder,
+                javaClassFile.toInputStream(),
+                javaInterfacePath,
+                String.format("Error uploading of '%s' file.", javaClassFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,
@@ -241,10 +248,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
     }
 
-    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel, String annotationTemplateClass) {
+    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel, OpenAPIGeneratedClasses generated) {
         RulesDeploy rd = new RulesDeploy();
-        if (StringUtils.isNotBlank(annotationTemplateClass)) {
-            rd.setAnnotationTemplateClassName(annotationTemplateClass);
+        if (generated.hasAnnotationTemplateClass()) {
+            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateClass().getJavaNameWithPackage());
         }
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
         rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });

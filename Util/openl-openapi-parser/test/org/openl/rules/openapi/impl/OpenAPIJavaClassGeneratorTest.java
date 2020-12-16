@@ -16,26 +16,32 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.classloader.OpenLBundleClassLoader;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.model.scaffolding.GeneratedJavaInterface;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.util.ClassUtils;
 
-public class OpenAPIJavaInterfaceGeneratorTest {
+public class OpenAPIJavaClassGeneratorTest {
+
+    private OpenAPIModelConverter converter;
+
+    @Before
+    public void setUp() {
+        converter = new OpenAPIScaffoldingConverter();
+    }
 
     @Test
     public void testOpenAPIPathInfo() throws Exception {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/slashProblem.json");
 
-        GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
-        assertNotNull(javaInterface);
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
         Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
         assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
 
@@ -64,11 +70,10 @@ public class OpenAPIJavaInterfaceGeneratorTest {
 
     @Test
     public void testOpenAPIJavaInterfaceGenerator() throws Exception {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi.json");
 
-        GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
-        assertNotNull(javaInterface);
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
 
         Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
         assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
@@ -127,27 +132,26 @@ public class OpenAPIJavaInterfaceGeneratorTest {
 
     @Test
     public void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
-        GeneratedJavaInterface javaInterface = new OpenAPIJavaInterfaceGenerator(projectModel).generate();
-        assertNotNull(javaInterface);
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         ///writeToFile(javaInterface.getByteCode());
     }
 
     @Test
     public void resolveTypeTest() {
         TypeInfo typeInfo = new TypeInfo("Policy", true);
-        assertEquals(Object.class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+        assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(1);
-        assertEquals(Object[].class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+        assertEquals(Object[].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(3);
-        assertEquals(Object[][][].class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+        assertEquals(Object[][][].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo = new TypeInfo(Integer.class.getName(), Integer.class.getSimpleName());
-        assertEquals(Integer.class.getName(), OpenAPIJavaInterfaceGenerator.resolveType(typeInfo));
+        assertEquals(Integer.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
     }
 
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
