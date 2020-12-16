@@ -2,6 +2,7 @@ package org.openl.rules.openapi.impl;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
+import java.util.List;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -36,7 +37,8 @@ import org.openl.util.StringUtils;
 
 public class OpenAPIJavaClassGenerator {
 
-    private static final String DEFAULT_TYPE = "application/json";
+    private static final String DEFAULT_JSON_TYPE = "application/json";
+    private static final String DEFAULT_SIMPLE_TYPE = "text/plain";
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
@@ -47,21 +49,87 @@ public class OpenAPIJavaClassGenerator {
         this.projectModel = projectModel;
     }
 
+    /**
+     * Make decision whatever if we need to decorate this method or not
+     * @param method candidate
+     * @return {@code true} if require decoration
+     */
     private boolean generateDecision(SpreadsheetModel method) {
         final PathInfo pathInfo = method.getPathInfo();
         if (!pathInfo.getOriginalPath().equals("/" + pathInfo.getFormattedPath())) {
+            //if method name doesn't match expected path
             return true;
         }
-        if (StringUtils.isNotBlank(pathInfo.getConsumes()) && !DEFAULT_TYPE.equals(pathInfo.getProduces())) {
-            return true;
+        if (StringUtils.isNotBlank(pathInfo.getProduces())) {
+            final TypeInfo typeInfo = pathInfo.getReturnType();
+            if (typeInfo.isReference()) {
+                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getProduces())) {
+                    //if return type is not simple, application/json by default
+                    return true;
+                }
+            } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getProduces())) {
+                //if return type is simple, text/plain by default
+                return true;
+            }
         }
-        if (StringUtils.isNotBlank(pathInfo.getConsumes()) && !DEFAULT_TYPE.equals(pathInfo.getConsumes())) {
-            return true;
+        final List<InputParameter> parameters = method.getParameters();
+        if (StringUtils.isNotBlank(pathInfo.getConsumes())) {
+            if (parameters.isEmpty()) {
+                if (projectModel.isRuntimeContextProvided()) {
+                    if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                        //if no prams and context, application/json by default
+                        return true;
+                    }
+                } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
+                    //if no prams, text/plan by default
+                    return true;
+                }
+            } else {
+                if (parameters.size() == 1) {
+                    if (projectModel.isRuntimeContextProvided()) {
+                        if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                            //if one pram and context, application/json by default
+                            return true;
+                        }
+                    } else if (parameters.get(0).getType().isReference()) {
+                        if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                            //if one not simple param, application/json by default
+                            return true;
+                        }
+                    } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
+                        //if one simple pram, text/plain by default
+                        return true;
+                    }
+                } else if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                    //if more than one param, application/json by default
+                    return true;
+                }
+            }
         }
-        if (HttpMethod.GET.equalsIgnoreCase(pathInfo.getOperation()) && !method.getParameters().isEmpty()) {
-            return true;
-        }
-        if (HttpMethod.POST.equalsIgnoreCase(pathInfo.getOperation()) && method.getParameters().isEmpty()) {
+        if (HttpMethod.GET.equalsIgnoreCase(pathInfo.getOperation())) {
+            if (projectModel.isRuntimeContextProvided()) {
+                //if RuntimeContext is provided, POST by default.
+                return true;
+            }
+            if (parameters.size() > 1) {
+                //if more than one parameter, POST by default.
+                return true;
+            } else if (parameters.size() == 1 && parameters.get(0).getType().isReference()) {
+                //if there is one not simple parameter, POST by default.
+                return true;
+            }
+        } else if (HttpMethod.POST.equalsIgnoreCase(pathInfo.getOperation())) {
+            if (!projectModel.isRuntimeContextProvided()) {
+                if (parameters.isEmpty()) {
+                    //if no context and empty params, GET by default.
+                    return true;
+                } else if (parameters.size() == 1 && !parameters.get(0).getType().isReference()) {
+                    //if no context and there is one simple parameter, GET by default.
+                    return true;
+                }
+            }
+        } else {
+            //if not POST and not GET
             return true;
         }
         return false;

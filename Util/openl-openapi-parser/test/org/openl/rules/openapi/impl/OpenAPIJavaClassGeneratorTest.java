@@ -238,7 +238,7 @@ public class OpenAPIJavaClassGeneratorTest {
         Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
         assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
 
-        assertEquals(3, interfaceClass.getDeclaredMethods().length);
+        assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
         Method method1 = interfaceClass.getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class,
                 Boolean.class);
