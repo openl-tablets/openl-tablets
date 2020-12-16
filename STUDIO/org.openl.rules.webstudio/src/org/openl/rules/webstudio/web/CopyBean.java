@@ -326,8 +326,8 @@ public class CopyBean {
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         RepositorySettingsValidators.validateBranchName(newBranchName);
 
-        String customRegex = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch-regex");
-        String customRegexError = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch-regex-error");
+        String customRegex = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex");
+        String customRegexError = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".new-branch.regex-error");
         if (StringUtils.isNotBlank(customRegex)) {
             customRegexError = StringUtils.isNotBlank(customRegexError) ? customRegexError : "The branch name does not match the following pattern: " + customRegex;
             WebStudioUtils.validate(newBranchName.matches(customRegex), customRegexError);
