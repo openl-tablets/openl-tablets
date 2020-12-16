@@ -112,20 +112,15 @@ public class OpenAPITypeUtils {
                 return new TypeInfo(name, name, true, dim);
             } else {
                 // TODO: validate me
-                try {
-                    String className;
-                    if (dim == 0) {
-                        className = type.getJavaName();
-                    } else if (dim == 1) {
-                        className = Class.forName("[L" + type.getJavaName() + ";").getName();
-                    } else {
-                        className = Class.forName("[" + type.getJavaName()).getName();
-                    }
-                    return new TypeInfo(className, name, false, dim);
-                } catch (ClassNotFoundException e) {
-                    LOGGER.error("The class with name " + name + " wasn't found");
-                    return new TypeInfo("", "", false);
+                String className;
+                if (dim == 0) {
+                    className = type.getJavaName();
+                } else if (dim == 1) {
+                    className = "[L" + type.getJavaName() + ";";
+                } else {
+                    className = "[" + type.getJavaName();
                 }
+                return new TypeInfo(className, name, false, dim);
             }
         } else {
             return new TypeInfo(Object.class.getName(), OBJECT);
@@ -136,8 +131,7 @@ public class OpenAPITypeUtils {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            LOGGER.warn("Failed to get the schema name: {}", ref);
-            return null;
+            throw new IllegalStateException(String.format("Invalid ref %s", ref));
         }
         return ref;
     }

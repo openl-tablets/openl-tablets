@@ -144,7 +144,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(firstParam.isPresent());
 
         Optional<InputParameter> secondParam = bla112Params.stream()
-            .filter(x -> x.getName().equals("byeparam"))
+            .filter(x -> x.getName().equals("byeBye"))
             .findFirst();
         assertTrue(secondParam.isPresent());
     }
@@ -362,6 +362,14 @@ public class SpreadsheetsConverterTest {
         List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
+        SpreadsheetModel apiBlaModel = modelsToClass.iterator().next();
+        List<InputParameter> parameters = apiBlaModel.getParameters();
+        assertEquals(4, parameters.size());
+        Set<String> parameterNames = parameters.stream().map(InputParameter::getName).collect(Collectors.toSet());
+        assertTrue(parameterNames.contains("id"));
+        assertTrue(parameterNames.contains("name"));
+        assertTrue(parameterNames.contains("isCompleted"));
+        assertTrue(parameterNames.contains("someStep"));
     }
 
     @Test
