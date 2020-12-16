@@ -36,6 +36,7 @@ import org.openl.util.StringUtils;
 
 public class OpenAPIJavaClassGenerator {
 
+    private static final String DEFAULT_TYPE = "application/json";
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
@@ -46,12 +47,32 @@ public class OpenAPIJavaClassGenerator {
         this.projectModel = projectModel;
     }
 
+    private boolean generateDecision(SpreadsheetModel method) {
+        final PathInfo pathInfo = method.getPathInfo();
+        if (!pathInfo.getOriginalPath().equals("/" + pathInfo.getFormattedPath())) {
+            return true;
+        }
+        if (StringUtils.isNotBlank(pathInfo.getConsumes()) && !DEFAULT_TYPE.equals(pathInfo.getProduces())) {
+            return true;
+        }
+        if (StringUtils.isNotBlank(pathInfo.getConsumes()) && !DEFAULT_TYPE.equals(pathInfo.getConsumes())) {
+            return true;
+        }
+        if (HttpMethod.GET.equalsIgnoreCase(pathInfo.getOperation()) && !method.getParameters().isEmpty()) {
+            return true;
+        }
+        if (HttpMethod.POST.equalsIgnoreCase(pathInfo.getOperation()) && method.getParameters().isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
             .createWithDefaultPackage("OpenAPIService");
         boolean hasMethods = false;
         for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
-            if (method.getPathInfo().getOriginalPath().equals("/" + method.getPathInfo().getFormattedPath())) {
+            if (!generateDecision(method)) {
                 continue;
             }
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method,
@@ -100,7 +121,7 @@ public class OpenAPIJavaClassGenerator {
 
         if (returnTypeInfo.isDatatype()) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
-                .withProperty(VALUE, removeArray(returnTypeInfo.getSimpleName()))
+                .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(returnTypeInfo.getSimpleName()))
                 .build());
         }
 
@@ -114,7 +135,7 @@ public class OpenAPIJavaClassGenerator {
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.isDatatype()) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
-                .withProperty(VALUE, removeArray(paramType.getSimpleName()))
+                .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(paramType.getSimpleName()))
                 .build());
         }
         if (extraMethod) {
