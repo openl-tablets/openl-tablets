@@ -101,15 +101,11 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                                         } else if (annotation instanceof RulesType) {
                                             RulesType rulesType = (RulesType) annotation;
                                             Class<?> type = findOrLoadType(rulesType);
-                                            Type paramTypeInRules = typesInCurrentMethod[i];
-                                            if (rulesType.arrayDims() < 0) {
-                                                String d = paramTypeInRules.getDescriptor();
-                                                while (d.length() > 0 && d.startsWith("[")) {
-                                                    d = d.substring(1);
-                                                }
-                                                paramTypeInRules = Type.getType(d);
+                                            String d = typesInCurrentMethod[i].getDescriptor();
+                                            while (d.length() > 0 && d.startsWith("[")) {
+                                                d = d.substring(1);
                                             }
-                                            if (Objects.equals(Type.getType(type), paramTypeInRules)) {
+                                            if (Objects.equals(Type.getType(type), Type.getType(d))) {
                                                 isCompatibleParameter = true;
                                             }
                                         }
@@ -138,6 +134,11 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                     RulesType rulesType = templateMethod.getAnnotation(RulesType.class);
                     if (rulesType != null) {
                         Class<?> type = findOrLoadType(rulesType);
+                        Class<?> t = templateMethod.getReturnType();
+                        while (t.isArray()) {
+                            t = t.getComponentType();
+                            type = Array.newInstance(type, 0).getClass();
+                        }
                         returnType = Type.getType(type);
                     } else {
                         returnType = Type.getReturnType(descriptor);
@@ -148,13 +149,10 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                             if (annotation instanceof RulesType) {
                                 RulesType paramRulesType = (RulesType) annotation;
                                 Class<?> type = findOrLoadType(paramRulesType);
-                                Type paramTypeInRules = methodParameterTypes[i];
-                                if (paramRulesType.arrayDims() < 0) {
-                                    String d = paramTypeInRules.getDescriptor();
-                                    while (d.length() > 0 && d.startsWith("[")) {
-                                        d = d.substring(1);
-                                        type = Array.newInstance(type, 0).getClass();
-                                    }
+                                String d = methodParameterTypes[i].getDescriptor();
+                                while (d.length() > 0 && d.startsWith("[")) {
+                                    d = d.substring(1);
+                                    type = Array.newInstance(type, 0).getClass();
                                 }
                                 methodParameterTypes[i] = Type.getType(type);
                             }
@@ -191,12 +189,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         private Class<?> findOrLoadType(RulesType rulesType) {
             String typeName = rulesType.value();
             try {
-                Class<?> t = classLoader.loadClass(typeName);
-                if (rulesType.arrayDims() > 0) {
-                    int[] dims = (int[]) Array.newInstance(int.class, rulesType.arrayDims());
-                    t = Array.newInstance(t, dims).getClass();
-                }
-                return t;
+                return classLoader.loadClass(typeName);
             } catch (ClassNotFoundException e) {
                 for (IOpenClass type : openClass.getTypes()) {
                     if (Objects.equals(type.getName(), typeName)) {

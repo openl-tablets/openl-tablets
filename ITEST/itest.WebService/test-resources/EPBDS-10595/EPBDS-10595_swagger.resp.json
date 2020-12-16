@@ -74,73 +74,6 @@
         }
       }
     },
-    "/returnMyDatatype": {
-      "post": {
-        "summary": "MyDatatype returnMyDatatype(MyDatatype)",
-        "description": "Method: org.openl.generated.beans.MyDatatype returnMyDatatype(org.openl.generated.beans.MyDatatype)",
-        "operationId": "returnMyDatatype",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/MyDatatype"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/MyDatatype"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
     "/myRule": {
       "post": {
         "summary": "Double myRule(MyDatatype)",
@@ -211,14 +144,14 @@
     },
     "/myRule1": {
       "post": {
-        "summary": "Double myRule(MyDatatype[], String)",
-        "description": "Rules method: java.lang.Double myRule(org.openl.generated.beans.MyDatatype[] inputParam, java.lang.String x)",
+        "summary": "MyDatatype[] myRule(MyDatatype, String)",
+        "description": "Rules method: org.openl.generated.beans.MyDatatype[] myRule(org.openl.generated.beans.MyDatatype inputParam, java.lang.String x)",
         "operationId": "myRule_1",
         "consumes": [
           "application/json"
         ],
         "produces": [
-          "text/plain"
+          "application/json"
         ],
         "parameters": [
           {
@@ -234,8 +167,77 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "number",
-              "format": "double"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/MyDatatype"
+              }
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/returnMyDatatype": {
+      "post": {
+        "summary": "MyDatatype returnMyDatatype(MyDatatype)",
+        "description": "Method: org.openl.generated.beans.MyDatatype returnMyDatatype(org.openl.generated.beans.MyDatatype)",
+        "operationId": "returnMyDatatype",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/MyDatatype"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/MyDatatype"
             }
           },
           "422": {
@@ -401,10 +403,7 @@
       "type": "object",
       "properties": {
         "inputParam": {
-          "type": "array",
-          "items": {
-            "$ref": "#/definitions/MyDatatype"
-          }
+          "$ref": "#/definitions/MyDatatype"
         },
         "x": {
           "type": "string"
