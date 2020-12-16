@@ -95,7 +95,7 @@ public class OpenAPIJavaClassGenerator {
         }
 
         for (InputParameter parameter : sprModel.getParameters()) {
-            methodBuilder.addParameter(visitMethodParameter(pathInfo.getOriginalPath(), parameter, extraMethod));
+            methodBuilder.addParameter(visitMethodParameter(parameter, extraMethod));
         }
 
         if (returnTypeInfo.isDatatype()) {
@@ -109,7 +109,7 @@ public class OpenAPIJavaClassGenerator {
         return methodBuilder;
     }
 
-    private TypeDescription visitMethodParameter(String originalPath, InputParameter parameter, boolean extraMethod) {
+    private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
         final TypeInfo paramType = parameter.getType();
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.isDatatype()) {
