@@ -15,9 +15,10 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 
+import org.objectweb.asm.Type;
 import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.JavaInterfaceByteCodeBuilder;
-import org.openl.gen.MethodDescription;
+import org.openl.gen.JavaInterfaceImplBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
 import org.openl.gen.TypeDescription;
@@ -27,7 +28,10 @@ import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import org.openl.util.StringUtils;
 
 /**
  * This is not junit test, it's only for the testing the results of the generation. This class functionality must be
@@ -52,13 +56,25 @@ public class OpenAPIJavaClassGenerator {
             if (method.getPathInfo().getOriginalPath().equals("/" + method.getPathInfo().getFormattedPath())) {
                 continue;
             }
-            MethodDescription methodDesc = visitInterfaceMethod(method, projectModel.isRuntimeContextProvided());
-            if (methodDesc != null) {
-                javaInterfaceBuilder.addAbstractMethod(methodDesc);
-                hasMethods = true;
-            }
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method, projectModel.isRuntimeContextProvided());
+            javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
+            hasMethods = true;
         }
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
+        for (SpreadsheetModel extraMethod : projectModel.getNotOpenLModels()) {
+            hasMethods = true;
+            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class);
+            JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
+                    extraMethodBuilder.byteCode());
+            builder.addCommonClass(javaClassFile);
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false);
+            methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
+                    .withProperty("value", Type.getType(
+                            new TypeDescription(javaClassFile.getJavaNameWithPackage()).getTypeDescriptor()))
+                    .build());
+            javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
+        }
+
         if (hasMethods) {
             builder.setAnnotationTemplateClass(new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(),
                     javaInterfaceBuilder.build().byteCode()));
@@ -66,7 +82,8 @@ public class OpenAPIJavaClassGenerator {
         return builder.build();
     }
 
-    private MethodDescription visitInterfaceMethod(SpreadsheetModel sprModel, boolean runtimeContext) {
+    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel, boolean runtimeContext) {
+
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
         MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
@@ -88,7 +105,7 @@ public class OpenAPIJavaClassGenerator {
 
         writeWebServiceAnnotations(methodBuilder, pathInfo);
 
-        return methodBuilder.build();
+        return methodBuilder;
     }
 
     private TypeDescription visitMethodParameter(InputParameter parameter) {
@@ -109,12 +126,16 @@ public class OpenAPIJavaClassGenerator {
         methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Path.class)
                 .withProperty("value", pathInfo.getOriginalPath())
                 .build());
-        methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Consumes.class)
-                .withProperty("value", pathInfo.getConsumes(), true)
-                .build());
-        methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Produces.class)
-                .withProperty("value", pathInfo.getProduces(), true)
-                .build());
+        if (StringUtils.isNotBlank(pathInfo.getConsumes())) {
+            methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Consumes.class)
+                    .withProperty("value", pathInfo.getConsumes(), true)
+                    .build());
+        }
+        if (StringUtils.isNotBlank(pathInfo.getProduces())) {
+            methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Produces.class)
+                    .withProperty("value", pathInfo.getProduces(), true)
+                    .build());
+        }
     }
 
     static String resolveType(TypeInfo typeInfo) {
@@ -126,7 +147,26 @@ public class OpenAPIJavaClassGenerator {
             }
             return type.getName();
         } else {
-            return typeInfo.getJavaName();
+            switch (typeInfo.getJavaName()) {
+                case "byte":
+                    return Byte.class.getName();
+                case "short":
+                    return Short.class.getName();
+                case "int":
+                    return Integer.class.getName();
+                case "long":
+                    return Long.class.getName();
+                case "float":
+                    return Float.class.getName();
+                case "double":
+                    return Double.class.getName();
+                case "boolean":
+                    return Boolean.class.getName();
+                case "char":
+                    return Character.class.getName();
+                default:
+                    return typeInfo.getJavaName();
+            }
         }
     }
 

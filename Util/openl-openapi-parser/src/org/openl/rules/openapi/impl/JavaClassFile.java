@@ -7,17 +7,9 @@ import java.util.Optional;
 
 public class JavaClassFile {
 
-    public static final JavaClassFile EMPTY = new JavaClassFile();
-
     private final String javaNameWithPackage;
     private final String path;
     private final byte[] byteCode;
-
-    private JavaClassFile() {
-        this.path = null;
-        this.javaNameWithPackage = null;
-        this.byteCode = null;
-    }
 
     public JavaClassFile(String javaNameWithPackage, byte[] byteCode) {
         this.javaNameWithPackage = Objects.requireNonNull(javaNameWithPackage, "Java Interface name is null.");

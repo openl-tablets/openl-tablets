@@ -2,6 +2,7 @@ package org.openl.rules.openapi.impl;
 
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -29,10 +30,12 @@ import org.openl.util.ClassUtils;
 public class OpenAPIJavaClassGeneratorTest {
 
     private OpenAPIModelConverter converter;
+    private ClassLoader newClassLoader;
 
     @Before
     public void setUp() {
         converter = new OpenAPIScaffoldingConverter();
+        newClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
     }
 
     @Test
@@ -136,7 +139,28 @@ public class OpenAPIJavaClassGeneratorTest {
                 .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        ///writeToFile(javaInterface.getByteCode());
+
+        for (JavaClassFile javaClass : generated.getCommonClasses()) {
+            Class<?> clazz = defineClass(javaClass.getJavaNameWithPackage(), javaClass.getByteCode());
+            assertFalse(clazz.isInterface());
+            assertTrue("Class must be public", (clazz.getModifiers() & Modifier.PUBLIC) != 0);
+            assertEquals(javaClass.getJavaNameWithPackage(), clazz.getName());
+            clazz.newInstance();//just for sure
+        }
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+
+        //assertEquals(2, interfaceClass.getDeclaredMethods().length);
+
+//        Method method1 = interfaceClass.getDeclaredMethod("apiTodo", Object[].class);
+//        assertEquals(Object[].class, method1.getReturnType());
+//        assertEquals(5, method1.getDeclaredAnnotations().length);
+//        assertNotNull(method1.getAnnotation(POST.class));
+//        assertEquals("/api/policyProxy2", method1.getAnnotation(Path.class).value());
+//        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+//        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+//        assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
     }
 
     @Test
@@ -161,11 +185,10 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(expectedName, interfaceClass.getName());
     }
 
-    private static Class<?> defineClass(String name,
+    private Class<?> defineClass(String name,
             byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            ClassLoader newClassLoader = new OpenLBundleClassLoader(oldClassLoader);
             Thread.currentThread().setContextClassLoader(newClassLoader);
             return ClassUtils.defineClass(name, bytes, newClassLoader);
         } finally {
