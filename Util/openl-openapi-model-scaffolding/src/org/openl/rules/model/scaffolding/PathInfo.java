@@ -13,6 +13,13 @@ public class PathInfo {
     public PathInfo() {
     }
 
+    public PathInfo(String originalPath, String formattedPath, String operation, TypeInfo typeInfo) {
+        this.originalPath = originalPath;
+        this.formattedPath = formattedPath;
+        this.operation = operation;
+        this.returnType = typeInfo;
+    }
+
     public PathInfo(String originalPath,
             String formattedPath,
             String operation,

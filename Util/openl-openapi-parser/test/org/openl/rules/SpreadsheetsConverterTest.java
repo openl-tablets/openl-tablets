@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
@@ -28,9 +29,15 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
  */
 public class SpreadsheetsConverterTest {
 
+    private OpenAPIModelConverter converter;
+
+    @Before
+    public void setUp() {
+        converter = new OpenAPIScaffoldingConverter();
+    }
+
     @Test
     public void testBraces() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/path_with_braces/braced_with_text.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -55,7 +62,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testArrayInSpr() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_array_instance.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -104,7 +110,6 @@ public class SpreadsheetsConverterTest {
             "numAccidentsOne",
             "numAccRidentsTwo",
             "numAccidentsThree");
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_cases_and_symbols.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -151,7 +156,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprDefaultDateTimeValueInSpr() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/default_values_check.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -254,7 +258,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void inputParamsAreObjects() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EBPDS-10283_object_datatypes_without_fields.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -320,7 +323,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testMissedSpreadsheet() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EBPDS-10228_spreadsheet_was_missed.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -339,7 +341,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testProvidedContext() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
         assertFalse(projectModel.isRuntimeContextProvided());
         List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
@@ -374,7 +375,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testArrayBrackets() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> modelOptional = spreadsheetResultModels.stream()
@@ -391,7 +391,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprResultSignatureForArray() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -413,7 +412,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprInputDateTimeType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10392_date_time_input.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -442,7 +440,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testMissedDataType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -455,7 +452,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testExtraDataType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -477,7 +473,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testArraySprSteps() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel oneDimArray = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_array_type_steps.json");
         Optional<DatatypeModel> pokemonOptional = oneDimArray.getDatatypeModels()
@@ -520,7 +515,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprChild() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -537,7 +531,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testTypeGeneration() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -562,7 +555,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testOverloaded() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10439_overloaded_spreadsheet.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -574,7 +566,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testDiscriminatorField() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10422_discriminator_field.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -597,7 +588,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectCall() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10417_table_name_equals_data_type_name.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -614,7 +604,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectSpreadsheetArray() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_array.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -649,7 +638,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectWrapperCase() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -664,7 +652,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void modifiedPathTest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
@@ -698,7 +685,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSpreadsheetCreation() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");
 
@@ -735,7 +721,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testLostSpreadsheet() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/lostSpreadsheetExamples.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
@@ -809,7 +794,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testFilteringWithAnySpreadsheetResult() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAny.json");
         List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();

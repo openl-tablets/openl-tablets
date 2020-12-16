@@ -23,6 +23,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.tuple.Pair;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -60,15 +61,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
     private static final Set<String> IGNORED_FIELDS = Collections
         .unmodifiableSet(new HashSet<>(Collections.singletonList("@class")));
-    public static final String SPREADSHEET_RESULT_CLASS_NAME = "org.openl.rules.calc.SpreadsheetResult";
-
-    private boolean generateUnusedModels = true;
+    public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
 
     public OpenAPIScaffoldingConverter() {
-    }
-
-    public OpenAPIScaffoldingConverter(boolean generateUnusedModels) {
-        this.generateUnusedModels = generateUnusedModels;
     }
 
     @Override
@@ -187,9 +182,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         refSpreadsheets.removeAll(dtToAdd);
 
         dts.addAll(extractDataTypeModels(openAPI, datatypeRefs, false));
-        if (generateUnusedModels) {
-            dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
-        }
+        dts.addAll(extractDataTypeModels(openAPI, allUnusedRefs, true));
 
         Set<String> usedInDataTypes = new HashSet<>();
         // searching for links in data types
@@ -303,6 +296,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 }
             }
             model.setSteps(steps);
+            model.setPathInfo(new PathInfo("/" + modelName,
+                modelName,
+                PathItem.HttpMethod.POST.name(),
+                new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT)));
             lostModel.setModel(model);
             spreadsheetParserModels.add(lostModel);
         }
@@ -459,8 +456,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             String returnType = spreadsheetModel.getType();
             String originalType = OpenAPITypeUtils.removeArrayBrackets(returnType);
             if (sprResultNames.contains(originalType)) {
-                spreadsheetModel
-                    .setType(returnType.endsWith("[]") ? SPREADSHEET_RESULT + returnType : SPREADSHEET_RESULT);
+                boolean isArray = returnType.endsWith("[]");
+                spreadsheetModel.setType(isArray ? SPREADSHEET_RESULT + returnType : SPREADSHEET_RESULT);
+                if (isArray) {
+                    PathInfo pathInfo = spreadsheetModel.getPathInfo();
+                    pathInfo.getReturnType()
+                        .setJavaName(OpenAPITypeUtils.getArrayClassName(SPREADSHEET_RESULT_CLASS_NAME,
+                            pathInfo.getReturnType().getDimension()));
+                }
             }
             for (StepModel step : spreadsheetModel.getSteps()) {
                 String stepType = step.getType();

@@ -6,35 +6,35 @@ public class TypeInfo {
 
     private String javaName;
     private String simpleName;
-    private boolean isDatatype;
+    private boolean datatype;
     private int dimension;
-    private boolean isReference;
+    private boolean reference;
 
     public TypeInfo() {
     }
 
-    public TypeInfo(String name, boolean isDatatype) {
+    public TypeInfo(String name, boolean datatype) {
         this.javaName = name;
         this.simpleName = name;
-        this.isDatatype = isDatatype;
+        this.datatype = datatype;
     }
 
     public TypeInfo(String javaName, String simpleName) {
         this.javaName = javaName;
         this.simpleName = simpleName;
-        this.isDatatype = false;
+        this.datatype = false;
     }
 
-    public TypeInfo(String javaName, String simpleName, boolean isDatatype) {
+    public TypeInfo(String javaName, String simpleName, boolean datatype) {
         this.javaName = javaName;
         this.simpleName = simpleName;
-        this.isDatatype = isDatatype;
+        this.datatype = datatype;
     }
 
-    public TypeInfo(String javaName, String simpleName, boolean isReference, int dimension) {
+    public TypeInfo(String javaName, String simpleName, boolean reference, int dimension) {
         this.javaName = javaName;
         this.simpleName = simpleName;
-        this.isReference = isReference;
+        this.reference = reference;
         this.dimension = dimension;
     }
 
@@ -55,19 +55,19 @@ public class TypeInfo {
     }
 
     public boolean isDatatype() {
-        return isDatatype;
+        return datatype;
     }
 
     public void setIsDatatype(boolean datatype) {
-        isDatatype = datatype;
+        this.datatype = datatype;
     }
 
     public boolean isReference() {
-        return isReference;
+        return reference;
     }
 
     public void setIsReference(boolean reference) {
-        isReference = reference;
+        this.reference = reference;
     }
 
     public int getDimension() {
@@ -87,13 +87,13 @@ public class TypeInfo {
             return false;
         }
         TypeInfo typeInfo = (TypeInfo) o;
-        return isDatatype == typeInfo.isDatatype && Objects.equals(javaName, typeInfo.javaName) && Objects
+        return datatype == typeInfo.datatype && Objects.equals(javaName, typeInfo.javaName) && Objects
             .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
-                .equals(isReference, typeInfo.isReference);
+                .equals(reference, typeInfo.reference);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(javaName, simpleName, isDatatype, dimension, isReference);
+        return Objects.hash(javaName, simpleName, datatype, dimension, reference);
     }
 }

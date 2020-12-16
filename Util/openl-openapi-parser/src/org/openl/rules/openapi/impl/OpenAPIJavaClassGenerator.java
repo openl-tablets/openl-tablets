@@ -38,6 +38,7 @@ public class OpenAPIJavaClassGenerator {
 
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
+    public static final String VALUE = "value";
 
     private final ProjectModel projectModel;
 
@@ -47,15 +48,15 @@ public class OpenAPIJavaClassGenerator {
 
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
-                .createWithDefaultPackage("OpenAPIService");
+            .createWithDefaultPackage("OpenAPIService");
         boolean hasMethods = false;
         for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
             if (method.getPathInfo().getOriginalPath().equals("/" + method.getPathInfo().getFormattedPath())) {
                 continue;
             }
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method,
-                    projectModel.isRuntimeContextProvided(),
-                    false);
+                projectModel.isRuntimeContextProvided(),
+                false);
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
             hasMethods = true;
         }
@@ -64,30 +65,30 @@ public class OpenAPIJavaClassGenerator {
             hasMethods = true;
             JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class);
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
-                    extraMethodBuilder.byteCode());
+                extraMethodBuilder.byteCode());
             builder.addCommonClass(javaClassFile);
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
-                    .withProperty("value", new TypeDescription(javaClassFile.getJavaNameWithPackage()))
-                    .build());
+                .withProperty(VALUE, new TypeDescription(javaClassFile.getJavaNameWithPackage()))
+                .build());
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
         }
 
         if (hasMethods) {
-            builder.setAnnotationTemplateClass(new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(),
-                    javaInterfaceBuilder.build().byteCode()));
+            builder.setAnnotationTemplateClass(
+                new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(), javaInterfaceBuilder.build().byteCode()));
         }
         return builder.build();
     }
 
     private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel,
-                                                          boolean runtimeContext,
-                                                          boolean extraMethod) {
+            boolean runtimeContext,
+            boolean extraMethod) {
 
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
         MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
-                resolveType(returnTypeInfo));
+            resolveType(returnTypeInfo));
 
         if (runtimeContext) {
             methodBuilder.addParameter(MethodParameterBuilder.create(RULES_CTX_CLASS).build());
@@ -99,8 +100,8 @@ public class OpenAPIJavaClassGenerator {
 
         if (returnTypeInfo.isDatatype()) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
-                    .withProperty("value", removeArray(returnTypeInfo.getSimpleName()))
-                    .build());
+                .withProperty(VALUE, removeArray(returnTypeInfo.getSimpleName()))
+                .build());
         }
 
         writeWebServiceAnnotations(methodBuilder, pathInfo);
@@ -113,38 +114,35 @@ public class OpenAPIJavaClassGenerator {
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.isDatatype()) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
-                    .withProperty("value", removeArray(paramType.getSimpleName()))
-                    .build());
+                .withProperty(VALUE, removeArray(paramType.getSimpleName()))
+                .build());
         }
         if (extraMethod) {
-            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Name.class)
-                    .withProperty("value", parameter.getName())
-                    .build());
+            methodParamBuilder.addAnnotation(
+                AnnotationDescriptionBuilder.create(Name.class).withProperty(VALUE, parameter.getName()).build());
         }
-        if (originalPath.contains(String.format("{%s}", parameter.getName()))) {
+        if (parameter.isInPath()) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(PathParam.class)
-                    .withProperty("value", parameter.getName())
-                    .build());
+                .withProperty(VALUE, parameter.getName())
+                .build());
         }
         return methodParamBuilder.build();
     }
 
     private void writeWebServiceAnnotations(MethodDescriptionBuilder methodBuilder, PathInfo pathInfo) {
-        methodBuilder.addAnnotation(AnnotationDescriptionBuilder
-                .create(chooseOperationAnnotation(pathInfo.getOperation()))
-                .build());
-        methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Path.class)
-                .withProperty("value", pathInfo.getOriginalPath())
-                .build());
+        methodBuilder.addAnnotation(
+            AnnotationDescriptionBuilder.create(chooseOperationAnnotation(pathInfo.getOperation())).build());
+        methodBuilder.addAnnotation(
+            AnnotationDescriptionBuilder.create(Path.class).withProperty(VALUE, pathInfo.getOriginalPath()).build());
         if (StringUtils.isNotBlank(pathInfo.getConsumes())) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Consumes.class)
-                    .withProperty("value", pathInfo.getConsumes(), true)
-                    .build());
+                .withProperty(VALUE, pathInfo.getConsumes(), true)
+                .build());
         }
         if (StringUtils.isNotBlank(pathInfo.getProduces())) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Produces.class)
-                    .withProperty("value", pathInfo.getProduces(), true)
-                    .build());
+                .withProperty(VALUE, pathInfo.getProduces(), true)
+                .build());
         }
     }
 

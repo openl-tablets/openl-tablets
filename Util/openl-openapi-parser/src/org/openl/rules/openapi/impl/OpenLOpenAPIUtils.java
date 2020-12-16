@@ -576,7 +576,8 @@ public class OpenLOpenAPIUtils {
             }
             dt.setFields(fields);
             dts.add(dt);
-            parameterModels = Collections.singletonList( new ParameterModel(new TypeInfo(dataTypeName, true), StringUtils.uncapitalize(dt.getName())));
+            parameterModels = Collections.singletonList(
+                new ParameterModel(new TypeInfo(dataTypeName, true), StringUtils.uncapitalize(dt.getName())));
         }
         return parameterModels;
     }
@@ -617,11 +618,13 @@ public class OpenLOpenAPIUtils {
                     if (ref != null && refsToExpand.contains(ref)) {
                         result.addAll(collectParameters(openAPI, refsToExpand, resSchema, ref));
                     } else {
+                        boolean isInPath = "path".equals(p.getIn());
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
                         result.add(new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, true),
-                            normalizeName(p.getName())));
+                            normalizeName(p.getName()),
+                            isInPath));
                     }
                 }
             }

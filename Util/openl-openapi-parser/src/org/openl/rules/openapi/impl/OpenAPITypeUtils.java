@@ -112,19 +112,24 @@ public class OpenAPITypeUtils {
                 return new TypeInfo(name, name, true, dim);
             } else {
                 // TODO: validate me
-                String className;
-                if (dim == 0) {
-                    className = type.getJavaName();
-                } else if (dim == 1) {
-                    className = "[L" + type.getJavaName() + ";";
-                } else {
-                    className = "[" + type.getJavaName();
-                }
+                String className = getArrayClassName(type.getJavaName(), dim);
                 return new TypeInfo(className, name, false, dim);
             }
         } else {
             return new TypeInfo(Object.class.getName(), OBJECT);
         }
+    }
+
+    public static String getArrayClassName(String javaName, int dim) {
+        String className;
+        if (dim == 0) {
+            className = javaName;
+        } else if (dim == 1) {
+            className = "[L" + javaName + ";";
+        } else {
+            className = "[" + javaName;
+        }
+        return className;
     }
 
     public static String getSimpleName(String ref) {

@@ -30,6 +30,7 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
+import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -43,11 +44,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Project creator from OpenAPI files, generates models, spreadsheets and rules.xml files.
+ * Project creator from OpenAPI files, generates models, spreadsheets, rules.xml, rules-deploy and compiled annotation
+ * template files.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String DEF_JAVA_CLASS_PATH = "classes";
-    public static final String RULES_FILE_NAME = "rules.xml";
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private final Logger LOGGER = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
@@ -187,7 +188,11 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             }
 
             InputStream rulesFile = generateRulesFile(generated.hasAnnotationTemplateClass());
-            addFile(projectBuilder, rulesFile, RULES_FILE_NAME, "Error uploading rules.xml file.");
+            addFile(projectBuilder,
+                rulesFile,
+                ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
+                String.format("Error uploading %s file.",
+                    ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
                 generateRulesDeployFile(projectModel, generated),
                 RULES_DEPLOY_XML,
@@ -200,14 +205,14 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectBuilder;
     }
 
-    private void addJavaClassFile(RulesProjectBuilder projectBuilder, JavaClassFile javaClassFile)
-            throws ProjectException {
+    private void addJavaClassFile(RulesProjectBuilder projectBuilder,
+            JavaClassFile javaClassFile) throws ProjectException {
 
         String javaInterfacePath = DEF_JAVA_CLASS_PATH + "/" + javaClassFile.getPath();
         addFile(projectBuilder,
-                javaClassFile.toInputStream(),
-                javaInterfacePath,
-                String.format("Error uploading of '%s' file.", javaClassFile));
+            javaClassFile.toInputStream(),
+            javaInterfacePath,
+            String.format("Error uploading of '%s' file.", javaClassFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,

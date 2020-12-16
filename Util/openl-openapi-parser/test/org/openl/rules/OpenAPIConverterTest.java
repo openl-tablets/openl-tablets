@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -23,9 +24,15 @@ public class OpenAPIConverterTest {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
 
+    private OpenAPIModelConverter converter;
+
+    @Before
+    public void setUp() {
+        converter = new OpenAPIScaffoldingConverter();
+    }
+
     @Test
     public void testAutoPolicyJson() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         String JSON_FILE_NAME = "test.converter/Example3-AutoPolicyCalculationOpenAPI.json";
         ProjectModel projectModel = converter.extractProjectModel(JSON_FILE_NAME);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -38,7 +45,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testBankRating() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         String BANK_RATING = "test.converter/BankRating.json";
         ProjectModel projectModel = converter.extractProjectModel(BANK_RATING);
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -52,7 +58,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testFolderWithJsonFiles() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         String EXTERNAL_LINKS_JSON_TEST = "test.converter/external_links/Driver.json";
         ProjectModel projectModel = converter.extractProjectModel(EXTERNAL_LINKS_JSON_TEST);
         assertNotNull(projectModel.getName());
@@ -67,7 +72,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testReusableBodyJsonWhichWillBeExpanded() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/reusable/request/reusable_request_body_once.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -83,7 +87,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testReusableBodyWhichWillBeDataType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/reusable/request/reusable_request_body_twice.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -99,7 +102,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testReusableResponse() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/reusable/response/reusable_response.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -122,7 +124,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testOneAndAnyOfRequest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel oneOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInRequest.json");
         List<SpreadsheetModel> spreadsheetModels = oneOf.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetModels.size());
@@ -140,7 +141,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testAllOfRequest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInRequest.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -158,7 +158,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testOneOfWithAllOf() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/oneOfWithAllOfInRequest.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -172,7 +171,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testAllOfInResponse() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         // cat is used in expanding
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInResponse.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -186,7 +184,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testOneOfInResponse() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/oneOfAndAnyOf/oneOfInResponse.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -197,7 +194,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testExpandablePropertyInsideNonExpandableScheme() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/expand/expand_test.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -207,7 +203,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testExpandableExceedingLimit() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/project/expand/expand_exceeds_limit.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -218,7 +213,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void largeFileTest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -228,7 +222,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testSimpleTypes() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
@@ -316,7 +309,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testSettingReturnType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pm = converter.extractProjectModel("test.converter/problems/EPBDS-10841-npe.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
 
@@ -360,7 +352,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testFiltering() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pm = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
@@ -376,7 +367,6 @@ public class OpenAPIConverterTest {
 
     @Test
     public void testFilteringIfArrayReturns() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pm = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering_second_case.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
