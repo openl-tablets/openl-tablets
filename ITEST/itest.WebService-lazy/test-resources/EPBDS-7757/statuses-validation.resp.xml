@@ -1,0 +1,11 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Server</faultcode>
+            <faultstring>Object 'FOUR' is outside of valid domain 'StringType'. Valid values: [ONE, TWO, THREE]</faultstring>
+            <detail>
+                <type>VALIDATION</type>
+            </detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>
