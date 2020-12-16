@@ -13,17 +13,16 @@ import org.springframework.stereotype.Service;
 
 @Service
 @Produces(MediaType.APPLICATION_JSON)
-@Path("/public")
 public class SysInfoService {
 
     @GET
-    @Path("/info/sys.json")
+    @Path("/public/info/sys.json")
     public Map<String, Object> getSysInfo() {
         return SysInfo.get();
     }
 
     @GET
-    @Path("/info/openl.json")
+    @Path("/public/info/openl.json")
     public Map<String, String> getOpenLInfo() {
         return OpenLVersion.get();
     }
