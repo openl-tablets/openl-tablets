@@ -89,7 +89,7 @@
 
         <h:panelGroup rendered="#{settings.useCustomComments}">
             <h:panelGrid columns="3" columnClasses="titleColumn">
-                <h:outputText value="Message:" styleClass="required"/>
+                <h:outputText value="Message template:" styleClass="required"/>
                 <h:inputText value="#{settings.commentTemplate}"
                              title="Comment message template for commits."
                              id="#{prependId}commentTemplate" validator="#{validators.commentTemplate}"/>

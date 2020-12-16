@@ -13,7 +13,9 @@ public interface EPBDS10595Service {
     @ServiceExtraMethod(EPBDS10595ServiceExtraMethodHandler.class)
     Object inputMyDatatype(@RulesType("MyDatatype") Object inputParam);
 
-    Double myRule(@RulesType(value = "MyDatatype", arrayDims = 1) Object inputParam, String x);
+
+    @RulesType("MyDatatype")
+    Object[] myRule(@RulesType(value = "MyDatatype") Object inputParam, String x);
 
     Double myRule2(@RulesType(value = "MyDatatype") Object[] inputParam, String x);
 }
