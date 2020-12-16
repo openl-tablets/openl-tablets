@@ -18,8 +18,6 @@ import org.openl.rules.lang.xls.prebind.IPrebindHandler;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
-import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.runtime.AOpenLRulesEngineFactory;
 import org.openl.rules.runtime.InterfaceClassGenerator;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
@@ -34,7 +32,6 @@ import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
-import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,14 +187,6 @@ class LazyEngineFactory<T> extends AOpenLRulesEngineFactory {
 
     public IDependencyManager getDependencyManager() {
         return dependencyManager;
-    }
-
-    @Override
-    protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
-        if (!(interfaceMethod.isAnnotationPresent(ServiceCallAfterInterceptor.class) || interfaceMethod
-            .isAnnotationPresent(ServiceCallAroundInterceptor.class))) {
-            super.validateReturnType(openMethod, interfaceMethod);
-        }
     }
 
 }

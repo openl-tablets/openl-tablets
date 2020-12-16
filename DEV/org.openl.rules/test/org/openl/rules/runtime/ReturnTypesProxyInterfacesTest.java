@@ -86,13 +86,8 @@ public class ReturnTypesProxyInterfacesTest {
 
     @Test
     public void testVoidReturnTypeToInt() {
-        try {
-            initInstance(VoidReturnTypeToInt.class);
-        } catch (RuntimeException e) {
-            assertReturnTypeException(String.format(EXP_MSG, "void", "voidMethod", "int"), e);
-            return;
-        }
-        fail("Must be failed with return type mismatch exception");
+        VoidReturnTypeToInt voidReturnTypeToInt = initInstance(VoidReturnTypeToInt.class);
+        assertEquals(0, voidReturnTypeToInt.voidMethod());
     }
 
     private void assertArraysEquals(long[] expected, long[] actual) {

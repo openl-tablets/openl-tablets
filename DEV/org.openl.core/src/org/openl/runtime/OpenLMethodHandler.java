@@ -1,11 +1,13 @@
 package org.openl.runtime;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Map;
 
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
 
@@ -81,10 +83,21 @@ public class OpenLMethodHandler implements IOpenLMethodHandler<Method, IOpenMemb
             IOpenMember member = methodMap.get(method);
             if (member instanceof IOpenMethod) {
                 IOpenMethod openMethod = (IOpenMethod) member;
-                return openMethod.invoke(openlInstance, args, getRuntimeEnv());
+                Object ret = openMethod.invoke(openlInstance, args, getRuntimeEnv());
+                if (method.getReturnType() != void.class && openMethod.getType() == JavaOpenClass.VOID || openMethod
+                    .getType() == JavaOpenClass.CLS_VOID && method.getReturnType().isPrimitive()) {
+                    return Array.get(Array.newInstance(method.getReturnType(), 1), 0);
+                }
+                return ret;
             } else {
                 IOpenField openField = (IOpenField) member;
-                return openField.get(openlInstance, getRuntimeEnv());
+                Object ret = openField.get(openlInstance, getRuntimeEnv());
+                if (method.getReturnType() != void.class && openField.getType() == JavaOpenClass.VOID || openField.getType() == JavaOpenClass.CLS_VOID && method
+                    .getReturnType()
+                    .isPrimitive()) {
+                    return Array.get(Array.newInstance(method.getReturnType(), 1), 0);
+                }
+                return ret;
             }
         }
     }
