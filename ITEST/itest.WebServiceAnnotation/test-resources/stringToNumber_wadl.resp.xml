@@ -73,7 +73,7 @@
                     </response>
                 </method>
             </resource>
-            <resource path="parse1">
+            <resource path="parse">
                 <method name="POST">
                     <request>
                         <representation mediaType="text/plain">

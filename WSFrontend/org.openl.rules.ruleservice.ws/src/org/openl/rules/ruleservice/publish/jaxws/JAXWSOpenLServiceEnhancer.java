@@ -163,7 +163,7 @@ public final class JAXWSOpenLServiceEnhancer {
                     }
                 }
 
-                methods = MethodUtils.sort(methods);
+                methods = org.openl.util.generation.MethodUtils.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();

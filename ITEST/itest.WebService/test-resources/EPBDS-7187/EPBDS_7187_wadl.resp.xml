@@ -50,19 +50,13 @@
             <xs:element name="LowCaseRequest" type="tns:LowCaseRequest"/>
             <xs:element name="MixedCaseRequest" type="tns:MixedCaseRequest"/>
             <xs:element name="Mixes2Request" type="tns:Mixes2Request"/>
+            <xs:element name="OverloadRequest2" type="tns:OverloadRequest2"/>
             <xs:element name="OverloadRequest3" type="tns:OverloadRequest3"/>
-            <xs:element name="OverloadRequest4" type="tns:OverloadRequest4"/>
             <xs:element name="UPCaseRequest" type="tns:UPCaseRequest"/>
-            <xs:complexType name="EDGECaseRequest">
+            <xs:complexType name="UPCaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
-                    <xs:element name="NUMBer" type="xs:double"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="OverloadRequest3">
-                <xs:sequence>
-                    <xs:element name="i" type="xs:int"/>
-                    <xs:element minOccurs="0" name="J" type="xs:string"/>
+                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
+                    <xs:element name="NUMBER" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="LowCaseRequest">
@@ -71,16 +65,10 @@
                     <xs:element minOccurs="0" name="string" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="UPCaseRequest">
+            <xs:complexType name="EDGECaseRequest">
                 <xs:sequence>
-                    <xs:element minOccurs="0" name="STRING" type="xs:string"/>
-                    <xs:element name="NUMBER" type="xs:double"/>
-                </xs:sequence>
-            </xs:complexType>
-            <xs:complexType name="MixedCaseRequest">
-                <xs:sequence>
-                    <xs:element minOccurs="0" name="numBer" type="xs:double"/>
-                    <xs:element minOccurs="0" name="String" type="xs:string"/>
+                    <xs:element minOccurs="0" name="sTring" type="xs:string"/>
+                    <xs:element name="NUMBer" type="xs:double"/>
                 </xs:sequence>
             </xs:complexType>
             <xs:complexType name="Mixes2Request">
@@ -89,9 +77,21 @@
                     <xs:element minOccurs="0" name="m2" type="ns1:Mixes"/>
                 </xs:sequence>
             </xs:complexType>
-            <xs:complexType name="OverloadRequest4">
+            <xs:complexType name="MixedCaseRequest">
+                <xs:sequence>
+                    <xs:element minOccurs="0" name="numBer" type="xs:double"/>
+                    <xs:element minOccurs="0" name="String" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OverloadRequest3">
                 <xs:sequence>
                     <xs:element minOccurs="0" name="I" type="xs:int"/>
+                    <xs:element minOccurs="0" name="J" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+            <xs:complexType name="OverloadRequest2">
+                <xs:sequence>
+                    <xs:element name="i" type="xs:int"/>
                     <xs:element minOccurs="0" name="J" type="xs:string"/>
                 </xs:sequence>
             </xs:complexType>
@@ -166,6 +166,15 @@
                     </response>
                 </method>
             </resource>
+            <resource path="overload/{I: .*}">
+                <param name="I" style="template" type="xs:int"/>
+                <method name="GET">
+                    <request></request>
+                    <response>
+                        <representation mediaType="text/plain"/>
+                    </response>
+                </method>
+            </resource>
             <resource path="overload1">
                 <method name="POST">
                     <request>
@@ -176,10 +185,11 @@
                     </response>
                 </method>
             </resource>
-            <resource path="overload2/{I: .*}">
-                <param name="I" style="template" type="xs:int"/>
-                <method name="GET">
-                    <request></request>
+            <resource path="overload2">
+                <method name="POST">
+                    <request>
+                        <representation mediaType="application/json" element="prefix1:OverloadRequest2"/>
+                    </request>
                     <response>
                         <representation mediaType="text/plain"/>
                     </response>
@@ -189,16 +199,6 @@
                 <method name="POST">
                     <request>
                         <representation mediaType="application/json" element="prefix1:OverloadRequest3"/>
-                    </request>
-                    <response>
-                        <representation mediaType="text/plain"/>
-                    </response>
-                </method>
-            </resource>
-            <resource path="overload4">
-                <method name="POST">
-                    <request>
-                        <representation mediaType="application/json" element="prefix1:OverloadRequest4"/>
                     </request>
                     <response>
                         <representation mediaType="text/plain"/>

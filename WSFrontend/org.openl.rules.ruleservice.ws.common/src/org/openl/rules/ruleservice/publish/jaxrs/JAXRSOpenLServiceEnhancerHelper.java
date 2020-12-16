@@ -7,30 +7,16 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import javax.ws.rs.BeanParam;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.CookieParam;
-import javax.ws.rs.FormParam;
-import javax.ws.rs.GET;
-import javax.ws.rs.HeaderParam;
-import javax.ws.rs.MatrixParam;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -99,9 +85,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
 
         private final Class<?> originalClass;
         private final ClassLoader classLoader;
-        private Map<Method, String> paths = null;
-        private Map<Method, String> nicknames = null;
-        private Map<Method, String> methodRequests = null;
+        private Set<String> usedPaths = null;
+        private final Set<String> nicknames = new HashSet<>();
         private final IOpenClass openClass;
         private final String serviceName;
         private final String serviceExposedUrl;
@@ -197,14 +182,19 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
-        private String changedParameterTypesDescription(String descriptor, Method originalMethod) throws Exception {
-            Class<?> parameterWrapperClass = generateWrapperClass(originalMethod);
+        private String changedParameterTypesDescription(String descriptor,
+                Method originalMethod,
+                int suffix) throws Exception {
+            Class<?> parameterWrapperClass = generateWrapperClass(originalMethod, suffix);
             return Type.getMethodDescriptor(Type.getReturnType(descriptor), Type.getType(parameterWrapperClass));
         }
 
-        private Class<?> generateWrapperClass(Method originalMethod) throws Exception {
+        private Class<?> generateWrapperClass(Method originalMethod, int suffix) throws Exception {
             String[] parameterNames = resolveParameterNames(originalMethod);
-            String requestParameterName = getRequestParameterName(originalMethod);
+            String requestParameterName = StringUtils.capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX;
+            if (suffix > 0) {
+                requestParameterName = requestParameterName + suffix;
+            }
             String beanName = "org.openl.jaxrs." + requestParameterName;
 
             int i = 0;
@@ -219,109 +209,28 @@ public class JAXRSOpenLServiceEnhancerHelper {
             return ClassUtils.defineClass(beanName, byteCode, classLoader);
         }
 
-        String getRequestParameterName(Method method) {
-            if (methodRequests == null) {
-                methodRequests = new HashMap<>();
-                List<Method> methods = MethodUtils.sort(Arrays.asList(originalClass.getMethods()));
-
-                Set<String> requestEntitiesCache = initRequestEntitiesCache(methods);
-                for (Method m : methods) {
-                    String name = StringUtils.capitalize(m.getName()) + REQUEST_PARAMETER_SUFFIX;
-                    String s = name;
-                    int i = 1;
-                    while (requestEntitiesCache.contains(s)) {
-                        s = name + i;
-                        i++;
-                    }
-                    requestEntitiesCache.add(s);
-                    methodRequests.put(m, s);
-                }
-            }
-
-            return methodRequests.get(method);
-        }
-
-        private Set<String> initRequestEntitiesCache(List<Method> methods) {
-            Set<String> cache = new HashSet<>();
-            for (Method method : methods) {
-                for (Class<?> paramType : method.getParameterTypes()) {
-                    String requestEntityName = paramType.getSimpleName();
-                    if (requestEntityName.contains(REQUEST_PARAMETER_SUFFIX)) {
-                        cache.add(requestEntityName);
-                    }
-                }
-            }
-            return cache;
-        }
-
-        String getNickName(Method method) {
-            if (nicknames == null) {
-                nicknames = new HashMap<>();
-                List<Method> methods = new ArrayList<>();
-                List<Method> methods1 = new ArrayList<>();
-                for (Method m : originalClass.getMethods()) {
-                    if (m.isAnnotationPresent(Path.class)) {
-                        methods1.add(m);
-                    } else {
-                        methods.add(m);
-                    }
-                }
-                generateNickNames(methods);
-                generateNickNames(methods1);
-            }
-            return nicknames.get(method);
-        }
-
-        private void generateNickNames(List<Method> methods) {
-            methods = MethodUtils.sort(methods);
-            for (Method m : methods) {
-                String s = m.getName();
-                int i = 1;
-                while (nicknames.containsValue(s)) {
-                    s = m.getName() + "_" + i;
-                    i++;
-                }
-                nicknames.put(m, s);
-            }
-        }
-
-        String getPath(Method method) {
-            if (paths == null) {
-                paths = new HashMap<>();
-                List<Method> methods = new ArrayList<>();
+        Set<String> getUsedPaths() {
+            if (usedPaths == null) {
+                usedPaths = new HashSet<>();
                 for (Method m : originalClass.getMethods()) {
                     Path pathAnnotation = m.getAnnotation(Path.class);
                     if (pathAnnotation != null) {
                         String value = pathAnnotation.value();
-
-                        while (value.charAt(0) == '/') {
-                            value = value.substring(1);
-                        }
-
-                        if (value.indexOf('/') > 0) {
-                            value = value.substring(0, value.indexOf('/'));
-                        }
-
-                        paths.put(m, value);
-                    } else {
-                        methods.add(m);
+                        usedPaths.add(normalizePath(value));
                     }
-                }
-
-                methods = MethodUtils.sort(methods);
-
-                for (Method m : methods) {
-                    String s = m.getName();
-                    int i = 1;
-                    while (paths.containsValue(s)) {
-                        s = m.getName() + i;
-                        i++;
-                    }
-                    paths.put(m, s);
                 }
             }
+            return usedPaths;
+        }
 
-            return paths.get(method);
+        String normalizePath(String path) {
+            while (path.charAt(0) == '/') {
+                path = path.substring(1);
+            }
+            while (path.endsWith("/")) {
+                path = path.substring(0, path.length() - 1);
+            }
+            return path.replaceAll("\\{[^}]*}", "{}");
         }
 
         boolean isJAXRSParamAnnotation(Annotation annotation) {
@@ -368,10 +277,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 }
             }
-            StringBuilder sb = new StringBuilder();
-            sb.append("/").append(getPath(originalMethod));
             if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
                 .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
+                StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 String[] parameterNames = resolveParameterNames(originalMethod);
                 processAnnotationsOnMethodParameters(originalMethod, mv);
@@ -403,7 +311,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         }
                         i++;
                     }
-                    addPathAnnotation(mv, originalMethod, sb.toString());
+                    String path = "/" + originalMethod.getName() + sb.toString();
+                    int c = 1;
+                    while (getUsedPaths().contains(normalizePath(path))) {
+                        path = "/" + originalMethod.getName() + (c++) + sb.toString();
+                    }
+                    getUsedPaths().add(normalizePath(path));
+                    addPathAnnotation(mv, originalMethod, path);
                 } else {
                     Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
                         e -> e instanceof QueryParam,
@@ -432,11 +346,17 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 }
             } else {
                 try {
+                    String path = "/" + originalMethod.getName();
+                    int c = 0;
+                    while (getUsedPaths().contains(normalizePath(path))) {
+                        c++;
+                        path = "/" + originalMethod.getName() + c;
+                    }
                     if (numOfParameters > 1) {
                         if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
                             mv = super.visitMethod(access,
                                 name,
-                                changedParameterTypesDescription(descriptor, originalMethod),
+                                changedParameterTypesDescription(descriptor, originalMethod, c),
                                 signature,
                                 exceptions);
                         } else {
@@ -453,13 +373,20 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (!originalMethod.isAnnotationPresent(POST.class)) {
                         addPostAnnotation(mv, originalMethod);
                     }
-                    addPathAnnotation(mv, originalMethod, sb.toString());
+                    getUsedPaths().add(normalizePath(path));
+                    addPathAnnotation(mv, originalMethod, path);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);
                 }
             }
             addConsumerProducesMethodAnnotations(mv, returnType, originalParameterTypes, originalMethod);
-            addSwaggerMethodAnnotation(mv, originalMethod, getNickName(originalMethod));
+            String nickname = originalMethod.getName();
+            int c = 1;
+            while (nicknames.contains(nickname)) {
+                nickname = originalMethod.getName() + "_" + c++;
+            }
+            nicknames.add(nickname);
+            addSwaggerMethodAnnotation(mv, originalMethod, nickname);
             return mv;
         }
 
@@ -641,7 +568,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             } else if (type == Character.class || type == char.class) {
                 av1.visit("type", "string");
             } else if (Map.class.isAssignableFrom(type)) {
-                av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema annotations.
+                av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema
+                                                                         // annotations.
             } else {
                 av1.visit("implementation", Type.getType(type));
             }

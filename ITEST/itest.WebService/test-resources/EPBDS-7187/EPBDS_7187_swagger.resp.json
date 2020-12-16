@@ -6,69 +6,11 @@
   },
   "basePath": "/upcs",
   "paths": {
-    "/overload": {
-      "get": {
-        "summary": "boolean overload()",
-        "description": "Rules method: boolean overload()",
-        "operationId": "overload",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/overload3": {
+    "/MixedCase": {
       "post": {
-        "summary": "boolean overload(int, String)",
-        "description": "Rules method: boolean overload(int i, java.lang.String J)",
-        "operationId": "overload_3",
+        "summary": "boolean MixedCase(Double, String)",
+        "description": "Rules method: boolean MixedCase(java.lang.Double numBer, java.lang.String String)",
+        "operationId": "MixedCase",
         "consumes": [
           "application/json"
         ],
@@ -81,7 +23,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/OverloadRequest3"
+              "$ref": "#/definitions/MixedCaseRequest"
             }
           }
         ],
@@ -131,11 +73,11 @@
         }
       }
     },
-    "/overload1": {
+    "/UPCase": {
       "post": {
-        "summary": "boolean overload(Bean)",
-        "description": "Rules method: boolean overload(Bean b)",
-        "operationId": "overload_1",
+        "summary": "boolean UPCase(String, double)",
+        "description": "Rules method: boolean UPCase(java.lang.String STRING, double NUMBER)",
+        "operationId": "UPCase",
         "consumes": [
           "application/json"
         ],
@@ -148,7 +90,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/Bean"
+              "$ref": "#/definitions/UPCaseRequest"
             }
           }
         ],
@@ -157,207 +99,6 @@
             "description": "successful operation",
             "schema": {
               "type": "boolean"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/overload2/{I}": {
-      "get": {
-        "summary": "boolean overload(int)",
-        "description": "Rules method: boolean overload(int I)",
-        "operationId": "overload_2",
-        "consumes": [
-          "text/plain"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "name": "I",
-            "in": "path",
-            "required": true,
-            "type": "integer",
-            "pattern": ".*",
-            "format": "int32"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/overload4": {
-      "post": {
-        "summary": "boolean overload(Integer, String)",
-        "description": "Rules method: boolean overload(java.lang.Integer I, java.lang.String J)",
-        "operationId": "overload_4",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/OverloadRequest4"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/mixes": {
-      "post": {
-        "summary": "Mixes mixes(Mixes)",
-        "description": "Rules method: org.openl.generated.beans.Mixes mixes(org.openl.generated.beans.Mixes m)",
-        "operationId": "mixes",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/Mixes"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "$ref": "#/definitions/Mixes"
             }
           },
           "422": {
@@ -417,73 +158,6 @@
             "required": false,
             "schema": {
               "$ref": "#/definitions/LowCaseRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "boolean"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
-    "/eDGECase": {
-      "post": {
-        "summary": "boolean eDGECase(String, double)",
-        "description": "Rules method: boolean eDGECase(java.lang.String sTring, double NUMBer)",
-        "operationId": "eDGECase",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/EDGECaseRequest"
             }
           }
         ],
@@ -603,11 +277,11 @@
         }
       }
     },
-    "/UPCase": {
+    "/eDGECase": {
       "post": {
-        "summary": "boolean UPCase(String, double)",
-        "description": "Rules method: boolean UPCase(java.lang.String STRING, double NUMBER)",
-        "operationId": "UPCase",
+        "summary": "boolean eDGECase(String, double)",
+        "description": "Rules method: boolean eDGECase(java.lang.String sTring, double NUMBer)",
+        "operationId": "eDGECase",
         "consumes": [
           "application/json"
         ],
@@ -620,7 +294,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/UPCaseRequest"
+              "$ref": "#/definitions/EDGECaseRequest"
             }
           }
         ],
@@ -670,11 +344,11 @@
         }
       }
     },
-    "/MixedCase": {
+    "/overload3": {
       "post": {
-        "summary": "boolean MixedCase(Double, String)",
-        "description": "Rules method: boolean MixedCase(java.lang.Double numBer, java.lang.String String)",
-        "operationId": "MixedCase",
+        "summary": "boolean overload(Integer, String)",
+        "description": "Rules method: boolean overload(java.lang.Integer I, java.lang.String J)",
+        "operationId": "overload_4",
         "consumes": [
           "application/json"
         ],
@@ -687,7 +361,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/MixedCaseRequest"
+              "$ref": "#/definitions/OverloadRequest3"
             }
           }
         ],
@@ -696,6 +370,332 @@
             "description": "successful operation",
             "schema": {
               "type": "boolean"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/overload/{I}": {
+      "get": {
+        "summary": "boolean overload(int)",
+        "description": "Rules method: boolean overload(int I)",
+        "operationId": "overload_2",
+        "consumes": [
+          "text/plain"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "name": "I",
+            "in": "path",
+            "required": true,
+            "type": "integer",
+            "pattern": ".*",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/overload2": {
+      "post": {
+        "summary": "boolean overload(int, String)",
+        "description": "Rules method: boolean overload(int i, java.lang.String J)",
+        "operationId": "overload_3",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/OverloadRequest2"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/overload": {
+      "get": {
+        "summary": "boolean overload()",
+        "description": "Rules method: boolean overload()",
+        "operationId": "overload",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/overload1": {
+      "post": {
+        "summary": "boolean overload(Bean)",
+        "description": "Rules method: boolean overload(Bean b)",
+        "operationId": "overload_1",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Bean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/mixes": {
+      "post": {
+        "summary": "Mixes mixes(Mixes)",
+        "description": "Rules method: org.openl.generated.beans.Mixes mixes(org.openl.generated.beans.Mixes m)",
+        "operationId": "mixes",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/Mixes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "$ref": "#/definitions/Mixes"
             }
           },
           "422": {
@@ -764,7 +764,108 @@
         }
       }
     },
+    "MixedCaseRequest": {
+      "type": "object",
+      "properties": {
+        "numBer": {
+          "type": "number",
+          "format": "double"
+        },
+        "String": {
+          "type": "string"
+        }
+      }
+    },
+    "UPCaseRequest": {
+      "type": "object",
+      "properties": {
+        "STRING": {
+          "type": "string"
+        },
+        "NUMBER": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
+    "LowCaseRequest": {
+      "type": "object",
+      "properties": {
+        "number": {
+          "type": "number",
+          "format": "double"
+        },
+        "string": {
+          "type": "string"
+        }
+      }
+    },
+    "Mixes": {
+      "type": "object",
+      "properties": {
+        "a": {
+          "type": "string",
+          "default": "default"
+        },
+        "B": {
+          "type": "integer",
+          "format": "int32",
+          "default": 10
+        },
+        "aB": {
+          "type": "number",
+          "format": "double",
+          "default": 0.0
+        },
+        "Ba": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "BB": {
+          "type": "boolean",
+          "default": true
+        },
+        "aa": {
+          "type": "number"
+        }
+      }
+    },
+    "Mixes2Request": {
+      "type": "object",
+      "properties": {
+        "m1": {
+          "$ref": "#/definitions/Mixes"
+        },
+        "m2": {
+          "$ref": "#/definitions/Mixes"
+        }
+      }
+    },
+    "EDGECaseRequest": {
+      "type": "object",
+      "properties": {
+        "sTring": {
+          "type": "string"
+        },
+        "NUMBer": {
+          "type": "number",
+          "format": "double"
+        }
+      }
+    },
     "OverloadRequest3": {
+      "type": "object",
+      "properties": {
+        "I": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "J": {
+          "type": "string"
+        }
+      }
+    },
+    "OverloadRequest2": {
       "type": "object",
       "properties": {
         "i": {
@@ -800,107 +901,6 @@
           "format": "int32"
         },
         "STR": {
-          "type": "string"
-        }
-      }
-    },
-    "OverloadRequest4": {
-      "type": "object",
-      "properties": {
-        "I": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "J": {
-          "type": "string"
-        }
-      }
-    },
-    "Mixes": {
-      "type": "object",
-      "properties": {
-        "a": {
-          "type": "string",
-          "default": "default"
-        },
-        "B": {
-          "type": "integer",
-          "format": "int32",
-          "default": 10
-        },
-        "aB": {
-          "type": "number",
-          "format": "double",
-          "default": 0.0
-        },
-        "Ba": {
-          "type": "string",
-          "format": "date-time"
-        },
-        "BB": {
-          "type": "boolean",
-          "default": true
-        },
-        "aa": {
-          "type": "number"
-        }
-      }
-    },
-    "LowCaseRequest": {
-      "type": "object",
-      "properties": {
-        "number": {
-          "type": "number",
-          "format": "double"
-        },
-        "string": {
-          "type": "string"
-        }
-      }
-    },
-    "EDGECaseRequest": {
-      "type": "object",
-      "properties": {
-        "sTring": {
-          "type": "string"
-        },
-        "NUMBer": {
-          "type": "number",
-          "format": "double"
-        }
-      }
-    },
-    "Mixes2Request": {
-      "type": "object",
-      "properties": {
-        "m1": {
-          "$ref": "#/definitions/Mixes"
-        },
-        "m2": {
-          "$ref": "#/definitions/Mixes"
-        }
-      }
-    },
-    "UPCaseRequest": {
-      "type": "object",
-      "properties": {
-        "STRING": {
-          "type": "string"
-        },
-        "NUMBER": {
-          "type": "number",
-          "format": "double"
-        }
-      }
-    },
-    "MixedCaseRequest": {
-      "type": "object",
-      "properties": {
-        "numBer": {
-          "type": "number",
-          "format": "double"
-        },
-        "String": {
           "type": "string"
         }
       }

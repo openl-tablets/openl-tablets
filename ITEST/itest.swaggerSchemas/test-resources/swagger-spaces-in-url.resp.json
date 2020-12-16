@@ -11,8 +11,12 @@
         "summary": "String bar(SumTwoDoublesRequest)",
         "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
         "operationId": "bar",
-        "consumes": ["application/json"],
-        "produces": ["text/plain"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -74,15 +78,19 @@
         "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
         "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
         "operationId": "calVehicleYear",
-        "consumes": ["application/json"],
-        "produces": ["text/plain"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/CalVehicleYearRequest1"
+              "$ref": "#/definitions/CalVehicleYearRequest"
             }
           }
         ],
@@ -138,15 +146,19 @@
         "summary": "Double sumTwoDoubles(Double, Double)",
         "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
         "operationId": "sumTwoDoubles",
-        "consumes": ["application/json"],
-        "produces": ["text/plain"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
         "parameters": [
           {
             "in": "body",
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest1"
+              "$ref": "#/definitions/SumTwoDoublesRequest"
             }
           }
         ],
@@ -207,7 +219,14 @@
         },
         "type": {
           "type": "string",
-          "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          "enum": [
+            "USER_ERROR",
+            "RULES_RUNTIME",
+            "COMPILATION",
+            "SYSTEM",
+            "BAD_REQUEST",
+            "VALIDATION"
+          ]
         },
         "details": {
           "type": "array",
@@ -220,44 +239,23 @@
     "SumTwoDoublesRequest": {
       "type": "object",
       "properties": {
-        "foo": {
-          "type": "string"
+        "a": {
+          "type": "number",
+          "format": "double"
+        },
+        "b": {
+          "type": "number",
+          "format": "double"
         }
       }
     },
     "CalVehicleYearRequest": {
       "type": "object",
       "properties": {
-        "modelYear": {
-          "type": "integer",
-          "format": "int32"
-        },
-        "vehEffectiveYear": {
-          "type": "string",
-          "format": "date-time"
-        }
-      }
-    },
-    "CalVehicleYearRequest1": {
-      "type": "object",
-      "properties": {
         "v": {
           "$ref": "#/definitions/CalVehicleYearRequest"
         },
         "a": {
-          "type": "number",
-          "format": "double"
-        }
-      }
-    },
-    "SumTwoDoublesRequest1": {
-      "type": "object",
-      "properties": {
-        "a": {
-          "type": "number",
-          "format": "double"
-        },
-        "b": {
           "type": "number",
           "format": "double"
         }
