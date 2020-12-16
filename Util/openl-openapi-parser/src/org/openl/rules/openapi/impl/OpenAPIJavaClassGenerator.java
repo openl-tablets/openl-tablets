@@ -13,9 +13,9 @@ import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 
-import org.objectweb.asm.Type;
 import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.JavaInterfaceByteCodeBuilder;
 import org.openl.gen.JavaInterfaceImplBuilder;
@@ -34,10 +34,6 @@ import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.util.StringUtils;
 
-/**
- * This is not junit test, it's only for the testing the results of the generation. This class functionality must be
- * used int the OpenAPIProjectCreator for the generation and RepositoryTreeController in case of the regeneration.
- */
 public class OpenAPIJavaClassGenerator {
 
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
@@ -72,8 +68,7 @@ public class OpenAPIJavaClassGenerator {
             builder.addCommonClass(javaClassFile);
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
-                    .withProperty("value", Type.getType(
-                            new TypeDescription(javaClassFile.getJavaNameWithPackage()).getTypeDescriptor()))
+                    .withProperty("value", new TypeDescription(javaClassFile.getJavaNameWithPackage()))
                     .build());
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
         }
@@ -99,7 +94,7 @@ public class OpenAPIJavaClassGenerator {
         }
 
         for (InputParameter parameter : sprModel.getParameters()) {
-            methodBuilder.addParameter(visitMethodParameter(parameter, extraMethod));
+            methodBuilder.addParameter(visitMethodParameter(pathInfo.getOriginalPath(), parameter, extraMethod));
         }
 
         if (returnTypeInfo.isDatatype()) {
@@ -113,7 +108,7 @@ public class OpenAPIJavaClassGenerator {
         return methodBuilder;
     }
 
-    private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
+    private TypeDescription visitMethodParameter(String originalPath, InputParameter parameter, boolean extraMethod) {
         final TypeInfo paramType = parameter.getType();
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.isDatatype()) {
@@ -123,6 +118,11 @@ public class OpenAPIJavaClassGenerator {
         }
         if (extraMethod) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Name.class)
+                    .withProperty("value", parameter.getName())
+                    .build());
+        }
+        if (originalPath.contains(String.format("{%s}", parameter.getName()))) {
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(PathParam.class)
                     .withProperty("value", parameter.getName())
                     .build());
         }
@@ -157,26 +157,7 @@ public class OpenAPIJavaClassGenerator {
             }
             return type.getName();
         } else {
-            switch (typeInfo.getJavaName()) {
-                case "byte":
-                    return Byte.class.getName();
-                case "short":
-                    return Short.class.getName();
-                case "int":
-                    return Integer.class.getName();
-                case "long":
-                    return Long.class.getName();
-                case "float":
-                    return Float.class.getName();
-                case "double":
-                    return Double.class.getName();
-                case "boolean":
-                    return Boolean.class.getName();
-                case "char":
-                    return Character.class.getName();
-                default:
-                    return typeInfo.getJavaName();
-            }
+            return typeInfo.getJavaName();
         }
     }
 

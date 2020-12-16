@@ -9,6 +9,7 @@ import java.util.Objects;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Type;
 import org.openl.gen.AnnotationDescription;
 import org.openl.gen.MethodDescription;
 import org.openl.gen.TypeDescription;
@@ -71,19 +72,20 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
      */
     private void visitAnnotationProperty(AnnotationVisitor av, AnnotationDescription annotation) {
         for (AnnotationDescription.AnnotationProperty property : annotation.getProperties()) {
+            final Object value = property.getValue();
             if (property.isArray()) {
                 AnnotationVisitor arrV = av.visitArray(property.getName());
-                final Object value = property.getValue();
                 if (value.getClass().isArray()) {
                     for (int i = 0; i < Array.getLength(value); i++) {
-                        arrV.visit(null, Array.get(value, i));
+                        Object elem = Array.get(value, i);
+                        arrV.visit(null, property.isType() ? Type.getType((String) elem) : elem);
                     }
                 } else {
-                    arrV.visit(null, value);
+                    arrV.visit(null, property.isType() ? Type.getType((String) value) : value);
                 }
                 arrV.visitEnd();
             } else {
-                av.visit(property.getName(), property.getValue());
+                av.visit(property.getName(), property.isType() ? Type.getType((String) value) : value);
             }
         }
         av.visitEnd();

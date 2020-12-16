@@ -1,0 +1,301 @@
+openapi: 3.0.0
+info:
+  title: OpenAPI Petstore
+  description: This is a sample server Petstore server. For this sample, you can use the api key `special-key` to test the authorization filters. For OAuth2 flow, you may use `user` as both username and password when asked to login.
+  license:
+    name: Apache-2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about OpenAPI generator
+  url: https://openapi-generator.tech
+tags:
+- name: pet
+  description: Everything about your Pets
+- name: store
+  description: Access to Petstore orders
+- name: user
+  description: Operations about user
+paths:
+  /pet:
+    post:
+      tags:
+      - pet
+      summary: Add a new pet to the store
+      operationId: addPet
+      requestBody:
+        $ref: '#/components/requestBodies/Pet'
+      responses:
+        405:
+          description: Invalid input
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Pet'
+      security:
+      - petstore_auth:
+        - write:pets
+        - read:pets
+      x-accepts: application/json
+      x-tags:
+      - tag: pet
+      x-contentType: application/json
+  /pet/{petId}:
+    get:
+      tags:
+      - pet
+      summary: Find pet by ID
+      description: Returns a single pet
+      operationId: getPetById
+      parameters:
+      - name: petId
+        in: path
+        description: ID of pet to return
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+          format: int64
+      responses:
+        200:
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pet'
+        400:
+          description: Invalid ID supplied
+        404:
+          description: Pet not found
+      security:
+      - api_key: []
+      x-accepts: application/json
+      x-tags:
+      - tag: pet
+components:
+  schemas:
+    Order:
+      title: Pet Order
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        petId:
+          type: integer
+          format: int64
+        quantity:
+          type: integer
+          format: int32
+        shipDate:
+          type: string
+          format: date-time
+        status:
+          type: string
+          description: Order Status
+          enum:
+          - placed
+          - approved
+          - delivered
+        complete:
+          type: boolean
+          default: false
+      description: An order for a pets from the pet store
+      example:
+        petId: 6
+        quantity: 1
+        id: 0
+        shipDate: 2000-01-23T04:56:07.000+00:00
+        complete: false
+        status: placed
+      xml:
+        name: Order
+    Category:
+      title: Pet category
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      description: A category for a pet
+      example:
+        name: name
+        id: 6
+      xml:
+        name: Category
+    User:
+      title: a User
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        username:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        phone:
+          type: string
+        userStatus:
+          type: integer
+          description: User Status
+          format: int32
+      description: A User who is purchasing from the pet store
+      example:
+        firstName: firstName
+        lastName: lastName
+        password: password
+        userStatus: 6
+        phone: phone
+        id: 0
+        email: email
+        username: username
+      xml:
+        name: User
+    Tag:
+      title: Pet Tag
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+      description: A tag for a pet
+      example:
+        name: name
+        id: 1
+      xml:
+        name: Tag
+    Pet:
+      title: a Pet
+      required:
+      - name
+      - photoUrls
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        category:
+          $ref: '#/components/schemas/Category'
+        name:
+          type: string
+          example: doggie
+        photoUrls:
+          type: array
+          xml:
+            name: photoUrl
+            wrapped: true
+          items:
+            type: string
+        tags:
+          type: array
+          xml:
+            name: tag
+            wrapped: true
+          items:
+            $ref: '#/components/schemas/Tag'
+        status:
+          type: string
+          description: pet status in the store
+          enum:
+          - available
+          - pending
+          - sold
+      description: A pet for sale in the pet store
+      example:
+        photoUrls:
+        - photoUrls
+        - photoUrls
+        name: doggie
+        id: 0
+        category:
+          name: name
+          id: 6
+        tags:
+        - name: name
+          id: 1
+        - name: name
+          id: 1
+        status: available
+      xml:
+        name: Pet
+    ApiResponse:
+      title: An uploaded response
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        type:
+          type: string
+        message:
+          type: string
+      description: Describes the result of uploading an image resource
+      example:
+        code: 0
+        type: type
+        message: message
+    body:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Updated name of the pet
+        status:
+          type: string
+          description: Updated status of the pet
+    body_1:
+      type: object
+      properties:
+        additionalMetadata:
+          type: string
+          description: Additional data to pass to server
+        file:
+          type: string
+          description: file to upload
+          format: binary
+  requestBodies:
+    UserArray:
+      description: List of user object
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/User'
+      required: true
+    Pet:
+      description: Pet object that needs to be added to the store
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Pet'
+      required: true
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: /api/oauth/dialog
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header

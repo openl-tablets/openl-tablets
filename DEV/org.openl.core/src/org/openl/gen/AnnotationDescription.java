@@ -61,6 +61,7 @@ public class AnnotationDescription {
         private final String name;
         private final Object value;
         private final boolean array;
+        private final boolean type;
 
         /**
          * Initialize annotation property with given parameters.
@@ -73,7 +74,19 @@ public class AnnotationDescription {
             this(name, value, Optional.ofNullable(value)
                     .map(Object::getClass)
                     .map(Class::isArray)
-                    .orElse(false));
+                    .orElse(false)
+                    , false);
+        }
+
+        /**
+         * Initialize annotation property with given parameters.
+         *
+         * @param name property name
+         * @param typeDescription java type description (when we need to write {@code Object.class} as value)
+         * @throws NullPointerException if any argument is {@code null}
+         */
+        AnnotationProperty(String name, TypeDescription typeDescription) {
+            this(name, typeDescription.getTypeDescriptor(), false, true);
         }
 
         /**
@@ -82,12 +95,14 @@ public class AnnotationDescription {
          * @param name property name
          * @param value property value
          * @param array determines if this property is array or not
+         * @param type determines if this property is java class type or not
          * @throws NullPointerException if any argument is {@code null}
          */
-        AnnotationProperty(String name, Object value, boolean array) {
+        AnnotationProperty(String name, Object value, boolean array, boolean type) {
             this.name = Objects.requireNonNull(name, "Annotation property name is null.");
             this.value = Objects.requireNonNull(value, "Annotation property value is null.");
             this.array = array;
+            this.type = type;
         }
 
         /**
@@ -115,6 +130,15 @@ public class AnnotationDescription {
          */
         public boolean isArray() {
             return array;
+        }
+
+        /**
+         * Get java class type identificator
+         *
+         * @return java class type identificator
+         */
+        public boolean isType() {
+            return type;
         }
     }
 }

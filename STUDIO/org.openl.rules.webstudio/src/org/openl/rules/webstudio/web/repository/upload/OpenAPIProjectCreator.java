@@ -182,6 +182,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             if (generated.hasAnnotationTemplateClass()) {
                 addJavaClassFile(projectBuilder, generated.getAnnotationTemplateClass());
             }
+            for (JavaClassFile javaClassFile : generated.getCommonClasses()) {
+                addJavaClassFile(projectBuilder, javaClassFile);
+            }
 
             InputStream rulesFile = generateRulesFile(generated.hasAnnotationTemplateClass());
             addFile(projectBuilder, rulesFile, RULES_FILE_NAME, "Error uploading rules.xml file.");
