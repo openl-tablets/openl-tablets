@@ -120,14 +120,17 @@ public abstract class AEngineFactory {
     }
 
     protected void validateReturnType(IOpenMethod openMethod, Method interfaceMethod) {
-        Class<?> interfaceReturnType = interfaceMethod.getReturnType();
         Class<?> openClassReturnType = openMethod.getType().getInstanceClass();
+        if (openClassReturnType == Void.class || openClassReturnType == void.class) {
+            return;
+        }
+        Class<?> interfaceReturnType = interfaceMethod.getReturnType();
         boolean isAssignable = ClassUtils.isAssignable(openClassReturnType, interfaceReturnType);
         if (!isAssignable) {
             String message = String.format(INCORRECT_RET_TYPE_MSG,
-                openClassReturnType.getName(),
-                interfaceMethod.getName(),
-                interfaceReturnType.getName());
+                    openClassReturnType.getName(),
+                    interfaceMethod.getName(),
+                    interfaceReturnType.getName());
             throw new ClassCastException(message);
         }
     }
