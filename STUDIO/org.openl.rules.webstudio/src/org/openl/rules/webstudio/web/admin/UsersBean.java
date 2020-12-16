@@ -59,7 +59,7 @@ public class UsersBean {
     @Size(max = 25, message = VALIDATION_MAX)
     @Pattern.List({
             @Pattern(regexp = "(.(?<![.]{2}))+", message = VALIDATION_USERNAME_CONSECUTIVE),
-            @Pattern(regexp = "[^.\\s].*[^.\\s]|[^.\\s]$", message = VALIDATION_USERNAME_BEGIN_END),
+            @Pattern(regexp = "[^.\\s].*[^.\\s]|[^.\\s]", message = VALIDATION_USERNAME_BEGIN_END),
             @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = VALIDATION_USERNAME_CHARACTERS),
     })
     private String username;
