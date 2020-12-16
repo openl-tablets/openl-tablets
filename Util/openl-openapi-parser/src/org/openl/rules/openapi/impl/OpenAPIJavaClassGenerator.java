@@ -28,6 +28,7 @@ import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
+import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
@@ -56,7 +57,9 @@ public class OpenAPIJavaClassGenerator {
             if (method.getPathInfo().getOriginalPath().equals("/" + method.getPathInfo().getFormattedPath())) {
                 continue;
             }
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method, projectModel.isRuntimeContextProvided());
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method,
+                    projectModel.isRuntimeContextProvided(),
+                    false);
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
             hasMethods = true;
         }
@@ -67,7 +70,7 @@ public class OpenAPIJavaClassGenerator {
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
                     extraMethodBuilder.byteCode());
             builder.addCommonClass(javaClassFile);
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false);
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
                     .withProperty("value", Type.getType(
                             new TypeDescription(javaClassFile.getJavaNameWithPackage()).getTypeDescriptor()))
@@ -82,7 +85,9 @@ public class OpenAPIJavaClassGenerator {
         return builder.build();
     }
 
-    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel, boolean runtimeContext) {
+    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel,
+                                                          boolean runtimeContext,
+                                                          boolean extraMethod) {
 
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
@@ -93,9 +98,9 @@ public class OpenAPIJavaClassGenerator {
             methodBuilder.addParameter(MethodParameterBuilder.create(RULES_CTX_CLASS).build());
         }
 
-        sprModel.getParameters().stream()
-                .map(this::visitMethodParameter)
-                .forEach(methodBuilder::addParameter);
+        for (InputParameter parameter : sprModel.getParameters()) {
+            methodBuilder.addParameter(visitMethodParameter(parameter, extraMethod));
+        }
 
         if (returnTypeInfo.isDatatype()) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
@@ -108,12 +113,17 @@ public class OpenAPIJavaClassGenerator {
         return methodBuilder;
     }
 
-    private TypeDescription visitMethodParameter(InputParameter parameter) {
+    private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
         final TypeInfo paramType = parameter.getType();
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.isDatatype()) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
                     .withProperty("value", removeArray(paramType.getSimpleName()))
+                    .build());
+        }
+        if (extraMethod) {
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Name.class)
+                    .withProperty("value", parameter.getName())
                     .build());
         }
         return methodParamBuilder.build();
