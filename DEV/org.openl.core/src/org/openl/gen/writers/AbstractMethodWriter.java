@@ -43,6 +43,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
         for (AnnotationDescription annotation : description.getAnnotations()) {
             AnnotationVisitor av = mv.visitAnnotation(annotation.getAnnotationType().getTypeDescriptor(), true);
             visitAnnotationProperty(av, annotation);
+            av.visitEnd();
         }
     }
 
@@ -59,6 +60,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
                         annotation.getAnnotationType().getTypeDescriptor(),
                         true);
                 visitAnnotationProperty(av, annotation);
+                av.visitEnd();
             }
             i++;
         }
@@ -88,7 +90,6 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
                 av.visit(property.getName(), property.isType() ? Type.getType((String) value) : value);
             }
         }
-        av.visitEnd();
     }
 
     /**
@@ -105,6 +106,7 @@ public class AbstractMethodWriter extends ChainedBeanByteCodeWriter {
                 null);
         visitMethodAnnotations(mv);
         visitMethodParametersAnnotations(mv);
+        mv.visitEnd();
     }
 
     /**
