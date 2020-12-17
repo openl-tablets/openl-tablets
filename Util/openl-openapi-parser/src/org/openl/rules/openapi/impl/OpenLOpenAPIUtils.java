@@ -588,8 +588,8 @@ public class OpenLOpenAPIUtils {
 
     public static String normalizeName(String originalName) {
         StringBuilder resultName = new StringBuilder();
-        char[] chars = originalName.toCharArray();
-        for (char curChar : chars) {
+        for (int i = 0; i < originalName.length(); i++) {
+            char curChar = originalName.charAt(i);
             if (resultName.length() == 0) {
                 if (Character.isJavaIdentifierStart(curChar)) {
                     resultName.append(curChar);

@@ -502,13 +502,20 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String openingBrackets = String.join("", Collections.nCopies(dimension, "{"));
         String closingBrackets = String.join("", Collections.nCopies(dimension, "}"));
         String arrayBrackets = String.join("", Collections.nCopies(dimension, "[]"));
-        return "=new SpreadsheetResult" + name + arrayBrackets + openingBrackets + call + closingBrackets;
+        return new StringBuilder().append("=new SpreadsheetResult")
+            .append(name)
+            .append(arrayBrackets)
+            .append(openingBrackets)
+            .append(call)
+            .append(closingBrackets)
+            .toString();
     }
 
     private int calculateDimension(String stepType) {
         int count = 0;
         boolean brackets = false;
-        for (char c : stepType.toCharArray()) {
+        for (int i = 0; i < stepType.length(); i++) {
+            char c = stepType.charAt(i);
             if (c == '[') {
                 if (!brackets) {
                     count++;
