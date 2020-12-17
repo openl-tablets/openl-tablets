@@ -74,24 +74,19 @@ public class OpenAPIJavaClassGenerator {
         }
         final List<InputParameter> parameters = method.getParameters();
         if (StringUtils.isNotBlank(pathInfo.getConsumes())) {
-            if (parameters.isEmpty()) {
-                if (projectModel.isRuntimeContextProvided()) {
-                    if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
-                        //if no prams and context, application/json by default
-                        return true;
-                    }
-                } else if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
+            if (projectModel.isRuntimeContextProvided()) {
+                if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
+                    //if context, application/json by default
+                    return true;
+                }
+            }else if (parameters.isEmpty()) {
+                if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
                     //if no prams, text/plan by default
                     return true;
                 }
             } else {
                 if (parameters.size() == 1) {
-                    if (projectModel.isRuntimeContextProvided()) {
-                        if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
-                            //if one pram and context, application/json by default
-                            return true;
-                        }
-                    } else if (parameters.get(0).getType().isReference()) {
+                    if (parameters.get(0).getType().isReference()) {
                         if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
                             //if one not simple param, application/json by default
                             return true;
@@ -246,14 +241,6 @@ public class OpenAPIJavaClassGenerator {
         } else {
             return typeInfo.getJavaName();
         }
-    }
-
-    private static String removeArray(String type) {
-        int idx = type.indexOf('[');
-        if (idx > 0) {
-            return type.substring(0, idx);
-        }
-        return type;
     }
 
     private Class<? extends Annotation> chooseOperationAnnotation(String operation) {
