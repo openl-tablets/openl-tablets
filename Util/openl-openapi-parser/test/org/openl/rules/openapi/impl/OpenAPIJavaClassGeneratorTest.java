@@ -269,6 +269,37 @@ public class OpenAPIJavaClassGeneratorTest {
     }
 
     @Test
+    public void EPBDS_10493() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+
+        Set<Class<?>> commonClasses = new HashSet<>();
+        for (JavaClassFile javaClass : generated.getCommonClasses()) {
+            Class<?> clazz = defineClass(javaClass.getJavaNameWithPackage(), javaClass.getByteCode());
+            assertJavaClass(javaClass.getJavaNameWithPackage(), clazz);
+            if (!commonClasses.add(clazz)) {
+                fail("Duplicated class!");
+            }
+        }
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+
+        assertEquals(1, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("DiscountPercentage", Object.class, Integer.class);
+        assertEquals(double.class, method1.getReturnType());
+        assertEquals(5, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(POST.class));
+        assertEquals("/DiscountPercentage", method1.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+        assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
+    }
+
+    @Test
     public void resolveTypeTest() {
         TypeInfo typeInfo = new TypeInfo("Policy", true);
         assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
