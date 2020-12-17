@@ -29,6 +29,7 @@ public class LocalRepositoryFactory implements RepositoryFactory {
     public Repository create(Function<String, String> settings) {
         LocalRepository repository = new LocalRepository();
         RepositoryInstatiator.setParams(repository, settings);
+        repository.initialize();
         return repository;
     }
 }
