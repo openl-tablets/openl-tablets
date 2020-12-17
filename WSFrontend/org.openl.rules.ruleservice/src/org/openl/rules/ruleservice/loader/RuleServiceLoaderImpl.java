@@ -2,11 +2,12 @@ package org.openl.rules.ruleservice.loader;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.ProviderNotFoundException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +42,7 @@ import org.openl.rules.repository.zip.ZippedLocalRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -98,13 +100,12 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Path projectFolder;
         if (project instanceof LocalProject) {
             projectFolder = ((LocalProject) project).getData().getPath();
-            if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
-                try {
-                    FileSystem fs = FileSystems.newFileSystem(projectFolder, Thread.currentThread().getContextClassLoader());
-                    projectFolder = fs.getPath("/");
-                } catch (IOException e) {
-                    throw RuntimeExceptionWrapper.wrap(e);
-                }
+            if (projectFolder.getFileName() != null
+                    && (FileTypeHelper.isZipFile(projectFolder.getFileName().toString())
+                    || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
+
+                FileSystem fs = FileSystems.getFileSystem(ZipUtils.toJarURI(projectFolder));
+                projectFolder = fs.getPath("/");
             }
         } else {
             String stringValue = project.getArtefactPath().getStringValue();
@@ -220,14 +221,16 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private boolean isSimpleProjectDeployment(FileData fileData) {
-        try (FileSystem zipFS = FileSystems.newFileSystem(fileData.getPath(), Thread.currentThread().getContextClassLoader())) {
-            Path zipRoot = zipFS.getPath("/");
+        URI jarURI = ZipUtils.toJarURI(fileData.getPath());
+        try {
+            Path zipRoot = FileSystems.getFileSystem(jarURI).getPath("/");
             return projectResolver.isRulesProject(zipRoot) != null;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return false;
-        } catch (ProviderNotFoundException unused) {
-            return false;
+        } catch (FileSystemNotFoundException ignored) {
+            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());) {
+                return projectResolver.isRulesProject(fs.getPath("/")) != null;
+            } catch (IOException | UnsupportedOperationException e) {
+                return false;
+            }
         }
     }
 

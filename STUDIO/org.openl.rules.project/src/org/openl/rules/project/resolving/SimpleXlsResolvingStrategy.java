@@ -17,6 +17,7 @@ import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,7 +96,11 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
     private ProjectDescriptor createDescriptor(Path folder) throws IOException {
         ProjectDescriptor project = new ProjectDescriptor();
         project.setProjectFolder(folder.toRealPath());
-        project.setName(folder.getFileName().toString());
+        Path fileName = folder.getFileName();
+        if (folder.getFileName() == null) {
+            fileName = ZipUtils.toPath(folder.toUri()).getFileName();
+        }
+        project.setName(fileName.toString());
         return project;
     }
 
