@@ -44,12 +44,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         localProjects = new HashMap<>();
 
         localRepository = new LocalRepository(location);
-        try {
-            localRepository.initialize();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
+        localRepository.initialize();
         loadProjects();
     }
 
@@ -72,11 +67,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 repository.setName(designRepository.getName());
             }
         }
-        try {
-            repository.initialize();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        repository.initialize();
         return repository;
     }
 

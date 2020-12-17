@@ -64,11 +64,7 @@ public class RulesProjectBuilder {
 
             LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath.toFile());
             localRepository.setId(repositoryId);
-            try {
-                localRepository.initialize();
-            } catch (RRepositoryException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
+            localRepository.initialize();
 
             project = new RulesProject(workspace.getUser(),
                 localRepository,
