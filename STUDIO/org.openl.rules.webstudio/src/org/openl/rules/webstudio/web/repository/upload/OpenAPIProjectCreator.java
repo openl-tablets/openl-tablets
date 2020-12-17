@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.common.OpenAPIProjectException;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
