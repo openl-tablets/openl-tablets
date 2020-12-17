@@ -9,6 +9,7 @@ import org.openl.rules.lang.xls.load.SheetLoader;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.StringTool;
 
+@Deprecated
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
     private final XlsWorkbookSourceCodeModule workbookSource;
 
