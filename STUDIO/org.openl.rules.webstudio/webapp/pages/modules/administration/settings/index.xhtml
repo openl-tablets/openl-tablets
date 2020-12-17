@@ -19,6 +19,19 @@
 
             .repositoryConfigButton {
                 vertical-align: top;
+                float: right;
+                opacity: 0;
+                transition: visibility 0.1s linear, opacity 0.2s ease-out;
+            }
+
+            .tab-element:hover .repositoryConfigButton,
+            .selected-tab .repositoryConfigButton {
+                opacity: 0.4;
+            }
+
+            .tab-panel-vertical > ul li.sub-repo-item a,
+            .tab-panel-vertical > ul li.sub-repo-item a span{
+                display: inline-block;
             }
 
             .addRepositoryConfig {
@@ -54,10 +67,26 @@
 
             .tab-panel-vertical > ul li.tab-group {
                 padding: 10px 5px;
+                color: gray;
             }
 
+            .tab-panel-vertical > ul li.tab-group:hover {
+                opacity: 0.8;
+            }
+
+            .tab-element > a > span:before{
+                content: url(webresource/images/repository/storage.gif);
+                vertical-align: middle;
+            }
+
+            .tab-panel-vertical > ul .tab-button,
             .tab-panel-vertical > ul .sub-repo-item {
                 padding-left: 25px;
+            }
+
+            .tab-panel-vertical > ul .tab-button {
+                padding-top: 5px;
+                padding-bottom: 5px;
             }
 
             .tab-panel-vertical .repo-tab > ul li {
@@ -76,6 +105,23 @@
 
             .section-description {
                 max-width: 555px;
+            }
+
+            .restore-defaults-button {
+                color: #fff !important;
+                box-shadow: none !important;
+                background: red !important;
+                border-color: red !important;
+            }
+
+            .button-panel {
+                margin-bottom: 15px;
+                padding-top: 4px;
+                border-top: 1px solid #ddd;
+            }
+
+            #repo-tab-container {
+                padding-bottom: 4px;
             }
         </style>
 
@@ -165,6 +211,8 @@
 
         <div class="simpleView_workspace">
             <div>
+                <ui:param name="applyButtonText" value="Apply All and Restart"/>
+                <ui:param name="applyButtonTitle" value="Apply all changes and restart WebStudio"/>
 
                 <!-- This is a workaround. See https://stackoverflow.com/questions/15738259/disabling-chrome-autofill for details. -->
                 <input style="display:none" type="password" name="fake-password-field" autocomplete="new-password"/>
@@ -288,18 +336,11 @@
                                         </div>
                                     </section>
                                 </h:panelGroup>
-                                <h:panelGroup style="margin-bottom: 15px">
-                                    <a4j:commandButton value="Restore Defaults"
-                                                       action="#{systemSettingsBean.restoreDefaults}"
-                                                       execute="@this"
+                                <h:panelGroup styleClass="button-panel" layout="block">
+                                    <a4j:commandButton value="${applyButtonText}" action="#{systemSettingsBean.applyChanges}"
                                                        render="commonProps repositoryProps javaProps restartMessage"
                                                        onclick="return confirmSave();"
-                                                       title="Restore the default settings"/>
-                                    <h:outputText value=" "/>
-                                    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}"
-                                                       render="commonProps repositoryProps javaProps restartMessage"
-                                                       onclick="return confirmSave();"
-                                                       styleClass="button-primary" title="Apply changes"/>
+                                                       styleClass="button-primary" title="${applyButtonTitle}"/>
                                 </h:panelGroup>
                             </div>
                             <div id="repository">
@@ -313,17 +354,6 @@
                                         <li class="tab-group">
                                             <div>
                                                 <span>Design repositories</span>
-                                                <a4j:commandLink
-                                                        action="#{systemSettingsBean.addDesignRepository()}"
-                                                        title="Add Design Repository Connection"
-                                                        styleClass="toolbarButton menuButton"
-                                                        render="repoSettings"
-                                                        oncomplete="initSettingsPage();selectLastTab('#repo-design');"
-                                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                    <img src="#{request.contextPath}/webresource/images/add.png"
-                                                         alt="Add Repository"/>
-                                                </a4j:commandLink>
                                             </div>
                                         </li>
                                         <a4j:repeat value="#{designRepos}" var="repository" rowKeyVar="r">
@@ -331,9 +361,39 @@
                                                 <a href="#repo-#{repository.id}">
                                                     <span id="repo-tab-#{repository.id}"><h:outputText value="#{repository.name}"/></span>
                                                 </a>
+                                                <span class="repositoryConfigButton">
+                                                    <a4j:commandLink
+                                                            action="#{systemSettingsBean.deleteDesignRepository(repository.id)}"
+                                                            title="Delete Design Repository Connection"
+                                                            styleClass="toolbarButton menuButton"
+                                                            render="repoSettings"
+                                                            rendered="#{designRepos.size() > 1}"
+                                                            onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
+                                                            oncomplete="switchToRepositoryTab();initSettingsPage();"
+                                                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                                        <img src="#{request.contextPath}/webresource/images/remove.png"
+                                                             alt="Delete Repository"/>
+                                                    </a4j:commandLink>
+                                                </span>
                                             </li>
                                         </a4j:repeat>
-                                        <li class="tab-element">
+                                        <li class="tab-button">
+                                            <a4j:commandButton
+                                                    value="Add Repository"
+                                                    action="#{systemSettingsBean.addDesignRepository()}"
+                                                    title="Add Design Repository Connection"
+                                                    render="repoSettings"
+                                                    oncomplete="initSettingsPage();selectLastTab('#repo-design');"
+                                                    onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                    onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"/>
+                                        </li>
+                                        <li class="tab-group">
+                                            <div>
+                                                <span>Deploy configuration repository</span>
+                                            </div>
+                                        </li>
+                                        <li class="sub-repo-item tab-element">
                                             <a href="#repo-deploy-config">
                                                 <span><h:outputText value="Deploy configuration"/></span>
                                             </a>
@@ -341,17 +401,6 @@
                                         <li class="tab-group">
                                             <div>
                                                 <span>Deployment repositories</span>
-                                                <a4j:commandLink
-                                                        action="#{systemSettingsBean.addProductionRepository()}"
-                                                        title="Add Deployment Repository Connection"
-                                                        styleClass="toolbarButton menuButton"
-                                                        render="repoSettings"
-                                                        oncomplete="initSettingsPage();selectLastTab('#repo-production');"
-                                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                    <img src="#{request.contextPath}/webresource/images/add.png"
-                                                         alt="Add Repository"/>
-                                                </a4j:commandLink>
                                             </div>
                                         </li>
                                         <a4j:repeat value="#{productionRepos}" var="repository">
@@ -359,8 +408,34 @@
                                                 <a href="#repo-#{repository.id}">
                                                     <span id="repo-tab-#{repository.id}"><h:outputText value="#{repository.name}"/></span>
                                                 </a>
+                                                <span class="repositoryConfigButton">
+                                                    <a4j:commandLink
+                                                            action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
+                                                            title="Delete Deployment Repository Connection"
+                                                            styleClass="toolbarButton menuButton"
+                                                            render="repoSettings"
+                                                            rendered="#{productionRepos.size() > 1}"
+                                                            onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
+                                                            oncomplete="switchToRepositoryTab();initSettingsPage();"
+                                                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
+                                                        <img src="#{request.contextPath}/webresource/images/remove.png"
+                                                             alt="Delete Repository"/>
+                                                    </a4j:commandLink>
+                                                </span>
+
                                             </li>
                                         </a4j:repeat>
+                                        <li class="tab-button">
+                                            <a4j:commandButton
+                                                    value="Add Repository"
+                                                    action="#{systemSettingsBean.addProductionRepository()}"
+                                                    title="Add Deployment Repository Connection"
+                                                    render="repoSettings"
+                                                    oncomplete="initSettingsPage();selectLastTab('#repo-production');"
+                                                    onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
+                                                    onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"/>
+                                        </li>
                                     </ul>
                                     <h:panelGroup id="repositoryProps" layout="block">
                                         <section>
@@ -434,21 +509,6 @@
                                                                         </ui:include>
                                                                     </h:panelGroup>
                                                                 </h:panelGroup>
-                                                            </td>
-                                                            <td class="repositoryConfigButton">
-                                                                <a4j:commandLink
-                                                                        action="#{systemSettingsBean.deleteDesignRepository(designRepository.configName)}"
-                                                                        title="Delete Design Repository Connection"
-                                                                        styleClass="toolbarButton menuButton"
-                                                                        render="repoSettings"
-                                                                        rendered="#{designRepos.size() > 1}"
-                                                                        onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
-                                                                        oncomplete="switchToRepositoryTab();initSettingsPage();"
-                                                                        onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                                        onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                                    <img src="#{request.contextPath}/webresource/images/delete.png"
-                                                                         alt="Delete Repository"/>
-                                                                </a4j:commandLink>
                                                             </td>
                                                         </tr>
                                                     </table>
@@ -656,21 +716,6 @@
                                                                         </h:panelGroup>
                                                                     </h:panelGroup>
                                                                 </td>
-                                                                <td class="repositoryConfigButton">
-                                                                    <a4j:commandLink
-                                                                            action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
-                                                                            title="Delete Deployment Repository Connection"
-                                                                            styleClass="toolbarButton menuButton"
-                                                                            render="repoSettings"
-                                                                            rendered="#{productionRepos.size() > 1}"
-                                                                            onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
-                                                                            oncomplete="switchToRepositoryTab();initSettingsPage();"
-                                                                            onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                                        <img src="#{request.contextPath}/webresource/images/delete.png"
-                                                                             alt="Delete Repository"/>
-                                                                    </a4j:commandLink>
-                                                                </td>
                                                             </tr>
                                                         </table>
                                                     </div>
@@ -681,22 +726,13 @@
                                     </h:panelGroup>
                                 </div>
                                 </h:panelGroup>
-                                <h:panelGroup style="margin-bottom: 15px; margin-top: 4px;" layout="block">
-                                    <a4j:commandButton value="Restore Defaults"
-                                                       action="#{systemSettingsBean.restoreDefaults}"
-                                                       execute="@this"
+                                <h:panelGroup styleClass="button-panel" layout="block">
+                                    <a4j:commandButton value="${applyButtonText}" action="#{systemSettingsBean.applyChanges}"
                                                        render="commonProps repoSettings javaProps restartMessage"
                                                        onclick="return confirmSave();"
                                                        oncomplete="initSettingsPage();"
-                                                       title="Restore the default settings"/>
-                                    <h:outputText value=" "/>
-                                    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}"
-                                                       render="commonProps repoSettings javaProps restartMessage"
-                                                       onclick="return confirmSave();"
-                                                       oncomplete="initSettingsPage();"
-                                                       styleClass="button-primary" title="Apply changes"/>
+                                                       styleClass="button-primary" title="${applyButtonTitle}"/>
                                 </h:panelGroup>
-
                             </div>
                             <div id="system">
                                 <h:panelGroup id="javaProps" styleClass="fields" layout="block">
@@ -726,19 +762,33 @@
                                             <h:message for="test-nThreads" class="error"/>
                                         </div>
                                     </section>
+                                    <section>
+                                        <h3>WebStudio Settings</h3>
+                                        <div>
+                                            <p>
+                                                <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>
+                                                <span class="attention-text">WARNING!</span> If you click this button,
+                                                all settings will be restored to default values. All user defined values,
+                                                such as repository settings, will be lost. Use this button only if you
+                                                understand the consequences.
+                                            </p>
+
+                                            <a4j:commandButton value="Restore Defaults and Restart"
+                                                               action="#{systemSettingsBean.restoreDefaults}"
+                                                               styleClass="restore-defaults-button"
+                                                               execute="@this"
+                                                               render="commonProps repositoryProps javaProps restartMessage"
+                                                               onclick="return confirmSave();"
+                                                               title="Restore the default settings"/>
+
+                                        </div>
+                                    </section>
                                 </h:panelGroup>
-                                <h:panelGroup style="margin-bottom: 15px">
-                                    <a4j:commandButton value="Restore Defaults"
-                                                       action="#{systemSettingsBean.restoreDefaults}"
-                                                       execute="@this"
+                                <h:panelGroup styleClass="button-panel" layout="block">
+                                    <a4j:commandButton value="${applyButtonText}" action="#{systemSettingsBean.applyChanges}"
                                                        render="commonProps repositoryProps javaProps restartMessage"
                                                        onclick="return confirmSave();"
-                                                       title="Restore the default settings"/>
-                                    <h:outputText value=" "/>
-                                    <a4j:commandButton value="Apply" action="#{systemSettingsBean.applyChanges}"
-                                                       render="commonProps repositoryProps javaProps restartMessage"
-                                                       onclick="return confirmSave();"
-                                                       styleClass="button-primary" title="Apply changes"/>
+                                                       styleClass="button-primary" title="${applyButtonTitle}"/>
                                 </h:panelGroup>
                             </div>
                         </h:form>

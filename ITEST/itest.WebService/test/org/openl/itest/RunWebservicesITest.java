@@ -314,11 +314,11 @@ public class RunWebservicesITest {
             "/EPBDS-7187/EPBDS_7187_edge-case.req.json",
             "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
         client.get("/upcs/overload", "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.get("/upcs/overload2/1", "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/overload4",
+        client.get("/upcs/overload/1", "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
+        client.post("/upcs/overload3",
             "/EPBDS-7187/EPBDS_7187_overload-4.req.json",
             "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
-        client.post("/upcs/overload3",
+        client.post("/upcs/overload2",
             "/EPBDS-7187/EPBDS_7187_overload-3.req.json",
             "/EPBDS-7187/EPBDS_7187_true-value.resp.txt");
         client.post("/upcs/overload1",

@@ -24,14 +24,14 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_parse_interfaceMethod_shouldBeCalledSuccessfully_OK() {
-        client.post("/REST/v1/string/toNumber/parse1",
+        client.post("/REST/v1/string/toNumber/parse",
             "/stringToNumber_parse1.req.txt",
             "/stringToNumber_parse1.resp.txt");
     }
 
     @Test
     public void call_parse_interfaceMethod_shouldReturn_UNPROCESSABLE_ENTITY() {
-        client.post("/REST/v1/string/toNumber/parse1",
+        client.post("/REST/v1/string/toNumber/parse",
             "/stringToNumber_parse1_error.req.txt",
             422,
             "/stringToNumber_parse1_error.resp.json");

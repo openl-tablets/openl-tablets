@@ -11,77 +11,6 @@
     }
   ],
   "paths": {
-    "/calVehicleYear": {
-      "post": {
-        "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
-        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
-        "operationId": "calVehicleYear",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/CalVehicleYearRequest1"
-              }
-            }
-          }
-        },
-        "responses": {
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Some message",
-                  "type": "USER_ERROR"
-                }
-              }
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Cannot parse 'bar' to JSON",
-                  "type": "BAD_REQUEST"
-                }
-              }
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/JAXRSErrorResponse"
-                },
-                "example": {
-                  "message": "Failed to load lazy method.",
-                  "type": "COMPILATION"
-                }
-              }
-            }
-          },
-          "200": {
-            "description": "Successful operation",
-            "content": {
-              "text/plain": {
-                "schema": {
-                  "type": "integer",
-                  "format": "int32"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/bar": {
       "post": {
         "summary": "String bar(SumTwoDoublesRequest)",
@@ -152,6 +81,77 @@
         }
       }
     },
+    "/calVehicleYear": {
+      "post": {
+        "summary": "Integer calVehicleYear(CalVehicleYearRequest, Double)",
+        "description": "Rules method: java.lang.Integer calVehicleYear(org.openl.generated.beans.CalVehicleYearRequest v, java.lang.Double a)",
+        "operationId": "calVehicleYear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CalVehicleYearRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/sumTwoDoubles": {
       "post": {
         "summary": "Double sumTwoDoubles(Double, Double)",
@@ -161,7 +161,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SumTwoDoublesRequest1"
+                "$ref": "#/components/schemas/SumTwoDoublesRequest"
               }
             }
           }
@@ -234,7 +234,14 @@
           },
           "type": {
             "type": "string",
-            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
           },
           "details": {
             "type": "array",
@@ -244,40 +251,7 @@
           }
         }
       },
-      "CalVehicleYearRequest": {
-        "type": "object",
-        "properties": {
-          "modelYear": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "vehEffectiveYear": {
-            "type": "string",
-            "format": "date-time"
-          }
-        }
-      },
-      "CalVehicleYearRequest1": {
-        "type": "object",
-        "properties": {
-          "v": {
-            "$ref": "#/components/schemas/CalVehicleYearRequest"
-          },
-          "a": {
-            "type": "number",
-            "format": "double"
-          }
-        }
-      },
       "SumTwoDoublesRequest": {
-        "type": "object",
-        "properties": {
-          "foo": {
-            "type": "string"
-          }
-        }
-      },
-      "SumTwoDoublesRequest1": {
         "type": "object",
         "properties": {
           "a": {
@@ -285,6 +259,18 @@
             "format": "double"
           },
           "b": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "CalVehicleYearRequest": {
+        "type": "object",
+        "properties": {
+          "v": {
+            "$ref": "#/components/schemas/CalVehicleYearRequest"
+          },
+          "a": {
             "type": "number",
             "format": "double"
           }

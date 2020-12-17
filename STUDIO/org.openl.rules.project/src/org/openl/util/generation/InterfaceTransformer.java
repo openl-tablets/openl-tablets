@@ -7,8 +7,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Queue;
@@ -101,7 +103,9 @@ public class InterfaceTransformer {
                 continue;
             }
             usedClasses.add(x);
-            for (Field field : x.getDeclaredFields()) {
+            Field[] declaredFields = x.getDeclaredFields();
+            Arrays.sort(declaredFields, Comparator.comparing(Field::getName));
+            for (Field field : declaredFields) {
                 if (!field.isSynthetic() && !usedFields.contains(field.getName())) {
                     usedFields.add(field.getName());
                     try {
@@ -123,7 +127,9 @@ public class InterfaceTransformer {
                     }
                 }
             }
-            for (Method method : x.getDeclaredMethods()) {
+            List<Method> declaredMethods = Arrays.asList(x.getDeclaredMethods());
+            declaredMethods = MethodUtils.sort(declaredMethods);
+            for (Method method : declaredMethods) {
                 if (!method.isSynthetic()) {
                     MethodKey methodKey = new MethodKey(method.getName(),
                         Arrays.stream(method.getParameterTypes())
@@ -160,14 +166,15 @@ public class InterfaceTransformer {
             for (Constructor<?> constructor : classToTransform.getDeclaredConstructors()) {
                 if (!constructor.isSynthetic()) {
                     GeneratorAdapter mg = new GeneratorAdapter(constructor.getModifiers(),
-                            org.objectweb.asm.commons.Method.getMethod(constructor),
-                            null,
-                            null,
-                            classVisitor);
+                        org.objectweb.asm.commons.Method.getMethod(constructor),
+                        null,
+                        null,
+                        classVisitor);
                     processAnnotationsOnExecutable(mg, constructor);
                     mg.visitCode();
                     mg.loadThis();
-                    mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()), org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
+                    mg.invokeConstructor(Type.getType(classToTransform.getSuperclass()),
+                        org.objectweb.asm.commons.Method.getMethod("void <init> ()"));
                     mg.visitInsn(Opcodes.RETURN);
                     int i = 1;
                     for (Class<?> paramType : constructor.getParameterTypes()) {
