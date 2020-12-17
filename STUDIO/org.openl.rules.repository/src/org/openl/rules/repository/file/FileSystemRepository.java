@@ -23,7 +23,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private int rootPathLength;
     private ChangesMonitor monitor;
     private String id;
-    private int listenerTimerPeriod;
+    private int listenerTimerPeriod = 10;
     private String name;
 
     public void setRoot(File root) {
