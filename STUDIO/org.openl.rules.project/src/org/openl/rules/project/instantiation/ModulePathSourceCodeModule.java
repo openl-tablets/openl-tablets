@@ -1,14 +1,15 @@
-package org.openl.source.impl;
+package org.openl.rules.project.instantiation;
 
 import java.nio.file.Path;
 
+import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.types.IModuleInfo;
 
-public class ModulePathSourceCodeModule extends PathSourceCodeModule implements IModuleInfo {
+class ModulePathSourceCodeModule extends PathSourceCodeModule implements IModuleInfo {
 
     private final String moduleName;
 
-    public ModulePathSourceCodeModule(Path path, String moduleName) {
+    ModulePathSourceCodeModule(Path path, String moduleName) {
         super(path);
         this.moduleName = moduleName;
     }

@@ -6,7 +6,6 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ModulePathSourceCodeModule;
 import org.openl.util.CollectionUtils;
 
 /**
