@@ -6,7 +6,6 @@ import java.util.*;
 import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.*;
 import org.openl.rules.repository.common.ChangesMonitor;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
@@ -24,6 +23,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     private int rootPathLength;
     private ChangesMonitor monitor;
     private String id;
+    private int listenerTimerPeriod;
     private String name;
 
     public void setRoot(File root) {
@@ -35,22 +35,18 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     }
 
     @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         try {
-            init();
+            root.mkdirs();
+            if (!root.exists() || !root.isDirectory()) {
+                throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s]", root));
+            }
+            String rootPath = root.getCanonicalPath();
+            rootPathLength = rootPath.length() + 1;
+            monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), listenerTimerPeriod);
         } catch (IOException e) {
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s]", root));
         }
-    }
-
-    private void init() throws IOException {
-        root.mkdirs();
-        if (!root.exists() || !root.isDirectory()) {
-            throw new IOException(String.format("Failed to initialize the root directory: [%s]", root));
-        }
-        String rootPath = root.getCanonicalPath();
-        rootPathLength = rootPath.length() + 1;
-        monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), 10);
     }
 
     public void setId(String id) {
@@ -101,6 +97,12 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
+        FileData saved = write(data, stream);
+        invokeListener();
+        return saved;
+    }
+
+    private FileData write(FileData data, InputStream stream) throws IOException{
         String dataName = data.getName();
         File file = new File(root, dataName);
         file.getParentFile().mkdirs();
@@ -115,7 +117,6 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 LOG.warn("Cannot set modified time to file {}", dataName);
             }
         }
-
         return getFileData(file);
     }
 
@@ -123,9 +124,10 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
     public List<FileData> save(List<FileItem> fileItems) throws IOException {
         List<FileData> result = new ArrayList<>();
         for (FileItem fileItem : fileItems) {
-            FileData saved = save(fileItem.getData(), fileItem.getStream());
+            FileData saved = write(fileItem.getData(), fileItem.getStream());
             result.add(saved);
         }
+        invokeListener();
         return result;
     }
 
@@ -140,6 +142,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         // Delete empty parent folders
         while (!(file = file.getParentFile()).equals(root) && file.delete()) {
         }
+        invokeListener();
         return true;
     }
 
@@ -230,7 +233,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             throw new FileNotFoundException(String.format("File [%s] does not exist.", file));
         }
         if (rootPathLength == 0) {
-            init();
+            initialize();
         }
         FileData data = new FileData();
         String canonicalPath = file.getCanonicalPath();
@@ -278,7 +281,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
                 if (file.isDirectory()) {
                     try {
                         if (rootPathLength == 0) {
-                            init();
+                            initialize();
                         }
                         FileData data = new FileData();
                         String relativePath = file.getCanonicalPath().substring(rootPathLength);
@@ -310,8 +313,8 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
 
     @Override
     public FileData save(FileData folderData,
-            Iterable<FileItem> files,
-            ChangesetType changesetType) throws IOException {
+                         Iterable<FileItem> files,
+                         ChangesetType changesetType) throws IOException {
         // Add new files and update existing ones
         List<File> savedFiles = new ArrayList<>();
         for (FileItem change : files) {
@@ -339,8 +342,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         if (changesetType == ChangesetType.FULL) {
             removeAbsentFiles(folder, savedFiles);
         }
-
-        return folder.exists() ? getFileData(folder) : null;
+        FileData saved = folder.exists() ? getFileData(folder) : null;
+        invokeListener();
+        return saved;
     }
 
     @Override
@@ -382,4 +386,9 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
             throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
         }
     }
+
+    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+        this.listenerTimerPeriod = listenerTimerPeriod;
+    }
+
 }
