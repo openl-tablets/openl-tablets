@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 
 final class Settings {
     private final Logger log = LoggerFactory.getLogger(Settings.class);
-    int timerPeriod;
     Collection<String> initStatements;
     String selectAllMetainfo;
     String selectAllHistoryMetainfo;
@@ -35,8 +34,6 @@ final class Settings {
         fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major + "." + minor);
         fillQueries(queries, "/openl-db-repository-ext"); // For customization purposes
         resolve(queries);
-
-        timerPeriod = getIntValue(queries, "setting.timerPeriod", 10);
 
         insertFile = getRequired(queries, "query.insert-new-file");
         copyFile = getRequired(queries, "query.copy-last-file");

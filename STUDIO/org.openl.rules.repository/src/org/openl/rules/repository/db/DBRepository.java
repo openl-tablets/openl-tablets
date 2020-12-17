@@ -37,6 +37,7 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
     private String name;
     private Settings settings;
     private ChangesMonitor monitor;
+    private int listenerTimerPeriod = 10;
 
     public void setId(String id) {
         this.id = id;
@@ -54,6 +55,10 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
     @Override
     public String getName() {
         return name;
+    }
+
+    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
     @Override
@@ -507,7 +512,7 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
             JDBCDriverRegister.registerDrivers();
             loadDBsettings();
             initializeDatabase();
-            monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
+            monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize a repository", e);
         }
