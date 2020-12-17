@@ -64,6 +64,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final String SPREADSHEET_RESULT_CLASS_NAME = SpreadsheetResult.class.getName();
 
     public OpenAPIScaffoldingConverter() {
+        // default constructor
     }
 
     @Override
@@ -214,7 +215,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         // change steps with in the spreadsheets to these potential models
         setCallsAndReturnTypeToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
 
-        // TODO: validate me
         Set<String> dtNames = dts.stream().map(DatatypeModel::getName).collect(Collectors.toSet());
         checkTypes(spreadsheetParserModels, dtNames);
 
@@ -436,11 +436,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Set<String> calledRefs = new HashSet<>();
         Set<String> sprResultNames = new HashSet<>();
         for (SpreadsheetParserModel model : models) {
-            if (model.getReturnRef() != null && model.isRefIsDataType()) {
-                if (models.stream()
+            if (model.getReturnRef() != null && model.isRefIsDataType() && models.stream()
                     .anyMatch(x -> model.getReturnRef().equals(x.getReturnRef()) && !x.isRefIsDataType())) {
-                    datatypeRefs.remove(model.getReturnRef());
-                }
+                datatypeRefs.remove(model.getReturnRef());
             }
         }
         for (SpreadsheetParserModel model : models) {
