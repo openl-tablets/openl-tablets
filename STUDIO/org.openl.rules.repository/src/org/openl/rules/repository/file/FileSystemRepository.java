@@ -39,7 +39,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     private File root;
     private int rootPathLength;
     private ChangesMonitor monitor;
-    private int listenerTimerPeriod;
+    private int listenerTimerPeriod = 10;
 
     public void setRoot(File root) {
         this.root = root;
