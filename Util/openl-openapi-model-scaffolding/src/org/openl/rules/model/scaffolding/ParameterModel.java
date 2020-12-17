@@ -4,22 +4,30 @@ import java.util.Objects;
 
 public class ParameterModel implements InputParameter {
 
-    private String type;
+    private TypeInfo type;
     private String name;
+    private boolean inPath;
 
     public ParameterModel() {
     }
 
-    public ParameterModel(String type, String name) {
+    public ParameterModel(TypeInfo type, String name) {
         this.type = type;
         this.name = name;
+        this.inPath = false;
     }
 
-    public String getType() {
+    public ParameterModel(TypeInfo type, String name, boolean inPath) {
+        this.type = type;
+        this.name = name;
+        this.inPath = inPath;
+    }
+
+    public TypeInfo getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TypeInfo type) {
         this.type = type;
     }
 
@@ -29,6 +37,14 @@ public class ParameterModel implements InputParameter {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isInPath() {
+        return inPath;
+    }
+
+    public void setInPath(boolean inPath) {
+        this.inPath = inPath;
     }
 
     @Override
@@ -45,12 +61,18 @@ public class ParameterModel implements InputParameter {
         if (!Objects.equals(type, that.type)) {
             return false;
         }
+
+        if (inPath != that.inPath) {
+            return false;
+        }
+
         return Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
         int result = type != null ? type.hashCode() : 0;
+        result = 31 * result + (inPath ? 1 : 0);
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
     }

@@ -1,8 +1,10 @@
 package org.openl.rules.model.scaffolding;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openl.rules.model.scaffolding.data.DataModel;
 
@@ -11,7 +13,7 @@ public class ProjectModel {
     private String name;
     private boolean isRuntimeContextProvided;
     private List<DatatypeModel> datatypeModels = new ArrayList<>();
-    private List<SpreadsheetModel> spreadsheetModels = new ArrayList<>();
+    private List<SpreadsheetModel> spreadsheetModels;
     private List<DataModel> dataModels = new ArrayList<>();
     /*
      * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
@@ -32,7 +34,7 @@ public class ProjectModel {
         this.isRuntimeContextProvided = isRuntimeContextProvided;
         this.datatypeModels = datatypeModels;
         this.dataModels = dataModels;
-        this.spreadsheetModels = spreadsheetModels;
+        this.spreadsheetModels = Optional.ofNullable(spreadsheetModels).orElseGet(Collections::emptyList);
         this.notOpenLModels = modelsForInterface;
     }
 

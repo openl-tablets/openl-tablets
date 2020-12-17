@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
@@ -28,9 +29,15 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
  */
 public class SpreadsheetsConverterTest {
 
+    private OpenAPIModelConverter converter;
+
+    @Before
+    public void setUp() {
+        converter = new OpenAPIScaffoldingConverter();
+    }
+
     @Test
     public void testBraces() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/path_with_braces/braced_with_text.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -55,7 +62,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testArrayInSpr() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_array_instance.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -104,7 +110,6 @@ public class SpreadsheetsConverterTest {
             "numAccidentsOne",
             "numAccRidentsTwo",
             "numAccidentsThree");
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_cases_and_symbols.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -124,7 +129,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = helloKittyModel.getParameters();
         assertFalse(parameters.isEmpty());
         InputParameter next = parameters.iterator().next();
-        assertEquals("Integer", next.getType());
+        assertEquals("Integer", next.getType().getSimpleName());
         assertEquals("integer", next.getName());
         assertFalse(helloKittyModel.getSteps().isEmpty());
         StepModel kittyStep = helloKittyModel.getSteps().iterator().next();
@@ -144,14 +149,13 @@ public class SpreadsheetsConverterTest {
         assertTrue(firstParam.isPresent());
 
         Optional<InputParameter> secondParam = bla112Params.stream()
-            .filter(x -> x.getName().equals("byeparam"))
+            .filter(x -> x.getName().equals("byeBye"))
             .findFirst();
         assertTrue(secondParam.isPresent());
     }
 
     @Test
     public void testSprDefaultDateTimeValueInSpr() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/default_values_check.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -254,7 +258,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void inputParamsAreObjects() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EBPDS-10283_object_datatypes_without_fields.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -272,7 +275,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(objFieldOptional.isPresent());
         InputParameter objParameter = objFieldOptional.get();
-        assertEquals("Object", objParameter.getType());
+        assertEquals("Object", objParameter.getType().getSimpleName());
         assertEquals("objField", objParameter.getName());
 
         Optional<InputParameter> mapFieldOptional = parameters.stream()
@@ -280,7 +283,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(mapFieldOptional.isPresent());
         InputParameter mapParameter = mapFieldOptional.get();
-        assertEquals("Object", mapParameter.getType());
+        assertEquals("Object", mapParameter.getType().getSimpleName());
         assertEquals("mapField", mapParameter.getName());
 
         Optional<InputParameter> listFieldOptional = parameters.stream()
@@ -288,7 +291,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(listFieldOptional.isPresent());
         InputParameter listParameter = listFieldOptional.get();
-        assertEquals("Object[]", listParameter.getType());
+        assertEquals("Object[]", listParameter.getType().getSimpleName());
         assertEquals("listField", listParameter.getName());
 
         Optional<InputParameter> doubleFieldOptional = parameters.stream()
@@ -296,7 +299,7 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(doubleFieldOptional.isPresent());
         InputParameter doubleParameter = doubleFieldOptional.get();
-        assertEquals("Double", doubleParameter.getType());
+        assertEquals("Double", doubleParameter.getType().getSimpleName());
         assertEquals("doubleField", doubleParameter.getName());
 
         Optional<SpreadsheetModel> mySpr2Optional = spreadsheetModels.stream()
@@ -308,7 +311,7 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> spr2Parameters = mySpr2Model.getParameters();
         assertEquals(1, spr2Parameters.size());
         InputParameter objectParam = spr2Parameters.iterator().next();
-        assertEquals("Object", objectParam.getType());
+        assertEquals("Object", objectParam.getType().getSimpleName());
         assertEquals("object", objectParam.getName());
 
         List<StepModel> objSteps = mySpr2Model.getSteps();
@@ -320,7 +323,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testMissedSpreadsheet() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EBPDS-10228_spreadsheet_was_missed.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
@@ -339,7 +341,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testProvidedContext() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/rd/EPBDS-10306_Runtime_context.json");
         assertFalse(projectModel.isRuntimeContextProvided());
         List<SpreadsheetModel> sprModels = projectModel.getSpreadsheetResultModels();
@@ -362,11 +363,18 @@ public class SpreadsheetsConverterTest {
         List<SpreadsheetModel> spreadsheetResultModels = projectModelWithNotAllDRC.getSpreadsheetResultModels();
         assertEquals(1, spreadsheetResultModels.size());
         assertEquals(1, modelsToClass.size());
+        SpreadsheetModel apiBlaModel = modelsToClass.iterator().next();
+        List<InputParameter> parameters = apiBlaModel.getParameters();
+        assertEquals(4, parameters.size());
+        Set<String> parameterNames = parameters.stream().map(InputParameter::getName).collect(Collectors.toSet());
+        assertTrue(parameterNames.contains("id"));
+        assertTrue(parameterNames.contains("name"));
+        assertTrue(parameterNames.contains("isCompleted"));
+        assertTrue(parameterNames.contains("someStep"));
     }
 
     @Test
     public void testArrayBrackets() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/spreadsheets/arrray_brackets.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> modelOptional = spreadsheetResultModels.stream()
@@ -377,13 +385,12 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
-        assertEquals("Double[]", param.getType());
+        assertEquals("Double[]", param.getType().getSimpleName());
         assertEquals("double", param.getName());
     }
 
     @Test
     public void testSprResultSignatureForArray() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -405,7 +412,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprInputDateTimeType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10392_date_time_input.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -422,19 +428,18 @@ public class SpreadsheetsConverterTest {
             .findFirst();
         assertTrue(someField.isPresent());
         InputParameter inputParameter = someField.get();
-        assertEquals("Date", inputParameter.getType());
+        assertEquals("Date", inputParameter.getType().getSimpleName());
 
         Optional<InputParameter> oneMoreField = parameters.stream()
             .filter(x -> x.getName().equals("oneMoreField"))
             .findFirst();
         assertTrue(oneMoreField.isPresent());
         InputParameter oneMoreFieldParam = oneMoreField.get();
-        assertEquals("Date[][][]", oneMoreFieldParam.getType());
+        assertEquals("Date[][][]", oneMoreFieldParam.getType().getSimpleName());
     }
 
     @Test
     public void testMissedDataType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -447,7 +452,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testExtraDataType() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -469,7 +473,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testArraySprSteps() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel oneDimArray = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10412_array_type_steps.json");
         Optional<DatatypeModel> pokemonOptional = oneDimArray.getDatatypeModels()
@@ -512,7 +515,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testSprChild() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -529,7 +531,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testTypeGeneration() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -554,7 +555,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testOverloaded() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10439_overloaded_spreadsheet.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -566,7 +566,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testDiscriminatorField() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10422_discriminator_field.yaml");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -589,7 +588,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectCall() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10417_table_name_equals_data_type_name.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -606,7 +604,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectSpreadsheetArray() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10465-incorrect_spreadsheet_array.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -641,7 +638,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testIncorrectWrapperCase() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10481-wrong_request_body.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -650,13 +646,12 @@ public class SpreadsheetsConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(1, parameters.size());
         InputParameter next = parameters.iterator().next();
-        assertEquals("WrapperObject", next.getType());
+        assertEquals("WrapperObject", next.getType().getSimpleName());
         assertEquals("wrapperObject", next.getName());
     }
 
     @Test
     public void modifiedPathTest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter.extractProjectModel("test.converter/paths/slashProblem.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
 
@@ -671,7 +666,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("application/json", apiBlaModelPathInfo.getConsumes());
         assertEquals("text/plain", apiBlaModelPathInfo.getProduces());
         assertEquals("POST", apiBlaModelPathInfo.getOperation());
-        assertEquals("Object", apiBlaModelPathInfo.getReturnType());
+        assertEquals("AnotherDatatype", apiBlaModelPathInfo.getReturnType().getSimpleName());
 
         Optional<SpreadsheetModel> apiTodoOptional = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("apiTodo"))
@@ -684,13 +679,12 @@ public class SpreadsheetsConverterTest {
         assertEquals("text/csv", apiTodoModelPathInfo.getConsumes());
         assertEquals("text/html", apiTodoModelPathInfo.getProduces());
         assertEquals("POST", apiTodoModelPathInfo.getOperation());
-        assertEquals("Integer", apiTodoModelPathInfo.getReturnType());
+        assertEquals("Integer", apiTodoModelPathInfo.getReturnType().getSimpleName());
 
     }
 
     @Test
     public void testSpreadsheetCreation() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");
 
@@ -727,7 +721,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testLostSpreadsheet() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/lostSpreadsheetExamples.json");
         List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
@@ -801,7 +794,6 @@ public class SpreadsheetsConverterTest {
 
     @Test
     public void testFilteringWithAnySpreadsheetResult() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAny.json");
         List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();

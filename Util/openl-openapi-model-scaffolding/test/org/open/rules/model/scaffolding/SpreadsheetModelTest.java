@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNotEquals;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 
 import org.junit.Test;
@@ -13,6 +14,7 @@ import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 
 public class SpreadsheetModelTest {
 
@@ -54,9 +56,9 @@ public class SpreadsheetModelTest {
 
     @Test
     public void testSprWithParameters() {
-        InputParameter firstName = new ParameterModel("String", "firstName");
-        InputParameter secondName = new ParameterModel("String", "secondName");
-        InputParameter city = new ParameterModel("String", "city");
+        InputParameter firstName = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "firstName");
+        InputParameter secondName = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "secondName");
+        InputParameter city = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "city");
         List<InputParameter> nameParams = Arrays.asList(firstName, secondName);
         List<InputParameter> fullParamsList = Arrays.asList(firstName, secondName, city);
 
@@ -92,8 +94,8 @@ public class SpreadsheetModelTest {
         List<StepModel> steps = Arrays.asList(firstName, secondName);
         List<StepModel> fullSteps = Arrays.asList(firstName, secondName, city);
 
-        InputParameter date = new ParameterModel("Date", "dateOfBirth");
-        InputParameter count = new ParameterModel("Integer", "count");
+        InputParameter date = new ParameterModel(new TypeInfo(Date.class.getName(), "Date"), "dateOfBirth");
+        InputParameter count = new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer"), "count");
         List<InputParameter> params = Arrays.asList(date, count);
 
         SpreadsheetModel first = new SpreadsheetModel();
@@ -135,8 +137,18 @@ public class SpreadsheetModelTest {
 
     @Test
     public void testSprWithPathInfo() {
-        PathInfo xyzInfo = new PathInfo("/xyz", "xyz", "GET", "String", "application/json", "text/plain");
-        PathInfo xyInfo = new PathInfo("/xyz/xy/{far}", "xyzxy", "GET", "String", "application/json", "text/plain");
+        PathInfo xyzInfo = new PathInfo("/xyz",
+            "xyz",
+            "GET",
+            new TypeInfo(String.class.getName(), "String"),
+            "application/json",
+            "text/plain");
+        PathInfo xyInfo = new PathInfo("/xyz/xy/{far}",
+            "xyzxy",
+            "GET",
+            new TypeInfo(String.class.getName(), "String"),
+            "application/json",
+            "text/plain");
 
         SpreadsheetModel spr = new SpreadsheetModel();
         spr.setName(SPR_NAME);

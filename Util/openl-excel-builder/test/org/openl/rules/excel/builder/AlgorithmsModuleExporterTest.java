@@ -27,6 +27,7 @@ import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 
@@ -45,8 +46,9 @@ public class AlgorithmsModuleExporterTest {
         resultModel.setType("String");
         resultModel.setName("TestSpr");
 
-        resultModel
-            .setParameters(Arrays.asList(new ParameterModel("Integer", "id"), new ParameterModel("Integer", "count")));
+        resultModel.setParameters(
+            Arrays.asList(new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer"), "id"),
+                new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer"), "count")));
 
         StepModel longStep = new StepModel("balance", "Long", "=0L");
         StepModel formulaStepUpperCase = new StepModel("Formula", "String", "=Test");

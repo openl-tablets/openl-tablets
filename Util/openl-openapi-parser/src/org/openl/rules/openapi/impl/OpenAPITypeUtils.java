@@ -1,12 +1,16 @@
 package org.openl.rules.openapi.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -39,57 +43,100 @@ public class OpenAPITypeUtils {
     public static final String BIG_INTEGER = "BigInteger";
 
     public static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
+    public static final String DATE_CLASS_NAME = Date.class.getName();
+    public static final String STRING_CLASS_NAME = String.class.getName();
+    public static final String FLOAT_PRIMITIVE_CLASS_NAME = float.class.getName();
+    public static final String FLOAT_CLASS_NAME = Float.class.getName();
+    public static final String DOUBLE_PRIMITIVE_CLASS_NAME = double.class.getName();
+    public static final String DOUBLE_CLASS_NAME = Double.class.getName();
+    public static final String BIG_DECIMAL_CLASS_NAME = BigDecimal.class.getName();
+    public static final String LONG_PRIMITIVE_CLASS_NAME = long.class.getName();
+    public static final String LONG_CLASS_NAME = Long.class.getName();
+    public static final String INTEGER_PRIMITIVE_CLASS_NAME = int.class.getName();
+    public static final String INTEGER_CLASS_NAME = Integer.class.getName();
+    public static final String BIG_INTEGER_CLASS_NAME = BigInteger.class.getName();
+    public static final String BOOLEAN_PRIMITIVE_CLASS_NAME = boolean.class.getName();
+    public static final String BOOLEAN_CLASS_NAME = Boolean.class.getName();
 
     private OpenAPITypeUtils() {
     }
 
-    public static String extractType(Schema<?> schema, boolean isPrimitive) {
+    public static TypeInfo extractType(Schema<?> schema, boolean isPrimitive) {
+        TypeInfo result = new TypeInfo();
         if (schema.get$ref() != null) {
-            return getSimpleName(schema.get$ref());
+            String simpleName = getSimpleName(schema.get$ref());
+            result.setSimpleName(simpleName);
+            result.setJavaName(simpleName);
+            result.setIsReference(true);
+            return result;
         }
         String schemaType = schema.getType();
         String format = schema.getFormat();
         if ("string".equals(schemaType)) {
             if ("date".equals(format)) {
-                return DATE;
+                return new TypeInfo(DATE_CLASS_NAME, DATE);
             } else if ("date-time".equals(format)) {
-                return DATE;
+                return new TypeInfo(DATE_CLASS_NAME, DATE);
             } else {
-                return STRING;
+                return new TypeInfo(STRING_CLASS_NAME, STRING);
             }
         } else if ("number".equals(schemaType)) {
             if (FLOAT_PRIMITIVE.equals(format)) {
-                return isPrimitive ? format : FLOAT;
+                return isPrimitive ? new TypeInfo(FLOAT_PRIMITIVE_CLASS_NAME, format)
+                                   : new TypeInfo(FLOAT_CLASS_NAME, FLOAT);
             } else if (DOUBLE_PRIMITIVE.equals(format)) {
-                return isPrimitive ? format : DOUBLE;
+                return isPrimitive ? new TypeInfo(DOUBLE_PRIMITIVE_CLASS_NAME, format)
+                                   : new TypeInfo(DOUBLE_CLASS_NAME, DOUBLE);
             } else {
-                return BIG_DECIMAL;
+                return new TypeInfo(BIG_DECIMAL_CLASS_NAME, BIG_DECIMAL);
             }
         } else if ("integer".equals(schemaType)) {
             if ("int64".equals(format)) {
-                return isPrimitive ? LONG_PRIMITIVE : LONG;
+                return isPrimitive ? new TypeInfo(LONG_PRIMITIVE_CLASS_NAME, LONG_PRIMITIVE)
+                                   : new TypeInfo(LONG_CLASS_NAME, LONG);
             } else if ("int32".equals(format)) {
-                return isPrimitive ? INT : INTEGER;
+                return isPrimitive ? new TypeInfo(INTEGER_PRIMITIVE_CLASS_NAME, INT)
+                                   : new TypeInfo(INTEGER_CLASS_NAME, INTEGER);
             } else {
-                return BIG_INTEGER;
+                return new TypeInfo(BIG_INTEGER_CLASS_NAME, BIG_INTEGER);
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
-            return isPrimitive ? schemaType : BOOLEAN;
+            return isPrimitive ? new TypeInfo(BOOLEAN_PRIMITIVE_CLASS_NAME, schemaType)
+                               : new TypeInfo(BOOLEAN_CLASS_NAME, BOOLEAN);
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
-            String type = extractType(arraySchema.getItems(), false);
-            return type != null ? type + "[]" : "";
+            TypeInfo type = extractType(arraySchema.getItems(), false);
+            String name = type.getSimpleName() + "[]";
+            int dim = type.getDimension() + 1;
+            if (type.isReference()) {
+                return new TypeInfo(name, name, true, dim);
+            } else {
+                // TODO: validate me
+                String className = getArrayClassName(type.getJavaName(), dim);
+                return new TypeInfo(className, name, false, dim);
+            }
         } else {
-            return OBJECT;
+            return new TypeInfo(Object.class.getName(), OBJECT);
         }
+    }
+
+    public static String getArrayClassName(String javaName, int dim) {
+        String className;
+        if (dim == 0) {
+            className = javaName;
+        } else if (dim == 1) {
+            className = "[L" + javaName + ";";
+        } else {
+            className = "[" + javaName;
+        }
+        return className;
     }
 
     public static String getSimpleName(String ref) {
         if (ref.startsWith("#/components/")) {
             ref = ref.substring(ref.lastIndexOf('/') + 1);
         } else {
-            LOGGER.warn("Failed to get the schema name: {}", ref);
-            return null;
+            throw new IllegalStateException(String.format("Invalid ref %s", ref));
         }
         return ref;
     }
