@@ -1,15 +1,12 @@
 package org.openl.rules.project.instantiation;
 
-import java.net.URL;
-
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ModuleFileSourceCodeModule;
-import org.openl.source.impl.URLSourceCodeModule;
+import org.openl.source.impl.ModulePathSourceCodeModule;
 import org.openl.util.CollectionUtils;
 
 /**
@@ -67,9 +64,8 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
-    private IOpenSourceCodeModule getSourceCode(Module module) {
-        URL url = URLSourceCodeModule.toUrl(getModule().getRulesPath());
-        return new ModuleFileSourceCodeModule(url, getModule().getName());
+    private IOpenSourceCodeModule getSourceCode() {
+        return new ModulePathSourceCodeModule(getModule().getRulesPath(), getModule().getName());
     }
 
     @Override
@@ -78,7 +74,7 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
         if (engineFactory == null) {
 
-            IOpenSourceCodeModule source = getSourceCode(getModule());
+            IOpenSourceCodeModule source = getSourceCode();
             source.setParams(prepareExternalParameters());
 
             engineFactory = new RulesEngineFactory<>(source, serviceClass);
