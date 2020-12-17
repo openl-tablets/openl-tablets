@@ -28,6 +28,7 @@ import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     private final Logger log = LoggerFactory.getLogger(XlsWorkbookSourceCodeModule.class);

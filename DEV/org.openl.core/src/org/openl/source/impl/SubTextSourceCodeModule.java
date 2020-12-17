@@ -21,6 +21,7 @@ import org.openl.util.fast.FastStringReader;
  *         negative it is the relative position from the end of the base code
  *
  */
+@Deprecated
 public class SubTextSourceCodeModule implements IOpenSourceCodeModule {
 
     private final IOpenSourceCodeModule baseModule;
