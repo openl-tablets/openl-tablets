@@ -1226,7 +1226,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.9.0.202009080501-r</version>
+                <version>5.10.0.202012080955-r</version>
             </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
             contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
