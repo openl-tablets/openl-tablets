@@ -60,11 +60,9 @@ import org.eclipse.jgit.errors.MissingObjectException;
 import org.eclipse.jgit.hooks.CommitMsgHook;
 import org.eclipse.jgit.hooks.PreCommitHook;
 import org.eclipse.jgit.internal.JGitText;
-import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.ConfigConstants;
 import org.eclipse.jgit.lib.Constants;
 import org.eclipse.jgit.lib.FileMode;
-import org.eclipse.jgit.lib.ObjectDatabase;
 import org.eclipse.jgit.lib.ObjectId;
 import org.eclipse.jgit.lib.ObjectIdRef;
 import org.eclipse.jgit.lib.ObjectLoader;
@@ -1902,16 +1900,6 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 // GC is required in local mode. In remote mode autoGC() will be invoked on each fetch or merge.
                 // autoGC() didn't solve the issue for local repository, so we use gc() instead.
                 try {
-                    // FIXME: It's a workaround for EPBDS-10499. jgit fails if .git/objects/pack/ folder is absent. This
-                    // code should be removed when jgit will create this folder itself.
-                    ObjectDatabase objectDatabase = git.getRepository().getObjectDatabase();
-                    if (objectDatabase instanceof ObjectDirectory) {
-                        File packDirectory = ((ObjectDirectory) objectDatabase).getPackDirectory();
-                        if (!packDirectory.mkdirs() && !packDirectory.exists()) {
-                            log.warn("Can't create the folder {}", packDirectory.getPath());
-                        }
-                    }
-
                     git.gc().call();
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
