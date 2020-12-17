@@ -129,7 +129,7 @@ public class Migrator {
             // null means this property have default value from previous OpenL version
             Object depConfRepo = settings.getProperty("repository.deploy-config.factory");
             if (settings.getProperty(
-                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "org.openl.rules.repository.git.GitRepository"
+                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
                     .equals(depConfRepo))) {
                 props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
             }
@@ -140,7 +140,7 @@ public class Migrator {
         // migrate design repository path
         Object desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty(
-            "repository.design.local-repository-path") == null && (desRepo == null || "org.openl.rules.repository.git.GitRepository"
+            "repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
                 .equals(desRepo))) {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
@@ -162,7 +162,7 @@ public class Migrator {
 
         // migrate deployment repository path
         if (settings.getProperty(
-            "repository.production.local-repository-path") == null && "org.openl.rules.repository.git.GitRepository"
+            "repository.production.local-repository-path") == null && "repo-git"
                 .equals(settings.getProperty("repository.production.factory"))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");
         }
