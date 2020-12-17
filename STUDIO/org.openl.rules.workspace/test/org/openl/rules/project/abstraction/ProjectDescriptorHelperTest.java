@@ -1,4 +1,4 @@
-package org.openl.rules.common;
+package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.util.IOUtils;

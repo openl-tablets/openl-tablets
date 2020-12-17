@@ -16,7 +16,6 @@ import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
 import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
