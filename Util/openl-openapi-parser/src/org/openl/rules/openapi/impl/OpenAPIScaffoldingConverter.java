@@ -437,7 +437,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Set<String> sprResultNames = new HashSet<>();
         for (SpreadsheetParserModel model : models) {
             if (model.getReturnRef() != null && model.isRefIsDataType() && models.stream()
-                    .anyMatch(x -> model.getReturnRef().equals(x.getReturnRef()) && !x.isRefIsDataType())) {
+                .anyMatch(x -> model.getReturnRef().equals(x.getReturnRef()) && !x.isRefIsDataType())) {
                 datatypeRefs.remove(model.getReturnRef());
             }
         }

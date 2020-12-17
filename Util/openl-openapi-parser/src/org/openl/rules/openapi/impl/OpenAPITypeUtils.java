@@ -3,6 +3,7 @@ package org.openl.rules.openapi.impl;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -25,46 +26,63 @@ public class OpenAPITypeUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
 
-    public static final String OBJECT = "Object";
+    protected static final Map<String, TypeInfo> PRIMITIVE_CLASSES = initPrimitiveMap();
+    protected static final Map<String, TypeInfo> WRAPPER_CLASSES = initWrapperMap();
+
     public static final String SCHEMAS_LINK = "#/components/schemas/";
+
+    public static final String OBJECT = "Object";
     public static final String DATE = "Date";
-    public static final String STRING = "String";
-    public static final String FLOAT = "Float";
-    public static final String FLOAT_PRIMITIVE = "float";
-    public static final String DOUBLE = "Double";
-    public static final String DOUBLE_PRIMITIVE = "double";
-    public static final String INTEGER = "Integer";
-    public static final String INT = "int";
     public static final String BOOLEAN = "Boolean";
-    public static final String BOOLEAN_PRIMITIVE = "boolean";
+    public static final String STRING = "String";
+    public static final String INTEGER = "Integer";
     public static final String LONG = "Long";
-    public static final String LONG_PRIMITIVE = "long";
+    public static final String FLOAT = "Float";
+    public static final String DOUBLE = "Double";
     public static final String BIG_DECIMAL = "BigDecimal";
     public static final String BIG_INTEGER = "BigInteger";
 
+    public static final String DOUBLE_PRIMITIVE = "double";
+    public static final String FLOAT_PRIMITIVE = "float";
+    public static final String BOOLEAN_PRIMITIVE = "boolean";
+    public static final String INTEGER_PRIMITIVE = "int";
+    public static final String LONG_PRIMITIVE = "long";
+
     public static final Pattern ARRAY_MATCHER = Pattern.compile("[\\[\\]]");
-    public static final String DATE_CLASS_NAME = Date.class.getName();
-    public static final String STRING_CLASS_NAME = String.class.getName();
-    public static final String FLOAT_PRIMITIVE_CLASS_NAME = float.class.getName();
-    public static final String FLOAT_CLASS_NAME = Float.class.getName();
-    public static final String DOUBLE_PRIMITIVE_CLASS_NAME = double.class.getName();
-    public static final String DOUBLE_CLASS_NAME = Double.class.getName();
-    public static final String BIG_DECIMAL_CLASS_NAME = BigDecimal.class.getName();
-    public static final String LONG_PRIMITIVE_CLASS_NAME = long.class.getName();
-    public static final String LONG_CLASS_NAME = Long.class.getName();
-    public static final String INTEGER_PRIMITIVE_CLASS_NAME = int.class.getName();
-    public static final String INTEGER_CLASS_NAME = Integer.class.getName();
-    public static final String BIG_INTEGER_CLASS_NAME = BigInteger.class.getName();
-    public static final String BOOLEAN_PRIMITIVE_CLASS_NAME = boolean.class.getName();
-    public static final String BOOLEAN_CLASS_NAME = Boolean.class.getName();
 
     private OpenAPITypeUtils() {
     }
 
-    public static TypeInfo extractType(Schema<?> schema, boolean isPrimitive) {
-        TypeInfo result = new TypeInfo();
+    private static Map<String, TypeInfo> initPrimitiveMap() {
+        Map<String, TypeInfo> primitiveMap = new HashMap<>();
+        primitiveMap.put(FLOAT_PRIMITIVE, new TypeInfo(float.class.getName(), FLOAT_PRIMITIVE));
+        primitiveMap.put(DOUBLE_PRIMITIVE, new TypeInfo(double.class.getName(), DOUBLE_PRIMITIVE));
+        primitiveMap.put(LONG_PRIMITIVE, new TypeInfo(long.class.getName(), LONG_PRIMITIVE));
+        primitiveMap.put(INTEGER_PRIMITIVE, new TypeInfo(int.class.getName(), INTEGER_PRIMITIVE));
+        primitiveMap.put(BOOLEAN_PRIMITIVE, new TypeInfo(boolean.class.getName(), BOOLEAN_PRIMITIVE));
+        return Collections.unmodifiableMap(primitiveMap);
+    }
+
+    private static Map<String, TypeInfo> initWrapperMap() {
+        Map<String, TypeInfo> wrapperMap = new HashMap<>();
+        wrapperMap.put(DATE, new TypeInfo(Date.class.getName(), DATE));
+        wrapperMap.put(STRING, new TypeInfo(String.class.getName(), STRING));
+        wrapperMap.put(FLOAT_PRIMITIVE, new TypeInfo(Float.class.getName(), FLOAT));
+        wrapperMap.put(DOUBLE_PRIMITIVE, new TypeInfo(Double.class.getName(), DOUBLE));
+        wrapperMap.put(LONG_PRIMITIVE, new TypeInfo(Long.class.getName(), LONG));
+        wrapperMap.put(INTEGER_PRIMITIVE, new TypeInfo(Integer.class.getName(), INTEGER));
+        wrapperMap.put(BOOLEAN_PRIMITIVE, new TypeInfo(Boolean.class.getName(), BOOLEAN));
+        wrapperMap.put(OBJECT, new TypeInfo(Object.class.getName(), OBJECT));
+        wrapperMap.put("bigInt", new TypeInfo(BigInteger.class.getName(), BIG_INTEGER));
+        wrapperMap.put("bigDecimal", new TypeInfo(BigDecimal.class.getName(), BIG_DECIMAL));
+        return wrapperMap;
+    }
+
+    public static TypeInfo extractType(Schema<?> schema, boolean allowPrimitiveTypes) {
+        TypeInfo result = null;
         if (schema.get$ref() != null) {
             String simpleName = getSimpleName(schema.get$ref());
+            result = new TypeInfo();
             result.setSimpleName(simpleName);
             result.setJavaName(simpleName);
             result.setIsReference(true);
@@ -73,51 +91,42 @@ public class OpenAPITypeUtils {
         String schemaType = schema.getType();
         String format = schema.getFormat();
         if ("string".equals(schemaType)) {
-            if ("date".equals(format)) {
-                return new TypeInfo(DATE_CLASS_NAME, DATE);
-            } else if ("date-time".equals(format)) {
-                return new TypeInfo(DATE_CLASS_NAME, DATE);
-            } else {
-                return new TypeInfo(STRING_CLASS_NAME, STRING);
-            }
+            result = "date".equals(format) || "date-time".equals(format) ? WRAPPER_CLASSES.get(DATE)
+                                                                         : WRAPPER_CLASSES.get(STRING);
         } else if ("number".equals(schemaType)) {
-            if (FLOAT_PRIMITIVE.equals(format)) {
-                return isPrimitive ? new TypeInfo(FLOAT_PRIMITIVE_CLASS_NAME, format)
-                                   : new TypeInfo(FLOAT_CLASS_NAME, FLOAT);
-            } else if (DOUBLE_PRIMITIVE.equals(format)) {
-                return isPrimitive ? new TypeInfo(DOUBLE_PRIMITIVE_CLASS_NAME, format)
-                                   : new TypeInfo(DOUBLE_CLASS_NAME, DOUBLE);
+            if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
+                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);
             } else {
-                return new TypeInfo(BIG_DECIMAL_CLASS_NAME, BIG_DECIMAL);
+                result = WRAPPER_CLASSES.get("bigDecimal");
             }
         } else if ("integer".equals(schemaType)) {
             if ("int64".equals(format)) {
-                return isPrimitive ? new TypeInfo(LONG_PRIMITIVE_CLASS_NAME, LONG_PRIMITIVE)
-                                   : new TypeInfo(LONG_CLASS_NAME, LONG);
+                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(LONG_PRIMITIVE)
+                                             : WRAPPER_CLASSES.get(LONG_PRIMITIVE);
             } else if ("int32".equals(format)) {
-                return isPrimitive ? new TypeInfo(INTEGER_PRIMITIVE_CLASS_NAME, INT)
-                                   : new TypeInfo(INTEGER_CLASS_NAME, INTEGER);
+                result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
+                                             : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             } else {
-                return new TypeInfo(BIG_INTEGER_CLASS_NAME, BIG_INTEGER);
+                result = WRAPPER_CLASSES.get("bigInt");
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
-            return isPrimitive ? new TypeInfo(BOOLEAN_PRIMITIVE_CLASS_NAME, schemaType)
-                               : new TypeInfo(BOOLEAN_CLASS_NAME, BOOLEAN);
+            result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
             TypeInfo type = extractType(arraySchema.getItems(), false);
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
             if (type.isReference()) {
-                return new TypeInfo(name, name, true, dim);
+                result = new TypeInfo(name, name, true, dim);
             } else {
-                // TODO: validate me
                 String className = getArrayClassName(type.getJavaName(), dim);
-                return new TypeInfo(className, name, false, dim);
+                result = new TypeInfo(className, name, false, dim);
             }
-        } else {
-            return new TypeInfo(Object.class.getName(), OBJECT);
         }
+        if (result == null) {
+            result = WRAPPER_CLASSES.get(OBJECT);
+        }
+        return result;
     }
 
     public static String getArrayClassName(String javaName, int dim) {
@@ -148,15 +157,15 @@ public class OpenAPITypeUtils {
     }
 
     public static boolean isPrimitiveType(String type) {
-        return FLOAT_PRIMITIVE.equals(type) || BOOLEAN_PRIMITIVE.equals(type) || INT.equals(type) || LONG_PRIMITIVE
-            .equals(type) || DOUBLE_PRIMITIVE.equals(type);
+        return FLOAT_PRIMITIVE.equals(type) || BOOLEAN_PRIMITIVE.equals(type) || INTEGER_PRIMITIVE
+            .equals(type) || LONG_PRIMITIVE.equals(type) || DOUBLE_PRIMITIVE.equals(type);
     }
 
     public static String getSimpleValue(String type) {
         String result;
         switch (type) {
             case INTEGER:
-            case INT:
+            case INTEGER_PRIMITIVE:
                 result = "=0";
                 break;
             case BIG_INTEGER:

@@ -47,8 +47,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
     @Test
     public void testOpenAPIEmpty() throws Exception {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiNothingToGenerate.yaml");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         assertNull(generated.getAnnotationTemplateClass());
@@ -73,8 +72,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/api/Todo", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"text/csv"}, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"text/html"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "text/csv" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "text/html" }, method1.getAnnotation(Produces.class).value());
         assertEquals(0, method1.getParameters()[0].getDeclaredAnnotations().length);
 
         Method method2 = interfaceClass.getDeclaredMethod("apiBla", Integer.class);
@@ -83,8 +82,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/Bla", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"text/plain"}, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method2.getAnnotation(Produces.class).value());
         assertEquals(0, method2.getParameters()[0].getDeclaredAnnotations().length);
     }
 
@@ -105,8 +104,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/api/policyProxy2", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -117,8 +116,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(5, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/policyProxy3", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Produces.class).value());
         assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method2.getParameters()[0].getAnnotations().length);
@@ -131,8 +130,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(5, method3.getDeclaredAnnotations().length);
         assertNotNull(method3.getAnnotation(POST.class));
         assertEquals("/api/policyProxy", method3.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method3.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method3.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method3.getAnnotation(Produces.class).value());
         assertEquals("Policy", method3.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method3.getParameters()[0].getAnnotations().length);
@@ -143,8 +142,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method4.getDeclaredAnnotations().length);
         assertNotNull(method4.getAnnotation(POST.class));
         assertEquals("/api/doSomething", method4.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method4.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method4.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method4.getAnnotation(Produces.class).value());
 
         assertEquals(1, method4.getParameters()[0].getAnnotations().length);
         assertEquals("Policy", method4.getParameters()[0].getAnnotation(RulesType.class).value());
@@ -152,8 +151,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
     @Test
     public void testOpenAPIJavaInterfaceGeneratorPathParam() throws Exception {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/paths/openapiPathParam.yaml");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiPathParam.yaml");
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
         Set<Class<?>> commonClasses = new HashSet<>();
@@ -173,7 +171,7 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(GET.class));
         assertEquals("/pet/{petId}", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
         assertEquals("Pet", method1.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -182,8 +180,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
     @Test
     public void testOpenAPIJavaInterfaceGeneratorExtraMeth() throws Exception {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/paths/openapiOnlyExtraMethod.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapiOnlyExtraMethod.json");
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
         Set<Class<?>> commonClasses = new HashSet<>();
@@ -205,8 +202,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(6, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/policyProxy", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
         assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
         assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
 
@@ -222,7 +219,7 @@ public class OpenAPIJavaClassGeneratorTest {
     @Test
     public void testOpenAPIJavaInterfaceGeneratorRuntimeContext() throws Exception {
         ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
+            .extractProjectModel("test.converter/paths/runtimeContextAndExtraMethod.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
@@ -240,13 +237,13 @@ public class OpenAPIJavaClassGeneratorTest {
 
         assertEquals(2, interfaceClass.getDeclaredMethods().length);
 
-        Method method1 = interfaceClass.getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class,
-                Boolean.class);
+        Method method1 = interfaceClass
+            .getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class, Boolean.class);
         assertEquals(int.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/apiBla", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
         assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -263,15 +260,14 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/Todo", method2.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"text/plain"}, method2.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method2.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
         assertEquals(0, method2.getParameters()[0].getAnnotations().length);
     }
 
     @Test
     public void EPBDS_10493() throws Exception {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10493.json");
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
 
@@ -294,8 +290,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/DiscountPercentage", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[]{"text/plain"}, method1.getAnnotation(Produces.class).value());
-        assertArrayEquals(new String[]{"application/json"}, method1.getAnnotation(Consumes.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
         assertTrue(commonClasses.contains(method1.getAnnotation(ServiceExtraMethod.class).value()));
     }
 
@@ -321,8 +317,8 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(expectedName, interfaceClass.getName());
     }
 
-    private Class<?> defineClass(String name, byte[] bytes)
-            throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
+    private Class<?> defineClass(String name,
+            byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
 
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
@@ -333,16 +329,11 @@ public class OpenAPIJavaClassGeneratorTest {
         }
     }
 
-    private static void assertJavaClass(String expectedName, Class<?> clazz) throws IllegalAccessException, InstantiationException {
+    private static void assertJavaClass(String expectedName, Class<?> clazz) throws IllegalAccessException,
+                                                                             InstantiationException {
         assertFalse(clazz.isInterface());
         assertTrue("Class must be public", (clazz.getModifiers() & Modifier.PUBLIC) != 0);
         assertEquals(expectedName, clazz.getName());
-        clazz.newInstance();//just for sure
+        clazz.newInstance();// just for sure
     }
-
-    /*private void writeToFile(byte[] byteCode) throws IOException {
-        try (FileOutputStream fos = new FileOutputStream("OpenAPIService.class")) {
-            fos.write(byteCode);
-        }
-    }*/
 }

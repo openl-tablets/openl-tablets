@@ -276,6 +276,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(objFieldOptional.isPresent());
         InputParameter objParameter = objFieldOptional.get();
         assertEquals("Object", objParameter.getType().getSimpleName());
+        assertEquals("java.lang.Object", objParameter.getType().getJavaName());
         assertEquals("objField", objParameter.getName());
 
         Optional<InputParameter> mapFieldOptional = parameters.stream()
@@ -284,6 +285,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(mapFieldOptional.isPresent());
         InputParameter mapParameter = mapFieldOptional.get();
         assertEquals("Object", mapParameter.getType().getSimpleName());
+        assertEquals("java.lang.Object", mapParameter.getType().getJavaName());
         assertEquals("mapField", mapParameter.getName());
 
         Optional<InputParameter> listFieldOptional = parameters.stream()
@@ -292,6 +294,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(listFieldOptional.isPresent());
         InputParameter listParameter = listFieldOptional.get();
         assertEquals("Object[]", listParameter.getType().getSimpleName());
+        assertEquals("[Ljava.lang.Object;", listParameter.getType().getJavaName());
         assertEquals("listField", listParameter.getName());
 
         Optional<InputParameter> doubleFieldOptional = parameters.stream()
@@ -300,6 +303,7 @@ public class SpreadsheetsConverterTest {
         assertTrue(doubleFieldOptional.isPresent());
         InputParameter doubleParameter = doubleFieldOptional.get();
         assertEquals("Double", doubleParameter.getType().getSimpleName());
+        assertEquals("java.lang.Double", doubleParameter.getType().getJavaName());
         assertEquals("doubleField", doubleParameter.getName());
 
         Optional<SpreadsheetModel> mySpr2Optional = spreadsheetModels.stream()
@@ -400,6 +404,11 @@ public class SpreadsheetsConverterTest {
         assertTrue(hko.isPresent());
         SpreadsheetModel hk = hko.get();
         assertEquals("AnotherDatatype[]", hk.getType());
+        List<InputParameter> hkParameters = hk.getParameters();
+        assertEquals(1, hkParameters.size());
+        InputParameter decimalParam = hkParameters.iterator().next();
+        assertEquals("[Ljava.math.BigDecimal;", decimalParam.getType().getJavaName());
+        assertEquals("BigDecimal[]", decimalParam.getType().getSimpleName());
 
         Optional<SpreadsheetModel> hpo = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("HelloPesi"))
@@ -429,12 +438,14 @@ public class SpreadsheetsConverterTest {
         assertTrue(someField.isPresent());
         InputParameter inputParameter = someField.get();
         assertEquals("Date", inputParameter.getType().getSimpleName());
+        assertEquals("java.util.Date", inputParameter.getType().getJavaName());
 
         Optional<InputParameter> oneMoreField = parameters.stream()
             .filter(x -> x.getName().equals("oneMoreField"))
             .findFirst();
         assertTrue(oneMoreField.isPresent());
         InputParameter oneMoreFieldParam = oneMoreField.get();
+        assertEquals("[[[Ljava.util.Date;", oneMoreFieldParam.getType().getJavaName());
         assertEquals("Date[][][]", oneMoreFieldParam.getType().getSimpleName());
     }
 
@@ -667,6 +678,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("text/plain", apiBlaModelPathInfo.getProduces());
         assertEquals("POST", apiBlaModelPathInfo.getOperation());
         assertEquals("AnotherDatatype", apiBlaModelPathInfo.getReturnType().getSimpleName());
+        assertEquals("org.openl.rules.calc.SpreadsheetResult", apiBlaModelPathInfo.getReturnType().getJavaName());
 
         Optional<SpreadsheetModel> apiTodoOptional = spreadsheetResultModels.stream()
             .filter(x -> x.getName().equals("apiTodo"))
@@ -680,6 +692,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("text/html", apiTodoModelPathInfo.getProduces());
         assertEquals("POST", apiTodoModelPathInfo.getOperation());
         assertEquals("Integer", apiTodoModelPathInfo.getReturnType().getSimpleName());
+        assertEquals("java.lang.Integer", apiTodoModelPathInfo.getReturnType().getJavaName());
 
     }
 
