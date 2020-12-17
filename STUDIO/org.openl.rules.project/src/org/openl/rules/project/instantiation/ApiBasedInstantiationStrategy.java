@@ -63,24 +63,20 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
-    private IOpenSourceCodeModule getSourceCode() {
-        return new ModulePathSourceCodeModule(getModule().getRulesPath(), getModule().getName());
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
         if (engineFactory == null) {
 
-            IOpenSourceCodeModule source = getSourceCode();
+            Module module = getModule();
+            IOpenSourceCodeModule source = new ModulePathSourceCodeModule(module.getRulesPath(), module.getName());
             source.setParams(prepareExternalParameters());
 
             engineFactory = new RulesEngineFactory<>(source, serviceClass);
 
             // Information for interface generation, if generation required.
-            Module m = getModule();
-            MethodFilter methodFilter = m.getMethodFilter();
+            MethodFilter methodFilter = module.getMethodFilter();
             if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils
                 .isNotEmpty(methodFilter.getIncludes()))) {
                 String[] includes = new String[] {};
