@@ -27,7 +27,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.web.repository.deployment.DeploymentManifestBuilder;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
@@ -100,10 +99,10 @@ public class DeploymentManager implements InitializingBean {
 
                 Repository designRepo = designRepository.getRepository();
                 try (FileChangesToDeploy changes = new FileChangesToDeploy(projectDescriptors,
-                        designRepo,
-                        rulesPath,
-                        deploymentPath,
-                        userName)) {
+                    designRepo,
+                    rulesPath,
+                    deploymentPath,
+                    userName)) {
                     FileData deploymentData = new FileData();
                     deploymentData.setName(deploymentName);
                     deploymentData.setAuthor(userName);
@@ -129,26 +128,28 @@ public class DeploymentManager implements InitializingBean {
                     dest.setComment(project.getFileData().getComment());
 
                     final FileData historyData = designRepo.checkHistory(rulesPath + projectName, version);
-                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder()
-                            .setBuiltBy(userName)
-                            .setBuildNumber(pd.getProjectVersion().getRevision())
-                            .setImplementationTitle(projectName)
-                            .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
+                    DeploymentManifestBuilder manifestBuilder = new DeploymentManifestBuilder().setBuiltBy(userName)
+                        .setBuildNumber(pd.getProjectVersion().getRevision())
+                        .setImplementationTitle(projectName)
+                        .setImplementationVersion(RepositoryUtils.buildProjectVersion(historyData));
 
                     if (designRepo.supports().folders()) {
                         if (designRepo.supports().branches()) {
                             manifestBuilder.setBuildBranch(historyData.getBranch());
                         }
                         archiveAndSave((FolderRepository) designRepo,
-                                rulesPath,
-                                projectName,
-                                version,
-                                deployRepo,
-                                dest,
-                                manifestBuilder.build());
+                            rulesPath,
+                            projectName,
+                            version,
+                            deployRepo,
+                            dest,
+                            manifestBuilder.build());
                     } else {
                         FileItem srcPrj = designRepo.readHistory(rulesPath + projectName, version);
-                        includeManifestIntoArchiveAndSave(deployRepo, dest, srcPrj.getStream(), manifestBuilder.build());
+                        includeManifestIntoArchiveAndSave(deployRepo,
+                            dest,
+                            srcPrj.getStream(),
+                            manifestBuilder.build());
                     }
                 }
             }
@@ -161,7 +162,10 @@ public class DeploymentManager implements InitializingBean {
         }
     }
 
-    private void includeManifestIntoArchiveAndSave(Repository deployRepo, FileData dest, InputStream in, Manifest manifest) throws ProjectException {
+    private void includeManifestIntoArchiveAndSave(Repository deployRepo,
+            FileData dest,
+            InputStream in,
+            Manifest manifest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.includeManifestAndRepackArchive(in, out, manifest);
@@ -175,12 +179,12 @@ public class DeploymentManager implements InitializingBean {
     }
 
     private void archiveAndSave(FolderRepository designRepo,
-                                String rulesPath,
-                                String projectName,
-                                String version,
-                                Repository deployRepo,
-                                FileData dest,
-                                Manifest manifest) throws ProjectException {
+            String rulesPath,
+            String projectName,
+            String version,
+            Repository deployRepo,
+            FileData dest,
+            Manifest manifest) throws ProjectException {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         try {
             RepositoryUtils.archive(designRepo, rulesPath, projectName, version, out, manifest);
@@ -244,7 +248,7 @@ public class DeploymentManager implements InitializingBean {
         this.repositoryFactoryProxy = repositoryFactoryProxy;
     }
 
-    public Repository getDeployRepository(String repositoryConfigName) throws RRepositoryException {
+    public Repository getDeployRepository(String repositoryConfigName) {
         return repositoryFactoryProxy.getRepositoryInstance(repositoryConfigName);
     }
 

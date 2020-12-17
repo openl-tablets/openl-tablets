@@ -26,7 +26,6 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
@@ -112,12 +111,7 @@ public abstract class AbstractSmartRedeployController {
     }
 
     private AProject getDeployedProject(AProject wsProject, String deployConfigName) throws IOException {
-        Repository deployRepo;
-        try {
-            deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
-        } catch (RRepositoryException e) {
-            throw new IOException(e);
-        }
+        Repository deployRepo = deploymentManager.getDeployRepository(repositoryConfigName);
         boolean folderStructure;
 
         if (deployRepo.supports().folders()) {

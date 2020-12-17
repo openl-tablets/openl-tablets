@@ -12,7 +12,6 @@ import javax.faces.bean.SessionScoped;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
@@ -102,7 +101,7 @@ public class ProductionRepositoriesTreeState {
             Repository repository = productionRepositoryFactoryProxy.getRepositoryInstance(repoConfig.getConfigName());
             String deploymentsPath = productionRepositoryFactoryProxy.getDeploymentsPath(repoConfig.getConfigName());
             return new ArrayList<>(DeployUtils.getLastDeploymentProjects(repository, deploymentsPath));
-        } catch (RRepositoryException e) {
+        } catch (Exception e) {
             return new ArrayList<>();
         }
 

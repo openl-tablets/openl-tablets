@@ -1,6 +1,11 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
@@ -24,7 +29,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
@@ -33,7 +37,7 @@ public class LocalGitRepositoryTest {
     private GitRepository repo;
 
     @Before
-    public void setUp() throws IOException, RRepositoryException {
+    public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
     }
@@ -108,8 +112,8 @@ public class LocalGitRepositoryTest {
         assertTrue(packDirectory.delete());
         assertFalse(packDirectory.exists());
 
-        List<FileItem> changes = Collections.singletonList(new FileItem("rules/project1/file2",
-            IOUtils.toInputStream("Modified")));
+        List<FileItem> changes = Collections
+            .singletonList(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
 
         FileData folderData = new FileData();
         folderData.setName("rules/project1");
@@ -245,7 +249,7 @@ public class LocalGitRepositoryTest {
         repository.save(createFileData(path, text, comment), IOUtils.toInputStream(text));
     }
 
-    private GitRepository createRepository(File local) throws RRepositoryException {
+    private GitRepository createRepository(File local) {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(local.getAbsolutePath());
         repo.setGitSettingsPath(local.getParent() + "/git-settings");

@@ -30,7 +30,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -210,7 +209,7 @@ public class ProductionRepositoryDeployer {
             String deployPath,
             File rulesFolder,
             String defaultName,
-            String deploymentName) throws RRepositoryException, IOException {
+            String deploymentName) throws IOException {
         // Renamed a project according to rules.xml
         String name = defaultName;
         File rules = new File(rulesFolder, "rules.xml");
