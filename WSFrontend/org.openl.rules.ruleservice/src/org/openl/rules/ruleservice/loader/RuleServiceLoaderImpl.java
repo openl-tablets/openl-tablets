@@ -26,7 +26,6 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.RuntimeExceptionWrapper;
@@ -53,7 +52,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * Construct a new RulesLoader for bean usage.
      */
-    public RuleServiceLoaderImpl(Repository repository) throws IOException, RRepositoryException {
+    public RuleServiceLoaderImpl(Repository repository) throws IOException {
         tempPath = Files.createTempDirectory("rules-deploy_");
         log.info("Local temporary folder location is: {}", tempPath);
         tempRepo = new FileSystemRepository();

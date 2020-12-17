@@ -28,16 +28,27 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.RepositoryMode;
-import org.openl.rules.repository.api.*;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.api.AdditionalData;
+import org.openl.rules.repository.api.ArtefactProperties;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.ConflictResolveData;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.MergeConflictException;
+import org.openl.rules.repository.api.PathConverter;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.InputSource;
 
-public class MappedRepository implements FolderRepository, BranchRepository, RRepositoryFactory, Closeable {
+public class MappedRepository implements FolderRepository, BranchRepository, Closeable {
     private static final Pattern PROJECT_PROPERTY_PATTERN = Pattern.compile("(project\\.\\d+\\.)\\w+");
     private final Logger log = LoggerFactory.getLogger(MappedRepository.class);
 
@@ -401,11 +412,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         mappedRepository.setRepositoryMode(repositoryMode);
         mappedRepository.setConfigFile(configFile);
         mappedRepository.setBaseFolder(baseFolder);
-        try {
-            mappedRepository.initialize();
-        } catch (RRepositoryException e) {
-            throw new IOException(e.getMessage(), e);
-        }
+        mappedRepository.initialize();
 
         return mappedRepository;
     }
@@ -534,13 +541,8 @@ public class MappedRepository implements FolderRepository, BranchRepository, RRe
         return internalPath;
     }
 
-    @Override
-    public void initialize() throws RRepositoryException {
-        try {
-            refreshMapping();
-        } catch (Exception e) {
-            throw new RRepositoryException(e.getMessage(), e);
-        }
+    public void initialize() {
+        refreshMapping();
     }
 
     /**

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -38,7 +37,7 @@ import com.amazonaws.services.s3.model.S3VersionSummary;
 import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
 import com.amazonaws.services.s3.model.VersionListing;
 
-public class S3Repository implements Repository, Closeable, RRepositoryFactory {
+public class S3Repository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);
 
     private static final String MODIFICATION_FILE = ".openl-settings/.modification";
@@ -80,7 +79,6 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         }
     }
 
-    @Override
     public void initialize() {
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {

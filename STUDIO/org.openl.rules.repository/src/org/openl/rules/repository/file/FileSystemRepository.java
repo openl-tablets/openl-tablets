@@ -1,10 +1,27 @@
 package org.openl.rules.repository.file;
 
-import java.io.*;
-import java.util.*;
+import java.io.Closeable;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 
-import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -16,7 +33,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Yury Molchan
  */
-public class FileSystemRepository implements FolderRepository, RRepositoryFactory, Closeable {
+public class FileSystemRepository implements FolderRepository, Closeable {
     private final Logger log = LoggerFactory.getLogger(FileSystemRepository.class);
 
     private File root;
@@ -32,7 +49,6 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         this.root = new File(path);
     }
 
-    @Override
     public void initialize() {
         try {
             root.mkdirs();
@@ -82,7 +98,7 @@ public class FileSystemRepository implements FolderRepository, RRepositoryFactor
         return saved;
     }
 
-    private FileData write(FileData data, InputStream stream) throws IOException{
+    private FileData write(FileData data, InputStream stream) throws IOException {
         String name = data.getName();
         File file = new File(root, name);
         file.getParentFile().mkdirs();

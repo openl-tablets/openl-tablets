@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -30,7 +29,7 @@ import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
+abstract class DBRepository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(DBRepository.class);
 
     private Settings settings;
@@ -481,7 +480,6 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
         return statement;
     }
 
-    @Override
     public void initialize() {
         try {
             JDBCDriverRegister.registerDrivers();
