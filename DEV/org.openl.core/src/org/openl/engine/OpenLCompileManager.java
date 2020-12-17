@@ -1,6 +1,16 @@
 package org.openl.engine;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.openl.CompiledOpenClass;
@@ -15,13 +25,13 @@ import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ModuleFileSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.syntax.code.ProcessedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
 
@@ -90,8 +100,8 @@ public class OpenLCompileManager {
             dependencyNames = new HashSet<>(deps);
         }
         String currentModule = null;
-        if (source instanceof ModuleFileSourceCodeModule) {
-            currentModule = ((ModuleFileSourceCodeModule) source).getModuleName();
+        if (source instanceof IModuleInfo) {
+            currentModule = ((IModuleInfo) source).getModuleName();
         }
         for (IDependency dependency : dependencies) {
             String value = dependency.getNode().getIdentifier();

@@ -12,12 +12,14 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.MalformedURLException;
+import java.nio.file.Paths;
 
 import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.junit.Test;
 import org.openl.rules.lang.xls.load.SimpleWorkbookLoader;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.PathSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 
 public class XlsWorkbookSourceCodeModuleTest {
@@ -27,6 +29,13 @@ public class XlsWorkbookSourceCodeModuleTest {
         File f = new File("test/rules/test xls/Test with spaces.xls");
         XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
             new URLSourceCodeModule(f.toURI().toURL()));
+        assertNotNull(module.getSourceFile());
+    }
+
+    @Test
+    public void testUrlWithWhiteSpaces2() {
+        XlsWorkbookSourceCodeModule module = new XlsWorkbookSourceCodeModule(
+                new PathSourceCodeModule(Paths.get("test/rules/test xls/Test with spaces.xls")));
         assertNotNull(module.getSourceFile());
     }
 
