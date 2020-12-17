@@ -17,6 +17,7 @@ import org.openl.source.IOpenSourceCodeModule;
  * @author snshor
  *
  */
+@Deprecated
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
     IGridTable table;
