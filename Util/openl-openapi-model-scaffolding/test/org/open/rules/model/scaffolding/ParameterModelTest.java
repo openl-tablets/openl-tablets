@@ -1,18 +1,19 @@
 package org.open.rules.model.scaffolding;
 
-import org.junit.Test;
-import org.openl.rules.model.scaffolding.ParameterModel;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+
+import org.junit.Test;
+import org.openl.rules.model.scaffolding.ParameterModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 
 public class ParameterModelTest {
 
     @Test
     public void testParameterModelCreation() {
-        ParameterModel nameParam = new ParameterModel("String", "name");
-        ParameterModel oneMoreNameParam = new ParameterModel("String", "name");
-        ParameterModel surnameParam = new ParameterModel("String", "surname");
+        ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
+        ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
+        ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "surname");
         ParameterModel integerParam = new ParameterModel();
 
         assertEquals(nameParam, nameParam);
@@ -24,13 +25,13 @@ public class ParameterModelTest {
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 
         integerParam.setName("name");
-        integerParam.setType("Integer");
+        integerParam.setType(new TypeInfo(Integer.class.getName(), "Integer", false));
         assertEquals("name", integerParam.getName());
-        assertEquals("Integer", integerParam.getType());
+        assertEquals("Integer", integerParam.getType().getSimpleName());
         assertNotEquals(nameParam, integerParam);
         assertNotEquals(nameParam.hashCode(), integerParam.hashCode());
 
-        assertEquals(nameParam.getName(), "name");
-        assertEquals(nameParam.getType(), "String");
+        assertEquals("name", nameParam.getName());
+        assertEquals("String", nameParam.getType().getSimpleName());
     }
 }

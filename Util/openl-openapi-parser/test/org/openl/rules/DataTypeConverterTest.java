@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
@@ -28,9 +29,15 @@ import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
  */
 public class DataTypeConverterTest {
 
+    private OpenAPIModelConverter converter;
+
+    @Before
+    public void setUp() {
+        converter = new OpenAPIScaffoldingConverter();
+    }
+
     @Test
     public void testMissedDataTypes() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10229_missed_types.json");
         assertEquals(3, projectModel.getDatatypeModels().size());
@@ -55,7 +62,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void testNestingProblem() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/nesting.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertFalse(datatypeModels.isEmpty());
@@ -73,7 +79,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void testSimpleDatatype() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_simple.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
@@ -81,7 +86,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void testDataTypeNesting() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel("test.converter/datatype/datatype_with_parent.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(2, datatypeModels.size());
@@ -98,7 +102,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void testMultipleDataTypeNesting() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/datatypes_multiple_nesting.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -150,7 +153,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void dataTypeInExpandableRequestBody() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         // project model with expandable request
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body.json");
@@ -190,7 +192,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void dataTypeWithMoreThanLimitFields() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter.extractProjectModel(
             "test.converter/datatype/EPBDS-10285_datatype_with_exceeding_limit_fields_number.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -201,13 +202,12 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(apiTodo.isPresent());
         InputParameter inputParameter = apiTodo.get().getParameters().iterator().next();
-        assertEquals("AnotherDatatype", inputParameter.getType());
+        assertEquals("AnotherDatatype", inputParameter.getType().getSimpleName());
         assertEquals("anotherDatatype", inputParameter.getName());
     }
 
     @Test
     public void dataTypeNumberValuesTest() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
@@ -279,7 +279,6 @@ public class DataTypeConverterTest {
 
     @Test
     public void testLostDatatype() throws IOException {
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();

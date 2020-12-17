@@ -6,7 +6,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.RandomAccessFile;
+import java.net.URI;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
@@ -37,6 +39,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.ZipUtils;
 
 /**
  * Read only implementation of Local Repository to support deploying of zip archives as it is from file system without
@@ -294,12 +297,15 @@ public class ZippedLocalRepository implements FolderRepository, RRepositoryFacto
     }
 
     private synchronized Path enterZipArchive(Path path) throws IOException {
-        FileSystem fileSystem = openedFileSystems.get(path);
-        if (fileSystem == null) {
-            fileSystem = FileSystems.newFileSystem(path, Thread.currentThread().getContextClassLoader());
-            openedFileSystems.put(path, fileSystem);
+        URI jarURI = ZipUtils.toJarURI(path);
+        FileSystem fs;
+        try {
+            fs = FileSystems.getFileSystem(jarURI);
+        } catch (FileSystemNotFoundException ignored) {
+            fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());
+            openedFileSystems.put(path, fs);
         }
-        return fileSystem.getPath(CompoundPath.PATH_SEPARATOR);
+        return fs.getPath(CompoundPath.PATH_SEPARATOR);
     }
 
     protected int getHashVersion(Path path) throws IOException {

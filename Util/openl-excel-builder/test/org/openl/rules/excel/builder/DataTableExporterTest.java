@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.PathInfo;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.util.StringUtils;
 
@@ -50,7 +51,12 @@ public class DataTableExporterTest {
         FieldModel booleanField = new FieldModel("isOk", "Boolean", true);
         FieldModel customTypeField = new FieldModel("driver", "Human");
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
-        PathInfo info = new PathInfo("/getTest", "/getTest", "GET", "Test", "application/json", "application/json");
+        PathInfo info = new PathInfo("/getTest",
+            "/getTest",
+            "GET",
+            new TypeInfo("Test", true),
+            "application/json",
+            "application/json");
         DataModel dm = new DataModel("getTest", "Test", info, dt);
 
         DatatypeModel secondModel = new DatatypeModel("MyModel");
@@ -59,7 +65,12 @@ public class DataTableExporterTest {
         FieldModel sumField = new FieldModel("height", "Double", 134.44d);
         FieldModel isOkField = new FieldModel("isOk", "Boolean", false);
         secondModel.setFields(Arrays.asList(integerField, sumField, isOkField));
-        PathInfo infoForNotOk = new PathInfo("/getMyModel", "/my/model", "POST", "Unknown", "text/plain", "text/html");
+        PathInfo infoForNotOk = new PathInfo("/getMyModel",
+            "/my/model",
+            "POST",
+            new TypeInfo("Unknown", true),
+            "text/plain",
+            "text/html");
         DataModel myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);
 
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {

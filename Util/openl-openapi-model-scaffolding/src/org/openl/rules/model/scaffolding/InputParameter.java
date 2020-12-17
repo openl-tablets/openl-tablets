@@ -4,5 +4,7 @@ public interface InputParameter {
 
     String getName();
 
-    String getType();
+    TypeInfo getType();
+
+    boolean isInPath();
 }

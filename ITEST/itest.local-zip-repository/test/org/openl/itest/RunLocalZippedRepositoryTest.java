@@ -36,4 +36,9 @@ public class RunLocalZippedRepositoryTest {
         client.send("multiproject/multiproject.findCarByVIN.post");
     }
 
+    @Test
+    public void EPBDS_10917() {
+        client.send("EPBDS_10917/Greeting.json.post");
+    }
+
 }

@@ -22,6 +22,7 @@ import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 
 public class SpreadsheetTableExporterTest {
 
@@ -34,7 +35,7 @@ public class SpreadsheetTableExporterTest {
         resultModel.setType("Double");
         resultModel.setName("TestDoubleSpr");
 
-        InputParameter inputParameter = new ParameterModel("String", "name");
+        InputParameter inputParameter = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
         resultModel.setParameters(Collections.singletonList(inputParameter));
         StepModel doubleStep = new StepModel("simpleCalculation", "Double", "=0.0d");
         StepModel stringStep = new StepModel("calculateName", "String", "=" + "\"\"");

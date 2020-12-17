@@ -8,12 +8,24 @@ public class PathInfo {
     private String consumes;
     private String produces;
     private String operation;
-    private String returnType;
+    private TypeInfo returnType;
 
     public PathInfo() {
     }
 
-    public PathInfo(String originalPath, String formattedPath, String operation, String returnType, String consumes, String produces) {
+    public PathInfo(String originalPath, String formattedPath, String operation, TypeInfo typeInfo) {
+        this.originalPath = originalPath;
+        this.formattedPath = formattedPath;
+        this.operation = operation;
+        this.returnType = typeInfo;
+    }
+
+    public PathInfo(String originalPath,
+            String formattedPath,
+            String operation,
+            TypeInfo returnType,
+            String consumes,
+            String produces) {
         this.originalPath = originalPath;
         this.formattedPath = formattedPath;
         this.operation = operation;
@@ -46,11 +58,11 @@ public class PathInfo {
         this.operation = operation;
     }
 
-    public String getReturnType() {
+    public TypeInfo getReturnType() {
         return returnType;
     }
 
-    public void setReturnType(String returnType) {
+    public void setReturnType(TypeInfo returnType) {
         this.returnType = returnType;
     }
 
