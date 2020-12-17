@@ -6,11 +6,11 @@
   },
   "basePath": "/service%20name%20with%20spaces",
   "paths": {
-    "/bar": {
+    "/sumTwoDoubles": {
       "post": {
-        "summary": "String bar(SumTwoDoublesRequest)",
-        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
-        "operationId": "bar",
+        "summary": "Double sumTwoDoubles(Double, Double)",
+        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
+        "operationId": "sumTwoDoubles",
         "consumes": [
           "application/json"
         ],
@@ -23,7 +23,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest"
+              "$ref": "#/definitions/SumTwoDoublesRequest0"
             }
           }
         ],
@@ -31,7 +31,8 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "string"
+              "type": "number",
+              "format": "double"
             }
           },
           "422": {
@@ -90,7 +91,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/CalVehicleYearRequest"
+              "$ref": "#/definitions/CalVehicleYearRequest0"
             }
           }
         ],
@@ -141,11 +142,11 @@
         }
       }
     },
-    "/sumTwoDoubles": {
+    "/bar": {
       "post": {
-        "summary": "Double sumTwoDoubles(Double, Double)",
-        "description": "Rules method: java.lang.Double sumTwoDoubles(java.lang.Double a, java.lang.Double b)",
-        "operationId": "sumTwoDoubles",
+        "summary": "String bar(SumTwoDoublesRequest)",
+        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
+        "operationId": "bar",
         "consumes": [
           "application/json"
         ],
@@ -166,8 +167,7 @@
           "200": {
             "description": "successful operation",
             "schema": {
-              "type": "number",
-              "format": "double"
+              "type": "string"
             }
           },
           "422": {
@@ -236,7 +236,7 @@
         }
       }
     },
-    "SumTwoDoublesRequest": {
+    "SumTwoDoublesRequest0": {
       "type": "object",
       "properties": {
         "a": {
@@ -252,12 +252,33 @@
     "CalVehicleYearRequest": {
       "type": "object",
       "properties": {
+        "modelYear": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "vehEffectiveYear": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CalVehicleYearRequest0": {
+      "type": "object",
+      "properties": {
         "v": {
           "$ref": "#/definitions/CalVehicleYearRequest"
         },
         "a": {
           "type": "number",
           "format": "double"
+        }
+      }
+    },
+    "SumTwoDoublesRequest": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
         }
       }
     }

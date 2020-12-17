@@ -40,7 +40,12 @@ import org.openl.util.StringUtils;
 import org.openl.util.generation.GenUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
+import com.fasterxml.jackson.databind.BeanDescription;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
+
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.SwaggerDefinition;
 import io.swagger.v3.oas.annotations.OpenAPIDefinition;
@@ -93,6 +98,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final boolean resolveMethodParameterNames;
         private final boolean provideRuntimeContext;
         private final boolean provideVariations;
+        private Set<String> usedSwaggerComponentNamesWithRequestParameterSuffix = null;
+        private Set<String> usedOpenApiComponentNamesWithRequestParameterSuffix = null;
+        private final ObjectMapper swaggerObjectMapper;
+        private final ObjectMapper openApiObjectMapper;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -102,7 +111,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String serviceExposedUrl,
                 boolean resolveMethodParameterNames,
                 boolean provideRuntimeContext,
-                boolean provideVariations) {
+                boolean provideVariations,
+                ObjectMapper swaggerObjectMapper,
+                ObjectMapper openApiObjectMapper) {
             super(Opcodes.ASM5, arg0);
             this.serviceName = serviceName;
             this.originalClass = originalClass;
@@ -112,6 +123,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             this.resolveMethodParameterNames = resolveMethodParameterNames;
             this.provideRuntimeContext = provideRuntimeContext;
             this.provideVariations = provideVariations;
+            this.swaggerObjectMapper = swaggerObjectMapper;
+            this.openApiObjectMapper = openApiObjectMapper;
         }
 
         @Override
@@ -182,6 +195,81 @@ public class JAXRSOpenLServiceEnhancerHelper {
             }
         }
 
+        private <T extends Annotation> T getAnnotationWithObjectMapper(ObjectMapper objectMapper,
+                Class<?> target,
+                Class<T> annotation) {
+            if (objectMapper != null) {
+                BeanDescription beanDescription = objectMapper.getSerializationConfig()
+                    .introspect(TypeFactory.defaultInstance().constructType(target));
+                return beanDescription.getClassAnnotations().get(annotation);
+            } else {
+                return target.getAnnotation(annotation);
+            }
+        }
+
+        private String getSwaggerComponentName(Class<?> clazz) {
+            ApiModel apiModel = getAnnotationWithObjectMapper(swaggerObjectMapper, clazz, ApiModel.class);
+            return apiModel == null ? clazz.getSimpleName() : apiModel.value();
+        }
+
+        private String getOpenApiComponentName(Class<?> clazz) {
+            Schema schema = getAnnotationWithObjectMapper(openApiObjectMapper, clazz, Schema.class);
+            return schema == null ? clazz.getSimpleName() : schema.name();
+        }
+
+        private Set<String> getUsedSwaggerComponentNamesWithRequestParameterSuffix() {
+            if (usedSwaggerComponentNamesWithRequestParameterSuffix == null) {
+                usedSwaggerComponentNamesWithRequestParameterSuffix = new HashSet<>();
+                for (Method method : originalClass.getDeclaredMethods()) {
+                    processClassForSwaggerComponentNamesConflictResolving(method.getReturnType());
+                    for (Class<?> paramType : method.getParameterTypes()) {
+                        processClassForSwaggerComponentNamesConflictResolving(paramType);
+                    }
+                }
+            }
+            return usedSwaggerComponentNamesWithRequestParameterSuffix;
+        }
+
+        private Set<String> getUsedOpenApiComponentNamesWithRequestParameterSuffix() {
+            if (usedOpenApiComponentNamesWithRequestParameterSuffix == null) {
+                usedOpenApiComponentNamesWithRequestParameterSuffix = new HashSet<>();
+                for (Method method : originalClass.getDeclaredMethods()) {
+                    processClassForSwaggerComponentNamesConflictResolving(method.getReturnType());
+                    for (Class<?> paramType : method.getParameterTypes()) {
+                        processClassForSwaggerComponentNamesConflictResolving(paramType);
+                    }
+                }
+            }
+            return usedOpenApiComponentNamesWithRequestParameterSuffix;
+        }
+
+        private void processClassForOpenApiComponentNamesConflictResolving(Class<?> type) {
+            while (type.isArray()) {
+                type = type.getComponentType();
+            }
+            String componentName = getOpenApiComponentName(type);
+            if (isConflictPossible(componentName)) {
+                usedOpenApiComponentNamesWithRequestParameterSuffix.add(componentName);
+            }
+        }
+
+        private void processClassForSwaggerComponentNamesConflictResolving(Class<?> type) {
+            while (type.isArray()) {
+                type = type.getComponentType();
+            }
+            String componentName = getSwaggerComponentName(type);
+            if (isConflictPossible(componentName)) {
+                usedSwaggerComponentNamesWithRequestParameterSuffix.add(componentName);
+            }
+        }
+
+        private boolean isConflictPossible(String name) {
+            while (Character.isDigit(name.charAt(name.length() - 1))) {
+                name = name.substring(0, name.length() - 1);
+            }
+            return name.endsWith(REQUEST_PARAMETER_SUFFIX);
+        }
+
         private String changedParameterTypesDescription(String descriptor,
                 Method originalMethod,
                 int suffix) throws Exception {
@@ -195,7 +283,18 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (suffix > 0) {
                 requestParameterName = requestParameterName + suffix;
             }
-            String beanName = "org.openl.jaxrs." + requestParameterName;
+            String nonConflictedRequestParameterName = requestParameterName;
+            StringBuilder s = new StringBuilder("0");
+            while (getUsedSwaggerComponentNamesWithRequestParameterSuffix()
+                .contains(nonConflictedRequestParameterName) || getUsedOpenApiComponentNamesWithRequestParameterSuffix()
+                    .contains(nonConflictedRequestParameterName)) {
+                nonConflictedRequestParameterName = StringUtils
+                    .capitalize(originalMethod.getName()) + REQUEST_PARAMETER_SUFFIX + s + (suffix > 0 ? suffix : "");
+                s.insert(0, "0");
+            }
+            usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
+            usedOpenApiComponentNamesWithRequestParameterSuffix.add(nonConflictedRequestParameterName);
+            String beanName = "org.openl.jaxrs." + nonConflictedRequestParameterName;
 
             int i = 0;
             WrapperBeanClassBuilder beanClassBuilder = new WrapperBeanClassBuilder(beanName, originalMethod.getName());
@@ -732,7 +831,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
             String serviceExposedUrl,
             boolean resolveMethodParameterNames,
             boolean provideRuntimeContext,
-            boolean provideVariations) throws Exception {
+            boolean provideVariations,
+            ObjectMapper swaggerObjectMapper,
+            ObjectMapper openApiObjectMapper) throws Exception {
         if (!originalClass.isInterface()) {
             throw new IllegalArgumentException("Only interfaces are supported");
         }
@@ -751,7 +852,9 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 serviceExposedUrl,
                 resolveMethodParameterNames,
                 provideRuntimeContext,
-                provideVariations);
+                provideVariations,
+                swaggerObjectMapper,
+                openApiObjectMapper);
             InterfaceTransformer transformer = new InterfaceTransformer(originalClass,
                 enhancedClassName,
                 InterfaceTransformer.IGNORE_PARAMETER_ANNOTATIONS);

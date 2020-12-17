@@ -6,73 +6,6 @@
   },
   "basePath": "/rules-without-runtime-context",
   "paths": {
-    "/bar": {
-      "post": {
-        "summary": "String bar(SumTwoDoublesRequest)",
-        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
-        "operationId": "bar",
-        "consumes": [
-          "application/json"
-        ],
-        "produces": [
-          "text/plain"
-        ],
-        "parameters": [
-          {
-            "in": "body",
-            "name": "body",
-            "required": false,
-            "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest"
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "successful operation",
-            "schema": {
-              "type": "string"
-            }
-          },
-          "422": {
-            "description": "Custom user errors in rules or validation errors in input parameters",
-            "examples": {
-              "application/json": {
-                "message": "Some message",
-                "type": "USER_ERROR"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "400": {
-            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Cannot parse 'bar' to JSON",
-                "type": "BAD_REQUEST"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          },
-          "500": {
-            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
-            "examples": {
-              "application/json": {
-                "message": "Failed to load lazy method.",
-                "type": "COMPILATION"
-              }
-            },
-            "schema": {
-              "$ref": "#/definitions/JAXRSErrorResponse"
-            }
-          }
-        }
-      }
-    },
     "/sumTwoDoubles": {
       "post": {
         "summary": "Double sumTwoDoubles(Double, Double)",
@@ -90,7 +23,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/SumTwoDoublesRequest"
+              "$ref": "#/definitions/SumTwoDoublesRequest0"
             }
           }
         ],
@@ -158,7 +91,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/CalVehicleYearRequest"
+              "$ref": "#/definitions/CalVehicleYearRequest0"
             }
           }
         ],
@@ -168,6 +101,73 @@
             "schema": {
               "type": "integer",
               "format": "int32"
+            }
+          },
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "examples": {
+              "application/json": {
+                "message": "Some message",
+                "type": "USER_ERROR"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Cannot parse 'bar' to JSON",
+                "type": "BAD_REQUEST"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "examples": {
+              "application/json": {
+                "message": "Failed to load lazy method.",
+                "type": "COMPILATION"
+              }
+            },
+            "schema": {
+              "$ref": "#/definitions/JAXRSErrorResponse"
+            }
+          }
+        }
+      }
+    },
+    "/bar": {
+      "post": {
+        "summary": "String bar(SumTwoDoublesRequest)",
+        "description": "Rules method: java.lang.String bar(org.openl.generated.beans.SumTwoDoublesRequest bar)",
+        "operationId": "bar",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "text/plain"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/SumTwoDoublesRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "schema": {
+              "type": "string"
             }
           },
           "422": {
@@ -236,7 +236,7 @@
         }
       }
     },
-    "SumTwoDoublesRequest": {
+    "SumTwoDoublesRequest0": {
       "type": "object",
       "properties": {
         "a": {
@@ -252,12 +252,33 @@
     "CalVehicleYearRequest": {
       "type": "object",
       "properties": {
+        "modelYear": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "vehEffectiveYear": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CalVehicleYearRequest0": {
+      "type": "object",
+      "properties": {
         "v": {
           "$ref": "#/definitions/CalVehicleYearRequest"
         },
         "a": {
           "type": "number",
           "format": "double"
+        }
+      }
+    },
+    "SumTwoDoublesRequest": {
+      "type": "object",
+      "properties": {
+        "foo": {
+          "type": "string"
         }
       }
     }
