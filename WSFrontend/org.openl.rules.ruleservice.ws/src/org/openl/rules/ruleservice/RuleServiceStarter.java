@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice;
 
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
@@ -23,7 +22,7 @@ public final class RuleServiceStarter {
         }
     }
 
-    public static void main(String[] args) throws RRepositoryException {
+    public static void main(String[] args) {
         startServicesFromClasspath();
     }
 }

@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -73,7 +72,7 @@ public class ProtectedBranchTest {
     }
 
     @Before
-    public void setUp() throws IOException, RRepositoryException {
+    public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
 
         File remote = new File(root, "remote");
@@ -130,7 +129,7 @@ public class ProtectedBranchTest {
         }
     }
 
-    private GitRepository createRepository(String remoteUri, File local) throws RRepositoryException {
+    private GitRepository createRepository(String remoteUri, File local) {
         GitRepository repo = new GitRepository();
         repo.setUri(remoteUri);
         repo.setLocalRepositoryPath(local.getAbsolutePath());
