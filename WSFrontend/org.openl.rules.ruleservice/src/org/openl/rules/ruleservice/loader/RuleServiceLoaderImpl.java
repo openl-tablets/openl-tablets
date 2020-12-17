@@ -8,6 +8,7 @@ import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.ProviderNotFoundException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -228,7 +229,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         } catch (FileSystemNotFoundException ignored) {
             try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());) {
                 return projectResolver.isRulesProject(fs.getPath("/")) != null;
-            } catch (IOException | UnsupportedOperationException e) {
+            } catch (IOException | UnsupportedOperationException | ProviderNotFoundException e) {
                 return false;
             }
         }
