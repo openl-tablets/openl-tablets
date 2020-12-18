@@ -25,7 +25,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private ScheduledExecutorService scheduledPool;
     private ScheduledFuture<?> scheduled;
     private ProjectVersionH2CacheDB projectVersionCacheDB;
-    public ProjectVersionCacheManager projectVersionCacheManager;
+    private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
 
     private final static int PERIOD = 10;
