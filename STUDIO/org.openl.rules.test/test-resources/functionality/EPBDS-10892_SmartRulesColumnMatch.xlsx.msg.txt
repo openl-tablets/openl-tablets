@@ -1,0 +1,3 @@
+WARN: Ambiguous matching of column titles to DT conditions. Use more appropriate titles for condition columns.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
