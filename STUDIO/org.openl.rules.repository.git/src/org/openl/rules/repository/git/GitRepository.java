@@ -35,6 +35,8 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -1222,14 +1224,28 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     .setPathFilter(PathFilterGroup.createFromStrings(conflictedFiles))
                     .call();
 
+                Pattern oldPathPattern = Pattern.compile("(diff --git .+\\n.+--- \"a/).+?(\".*\\n@@.+)", Pattern.DOTALL);
+                Pattern newPathPattern = Pattern.compile("(diff --git .+\\n.+\\+\\+\\+ \"b/).+?(\".*\\n@@.+)", Pattern.DOTALL);
                 for (DiffEntry entry : diff) {
                     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                     try (DiffFormatter formatter = new DiffFormatter(outputStream)) {
                         formatter.setRepository(repository);
+                        formatter.setQuotePaths(false);
                         formatter.format(entry);
                         String path = entry.getChangeType() == DiffEntry.ChangeType.DELETE ? entry.getOldPath()
                                                                                            : entry.getNewPath();
                         String comparison = outputStream.toString(StandardCharsets.UTF_8.name());
+
+                        // JGit currently doesn't support switching off quoting symbols with code < 0x80, so we used
+                        // decode paths ourselves.
+                        Matcher oldPathMatcher = oldPathPattern.matcher(comparison);
+                        if (oldPathMatcher.matches()) {
+                            comparison = oldPathMatcher.replaceFirst("$1" + entry.getOldPath() + "$2");
+                        }
+                        Matcher newPathMatcher = newPathPattern.matcher(comparison);
+                        if (newPathMatcher.matches()) {
+                            comparison = newPathMatcher.replaceFirst("$1" + entry.getNewPath() + "$2");
+                        }
                         diffs.put(path, comparison);
                     }
                 }
@@ -1257,7 +1273,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         }
     }
 
-    private FetchResult fetchAll() throws GitAPIException, IOException {
+    private FetchResult fetchAll() throws GitAPIException {
         FetchCommand fetchCommand = git.fetch();
         CredentialsProvider credentialsProvider = getCredentialsProvider(GitActionType.FETCH_ALL);
         if (credentialsProvider != null) {

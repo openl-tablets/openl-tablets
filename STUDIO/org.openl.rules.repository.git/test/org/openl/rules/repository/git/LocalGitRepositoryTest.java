@@ -211,6 +211,29 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
+    public void testDiffWhenConflictInFileWithParenthesis() throws IOException {
+        final String project1 = "rules/project(1)";
+        final String file = project1 + "/file1";
+        final String textInMaster = "In master";
+        final String textInBranch1 = "In branch1";
+
+        writeSampleFile(repo, file, "Project(1) was created");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+
+        writeSampleFile(repo, file, textInMaster, "Modify master");
+        writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        try {
+            repo.merge("branch1", "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            String diff = e.getDiffs().get(file);
+            assertNotNull(diff);
+            assertTrue(diff.contains("--- \"a/rules/project(1)/file1\""));
+            assertTrue(diff.contains("+++ \"b/rules/project(1)/file1\""));
+        }
+    }
+
+    @Test
     public void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
         final String project1 = "rules/project1";
         final String file = project1 + "/file1";
