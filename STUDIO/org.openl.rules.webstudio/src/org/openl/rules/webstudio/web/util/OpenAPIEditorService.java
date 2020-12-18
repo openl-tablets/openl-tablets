@@ -12,7 +12,7 @@ public class OpenAPIEditorService {
     public static final String DEFAULT_FOLDER = "rules/";
     public static final String DEFAULT_EXTENSION = ".xlsx";
 
-    public String generatePath(String moduleName) {
+    public String generateModulePath(String moduleName) {
         return DEFAULT_FOLDER + moduleName + DEFAULT_EXTENSION;
     }
 

@@ -8,6 +8,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonUser;
@@ -74,6 +76,19 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         getArtefactsInternal().remove(name);
     }
 
+    public void deleteArtefactsInFolder(String folderName) throws ProjectException {
+        getProject().tryLockOrThrow();
+        Set<AProjectArtefact> artefactsToDelete = getArtefactsInternal().entrySet()
+            .stream()
+            .filter(entry -> entry.getKey().startsWith(folderName))
+            .map(Map.Entry::getValue)
+            .collect(Collectors.toSet());
+        for (AProjectArtefact artefact : artefactsToDelete) {
+            artefact.delete();
+            getArtefactsInternal().remove(artefact.getName());
+        }
+    }
+
     public boolean hasArtefact(String name) {
         return getArtefactsInternal().containsKey(name);
     }
@@ -136,7 +151,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
                 folder = new AProjectFolder(new HashMap<>(),
                     artefact.getProject(),
                     artefact.getRepository(),
-                        path + "/" + name);
+                    path + "/" + name);
                 artefactsInternal.put(name, folder);
             }
             folder.addArtefact(artefact);
