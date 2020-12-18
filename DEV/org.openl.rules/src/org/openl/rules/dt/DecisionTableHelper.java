@@ -2411,8 +2411,6 @@ public final class DecisionTableHelper {
 
         final Predicate<List<DTHeader>> all = e -> true;
 
-        fits = removeDuplicates(fits);
-
         fits = filterHeadersByMax(fits,
             e -> e.stream()
                 .map(DTHeader::getMethodParameterIndexes)
@@ -2458,6 +2456,8 @@ public final class DecisionTableHelper {
             e -> e.stream().anyMatch(x -> x instanceof SimpleReturnDTHeader));
 
         fits = fitFuzzyDtHeaders(fits);
+
+        fits = removeDuplicates(fits);
 
         if (numberOfHCondition == 0 && fits.isEmpty()) {
             final List<DTHeader> dths = dtHeaders;
