@@ -6,6 +6,7 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.source.impl.ASourceCodeModule;
 
+@Deprecated
 public class VirtualSourceCodeModule extends ASourceCodeModule {
 
     public static final String SOURCE_URI = "<virtual_uri>";

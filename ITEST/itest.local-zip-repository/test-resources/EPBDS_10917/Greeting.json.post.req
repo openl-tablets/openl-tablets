@@ -1,0 +1,8 @@
+POST /REST/Tutorial1.zip/Tutorial1.zip/Greeting HTTP/1.1
+Content-Type: application/json;q=1.0, */*;q=0.8
+Accept: text/plain
+
+{
+  "runtimeContext": {},
+  "hour": 1
+}

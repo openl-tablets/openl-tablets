@@ -1,4 +1,4 @@
-package org.openl.rules.common;
+package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,6 +10,7 @@ import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
+import org.openl.rules.common.ProjectDescriptor;
 import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.util.CollectionUtils;

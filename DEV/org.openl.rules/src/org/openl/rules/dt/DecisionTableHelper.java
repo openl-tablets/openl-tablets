@@ -2025,7 +2025,7 @@ public final class DecisionTableHelper {
         List<Integer> indexes = columnToIndex.get(column);
         if (indexes == null || usedParameterIndexes.size() >= numberOfVConditionParameters) {
             List<DTHeader> fit = new ArrayList<>(used);
-            while (fit.size() > 0 && fit.get(fit.size() - 1) instanceof UnmatchedDtHeader) {
+            while (!fit.isEmpty() && fit.get(fit.size() - 1) instanceof UnmatchedDtHeader) {
                 fit.remove(fit.size() - 1);
             }
             if (!fit.isEmpty()) {
@@ -2094,7 +2094,7 @@ public final class DecisionTableHelper {
         }
         if (!lastColumnReached && numberOfReturns == 0) {
             ICell cell = originalTable.getSource().getCell(column, firstColumnHeight - 1);
-            if (column + cell.getWidth() < lastColumn) {
+            if (column + cell.getWidth() <= lastColumn) {
                 used.add(new UnmatchedDtHeader(StringUtils.EMPTY, column, cell.getWidth()));
                 lastColumnReached = bruteForceHeaders(originalTable,
                     column + cell.getWidth(),
@@ -2424,8 +2424,6 @@ public final class DecisionTableHelper {
 
         final Predicate<List<DTHeader>> all = e -> true;
 
-        fits = removeDuplicates(fits);
-
         fits = filterHeadersByMax(fits,
             e -> e.stream()
                 .map(DTHeader::getMethodParameterIndexes)
@@ -2471,6 +2469,8 @@ public final class DecisionTableHelper {
             e -> e.stream().anyMatch(x -> x instanceof SimpleReturnDTHeader));
 
         fits = fitFuzzyDtHeaders(fits);
+
+        fits = removeDuplicates(fits);
 
         if (numberOfHCondition == 0 && fits.isEmpty()) {
             final List<DTHeader> dths = dtHeaders;
@@ -2837,8 +2837,7 @@ public final class DecisionTableHelper {
                 titles.remove(title);
                 for (String s : definition.getTitles()) {
                     if (s.equals(title)) {
-                        columnParameters[i] = definition.getLocalParameters(title)
-                            .toArray(IParameterDeclaration.EMPTY);
+                        columnParameters[i] = definition.getLocalParameters(title).toArray(IParameterDeclaration.EMPTY);
                         break;
                     }
                 }

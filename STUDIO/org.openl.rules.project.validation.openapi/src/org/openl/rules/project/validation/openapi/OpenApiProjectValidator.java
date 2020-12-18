@@ -151,6 +151,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             Class<?> serviceClass = resolveInterface(projectDescriptor,
                 rulesInstantiationStrategy,
                 validatedCompiledOpenClass);
+
+            RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
+            context.setRulesDeploy(rulesDeploy);
+
+            ObjectMapper objectMapper = createObjectMapper(context);
+            context.setObjectMapper(objectMapper);
+
             Class<?> enhancedServiceClass;
             try {
                 enhancedServiceClass = enhanceWithJAXRS(context,
@@ -178,10 +185,6 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 return validatedCompiledOpenClass;
             }
             OpenAPI actualOpenAPI;
-            RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
-            context.setRulesDeploy(rulesDeploy);
-            ObjectMapper objectMapper = createObjectMapper(context);
-            context.setObjectMapper(objectMapper);
             synchronized (OpenApiRulesCacheWorkaround.class) {
                 OpenApiObjectMapperHack openApiObjectMapperHack = new OpenApiObjectMapperHack();
                 try {
@@ -194,8 +197,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     if (StringUtils.isNotBlank(e.getMessage())) {
                         message.append(" ").append(e.getMessage());
                     }
-                    validatedCompiledOpenClass
-                        .addMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
+                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(message.toString()));
                     return validatedCompiledOpenClass;
                 } finally {
                     OpenApiRulesCacheWorkaround.reset();
@@ -248,7 +250,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             "unknown",
             isResolveMethodParameterNames(),
             provideRuntimeContext,
-            provideVariations);
+            provideVariations,
+            null,
+            context.getObjectMapper());
     }
 
     private Pair<String, PathItem> findPathItem(io.swagger.v3.oas.models.Paths paths, String path) {
@@ -1211,7 +1215,8 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             IOpenClass openClass,
             Set<KeyBySchemasRef> validatedBySchemasRef,
             Set<KeyByFieldType> validatedByFieldType) throws DifferentTypesException {
-         if (expectedSchema != null && actualSchema != null && expectedSchema.get$ref() != null && actualSchema.get$ref() != null) {
+        if (expectedSchema != null && actualSchema != null && expectedSchema.get$ref() != null && actualSchema
+            .get$ref() != null) {
             KeyBySchemasRef key = new KeyBySchemasRef(openClass, actualSchema.get$ref(), expectedSchema.get$ref());
             if (validatedBySchemasRef.contains(key)) {
                 return;

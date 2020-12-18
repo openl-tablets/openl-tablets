@@ -1,6 +1,12 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 import static org.openl.rules.repository.git.TestGitUtils.createNewFile;
@@ -38,7 +44,6 @@ import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.RepositorySettings;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -119,7 +124,7 @@ public class GitRepositoryTest {
     }
 
     @Before
-    public void setUp() throws IOException, RRepositoryException {
+    public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
 
         File remote = new File(root, "remote");
@@ -258,7 +263,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void save() throws IOException, RRepositoryException {
+    public void save() throws IOException {
         // Create a new file
         String path = "rules/project1/folder/file4";
         String text = "File located in " + path;
@@ -549,7 +554,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void repoFolderExistsButEmpty() throws RRepositoryException, IOException {
+    public void repoFolderExistsButEmpty() throws IOException {
         // Prepare the test: the folder with local repository name exists but it's empty
         repo.close();
 
@@ -573,7 +578,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void neededBranchWasNotClonedBefore() throws RRepositoryException, IOException {
+    public void neededBranchWasNotClonedBefore() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local = new File(root, "temp");
@@ -597,7 +602,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void twoUsersAddFileSimultaneously() throws RRepositoryException, IOException {
+    public void twoUsersAddFileSimultaneously() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -634,7 +639,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFile() throws RRepositoryException, IOException {
+    public void mergeConflictInFile() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -716,7 +721,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFileMultipleProjects() throws RRepositoryException, IOException {
+    public void mergeConflictInFileMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -761,7 +766,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolder() throws RRepositoryException, IOException {
+    public void mergeConflictInFolder() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -880,7 +885,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolderWithFileDeleting() throws RRepositoryException, IOException {
+    public void mergeConflictInFolderWithFileDeleting() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -893,7 +898,7 @@ public class GitRepositoryTest {
 
         final String conflictedFile = "rules/project1/file2";
         try (GitRepository repository1 = createRepository(remote, local1);
-            GitRepository repository2 = createRepository(remote, local2)) {
+                GitRepository repository2 = createRepository(remote, local2)) {
             try {
                 baseCommit = repository1.check(folderPath).getVersion();
                 // First user commit
@@ -948,8 +953,7 @@ public class GitRepositoryTest {
                     new FileItem("rules/project1/new-path/file5", IOUtils.toInputStream("Added")),
                     new FileItem(conflictedFile, null));
 
-                List<FileItem> resolveConflicts = Collections
-                    .singletonList(new FileItem(conflictedFile, null));
+                List<FileItem> resolveConflicts = Collections.singletonList(new FileItem(conflictedFile, null));
 
                 FileData folderData2 = new FileData();
                 folderData2.setName("rules/project1");
@@ -967,7 +971,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void mergeConflictInFolderMultipleProjects() throws RRepositoryException, IOException {
+    public void mergeConflictInFolderMultipleProjects() throws IOException {
         // Prepare the test: clone master branch
         File remote = new File(root, "remote");
         File local1 = new File(root, "temp1");
@@ -1030,7 +1034,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testBranches() throws IOException, RRepositoryException {
+    public void testBranches() throws IOException {
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
         repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
         List<String> branches = repo.getBranches(FOLDER_IN_REPOSITORY);
@@ -1063,7 +1067,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void pathToRepoInsteadOfUri() throws RRepositoryException {
+    public void pathToRepoInsteadOfUri() {
         File local = new File(root, "local");
         // Will use this path instead of uri. Git accepts that.
         String remote = new File(root, "remote").getAbsolutePath();
@@ -1086,7 +1090,7 @@ public class GitRepositoryTest {
     }
 
     @Test
-    public void testFetchChanges() throws IOException, GitAPIException, RRepositoryException {
+    public void testFetchChanges() throws IOException, GitAPIException {
         ObjectId before = repo.getLastRevision();
         String newBranch = "new-branch";
 
@@ -1178,7 +1182,6 @@ public class GitRepositoryTest {
             repo.check(newPath));
     }
 
-
     @Test
     public void testOnlySpecifiedBranchesAreMerged() throws IOException {
         final String branch1 = "branch1";
@@ -1232,7 +1235,8 @@ public class GitRepositoryTest {
         File existingFile = new File(parent, "file-in-master");
         assertTrue(existingFile.exists());
 
-        // Delete the file but don't commit it. Changes in not committed (modified externally for example or after unsuccessful operation)
+        // Delete the file but don't commit it. Changes in not committed (modified externally for example or after
+        // unsuccessful operation)
         // files must be aborted after repo.save() method.
         FileUtils.delete(existingFile);
         assertFalse(existingFile.exists());
@@ -1245,15 +1249,15 @@ public class GitRepositoryTest {
         assertTrue(existingFile.exists());
     }
 
-    private GitRepository createRepository(File remote, File local) throws RRepositoryException {
+    private GitRepository createRepository(File remote, File local) {
         return createRepository(remote, local, BRANCH);
     }
 
-    private GitRepository createRepository(File remote, File local, String branch) throws RRepositoryException {
+    private GitRepository createRepository(File remote, File local, String branch) {
         return createRepository(remote.toURI().toString(), local, branch);
     }
 
-    private GitRepository createRepository(String remoteUri, File local, String branch) throws RRepositoryException {
+    private GitRepository createRepository(String remoteUri, File local, String branch) {
         GitRepository repo = new GitRepository();
         repo.setUri(remoteUri);
         repo.setLocalRepositoryPath(local.getAbsolutePath());

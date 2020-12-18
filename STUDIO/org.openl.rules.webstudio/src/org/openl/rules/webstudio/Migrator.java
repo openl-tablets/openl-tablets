@@ -129,8 +129,8 @@ public class Migrator {
             // null means this property have default value from previous OpenL version
             Object depConfRepo = settings.getProperty("repository.deploy-config.factory");
             if (settings.getProperty(
-                "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
-                    .equals(depConfRepo))) {
+                    "repository.deploy-config.local-repository-path") == null && (depConfRepo == null || "repo-git"
+                    .equals(depConfRepo)) || "org.openl.rules.repository.git.GitRepository".equals(depConfRepo)) {
                 props.put("repository.deploy-config.local-repository-path", "${openl.home}/deploy-config-repository");
             }
         } else {
@@ -141,7 +141,7 @@ public class Migrator {
         Object desRepo = settings.getProperty("repository.design.factory");
         if (settings.getProperty(
             "repository.design.local-repository-path") == null && (desRepo == null || "repo-git"
-                .equals(desRepo))) {
+                .equals(desRepo)) || "org.openl.rules.repository.git.GitRepository".equals(desRepo)) {
             props.put("repository.design.local-repository-path", "${openl.home}/design-repository");
         }
 
@@ -161,9 +161,10 @@ public class Migrator {
         rename(settings, props, "repository.design.invalid-comment-message", "repository.design.comment-template.invalid-comment-message");
 
         // migrate deployment repository path
+        Object productionFactory = settings.getProperty("repository.production.factory");
         if (settings.getProperty(
-            "repository.production.local-repository-path") == null && "repo-git"
-                .equals(settings.getProperty("repository.production.factory"))) {
+                "repository.production.local-repository-path") == null && ("repo-git"
+                .equals(productionFactory) || "org.openl.rules.repository.git.GitRepositoryrepo-git".equals(productionFactory))) {
             props.put("repository.production.local-repository-path", "${openl.home}/production-repository");
         }
     }

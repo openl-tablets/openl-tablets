@@ -16,7 +16,6 @@ import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -44,12 +43,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         localProjects = new HashMap<>();
 
         localRepository = new LocalRepository(location);
-        try {
-            localRepository.initialize();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e);
-        }
-
+        localRepository.initialize();
         loadProjects();
     }
 
@@ -72,11 +66,7 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                 repository.setName(designRepository.getName());
             }
         }
-        try {
-            repository.initialize();
-        } catch (RRepositoryException e) {
-            throw new IllegalStateException(e.getMessage(), e);
-        }
+        repository.initialize();
         return repository;
     }
 
@@ -163,9 +153,10 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
                             if (mappedPath == null) {
                                 mappedName = mapper.getMappedName(name, repositoryPath);
                             } else {
-                                mappedName = mappedPath.startsWith(rulesLocation) ?
-                                             mappedPath.substring(rulesLocation.length()) :
-                                             mappedPath;
+                                mappedName = mappedPath.startsWith(rulesLocation)
+                                                                                  ? mappedPath
+                                                                                      .substring(rulesLocation.length())
+                                                                                  : mappedPath;
                             }
                         }
                         mappingData.setExternalPath(rulesLocation + mappedName);

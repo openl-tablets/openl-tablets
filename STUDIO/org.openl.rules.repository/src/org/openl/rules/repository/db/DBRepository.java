@@ -14,7 +14,6 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.rules.repository.RRepositoryFactory;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
@@ -30,13 +29,14 @@ import org.openl.util.db.SqlDBUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-abstract class DBRepository implements Repository, Closeable, RRepositoryFactory {
+abstract class DBRepository implements Repository, Closeable {
     private static final Logger LOG = LoggerFactory.getLogger(DBRepository.class);
 
     private String id;
     private String name;
     private Settings settings;
     private ChangesMonitor monitor;
+    private int listenerTimerPeriod = 10;
 
     public void setId(String id) {
         this.id = id;
@@ -54,6 +54,10 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
     @Override
     public String getName() {
         return name;
+    }
+
+    public void setListenerTimerPeriod(int listenerTimerPeriod) {
+        this.listenerTimerPeriod = listenerTimerPeriod;
     }
 
     @Override
@@ -501,13 +505,12 @@ abstract class DBRepository implements Repository, Closeable, RRepositoryFactory
         return statement;
     }
 
-    @Override
     public void initialize() {
         try {
             JDBCDriverRegister.registerDrivers();
             loadDBsettings();
             initializeDatabase();
-            monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), settings.timerPeriod);
+            monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
             throw new IllegalStateException("Failed to initialize a repository", e);
         }

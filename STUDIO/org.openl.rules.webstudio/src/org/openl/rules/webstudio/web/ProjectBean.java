@@ -647,7 +647,15 @@ public class ProjectBean {
                     }
                 }
             } else {
-                File file = removed.getRulesPath().toFile();
+                File file;
+                if (removed.getProject() != null) {
+                    file = removed.getRulesPath().toFile();
+                } else {
+                    file = currentProjectDescriptor.getProjectFolder()
+                        .resolve(removed.getRulesRootPath().getPath())
+                        .toAbsolutePath()
+                        .toFile();
+                }
                 if (!file.delete() && file.exists()) {
                     throw new Message("Cannot delete the file " + file.getName());
                 }

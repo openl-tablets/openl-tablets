@@ -7,12 +7,13 @@ import java.nio.file.Path;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
@@ -30,10 +31,10 @@ public class RulesProjectBuilder {
     private String createProjectName;
 
     public RulesProjectBuilder(UserWorkspace workspace,
-        String repositoryId,
-        String projectName,
-        String projectFolder,
-        String comment) {
+            String repositoryId,
+            String projectName,
+            String projectFolder,
+            String comment) {
         this.workspace = workspace;
         this.comment = comment;
         String internalPath = projectFolder + projectName;
@@ -64,11 +65,7 @@ public class RulesProjectBuilder {
 
             LocalRepository localRepository = new LocalRepository(tempLocalRepositoryPath.toFile());
             localRepository.setId(repositoryId);
-            try {
-                localRepository.initialize();
-            } catch (RRepositoryException e) {
-                throw new IllegalStateException(e.getMessage(), e);
-            }
+            localRepository.initialize();
 
             project = new RulesProject(workspace.getUser(),
                 localRepository,

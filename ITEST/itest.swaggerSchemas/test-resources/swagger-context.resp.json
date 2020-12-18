@@ -23,7 +23,7 @@
             "name": "body",
             "required": false,
             "schema": {
-              "$ref": "#/definitions/CalVehicleYearRequest"
+              "$ref": "#/definitions/CalVehicleYearRequest0"
             }
           }
         ],
@@ -102,6 +102,19 @@
       }
     },
     "CalVehicleYearRequest": {
+      "type": "object",
+      "properties": {
+        "modelYear": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "vehEffectiveYear": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "CalVehicleYearRequest0": {
       "type": "object",
       "properties": {
         "runtimeContext": {

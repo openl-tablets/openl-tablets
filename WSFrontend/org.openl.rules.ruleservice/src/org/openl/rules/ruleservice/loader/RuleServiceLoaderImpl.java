@@ -2,7 +2,9 @@ package org.openl.rules.ruleservice.loader;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.net.URI;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystemNotFoundException;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -35,12 +37,12 @@ import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.rules.repository.zip.ZippedLocalRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.FileSystemUtils;
@@ -63,7 +65,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     /**
      * Construct a new RulesLoader for bean usage.
      */
-    public RuleServiceLoaderImpl(Repository repository) throws IOException, RRepositoryException {
+    public RuleServiceLoaderImpl(Repository repository) throws IOException {
         tempPath = Files.createTempDirectory("rules-deploy_");
         log.info("Local temporary folder location is: {}", tempPath);
         tempRepo = new FileSystemRepository();
@@ -98,13 +100,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         Path projectFolder;
         if (project instanceof LocalProject) {
             projectFolder = ((LocalProject) project).getData().getPath();
-            if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
-                try {
-                    FileSystem fs = FileSystems.newFileSystem(projectFolder, Thread.currentThread().getContextClassLoader());
-                    projectFolder = fs.getPath("/");
-                } catch (IOException e) {
-                    throw RuntimeExceptionWrapper.wrap(e);
-                }
+            if (projectFolder.getFileName() != null && (FileTypeHelper.isZipFile(
+                projectFolder.getFileName().toString()) || ZippedLocalRepository.zipArchiveFilter(projectFolder))) {
+
+                FileSystem fs = FileSystems.getFileSystem(ZipUtils.toJarURI(projectFolder));
+                projectFolder = fs.getPath("/");
             }
         } else {
             String stringValue = project.getArtefactPath().getStringValue();
@@ -203,7 +203,11 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
                 }
             } else {
                 boolean folderStructure = isFolderStructure(folderPath);
-                deployment = new Deployment(repository, folderPath, deploymentFolderName, commonVersion, folderStructure);
+                deployment = new Deployment(repository,
+                    folderPath,
+                    deploymentFolderName,
+                    commonVersion,
+                    folderStructure);
             }
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
@@ -212,31 +216,36 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
     }
 
     private boolean isLocalZipFile(FileData fileData) {
-        return repository.supports().folders()
-                && repository.supports().isLocal()
-                && fileData.getPath() != null
-                && (FileTypeHelper.isZipFile(fileData.getPath().getFileName().toString())
-                || ZippedLocalRepository.zipArchiveFilter(fileData.getPath()));
+        return repository.supports().folders() && repository.supports()
+            .isLocal() && fileData.getPath() != null && (FileTypeHelper
+                .isZipFile(fileData.getPath().getFileName().toString()) || ZippedLocalRepository
+                    .zipArchiveFilter(fileData.getPath()));
     }
 
     private boolean isSimpleProjectDeployment(FileData fileData) {
-        try (FileSystem zipFS = FileSystems.newFileSystem(fileData.getPath(), Thread.currentThread().getContextClassLoader())) {
-            Path zipRoot = zipFS.getPath("/");
+        URI jarURI = ZipUtils.toJarURI(fileData.getPath());
+        try {
+            Path zipRoot = FileSystems.getFileSystem(jarURI).getPath("/");
             return projectResolver.isRulesProject(zipRoot) != null;
-        } catch (IOException e) {
-            log.error(e.getMessage(), e);
-            return false;
-        } catch (ProviderNotFoundException unused) {
-            return false;
+        } catch (FileSystemNotFoundException ignored) {
+            try (FileSystem fs = FileSystems.newFileSystem(jarURI, Collections.emptyMap());) {
+                return projectResolver.isRulesProject(fs.getPath("/")) != null;
+            } catch (IOException | UnsupportedOperationException | ProviderNotFoundException e) {
+                return false;
+            }
         }
     }
 
-    private LocalDeployment buildLocalDeployment(CommonVersion commonVersion, FileData deploymentFolder, FolderRepository repository) throws IOException {
+    private LocalDeployment buildLocalDeployment(CommonVersion commonVersion,
+            FileData deploymentFolder,
+            FolderRepository repository) throws IOException {
         LocalDeployment deployment;
         if (isSimpleProjectDeployment(deploymentFolder)) {
             Map<String, IProjectArtefact> resourceMap = gatherProjectResources(deploymentFolder, repository);
             LocalProject project = new LocalProject(deploymentFolder, resourceMap);
-            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0], commonVersion, Collections.singletonMap(project.getName(), project));
+            deployment = new LocalDeployment(deploymentFolder.getName().split("/")[0],
+                commonVersion,
+                Collections.singletonMap(project.getName(), project));
         } else {
             List<FileData> projectFolders = repository.listFolders(getDeployPath() + deploymentFolder.getName());
             Map<String, IProject> projectMap = new HashMap<>();
@@ -250,7 +259,8 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
         return deployment;
     }
 
-    private Map<String, IProjectArtefact> gatherProjectResources(FileData folder, Repository repository) throws IOException {
+    private Map<String, IProjectArtefact> gatherProjectResources(FileData folder,
+            Repository repository) throws IOException {
         List<FileData> files = repository.list(getDeployPath() + folder.getName());
         Map<String, IProjectArtefact> resourceMap = new HashMap<>();
         for (FileData file : files) {

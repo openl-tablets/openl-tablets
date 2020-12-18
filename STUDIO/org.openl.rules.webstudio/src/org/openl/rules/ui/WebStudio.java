@@ -1226,7 +1226,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // Get a project
             List<ProjectDescriptor> allProjects = getAllProjects();
             ProjectDescriptor project = CollectionUtils.findFirst(allProjects, projectDescriptor -> {
-                String projectURI = projectDescriptor.getProjectFolder().toFile().toURI().toString();
+                String projectURI = projectDescriptor.getProjectFolder().toUri().toString();
                 return tableURI.startsWith(projectURI);
             });
             if (project == null) {
