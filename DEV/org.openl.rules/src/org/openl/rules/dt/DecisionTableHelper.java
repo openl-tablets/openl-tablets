@@ -2302,43 +2302,34 @@ public final class DecisionTableHelper {
     }
 
     private static List<List<DTHeader>> fitFuzzyDtHeaders(List<List<DTHeader>> fits) {
-        long fuzzyHeadersCounts = fits.stream()
-            .mapToLong(e -> e.stream().filter(x -> x instanceof FuzzyDTHeader).map(x -> (FuzzyDTHeader) x).count())
-            .max()
-            .orElse(0);
-        for (int i = 0; i < fuzzyHeadersCounts; i++) {
-            final int currentFuzzyHeadersCounts = i;
-            fits = filterHeadersByMax(fits,
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .mapToInt(x -> x.getFuzzyResult().getFoundTokensCount())
-                    .sum(),
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyHeadersCounts);
-            fits = filterHeadersByMin(fits,
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .mapToInt(x -> x.getFuzzyResult().getMissedTokensCount())
-                    .sum(),
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyHeadersCounts);
-            fits = filterHeadersByMin(fits,
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
-                    .sum(),
-                e -> e.stream()
-                    .filter(x -> x instanceof FuzzyDTHeader)
-                    .map(x -> (FuzzyDTHeader) x)
-                    .count() != currentFuzzyHeadersCounts);
-        }
+        fits = filterHeadersByMax(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .mapToInt(x -> x.getFuzzyResult().getFoundTokensCount())
+                .sum(),
+            e -> true);
+        fits = filterHeadersByMin(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .mapToInt(x -> x.getFuzzyResult().getMissedTokensCount())
+                .sum(),
+            e -> true);
+        fits = filterHeadersByMin(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .mapToInt(x -> x.getFuzzyResult().getToken().getDistance())
+                .sum(),
+            e -> true);
+        fits = filterHeadersByMin(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof FuzzyDTHeader)
+                .map(x -> (FuzzyDTHeader) x)
+                .mapToInt(x -> x.getFuzzyResult().getUnmatchedTokensCount())
+                .sum(),
+            e -> true);
         return fits;
     }
 
@@ -2466,7 +2457,7 @@ public final class DecisionTableHelper {
 
         fits = filterHeadersByMin(fits,
             e -> e.stream().filter(x -> x instanceof SimpleReturnDTHeader).count(),
-            e -> e.stream().anyMatch(x -> x instanceof SimpleReturnDTHeader));
+            e -> e.stream().anyMatch(DTHeader::isReturn));
 
         fits = fitFuzzyDtHeaders(fits);
 
@@ -2491,7 +2482,7 @@ public final class DecisionTableHelper {
                 message.append(StringUtils.SPACE);
                 message.append("There is no match for column '").append(sb.toString()).append("'.");
             }
-            throw new OpenLCompilationException(message.toString());
+            throw new DTUnmatchedCompilationException(message.toString());
         }
 
         if (!fits.isEmpty()) {
