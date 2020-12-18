@@ -668,9 +668,9 @@ public class ProjectBean {
                 if (openAPI != null) {
                     String definedAlgoModuleName = openAPI.getAlgorithmModuleName();
                     String definedModelsName = openAPI.getModelModuleName();
-                    if (definedAlgoModuleName.equalsIgnoreCase(removedModuleName)) {
+                    if (definedAlgoModuleName != null && definedAlgoModuleName.equalsIgnoreCase(removedModuleName)) {
                         openAPI.setAlgorithmModuleName(null);
-                    } else if (definedModelsName.equalsIgnoreCase(removedModuleName)) {
+                    } else if (definedModelsName != null && definedModelsName.equalsIgnoreCase(removedModuleName)) {
                         openAPI.setModelModuleName(null);
                     }
                 }
