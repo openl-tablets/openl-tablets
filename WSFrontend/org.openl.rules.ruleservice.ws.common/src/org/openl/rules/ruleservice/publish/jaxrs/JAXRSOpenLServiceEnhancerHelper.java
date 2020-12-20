@@ -410,13 +410,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         }
                         i++;
                     }
-                    String path = "/" + originalMethod.getName() + sb.toString();
-                    int c = 1;
-                    while (getUsedPaths().contains(normalizePath(path))) {
-                        path = "/" + originalMethod.getName() + (c++) + sb.toString();
+                    if (!originalMethod.isAnnotationPresent(Path.class)) {
+                        String path = "/" + originalMethod.getName() + sb.toString();
+                        int c = 1;
+                        while (getUsedPaths().contains(normalizePath(path))) {
+                            path = "/" + originalMethod.getName() + (c++) + sb.toString();
+                        }
+                        getUsedPaths().add(normalizePath(path));
+                        addPathAnnotation(mv, originalMethod, path);
                     }
-                    getUsedPaths().add(normalizePath(path));
-                    addPathAnnotation(mv, originalMethod, path);
                 } else {
                     Set<String> usedQueryParamValues = getUsedValuesInParamAnnotations(originalMethod,
                         e -> e instanceof QueryParam,
@@ -445,11 +447,15 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 }
             } else {
                 try {
-                    String path = "/" + originalMethod.getName();
+                    String path = null;
                     int c = 0;
-                    while (getUsedPaths().contains(normalizePath(path))) {
-                        c++;
-                        path = "/" + originalMethod.getName() + c;
+                    if (!originalMethod.isAnnotationPresent(Path.class)) {
+                        path = "/" + originalMethod.getName();
+                        while (getUsedPaths().contains(normalizePath(path))) {
+                            c++;
+                            path = "/" + originalMethod.getName() + c;
+                        }
+                        getUsedPaths().add(normalizePath(path));
                     }
                     if (numOfParameters > 1) {
                         if (!isJAXRSParamAnnotationUsedInMethod(originalMethod)) {
@@ -472,7 +478,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (!originalMethod.isAnnotationPresent(POST.class)) {
                         addPostAnnotation(mv, originalMethod);
                     }
-                    getUsedPaths().add(normalizePath(path));
                     addPathAnnotation(mv, originalMethod, path);
                 } catch (Exception e) {
                     throw new IllegalStateException(e);

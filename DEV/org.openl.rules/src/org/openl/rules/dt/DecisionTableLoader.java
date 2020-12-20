@@ -118,19 +118,22 @@ public class DecisionTableLoader {
             // for smart tables
             if (tableBody == null || !isSmart(
                 tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT) {
-                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> loadAndBind(tableSyntaxNode,
-                    decisionTable,
-                    openl,
-                    module,
-                    !firstTransposedThenNormal,
-                    bindingContext), bindingContext);
+                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+                    () -> loadAndBind(tableSyntaxNode,
+                        decisionTable,
+                        openl,
+                        module,
+                        !firstTransposedThenNormal,
+                        bindingContext),
+                    bindingContext);
                 if (altLoadAndBindErrors == null) {
                     return;
                 } else {
                     if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
                         // Select compilation with less errors count for smart tables
-                        if (loadAndBindErrors.getBindingSyntaxNodeException()
-                            .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                        if (isNotUnmatchedTableError(
+                            altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
+                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
                             putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
                             altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
                             if (altLoadAndBindErrors.getEx() != null) {
@@ -159,6 +162,17 @@ public class DecisionTableLoader {
                 throw loadAndBindErrors.getEx();
             }
         }
+    }
+
+    private boolean isNotUnmatchedTableError(CompilationErrors altLoadAndBindErrors) {
+        Throwable ex = altLoadAndBindErrors.getEx();
+        if (ex != null) {
+            if (ex instanceof SyntaxNodeException) {
+                ex = ex.getCause();
+            }
+            return !(ex instanceof DTUnmatchedCompilationException);
+        }
+        return true;
     }
 
     private static boolean looksLikeHorizontal(ILogicalTable table) {
@@ -411,7 +425,6 @@ public class DecisionTableLoader {
         } catch (Exception e) {
             ex = e;
         }
-
         List<SyntaxNodeException> errors = bindingContext.popErrors();
         Collection<OpenLMessage> messages = bindingContext.popMessages();
         DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = null;
