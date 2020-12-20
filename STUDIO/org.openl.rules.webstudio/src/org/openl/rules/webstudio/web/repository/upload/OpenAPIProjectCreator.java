@@ -4,14 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -27,10 +25,10 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.RulesDeploy;
 import org.openl.rules.project.model.validation.ValidationException;
 import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy;
 import org.openl.rules.project.xml.XmlRulesDeploySerializer;
+import org.openl.rules.webstudio.service.OpenAPIHelper;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -47,7 +45,6 @@ import org.slf4j.LoggerFactory;
  * template files.
  */
 public class OpenAPIProjectCreator extends AProjectCreator {
-    public static final String DEF_JAVA_CLASS_PATH = "classes";
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
     private final Logger LOGGER = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
@@ -56,6 +53,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private final String comment;
     private final ProjectDescriptorManager projectDescriptorManager = new ProjectDescriptorManager();
     private final XmlRulesDeploySerializer serializer = new XmlRulesDeploySerializer();
+    private final OpenAPIHelper openAPIHelper = new OpenAPIHelper();
     private final String repositoryId;
     private final String projectName;
     private final String modelsPath;
@@ -164,12 +162,12 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             environmentModel.setDependencies(Collections.singletonList(modelsModuleName));
 
             addFile(projectBuilder,
-                generateDataTypesFile(datatypeModels),
+                openAPIHelper.generateDataTypesFile(datatypeModels),
                 modelsPath,
                 "Error uploading dataTypes file.");
 
             addFile(projectBuilder,
-                generateAlgorithmsModule(spreadsheetModels, dataModels, environmentModel),
+                openAPIHelper.generateAlgorithmsModule(spreadsheetModels, dataModels, environmentModel),
                 algorithmsPath,
                 "Error uploading spreadsheets file.");
 
@@ -179,21 +177,22 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 "Error uploading openAPI file.");
 
             OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-            if (generated.hasAnnotationTemplateClass()) {
+            boolean hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
+            if (hasAnnotationTemplateClass) {
                 addJavaClassFile(projectBuilder, generated.getAnnotationTemplateClass());
             }
             for (JavaClassFile javaClassFile : generated.getCommonClasses()) {
                 addJavaClassFile(projectBuilder, javaClassFile);
             }
 
-            InputStream rulesFile = generateRulesFile(generated.hasAnnotationTemplateClass());
+            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass);
             addFile(projectBuilder,
                 rulesFile,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
                 String.format("Error uploading %s file.",
                     ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME));
             addFile(projectBuilder,
-                generateRulesDeployFile(projectModel, generated),
+                openAPIHelper.editOrCreateRulesDeploy(serializer, projectModel, generated, null),
                 RULES_DEPLOY_XML,
                 "Error uploading rules-deploy.xml file.");
         } catch (Exception e) {
@@ -207,7 +206,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     private void addJavaClassFile(RulesProjectBuilder projectBuilder,
             JavaClassFile javaClassFile) throws ProjectException {
 
-        String javaInterfacePath = DEF_JAVA_CLASS_PATH + "/" + javaClassFile.getPath();
+        String javaInterfacePath = openAPIHelper.makePathToTheGeneratedFile(javaClassFile.getPath());
         addFile(projectBuilder,
             javaClassFile.toInputStream(),
             javaInterfacePath,
@@ -235,34 +234,6 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             throw new ProjectException(e.getMessage(), e);
         }
         return projectModel;
-    }
-
-    private InputStream generateDataTypesFile(List<DatatypeModel> datatypeModels) throws IOException {
-        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
-            byte[] dtBytes = bos.toByteArray();
-            return new ByteArrayInputStream(dtBytes);
-        }
-    }
-
-    private InputStream generateAlgorithmsModule(List<SpreadsheetModel> spreadsheetModels,
-            List<DataModel> dataModels,
-            EnvironmentModel environmentModel) throws IOException {
-        try (ByteArrayOutputStream sos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateAlgorithmsModule(spreadsheetModels, dataModels, sos, environmentModel);
-            byte[] sprBytes = sos.toByteArray();
-            return new ByteArrayInputStream(sprBytes);
-        }
-    }
-
-    private ByteArrayInputStream generateRulesDeployFile(ProjectModel projectModel, OpenAPIGeneratedClasses generated) {
-        RulesDeploy rd = new RulesDeploy();
-        if (generated.hasAnnotationTemplateClass()) {
-            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateClass().getJavaNameWithPackage());
-        }
-        rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
-        rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
-        return new ByteArrayInputStream(serializer.serialize(rd).getBytes(StandardCharsets.UTF_8));
     }
 
     private InputStream generateRulesFile(boolean genJavaClasses) throws IOException, ValidationException {
@@ -299,7 +270,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
 
         List<PathEntry> classpath = new ArrayList<>();
         if (genJavaClasses) {
-            classpath.add(new PathEntry(DEF_JAVA_CLASS_PATH));
+            classpath.add(new PathEntry(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
         }
         descriptor.setClasspath(classpath);
         return descriptor;

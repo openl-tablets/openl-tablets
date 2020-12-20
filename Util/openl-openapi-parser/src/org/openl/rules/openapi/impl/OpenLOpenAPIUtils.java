@@ -649,10 +649,8 @@ public class OpenLOpenAPIUtils {
             if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
-                String capitalizedName = StringUtils.capitalize(name);
-                result = new ArrayList<>(
-                    Collections.singletonList(new ParameterModel(new TypeInfo(capitalizedName, true),
-                        StringUtils.uncapitalize(normalizeName(name)))));
+                result = new ArrayList<>(Collections.singletonList(
+                    new ParameterModel(new TypeInfo(name, true), StringUtils.uncapitalize(normalizeName(name)))));
             } else {
                 result = properties.entrySet()
                     .stream()

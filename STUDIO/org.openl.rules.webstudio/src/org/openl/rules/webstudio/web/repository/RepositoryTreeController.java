@@ -2088,13 +2088,13 @@ public class RepositoryTreeController {
         if (!editorWasEnabled) {
             if (moduleType == OpenAPIModule.MODEL) {
                 if (StringUtils.isNotBlank(modelsModuleName)) {
-                    pathForModels = openAPIEditorService.generatePath(modelsModuleName);
+                    pathForModels = openAPIEditorService.generateModulePath(modelsModuleName);
                 } else {
                     pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH);
                 }
             } else {
                 if (StringUtils.isNotBlank(algorithmsModuleName)) {
-                    pathForModels = openAPIEditorService.generatePath(algorithmsModuleName);
+                    pathForModels = openAPIEditorService.generateModulePath(algorithmsModuleName);
                 } else {
                     pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH);
                 }
@@ -2612,16 +2612,16 @@ public class RepositoryTreeController {
 
     public void changeModelsFilePathInputState() {
         setEditModelsPath(!editModelsPath);
-        setModelsPath(editModelsPath ? openAPIEditorService.generatePath(modelsModuleName)
+        setModelsPath(editModelsPath ? openAPIEditorService.generateModulePath(modelsModuleName)
                                      : propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH));
-        setAlgorithmsPath(openAPIEditorService.generatePath(algorithmsModuleName));
+        setAlgorithmsPath(openAPIEditorService.generateModulePath(algorithmsModuleName));
     }
 
     public void changeAlgorithmsFilePathInputState() {
         setEditAlgorithmsPath(!editAlgorithmsPath);
-        setAlgorithmsPath(editAlgorithmsPath ? openAPIEditorService.generatePath(algorithmsModuleName)
+        setAlgorithmsPath(editAlgorithmsPath ? openAPIEditorService.generateModulePath(algorithmsModuleName)
                                              : propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH));
-        setModelsPath(openAPIEditorService.generatePath(modelsModuleName));
+        setModelsPath(openAPIEditorService.generateModulePath(modelsModuleName));
     }
 
     public boolean getEraseFromRepository() {
@@ -2649,7 +2649,7 @@ public class RepositoryTreeController {
     }
 
     public String getModelsPath() {
-        return openAPIEditorService.generatePath(modelsModuleName);
+        return openAPIEditorService.generateModulePath(modelsModuleName);
     }
 
     public void setModelsPath(String modelsPath) {
@@ -2657,7 +2657,7 @@ public class RepositoryTreeController {
     }
 
     public String getAlgorithmsPath() {
-        return openAPIEditorService.generatePath(algorithmsModuleName);
+        return openAPIEditorService.generateModulePath(algorithmsModuleName);
     }
 
     public void setAlgorithmsPath(String algorithmsPath) {
