@@ -1240,7 +1240,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         // Eclipse project
                         return false;
                     }
-                    String moduleURI = module.getRulesPath().toFile().toURI().toString();
+                    String moduleURI = module.getRulesPath().toUri().toString();
                     return tableURI.startsWith(moduleURI);
                 }
             });
