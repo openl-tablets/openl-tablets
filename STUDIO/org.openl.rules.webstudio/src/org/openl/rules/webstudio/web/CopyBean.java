@@ -288,8 +288,7 @@ public class CopyBean {
         if (!isSupportsBranches() || isSeparateProjectSubmitted(context)) {
             return;
         }
-
-        String newBranchName = StringUtils.trim((String) value);
+        String newBranchName = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(newBranchName), "Cannot be empty.");
         RepositorySettingsValidators.validateBranchName(newBranchName);
 
