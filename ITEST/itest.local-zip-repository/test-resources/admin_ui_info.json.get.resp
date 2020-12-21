@@ -1,0 +1,110 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "startedMilli": "*",
+    "noWadlServices": [],
+    "deployerEnabled": false,
+    "startedAt": "*",
+    "buildDate": "*",
+    "services": [{
+            "startedTime": "*",
+            "name": "deployed-rules",
+            "servicePath": "rules-to-deploy.zip",
+            "urls": {
+                "WEBSERVICE": "deployed-rules",
+                "RESTFUL": "REST/deployed-rules"
+            },
+            "hasManifest": true,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "EPBDS-10916 Whitespaces in Name #.zip_EPBDS-10916 Whitespaces in Name #.zip",
+            "servicePath": "EPBDS-10916 Whitespaces in Name #.zip",
+            "urls": {
+                "WEBSERVICE": "EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip",
+                "RESTFUL": "REST/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "multi_project_project1",
+            "servicePath": "multiproject.zip/project1",
+            "urls": {
+                "RESTFUL": "multi_project/project1"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "multi_project_project2",
+            "servicePath": "multiproject.zip/project2",
+            "urls": {
+                "RESTFUL": "multi_project/project2"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "multiple-deployment_v1.zip_project2",
+            "servicePath": "multiple-deployment_v1.zip/project2",
+            "urls": {
+                "WEBSERVICE": "multiple-deployment_v1.zip/project2",
+                "RESTFUL": "REST/multiple-deployment_v1.zip/project2"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "project1",
+            "servicePath": "multiple-deployment_v1.zip/project1",
+            "urls": {
+                "WEBSERVICE": "project1",
+                "RESTFUL": "REST/project1"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "simple-jar",
+            "servicePath": "simple-jar.zip",
+            "urls": {
+                "RESTFUL": "simple-jar-rs"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "Tutorial1.zip_Tutorial1.zip",
+            "servicePath": "Tutorial1.zip",
+            "urls": {
+                "WEBSERVICE": "Tutorial1.zip/Tutorial1.zip",
+                "RESTFUL": "REST/Tutorial1.zip/Tutorial1.zip"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "yaml-project1",
+            "servicePath": "multiple-deployment-yaml-datasource/yaml-project1",
+            "urls": {
+                "RESTFUL": "yaml-project1"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }, {
+            "startedTime": "*",
+            "name": "yaml-project2",
+            "servicePath": "multiple-deployment-yaml-datasource/yaml-project2",
+            "urls": {
+                "RESTFUL": "yaml-project2"
+            },
+            "hasManifest": false,
+            "status": "DEPLOYED"
+        }
+    ],
+    "version": "*",
+    "buildNumber": "*",
+    "url": "*"
+}

@@ -23,6 +23,23 @@ public class RunLocalZippedRepositoryTest {
     }
 
     @Test
+    public void testUiInfo() {
+        client.send("admin_ui_info.json.get");
+    }
+
+    @Test
+    public void testSwaggerSchema() {
+        client.send("EPBDS_10917/swagger.json.get");
+        client.send("EPBDS_10916/swagger.json.get");
+    }
+
+    @Test
+    public void testOpenApiSchema() {
+        client.send("EPBDS_10917/openapi.json.get");
+        client.send("EPBDS_10916/openapi.json.get");
+    }
+
+    @Test
     public void testSingleProjectDeployment() {
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
         client.send("simple-jar/doSomething.json.post");

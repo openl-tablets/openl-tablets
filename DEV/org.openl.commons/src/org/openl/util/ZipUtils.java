@@ -123,7 +123,12 @@ public final class ZipUtils {
                 path = path.substring(0, sep);
             }
             try {
-                return Paths.get(new URI(path));
+                URI uriToZip = new URI(path);
+                if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                    uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                }
+                return Paths.get(uriToZip);
             } catch (URISyntaxException e) {
                 throw RuntimeExceptionWrapper.wrap(e);
             }

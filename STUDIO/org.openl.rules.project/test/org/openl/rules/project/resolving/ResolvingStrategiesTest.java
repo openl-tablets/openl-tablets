@@ -10,10 +10,12 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collections;
 
 import org.junit.Test;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.util.ZipUtils;
 
 public class ResolvingStrategiesTest {
 
@@ -62,14 +64,14 @@ public class ResolvingStrategiesTest {
 
     @Test
     public void testSimpleZip() throws Exception {
-        Path projectZip = Paths.get("test-resources/Tutorial1.zip");
-        try (FileSystem fs = FileSystems.newFileSystem(projectZip, Thread.currentThread().getContextClassLoader())) {
+        Path projectZip = Paths.get("test-resources/Tutorial 1.zip");
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Collections.emptyMap())) {
             Path zipRoot = fs.getPath("/");
             ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
             assertTrue(resolvingStrategy.isRulesProject(zipRoot));
 
             ProjectDescriptor descriptor = resolvingStrategy.resolveProject(zipRoot);
-            assertEquals(projectZip.getFileName().toString(), descriptor.getName());
+            assertEquals("Tutorial 1.zip", descriptor.getName());
             assertEquals(zipRoot, descriptor.getProjectFolder());
             assertEquals(1, descriptor.getModules().size());
 

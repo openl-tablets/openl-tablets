@@ -1,0 +1,1096 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "openapi": "3.0.1",
+    "info": {
+        "title": "Tutorial1.zip_Tutorial1.zip",
+        "version": "1.0.0"
+    },
+    "servers": [{
+            "url": "/REST/Tutorial1.zip/Tutorial1.zip",
+            "variables": {}
+        }
+    ],
+    "paths": {
+        "/CarPrice": {
+            "post": {
+                "summary": "Double CarPrice(IRulesRuntimeContext, String, String, String)",
+                "description": "Method: java.lang.Double CarPrice(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String, java.lang.String)",
+                "operationId": "CarPrice",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CarPriceRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/DriverPremium1": {
+            "post": {
+                "summary": "Double DriverPremium1(IRulesRuntimeContext, String, String)",
+                "description": "Method: java.lang.Double DriverPremium1(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String)",
+                "operationId": "DriverPremium1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPremium1Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/DriverPremium3": {
+            "post": {
+                "summary": "Double DriverPremium3(IRulesRuntimeContext, String, String)",
+                "description": "Method: java.lang.Double DriverPremium3(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String)",
+                "operationId": "DriverPremium3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPremium3Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/DriverPremium5": {
+            "post": {
+                "summary": "Double DriverPremium5(IRulesRuntimeContext, String, String)",
+                "description": "Method: java.lang.Double DriverPremium5(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String)",
+                "operationId": "DriverPremium5",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPremium5Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting1": {
+            "post": {
+                "summary": "String Greeting1(IRulesRuntimeContext, Integer)",
+                "description": "Method: java.lang.String Greeting1(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Greeting1Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/DriverPremium2": {
+            "post": {
+                "summary": "Double DriverPremium2(IRulesRuntimeContext, String, String)",
+                "description": "Method: java.lang.Double DriverPremium2(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String)",
+                "operationId": "DriverPremium2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPremium2Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting3": {
+            "post": {
+                "summary": "String Greeting3(IRulesRuntimeContext, Integer)",
+                "description": "Method: java.lang.String Greeting3(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting3",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Greeting3Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/DriverPremium4": {
+            "post": {
+                "summary": "Double DriverPremium4(IRulesRuntimeContext, String, String)",
+                "description": "Method: java.lang.Double DriverPremium4(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String)",
+                "operationId": "DriverPremium4",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DriverPremium4Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "number",
+                                    "format": "double"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting2": {
+            "post": {
+                "summary": "String Greeting2(IRulesRuntimeContext, Integer)",
+                "description": "Method: java.lang.String Greeting2(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Greeting2Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting4": {
+            "post": {
+                "summary": "String Greeting4(IRulesRuntimeContext, Integer)",
+                "description": "Method: java.lang.String Greeting4(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting4",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Greeting4Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting": {
+            "post": {
+                "summary": "String Greeting(IRulesRuntimeContext, Integer)",
+                "description": "Method: java.lang.String Greeting(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GreetingRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/Greeting5": {
+            "post": {
+                "summary": "void Greeting5(IRulesRuntimeContext, Integer)",
+                "description": "Method: void Greeting5(org.openl.rules.context.IRulesRuntimeContext, java.lang.Integer)",
+                "operationId": "Greeting5",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/Greeting5Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                },
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                }
+                            }
+                        }
+                    },
+                    "200": {
+                        "description": "Successful operation",
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "JAXRSErrorResponse": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "type": "string",
+                        "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+                    },
+                    "details": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "CarPriceRequest": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "country": {
+                        "type": "string"
+                    },
+                    "carBrand": {
+                        "type": "string"
+                    },
+                    "carModel": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DefaultRulesRuntimeContext": {
+                "type": "object",
+                "properties": {
+                    "currentDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "requestDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "lob": {
+                        "type": "string"
+                    },
+                    "nature": {
+                        "type": "string"
+                    },
+                    "usState": {
+                        "type": "string",
+                        "enum": ["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"]
+                    },
+                    "country": {
+                        "type": "string",
+                        "enum": ["AE", "AL", "AR", "AS", "AT", "AU", "BA", "BE", "BG", "BH", "BO", "BR", "BY", "CA", "CH", "CK", "CL", "CN", "CO", "CR", "CS", "CY", "CZ", "DE", "DK", "DO", "DZ", "EC", "EE", "EG", "ES", "FI", "FJ", "FR", "GB", "GR", "GT", "HK", "HN", "HR", "HU", "ID", "IE", "IL", "IN", "IQ", "IS", "IT", "JO", "JP", "KW", "LB", "LT", "LU", "LV", "MA", "MK", "MT", "MX", "MY", "NI", "NL", "NO", "NZ", "OM", "PA", "PE", "PG", "PH", "PL", "PR", "PT", "PY", "QA", "RO", "RU", "SA", "SB", "SD", "SE", "SG", "SI", "SK", "SV", "SY", "TH", "TN", "TO", "TR", "TW", "UA", "US", "UY", "VE", "VN", "VU", "WS", "YE", "ZA"]
+                    },
+                    "usRegion": {
+                        "type": "string",
+                        "enum": ["MW", "NE", "SE", "SW", "W"]
+                    },
+                    "currency": {
+                        "type": "string",
+                        "enum": ["ALL", "DZD", "ARS", "AUD", "BHD", "BYR", "BOB", "BAM", "BRL", "CAD", "CLP", "CNY", "COP", "CRC", "HRK", "CZK", "DKK", "DOP", "EGP", "EUR", "GTQ", "HNL", "HKD", "HUF", "ISK", "INR", "IDR", "IQD", "ILS", "JPY", "JOD", "KWD", "LVL", "LBP", "LTL", "MKD", "MYR", "MXN", "MAD", "NZD", "NIO", "NOK", "OMR", "PAB", "PYG", "PEN", "PHP", "PLN", "QAR", "RON", "RUB", "SAR", "RSD", "SGD", "ZAR", "SDG", "SEK", "CHF", "SYP", "TWD", "TND", "TRY", "UAH", "AED", "GBP", "USD", "UYU", "VEF", "VND", "YER"]
+                    },
+                    "lang": {
+                        "type": "string",
+                        "enum": ["ALB", "ARA", "BEL", "BUL", "CAT", "CHI", "SCR", "CZE", "DAN", "DUT", "ENG", "FIN", "FRE", "GER", "GRE", "HEB", "HIN", "HUN", "IND", "GLE", "ITA", "JPN", "LAV", "LIT", "MAC", "MAY", "MLT", "NOR", "POL", "POR", "RUM", "RUS", "SCC", "SLO", "SPA", "THA", "TUR", "UKR", "VIE"]
+                    },
+                    "region": {
+                        "type": "string",
+                        "enum": ["NCSA", "EU", "EMEA", "APJ"]
+                    },
+                    "caProvince": {
+                        "type": "string",
+                        "enum": ["AB", "BC", "PE", "MB", "NB", "NS", "NU", "ON", "QC", "SK", "NL", "YT", "NT"]
+                    },
+                    "caRegion": {
+                        "type": "string",
+                        "enum": ["QC", "HQ"]
+                    }
+                }
+            },
+            "DriverPremium1Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "driverAge": {
+                        "type": "string"
+                    },
+                    "driverMaritalStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DriverPremium3Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "driverAge": {
+                        "type": "string"
+                    },
+                    "driverMaritalStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DriverPremium5Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "driverAge": {
+                        "type": "string"
+                    },
+                    "driverdriverMaritalStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Greeting1Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "DriverPremium2Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "driverAge": {
+                        "type": "string"
+                    },
+                    "driverMaritalStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Greeting3Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "DriverPremium4Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "driverAge": {
+                        "type": "string"
+                    },
+                    "driverMaritalStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Greeting2Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "Greeting4Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "GreetingRequest": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            },
+            "Greeting5Request": {
+                "type": "object",
+                "properties": {
+                    "runtimeContext": {
+                        "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+                    },
+                    "hour": {
+                        "type": "integer",
+                        "format": "int32"
+                    }
+                }
+            }
+        }
+    }
+}
+
