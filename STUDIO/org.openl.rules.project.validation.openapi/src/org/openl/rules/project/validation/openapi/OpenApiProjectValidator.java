@@ -148,9 +148,17 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(serviceClassLoader);
-            Class<?> serviceClass = resolveInterface(projectDescriptor,
-                rulesInstantiationStrategy,
-                validatedCompiledOpenClass);
+            Class<?> serviceClass;
+            try {
+                serviceClass = resolveInterface(projectDescriptor,
+                    rulesInstantiationStrategy,
+                    validatedCompiledOpenClass);
+            } catch (Exception e) {
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
+                    OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
+                        StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
+                return validatedCompiledOpenClass;
+            }
 
             RulesDeploy rulesDeploy = getRulesDeploy(projectDescriptor, compiledOpenClass);
             context.setRulesDeploy(rulesDeploy);
