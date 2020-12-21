@@ -683,7 +683,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         String s = path;
         int i = 0;
         while (i < index) {
-            s = s.substring(s.indexOf("}"));
+            s = s.substring(s.indexOf("}") + 1);
             i++;
         }
         s = s.substring(s.indexOf("{") + 1);
