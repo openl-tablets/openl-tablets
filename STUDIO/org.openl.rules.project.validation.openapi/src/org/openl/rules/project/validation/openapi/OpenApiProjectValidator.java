@@ -174,13 +174,9 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     serviceClass,
                     serviceClassLoader);
             } catch (Exception e) {
-                validatedCompiledOpenClass
-                    .addMessage(
-                        OpenLMessagesUtils.newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + String
-                            .format("Failed to build an interface for the project.%s",
-                                org.apache.commons.lang3.StringUtils
-                                    .isNotBlank(e.getMessage()) ? " " + e.getMessage()
-                                                                : org.apache.commons.lang3.StringUtils.EMPTY)));
+                validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newErrorMessage(
+                    OPEN_API_VALIDATION_MSG_PREFIX + String.format("Failed to build an interface for the project.%s",
+                        StringUtils.isNotBlank(e.getMessage()) ? " " + e.getMessage() : StringUtils.EMPTY)));
                 return validatedCompiledOpenClass;
             }
             context.setServiceClass(enhancedServiceClass);
