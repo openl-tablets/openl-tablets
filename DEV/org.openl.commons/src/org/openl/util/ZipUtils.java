@@ -117,7 +117,7 @@ public final class ZipUtils {
 
     public static Path toPath(URI uri) {
         if ("jar".equals(uri.getScheme())) {
-            String path = uri.getSchemeSpecificPart();
+            String path = uri.getRawSchemeSpecificPart();
             int sep = path.indexOf("!/");
             if (sep > -1) {
                 path = path.substring(0, sep);
