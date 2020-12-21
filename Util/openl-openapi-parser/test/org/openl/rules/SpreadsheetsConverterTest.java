@@ -853,4 +853,14 @@ public class SpreadsheetsConverterTest {
             .anyMatch(model -> model.getName().equals("AnySpreadsheetResult")));
 
     }
+
+    @Test
+    public void testSpreadsheetResultInDataTypes() throws IOException {
+        ProjectModel pathProject = converter
+            .extractProjectModel("test.converter/datatype/spreadsheetResultDataType.json");
+        List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
+        assertFalse(datatypeModels.stream().anyMatch(dm -> dm.getName().equals("SpreadsheetResult")));
+
+    }
+
 }

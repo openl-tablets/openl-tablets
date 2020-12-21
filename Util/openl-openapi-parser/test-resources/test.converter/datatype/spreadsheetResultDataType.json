@@ -1,0 +1,230 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "test with Spreadsheet Result in DataTypes",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/Test",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/testLevel": {
+      "post": {
+        "summary": "TestLevel(Policy, SpreadsheetResult[], String, DoubleValue, DoubleValue, D",
+        "description": "Rules method: SpreadsheetResultTestLevel",
+        "operationId": "TestLevel",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TestOutput"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "columnNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rowNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "TestOutput": {
+        "type": "object",
+        "properties": {
+          "testField1": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField2": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField3": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField4": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField5": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "testField6": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "testField7": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField8": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField9": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField10": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField11": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField12": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField13": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField14": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField15": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField16": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField17": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField18": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField19": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField20": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField21": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField22": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField23": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField24": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField25": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField26": {
+            "type": "number",
+            "format": "double"
+          },
+          "testField27": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "TestRequest": {
+        "type": "object",
+        "properties": {
+          "testProperty1": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty2": {
+            "type": "string"
+          },
+          "testProperty3": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty4": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty5": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty6": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty7": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty8": {
+            "type": "number",
+            "format": "double"
+          },
+          "testProperty9": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      }
+    }
+  }
+}
