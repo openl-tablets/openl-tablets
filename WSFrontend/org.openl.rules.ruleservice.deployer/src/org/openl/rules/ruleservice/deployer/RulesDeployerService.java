@@ -40,12 +40,12 @@ import org.yaml.snakeyaml.Yaml;
  */
 public class RulesDeployerService implements Closeable {
 
+    private static final Logger LOG = LoggerFactory.getLogger(RulesDeployerService.class);
+
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEFAULT_DEPLOYMENT_NAME = "openl_rules_";
     static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
-
-    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private final Repository deployRepo;
     private final String deployPath;
@@ -96,11 +96,11 @@ public class RulesDeployerService implements Closeable {
      * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it
      *            will be overridden.
      */
-    public void deploy(String name, InputStream in, boolean overridable) throws Exception {
+    public void deploy(String name, InputStream in, boolean overridable) throws IOException, RulesDeployInputException {
         deployInternal(name, in, overridable);
     }
 
-    public void deploy(InputStream in, boolean overridable) throws Exception {
+    public void deploy(InputStream in, boolean overridable) throws IOException, RulesDeployInputException {
         deployInternal(null, in, overridable);
     }
 
@@ -159,15 +159,20 @@ public class RulesDeployerService implements Closeable {
             throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
         }
 
-        String deploymentName = getDeploymentName(originalName, zipEntries);
-        String name = originalName != null ? originalName : DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
-        if (deploymentName == null) {
-            FileData dest = createFileData(zipEntries, null, name, overridable);
+        if (!hasDeploymentDescriptor(zipEntries)) {
+            String projectName = Optional.ofNullable(zipEntries.get(RULES_XML))
+                    .map(DeploymentUtils::getProjectName)
+                    .filter(StringUtils::isNotBlank)
+                    .orElse(null);
+            if (projectName == null) {
+                projectName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
+            }
+            FileData dest = createFileData(zipEntries, projectName, projectName, overridable);
             if (dest != null) {
                 doDeploy(dest, baos.size(), new ByteArrayInputStream(baos.toByteArray()));
             }
         } else {
-            List<FileItem> fileItems = splitMultipleDeployment(zipEntries, deploymentName, name, overridable);
+            List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
 
             if (deployRepo.supports().folders()) {
                 List<FolderItem> folderItems = fileItems.stream().map(fi -> {
@@ -183,16 +188,18 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
+    private static String randomDeploymentName() {
+        return DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
+    }
+
     private List<FileItem> splitMultipleDeployment(Map<String, byte[]> zipEntries,
-            String deploymentName,
-            String name,
+            String defaultDeploymentName,
             boolean overridable) throws IOException {
         Set<String> projectFolders = new HashSet<>();
-        String rulesXml = "/" + RULES_XML;
         for (String fileName : zipEntries.keySet()) {
-            int last = fileName.lastIndexOf(rulesXml);
-            if (last > 0) {
-                String projectFolder = fileName.substring(0, last + 1);
+            int idx = fileName.indexOf('/');
+            if (idx > 0) {
+                String projectFolder = fileName.substring(0, idx);
                 projectFolders.add(projectFolder);
             }
         }
@@ -200,17 +207,22 @@ public class RulesDeployerService implements Closeable {
             return Collections.emptyList();
         }
         List<FileItem> fileItems = new ArrayList<>();
+        String deploymentName = getDeploymentName(zipEntries);
+        if (StringUtils.isBlank(deploymentName)) {
+            deploymentName = StringUtils.isNotBlank(defaultDeploymentName)
+                    ? defaultDeploymentName : randomDeploymentName();
+        }
         for (String projectFolder : projectFolders) {
             Map<String, byte[]> newProjectEntries = new HashMap<>();
             for (Map.Entry<String, byte[]> entry : zipEntries.entrySet()) {
                 String originalPath = entry.getKey();
-                if (originalPath.startsWith(projectFolder)) {
-                    String newPath = originalPath.substring(projectFolder.length());
+                if (originalPath.startsWith(projectFolder + "/")) {
+                    String newPath = originalPath.substring(projectFolder.length() + 1);
                     newProjectEntries.put(newPath, entry.getValue());
                 }
             }
             if (!newProjectEntries.isEmpty()) {
-                FileData dest = createFileData(newProjectEntries, deploymentName, name, overridable);
+                FileData dest = createFileData(newProjectEntries, deploymentName, projectFolder, overridable);
                 if (dest == null) {
                     return Collections.emptyList();
                 }
@@ -227,48 +239,45 @@ public class RulesDeployerService implements Closeable {
         return fileItems;
     }
 
-    private String getDeploymentName(String givenName, Map<String, byte[]> zipEntries) {
-        final String deploymentName = Optional.ofNullable(givenName)
-            .orElse(DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis());
+    private static boolean hasDeploymentDescriptor(Map<String, byte[]> zipEntries) {
+        return zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null
+                || zipEntries.get(DeploymentDescriptor.YAML.getFileName()) != null;
+    }
+
+    private static String getDeploymentName(Map<String, byte[]> zipEntries) {
         if (zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null) {
-            return deploymentName;
+            return null;
         } else {
             byte[] bytes = zipEntries.get(DeploymentDescriptor.YAML.getFileName());
-            if (bytes == null) {
-                return null;
-            }
             try (InputStream fileStream = new ByteArrayInputStream(bytes)) {
                 Yaml yaml = new Yaml();
                 return Optional.ofNullable(yaml.loadAs(fileStream, Map.class))
                     .map(prop -> prop.get("name"))
                     .map(Object::toString)
                     .filter(StringUtils::isNotBlank)
-                    .orElse(deploymentName);
+                    .orElse(null);
             } catch (IOException e) {
-                log.debug(e.getMessage(), e);
-                return deploymentName;
+                LOG.debug(e.getMessage(), e);
+                return null;
             }
         }
     }
 
     private FileData createFileData(Map<String, byte[]> zipEntries,
-            String defaultDeploymentName,
-            String defaultName,
+            String deploymentName,
+            String projectName,
             boolean overridable) throws IOException {
 
-        String serviceName = readServiceName(zipEntries.get(RULES_DEPLOY_XML));
-        String projectName = readProjectName(zipEntries.get(RULES_XML),
-            StringUtils.isBlank(serviceName) ? defaultName : serviceName);
-        String apiVersion = readApiVersion(zipEntries.get(RULES_DEPLOY_XML));
-
-        String deploymentName = defaultDeploymentName == null ? projectName : defaultDeploymentName;
-
-        if (apiVersion != null && !apiVersion.isEmpty()) {
+        String apiVersion = Optional.ofNullable(zipEntries.get(RULES_DEPLOY_XML))
+                .map(DeploymentUtils::getApiVersion)
+                .filter(StringUtils::isNotBlank)
+                .orElse(null);
+        if (apiVersion != null) {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
         }
 
         if (!overridable && isRulesDeployed(deploymentName)) {
-            log.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+            LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
             return null;
         }
         FileData dest = new FileData();
@@ -279,28 +288,6 @@ public class RulesDeployerService implements Closeable {
         dest.setName(name + '/' + projectName);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
         return dest;
-    }
-
-    private String readProjectName(byte[] bytes, String defaultName) {
-        if (bytes == null) {
-            return defaultName;
-        }
-        String name = DeploymentUtils.getProjectName(new ByteArrayInputStream(bytes));
-        return name == null || name.isEmpty() ? defaultName : name;
-    }
-
-    private String readApiVersion(byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-        return DeploymentUtils.getApiVersion(new ByteArrayInputStream(bytes));
-    }
-
-    private String readServiceName(byte[] bytes) {
-        if (bytes == null) {
-            return null;
-        }
-        return DeploymentUtils.getServiceName(new ByteArrayInputStream(bytes));
     }
 
     private void doDeploy(FileData dest, Integer contentSize, InputStream inputStream) throws IOException {
@@ -321,9 +308,7 @@ public class RulesDeployerService implements Closeable {
 
     @Override
     public void close() {
-        if (deployRepo instanceof Closeable) {
-            // Close repo connection after validation
-            IOUtils.closeQuietly((Closeable) deployRepo);
-        }
+        // Close repo connection after validation
+        IOUtils.closeQuietly(deployRepo);
     }
 }
