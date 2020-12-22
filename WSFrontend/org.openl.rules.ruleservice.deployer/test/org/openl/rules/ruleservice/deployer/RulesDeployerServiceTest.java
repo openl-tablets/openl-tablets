@@ -5,8 +5,8 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -31,6 +32,7 @@ import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
@@ -49,17 +51,20 @@ public class RulesDeployerServiceTest {
 
     @Before
     public void setUp() throws IOException {
-        mockedDeployRepo = mock(Repository.class);
-        when(mockedDeployRepo.supports()).thenReturn(new FeaturesBuilder(mockedDeployRepo).build());
-        when(mockedDeployRepo.list(anyString())).thenReturn(Collections.emptyList());
         fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
         fileChangesFromZipCaptor = ArgumentCaptor.forClass(FileChangesFromZip.class);
+    }
 
+    private <T extends Repository> void init(Class<T> repo, boolean local) throws IOException {
+        mockedDeployRepo = mock(repo);
+        when(mockedDeployRepo.supports()).thenReturn(new FeaturesBuilder(mockedDeployRepo).setLocal(local).build());
+        when(mockedDeployRepo.list(anyString())).thenReturn(Collections.emptyList());
         deployer = new RulesDeployerService(mockedDeployRepo, DEPLOY_PATH);
     }
 
     @Test
     public void test_deploy_singleDeployment() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
@@ -68,16 +73,12 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_whenFoldersSupports() throws Exception {
-        FolderRepository mockedDeployRepo = mock(FolderRepository.class);
-        when(mockedDeployRepo.supports())
-            .thenReturn(new FeaturesBuilder(mockedDeployRepo).setMappedFolders(true).build());
-
-        RulesDeployerService deployer = new RulesDeployerService(mockedDeployRepo, DEPLOY_PATH);
+        init(FolderRepository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
         verify(mockedDeployRepo, never()).save(any(FileData.class), any(InputStream.class));
-        verify(mockedDeployRepo, times(1))
+        verify((FolderRepository) mockedDeployRepo, times(1))
             .save(fileDataCaptor.capture(), fileChangesFromZipCaptor.capture(), eq(ChangesetType.FULL));
         assertNotNull(fileChangesFromZipCaptor.getValue());
         assertNotNull(fileDataCaptor.getValue());
@@ -85,6 +86,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_with_custom_name() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy("customName", is, true);
         }
@@ -93,6 +95,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_without_description() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(NO_NAME_DEPLOYMENT)) {
             deployer.deploy("customName",is, true);
         }
@@ -103,6 +106,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_multideploy_without_name() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
             deployer.deploy("customName-deployment", is, true);
         }
@@ -129,6 +133,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_whenNotOverridable() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
         }
@@ -137,6 +142,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_whenNotOverridableAndDeployedAlready() throws Exception {
+        init(Repository.class, false);
         when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, false);
@@ -146,6 +152,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_singleDeployment_whenOverridableAndDeployedAlready() throws Exception {
+        init(Repository.class, false);
         when(mockedDeployRepo.list(DEPLOY_PATH + "project2/")).thenReturn(Collections.singletonList(new FileData()));
         try (InputStream is = getResourceAsStream(SINGLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
@@ -164,6 +171,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_deploy_multipleDeployment() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream(MULTIPLE_DEPLOYMENT)) {
             deployer.deploy(is, true);
         }
@@ -190,6 +198,7 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_EPBDS_10894() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy(is, true);
         }
@@ -198,10 +207,70 @@ public class RulesDeployerServiceTest {
 
     @Test
     public void test_EPBDS_10894_CustomName_mustNotApplied() throws Exception {
+        init(Repository.class, false);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
         assertEPBDS_10894();
+    }
+
+    @Test
+    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws IOException, RulesDeployInputException {
+        init(FolderRepository.class, true);
+        try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
+            deployer.deploy("EPBDS-10894.zip", is, true);
+        }
+        List<FolderItem> actualFileItems = catchDeployFolders();
+        final String baseDeploymentPath = "EPBDS-10894_yaml_project/";
+        assertEquals(1, actualFileItems.size());
+        FolderItem folderItem = actualFileItems.get(0);
+        final Set<String> actualList = StreamSupport
+                .stream(folderItem.getFiles().spliterator(), false)
+                .map(it -> it.getData().getName())
+                .collect(Collectors.toSet());
+        final Set<String> expectedFiles = toSet(baseDeploymentPath + "project1/rules.xml",
+                baseDeploymentPath + "project1/Project1.xlsx",
+                baseDeploymentPath + "project2/Project2.xlsx",
+                baseDeploymentPath + "deployment.yaml");
+        assertSetEquals(expectedFiles, actualList);
+    }
+
+    @Test
+    public void testMultiDeploymentFolderSupport_NoDeploymentName() throws IOException, RulesDeployInputException {
+        init(FolderRepository.class, true);
+        try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
+            deployer.deploy("customName-deployment", is, true);
+        }
+        List<FolderItem> actualFileItems = catchDeployFolders();
+        final String baseDeploymentPath = "customName-deployment/";
+        assertEquals(1, actualFileItems.size());
+        FolderItem folderItem = actualFileItems.get(0);
+        final Set<String> actualList = StreamSupport
+                .stream(folderItem.getFiles().spliterator(), false)
+                .map(it -> it.getData().getName())
+                .collect(Collectors.toSet());
+        final Set<String> expectedFiles = toSet(baseDeploymentPath + "deployment.yaml",
+                baseDeploymentPath + "project1/rules.xml",
+                baseDeploymentPath + "project1/rules-deploy.xml",
+                baseDeploymentPath + "project1/Project1-Main.xlsx",
+                baseDeploymentPath + "project2/rules/Project2-Main.xlsx",
+                baseDeploymentPath + "project2/rules-deploy.xml",
+                baseDeploymentPath + "project2/rules.xml");
+        assertSetEquals(expectedFiles, actualList);
+    }
+
+    private static void assertSetEquals(Set<String> expected, Set<String> actual) {
+        Set<String> rest = new HashSet<>(expected);
+        rest.removeAll(actual);
+        if (!rest.isEmpty()) {
+            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
+        }
+
+        rest = new HashSet<>(actual);
+        rest.removeAll(expected);
+        if (!rest.isEmpty()) {
+            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
+        }
     }
 
     private void assertEPBDS_10894() throws IOException {
@@ -228,6 +297,14 @@ public class RulesDeployerServiceTest {
         ArgumentCaptor<List<FileItem>> captor = ArgumentCaptor.forClass(listClass);
 
         verify(mockedDeployRepo, times(1)).save(captor.capture());
+        return captor.getValue();
+    }
+
+    private List<FolderItem> catchDeployFolders() throws IOException {
+        Class<List<FolderItem>> listClass = (Class) List.class;
+        ArgumentCaptor<List<FolderItem>> captor = ArgumentCaptor.forClass(listClass);
+
+        verify((FolderRepository) mockedDeployRepo, times(1)).save(captor.capture(), eq(ChangesetType.FULL));
         return captor.getValue();
     }
 
