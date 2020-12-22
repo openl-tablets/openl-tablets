@@ -1,10 +1,12 @@
 package org.openl.rules.ruleservice.deployer;
 
-import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -26,8 +28,13 @@ import java.util.stream.StreamSupport;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
+import org.openl.rules.repository.api.FolderRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 
 public class RulesDeployerServiceTest {
@@ -86,7 +93,6 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-        init(Repository.class, false);
     public void test_multideploy_without_name() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream("noname-multiple-deployment.zip")) {
