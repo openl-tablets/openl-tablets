@@ -25,16 +25,28 @@ class DeploymentUtils {
 
     static final String API_VERSION_SEPARATOR = "_V";
 
+    static String getProjectName(byte[] bytes) {
+        try (InputStream stream = new ByteArrayInputStream(bytes)) {
+            return getProjectName(stream);
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
+    static String getApiVersion(byte[] bytes) {
+        try (InputStream stream = new ByteArrayInputStream(bytes)) {
+            return getApiVersion(stream);
+        } catch (IOException ignored) {
+            return null;
+        }
+    }
+
     static String getProjectName(InputStream stream) {
         return evaluateXPath(stream, "/project/name");
     }
 
     static String getApiVersion(InputStream stream) {
         return evaluateXPath(stream, "/version");
-    }
-
-    static String getServiceName(InputStream stream) {
-        return evaluateXPath(stream, "/rules-deploy/serviceName");
     }
 
     static String evaluateXPath(InputStream stream, String expression) {
