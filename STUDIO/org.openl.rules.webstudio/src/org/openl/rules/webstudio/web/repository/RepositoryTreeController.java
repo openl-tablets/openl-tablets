@@ -1085,7 +1085,6 @@ public class RepositoryTreeController {
                                     FileData fileData = new FileData();
                                     fileData.setName(businessName);
                                     repository.delete(fileData);
-                                    projectState.delete();
                                 }
                             }
                         } catch (Exception e) {
