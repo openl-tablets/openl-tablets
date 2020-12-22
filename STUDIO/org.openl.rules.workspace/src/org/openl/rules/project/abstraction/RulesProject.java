@@ -202,9 +202,6 @@ public class RulesProject extends UserWorkspaceProject {
                     }
                 }
             }
-            // Delete properties folder. Workaround for broken empty projects that failed to delete properties folder
-            // last time
-            localRepository.getProjectState(localFolderName).delete();
 
             // Delete empty folders. They won't be deleted in the code above.
             FileData folderData = new FileData();

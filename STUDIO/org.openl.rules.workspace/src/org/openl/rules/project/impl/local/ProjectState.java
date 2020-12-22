@@ -19,5 +19,4 @@ public interface ProjectState {
 
     FileData getFileData();
 
-    void delete();
 }

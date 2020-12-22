@@ -116,7 +116,12 @@ public class LocalRepository extends FileSystemRepository {
         deleteFileProperties(data.getName());
 
         if (deleted) {
-            notifyModified(data.getName());
+            // If name doesn't contain "/", it's a project name. No need to recreate project state for the deleted
+            // project.
+            String name = data.getName();
+            if (name.contains("/")) {
+                notifyModified(name);
+            }
         }
         return deleted;
     }
@@ -387,11 +392,6 @@ public class LocalRepository extends FileSystemRepository {
                 } finally {
                     IOUtils.closeQuietly(is);
                 }
-            }
-
-            @Override
-            public void delete() {
-                propertiesEngine.deleteAllProperties(pathInProject);
             }
         };
     }
