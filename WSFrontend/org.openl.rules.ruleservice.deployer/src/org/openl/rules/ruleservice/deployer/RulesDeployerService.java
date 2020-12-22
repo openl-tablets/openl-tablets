@@ -15,6 +15,7 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -41,6 +42,10 @@ import org.yaml.snakeyaml.Yaml;
 public class RulesDeployerService implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RulesDeployerService.class);
+
+    private static final Set<String> DEPLOY_DESCRIPTOR_FILES = Stream.of(DeploymentDescriptor.values())
+            .map(DeploymentDescriptor::getFileName)
+            .collect(Collectors.toSet());
 
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
@@ -145,7 +150,28 @@ public class RulesDeployerService implements Closeable {
      */
     public boolean delete(String serviceName) throws IOException {
         FileData fileDate = deployRepo.check(serviceName);
-        return deployRepo.delete(fileDate);
+        if (deployRepo.delete(fileDate)) {
+            deleteDeploymentDescriptors(serviceName);
+            return true;
+        }
+        return false;
+    }
+
+    private void deleteDeploymentDescriptors(String serviceName) throws IOException {
+        if (deployRepo.supports().folders()) {
+            if (serviceName.charAt(0) == '/') {
+                serviceName = serviceName.substring(1);
+            }
+            final String deploymentName = serviceName.split("/")[0];
+            if (((FolderRepository) deployRepo).listFolders(deploymentName).isEmpty()) {
+                for (String deployDescriptorFile : DEPLOY_DESCRIPTOR_FILES) {
+                    FileData fd = deployRepo.check(deploymentName + "/" + deployDescriptorFile);
+                    if (fd != null) {
+                        deployRepo.delete(fd);
+                    }
+                }
+            }
+        }
     }
 
     private void deployInternal(String originalName, InputStream in, boolean overridable) throws IOException,
@@ -172,17 +198,39 @@ public class RulesDeployerService implements Closeable {
                 doDeploy(dest, baos.size(), new ByteArrayInputStream(baos.toByteArray()));
             }
         } else {
-            List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
-
             if (deployRepo.supports().folders()) {
-                List<FolderItem> folderItems = fileItems.stream().map(fi -> {
-                    FileData data = fi.getData();
-                    FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
-                        data.getName());
-                    return new FolderItem(data, files);
-                }).collect(Collectors.toList());
-                ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
+                if (supportDeployments) {
+                    String deploymentName = getDeploymentName(zipEntries);
+                    if (StringUtils.isBlank(deploymentName)) {
+                        deploymentName = StringUtils.isNotBlank(originalName)
+                                ? originalName : randomDeploymentName();
+                    }
+                    if (!overridable && isRulesDeployed(deploymentName)) {
+                        LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+                        return;
+                    }
+                    FileData dest = new FileData();
+                    dest.setName(deployPath + deploymentName);
+                    dest.setAuthor(DEFAULT_AUTHOR_NAME);
+                    dest.setSize(baos.size());
+                    FileChangesFromZip changes = new FileChangesFromZip(new ZipInputStream(new ByteArrayInputStream(baos.toByteArray())), dest.getName());
+                    ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)), ChangesetType.FULL);
+                } else {
+                    //split zip to single-project deployment if supportDeployments is false
+                    //FIXME delete it after removing of {ruleservice.datasource.filesystem.supportDeployments} property
+                    List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
+
+                    List<FolderItem> folderItems = fileItems.stream().map(fi -> {
+                        FileData data = fi.getData();
+                        FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
+                                data.getName());
+                        return new FolderItem(data, files);
+                    }).collect(Collectors.toList());
+                    ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
+                }
             } else {
+                //split zip to single-project deployment if repository doesn't support folders
+                List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
                 deployRepo.save(fileItems);
             }
         }
