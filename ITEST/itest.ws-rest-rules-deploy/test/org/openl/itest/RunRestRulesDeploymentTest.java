@@ -205,8 +205,8 @@ public class RunRestRulesDeploymentTest {
         assertEquals(2, servicesInfo.length);
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
-        client.delete("/admin/delete/yaml1_project_Project1");
-        client.delete("/admin/delete/yaml1_project_Project2");
+        client.delete("/admin/delete/yaml_project_Project1");
+        client.delete("/admin/delete/yaml_project_Project2");
         client.get("/admin/services", "/no_services.resp.txt");
 
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
@@ -214,8 +214,8 @@ public class RunRestRulesDeploymentTest {
         assertEquals(2, servicesInfo.length);
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
-        client.delete("/admin/delete/yaml1_project_Project1");
-        client.delete("/admin/delete/yaml1_project_Project2");
+        client.delete("/admin/delete/yaml_project_Project1");
+        client.delete("/admin/delete/yaml_project_Project2");
         client.get("/admin/services", "/no_services.resp.txt");
     }
 

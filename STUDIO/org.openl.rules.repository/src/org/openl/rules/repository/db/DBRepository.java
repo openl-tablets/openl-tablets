@@ -149,12 +149,12 @@ abstract class DBRepository implements Repository, Closeable {
                 result.add(data);
             }
             connection.commit();
+            invokeListener();
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(connection);
         }
-        invokeListener();
         return result;
     }
 
