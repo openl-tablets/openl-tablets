@@ -2645,8 +2645,8 @@
         "summary": "Boolean proxyBoolean(Boolean)",
         "description": "Rules method: java.lang.Boolean proxyBoolean(java.lang.Boolean x)",
         "operationId": "proxyBoolean",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": ["text/plain"],
+        "produces": ["text/plain"],
         "parameters": [
           {
             "in": "body",
@@ -2834,8 +2834,8 @@
         "summary": "Character proxyCharacter(Character)",
         "description": "Rules method: java.lang.Character proxyCharacter(java.lang.Character x)",
         "operationId": "proxyCharacter",
-        "consumes": ["application/json"],
-        "produces": ["application/json"],
+        "consumes": ["text/plain"],
+        "produces": ["text/plain"],
         "parameters": [
           {
             "in": "body",
@@ -2897,7 +2897,7 @@
         "summary": "StringValue proxyStringValue(StringValue)",
         "description": "Rules method: org.openl.meta.StringValue proxyStringValue(org.openl.meta.StringValue x)",
         "operationId": "proxyStringValue",
-        "consumes": ["application/json"],
+        "consumes": ["text/plain"],
         "produces": ["text/plain"],
         "parameters": [
           {

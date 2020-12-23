@@ -4,6 +4,7 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.Objects;
 
+import org.openl.meta.StringValue;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.runtime.ASMProxyFactory;
 
@@ -21,6 +22,9 @@ public final class JAXRSOpenLServiceEnhancer {
 
     public boolean isResolveMethodParameterNames() {
         return resolveMethodParameterNames;
+        TEXT_MEDIA_TYPE_SET.add(Character.class);
+        TEXT_MEDIA_TYPE_SET.add(StringValue.class);
+        TEXT_MEDIA_TYPE_SET.add(Boolean.class);
     }
 
     public void setResolveMethodParameterNames(boolean resolveMethodParameterNames) {
