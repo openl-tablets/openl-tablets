@@ -95,11 +95,26 @@
         }
 
         .deploy-button {
-            width: 100px;
-            height: 100px;
-            border-radius: 50px;
+            width: 200px;
+            height: 200px;
             margin: 0 auto;
+            border-radius: 100px;
+            border: none;
             display: block;
+            font-size: 30px;
+            font-weight: bold;
+            text-transform: uppercase;
+            background: radial-gradient(#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f);
+            animation: hypnosis 0.2s linear infinite;
+
+
+        }
+
+        @keyframes hypnosis {
+            from {background: radial-gradient(#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f);}
+            33% {background: radial-gradient(#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f, #f00);}
+            66% {background: radial-gradient(#00f,#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f, #f00, #0f0);}
+            to {background: radial-gradient(#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f,#f00,#0f0,#00f);}
         }
 
         .icon {
