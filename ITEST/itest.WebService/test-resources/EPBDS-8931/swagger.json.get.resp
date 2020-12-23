@@ -1,0 +1,157 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "EPBDS-8931_EPBDS-8931"
+    },
+    "basePath": "/EPBDS-8931/EPBDS-8931",
+    "paths": {
+        "/ChoiceToBooleanPrimitive/{choice}": {
+            "get": {
+                "summary": "Boolean ChoiceToBooleanPrimitive(char)",
+                "description": "Rules method: java.lang.Boolean ChoiceToBooleanPrimitive(char choice)",
+                "operationId": "ChoiceToBooleanPrimitive",
+                "consumes": ["text/plain"],
+                "produces": ["text/plain"],
+                "parameters": [{
+                        "name": "choice",
+                        "in": "path",
+                        "required": true,
+                        "type": "string",
+                        "pattern": ".*"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "examples": {
+                            "application/json": {
+                                "message": "Some message",
+                                "type": "USER_ERROR"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Cannot parse 'bar' to JSON",
+                                "type": "BAD_REQUEST"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Failed to load lazy method.",
+                                "type": "COMPILATION"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/ChoiceToBoolean": {
+            "post": {
+                "summary": "Boolean ChoiceToBoolean(Character)",
+                "description": "Rules method: java.lang.Boolean ChoiceToBoolean(ToothSurfaceChoice choice)",
+                "operationId": "ChoiceToBoolean",
+                "consumes": ["text/plain"],
+                "produces": ["text/plain"],
+                "parameters": [{
+                        "in": "body",
+                        "name": "body",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    },
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "examples": {
+                            "application/json": {
+                                "message": "Some message",
+                                "type": "USER_ERROR"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Cannot parse 'bar' to JSON",
+                                "type": "BAD_REQUEST"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Failed to load lazy method.",
+                                "type": "COMPILATION"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "JAXRSErrorResponse": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "string",
+                    "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+                },
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        }
+    }
+}
+

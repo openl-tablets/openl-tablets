@@ -333,4 +333,10 @@ public class RunWebservicesITest {
         client.get("/REST/EPBDS-10483/EPBDS-10483/swagger.json", "/EPBDS-10483/EPBDS-10483_swagger.resp.json");
         client.get("/REST/EPBDS-10483/EPBDS-10483/openapi.json", "/EPBDS-10483/EPBDS-10483_openapi.resp.json");
     }
+
+    @Test
+    public void EPBDS_8931() {
+        client.send("EPBDS-8931/openapi.json.get");
+        client.send("EPBDS-8931/swagger.json.get");
+    }
 }

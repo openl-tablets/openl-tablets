@@ -1760,7 +1760,7 @@
         "operationId": "proxyCharacter",
         "requestBody": {
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "type": "string"
               }
@@ -1813,7 +1813,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "string"
                 }
@@ -2337,7 +2337,7 @@
         "operationId": "proxyBoolean",
         "requestBody": {
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "type": "boolean"
               }
@@ -2390,7 +2390,7 @@
           "200": {
             "description": "Successful operation",
             "content": {
-              "application/json": {
+              "text/plain": {
                 "schema": {
                   "type": "boolean"
                 }
@@ -2989,7 +2989,7 @@
         "operationId": "proxyStringValue",
         "requestBody": {
           "content": {
-            "application/json": {
+            "text/plain": {
               "schema": {
                 "type": "string"
               }
