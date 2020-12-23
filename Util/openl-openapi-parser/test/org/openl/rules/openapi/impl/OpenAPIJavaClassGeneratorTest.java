@@ -239,7 +239,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
         Method method1 = interfaceClass
             .getDeclaredMethod("apiBla", Integer.class, String.class, Boolean.class, Boolean.class);
-        assertEquals(int.class, method1.getReturnType());
+        assertEquals(Integer.class, method1.getReturnType());
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/apiBla", method1.getAnnotation(Path.class).value());
@@ -256,7 +256,7 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals("someStep", method1.getParameters()[3].getAnnotation(Name.class).value());
 
         Method method2 = interfaceClass.getDeclaredMethod("apiTodo", IRulesRuntimeContext.class);
-        assertEquals(int.class, method2.getReturnType());
+        assertEquals(Integer.class, method2.getReturnType());
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));
         assertEquals("/api/Todo", method2.getAnnotation(Path.class).value());
@@ -286,7 +286,7 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
 
         Method method1 = interfaceClass.getDeclaredMethod("DiscountPercentage", Object.class, Integer.class);
-        assertEquals(double.class, method1.getReturnType());
+        assertEquals(Double.class, method1.getReturnType());
         assertEquals(5, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(POST.class));
         assertEquals("/DiscountPercentage", method1.getAnnotation(Path.class).value());

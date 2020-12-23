@@ -623,7 +623,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         PathInfo pathInfo = generatePathInfo(path, pathItem);
         spr.setPathInfo(pathInfo);
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
-        TypeInfo typeInfo = extractType(responseSchema, TEXT_PLAIN.equals(pathInfo.getProduces()));
+        TypeInfo typeInfo = extractType(responseSchema, false);
         if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
             typeInfo.setJavaName(SPREADSHEET_RESULT_CLASS_NAME);
         }

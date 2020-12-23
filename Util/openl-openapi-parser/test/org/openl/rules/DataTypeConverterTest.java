@@ -65,11 +65,7 @@ public class DataTypeConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/nesting.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertFalse(datatypeModels.isEmpty());
-        Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
-            .filter(x -> x.getName().equals("AnotherDatatype"))
-            .findFirst();
-        assertTrue(anotherDatatype.isPresent());
-        DatatypeModel datatypeModel = anotherDatatype.get();
+        DatatypeModel datatypeModel = findDataTypeModel(datatypeModels, "AnotherDatatype");
         assertEquals("DriverRisk", datatypeModel.getParent());
         List<FieldModel> fields = datatypeModel.getFields();
         assertFalse(fields.isEmpty());
@@ -94,9 +90,7 @@ public class DataTypeConverterTest {
             .collect(Collectors.toList());
         assertFalse(fields.isEmpty());
         assertEquals(4, fields.size());
-        Optional<DatatypeModel> animal = datatypeModels.stream().filter(x -> x.getName().equals("Animal")).findFirst();
-        assertTrue(animal.isPresent());
-        DatatypeModel datatypeModel = animal.get();
+        DatatypeModel datatypeModel = findDataTypeModel(datatypeModels, "Animal");
         assertEquals(2, datatypeModel.getFields().size());
     }
 
@@ -114,11 +108,7 @@ public class DataTypeConverterTest {
         Optional<FieldModel> birthDate = fieldModels.stream().filter(x -> x.getName().equals("birthDate")).findFirst();
         assertTrue(birthDate.isPresent());
         assertEquals("Date", birthDate.get().getType());
-        Optional<FieldModel> birthDateTime = fieldModels.stream()
-            .filter(x -> x.getName().equals("birthTime"))
-            .findFirst();
-        assertTrue(birthDateTime.isPresent());
-        FieldModel birthTimeField = birthDateTime.get();
+        FieldModel birthTimeField = findField(fieldModels, "birthTime");
         assertEquals("Date", birthTimeField.getType());
         assertTrue(birthTimeField.getDefaultValue() instanceof OffsetDateTime);
         Optional<DatatypeModel> crucian = datatypeModels.stream()
@@ -211,43 +201,29 @@ public class DataTypeConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10415-types_values.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        Optional<DatatypeModel> dynamo = datatypeModels.stream().filter(x -> x.getName().equals("Dynamo")).findFirst();
-        assertTrue(dynamo.isPresent());
-        DatatypeModel datatypeModel = dynamo.get();
+        DatatypeModel datatypeModel = findDataTypeModel(datatypeModels, "Dynamo");
         List<FieldModel> fields = datatypeModel.getFields();
-        Optional<FieldModel> a = fields.stream().filter(x -> x.getName().equals("A")).findFirst();
-        assertTrue(a.isPresent());
-        FieldModel aField = a.get();
+        FieldModel aField = findField(fields, "A");
         assertEquals("A", aField.getName());
         assertEquals("BigDecimal", aField.getType());
         assertEquals("0", aField.getDefaultValue());
-        Optional<FieldModel> b = fields.stream().filter(x -> x.getName().equals("B")).findFirst();
-        assertTrue(b.isPresent());
-        FieldModel bField = b.get();
+        FieldModel bField = findField(fields, "B");
         assertEquals("B", bField.getName());
         assertEquals("BigInteger", bField.getType());
         assertEquals(0, bField.getDefaultValue());
-        Optional<FieldModel> c = fields.stream().filter(x -> x.getName().equals("C")).findFirst();
-        assertTrue(c.isPresent());
-        FieldModel cField = c.get();
+        FieldModel cField = findField(fields, "C");
         assertEquals("C", cField.getName());
         assertEquals("BigInteger", cField.getType());
         assertEquals(BigInteger.ZERO, cField.getDefaultValue());
-        Optional<FieldModel> d = fields.stream().filter(x -> x.getName().equals("D")).findFirst();
-        assertTrue(d.isPresent());
-        FieldModel dField = d.get();
+        FieldModel dField = findField(fields, "D");
         assertEquals("D", dField.getName());
         assertEquals("BigDecimal", dField.getType());
         assertEquals("2975671681509007947508815", dField.getDefaultValue());
-        Optional<FieldModel> e = fields.stream().filter(x -> x.getName().equals("E")).findFirst();
-        assertTrue(e.isPresent());
-        FieldModel eField = e.get();
+        FieldModel eField = findField(fields, "E");
         assertEquals("E", eField.getName());
         assertEquals("BigInteger", eField.getType());
         assertEquals(2147483647, eField.getDefaultValue());
-        Optional<FieldModel> f = fields.stream().filter(x -> x.getName().equals("F")).findFirst();
-        assertTrue(f.isPresent());
-        FieldModel fField = f.get();
+        FieldModel fField = findField(fields, "F");
         assertEquals("F", fField.getName());
         assertEquals("BigInteger", fField.getType());
         assertEquals(BigInteger.ZERO, fField.getDefaultValue());
@@ -283,5 +259,17 @@ public class DataTypeConverterTest {
             .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
         List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals("NewNewDatatype")));
+    }
+
+    private DatatypeModel findDataTypeModel(final List<DatatypeModel> datatypeModels, final String name) {
+        Optional<DatatypeModel> dt = datatypeModels.stream().filter(x -> x.getName().equals(name)).findFirst();
+        assertTrue(dt.isPresent());
+        return dt.get();
+    }
+
+    private FieldModel findField(final List<FieldModel> fields, final String fieldName) {
+        Optional<FieldModel> field = fields.stream().filter(x -> x.getName().equals(fieldName)).findFirst();
+        assertTrue(field.isPresent());
+        return field.get();
     }
 }

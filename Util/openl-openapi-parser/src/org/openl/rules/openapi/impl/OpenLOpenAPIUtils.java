@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -86,9 +87,10 @@ public class OpenLOpenAPIUtils {
 
     public static Schema<?> getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
         Schema<?> type = null;
-        Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
-        if (satisfyingOperation != null) {
-            ApiResponses responses = satisfyingOperation.getResponses();
+        Pair<Operation, PathItem.HttpMethod> operationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
+        if (operationWithMethod != null) {
+            Operation operation = operationWithMethod.getKey();
+            ApiResponses responses = operation.getResponses();
             if (responses != null) {
                 ApiResponse response = getResponse(jxPathContext, responses);
                 if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
@@ -111,8 +113,9 @@ public class OpenLOpenAPIUtils {
         ALL
     }
 
-    public static Operation getOperation(PathItem path) {
+    public static Pair<Operation, PathItem.HttpMethod> getOperation(PathItem path) {
         Operation result;
+        PathItem.HttpMethod method = PathItem.HttpMethod.GET;
         Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
         if (CollectionUtils.isEmpty(operationsMap)) {
             return null;
@@ -122,9 +125,11 @@ public class OpenLOpenAPIUtils {
         } else if (operationsMap.containsKey(PathItem.HttpMethod.POST)) {
             result = operationsMap.get(PathItem.HttpMethod.POST);
         } else {
-            result = operationsMap.values().iterator().next();
+            Map.Entry<PathItem.HttpMethod, Operation> firstOperation = operationsMap.entrySet().iterator().next();
+            result = firstOperation.getValue();
+            method = firstOperation.getKey();
         }
-        return result;
+        return Pair.of(result, method);
     }
 
     public static ApiResponse getResponse(JXPathContext jxPathContext, ApiResponses apiResponses) {
@@ -181,9 +186,10 @@ public class OpenLOpenAPIUtils {
                 PathItem path = p.getValue();
                 Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
                 if (CollectionUtils.isNotEmpty(operationsMap)) {
-                    Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(path);
-                    if (satisfyingOperation != null) {
-                        ApiResponses responses = satisfyingOperation.getResponses();
+                    Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils
+                        .getOperation(path);
+                    if (satisfyingOperationWithMethod != null) {
+                        ApiResponses responses = satisfyingOperationWithMethod.getKey().getResponses();
                         if (responses != null) {
                             ApiResponse response = OpenLOpenAPIUtils.getResponse(jxPathContext, responses);
                             if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
@@ -542,13 +548,17 @@ public class OpenLOpenAPIUtils {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
         if (CollectionUtils.isNotEmpty(pathParameters)) {
-            parameterModels.addAll(collectInputParams(openAPI, jxPathContext, pathParameters, refsToExpand));
+            parameterModels.addAll(collectInputParams(openAPI, jxPathContext, pathParameters, refsToExpand, true));
         }
-        Operation satisfyingOperation = OpenLOpenAPIUtils.getOperation(pathItem);
-        if (satisfyingOperation != null) {
+        Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
+        if (satisfyingOperationWithMethod != null) {
+            Operation satisfyingOperation = satisfyingOperationWithMethod.getLeft();
+            PathItem.HttpMethod method = satisfyingOperationWithMethod.getRight();
             List<Parameter> parameters = satisfyingOperation.getParameters();
             if (CollectionUtils.isNotEmpty(parameters)) {
-                parameterModels.addAll(collectInputParams(openAPI, jxPathContext, parameters, refsToExpand));
+                boolean allowPrimitiveTypes = method.equals(PathItem.HttpMethod.GET);
+                parameterModels
+                    .addAll(collectInputParams(openAPI, jxPathContext, parameters, refsToExpand, allowPrimitiveTypes));
             } else {
                 RequestBody requestBody = resolve(jxPathContext,
                     satisfyingOperation.getRequestBody(),
@@ -606,7 +616,8 @@ public class OpenLOpenAPIUtils {
     private static List<InputParameter> collectInputParams(OpenAPI openAPI,
             JXPathContext jxPathContext,
             Collection<Parameter> params,
-            Set<String> refsToExpand) {
+            Set<String> refsToExpand,
+            boolean allowPrimitiveTypes) {
         List<InputParameter> result = new ArrayList<>();
         for (Parameter param : params) {
             Parameter p = resolve(jxPathContext, param, Parameter::get$ref);
@@ -622,7 +633,7 @@ public class OpenLOpenAPIUtils {
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
-                        result.add(new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, true),
+                        result.add(new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
                             normalizeName(p.getName()),
                             isInPath));
                     }

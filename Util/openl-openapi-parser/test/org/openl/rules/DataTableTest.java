@@ -37,9 +37,7 @@ public class DataTableTest {
             .extractProjectModel("test.converter/data_tables/EPBDS-10250_data_tables.json");
         List<DataModel> dataModels = projectModel.getDataModels();
         assertFalse(dataModels.isEmpty());
-        Optional<DataModel> optionalPetsB = dataModels.stream().filter(x -> x.getName().equals("PetsB")).findFirst();
-        assertTrue(optionalPetsB.isPresent());
-        DataModel petsB = optionalPetsB.get();
+        DataModel petsB = findDataModel(dataModels, "PetsB");
         assertEquals("PetsB", petsB.getName());
         assertEquals("Pet", petsB.getType());
         PathInfo info = petsB.getInfo();
@@ -90,41 +88,25 @@ public class DataTableTest {
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(4, dataModels.size());
 
-        Optional<DataModel> newDatatypeDataOptional = dataModels.stream()
-            .filter(x -> x.getName().equals("NewDatatypeData"))
-            .findFirst();
-        assertTrue(newDatatypeDataOptional.isPresent());
-        DataModel newDataTypeData = newDatatypeDataOptional.get();
+        DataModel newDataTypeData = findDataModel(dataModels, "NewDatatypeData");
         List<FieldModel> fields = newDataTypeData.getDatatypeModel().getFields();
         assertEquals(2, fields.size());
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("dtpField")));
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newStrField")));
 
-        Optional<DataModel> myStrOptional = dataModels.stream()
-            .filter(x -> x.getName().equals("MystrData"))
-            .findFirst();
-        assertTrue(myStrOptional.isPresent());
-        DataModel myStrModel = myStrOptional.get();
+        DataModel myStrModel = findDataModel(dataModels, "MystrData");
         List<FieldModel> strFields = myStrModel.getDatatypeModel().getFields();
         assertEquals(1, strFields.size());
         FieldModel strModel = strFields.iterator().next();
         assertEquals("this", strModel.getName());
 
-        Optional<DataModel> superDatatypeOptional = dataModels.stream()
-            .filter(x -> x.getName().equals("SuperDatatypeData"))
-            .findFirst();
-        assertTrue(superDatatypeOptional.isPresent());
-        DataModel superDataModel = superDatatypeOptional.get();
+        DataModel superDataModel = findDataModel(dataModels, "SuperDatatypeData");
         List<FieldModel> superFields = superDataModel.getDatatypeModel().getFields();
         assertEquals(2, superFields.size());
         assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
         assertTrue(superFields.stream().anyMatch(x -> x.getName().equals("newStrField")));
 
-        Optional<DataModel> myDatatypeDataOptional = dataModels.stream()
-            .filter(x -> x.getName().equals("MyDatatypeData"))
-            .findFirst();
-        assertTrue(myDatatypeDataOptional.isPresent());
-        DataModel dataModel = myDatatypeDataOptional.get();
+        DataModel dataModel = findDataModel(dataModels, "MyDatatypeData");
         List<FieldModel> myDatatypeFields = dataModel.getDatatypeModel().getFields();
         assertEquals(3, myDatatypeFields.size());
         assertTrue(myDatatypeFields.stream().anyMatch(x -> x.getName().equals("dtpField")));
@@ -137,11 +119,7 @@ public class DataTableTest {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/multiple_nesting.json");
         List<DataModel> dataModels = pm.getDataModels();
         assertEquals(2, dataModels.size());
-        Optional<DataModel> dataLevelForeData = dataModels.stream()
-            .filter(x -> x.getName().equals("DalaLevelForeData"))
-            .findFirst();
-        assertTrue(dataLevelForeData.isPresent());
-        DataModel dataLevelFore = dataLevelForeData.get();
+        DataModel dataLevelFore = findDataModel(dataModels, "DalaLevelForeData");
         List<FieldModel> fields = dataLevelFore.getDatatypeModel().getFields();
         assertEquals(4, fields.size());
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("newField")));
@@ -149,11 +127,7 @@ public class DataTableTest {
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed2")));
         assertTrue(fields.stream().anyMatch(x -> x.getName().equals("filed4")));
 
-        Optional<DataModel> dataLevelThreeData = dataModels.stream()
-            .filter(x -> x.getName().equals("Arlekino"))
-            .findFirst();
-        assertTrue(dataLevelThreeData.isPresent());
-        DataModel dataLevelThree = dataLevelThreeData.get();
+        DataModel dataLevelThree = findDataModel(dataModels, "Arlekino");
         List<FieldModel> dltFields = dataLevelThree.getDatatypeModel().getFields();
         assertEquals(3, dltFields.size());
         assertTrue(dltFields.stream().anyMatch(x -> x.getName().equals("newField")));
@@ -184,5 +158,11 @@ public class DataTableTest {
         StepModel step = steps.iterator().next();
         assertEquals("Result", step.getName());
         assertEquals("=new String[]{}", step.getValue());
+    }
+
+    private DataModel findDataModel(final List<DataModel> dataModels, final String modelName) {
+        Optional<DataModel> optionalResult = dataModels.stream().filter(x -> x.getName().equals(modelName)).findFirst();
+        assertTrue(optionalResult.isPresent());
+        return optionalResult.get();
     }
 }
