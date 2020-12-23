@@ -9,7 +9,6 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -51,21 +50,6 @@ public class RulesDeployerRestController {
     @Consumes("application/zip")
     public Response deploy(@Context HttpServletRequest request) throws Exception {
         try {
-            rulesDeployerService.deploy(request.getInputStream(), false);
-            return Response.status(Status.CREATED).build();
-        } catch (RulesDeployInputException e) {
-            return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
-        }
-    }
-
-    /**
-     * Redeploys target zip input stream
-     */
-    @PUT
-    @Path("/deploy")
-    @Consumes("application/zip")
-    public Response redeploy(@Context HttpServletRequest request) throws Exception {
-        try {
             rulesDeployerService.deploy(request.getInputStream(), true);
             return Response.status(Status.CREATED).build();
         } catch (RulesDeployInputException e) {
@@ -76,10 +60,10 @@ public class RulesDeployerRestController {
     /**
      * Redeploys target zip input stream
      */
-    @PUT
+    @POST
     @Path("/deploy/{serviceName}")
     @Consumes("application/zip")
-    public Response redeploy(@PathParam("serviceName") final String serviceName,
+    public Response deploy(@PathParam("serviceName") final String serviceName,
             @Context HttpServletRequest request) throws Exception {
         try {
             rulesDeployerService.deploy(serviceName, request.getInputStream(), true);

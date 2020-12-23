@@ -298,7 +298,7 @@
                     xmlhttp.send();
                 }
                 xhr.on
-                xhr.open("PUT", "admin/deploy/" + fileNameParts.pop(), true);
+                xhr.open("POST", "admin/deploy/" + fileNameParts.pop(), true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
             } else {
