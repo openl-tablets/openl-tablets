@@ -1,1 +1,1764 @@
-{"openapi":"3.0.1","info":{"title":"skeleton-rating-rules","version":"1.0.0"},"servers":[{"url":"/webservice/REST/com.exigen.ipb.policy.rating.skeleton.RatingService","variables":{}}],"paths":{"/DeterminePolicyPremium":{"post":{"summary":"DeterminePolicyPremium DeterminePolicyPremium(Policy)","description":"Rules method: SpreadsheetResultDeterminePolicyPremium DeterminePolicyPremium(org.openl.generated.beans.Policy policy)","operationId":"DeterminePolicyPremium","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Policy"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"$ref":"#/components/schemas/DeterminePolicyPremium"}}}}}}},"/CoveragePremiumCalculation":{"post":{"summary":"CoveragePremiumCalculation CoveragePremiumCalculation(Policy, RiskItem, Coverage)","description":"Rules method: SpreadsheetResultCoveragePremiumCalculation CoveragePremiumCalculation(org.openl.generated.beans.Policy policy, org.openl.generated.beans.RiskItem riskItem, org.openl.generated.beans.Coverage coverage)","operationId":"CoveragePremiumCalculation","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/CoveragePremiumCalculationRequest"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"$ref":"#/components/schemas/CoveragePremiumCalculation"}}}}}}},"/RiskItemPremiumCalculation":{"post":{"summary":"RiskItemPremiumCalculation RiskItemPremiumCalculation(Policy, RiskItem)","description":"Rules method: SpreadsheetResultRiskItemPremiumCalculation RiskItemPremiumCalculation(org.openl.generated.beans.Policy policy, org.openl.generated.beans.RiskItem riskItem)","operationId":"RiskItemPremiumCalculation","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/RiskItemPremiumCalculationRequest"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"$ref":"#/components/schemas/RiskItemPremiumCalculation"}}}}}}},"/getTestCoverageData":{"get":{"summary":"Coverage[] getTestCoverageData()","description":"Method: org.openl.generated.beans.Coverage[] getTestCoverageData()","operationId":"getTestCoverageData","responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Coverage"}}}}}}}},"/getTestRiskItemData":{"get":{"summary":"RiskItem[] getTestRiskItemData()","description":"Method: org.openl.generated.beans.RiskItem[] getTestRiskItemData()","operationId":"getTestRiskItemData","responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/RiskItem"}}}}}}}},"/LimitFactor":{"post":{"summary":"DoubleValue LimitFactor(String, Double)","description":"Rules method: org.openl.meta.DoubleValue LimitFactor(CoverageType coverageType, java.lang.Double limit)","operationId":"LimitFactor","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/LimitFactorRequest"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/Validation":{"post":{"summary":"void Validation(Policy)","description":"Rules method: void Validation(org.openl.generated.beans.Policy policy)","operationId":"Validation","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Policy"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"string"}}}}}}},"/BILimitFactor":{"post":{"summary":"DoubleValue BILimitFactor(Double)","description":"Rules method: org.openl.meta.DoubleValue BILimitFactor(java.lang.Double limit)","operationId":"BILimitFactor","requestBody":{"content":{"text/plain":{"schema":{"type":"number","format":"double"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/MedLimitFactor":{"post":{"summary":"DoubleValue MedLimitFactor(Double)","description":"Rules method: org.openl.meta.DoubleValue MedLimitFactor(java.lang.Double limit)","operationId":"MedLimitFactor","requestBody":{"content":{"text/plain":{"schema":{"type":"number","format":"double"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/GetRiskItemPremium":{"post":{"summary":"DoubleValue GetRiskItemPremium(SpreadsheetResult)","description":"Rules method: org.openl.meta.DoubleValue GetRiskItemPremium(org.openl.rules.calc.SpreadsheetResult result)","operationId":"GetRiskItemPremium","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadsheetResult"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/MultiPolicyFactor":{"post":{"summary":"DoubleValue MultiPolicyFactor(Boolean)","description":"Rules method: org.openl.meta.DoubleValue MultiPolicyFactor(java.lang.Boolean hasOtherPolicyOfInsurer)","operationId":"MultiPolicyFactor","requestBody":{"content":{"application/json":{"schema":{"type":"boolean"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/PolicyDiscounts":{"post":{"summary":"DoubleValue PolicyDiscounts(Policy)","description":"Rules method: org.openl.meta.DoubleValue PolicyDiscounts(org.openl.generated.beans.Policy policy)","operationId":"PolicyDiscounts","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/Policy"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/RenewalFactor":{"post":{"summary":"DoubleValue RenewalFactor(Boolean)","description":"Rules method: org.openl.meta.DoubleValue RenewalFactor(java.lang.Boolean isPolicyRenewal)","operationId":"RenewalFactor","requestBody":{"content":{"application/json":{"schema":{"type":"boolean"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/PDLimitFactor":{"post":{"summary":"DoubleValue PDLimitFactor(Double)","description":"Rules method: org.openl.meta.DoubleValue PDLimitFactor(java.lang.Double limit)","operationId":"PDLimitFactor","requestBody":{"content":{"text/plain":{"schema":{"type":"number","format":"double"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/GetCoveragePremium":{"post":{"summary":"DoubleValue GetCoveragePremium(SpreadsheetResult)","description":"Rules method: org.openl.meta.DoubleValue GetCoveragePremium(org.openl.rules.calc.SpreadsheetResult result)","operationId":"GetCoveragePremium","requestBody":{"content":{"application/json":{"schema":{"$ref":"#/components/schemas/SpreadsheetResult"}}}},"responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"text/plain":{"schema":{"type":"number","format":"double"}}}}}}},"/getTestPolicyData":{"get":{"summary":"Policy[] getTestPolicyData()","description":"Method: org.openl.generated.beans.Policy[] getTestPolicyData()","operationId":"getTestPolicyData","responses":{"422":{"description":"Custom user errors in rules or validation errors in input parameters","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Some message","type":"USER_ERROR"}}}},"400":{"description":"Invalid request format e.g. missing required field, unparseable JSON value, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Cannot parse 'bar' to JSON","type":"BAD_REQUEST"}}}},"500":{"description":"Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.","content":{"application/json":{"schema":{"$ref":"#/components/schemas/JAXRSErrorResponse"},"example":{"message":"Failed to load lazy method.","type":"COMPILATION"}}}},"200":{"description":"Successful operation","content":{"application/json":{"schema":{"type":"array","items":{"$ref":"#/components/schemas/Policy"}}}}}}}}},"components":{"schemas":{"JAXRSErrorResponse":{"type":"object","properties":{"message":{"type":"string"},"type":{"type":"string","enum":["USER_ERROR","RULES_RUNTIME","COMPILATION","SYSTEM","BAD_REQUEST","VALIDATION"]},"details":{"type":"array","items":{"type":"string"}}}},"AnySpreadsheetResult":{"type":"object","properties":{"Code_Coverage_Code":{"type":"string"},"Text_Coverage_Code":{"type":"string"},"Code_Limit_Factor":{"type":"string"},"Formula_Limit_Factor":{"type":"number","format":"double"},"Text_Limit_Factor":{"type":"string"},"Code_Coverage_Premium":{"type":"string"},"Formula_Coverage_Premium":{"type":"number","format":"double"},"Text_Coverage_Premium":{"type":"string"},"Code_Vehicle_ID":{"type":"string"},"Text_Vehicle_ID":{"type":"string"},"Value1_Vehicle_ID":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_Coverage_Calculations":{"type":"string"},"Description_Coverage_Calculations":{"type":"string"},"Value_Coverage_Calculations":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Coverage_Calculations":{"type":"string"},"Value1_Coverage_Calculations":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Description_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Formula_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Value_Coverage_Premiums":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Coverage_Premiums":{"type":"string"},"Value1_Coverage_Premiums":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_RiskItem_Premium":{"type":"string"},"Description_RiskItem_Premium":{"type":"string"},"Formula_RiskItem_Premium":{"type":"number","format":"double"},"Value_RiskItem_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Premium":{"type":"string"},"Value1_RiskItem_Premium":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_Policy_ID":{"type":"string"},"Description_Policy_ID":{"type":"string"},"Value_Policy_ID":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Policy_ID":{"type":"string"},"Value_Validation_Phase":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Validation_Phase":{"type":"string"},"Code_RiskItem_Calculations":{"type":"string"},"Description_RiskItem_Calculations":{"type":"string"},"Value_RiskItem_Calculations":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Calculations":{"type":"string"},"Code_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Description_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Formula_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Value_RiskItem_Premiums":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Premiums":{"type":"string"},"Code_Total_Premium":{"type":"string"},"Description_Total_Premium":{"type":"string"},"Formula_Total_Premium":{"type":"number","format":"double"},"Value_Total_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Total_Premium":{"type":"string"},"Code_Discounts":{"type":"string"},"Description_Discounts":{"type":"string"},"Formula_Discounts":{"type":"number","format":"double"},"Value_Discounts":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Discounts":{"type":"string"},"Code_Final_Premium":{"type":"string"},"Description_Final_Premium":{"type":"string"},"Formula_Final_Premium":{"type":"number","format":"double"},"Value_Final_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Final_Premium":{"type":"string"}}},"DeterminePolicyPremium":{"type":"object","properties":{"Code_Policy_ID":{"type":"string"},"Description_Policy_ID":{"type":"string"},"Value_Policy_ID":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Policy_ID":{"type":"string"},"Value_Validation_Phase":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Validation_Phase":{"type":"string"},"Code_RiskItem_Calculations":{"type":"string"},"Description_RiskItem_Calculations":{"type":"string"},"Value_RiskItem_Calculations":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Calculations":{"type":"string"},"Code_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Description_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Formula_RiskItem_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Value_RiskItem_Premiums":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Premiums":{"type":"string"},"Code_Total_Premium":{"type":"string"},"Description_Total_Premium":{"type":"string"},"Formula_Total_Premium":{"type":"number","format":"double"},"Value_Total_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Total_Premium":{"type":"string"},"Code_Discounts":{"type":"string"},"Description_Discounts":{"type":"string"},"Formula_Discounts":{"type":"number","format":"double"},"Value_Discounts":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Discounts":{"type":"string"},"Code_Final_Premium":{"type":"string"},"Description_Final_Premium":{"type":"string"},"Formula_Final_Premium":{"type":"number","format":"double"},"Value_Final_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Final_Premium":{"type":"string"}}},"Coverage":{"type":"object","properties":{"coverageType":{"type":"string"},"deductible":{"type":"number","format":"double"},"limit":{"type":"number","format":"double"}}},"Policy":{"type":"object","properties":{"hasOtherPolicyOfInsurer":{"type":"boolean"},"isPolicyRenewal":{"type":"boolean"},"policyEffectiveDate":{"type":"string","format":"date-time"},"policyID":{"type":"string"},"riskItems":{"type":"array","items":{"$ref":"#/components/schemas/RiskItem"}}}},"RiskItem":{"type":"object","properties":{"coverages":{"type":"array","items":{"$ref":"#/components/schemas/Coverage"}},"name":{"type":"string"},"vehicleID":{"type":"string"}}},"CoveragePremiumCalculation":{"type":"object","properties":{"Code_Coverage_Code":{"type":"string"},"Text_Coverage_Code":{"type":"string"},"Code_Limit_Factor":{"type":"string"},"Formula_Limit_Factor":{"type":"number","format":"double"},"Text_Limit_Factor":{"type":"string"},"Code_Coverage_Premium":{"type":"string"},"Formula_Coverage_Premium":{"type":"number","format":"double"},"Text_Coverage_Premium":{"type":"string"}}},"CoveragePremiumCalculationRequest":{"type":"object","properties":{"policy":{"$ref":"#/components/schemas/Policy"},"riskItem":{"$ref":"#/components/schemas/RiskItem"},"coverage":{"$ref":"#/components/schemas/Coverage"}}},"RiskItemPremiumCalculation":{"type":"object","properties":{"Code_Vehicle_ID":{"type":"string"},"Value_Vehicle_ID":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Vehicle_ID":{"type":"string"},"Value1_Vehicle_ID":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_Coverage_Calculations":{"type":"string"},"Description_Coverage_Calculations":{"type":"string"},"Value_Coverage_Calculations":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Coverage_Calculations":{"type":"string"},"Value1_Coverage_Calculations":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Description_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Formula_Coverage_Premiums":{"type":"array","items":{"type":"number","format":"double"}},"Value_Coverage_Premiums":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_Coverage_Premiums":{"type":"string"},"Value1_Coverage_Premiums":{"$ref":"#/components/schemas/AnySpreadsheetResult"},"Code_RiskItem_Premium":{"type":"string"},"Description_RiskItem_Premium":{"type":"string"},"Formula_RiskItem_Premium":{"type":"number","format":"double"},"Value_RiskItem_Premium":{"type":"array","items":{"$ref":"#/components/schemas/AnySpreadsheetResult"}},"Text_RiskItem_Premium":{"type":"string"},"Value1_RiskItem_Premium":{"$ref":"#/components/schemas/AnySpreadsheetResult"}}},"RiskItemPremiumCalculationRequest":{"type":"object","properties":{"policy":{"$ref":"#/components/schemas/Policy"},"riskItem":{"$ref":"#/components/schemas/RiskItem"}}},"LimitFactorRequest":{"type":"object","properties":{"coverageType":{"type":"string"},"limit":{"type":"number","format":"double"}}},"SpreadsheetResult":{"type":"object","properties":{"results":{"type":"array","items":{"type":"array","items":{"type":"object"}}},"columnNames":{"type":"array","items":{"type":"string"}},"rowNames":{"type":"array","items":{"type":"string"}}}}}}}
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "skeleton-rating-rules",
+    "version": "1.0.0"
+  },
+  "servers": [{
+    "url": "/webservice/REST/com.exigen.ipb.policy.rating.skeleton.RatingService",
+    "variables": {}
+  }
+  ],
+  "paths": {
+    "/DeterminePolicyPremium": {
+      "post": {
+        "summary": "DeterminePolicyPremium DeterminePolicyPremium(Policy)",
+        "description": "Rules method: SpreadsheetResultDeterminePolicyPremium DeterminePolicyPremium(org.openl.generated.beans.Policy policy)",
+        "operationId": "DeterminePolicyPremium",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Policy"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeterminePolicyPremium"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CoveragePremiumCalculation": {
+      "post": {
+        "summary": "CoveragePremiumCalculation CoveragePremiumCalculation(Policy, RiskItem, Coverage)",
+        "description": "Rules method: SpreadsheetResultCoveragePremiumCalculation CoveragePremiumCalculation(org.openl.generated.beans.Policy policy, org.openl.generated.beans.RiskItem riskItem, org.openl.generated.beans.Coverage coverage)",
+        "operationId": "CoveragePremiumCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CoveragePremiumCalculationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CoveragePremiumCalculation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/RiskItemPremiumCalculation": {
+      "post": {
+        "summary": "RiskItemPremiumCalculation RiskItemPremiumCalculation(Policy, RiskItem)",
+        "description": "Rules method: SpreadsheetResultRiskItemPremiumCalculation RiskItemPremiumCalculation(org.openl.generated.beans.Policy policy, org.openl.generated.beans.RiskItem riskItem)",
+        "operationId": "RiskItemPremiumCalculation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RiskItemPremiumCalculationRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiskItemPremiumCalculation"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getTestCoverageData": {
+      "get": {
+        "summary": "Coverage[] getTestCoverageData()",
+        "description": "Method: org.openl.generated.beans.Coverage[] getTestCoverageData()",
+        "operationId": "getTestCoverageData",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Coverage"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getTestRiskItemData": {
+      "get": {
+        "summary": "RiskItem[] getTestRiskItemData()",
+        "description": "Method: org.openl.generated.beans.RiskItem[] getTestRiskItemData()",
+        "operationId": "getTestRiskItemData",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RiskItem"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LimitFactor": {
+      "post": {
+        "summary": "DoubleValue LimitFactor(String, Double)",
+        "description": "Rules method: org.openl.meta.DoubleValue LimitFactor(CoverageType coverageType, java.lang.Double limit)",
+        "operationId": "LimitFactor",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LimitFactorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Validation": {
+      "post": {
+        "summary": "void Validation(Policy)",
+        "description": "Rules method: void Validation(org.openl.generated.beans.Policy policy)",
+        "operationId": "Validation",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Policy"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/BILimitFactor": {
+      "post": {
+        "summary": "DoubleValue BILimitFactor(Double)",
+        "description": "Rules method: org.openl.meta.DoubleValue BILimitFactor(java.lang.Double limit)",
+        "operationId": "BILimitFactor",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MedLimitFactor": {
+      "post": {
+        "summary": "DoubleValue MedLimitFactor(Double)",
+        "description": "Rules method: org.openl.meta.DoubleValue MedLimitFactor(java.lang.Double limit)",
+        "operationId": "MedLimitFactor",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetRiskItemPremium": {
+      "post": {
+        "summary": "DoubleValue GetRiskItemPremium(SpreadsheetResult)",
+        "description": "Rules method: org.openl.meta.DoubleValue GetRiskItemPremium(org.openl.rules.calc.SpreadsheetResult result)",
+        "operationId": "GetRiskItemPremium",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadsheetResult"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MultiPolicyFactor": {
+      "post": {
+        "summary": "DoubleValue MultiPolicyFactor(Boolean)",
+        "description": "Rules method: org.openl.meta.DoubleValue MultiPolicyFactor(java.lang.Boolean hasOtherPolicyOfInsurer)",
+        "operationId": "MultiPolicyFactor",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PolicyDiscounts": {
+      "post": {
+        "summary": "DoubleValue PolicyDiscounts(Policy)",
+        "description": "Rules method: org.openl.meta.DoubleValue PolicyDiscounts(org.openl.generated.beans.Policy policy)",
+        "operationId": "PolicyDiscounts",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Policy"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/RenewalFactor": {
+      "post": {
+        "summary": "DoubleValue RenewalFactor(Boolean)",
+        "description": "Rules method: org.openl.meta.DoubleValue RenewalFactor(java.lang.Boolean isPolicyRenewal)",
+        "operationId": "RenewalFactor",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PDLimitFactor": {
+      "post": {
+        "summary": "DoubleValue PDLimitFactor(Double)",
+        "description": "Rules method: org.openl.meta.DoubleValue PDLimitFactor(java.lang.Double limit)",
+        "operationId": "PDLimitFactor",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/GetCoveragePremium": {
+      "post": {
+        "summary": "DoubleValue GetCoveragePremium(SpreadsheetResult)",
+        "description": "Rules method: org.openl.meta.DoubleValue GetCoveragePremium(org.openl.rules.calc.SpreadsheetResult result)",
+        "operationId": "GetCoveragePremium",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SpreadsheetResult"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getTestPolicyData": {
+      "get": {
+        "summary": "Policy[] getTestPolicyData()",
+        "description": "Method: org.openl.generated.beans.Policy[] getTestPolicyData()",
+        "operationId": "getTestPolicyData",
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Policy"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["USER_ERROR", "RULES_RUNTIME", "COMPILATION", "SYSTEM", "BAD_REQUEST", "VALIDATION"]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "AnySpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "Code_Coverage_Code": {
+            "type": "string"
+          },
+          "Text_Coverage_Code": {
+            "type": "string"
+          },
+          "Code_Limit_Factor": {
+            "type": "string"
+          },
+          "Formula_Limit_Factor": {
+            "type": "number",
+            "format": "double"
+          },
+          "Text_Limit_Factor": {
+            "type": "string"
+          },
+          "Code_Coverage_Premium": {
+            "type": "string"
+          },
+          "Formula_Coverage_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Text_Coverage_Premium": {
+            "type": "string"
+          },
+          "Code_Vehicle_ID": {
+            "type": "string"
+          },
+          "Text_Vehicle_ID": {
+            "type": "string"
+          },
+          "Value1_Vehicle_ID": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Description_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Value_Coverage_Calculations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Value1_Coverage_Calculations": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Description_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Formula_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Value_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Coverage_Premiums": {
+            "type": "string"
+          },
+          "Value1_Coverage_Premiums": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Description_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Formula_RiskItem_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_RiskItem_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Value1_RiskItem_Premium": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_Policy_ID": {
+            "type": "string"
+          },
+          "Description_Policy_ID": {
+            "type": "string"
+          },
+          "Value_Policy_ID": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Policy_ID": {
+            "type": "string"
+          },
+          "Value_Validation_Phase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Validation_Phase": {
+            "type": "string"
+          },
+          "Code_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Description_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Value_RiskItem_Calculations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Code_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Description_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Formula_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Value_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Premiums": {
+            "type": "string"
+          },
+          "Code_Total_Premium": {
+            "type": "string"
+          },
+          "Description_Total_Premium": {
+            "type": "string"
+          },
+          "Formula_Total_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Total_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Total_Premium": {
+            "type": "string"
+          },
+          "Code_Discounts": {
+            "type": "string"
+          },
+          "Description_Discounts": {
+            "type": "string"
+          },
+          "Formula_Discounts": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Discounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Discounts": {
+            "type": "string"
+          },
+          "Code_Final_Premium": {
+            "type": "string"
+          },
+          "Description_Final_Premium": {
+            "type": "string"
+          },
+          "Formula_Final_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Final_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Final_Premium": {
+            "type": "string"
+          }
+        }
+      },
+      "DeterminePolicyPremium": {
+        "type": "object",
+        "properties": {
+          "Code_Policy_ID": {
+            "type": "string"
+          },
+          "Description_Policy_ID": {
+            "type": "string"
+          },
+          "Value_Policy_ID": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Policy_ID": {
+            "type": "string"
+          },
+          "Value_Validation_Phase": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Validation_Phase": {
+            "type": "string"
+          },
+          "Code_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Description_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Value_RiskItem_Calculations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Calculations": {
+            "type": "string"
+          },
+          "Code_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Description_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Formula_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Value_RiskItem_Premiums": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Premiums": {
+            "type": "string"
+          },
+          "Code_Total_Premium": {
+            "type": "string"
+          },
+          "Description_Total_Premium": {
+            "type": "string"
+          },
+          "Formula_Total_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Total_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Total_Premium": {
+            "type": "string"
+          },
+          "Code_Discounts": {
+            "type": "string"
+          },
+          "Description_Discounts": {
+            "type": "string"
+          },
+          "Formula_Discounts": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Discounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Discounts": {
+            "type": "string"
+          },
+          "Code_Final_Premium": {
+            "type": "string"
+          },
+          "Description_Final_Premium": {
+            "type": "string"
+          },
+          "Formula_Final_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_Final_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Final_Premium": {
+            "type": "string"
+          }
+        }
+      },
+      "Coverage": {
+        "type": "object",
+        "properties": {
+          "coverageType": {
+            "type": "string"
+          },
+          "deductible": {
+            "type": "number",
+            "format": "double"
+          },
+          "limit": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "Policy": {
+        "type": "object",
+        "properties": {
+          "hasOtherPolicyOfInsurer": {
+            "type": "boolean"
+          },
+          "isPolicyRenewal": {
+            "type": "boolean"
+          },
+          "policyEffectiveDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "policyID": {
+            "type": "string"
+          },
+          "riskItems": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/RiskItem"
+            }
+          }
+        }
+      },
+      "RiskItem": {
+        "type": "object",
+        "properties": {
+          "coverages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Coverage"
+            }
+          },
+          "name": {
+            "type": "string"
+          },
+          "vehicleID": {
+            "type": "string"
+          }
+        }
+      },
+      "CoveragePremiumCalculation": {
+        "type": "object",
+        "properties": {
+          "Code_Coverage_Code": {
+            "type": "string"
+          },
+          "Text_Coverage_Code": {
+            "type": "string"
+          },
+          "Code_Limit_Factor": {
+            "type": "string"
+          },
+          "Formula_Limit_Factor": {
+            "type": "number",
+            "format": "double"
+          },
+          "Text_Limit_Factor": {
+            "type": "string"
+          },
+          "Code_Coverage_Premium": {
+            "type": "string"
+          },
+          "Formula_Coverage_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Text_Coverage_Premium": {
+            "type": "string"
+          }
+        }
+      },
+      "CoveragePremiumCalculationRequest": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "riskItem": {
+            "$ref": "#/components/schemas/RiskItem"
+          },
+          "coverage": {
+            "$ref": "#/components/schemas/Coverage"
+          }
+        }
+      },
+      "RiskItemPremiumCalculation": {
+        "type": "object",
+        "properties": {
+          "Code_Vehicle_ID": {
+            "type": "string"
+          },
+          "Value_Vehicle_ID": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Vehicle_ID": {
+            "type": "string"
+          },
+          "Value1_Vehicle_ID": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Description_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Value_Coverage_Calculations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Coverage_Calculations": {
+            "type": "string"
+          },
+          "Value1_Coverage_Calculations": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Description_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Formula_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "Value_Coverage_Premiums": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_Coverage_Premiums": {
+            "type": "string"
+          },
+          "Value1_Coverage_Premiums": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          },
+          "Code_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Description_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Formula_RiskItem_Premium": {
+            "type": "number",
+            "format": "double"
+          },
+          "Value_RiskItem_Premium": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnySpreadsheetResult"
+            }
+          },
+          "Text_RiskItem_Premium": {
+            "type": "string"
+          },
+          "Value1_RiskItem_Premium": {
+            "$ref": "#/components/schemas/AnySpreadsheetResult"
+          }
+        }
+      },
+      "RiskItemPremiumCalculationRequest": {
+        "type": "object",
+        "properties": {
+          "policy": {
+            "$ref": "#/components/schemas/Policy"
+          },
+          "riskItem": {
+            "$ref": "#/components/schemas/RiskItem"
+          }
+        }
+      },
+      "LimitFactorRequest": {
+        "type": "object",
+        "properties": {
+          "coverageType": {
+            "type": "string"
+          },
+          "limit": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SpreadsheetResult": {
+        "type": "object",
+        "properties": {
+          "results": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          },
+          "columnNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "rowNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}
