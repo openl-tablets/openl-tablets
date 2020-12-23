@@ -25,7 +25,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
     private boolean enabled = false;
     private boolean supportDeployments = false;
-    private boolean overrideable = false;
+    private boolean ignoreIfExists = false;
 
     private RulesDeployerService rulesDeployerService;
 
@@ -45,8 +45,8 @@ public class DeployClasspathJarsBean implements InitializingBean {
         this.supportDeployments = supportDeployments;
     }
 
-    public void setOverrideable(boolean overrideable) {
-        this.overrideable = overrideable;
+    public void setIgnoreIfExists(boolean ignoreIfExists) {
+        this.ignoreIfExists = ignoreIfExists;
     }
 
     private void deployJarForJboss(URL resourceURL) throws Exception {
@@ -64,7 +64,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
             File dir = contentsFile.getParentFile();
             File physicalFile = new File(dir, jarName);
 
-            rulesDeployerService.deploy(FileUtils.getBaseName(jarName), new FileInputStream(physicalFile), overrideable);
+            rulesDeployerService.deploy(FileUtils.getBaseName(jarName), new FileInputStream(physicalFile), ignoreIfExists);
         } else {
             throw new RuleServiceRuntimeException(
                 "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
@@ -114,7 +114,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File is not found. File: " + file.getAbsolutePath());
             }
 
-            rulesDeployerService.deploy(FileUtils.getBaseName(file.getName()), new FileInputStream(file), overrideable);
+            rulesDeployerService.deploy(FileUtils.getBaseName(file.getName()), new FileInputStream(file), ignoreIfExists);
         }
     }
 }

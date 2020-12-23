@@ -97,15 +97,15 @@ public class RulesDeployerService implements Closeable {
      *
      * @param name original ZIP file name
      * @param in zip input stream
-     * @param overridable if deployment was exist before and overridable is false, it will not be deployed, if true, it
+     * @param ignoreIfExists if deployment was exist before and overridable is false, it will not be deployed, if true, it
      *            will be overridden.
      */
-    public void deploy(String name, InputStream in, boolean overridable) throws IOException, RulesDeployInputException {
-        deployInternal(name, in, overridable);
+    public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+        deployInternal(name, in, ignoreIfExists);
     }
 
-    public void deploy(InputStream in, boolean overridable) throws IOException, RulesDeployInputException {
-        deployInternal(null, in, overridable);
+    public void deploy(InputStream in, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+        deployInternal(null, in, ignoreIfExists);
     }
 
     /**
@@ -173,7 +173,7 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    private void deployInternal(String originalName, InputStream in, boolean overridable) throws IOException,
+    private void deployInternal(String originalName, InputStream in, boolean ignoreIfExists) throws IOException,
                                                                                           RulesDeployInputException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copyAndClose(in, baos);
@@ -192,7 +192,7 @@ public class RulesDeployerService implements Closeable {
             if (projectName == null) {
                 projectName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
             }
-            FileData dest = createFileData(zipEntries, projectName, projectName, overridable);
+            FileData dest = createFileData(zipEntries, projectName, projectName, ignoreIfExists);
             if (dest != null) {
                 doDeploy(dest, baos.size(), new ByteArrayInputStream(baos.toByteArray()));
             }
@@ -204,7 +204,7 @@ public class RulesDeployerService implements Closeable {
                         deploymentName = StringUtils.isNotBlank(originalName)
                                 ? originalName : randomDeploymentName();
                     }
-                    if (!overridable && isRulesDeployed(deploymentName)) {
+                    if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
                         LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
                         return;
                     }
@@ -217,7 +217,7 @@ public class RulesDeployerService implements Closeable {
                 } else {
                     //split zip to single-project deployment if supportDeployments is false
                     //FIXME delete it after removing of {ruleservice.datasource.filesystem.supportDeployments} property
-                    List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
+                    List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, ignoreIfExists);
 
                     List<FolderItem> folderItems = fileItems.stream().map(fi -> {
                         FileData data = fi.getData();
@@ -229,7 +229,7 @@ public class RulesDeployerService implements Closeable {
                 }
             } else {
                 //split zip to single-project deployment if repository doesn't support folders
-                List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, overridable);
+                List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, ignoreIfExists);
                 deployRepo.save(fileItems);
             }
         }
@@ -241,7 +241,7 @@ public class RulesDeployerService implements Closeable {
 
     private List<FileItem> splitMultipleDeployment(Map<String, byte[]> zipEntries,
             String defaultDeploymentName,
-            boolean overridable) throws IOException {
+            boolean ignoreIfExists) throws IOException {
         Set<String> projectFolders = new HashSet<>();
         for (String fileName : zipEntries.keySet()) {
             int idx = fileName.indexOf('/');
@@ -269,7 +269,7 @@ public class RulesDeployerService implements Closeable {
                 }
             }
             if (!newProjectEntries.isEmpty()) {
-                FileData dest = createFileData(newProjectEntries, deploymentName, projectFolder, overridable);
+                FileData dest = createFileData(newProjectEntries, deploymentName, projectFolder, ignoreIfExists);
                 if (dest == null) {
                     return Collections.emptyList();
                 }
@@ -313,7 +313,7 @@ public class RulesDeployerService implements Closeable {
     private FileData createFileData(Map<String, byte[]> zipEntries,
             String deploymentName,
             String projectName,
-            boolean overridable) throws IOException {
+            boolean ignoreIfExists) throws IOException {
 
         String apiVersion = Optional.ofNullable(zipEntries.get(RULES_DEPLOY_XML))
                 .map(DeploymentUtils::getApiVersion)
@@ -323,7 +323,7 @@ public class RulesDeployerService implements Closeable {
             deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
         }
 
-        if (!overridable && isRulesDeployed(deploymentName)) {
+        if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
             LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
             return null;
         }
