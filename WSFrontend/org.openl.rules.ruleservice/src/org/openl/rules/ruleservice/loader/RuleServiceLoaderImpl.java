@@ -144,7 +144,7 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             true);
 
         if (loadedDeployment.getProjects().isEmpty()) {
-            log.debug("Loading deployement with name='{}' and version='{}'", deploymentName, versionName);
+            log.debug("Loading deployment with name='{}' and version='{}'", deploymentName, versionName);
             String folderPath = getDeployPath() + deploymentName;
             boolean folderStructure = isFolderStructure(folderPath);
             Deployment deployment = new Deployment(repository, folderPath, deploymentName, version, folderStructure);
@@ -169,35 +169,35 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
      */
     @Override
     public Collection<IDeployment> getDeployments() {
-        List<FileData> fileDatas;
+        List<FileData> fileData;
         try {
             if (repository.supports().folders()) {
                 // All deployments
-                fileDatas = ((FolderRepository) repository).listFolders(getDeployPath());
+                fileData = ((FolderRepository) repository).listFolders(getDeployPath());
             } else {
                 // Projects inside all deployments
-                fileDatas = repository.list(getDeployPath());
+                fileData = repository.list(getDeployPath());
             }
         } catch (IOException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
 
         ConcurrentMap<String, IDeployment> deployments = new ConcurrentHashMap<>();
-        for (FileData fileData : fileDatas) {
-            String name = fileData.getName();
+        for (FileData fd : fileData) {
+            String name = fd.getName();
             String deployFolder = getDeployPath();
             String deploymentPath = name.substring(deployFolder.length());
             String[] pathEntries = deploymentPath.split("/");
             String deploymentFolderName = pathEntries[0];
 
-            String version = fileData.getVersion();
+            String version = fd.getVersion();
             CommonVersionImpl commonVersion = new CommonVersionImpl(version == null ? "0" : version);
             String folderPath = getDeployPath() + deploymentFolderName;
 
             IDeployment deployment;
-            if (isLocalZipFile(fileData)) {
+            if (isLocalZipFile(fd)) {
                 try {
-                    deployment = buildLocalDeployment(commonVersion, fileData, (FolderRepository) repository);
+                    deployment = buildLocalDeployment(commonVersion, fd, (FolderRepository) repository);
                 } catch (IOException e) {
                     throw RuntimeExceptionWrapper.wrap(e);
                 }
