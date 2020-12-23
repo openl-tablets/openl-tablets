@@ -144,7 +144,8 @@ public class RunRestRulesDeploymentTest {
     public void test_EPBDS_8758_multithread() throws Exception {
         client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
+            () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
         TaskScheduler taskScheduler = new TaskScheduler();
 
         executor.start();
@@ -163,18 +164,21 @@ public class RunRestRulesDeploymentTest {
 
         client.delete("/admin/delete/EPBDS-8758");
 
-        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
-                .collect(Collectors.toList()));
+        MultipleFailureException
+            .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
     }
 
     @Test
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
+            () -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
 
-        AsyncExecutor deployers = new AsyncExecutor(() -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201), () -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201));
+        AsyncExecutor deployers = new AsyncExecutor(
+            () -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201),
+            () -> client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201));
 
         deployers.start();
         TimeUnit.SECONDS.sleep(1);
@@ -183,8 +187,8 @@ public class RunRestRulesDeploymentTest {
 
         client.delete("/admin/delete/EPBDS-8758");
 
-        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
-                .collect(Collectors.toList()));
+        MultipleFailureException
+            .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
     }
 
     @Test
@@ -205,6 +209,27 @@ public class RunRestRulesDeploymentTest {
         client.delete("/admin/delete/EPBDS-10157_EPBDS-10157");
         client.delete("/admin/delete/ ");
         client.delete("/admin/delete/EPBDS-9902_EPBDS-9902");
+    }
+
+    @Test
+    public void EPBDS_10891() {
+        client.get("/admin/services", "/no_services.resp.txt");
+        client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
+        ServiceInfoResponse[] servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
+        assertEquals(2, servicesInfo.length);
+        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
+        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
+        client.delete("/admin/delete/yaml_project_Project1");
+        client.delete("/admin/delete/yaml_project_Project2");
+        client.get("/admin/services", "/no_services.resp.txt");
+
+        client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
+        servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
+        assertEquals(2, servicesInfo.length);
+        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
+        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
+        client.delete("/admin/delete/project1");
+        client.delete("/admin/delete/yaml_project_project2");
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,
