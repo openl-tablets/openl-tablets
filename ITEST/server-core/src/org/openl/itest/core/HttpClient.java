@@ -1,6 +1,7 @@
 package org.openl.itest.core;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import java.io.FileNotFoundException;
@@ -186,6 +187,7 @@ public class HttpClient {
                     // Skip checcking of a response body
                     break;
                 case "xml":
+                    assertNotNull("Expected non-empty body for URL :" + url, body);
 
                     try (InputStream actual = body.getInputStream();
                             InputStream file = HttpClient.class.getResourceAsStream(responseFile)) {
@@ -193,9 +195,11 @@ public class HttpClient {
                     }
                     break;
                 case "json":
+                    assertNotNull("Expected non-empty body for URL :" + url, body);
                     compareJson(responseFile, body);
                     break;
                 default:
+                    assertNotNull("Expected non-empty body for URL :" + url, body);
                     compareBinary(responseFile, body);
             }
         } catch (Exception | AssertionError ex) {
