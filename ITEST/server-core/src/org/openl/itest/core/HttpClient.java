@@ -120,10 +120,6 @@ public class HttpClient {
         send(HttpMethod.GET, url, null, status, NO_BODY);
     }
 
-    public void getAny(String url, int status) {
-        send(HttpMethod.GET, url, null, status, ANY_BODY);
-    }
-
     public void get(String url, int status, String responseFile) {
         send(HttpMethod.GET, url, null, status, responseFile);
     }
