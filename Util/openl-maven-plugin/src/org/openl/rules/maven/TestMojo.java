@@ -10,13 +10,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.maven.plugin.MojoFailureException;
@@ -41,6 +35,7 @@ import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
+import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.NullOpenClass;
@@ -55,6 +50,7 @@ import org.openl.types.impl.ThisField;
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
+    private static final int MAX_MODULES_IN_QUEUE = 10;
 
     /**
      * Parameter to skip running OpenL Tablets tests if it set to 'true'.
@@ -99,6 +95,13 @@ public final class TestMojo extends BaseOpenLMojo {
      */
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
+
+    /**
+     * Parameter for compiling the project in the smart mode to save the memory, where each module is compiled in
+     * sequence and tests from that module are run. This parameter is beneficial for big projects.
+     */
+    @Parameter(defaultValue = "0")
+    private int maxModulesInMemory;
 
     /**
      * Additional options for testing defined externally.
@@ -165,8 +168,9 @@ public final class TestMojo extends BaseOpenLMojo {
             }
         }
 
-        return singleModuleMode ? executeModuleByModule(testSourcePath, mainSourcePath, hasDependencies)
-                                : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
+        return singleModuleMode || maxModulesInMemory > 0 ? executeModuleByModule(testSourcePath,
+            mainSourcePath,
+            hasDependencies) : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
     private Summary executeAllAtOnce(String testSourcePath,
@@ -201,9 +205,7 @@ public final class TestMojo extends BaseOpenLMojo {
 
     private Summary executeModuleByModule(String testSourcePath,
             String mainSourcePath,
-            boolean hasDependencies) throws MalformedURLException,
-                                     RulesInstantiationException,
-                                     ProjectResolvingException {
+            boolean hasDependencies) throws MalformedURLException, ProjectResolvingException {
         ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
@@ -218,45 +220,33 @@ public final class TestMojo extends BaseOpenLMojo {
         boolean hasCompilationErrors = false;
 
         List<Module> modules = new ArrayList<>(pd.getModules());
-        // Set higher priority to modules containing "test" keyword.
-        modules.sort((o1, o2) -> {
-            String name1 = o1.getName();
-            String name2 = o2.getName();
-            boolean isTest1 = name1.toLowerCase().contains("test");
-            boolean isTest2 = name2.toLowerCase().contains("test");
-            if (isTest1 == isTest2) {
-                return name1.compareTo(name2);
-            }
+        modules.sort(Comparator.comparing(Module::getName));
 
-            return isTest1 ? -1 : 1;
-        });
+        URL[] urls = toURLs(classpath);
+        ClassLoader classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
+        SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+        if (mainSourcePath != null) {
+            builder.setProjectDependencies(mainSourcePath);
+        }
+        if (hasDependencies) {
+            builder.setWorkspace(workspaceFolder.getPath());
+        }
+        SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
+            .setClassLoader(classLoader)
+            .setExecutionMode(false)
+            .setExternalParameters(externalParameters)
+            .build();
 
+        Deque<IDependency> queueToReset = new ArrayDeque<>();
         for (Module module : modules) {
-            URL[] urls = toURLs(classpath);
-            ClassLoader classLoader = null;
+            IDependency dependency = new Dependency(DependencyType.MODULE,
+                new IdentifierNode(DependencyType.MODULE.name(), null, module.getName(), null));
             try {
-                classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
-
-                SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-                if (mainSourcePath != null) {
-                    builder.setProjectDependencies(mainSourcePath);
-                }
-                if (hasDependencies) {
-                    builder.setWorkspace(workspaceFolder.getPath());
-                }
-                SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
-                    .setClassLoader(classLoader)
-                    .setExecutionMode(false)
-                    .setExternalParameters(externalParameters)
-                    .build();
-
                 info("");
-                info("Searching tests in the module '", module.getName(), "'...");
+                info("Searching tests in module '", module.getName(), "'...");
                 CompiledOpenClass compiledOpenClass;
                 try {
-                    CompiledDependency compiledDependency = factory.getDependencyManager()
-                        .loadDependency(new Dependency(DependencyType.MODULE,
-                            new IdentifierNode(DependencyType.MODULE.name(), null, module.getName(), null)));
+                    CompiledDependency compiledDependency = factory.getDependencyManager().loadDependency(dependency);
                     compiledOpenClass = compiledDependency.getCompiledOpenClass();
                 } catch (OpenLCompilationException e) {
                     Collection<OpenLMessage> messages = new LinkedHashSet<>();
@@ -275,7 +265,6 @@ public final class TestMojo extends BaseOpenLMojo {
                     }
                 }
                 Summary summary = executeTests(compiledOpenClass);
-
                 runTests += summary.getRunTests();
                 failedTests += summary.getFailedTests();
                 errors += summary.getErrors();
@@ -283,9 +272,15 @@ public final class TestMojo extends BaseOpenLMojo {
                 summaryErrors.addAll(summary.getSummaryErrors());
                 hasCompilationErrors |= summary.isHasCompilationErrors();
             } finally {
-                OpenClassUtil.releaseClassLoader(classLoader);
+                queueToReset.add(dependency);
+                while (queueToReset.size() > maxModulesInMemory) {
+                    queueToReset.poll();
+                }
+                factory.getDependencyManager().resetOthers(queueToReset.toArray(new IDependency[0]));
             }
         }
+
+        OpenClassUtil.releaseClassLoader(classLoader);
 
         return new Summary(runTests, failedTests, errors, summaryFailures, summaryErrors, hasCompilationErrors);
     }
