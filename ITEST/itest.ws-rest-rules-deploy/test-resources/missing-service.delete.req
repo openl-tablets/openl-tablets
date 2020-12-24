@@ -1,0 +1,2 @@
+DELETE /admin/deploy/missing-name HTTP/1.1
+

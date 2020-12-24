@@ -124,10 +124,6 @@ public class HttpClient {
         send(HttpMethod.GET, url, null, status, responseFile);
     }
 
-    public <T> T get(String url, Class<T> clazz) {
-        return request(HttpMethod.GET, url, null, 200, clazz);
-    }
-
     public void post(String url, String requestFile, String responseFile) {
         send(HttpMethod.POST, url, requestFile, 200, responseFile);
     }
@@ -138,24 +134,6 @@ public class HttpClient {
 
     public void post(String url, String requestFile, int status, String responseFile) {
         send(HttpMethod.POST, url, requestFile, status, responseFile);
-    }
-
-    public <T> T post(String url, String requestFile, Class<T> clazz) {
-        return request(HttpMethod.POST, url, requestFile, 200, clazz);
-    }
-
-    public void delete(String url) {
-        send(HttpMethod.DELETE, url, null, 200, NO_BODY);
-    }
-
-    public void delete(String url, int status) {
-        send(HttpMethod.DELETE, url, null, status, NO_BODY);
-    }
-
-    private <T> T request(HttpMethod method, String url, String requestFile, int status, Class<T> clazz) {
-        ResponseEntity<T> response = rest.exchange(url, method, file(requestFile, null), clazz);
-        assertEquals("URL :" + url, status, response.getStatusCodeValue());
-        return response.getBody();
     }
 
     private void send(HttpMethod method, String url, String requestFile, int status, String responseFile) {
@@ -241,7 +219,16 @@ public class HttpClient {
         send("/" + reqRespFiles + ".req", "/" + reqRespFiles + ".resp");
     }
 
-    public void send(String requestFile, String responseFile) {
+    /**
+     * DO NOT MAKE THIS METHOD PUBLIC!!!
+     *
+     * Because of further migration effort for tests which do not follow the style naming.
+     *
+     * <pre>
+     *     test-name[.{xml|txt|json|html|zip}].{HTTP-METHOD}.{req|resp}
+     * </pre>
+     */
+    private void send(String requestFile, String responseFile) {
         try {
             HttpData header = HttpData.send(baseURL, requestFile);
 

@@ -277,7 +277,7 @@
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "admin/delete/" + serviceName, true);
+            xhr.open("DELETE", "admin/deploy/" + serviceName, true);
             xhr.send();
         }
     }
@@ -322,7 +322,7 @@
             window.URL.revokeObjectURL(url);
         };
         xhr.responseType = 'arraybuffer';
-        xhr.open("GET", "admin/read/" + serviceName, true);
+        xhr.open("GET", "admin/deploy/" + serviceName, true);
         xhr.send();
     }
 
