@@ -79,6 +79,6 @@ public class SmokeITest {
 
     @Test
     public void testSysInfo() {
-        client.getAny("/admin/info/sys.json", 200);
+        client.send("sys.json.get");
     }
 }
