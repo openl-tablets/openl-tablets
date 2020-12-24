@@ -31,7 +31,7 @@ public class SysInfo {
         fn.put("vm.uptime", ManagementFactory.getRuntimeMXBean().getUptime());
         fn.put("vm.startTime", ManagementFactory.getRuntimeMXBean().getStartTime());
         fn.put("thread.count", ManagementFactory.getThreadMXBean().getThreadCount());
-        fn.put("thread.deamon", ManagementFactory.getThreadMXBean().getDaemonThreadCount());
+        fn.put("thread.daemon", ManagementFactory.getThreadMXBean().getDaemonThreadCount());
         fn.put("thread.peakCount", ManagementFactory.getThreadMXBean().getPeakThreadCount());
         fn.put("thread.total", ManagementFactory.getThreadMXBean().getTotalStartedThreadCount());
         fn.put("class.loaded", ManagementFactory.getClassLoadingMXBean().getLoadedClassCount());
@@ -40,11 +40,11 @@ public class SysInfo {
         fn.put("heapMem.init", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getInit());
         fn.put("heapMem.max", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax());
         fn.put("heapMem.used", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getUsed());
-        fn.put("heapMem.commited", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getCommitted());
+        fn.put("heapMem.committed", ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getCommitted());
         fn.put("nonHeapMem.init", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getInit());
         fn.put("nonHeapMem.max", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax());
         fn.put("nonHeapMem.used", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed());
-        fn.put("nonHeapMem.commited", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted());
+        fn.put("nonHeapMem.committed", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted());
         Supplier<Stream<GarbageCollectorMXBean>> activeGCs = () -> ManagementFactory.getGarbageCollectorMXBeans()
             .stream()
             .filter(MemoryManagerMXBean::isValid);
