@@ -37,7 +37,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", 404, "/404.html");
         long createServiceTime = System.currentTimeMillis();
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
@@ -84,12 +84,12 @@ public class RunRestRulesDeploymentTest {
         assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
 
         client.post("/admin/deploy", "/empty_project.zip", 400);
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
     public void testDeployRules_multipleDeployment() {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", 404, "/404.html");
 
         long createServiceTime = System.currentTimeMillis();
@@ -116,7 +116,7 @@ public class RunRestRulesDeploymentTest {
 
         client.delete("/admin/delete/project1");
         client.delete("/admin/delete/yaml_project_project2");
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
@@ -130,7 +130,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void test_EPBDS_8758_multithread() throws Exception {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
         AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
@@ -155,12 +155,12 @@ public class RunRestRulesDeploymentTest {
 
         MultipleFailureException
             .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
     public void test_EPBDS_8758_multithread2() throws Exception {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
         AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
@@ -180,7 +180,7 @@ public class RunRestRulesDeploymentTest {
 
         MultipleFailureException
             .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
@@ -192,7 +192,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void test_EPBDS_10157() {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy/EPBDS-10157", "/EPBDS-10157/EPBDS-10157.zip", 201);
         client.get("/EPBDS-10157/EPBDS-10157/doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
         client.post("/admin/deploy/EPBDS-10157_2", "/EPBDS-10157/EPBDS-10157_2.zip", 201);
@@ -202,12 +202,12 @@ public class RunRestRulesDeploymentTest {
         client.delete("/admin/delete/EPBDS-10157_EPBDS-10157");
         client.delete("/admin/delete/ ");
         client.delete("/admin/delete/EPBDS-9902_EPBDS-9902");
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
     public void EPBDS_10891() {
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
         ServiceInfoResponse[] servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
         assertEquals(2, servicesInfo.length);
@@ -215,7 +215,7 @@ public class RunRestRulesDeploymentTest {
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
         client.delete("/admin/delete/yaml_project_Project1");
         client.delete("/admin/delete/yaml_project_Project2");
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
         servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
@@ -224,7 +224,7 @@ public class RunRestRulesDeploymentTest {
         assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
         client.delete("/admin/delete/yaml_project_Project1");
         client.delete("/admin/delete/yaml_project_Project2");
-        client.send("admin_services_no_services.get.json");
+        client.send("admin_services_no_services.json.get");
     }
 
     private void checkServiceInfo(ServiceInfoResponse service,
