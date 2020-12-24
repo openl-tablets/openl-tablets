@@ -144,18 +144,6 @@ public class HttpClient {
         return request(HttpMethod.POST, url, requestFile, 200, clazz);
     }
 
-    public void put(String url, String requestFile, String responseFile) {
-        send(HttpMethod.PUT, url, requestFile, 200, responseFile);
-    }
-
-    public void put(String url, String requestFile, int status) {
-        send(HttpMethod.PUT, url, requestFile, status, NO_BODY);
-    }
-
-    public <T> T put(String url, String requestFile, Class<T> clazz) {
-        return request(HttpMethod.PUT, url, requestFile, 200, clazz);
-    }
-
     public void delete(String url) {
         send(HttpMethod.DELETE, url, null, 200, NO_BODY);
     }
