@@ -120,10 +120,6 @@ public class HttpClient {
         send(HttpMethod.GET, url, null, status, NO_BODY);
     }
 
-    public void getAny(String url, int status) {
-        send(HttpMethod.GET, url, null, status, ANY_BODY);
-    }
-
     public void get(String url, int status, String responseFile) {
         send(HttpMethod.GET, url, null, status, responseFile);
     }
@@ -146,18 +142,6 @@ public class HttpClient {
 
     public <T> T post(String url, String requestFile, Class<T> clazz) {
         return request(HttpMethod.POST, url, requestFile, 200, clazz);
-    }
-
-    public void put(String url, String requestFile, String responseFile) {
-        send(HttpMethod.PUT, url, requestFile, 200, responseFile);
-    }
-
-    public void put(String url, String requestFile, int status) {
-        send(HttpMethod.PUT, url, requestFile, status, NO_BODY);
-    }
-
-    public <T> T put(String url, String requestFile, Class<T> clazz) {
-        return request(HttpMethod.PUT, url, requestFile, 200, clazz);
     }
 
     public void delete(String url) {
