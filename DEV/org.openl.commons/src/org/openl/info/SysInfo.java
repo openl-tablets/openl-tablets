@@ -8,6 +8,7 @@ import java.time.ZonedDateTime;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 public class SysInfo {
@@ -44,9 +45,11 @@ public class SysInfo {
         fn.put("nonHeapMem.max", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax());
         fn.put("nonHeapMem.used", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getUsed());
         fn.put("nonHeapMem.commited", ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getCommitted());
-        Stream<GarbageCollectorMXBean> activeGCs = ManagementFactory.getGarbageCollectorMXBeans().stream().filter(MemoryManagerMXBean::isValid);
-        fn.put("gc.count", activeGCs.mapToLong(GarbageCollectorMXBean::getCollectionCount).sum());
-        fn.put("gc.time", activeGCs.mapToLong(GarbageCollectorMXBean::getCollectionTime).sum());
+        Supplier<Stream<GarbageCollectorMXBean>> activeGCs = () -> ManagementFactory.getGarbageCollectorMXBeans()
+            .stream()
+            .filter(MemoryManagerMXBean::isValid);
+        fn.put("gc.count", activeGCs.get().mapToLong(GarbageCollectorMXBean::getCollectionCount).sum());
+        fn.put("gc.time", activeGCs.get().mapToLong(GarbageCollectorMXBean::getCollectionTime).sum());
 
         return fn;
     }
