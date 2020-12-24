@@ -76,4 +76,9 @@ public class SmokeITest {
     public void testMultimodule() {
         client.send("multiproject.findCarByVIN.post");
     }
+
+    @Test
+    public void testSysInfo() {
+        client.getAny("/admin/info/sys.json", 200);
+    }
 }
