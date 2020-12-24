@@ -67,20 +67,20 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.selectAllMetainfo);
+            statement = connection.prepareStatement(settings.selectAllMetaInfo);
             statement.setString(1, makePathPattern(path));
             rs = statement.executeQuery();
 
-            List<FileData> fileDatas = new ArrayList<>();
+            List<FileData> filesData = new ArrayList<>();
             while (rs.next()) {
                 FileData fileData = createFileData(rs);
-                fileDatas.add(fileData);
+                filesData.add(fileData);
             }
 
             rs.close();
             statement.close();
 
-            return fileDatas;
+            return filesData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -149,34 +149,22 @@ abstract class DBRepository implements Repository, Closeable {
                 result.add(data);
             }
             connection.commit();
-            invokeListener();
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(connection);
         }
+        invokeListener();
         return result;
     }
 
     @Override
     public boolean delete(FileData path) throws IOException {
-        FileData data;
-        try {
-            data = getLatestVersionFileData(path.getName());
-        } catch (IOException e) {
-            LOG.error(e.getMessage(), e);
-            throw e;
-        }
-
+        FileData data = getLatestVersionFileData(path.getName());
         if (data != null) {
-            try {
-                insertFile(data, null);
-                invokeListener();
-                return true;
-            } catch (IOException e) {
-                LOG.error(e.getMessage(), e);
-                throw e;
-            }
+            insertFile(data, null);
+            invokeListener();
+            return true;
         } else {
             return false;
         }
@@ -191,18 +179,16 @@ abstract class DBRepository implements Repository, Closeable {
             statement.setString(1, destData.getName());
             statement.setString(2, destData.getAuthor());
             statement.setString(3, destData.getComment());
-
             statement.setString(4, srcName);
             statement.executeUpdate();
-
-            invokeListener();
-            return destData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(statement);
             SqlDBUtils.safeClose(connection);
         }
+        invokeListener();
+        return destData;
     }
 
     @Override
@@ -219,20 +205,20 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.selectAllHistoryMetainfo);
+            statement = connection.prepareStatement(settings.selectAllHistoryMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
-            List<FileData> fileDatas = new ArrayList<>();
+            List<FileData> filesData = new ArrayList<>();
             while (rs.next()) {
                 FileData fileData = createFileData(rs);
-                fileDatas.add(fileData);
+                filesData.add(fileData);
             }
 
             rs.close();
             statement.close();
 
-            return fileDatas;
+            return filesData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
@@ -282,9 +268,9 @@ abstract class DBRepository implements Repository, Closeable {
         String dataName = data.getName();
         String version = data.getVersion();
 
+        Connection connection = null;
+        PreparedStatement statement = null;
         if (version == null) {
-            Connection connection = null;
-            PreparedStatement statement = null;
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteAllHistory);
@@ -298,15 +284,12 @@ abstract class DBRepository implements Repository, Closeable {
                     return false;
                 }
             } catch (SQLException e) {
-                LOG.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
                 SqlDBUtils.safeClose(statement);
                 SqlDBUtils.safeClose(connection);
             }
         } else {
-            Connection connection = null;
-            PreparedStatement statement = null;
             try {
                 connection = getConnection();
                 statement = connection.prepareStatement(settings.deleteVersion);
@@ -321,7 +304,6 @@ abstract class DBRepository implements Repository, Closeable {
                     return false;
                 }
             } catch (SQLException e) {
-                LOG.error(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {
                 SqlDBUtils.safeClose(statement);
@@ -372,7 +354,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.readActualFileMetainfo);
+            statement = connection.prepareStatement(settings.readActualFileMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
 
@@ -400,7 +382,7 @@ abstract class DBRepository implements Repository, Closeable {
         ResultSet rs = null;
         try {
             connection = getConnection();
-            statement = connection.prepareStatement(settings.readHistoricFileMetainfo);
+            statement = connection.prepareStatement(settings.readHistoricFileMetaInfo);
             statement.setLong(1, Long.parseLong(version));
             statement.setString(2, name);
             rs = statement.executeQuery();
@@ -476,16 +458,15 @@ abstract class DBRepository implements Repository, Closeable {
             connection = getConnection();
             statement = createInsertFileStatement(connection, data, stream);
             statement.executeUpdate();
-
             data.setVersion(null);
-            invokeListener();
-            return data;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(statement);
             SqlDBUtils.safeClose(connection);
         }
+        invokeListener();
+        return data;
     }
 
     private PreparedStatement createInsertFileStatement(Connection connection,
@@ -499,7 +480,7 @@ abstract class DBRepository implements Repository, Closeable {
         if (stream != null) {
             statement.setBinaryStream(4, stream);
         } else {
-            // Workaround for PostreSQL
+            // Workaround for PostgreSQL
             statement.setBinaryStream(4, null, 0);
         }
         return statement;
@@ -508,15 +489,15 @@ abstract class DBRepository implements Repository, Closeable {
     public void initialize() {
         try {
             JDBCDriverRegister.registerDrivers();
-            loadDBsettings();
+            loadDBSettings();
             initializeDatabase();
             monitor = new ChangesMonitor(new DBRepositoryRevisionGetter(), listenerTimerPeriod);
         } catch (Exception e) {
-            throw new IllegalStateException("Failed to initialize a repository", e);
+            throw new IllegalStateException("Failed to initialize a repository.", e);
         }
     }
 
-    private void loadDBsettings() throws IOException, SQLException {
+    private void loadDBSettings() throws IOException, SQLException {
         Connection connection = null;
         try {
             connection = getConnection();
@@ -544,7 +525,7 @@ abstract class DBRepository implements Repository, Closeable {
             return;
         }
         LOG.info("SQL error: {}", ((Throwable) revision).getMessage());
-        LOG.info("Initializing  the repository in the DB...");
+        LOG.info("Initializing the repository in the DB...");
         Connection connection = null;
         Statement statement = null;
         Boolean autoCommit = null;
@@ -560,7 +541,7 @@ abstract class DBRepository implements Repository, Closeable {
                 }
             }
             connection.commit();
-            LOG.info("The repository has been initialized.");
+            LOG.info("The repository is initialized.");
         } catch (Exception e) {
             if (connection != null) {
                 connection.rollback();
@@ -581,7 +562,7 @@ abstract class DBRepository implements Repository, Closeable {
         public Object getRevision() {
             Object revision = checkRepository();
             if (revision instanceof Throwable) {
-                LOG.warn("Cannot check revision of the repository", (Throwable) revision);
+                LOG.warn("Cannot check revision of the repository.", (Throwable) revision);
                 return null;
             }
             return revision;

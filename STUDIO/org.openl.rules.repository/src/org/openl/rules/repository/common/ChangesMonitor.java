@@ -74,8 +74,8 @@ public class ChangesMonitor implements Runnable {
             lastChange = currentChange;
 
             fireOnChange();
-        } catch (Throwable th) {
-            LOG.warn("An exception has occurred during checking the repository", th);
+        } catch (Exception e) {
+            LOG.warn("An exception has occurred during checking the repository.", e);
         }
     }
 
@@ -88,8 +88,8 @@ public class ChangesMonitor implements Runnable {
             if (listener != null) {
                 listener.onChange();
             }
-        } catch (Throwable th) {
-            LOG.warn("An exception has occurred in onChange() method in '{}' listener", listener, th);
+        } catch (Exception e) {
+            LOG.warn("An exception is occurred in onChange() method in '{}' listener.", listener, e);
         }
     }
 
@@ -118,8 +118,8 @@ public class ChangesMonitor implements Runnable {
     private Object getRevision() {
         try {
             return getter.getRevision();
-        } catch (Throwable th) {
-            LOG.warn("An exception has occurred during retrieving the last change set from the repository", th);
+        } catch (Exception e) {
+            LOG.warn("An exception is occurred during retrieving the last change set from the repository.", e);
             return null;
         }
     }

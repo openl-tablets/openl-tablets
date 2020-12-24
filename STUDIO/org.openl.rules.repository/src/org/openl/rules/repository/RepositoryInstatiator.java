@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.ServiceLoader;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Repository;
@@ -46,10 +45,9 @@ public class RepositoryInstatiator {
             }
         }
         throw new IllegalArgumentException(String.format(
-            "Cannot find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
+            "Failed to find '%s' repository factory for '%s' configuration. Available repository factories are: %s",
             factoryId,
-            prefix,
-            repos.stream().collect(Collectors.joining(", "))));
+            prefix, String.join(", ", repos)));
     }
 
     public static String getRefID(String factoryId) {

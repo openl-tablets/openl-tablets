@@ -13,13 +13,13 @@ import org.slf4j.LoggerFactory;
 final class Settings {
     private final Logger log = LoggerFactory.getLogger(Settings.class);
     Collection<String> initStatements;
-    String selectAllMetainfo;
-    String selectAllHistoryMetainfo;
+    String selectAllMetaInfo;
+    String selectAllHistoryMetaInfo;
     String insertFile;
     String readActualFile;
-    String readActualFileMetainfo;
+    String readActualFileMetaInfo;
     String readHistoricFile;
-    String readHistoricFileMetainfo;
+    String readHistoricFileMetaInfo;
     String deleteAllHistory;
     String deleteVersion;
     String selectLastChange;
@@ -27,7 +27,7 @@ final class Settings {
     String copyHistory;
 
     Settings(String databaseCode, int major, int minor) throws IOException {
-        TreeMap<String, String> queries = new TreeMap<>();
+        SortedMap<String, String> queries = new TreeMap<>();
         fillQueries(queries, "/openl-db-repository");
         fillQueries(queries, "/openl-db-repository-" + databaseCode);
         fillQueries(queries, "/openl-db-repository-" + databaseCode + "-v" + major);
@@ -42,10 +42,10 @@ final class Settings {
         deleteAllHistory = getRequired(queries, "query.delete-all-history");
         readActualFile = getRequired(queries, "query.read-last-file");
         readHistoricFile = getRequired(queries, "query.read-exact-file");
-        readActualFileMetainfo = getRequired(queries, "query.read-last-metainfo");
-        readHistoricFileMetainfo = getRequired(queries, "query.read-exact-metainfo");
-        selectAllMetainfo = getRequired(queries, "query.list-last-metainfo");
-        selectAllHistoryMetainfo = getRequired(queries, "query.list-all-metainfo");
+        readActualFileMetaInfo = getRequired(queries, "query.read-last-metainfo");
+        readHistoricFileMetaInfo = getRequired(queries, "query.read-exact-metainfo");
+        selectAllMetaInfo = getRequired(queries, "query.list-last-metainfo");
+        selectAllHistoryMetaInfo = getRequired(queries, "query.list-all-metainfo");
         selectLastChange = getRequired(queries, "query.select-last-change");
 
         initStatements = queries.subMap("init.", "init." + Character.MAX_VALUE).values();
@@ -72,14 +72,13 @@ final class Settings {
     }
 
     private int getIntValue(Map<String, String> queries, String prop, int defValue) {
-
         String stringValue = queries.get(prop);
         int value = defValue;
         if (stringValue != null) {
             try {
                 value = Integer.parseInt(stringValue);
             } catch (Exception e) {
-                log.warn("Cannot parse value from {} = {}! Default value is used.", prop, stringValue, e);
+                log.warn("Failed to parse value from {} = {}. Default value is used.", prop, stringValue, e);
             }
         }
         return value;
@@ -89,12 +88,12 @@ final class Settings {
 
         String value = queries.get(prop);
         if (value == null) {
-            throw new IllegalArgumentException(String.format("Cannot get value for %s property.", prop));
+            throw new IllegalArgumentException(String.format("Value for property '%s' is not found.", prop));
         }
         return value;
     }
 
-    private void resolve(TreeMap<String, String> queries) {
+    private void resolve(Map<String, String> queries) {
         Set<String> keys = queries.keySet();
         for (String key : keys) {
             String value = queries.get(key);

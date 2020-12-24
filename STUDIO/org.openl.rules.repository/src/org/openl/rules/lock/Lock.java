@@ -53,10 +53,10 @@ public class Lock {
         try {
             info = getInfo();
         } catch (ClosedByInterruptException e) {
-            LOG.info("Log retrieving is interrupted. Don't create a lock.", e);
+            LOG.info("Log retrieving is interrupted. Lock file is not created.", e);
             return false;
         } catch (IOException e) {
-            //Failed to retrieve lock info.
+            // Failed to retrieve lock info.
             return false;
         }
         if (info.isLocked()) {
@@ -72,7 +72,7 @@ public class Lock {
                     lockAcquired = finishLockCreating(prepareLock);
                 }
             } catch (Exception e) {
-                LOG.info("Failure of lock creation. Cancel lock '{}'.", lockPath);
+                LOG.info("Failure to create a lock file '{}'.", lockPath);
             }
             if (!lockAcquired) {
                 // Delete because of it loos lock
@@ -112,23 +112,11 @@ public class Lock {
             try {
                 info = getInfo();
             } catch (ClosedByInterruptException e) {
-                String message = "Log retrieving is interrupted. Don't create a lock.";
-                LOG.debug(message, e);
-                throw new InterruptedException(message);
+                throw new InterruptedException("Log retrieving is interrupted. Lock file is not created.");
             }
             if (deadline.isBefore(Instant.now())) {
-                String message = "Too much time after the lock was created. Looks like the lock is never gonna unlocked. Unlock it ourselves.\n"
-                        + "Lock path: {}\n"
-                        + "Locked at: {}\n"
-                        + "Locked by: {}\n"
-                        + "Time to live: {} {}";
-                LOG.warn(
-                        message,
-                        lockPath,
-                        info.getLockedAt(),
-                        info.getLockedBy(),
-                        timeToLive,
-                        unit);
+                String message = "Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.\n" + "Lock path: {}\n" + "Locked at: {}\n" + "Locked by: {}\n" + "Time to live: {} {}";
+                LOG.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
                 forceUnlock();
             }
             result = tryLock(lockedBy, timeToWait, unit);
@@ -218,12 +206,12 @@ public class Lock {
                     date = LocalDate.parse(stringDate).atStartOfDay(ZoneOffset.UTC).toInstant();
                 } catch (Exception ignored2) {
                     date = Instant.ofEpochMilli(0);
-                    LOG.warn("Impossible to parse date {}", stringDate, e);
+                    LOG.warn("Failed to parse date '{}'.", stringDate, e);
                 }
             }
             return new LockInfo(date, userName);
         } catch (NoSuchFileException e) {
-            //Lock can be deleted in another thread
+            // Lock can be deleted in another thread
             return LockInfo.NO_LOCK;
         }
     }
@@ -238,11 +226,11 @@ public class Lock {
                 os.append("user=").append(userName).write('\n');
                 os.append("date=").append(Instant.now().toString()).write('\n');
             } catch (FileAlreadyExistsException | AccessDeniedException | NoSuchFileException e) {
-                //Can't create lock file
+                // Can't create lock file
                 return null;
             } catch (Exception e) {
-                //Lock file was create but with error. So delete it.
-                LOG.info("Can't create lock file '{}'. Delete it.", lock);
+                // Lock file is created but with error. So delete it.
+                LOG.info("Lock file '{}' is created with errors. Lock file is deleted.", lock);
                 deleteLockAndFolders(lock);
                 return null;
             }
@@ -265,8 +253,8 @@ public class Lock {
             for (File file : files) {
                 Path anotherName = file.toPath().getFileName();
                 FileTime another = Files.getLastModifiedTime(file.toPath());
-                if (current
-                        .compareTo(another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
+                if (current.compareTo(
+                    another) > 0 || (current.compareTo(another) == 0 && lockName.compareTo(anotherName) > 0)) {
                     return false;
                 }
             }

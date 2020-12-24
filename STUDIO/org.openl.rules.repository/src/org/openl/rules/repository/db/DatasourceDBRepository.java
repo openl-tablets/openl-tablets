@@ -59,7 +59,7 @@ public class DatasourceDBRepository extends DBRepository {
         RuntimeException exception = null;
         try {
             this.dataSource = (DataSource) initialContext.lookup(uri);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             exception = new IllegalStateException(String.format("Cannot determine JNDI [ %s ] name", uri), e);
             throw exception;
         } finally {
@@ -89,7 +89,7 @@ public class DatasourceDBRepository extends DBRepository {
     private static void closeInitialContext(InitialContext initialContext) {
         try {
             initialContext.close();
-        } catch (Throwable e) {
+        } catch (Exception e) {
             throw new IllegalStateException("Cannot close JNDI context", e);
         }
     }

@@ -94,7 +94,7 @@ public class LocalRepository extends FileSystemRepository {
             return files;
         }
         //should never happen
-        throw new IllegalStateException(String.format("Illegal state for LocalRepository. Unable to get list of folders from %s path.", path));
+        throw new IllegalStateException(String.format("Illegal state for LocalRepository. Unable to get list of folders from '%s' path.", path));
     }
 
     @Override

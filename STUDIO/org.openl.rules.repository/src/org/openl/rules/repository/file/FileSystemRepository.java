@@ -130,7 +130,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         }
         if (data.getModifiedAt() != null) {
             if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                LOG.warn("Cannot set modified time to file {}", dataName);
+                LOG.warn("Failed to set modified time to file '{}'.", dataName);
             }
         }
         return getFileData(file);
@@ -186,7 +186,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
                 return Collections.singletonList(data);
             }
         } catch (Exception ex) {
-            LOG.warn("The file cannot be resolved: [{}]", file, ex);
+            LOG.warn("Failed to resolve a file '{}'.", file, ex);
         }
         return Collections.emptyList();
     }
@@ -237,7 +237,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
                         FileData data = getFileData(file);
                         files.add(data);
                     } catch (Exception ex) {
-                        LOG.warn("The file cannot be resolved in the directory {}.", directory, ex);
+                        LOG.warn("Failed to resolve file '{}' in the directory '{}'.", file.getName(), directory, ex);
                     }
                 }
             }
@@ -246,7 +246,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
 
     protected FileData getFileData(File file) throws IOException {
         if (!file.exists()) {
-            throw new FileNotFoundException(String.format("File [%s] does not exist.", file));
+            throw new FileNotFoundException(String.format("File '%s' does not exist.", file));
         }
         if (rootPathLength == 0) {
             initialize();
@@ -306,7 +306,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
                         data.setVersion(getVersion(file));
                         files.add(data);
                     } catch (Exception ex) {
-                        LOG.warn("Folder cannot be resolved in the directory {}.", directory, ex);
+                        LOG.warn("Failed to resolve folder '{}'.", directory, ex);
                     }
                 }
             }
@@ -346,7 +346,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
                 }
                 if (data.getModifiedAt() != null) {
                     if (!file.setLastModified(data.getModifiedAt().getTime())) {
-                        LOG.warn("Cannot set modified time to file {}", data.getName());
+                        LOG.warn("Failed to set modified time to file '{}'.", data.getName());
                     }
                 }
             } else {
@@ -399,7 +399,7 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     private void createParent(File file) throws FileNotFoundException {
         File parentFile = file.getParentFile();
         if (!parentFile.mkdirs() && !parentFile.exists()) {
-            throw new FileNotFoundException("Cannot create the folder " + parentFile.getAbsolutePath());
+            throw new FileNotFoundException("Failed to create the folder '" + parentFile.getAbsolutePath() + "'.");
         }
     }
 
