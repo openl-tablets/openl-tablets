@@ -24,13 +24,13 @@ public class RunDeploymentsITest {
 
     @Test
     public void server1PingIncludedProjects_OK() {
-        client.get("/openl-project-1/ping", "/pong.resp.txt");
-        client.get("/openl-project-2/ping", "/pong.resp.txt");
-        client.get("/extra-project/ping", "/pong.resp.txt");
+        client.send("pong-1.get");
+        client.send("pong-3.get");
+        client.send("pong-3.get");
     }
 
     @Test
     public void server1PingExcludedProject_shouldNotBeAccessible() {
-        client.get("/excluded-project/ping", 404, "/404.resp.html");
+        client.send("ping.get");
     }
 }

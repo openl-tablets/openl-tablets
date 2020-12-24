@@ -61,9 +61,9 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_10026() {
-        client.get("/REST/EPBDS-10026/EPBDS-10026/swagger.json", "/EPBDS-10026/EPBDS-10026_swagger.resp.json");
-        client.get("/REST/EPBDS-10026/EPBDS-10026/openapi.json", "/EPBDS-10026/EPBDS-10026_openapi.resp.json");
-        client.get("/REST/EPBDS-10026/EPBDS-10026?_wadl", 404);
+        client.send("EPBDS-10026/EPBDS-10026_swagger.get");
+        client.send("EPBDS-10026/EPBDS-10026_openapi.get");
+        client.send("EPBDS-10026/EPBDS-10026_wadl.get");
     }
 
     @Test
@@ -178,9 +178,9 @@ public class RunWebservicesITest {
 
     @Test
     public void EPBDS_9581() {
-        client.get("/EPBDS-9581/EPBDS-9581/swagger.json", "/EPBDS-9581/EPBDS-9581_swagger.resp.json");
-        client.get("/EPBDS-9581/EPBDS-9581/openapi.json", "/EPBDS-9581/EPBDS-9581_openapi.resp.json");
-        client.get("/EPBDS-9581/EPBDS-9581?_wadl", 404);
+        client.send("EPBDS-9581/EPBDS-9581_swagger.get");
+        client.send("EPBDS-9581/EPBDS-9581_openapi.get");
+        client.send("EPBDS-9581/EPBDS-9581_wadl.get");
     }
 
     @Test
