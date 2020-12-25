@@ -4,6 +4,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -70,6 +71,10 @@ class HttpData {
 
     private static void write(OutputStream output, String resource) throws IOException {
         HttpData httpData = readFile(resource);
+
+        if (httpData == null) {
+            throw new FileNotFoundException(resource);
+        }
 
         httpData.headers.putIfAbsent("Content-Length", String.valueOf(httpData.body.length));
         httpData.headers.putIfAbsent("Host", "example.com");

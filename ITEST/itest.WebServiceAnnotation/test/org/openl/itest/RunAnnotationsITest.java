@@ -64,7 +64,7 @@ public class RunAnnotationsITest {
 
     @Test
     public void call_parse3_interfaceMethod_usingCustomEndpoint_errorResponseMustBeReturned_UNPROCESSABLE_ENTITY() {
-        client.get("/REST/v1/string/toNumber/parse/A", 422, "/stringToNumber_parse_notValid.resp.json");
+        client.send("stringToNumber_parse_notValid.get");
     }
 
     @Test

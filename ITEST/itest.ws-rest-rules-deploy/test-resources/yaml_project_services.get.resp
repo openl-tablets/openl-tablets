@@ -1,0 +1,25 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[{
+        "startedTime": "#####",
+        "name": "project1",
+        "servicePath": "deploy/yaml_project/project1",
+        "urls": {
+            "WEBSERVICE": "project1",
+            "RESTFUL": "REST/project1"
+        },
+        "hasManifest": false,
+        "status": "DEPLOYED"
+    }, {
+        "startedTime": "#####",
+        "name": "yaml_project_project2",
+        "servicePath": "deploy/yaml_project/project2",
+        "urls": {
+            "WEBSERVICE": "yaml_project/project2",
+            "RESTFUL": "REST/yaml_project/project2"
+        },
+        "hasManifest": false,
+        "status": "DEPLOYED"
+    }
+]

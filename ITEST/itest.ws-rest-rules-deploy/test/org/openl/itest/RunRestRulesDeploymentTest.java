@@ -1,8 +1,5 @@
 package org.openl.itest;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -16,8 +13,6 @@ import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
 import org.openl.itest.core.worker.TaskScheduler;
-import org.openl.itest.response.ServiceInfoResponse;
-import org.openl.itest.response.UiInfoResponse;
 
 public class RunRestRulesDeploymentTest {
 
@@ -37,51 +32,30 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testDeployRules() {
+        client.send("ui-info.get");
         client.send("admin_services_no_services.json.get");
-        client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", 404, "/404.html");
-        long createServiceTime = System.currentTimeMillis();
+        client.send("deployed-rules_hello_not_found.post");
+
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
-
-        ServiceInfoResponse[] servicesInfo2 = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(1, servicesInfo2.length);
-        checkServiceInfo(servicesInfo2[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
-        long service2Time = servicesInfo2[0].getStartedTime().getTime();
-        checkServiceTime(service2Time, createServiceTime);
-
-        client.get("/admin/read/deployed-rules", "/rules-to-deploy.zip");
-        client.get("/admin/services/deployed-rules/methods", "/deployed-rules_methods.resp.txt");
-
-        client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello.resp.txt");
+        client.send("deployed-rules_services.get");
+        client.send("deployed-rules_methods.get");
+        client.get("/admin/deploy/deployed-rules", "/rules-to-deploy.zip");
+        client.send("deployed-rules_hello.post");
 
         // should be always redeployed
-        createServiceTime = System.currentTimeMillis();
         client.post("/admin/deploy", "/rules-to-deploy_v2.zip", 201);
-
-        ServiceInfoResponse[] servicesInfo4 = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(1, servicesInfo4.length);
-        checkServiceInfo(servicesInfo4[0], "deployed-rules", "deployed-rules", "REST/deployed-rules");
-        checkServiceTime(servicesInfo4[0].getStartedTime().getTime(), createServiceTime);
-
-        UiInfoResponse uiInfoResponseResponseEntity = client.get("/admin/ui/info", UiInfoResponse.class);
-        ServiceInfoResponse[] serviceInfo = uiInfoResponseResponseEntity.getServices();
-        assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
-        assertEquals(1, serviceInfo.length);
-        assertEquals("deployed-rules", serviceInfo[0].getName());
-        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, serviceInfo[0].getStatus());
-
-        client.post("/REST/deployed-rules/hello", "/deployed-rules_hello.req.json", "/deployed-rules_hello_2.resp.txt");
+        client.send("deployed-rules_services.get");
+        client.send("deployed-rules_methods.get");
+        client.send("deployed-rules_ui-info.get");
+        client.send("deployed-rules_hello_2.post");
 
         client.post("/admin/deploy", "/rules-to-deploy-failed.zip", 201);
-        ServiceInfoResponse[] servicesInfo5 = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(1, servicesInfo5.length);
-        assertEquals(ServiceInfoResponse.ServiceStatus.FAILED, servicesInfo5[0].getStatus());
-        client.get("/admin/services/deployed-rules/errors", "/deployed-rules_errors.resp.json");
+        client.send("deployed-rules_services_failed.get");
+        client.send("deployed-rules_errors.get");
+        client.send("deployed-rules_manifest.get");
 
-        client.get("/admin/services/deployed-rules/MANIFEST.MF", 404);
-        client.delete("/admin/delete/deployed-rules");
-        UiInfoResponse uiInfoResponseResponseEntity2 = client.get("/admin/ui/info", UiInfoResponse.class);
-        assertEquals(0, uiInfoResponseResponseEntity2.getServices().length);
-        assertTrue(uiInfoResponseResponseEntity.getDeployerEnabled());
+        client.send("deployed-rules.delete");
+        client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/empty_project.zip", 400);
         client.send("admin_services_no_services.json.get");
@@ -90,68 +64,58 @@ public class RunRestRulesDeploymentTest {
     @Test
     public void testDeployRules_multipleDeployment() {
         client.send("admin_services_no_services.json.get");
-        client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", 404, "/404.html");
 
-        long createServiceTime = System.currentTimeMillis();
         client.post("/admin/deploy", "/multiple-deployment_v1.zip", 201);
-
-        ServiceInfoResponse[] servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(2, servicesInfo.length);
-        checkServiceInfo(servicesInfo[0], "project1", "project1", "REST/project1");
-        checkServiceTime(servicesInfo[0].getStartedTime().getTime(), createServiceTime);
-        checkServiceInfo(servicesInfo[1],
-            "yaml_project_project2",
-            "yaml_project/project2",
-            "REST/yaml_project/project2");
-        checkServiceTime(servicesInfo[1].getStartedTime().getTime(), createServiceTime);
-
-        client.get("/admin/services/project1/methods", "/project1_methods.resp.txt");
-        client.get("/admin/services/yaml_project_project2/methods", "/yaml_project_project2_methods.resp.txt");
-
-        client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello.resp.txt");
+        client.send("yaml_project_services.get");
+        client.send("project1_methods.get");
+        client.send("yaml_project_project2_methods.get");
+        client.send("project1_sayHello.post");
 
         // should be updated
         client.post("/admin/deploy", "/multiple-deployment_v2.zip", 201);
-        client.post("/REST/project1/sayHello", "/project1_sayHello.req.txt", "/project1_sayHello_2.resp.txt");
+        client.send("project1_sayHello_2.post");
 
-        client.delete("/admin/delete/project1");
-        client.delete("/admin/delete/yaml_project_project2");
+        client.send("project1.delete");
+        client.send("yaml_project_project2.delete");
         client.send("admin_services_no_services.json.get");
     }
 
     @Test
     public void testMissingServiceMethods() {
-        client.get("/admin/services/missing-name/methods", 404);
-        client.delete("/admin/delete/missing-name", 404);
-        client.get("/admin/read/missing-name", 404);
-        client.get("/admin/services/missing-name/errors", 404);
-        client.get("/admin/services/missing-name/MANIFEST.MF", 404);
+        client.send("missing-service_methods.get");
+        client.send("missing-service.delete");
+        client.send("missing-service.get");
+        client.send("missing-service_errors.get");
+        client.send("missing-service_manifest.get");
     }
 
     @Test
     public void test_EPBDS_8758_multithread() throws Exception {
         client.send("admin_services_no_services.json.get");
+
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
-        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        client.send("EPBDS-8758/doSomething_v1.get");
+
         AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
-            () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
+            () -> client.send("EPBDS-8758/doSomething.get"));
         TaskScheduler taskScheduler = new TaskScheduler();
 
         executor.start();
 
         taskScheduler.schedule(() -> {
             client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
-            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v2.resp.txt");
+            client.send("EPBDS-8758/doSomething_v2.get");
         }, 1, TimeUnit.SECONDS);
+
         taskScheduler.schedule(() -> {
             client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
-            client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v3.resp.txt");
+            client.send("EPBDS-8758/doSomething_v3.get");
         }, 2, TimeUnit.SECONDS);
 
         List<Throwable> deployErrors = taskScheduler.await();
         List<Throwable> invocationErrors = executor.stop();
 
-        client.delete("/admin/delete/EPBDS-8758");
+        client.send("EPBDS-8758/EPBDS-8758.delete");
 
         MultipleFailureException
             .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
@@ -161,8 +125,10 @@ public class RunRestRulesDeploymentTest {
     @Test
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
+
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
-        client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
+        client.send("EPBDS-8758/doSomething_v1.get");
+
         AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
             () -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
@@ -176,7 +142,7 @@ public class RunRestRulesDeploymentTest {
         List<Throwable> deployErrors = deployers.stop();
         List<Throwable> invocationErrors = executor.stop();
 
-        client.delete("/admin/delete/EPBDS-8758");
+        client.send("EPBDS-8758/EPBDS-8758.delete");
 
         MultipleFailureException
             .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
@@ -186,58 +152,43 @@ public class RunRestRulesDeploymentTest {
     @Test
     public void test_EPBDS_10068_MANIFEST() {
         client.post("/admin/deploy", "/EPBDS-10068/EPBDS-10068.zip", 201);
-        client.get("/admin/services/EPBDS-10068/MANIFEST.MF", "/EPBDS-10068/MANIFEST.MF.resp.json");
-        client.delete("/admin/delete/EPBDS-10068");
+        client.send("EPBDS-10068/MANIFEST.MF.get");
+        client.send("EPBDS-10068/EPBDS-10068.delete");
     }
 
     @Test
     public void test_EPBDS_10157() {
         client.send("admin_services_no_services.json.get");
+
         client.post("/admin/deploy/EPBDS-10157", "/EPBDS-10157/EPBDS-10157.zip", 201);
-        client.get("/EPBDS-10157/EPBDS-10157/doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
+        client.send("EPBDS-10157/EPBDS-10157-doSomething.get");
+
         client.post("/admin/deploy/EPBDS-10157_2", "/EPBDS-10157/EPBDS-10157_2.zip", 201);
-        client.get("/ /doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
+        client.send("EPBDS-10157/EPBDS-10157_whitespace-doSomething.get");
+
         client.post("/admin/deploy/EPBDS-9902", "/EPBDS-10157/EPBDS-9902.zip", 201);
-        client.get("/EPBDS-9902/EPBDS-9902/doSomething", "/EPBDS-10157/EPBDS-10157.resp.txt");
-        client.delete("/admin/delete/EPBDS-10157_EPBDS-10157");
-        client.delete("/admin/delete/ ");
-        client.delete("/admin/delete/EPBDS-9902_EPBDS-9902");
+        client.send("EPBDS-10157/EPBDS-9902-doSomething.get");
+
+        client.send("EPBDS-10157/EPBDS-10157.delete");
+        client.send("EPBDS-10157/EPBDS-10157_whitespace.delete");
+        client.send("EPBDS-10157/EPBDS-9902.delete");
         client.send("admin_services_no_services.json.get");
     }
 
     @Test
     public void EPBDS_10891() {
         client.send("admin_services_no_services.json.get");
+
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
-        ServiceInfoResponse[] servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(2, servicesInfo.length);
-        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
-        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
-        client.delete("/admin/delete/yaml_project_Project1");
-        client.delete("/admin/delete/yaml_project_Project2");
+        client.send("EPBDS-10891/services.get");
+        client.send("EPBDS-10891/yaml_project_Project1.delete");
+        client.send("EPBDS-10891/yaml_project_Project2.delete");
         client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
-        servicesInfo = client.get("/admin/services", ServiceInfoResponse[].class);
-        assertEquals(2, servicesInfo.length);
-        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[0].getStatus());
-        assertEquals(ServiceInfoResponse.ServiceStatus.DEPLOYED, servicesInfo[1].getStatus());
-        client.delete("/admin/delete/yaml_project_Project1");
-        client.delete("/admin/delete/yaml_project_Project2");
+        client.send("EPBDS-10891/services.get");
+        client.send("EPBDS-10891/yaml_project_Project1.delete");
+        client.send("EPBDS-10891/yaml_project_Project2.delete");
         client.send("admin_services_no_services.json.get");
     }
-
-    private void checkServiceInfo(ServiceInfoResponse service,
-            String expectedName,
-            String expectedSoap,
-            String expectedRest) {
-        assertEquals(expectedName, service.getName());
-        assertEquals(expectedSoap, service.getUrls().get("WEBSERVICE"));
-        assertEquals(expectedRest, service.getUrls().get("RESTFUL"));
-    }
-
-    private void checkServiceTime(long timeToCheckMs, long createServiceTime) {
-        assertTrue((timeToCheckMs >= createServiceTime && timeToCheckMs <= System.currentTimeMillis()));
-    }
-
 }

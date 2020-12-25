@@ -1,0 +1,2 @@
+GET /admin/services/project1/methods HTTP/1.1
+

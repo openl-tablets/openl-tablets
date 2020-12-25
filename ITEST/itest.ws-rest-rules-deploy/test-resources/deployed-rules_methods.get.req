@@ -1,0 +1,2 @@
+GET /admin/services/deployed-rules/methods HTTP/1.1
+
