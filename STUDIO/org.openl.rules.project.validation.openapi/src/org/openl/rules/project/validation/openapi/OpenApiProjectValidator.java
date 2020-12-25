@@ -613,7 +613,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     } else if (actualApiResponse == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Expected response is found in operation '%s' for path '%s'.",
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Expected response is not found in operation '%s' for path '%s'.",
                                 context.getOperationType(),
                                 context.getActualPath()));
 

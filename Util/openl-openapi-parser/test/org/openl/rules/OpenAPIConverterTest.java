@@ -372,9 +372,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> midStepSome1Params = midStepSome1Model.getParameters();
         assertEquals(2, midStepSome1Params.size());
         List<StepModel> midStepSome1ModelSteps = midStepSome1Model.getSteps();
-        assertEquals(1, midStepSome1ModelSteps.size());
-        StepModel step = midStepSome1ModelSteps.iterator().next();
-        validateTypeInfo("Result", step.getName(), "=MidStepSome(null,null)", step.getValue());
+        assertEquals(6, midStepSome1ModelSteps.size());
 
         SpreadsheetModel middleStepSomeModel = findSpreadsheetByName(spreadsheetResultModels, "MiddleStepSome");
         assertEquals(3, middleStepSomeModel.getParameters().size());
@@ -410,21 +408,20 @@ public class OpenAPIConverterTest {
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10838_spreadsheets_filtering_second_case.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         SpreadsheetModel firsSprModel = findSpreadsheetByName(spreadsheetResultModels, "myFirsSpr");
-        assertEquals("MyFirsSpr", firsSprModel.getType());
+        assertEquals("SpreadsheetResult", firsSprModel.getType());
         List<StepModel> steps = firsSprModel.getSteps();
-        assertEquals(1, steps.size());
-        StepModel resultStep = steps.iterator().next();
-        validateTypeInfo("Result", resultStep.getName(), "MyFirsSpr", resultStep.getType());
-        assertEquals("=new MyFirsSpr()", resultStep.getValue());
+        assertEquals(2, steps.size());
+        assertTrue(steps.stream().anyMatch(step -> step.getName().equals("Step1")));
+        assertTrue(steps.stream().anyMatch(step -> step.getName().equals("Step2")));
 
         SpreadsheetModel secondModel = findSpreadsheetByName(spreadsheetResultModels, "MySecondSpr");
-        assertEquals("MyFirsSpr[]", secondModel.getType());
+        assertEquals("SpreadsheetResultmyFirsSpr[]", secondModel.getType());
         List<StepModel> secondModelSteps = secondModel.getSteps();
         assertEquals(1, secondModelSteps.size());
         StepModel secondModelResultStep = secondModelSteps.iterator().next();
         validateTypeInfo("Result", secondModelResultStep.getName(), "MyFirsSpr[]", secondModelResultStep.getType());
-        assertEquals("=new MyFirsSpr[]{}", secondModelResultStep.getValue());
-        assertTrue(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
+        assertEquals("=new SpreadsheetResultmyFirsSpr[]{myFirsSpr(null)}", secondModelResultStep.getValue());
+        assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
 
     }
 

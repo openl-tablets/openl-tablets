@@ -22,6 +22,8 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
 
+import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT_CLASS_NAME;
+
 public class OpenAPITypeUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(OpenAPITypeUtils.class);
@@ -139,6 +141,16 @@ public class OpenAPITypeUtils {
             className = "[" + javaName;
         }
         return className;
+    }
+
+    public static String getSpreadsheetArrayClassName(int dim) {
+        if (dim == 0) {
+            return SPREADSHEET_RESULT_CLASS_NAME;
+        } else if (dim == 1) {
+            return "[L" + SPREADSHEET_RESULT_CLASS_NAME + ";";
+        } else {
+            return "[" + getSpreadsheetArrayClassName(dim - 1);
+        }
     }
 
     public static String getSimpleName(String ref) {

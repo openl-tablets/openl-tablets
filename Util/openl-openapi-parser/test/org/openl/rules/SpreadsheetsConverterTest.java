@@ -81,7 +81,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel blaArrayModel = findSpreadsheet(spreadsheetModels, "BlaArray");
         List<StepModel> blaSteps = blaArrayModel.getSteps();
         assertEquals(1, blaSteps.size());
-        assertEquals("=new AnotherDatatype[][][][]{}", blaSteps.iterator().next().getValue());
+        assertEquals("=new SpreadsheetResultBla[][][][]{{{{Bla(null)}}}}", blaSteps.iterator().next().getValue());
 
         SpreadsheetModel helloWorldModel = findSpreadsheet(spreadsheetModels, "HelloWorld");
         assertEquals("Double[][][][]", helloWorldModel.getType());
@@ -319,7 +319,7 @@ public class SpreadsheetsConverterTest {
             .extractProjectModel("test.converter/spreadsheets/spr_return_array_of_type.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         SpreadsheetModel hk = findSpreadsheet(spreadsheetResultModels, "HelloKitty");
-        assertEquals("AnotherDatatype[]", hk.getType());
+        assertEquals("SpreadsheetResultBla[]", hk.getType());
         List<InputParameter> hkParameters = hk.getParameters();
         assertEquals(1, hkParameters.size());
         InputParameter decimalParam = hkParameters.iterator().next();
@@ -327,7 +327,7 @@ public class SpreadsheetsConverterTest {
         assertEquals("BigDecimal[]", decimalParam.getType().getSimpleName());
 
         SpreadsheetModel hp = findSpreadsheet(spreadsheetResultModels, "HelloPesi");
-        assertEquals("AnotherDatatype[][][]", hp.getType());
+        assertEquals("SpreadsheetResultBla[][][]", hp.getType());
 
     }
 
@@ -693,6 +693,90 @@ public class SpreadsheetsConverterTest {
             .extractProjectModel("test.converter/datatype/spreadsheetResultDataType.json");
         List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
         assertFalse(datatypeModels.stream().anyMatch(dm -> dm.getName().equals("SpreadsheetResult")));
+
+    }
+
+    /**
+     * Case when spreadsheet call another one instead of having the same steps
+     */
+    @Test
+    public void testWrongCall() throws IOException {
+        ProjectModel pathProject = converter
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10848_wrong_call.json");
+        List<SpreadsheetModel> spreadsheetResultModels = pathProject.getSpreadsheetResultModels();
+
+        SpreadsheetModel midStepSome1 = findSpreadsheet(spreadsheetResultModels, "MidStepSome1");
+        List<StepModel> midStepSome1Steps = midStepSome1.getSteps();
+        StepModel ageBandSome1 = findStep(midStepSome1Steps, "AgeBand");
+        validateGeneratedModel("String",
+            ageBandSome1.getType(),
+            "AgeBand",
+            ageBandSome1.getName(),
+            "=\"\"",
+            ageBandSome1.getValue());
+        StepModel ageBandInfoSome1 = findStep(midStepSome1Steps, "AgeBandInfo");
+        validateGeneratedModel("StepSome[]",
+            ageBandInfoSome1.getType(),
+            "AgeBandInfo",
+            ageBandInfoSome1.getName(),
+            "=new StepSome[]{}",
+            ageBandInfoSome1.getValue());
+        StepModel someFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "SomeFromAllMyPerAgeBand");
+        validateGeneratedModel("Double",
+            someFromAllMyPerAgeBandSome1.getType(),
+            "SomeFromAllMyPerAgeBand",
+            someFromAllMyPerAgeBandSome1.getName(),
+            "=0.0",
+            someFromAllMyPerAgeBandSome1.getValue());
+        StepModel cpFromAllMyPerAgeBandSome1 = findStep(midStepSome1Steps, "CPFromAllMyPerAgeBand");
+        validateGeneratedModel("Double",
+            cpFromAllMyPerAgeBandSome1.getType(),
+            "CPFromAllMyPerAgeBand",
+            cpFromAllMyPerAgeBandSome1.getName(),
+            "=0.0",
+            someFromAllMyPerAgeBandSome1.getValue());
+        StepModel someMultiplyCPSome1 = findStep(midStepSome1Steps, "SomeMultiplyCP");
+        validateGeneratedModel("Double",
+            someMultiplyCPSome1.getType(),
+            "SomeMultiplyCP",
+            someMultiplyCPSome1.getName(),
+            "=0.0",
+            someMultiplyCPSome1.getValue());
+        StepModel blendedSome1 = findStep(midStepSome1Steps, "BlendedSome");
+        validateGeneratedModel("MiddleStepSome[]",
+            blendedSome1.getType(),
+            "BlendedSome",
+            blendedSome1.getName(),
+            "=new SpreadsheetResultMiddleStepSome[]{MiddleStepSome(null,null,null)}",
+            blendedSome1.getValue());
+
+        SpreadsheetModel middleStepSome = findSpreadsheet(spreadsheetResultModels, "MiddleStepSome");
+        assertEquals(2, middleStepSome.getSteps().size());
+
+        SpreadsheetModel midStepSome = findSpreadsheet(spreadsheetResultModels, "MidStepSome");
+        List<StepModel> midStepSomeSteps = midStepSome.getSteps();
+        StepModel ageBandSome = findStep(midStepSomeSteps, "AgeBand");
+        assertEquals(ageBandSome1, ageBandSome);
+        StepModel ageBandInfoSome = findStep(midStepSomeSteps, "AgeBandInfo");
+        assertEquals(ageBandInfoSome1, ageBandInfoSome);
+        StepModel someFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "SomeFromAllMyPerAgeBand");
+        assertEquals(someFromAllMyPerAgeBandSome1, someFromAllMyPerAgeBandSome);
+        StepModel cpFromAllMyPerAgeBandSome = findStep(midStepSomeSteps, "CPFromAllMyPerAgeBand");
+        assertEquals(cpFromAllMyPerAgeBandSome1, cpFromAllMyPerAgeBandSome);
+        StepModel someMultiplyCPSome = findStep(midStepSomeSteps, "SomeMultiplyCP");
+        assertEquals(someMultiplyCPSome1, someMultiplyCPSome);
+        StepModel blendedSome = findStep(midStepSomeSteps, "BlendedSome");
+        assertEquals(blendedSome1, blendedSome);
+
+        SpreadsheetModel setStepSome = findSpreadsheet(spreadsheetResultModels, "SetStepSome");
+        assertEquals(4, setStepSome.getSteps().size());
+        StepModel midStepSomePerAgeBand = findStep(setStepSome.getSteps(), "MidStepSomePerAgeBand");
+        validateGeneratedModel("MidStepSome",
+            midStepSomePerAgeBand.getType(),
+            "MidStepSomePerAgeBand",
+            midStepSomePerAgeBand.getName(),
+            "=MidStepSome1(null,null)",
+            midStepSomePerAgeBand.getValue());
 
     }
 

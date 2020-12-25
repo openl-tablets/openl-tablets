@@ -121,7 +121,7 @@
         }
       }
     },
-    "/myTestWithParams": {
+    "/myTestWithParams/{simpleId}": {
       "post": {
         "description": "request body with text/plain",
         "parameters": [
@@ -149,7 +149,7 @@
         }
       }
     },
-    "/myTestWithParams2": {
+    "/myTestWithParams2/{pidId}": {
       "parameters": [
         {
           "schema": {

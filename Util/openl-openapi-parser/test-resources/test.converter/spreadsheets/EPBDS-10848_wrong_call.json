@@ -1,7 +1,7 @@
 {
   "openapi": "3.0.1",
   "info": {
-    "title": "ren-gb-di-ltd-rating-rules",
+    "title": "test Wrong Calls",
     "version": "1.0.0"
   },
   "servers": [
@@ -13,8 +13,6 @@
   "paths": {
     "/SetStepSome": {
       "post": {
-        "summary": "SetStepSome SetStepSome(StepSome, Double, SpreadsheetResult[], Double)",
-        "description": "Rules method: SpreadsheetResultSetStepSome SetStepSome(org.openl.geneSomed.model.di.ltd.StepSome stepSome, java.lang.Double totalStepSomelope, SpreadsheetResultMidStepSome[] midStepSome, java.lang.Double monthlyCompositeStreetSome)",
         "operationId": "SetStepSome",
         "requestBody": {
           "content": {
@@ -41,9 +39,6 @@
     },
     "/MidStepSome": {
       "post": {
-        "summary": "MidStepSome MidStepSome(String, StepSome[])",
-        "description": "Rules method: SpreadsheetResultMidStepSome MidStepSome(AgeBand ageBand, org.openl.geneSomed.model.di.ltd.StepSome[] stepSome)",
-        "operationId": "MidStepSome",
         "requestBody": {
           "content": {
             "application/json": {
@@ -69,9 +64,6 @@
     },
     "/MidStepSome1": {
       "post": {
-        "summary": "MidStepSome MidStepSome(PlanOutput, Double)",
-        "description": "Rules method: SpreadsheetResultMidStepSome MidStepSome(org.openl.geneSomed.model.di.ltd.PlanOutput planOutput, java.lang.Double blaCoveredTest)",
-        "operationId": "MidStepSome_1",
         "requestBody": {
           "content": {
             "application/json": {
@@ -97,9 +89,6 @@
     },
     "/MiddleStepSome": {
       "post": {
-        "summary": "MiddleStepSome MiddleStepSome(StepSome, PlanOutput, Double)",
-        "description": "Rules method: SpreadsheetResultMiddleStepSome MiddleStepSome(org.openl.geneSomed.model.di.ltd.StepSome stepSome, org.openl.geneSomed.model.di.ltd.PlanOutput planOutput, java.lang.Double blaCoveredTest)",
-        "operationId": "MiddleStepSome",
         "requestBody": {
           "content": {
             "application/json": {
