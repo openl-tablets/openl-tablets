@@ -32,6 +32,8 @@ public class RepositoryConfiguration {
     private final PropertiesHolder properties;
     private final String nameWithPrefix;
 
+    private RepositoryConfiguration configToClone;
+
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
         this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
     }
@@ -50,6 +52,7 @@ public class RepositoryConfiguration {
             PropertiesHolder properties,
             RepositoryConfiguration configToClone) {
         this(configName, properties);
+        this.configToClone = configToClone;
         String suffix = "";
         if (configName.startsWith(configToClone.getConfigName())) {
             suffix = configName.substring(configToClone.getConfigName().length());
@@ -166,7 +169,17 @@ public class RepositoryConfiguration {
             repoType = newRepoType;
             errorMessage = null;
             RepositorySettings newSettings = createSettings(newRepositoryType, properties, nameWithPrefix);
-            newSettings.copyContent(settings);
+            if (configToClone != null) {
+                String suffix = "";
+                if (configName.startsWith(configToClone.getConfigName())) {
+                    suffix = configName.substring(configToClone.getConfigName().length());
+                }
+                configToClone.setType(newRepoType);
+                newSettings.copyContent(configToClone.getSettings());
+                newSettings.applyRepositorySuffix(suffix);
+            } else {
+                newSettings.copyContent(settings);
+            }
             settings = newSettings;
             settings.onTypeChanged(newRepositoryType);
         }
