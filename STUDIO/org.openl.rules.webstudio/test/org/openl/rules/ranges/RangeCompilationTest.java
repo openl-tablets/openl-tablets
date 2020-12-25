@@ -18,8 +18,7 @@ public class RangeCompilationTest {
 
     @Test
     public void testDecisionTableCompilation_and_ConditionEvaluators() throws RulesInstantiationException,
-                                                                       ProjectResolvingException,
-                                                                       ClassNotFoundException {
+                                                                       ProjectResolvingException {
 
         SimpleProjectEngineFactory<?> factory = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>()
             .setProject("test/rules/ranges")
@@ -29,23 +28,23 @@ public class RangeCompilationTest {
         IOpenClass openClass = factory.getCompiledOpenClass().getOpenClass();
 
         DecisionTable dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleTextDates", openClass);
-        assertConditionsNumber(dt, 1);
+        assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 
         dt = findDt("SimpleRules_NotDateRange_WhenNoRangesJustSimpleDates", openClass);
-        assertConditionsNumber(dt, 1);
+        assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 
         dt = findDt("SimpleRules_DateRange_WhenAtLeastOneRangeIsDefined", openClass);
-        assertConditionsNumber(dt, 1);
+        assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], CombinedRangeIndexEvaluator.class);
 
         dt = findDt("NotStringRange_WhenJustSimpleStringAndSkippedPatternAreDefined", openClass);
-        assertConditionsNumber(dt, 1);
+        assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
 
         dt = findDt("StringRange_WhenAtLeastOneRangeDefined", openClass);
-        assertConditionsNumber(dt, 1);
+        assertConditionsNumber(dt);
         assertConditionEvaluatorClass(dt.getConditionRows()[0], EqualsIndexedEvaluator.class);
     }
 
@@ -54,8 +53,8 @@ public class RangeCompilationTest {
         assertSame(tClass, condition.getConditionEvaluator().getClass());
     }
 
-    private void assertConditionsNumber(DecisionTable dt, int expectedConditionCount) {
-        assertEquals(expectedConditionCount, dt.getConditionRows().length);
+    private void assertConditionsNumber(DecisionTable dt) {
+        assertEquals(1, dt.getConditionRows().length);
     }
 
     private DecisionTable findDt(String dtName, IOpenClass openClass) {
