@@ -410,6 +410,19 @@
             </properties>
         </profile>
         <profile>
+            <id>slf4jSimple</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-simple</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>sonar</id>
             <activation>
                 <property>
@@ -1807,7 +1820,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -1820,11 +1832,5 @@
             <artifactId>mockito-all</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-simple</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
-
 </project>
