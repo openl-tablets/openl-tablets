@@ -66,7 +66,7 @@ public class DatasourceDBRepository extends DBRepository {
             if (exception != null) {
                 try {
                     initialContext.close();
-                } catch (Throwable e) {
+                } catch (Exception e) {
                     exception.addSuppressed(new IllegalStateException("Cannot close JNDI context", e));
                 }
             } else {

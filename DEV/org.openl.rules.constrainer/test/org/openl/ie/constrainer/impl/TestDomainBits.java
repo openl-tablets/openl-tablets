@@ -205,8 +205,8 @@ public class TestDomainBits extends TestCase {
                 assertTrue(db.removeValue(i));
             } catch (Failure f) {
                 fail("test failed.");
-            } catch (Throwable ex) {
-                fail("Unexpected exception hasa been thrown");
+            } catch (Exception ex) {
+                fail("Unexpected exception has been thrown.");
             }
             assertFalse(db.contains(i));
             assertEquals(start_size - (i - start_min + 1), db.size());
@@ -225,7 +225,7 @@ public class TestDomainBits extends TestCase {
             db.setMax(_var.min() - 1);
             fail("test of DomainBits failed due to incorrect work of setMax(int)");
         } catch (Failure ignored) {
-        } catch (Throwable e) {
+        } catch (Exception e) {
             fail("Unexpected exception has been thrown.");
         }
         db.bits();
@@ -251,7 +251,7 @@ public class TestDomainBits extends TestCase {
             db.setMin(_var.min() - 1);
             fail("test of DomainBits failed due to incorrect work of setMax(int)");
         } catch (Failure ignored) {
-        } catch (Throwable e) {
+        } catch (Exception e) {
             fail("Unexpected exception has been thrown.");
         }
         db.bits();

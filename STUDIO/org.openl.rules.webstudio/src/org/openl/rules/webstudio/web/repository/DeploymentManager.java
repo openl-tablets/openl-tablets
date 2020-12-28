@@ -258,7 +258,7 @@ public class DeploymentManager implements InitializingBean {
                     }
                 } catch (ProjectException ignored) {
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 LOG.error(
                     "Project loading from repository was failed! " + "Project with name '{}' in deploy configuration '{}' has been skipped.",
                     pd.getProjectName(),

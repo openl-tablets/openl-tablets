@@ -739,7 +739,7 @@ public final class Constrainer implements Serializable {
                     success = false;
                     break;
                 }
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 _out.println("Unexpected exception: " + t.toString());
                 t.printStackTrace(_out);
                 abort("Unexpected exception: ", t);
@@ -1148,7 +1148,7 @@ public final class Constrainer implements Serializable {
                         success = false;
                         break;
                     }
-                } catch (Throwable t) {
+                } catch (Exception t) {
                     _out.println("Unexpected exception: " + t.toString());
                     t.printStackTrace(_out);
                     abort("Unexpected exception: ", t);

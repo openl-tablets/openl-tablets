@@ -121,7 +121,7 @@ public class TBasicVM {
         } catch (ControlSignal signal) {
             // pass through all other OpenL signals
             throw signal;
-        } catch (Throwable error) {
+        } catch (Exception error) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(error, environment);
                 errorOccured = true;

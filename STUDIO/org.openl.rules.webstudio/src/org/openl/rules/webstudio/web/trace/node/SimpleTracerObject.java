@@ -73,7 +73,7 @@ public abstract class SimpleTracerObject implements ITracerObject {
             Object clonedResult;
             try {
                 clonedResult = cloner.deepClone(result);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
                 clonedResult = result;
                 LOG.debug("Ignored error: ", e);

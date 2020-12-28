@@ -39,7 +39,7 @@ final class WorkbookLoadUtils {
                 if (is != null) {
                     is.close();
                 }
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 log.error("Error trying close input stream:", e);
             }
         }

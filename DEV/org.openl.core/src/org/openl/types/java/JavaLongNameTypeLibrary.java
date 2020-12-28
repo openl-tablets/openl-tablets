@@ -54,7 +54,7 @@ public class JavaLongNameTypeLibrary implements ITypeLibrary {
             ioc = JavaOpenClass.getOpenClass(c);
             foundClasses.put(typename, ioc);
             return ioc;
-        } catch (Throwable ignored) {
+        } catch (Exception | LinkageError ignored) {
         }
         return null;
     }

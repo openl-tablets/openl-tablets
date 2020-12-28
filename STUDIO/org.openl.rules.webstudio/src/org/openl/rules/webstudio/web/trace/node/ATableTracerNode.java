@@ -29,7 +29,7 @@ public class ATableTracerNode extends SimpleTracerObject {
             Object[] clonedParams;
             try {
                 clonedParams = cloner.deepClone(params);
-            } catch (Throwable e) {
+            } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
                 LOG.debug("Ignored error: ", e);
                 clonedParams = params;

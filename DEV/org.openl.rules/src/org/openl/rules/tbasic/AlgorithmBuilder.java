@@ -71,7 +71,7 @@ public class AlgorithmBuilder {
                     new EnumDomain<>(algorithmOperationsArray),
                     null),
                 false);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
@@ -98,7 +98,7 @@ public class AlgorithmBuilder {
         }
 
         if (tableBody.getHeight() <= 2) {
-            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2.", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Insufficient rows. Must be more than 2.", null, tsn);
         }
 
         prepareColumns(tableBody);

@@ -72,7 +72,7 @@ public class TaskScheduler {
         return () -> {
             try {
                 command.run();
-            } catch (Throwable e) {
+            } catch (Exception | AssertionError e) {
                 errors.add(e);
             }
         };

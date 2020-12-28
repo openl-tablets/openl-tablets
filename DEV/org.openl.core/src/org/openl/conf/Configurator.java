@@ -20,7 +20,7 @@ public class Configurator {
     public ClassLoader getClassLoader() {
         try {
             return Thread.currentThread().getContextClassLoader();
-        } catch (Throwable t) {
+        } catch (Exception t) {
             LOG.debug("Error occurred on getting class loader: ", t);
             return Configurator.class.getClassLoader();
         }

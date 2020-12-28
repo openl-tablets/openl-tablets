@@ -102,7 +102,7 @@ public class AsyncExecutor {
             while (run) {
                 try {
                     delegate.run();
-                } catch (Throwable error) {
+                } catch (Exception | AssertionError error) {
                     errors.add(error);
                 }
             }

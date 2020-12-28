@@ -166,7 +166,7 @@ public class TraceFormatter {
     private static String format(Object o) {
         try {
             return FormattersManager.format(o);
-        } catch (Throwable e) {
+        } catch (Exception e) {
             Logger log = LoggerFactory.getLogger(TraceFormatter.class);
             log.debug(e.getMessage(), e);
 

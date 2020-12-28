@@ -21,10 +21,10 @@ public class ShowDiffController extends ExcelDiffController implements AutoClose
         addTempFile(tempFile2);
         try {
             compare(Arrays.asList(tempFile1, tempFile2));
-        } catch (Throwable t) {
+        } catch (Exception t) {
             try {
                 deleteTempFiles();
-            } catch (Throwable ignore) {
+            } catch (Exception ignore) {
             }
             throw t;
         } finally {

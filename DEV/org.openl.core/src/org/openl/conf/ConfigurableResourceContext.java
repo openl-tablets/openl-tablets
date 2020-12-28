@@ -58,8 +58,8 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     public Class<?> findClass(String className) {
         try {
             return getClassLoader().loadClass(className);
-        } catch (Throwable t) {
-            LOG.debug("Cannot load class '{}'", className, t);
+        } catch (Exception | LinkageError e) {
+            LOG.debug("Failed to load class '{}'.", className, e);
             return null;
         }
     }

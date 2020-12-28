@@ -6,7 +6,7 @@ import org.openl.rules.TestUtils;
 public class Test3 {
     @Test
     public void test0() {
-        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-0.xls", "Unsufficient rows. Must be more than 2.");
+        TestUtils.assertEx("test/rules/tbasic0/Algorithm3-0.xls", "Insufficient rows. Must be more than 2.");
     }
 
     @Test

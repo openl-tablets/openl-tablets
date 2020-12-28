@@ -100,9 +100,9 @@ public final class JavaImportTypeLibrary implements ITypeLibrary {
                     name,
                     System.getProperty("java.version"));
                 throw RuntimeExceptionWrapper.wrap(message, e);
-            } catch (Throwable t) {
-                log.error("Cannot load class: " + name, t);
-                throw RuntimeExceptionWrapper.wrap(t);
+            } catch (Exception | LinkageError e) {
+                log.error("Cannot load class: " + name, e);
+                throw RuntimeExceptionWrapper.wrap(e);
             }
         }
         notFound.add(typename);

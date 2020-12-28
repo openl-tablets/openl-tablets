@@ -57,20 +57,21 @@ public class DirectoryClassLocator implements ClassLocator {
         }
 
         File[] files = directory.listFiles();
-
-        for (File file : files) {
-            String fileName = file.getName();
-            if (!file.isDirectory()) {
-                String suffix = ".class";
-                if (fileName.endsWith(suffix) && !fileName.contains("$")) {
-                    try {
-                        String className = fileName.substring(0, fileName.length() - suffix.length());
-                        String fullClassName = packageName + '.' + className;
-                        Class<?> type = Class.forName(fullClassName, true, classLoader);
-                        classes.add(type);
-                    } catch (Throwable t) {
-                        for (LocatorExceptionHandler handler : handlers) {
-                            handler.handleClassInstatiateException(t);
+        if (files != null) {
+            for (File file : files) {
+                String fileName = file.getName();
+                if (!file.isDirectory()) {
+                    String suffix = ".class";
+                    if (fileName.endsWith(suffix) && !fileName.contains("$")) {
+                        try {
+                            String className = fileName.substring(0, fileName.length() - suffix.length());
+                            String fullClassName = packageName + '.' + className;
+                            Class<?> type = Class.forName(fullClassName, true, classLoader);
+                            classes.add(type);
+                        } catch (Exception | LinkageError e) {
+                            for (LocatorExceptionHandler handler : handlers) {
+                                handler.handleClassInstatiateException(e);
+                            }
                         }
                     }
                 }

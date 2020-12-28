@@ -68,9 +68,9 @@ public class JarClassLocator implements ClassLocator {
                         if (!className.contains(".") && !className.contains("$")) {
                             try {
                                 classes.add(Class.forName(fullClassName, true, classLoader));
-                            } catch (Throwable t) {
+                            } catch (Exception | LinkageError e) {
                                 for (LocatorExceptionHandler handler : handlers) {
-                                    handler.handleClassInstatiateException(t);
+                                    handler.handleClassInstatiateException(e);
                                 }
                             }
                         }
