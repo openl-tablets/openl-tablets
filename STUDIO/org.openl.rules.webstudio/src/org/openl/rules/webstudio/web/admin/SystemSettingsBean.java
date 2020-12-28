@@ -321,8 +321,9 @@ public class SystemSettingsBean {
         templateConfig.setType(accessType);
 
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
-        
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
+
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig,
+            RepositoryEditor.createValueFinder(configurations, repositoryMode));
         repoConfig.commit();
         return repoConfig;
     }

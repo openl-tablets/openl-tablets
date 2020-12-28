@@ -64,14 +64,14 @@ public class ResolvingStrategiesTest {
 
     @Test
     public void testSimpleZip() throws Exception {
-        Path projectZip = Paths.get("test-resources/Tutorial 1.zip");
+        Path projectZip = Paths.get("test-resources/Tutorial 1%20+.zip");
         try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(projectZip), Collections.emptyMap())) {
             Path zipRoot = fs.getPath("/");
             ResolvingStrategy resolvingStrategy = new SimpleXlsResolvingStrategy();
             assertTrue(resolvingStrategy.isRulesProject(zipRoot));
 
             ProjectDescriptor descriptor = resolvingStrategy.resolveProject(zipRoot);
-            assertEquals("Tutorial 1.zip", descriptor.getName());
+            assertEquals("Tutorial 1%20+.zip", descriptor.getName());
             assertEquals(zipRoot, descriptor.getProjectFolder());
             assertEquals(1, descriptor.getModules().size());
 

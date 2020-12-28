@@ -126,7 +126,11 @@ public final class ZipUtils {
                 URI uriToZip = new URI(path);
                 if (uriToZip.getSchemeSpecificPart().contains("%")) {
                     //FIXME workaround to fix double URI encoding for URIs from ZipPath
-                    uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                    try {
+                        uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                    } catch (URISyntaxException ignored) {
+                        //it's ok
+                    }
                 }
                 return Paths.get(uriToZip);
             } catch (URISyntaxException e) {

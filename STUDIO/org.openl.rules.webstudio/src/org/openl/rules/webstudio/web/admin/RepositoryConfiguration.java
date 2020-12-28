@@ -33,6 +33,7 @@ public class RepositoryConfiguration {
     private final String nameWithPrefix;
 
     private RepositoryConfiguration configToClone;
+    private FreeValueFinder valueFinder;
 
     public RepositoryConfiguration(String configName, PropertyResolver propertiesResolver) {
         this(configName, new ReadOnlyPropertiesHolder(propertiesResolver));
@@ -50,20 +51,18 @@ public class RepositoryConfiguration {
 
     public RepositoryConfiguration(String configName,
             PropertiesHolder properties,
-            RepositoryConfiguration configToClone) {
+            RepositoryConfiguration configToClone,
+            FreeValueFinder valueFinder) {
         this(configName, properties);
         this.configToClone = configToClone;
-        String suffix = "";
-        if (configName.startsWith(configToClone.getConfigName())) {
-            suffix = configName.substring(configToClone.getConfigName().length());
-        }
+        this.valueFinder = valueFinder;
         // do not copy configName, only content
-        setName(configToClone.getName() + suffix);
+        setName(valueFinder.find("name", configToClone.getName()));
         oldName = name;
 
         setType(configToClone.getType());
         settings.copyContent(configToClone.getSettings());
-        settings.applyRepositorySuffix(suffix);
+        settings.applyRepositorySuffix(valueFinder);
     }
 
     public PropertiesHolder getProperties() {
@@ -170,13 +169,9 @@ public class RepositoryConfiguration {
             errorMessage = null;
             RepositorySettings newSettings = createSettings(newRepositoryType, properties, nameWithPrefix);
             if (configToClone != null) {
-                String suffix = "";
-                if (configName.startsWith(configToClone.getConfigName())) {
-                    suffix = configName.substring(configToClone.getConfigName().length());
-                }
                 configToClone.setType(newRepoType);
                 newSettings.copyContent(configToClone.getSettings());
-                newSettings.applyRepositorySuffix(suffix);
+                newSettings.applyRepositorySuffix(valueFinder);
             } else {
                 newSettings.copyContent(settings);
             }

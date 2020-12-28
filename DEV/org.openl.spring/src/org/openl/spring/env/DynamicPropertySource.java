@@ -31,8 +31,8 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     private final RawPropertyResolver resolver;
     private final String appName;
 
-    private Properties settings;
-    private long timestamp;
+    private volatile Properties settings;
+    private volatile long timestamp;
 
     public DynamicPropertySource(String appName, RawPropertyResolver resolver) {
         super(PROPS_NAME);
