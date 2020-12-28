@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.FileVisitResult;
@@ -124,13 +125,30 @@ public class ProjectDescriptor {
         this.classpath = classpath;
     }
 
+    private URI fixJarURI(URI jarURI) {
+        if ("jar".equals(jarURI.getScheme())) {
+            String path = jarURI.toString();
+            try {
+                URI uriToZip = new URI(path);
+                if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                    uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                }
+                return uriToZip;
+            } catch (URISyntaxException e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        }
+        return jarURI;
+    }
+
     public URL[] getClassPathUrls() {
         if (projectFolder == null) {
             return new URL[] {};
         }
         URL projectUrl;
         try {
-            projectUrl = projectFolder.toUri().normalize().toURL();
+            projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
         } catch (MalformedURLException e) {
             return new URL[] {};
         }
