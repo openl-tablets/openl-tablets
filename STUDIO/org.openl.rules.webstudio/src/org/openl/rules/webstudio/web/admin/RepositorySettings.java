@@ -213,9 +213,8 @@ public abstract class RepositorySettings {
 
     /**
      * Change repository settings to distinguish from other repository. Used when create a new repository based on template.
-     * @param suffix repository id suffix
      */
-    public void applyRepositorySuffix(String suffix) {
+    public void applyRepositorySuffix(FreeValueFinder valueFinder) {
     }
 
     public RepositorySettingsValidators getValidators() {

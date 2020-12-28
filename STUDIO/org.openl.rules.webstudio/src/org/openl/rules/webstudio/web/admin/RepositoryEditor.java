@@ -72,6 +72,35 @@ public class RepositoryEditor {
         return configName + (max.incrementAndGet());
     }
 
+    public static FreeValueFinder createValueFinder(List<RepositoryConfiguration> configurations, RepositoryMode repoMode) {
+        return (paramNameSuffix, value) -> {
+            AtomicInteger max = new AtomicInteger(0);
+            String configName = repoMode.getId();
+            Set<String> configNames = configurations.stream().map(RepositoryConfiguration::getConfigName).collect(Collectors
+                .toSet());
+
+            //existingConfigNames can contain ids that were deleted but were not saved, such ids should not be assigned to a new repository
+            String existingConfigNames = Props.getEnvironment().getProperty(configName + "-repository-configs");
+            if (StringUtils.isNotEmpty(existingConfigNames)) {
+                configNames.addAll(Arrays.asList(existingConfigNames.split(",")));
+            }
+            configNames.forEach(rc -> configurations.forEach(configuration -> {
+                String repoValue = configuration.getPropertiesToValidate()
+                    .getProperty(Comments.REPOSITORY_PREFIX + rc + "." + paramNameSuffix);
+                if (repoValue != null && repoValue.startsWith(value)) {
+                    final String suffix = repoValue.substring(value.length());
+                    if (suffix.matches("\\d+")) {
+                        int i = Integer.parseInt(suffix);
+                        if (i > max.get()) {
+                            max.set(i);
+                        }
+                    }
+                }
+            }));
+            return value + (max.incrementAndGet());
+        };
+    }
+
     private static String getFirstConfigName(String configNames) {
         if (configNames == null || configNames.isEmpty()) {
             throw new IllegalArgumentException("Config names were not found");

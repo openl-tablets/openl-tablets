@@ -305,13 +305,14 @@ public class GitRepositorySettings extends RepositorySettings {
     }
 
     @Override
-    public void applyRepositorySuffix(String suffix) {
-        super.applyRepositorySuffix(suffix);
+    public void applyRepositorySuffix(FreeValueFinder valueFinder) {
+        super.applyRepositorySuffix(valueFinder);
         String path = getLocalRepositoryPath();
         if (path.endsWith("/")) {
             path = path.substring(0, path.length() - 1);
         }
-        setLocalRepositoryPath(path + suffix);
+        final String paramNameSuffix = LOCAL_REPOSITORY_PATH.substring(CONFIG_PREFIX.length() + 1);
+        setLocalRepositoryPath(valueFinder.find(paramNameSuffix, path));
     }
 
     @Override
