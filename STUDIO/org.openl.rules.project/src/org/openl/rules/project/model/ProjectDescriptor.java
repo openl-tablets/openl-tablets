@@ -127,16 +127,16 @@ public class ProjectDescriptor {
 
     private URI fixJarURI(URI jarURI) {
         if ("jar".equals(jarURI.getScheme())) {
-            try {
-                URI uriToZip = jarURI;
-                if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+            URI uriToZip = jarURI;
+            if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                try {
                     uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                } catch (URISyntaxException ignored) {
+                    //it's ok. let's use original one
                 }
-                return uriToZip;
-            } catch (URISyntaxException e) {
-                throw RuntimeExceptionWrapper.wrap(e);
             }
+            return uriToZip;
         }
         return jarURI;
     }
