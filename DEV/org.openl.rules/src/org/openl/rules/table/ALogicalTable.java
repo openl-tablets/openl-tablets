@@ -71,23 +71,9 @@ public abstract class ALogicalTable implements ILogicalTable {
             .append(")")
             .append("\n");
 
-        int height = getHeight();
-        int width = getWidth();
-        if (width > 0) {
-            // Include height of merged cells
-            for (int i = 0; i < height; i++) {
-                height += getSource().getCell(0, i).getHeight() - 1;
-            }
-        }
-        if (height > 0) {
-            // Include width of merged cells
-            for (int j = 0; j < width; j++) {
-                width += getSource().getCell(j, 0).getWidth() - 1;
-            }
-        }
-        for (int i = 0; i < height; i++) {
+        for (int i = 0; i < getSource().getHeight(); i++) {
             int length = 0;
-            for (int j = 0; j < width; j++) {
+            for (int j = 0; j < getSource().getWidth(); j++) {
                 String stringValue = getSource().getCell(j, i).getStringValue();
                 if (stringValue == null) {
                     stringValue = "EMPTY";
