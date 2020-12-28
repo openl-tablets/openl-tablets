@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.rules.common.ProjectVersion;
@@ -23,7 +22,6 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(ProjectVersionCacheMonitor.class);
 
     private ScheduledExecutorService scheduledPool;
-    private ScheduledFuture<?> scheduled;
     private ProjectVersionH2CacheDB projectVersionCacheDB;
     private ProjectVersionCacheManager projectVersionCacheManager;
     private DesignTimeRepository designRepository;
@@ -41,7 +39,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         }
     }
 
-    private void recalculateDesignRepositoryCache() throws IOException {
+    private void recalculateDesignRepositoryCache() throws IOException, InterruptedException {
         Collection<? extends AProject> projects = designRepository.getProjects();
         for (AProject project : projects) {
             if (project.isDeleted()) {
@@ -53,7 +51,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         projectVersionCacheDB.setCacheCalculatedState(true);
     }
 
-    private void cacheDesignProject(AProject project) throws IOException {
+    private void cacheDesignProject(AProject project) throws IOException, InterruptedException {
         Repository repository = designRepository.getRepository(project.getRepository().getId());
         List<ProjectVersion> versions = project.getVersions();
         if (repository.supports().branches()) {
@@ -68,6 +66,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             .getCreatedAt()
             .compareTo(pr1.getVersionInfo().getCreatedAt()));
         for (ProjectVersion projectVersion : versions) {
+            if (Thread.currentThread().isInterrupted()) {
+                throw new InterruptedException("Project monitor cache task is interrupted.");
+            }
             if (projectVersion.isDeleted()) {
                 continue;
             }
@@ -115,27 +116,32 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                 t.setDaemon(true);
                 return t;
             });
-            scheduled = scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
+            scheduledPool.scheduleWithFixedDelay(this, 1, PERIOD, TimeUnit.SECONDS);
         }
     }
 
+    /**
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
+     */
     public synchronized void release() {
-        if (scheduledPool != null) {
-            scheduledPool.shutdownNow();
+        if (scheduledPool == null) {
+            return;
         }
-        if (scheduled != null) {
-            scheduled.cancel(true);
-            scheduled = null;
-        }
-        if (scheduledPool != null) {
-            try {
-                scheduledPool.awaitTermination(PERIOD, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                log.debug(e.getMessage(), e);
-                // Restore interrupted state...
-                Thread.currentThread().interrupt();
+        scheduledPool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!scheduledPool.awaitTermination(PERIOD * 3, TimeUnit.SECONDS)) {
+                scheduledPool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!scheduledPool.awaitTermination(PERIOD * 3, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("Unable to terminate project version cache monitor task.");
+                }
             }
-            scheduledPool = null;
+        } catch (InterruptedException ie) {
+            // (Re-)Cancel if current thread also interrupted
+            scheduledPool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
         }
     }
 }
