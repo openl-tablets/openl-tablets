@@ -130,7 +130,10 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         if (scheduledPool != null) {
             try {
                 scheduledPool.awaitTermination(PERIOD, TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) {
+            } catch (InterruptedException e) {
+                log.debug(e.getMessage(), e);
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
             }
             scheduledPool = null;
         }

@@ -109,6 +109,8 @@ public class ChangesMonitor implements Runnable {
             try {
                 scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
             } catch (InterruptedException e) {
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
                 LOG.debug("Ignored error: ", e);
             }
             scheduledPool = null;

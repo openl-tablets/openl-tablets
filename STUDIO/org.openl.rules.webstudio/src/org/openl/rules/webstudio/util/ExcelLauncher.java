@@ -111,6 +111,8 @@ public class ExcelLauncher {
                     excelLaunchProcess.destroy();
                 }
             } catch (InterruptedException e) {
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
                 // do nothing
             }
         });
