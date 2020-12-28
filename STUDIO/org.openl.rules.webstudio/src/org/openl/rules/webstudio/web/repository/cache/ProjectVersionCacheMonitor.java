@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.repository.cache;
 
 import java.io.IOException;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -62,9 +63,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
         } else {
             versions.addAll(project.getVersions());
         }
-        versions.sort((ProjectVersion pr1, ProjectVersion pr2) -> pr2.getVersionInfo()
-            .getCreatedAt()
-            .compareTo(pr1.getVersionInfo().getCreatedAt()));
+        versions.sort(Comparator.comparing(p -> p.getVersionInfo().getCreatedAt(), Comparator.reverseOrder()));
         for (ProjectVersion projectVersion : versions) {
             if (Thread.currentThread().isInterrupted()) {
                 throw new InterruptedException("Project monitor cache task is interrupted.");
