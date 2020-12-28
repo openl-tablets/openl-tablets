@@ -127,9 +127,8 @@ public class ProjectDescriptor {
 
     private URI fixJarURI(URI jarURI) {
         if ("jar".equals(jarURI.getScheme())) {
-            String path = jarURI.toString();
             try {
-                URI uriToZip = new URI(path);
+                URI uriToZip = jarURI;
                 if (uriToZip.getSchemeSpecificPart().contains("%")) {
                     //FIXME workaround to fix double URI encoding for URIs from ZipPath
                     uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());

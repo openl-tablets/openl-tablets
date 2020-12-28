@@ -19,11 +19,11 @@ Content-Type: application/json
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
-            "name": "EPBDS-10916 Whitespaces in Name #.zip_EPBDS-10916 Whitespaces in Name #.zip",
-            "servicePath": "EPBDS-10916 Whitespaces in Name #.zip",
+            "name": "EPBDS-10916%20Whitespaces in Name #.zip_EPBDS-10916%20Whitespaces in Name #.zip",
+            "servicePath": "EPBDS-10916%20Whitespaces in Name #.zip",
             "urls": {
-                "WEBSERVICE": "EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip",
-                "RESTFUL": "REST/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%20Whitespaces%20in%20Name%20%23.zip"
+                "WEBSERVICE": "EPBDS-10916%2520Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520Whitespaces%20in%20Name%20%23.zip",
+                "RESTFUL": "REST/EPBDS-10916%2520Whitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520Whitespaces%20in%20Name%20%23.zip"
             },
             "hasManifest": false,
             "status": "DEPLOYED"
