@@ -42,6 +42,7 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.types.NullOpenClass;
 import org.openl.util.ParserUtils;
 import org.openl.util.TableNameChecker;
 import org.openl.syntax.exception.SyntaxNodeException;
@@ -123,7 +124,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
      *
      * @param bindingContext binding context
      */
-    private void readFieldsAndGenerateByteCode(final IBindingContext bindingContext) throws Exception {
+    private void readFieldsAndGenerateByteCode(final IBindingContext bindingContext) {
 
         final ILogicalTable dataTable = DatatypeHelper.getNormalizedDataPartTable(table, openl, bindingContext);
         // Save normalized table to work with it later
@@ -167,14 +168,14 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
                 Class<?> beanClass = classLoader.loadClass(datatypeClassName);
                 byteCodeReadyToLoad = true;
                 validateDatatypeClass(beanClass, fields, bindingContext);
-                LOG.debug("Loaded from classloader class '{}' is used.", datatypeClassName);
+                LOG.debug("Class '{}' is loaded from classloader.", datatypeClassName);
             } catch (ClassNotFoundException e) {
                 try {
                     final byte[] byteCode = buildByteCodeForDatatype(fields);
                     classLoader.addGeneratedClass(datatypeClassName, byteCode);
                     dataType.setBytecode(byteCode);
                     byteCodeReadyToLoad = true;
-                    LOG.debug("Generated at runtime class '{}' is used.", datatypeClassName);
+                    LOG.debug("Class '{}' is generated and loaded to classloader.", datatypeClassName);
                 } catch (ByteCodeGenerationException e1) {
                     LOG.debug("Error occurred: ", e1);
                     String errorMessage = String
@@ -484,7 +485,9 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             return;
         }
         IOpenClass fieldType = RuleRowHelper.getType(typeCellSource.getCode(), typeCellSource, bindingContext);
-
+        if (fieldType == NullOpenClass.the) {
+            fieldType = JavaOpenClass.OBJECT;
+        }
         GridCellSourceCodeModule nameCellSource = getCellSource(row, bindingContext, 1);
         final String code = nameCellSource.getCode();
         String contextPropertyName;

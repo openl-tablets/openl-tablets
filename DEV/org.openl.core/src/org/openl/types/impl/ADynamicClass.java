@@ -61,7 +61,8 @@ public abstract class ADynamicClass extends AOpenClass {
         }
 
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
-            Method[] mm = instanceClass.getDeclaredMethods();
+            try {
+                Method[] mm = instanceClass.getDeclaredMethods();
             if (isPublic(instanceClass)) {
                 for (Method method : mm) {
                     if (isPublic(method)) {
@@ -69,7 +70,9 @@ public abstract class ADynamicClass extends AOpenClass {
                         MethodKey kom = new MethodKey(om);
                         methodMap.put(kom, om);
                     }
+                    }
                 }
+            } catch (LinkageError ignored) {
             }
         }
 
