@@ -3,6 +3,7 @@ package org.openl.rules.openapi.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -42,6 +43,7 @@ public class OpenAPIJavaClassGenerator {
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
+    public static final String DEFAULT_OPEN_API_PATH = "org.openl.generated.openapi";
 
     private final ProjectModel projectModel;
 
@@ -56,7 +58,10 @@ public class OpenAPIJavaClassGenerator {
      */
     private boolean generateDecision(SpreadsheetModel method) {
         final PathInfo pathInfo = method.getPathInfo();
-        if (!pathInfo.getOriginalPath().equals("/" + pathInfo.getFormattedPath())) {
+        StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
+        method.getParameters().stream().filter(InputParameter::isInPath).map(InputParameter::getName)
+                .forEach(name -> sb.append("/{").append(name).append('}'));
+        if (!pathInfo.getOriginalPath().equals(sb.toString())) {
             //if method name doesn't match expected path
             return true;
         }
@@ -106,10 +111,10 @@ public class OpenAPIJavaClassGenerator {
                 //if RuntimeContext is provided, POST by default.
                 return true;
             }
-            if (parameters.size() > 1) {
-                //if more than one parameter, POST by default.
+            if (parameters.size() > 3) {
+                //if more than 3 parameters, POST by default.
                 return true;
-            } else if (parameters.size() == 1 && parameters.get(0).getType().isReference()) {
+            } else if (!parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
                 //if there is one not simple parameter, POST by default.
                 return true;
             }
@@ -118,7 +123,7 @@ public class OpenAPIJavaClassGenerator {
                 if (parameters.isEmpty()) {
                     //if no context and empty params, GET by default.
                     return true;
-                } else if (parameters.size() == 1 && !parameters.get(0).getType().isReference()) {
+                } else if (parameters.size() < 4 && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
                     //if no context and there is one simple parameter, GET by default.
                     return true;
                 }
@@ -132,7 +137,7 @@ public class OpenAPIJavaClassGenerator {
 
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
-            .createWithDefaultPackage("OpenAPIService");
+            .create(DEFAULT_OPEN_API_PATH, "OpenAPIService");
         boolean hasMethods = false;
         for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
             if (!generateDecision(method)) {
@@ -147,7 +152,7 @@ public class OpenAPIJavaClassGenerator {
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         for (SpreadsheetModel extraMethod : projectModel.getNotOpenLModels()) {
             hasMethods = true;
-            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class);
+            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class, DEFAULT_OPEN_API_PATH);
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
                 extraMethodBuilder.byteCode());
             builder.addCommonClass(javaClassFile);

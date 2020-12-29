@@ -95,24 +95,33 @@ public class ChangesMonitor implements Runnable {
 
     /**
      * Stop the monitor.
+     *
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
      */
     public synchronized void release() {
         getter = null;
-        if (scheduledPool != null) {
-            scheduledPool.shutdownNow();
+        scheduled = null;
+        if (scheduledPool == null) {
+            return;
         }
-        if (scheduled != null) {
-            scheduled.cancel(true);
-            scheduled = null;
-        }
-        if (scheduledPool != null) {
-            try {
-                scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
-            } catch (InterruptedException e) {
-                LOG.debug("Ignored error: ", e);
+        scheduledPool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!scheduledPool.awaitTermination(period * 3L, TimeUnit.SECONDS)) {
+                scheduledPool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!scheduledPool.awaitTermination(period * 3L, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("Unable to terminate changes monitor task.");
+                }
             }
-            scheduledPool = null;
+        } catch (InterruptedException e) {
+            LOG.debug("Ignored error: ", e);
+            // (Re-)Cancel if current thread also interrupted
+            scheduledPool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
         }
+        scheduledPool = null;
     }
 
     private Object getRevision() {

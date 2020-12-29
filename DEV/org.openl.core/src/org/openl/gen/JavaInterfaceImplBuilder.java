@@ -12,7 +12,8 @@ import org.openl.util.RuntimeExceptionWrapper;
  */
 public class JavaInterfaceImplBuilder {
 
-    private static final String NAME_PATTERN = "org.openl.generated.$%o%sImpl";
+    private static final String DEFAULT_PACKAGE = "org.openl.generated";
+    private static final String NAME_PATTERN = ".$%o%sImpl";
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final Class<?> clazzInterface;
@@ -20,13 +21,17 @@ public class JavaInterfaceImplBuilder {
     private final Map<String, FieldDescription> beanFields = new TreeMap<>();
     private final List<MethodDescription> beanStubMethods = new ArrayList<>();
 
-    public JavaInterfaceImplBuilder(Class<?> clazzInterface) {
+    public JavaInterfaceImplBuilder(Class<?> clazzInterface, String packagePath) {
         if (!clazzInterface.isInterface()) {
             throw new IllegalArgumentException("Target class is not an interface.");
         }
         this.clazzInterface = clazzInterface;
-        this.beanName = String.format(NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
+        this.beanName = String.format(packagePath + NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
         init();
+    }
+
+    public JavaInterfaceImplBuilder(Class<?> clazzInterface) {
+        this(clazzInterface, DEFAULT_PACKAGE);
     }
 
     private void init() {

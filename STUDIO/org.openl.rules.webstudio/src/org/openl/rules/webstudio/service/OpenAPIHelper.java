@@ -21,7 +21,7 @@ import org.openl.util.StringUtils;
 
 public class OpenAPIHelper {
 
-    public static final String DEF_JAVA_CLASS_PATH = "openAPIclasses";
+    public static final String DEF_JAVA_CLASS_PATH = "classes";
 
     public InputStream generateAlgorithmsModule(final List<SpreadsheetModel> spreadsheetModels,
             final List<DataModel> dataModels,

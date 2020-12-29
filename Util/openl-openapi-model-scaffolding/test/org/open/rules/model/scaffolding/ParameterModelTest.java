@@ -11,9 +11,9 @@ public class ParameterModelTest {
 
     @Test
     public void testParameterModelCreation() {
-        ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
-        ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
-        ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "surname");
+        ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class), "name");
+        ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class), "name");
+        ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");
         ParameterModel integerParam = new ParameterModel();
 
         assertEquals(nameParam, nameParam);

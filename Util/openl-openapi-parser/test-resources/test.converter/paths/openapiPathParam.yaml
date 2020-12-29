@@ -65,7 +65,7 @@ paths:
         200:
           description: successful operation
           content:
-            application/json:
+            text/plain:
               schema:
                 $ref: '#/components/schemas/Pet'
         400:

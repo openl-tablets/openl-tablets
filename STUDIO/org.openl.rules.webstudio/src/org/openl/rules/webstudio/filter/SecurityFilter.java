@@ -29,6 +29,9 @@ public class SecurityFilter implements Filter {
             FilterChain filterChain) throws IOException, ServletException {
         servletRequest.setCharacterEncoding("UTF-8");
         ServletContext sc = servletRequest.getServletContext();
+        /*has been moved ahead as there is the case when step3 in wizard has a user mode choosen
+          and new filterChainProxy object required but context still have an old one, see comment in the EPBDS-10752*/
+        SpringInitializer.refresh(sc);
         Lock readLock = SpringInitializer.getLock(sc);
         readLock.lock();
         try {
@@ -41,7 +44,6 @@ public class SecurityFilter implements Filter {
         } finally {
             readLock.unlock();
         }
-        SpringInitializer.refresh(sc);
         if (servletRequest instanceof HttpServletRequest) {
             HttpServletRequest request = (HttpServletRequest) servletRequest;
             HttpSession session = request.getSession(false);

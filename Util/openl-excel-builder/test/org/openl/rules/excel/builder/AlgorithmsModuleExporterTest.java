@@ -47,8 +47,8 @@ public class AlgorithmsModuleExporterTest {
         resultModel.setName("TestSpr");
 
         resultModel.setParameters(
-            Arrays.asList(new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer"), "id"),
-                new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer"), "count")));
+            Arrays.asList(new ParameterModel(new TypeInfo(Integer.class), "id"),
+                new ParameterModel(new TypeInfo(Integer.class), "count")));
 
         StepModel longStep = new StepModel("balance", "Long", "=0L");
         StepModel formulaStepUpperCase = new StepModel("Formula", "String", "=Test");

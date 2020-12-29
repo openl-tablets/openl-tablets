@@ -65,8 +65,10 @@ public abstract class AbstractProductionRepoController {
     }
 
     protected RepositoryConfiguration createRepositoryConfiguration() {
-        String newConfigName = RepositoryEditor.getNewConfigName(getProductionRepositoryConfigurations(), RepositoryMode.PRODUCTION);
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, repositoryConfiguration);
+        final List<RepositoryConfiguration> configurations = getProductionRepositoryConfigurations();
+        String newConfigName = RepositoryEditor.getNewConfigName(configurations, RepositoryMode.PRODUCTION);
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, repositoryConfiguration,
+            RepositoryEditor.createValueFinder(configurations, RepositoryMode.PRODUCTION));
         repoConfig.commit();
         return repoConfig;
     }

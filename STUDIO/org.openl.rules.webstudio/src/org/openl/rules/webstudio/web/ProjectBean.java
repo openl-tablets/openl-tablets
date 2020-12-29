@@ -934,7 +934,7 @@ public class ProjectBean {
 
     private void deletePreviouslyGeneratedOpenAPIClasses(RulesProject currentProject) {
         try {
-            currentProject.deleteArtefactsInFolder(OpenAPIHelper.DEF_JAVA_CLASS_PATH);
+            currentProject.deleteArtefactsInFolder(OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/" + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".","/"));
         } catch (ProjectException e) {
             log.error(e.getMessage(), e);
             throw new Message(

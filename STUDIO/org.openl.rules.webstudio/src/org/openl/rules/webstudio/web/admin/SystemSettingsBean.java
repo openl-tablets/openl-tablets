@@ -223,8 +223,7 @@ public class SystemSettingsBean {
 
             if (!isUseDesignRepo()) {
                 RepositoryValidators.validate(deployConfigRepositoryConfiguration);
-                RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration,
-                    designTimeRepository);
+                RepositoryValidators.validateConnectionForDesignRepository(deployConfigRepositoryConfiguration);
             }
 
             productionRepositoryEditor.validate();
@@ -321,8 +320,9 @@ public class SystemSettingsBean {
         templateConfig.setType(accessType);
 
         String newConfigName = RepositoryEditor.getNewConfigName(configurations, repositoryMode);
-        
-        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig);
+
+        RepositoryConfiguration repoConfig = new RepositoryConfiguration(newConfigName, properties, templateConfig,
+            RepositoryEditor.createValueFinder(configurations, repositoryMode));
         repoConfig.commit();
         return repoConfig;
     }
