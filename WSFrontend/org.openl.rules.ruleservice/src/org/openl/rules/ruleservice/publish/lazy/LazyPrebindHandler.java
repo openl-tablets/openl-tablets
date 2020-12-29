@@ -141,6 +141,8 @@ class LazyPrebindHandler implements IPrebindHandler {
             } catch (OpenLCompilationException e) {
                 throw e;
             } catch (InterruptedException e) {
+                // Restore interrupted state...
+                Thread.currentThread().interrupt();
                 throw new OpenLCompilationException("Interrupted exception.", e);
             } catch (Exception e) {
                 throw new OpenLCompilationException("Failed to compile.", e);

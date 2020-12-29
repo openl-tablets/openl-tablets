@@ -82,6 +82,8 @@ public class TestSuite implements INamedThing {
         try {
             countDownLatch.await();
         } catch (InterruptedException ignored) {
+            // Restore interrupted state...
+            Thread.currentThread().interrupt();
         }
         for (int i = 0; i < getNumberOfTests(); i++) {
             testUnitResults.addTestUnit(testUnitResultsArray[i]);

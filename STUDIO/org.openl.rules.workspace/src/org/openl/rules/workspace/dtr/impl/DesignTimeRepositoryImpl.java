@@ -437,18 +437,10 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public List<Repository> getRepositories() {
-        if (repositories == null) {
-            // repository field can be cleared in Admin page during testing connection to a new repository
-            init();
-        }
         return repositories;
     }
 
     private Repository getDeployConfigRepository() {
-        if (deployConfigRepository == null) {
-            // deployConfigRepository field can be cleared in Admin page during testing connection to a new repository
-            init();
-        }
         return deployConfigRepository;
     }
 
