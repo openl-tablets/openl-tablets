@@ -43,6 +43,7 @@ public class OpenAPIJavaClassGenerator {
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
+    public static final String DEFAULT_OPEN_API_PATH = "org.openl.generated.openapi";
 
     private final ProjectModel projectModel;
 
@@ -136,7 +137,7 @@ public class OpenAPIJavaClassGenerator {
 
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
-            .createWithDefaultPackage("OpenAPIService");
+            .create(DEFAULT_OPEN_API_PATH, "OpenAPIService");
         boolean hasMethods = false;
         for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
             if (!generateDecision(method)) {
@@ -151,7 +152,7 @@ public class OpenAPIJavaClassGenerator {
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         for (SpreadsheetModel extraMethod : projectModel.getNotOpenLModels()) {
             hasMethods = true;
-            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class);
+            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class, DEFAULT_OPEN_API_PATH);
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
                 extraMethodBuilder.byteCode());
             builder.addCommonClass(javaClassFile);

@@ -54,6 +54,11 @@ public class JavaInterfaceByteCodeBuilder {
         return new JavaInterfaceByteCodeBuilder(JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + interfaceName);
     }
 
+    public static JavaInterfaceByteCodeBuilder create(String packagePath, String interfaceName) {
+        interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
+        return new JavaInterfaceByteCodeBuilder(packagePath + "." + interfaceName);
+    }
+
     static String requireNonBlank(String str, String message) {
         if (StringUtils.isBlank(str)) {
             throw new IllegalArgumentException(message);
