@@ -5,6 +5,8 @@ package org.openl.rules.table;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.table.properties.PropertiesHelper;
 
@@ -207,10 +209,10 @@ public class CompositeGrid extends AGrid {
      *
      */
     private void initMergedRegions() {
-        ArrayList<IGridRegion> mergedRegionsList = new ArrayList<>();
+        List<IGridRegion> mergedRegionsList = new ArrayList<>();
 
         // hash set of source grids for every table
-        HashSet<IGrid> gridSet = getGridSet();
+        Set<IGrid> gridSet = getGridSet();
 
         for (IGrid grid : gridSet) {
             for (int i = 0; i < grid.getNumberOfMergedRegions(); i++) {
@@ -229,7 +231,17 @@ public class CompositeGrid extends AGrid {
                     // check if merged region on the sheet belongs to table
                     // region
                     IGridRegion intersection = IGridRegion.Tool.intersect(mergedRegion, tableRegion);
+
                     if (intersection != null) {
+                        if (!gridTables[j].isNormalOrientation()) {
+                            int left = intersection.getTop();
+                            int top = intersection.getLeft();
+
+                            int right = intersection.getBottom();
+                            int bottom = intersection.getRight();
+
+                            intersection = new GridRegion(top, left, bottom, right);
+                        }
                         // there is an intersection between merged region and
                         // table region
                         // and we need to move merged region to current grid.
@@ -247,8 +259,8 @@ public class CompositeGrid extends AGrid {
         mergedRegions = mergedRegionsList.toArray(IGridRegion.EMPTY_REGION);
     }
 
-    private HashSet<IGrid> getGridSet() {
-        HashSet<IGrid> gridSet = new HashSet<>();
+    private Set<IGrid> getGridSet() {
+        Set<IGrid> gridSet = new HashSet<>();
         for (IGridTable gridTable : gridTables) {
             gridSet.add(gridTable.getGrid());
         }
