@@ -731,7 +731,6 @@ public class DataTableBindHelper {
     }
 
     private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
-            ITable table,
             TestMethodOpenClass testMethodOpenClass,
             IBindingContext bindingContext) {
         int typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
@@ -804,16 +803,13 @@ public class DataTableBindHelper {
                     continue;
                 }
                 // Multi-rows support. PK for arrays.
-                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField =
-                        (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
-                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField =
-                        new CollectionElementWithMultiRowField(
-                                datatypeCollectionMultiRowElementField.getField(),
-                                datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
-                                JavaOpenClass.STRING,
-                                datatypeCollectionMultiRowElementField.getCollectionType(),
-                                true
-                        );
+                CollectionElementWithMultiRowField datatypeCollectionMultiRowElementField = (CollectionElementWithMultiRowField) fieldAccessorChain[fieldIndex - 1];
+                CollectionElementWithMultiRowField newDatatypeArrayMultiRowElementField = new CollectionElementWithMultiRowField(
+                    datatypeCollectionMultiRowElementField.getField(),
+                    datatypeCollectionMultiRowElementField.getFieldPathFromRoot(),
+                    JavaOpenClass.STRING,
+                    datatypeCollectionMultiRowElementField.getCollectionType(),
+                    true);
                 IOpenField[] fieldAccessorChainTmp = new IOpenField[fieldAccessorChainTokens.length - 1];
                 System.arraycopy(fieldAccessorChain, 0, fieldAccessorChainTmp, 0, fieldAccessorChainTokens.length - 1);
                 fieldAccessorChain = fieldAccessorChainTmp;
@@ -833,7 +829,7 @@ public class DataTableBindHelper {
             if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
                 identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
                     .isAssignable(type.getInstanceClass(), List.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, table, null, bindingContext);
+                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
                     CollectionType.LIST);
@@ -844,7 +840,7 @@ public class DataTableBindHelper {
             if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
                 identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
                     .isAssignable(type.getInstanceClass(), Map.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, table, null, bindingContext);
+                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);
                 loadedFieldType = elementType;
@@ -883,11 +879,9 @@ public class DataTableBindHelper {
                 }
             }
 
-            if (fieldIndex > 0
-                    && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField
-                        || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField))
-                    && fieldAccessorChain[fieldIndex - 1].getType().equals(JavaOpenClass.OBJECT)
-                    && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
+            if (fieldIndex > 0 && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField)) && fieldAccessorChain[fieldIndex - 1]
+                .getType()
+                .equals(JavaOpenClass.OBJECT) && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
                 AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
                 aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
             }
@@ -1077,7 +1071,6 @@ public class DataTableBindHelper {
         if (multiRowElement) {
             if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    table,
                     loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                     bindingContext);
                 collectionAccessField = new CollectionElementWithMultiRowField(field,
@@ -1115,7 +1108,6 @@ public class DataTableBindHelper {
                     return null;
                 }
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    table,
                     loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                     bindingContext);
                 collectionAccessField = new CollectionElementField(field, mapKey, elementType);
@@ -1132,7 +1124,6 @@ public class DataTableBindHelper {
                 }
                 if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                        table,
                         loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                         bindingContext);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);

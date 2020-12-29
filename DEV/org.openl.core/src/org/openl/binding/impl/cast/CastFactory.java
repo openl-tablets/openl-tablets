@@ -531,6 +531,10 @@ public class CastFactory implements ICastFactory {
             }
         }
 
+        if (from.getInstanceClass() == null || to.getInstanceClass() == null) {
+            return null;
+        }
+
         if (ThrowableVoid.class == from.getInstanceClass()) {
             return ThrowableVoidCast.getInstance();
         }

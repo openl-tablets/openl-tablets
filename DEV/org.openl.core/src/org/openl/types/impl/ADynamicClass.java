@@ -61,13 +61,16 @@ public abstract class ADynamicClass extends AOpenClass {
         }
 
         if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
-            Method[] mm = instanceClass.getDeclaredMethods();
-            for (Method method : mm) {
-                if (isPublic(method)) {
-                    JavaOpenMethod om = new JavaOpenMethod(method);
-                    MethodKey kom = new MethodKey(om);
-                    methodMap.put(kom, om);
+            try {
+                Method[] mm = instanceClass.getDeclaredMethods();
+                for (Method method : mm) {
+                    if (isPublic(method)) {
+                        JavaOpenMethod om = new JavaOpenMethod(method);
+                        MethodKey kom = new MethodKey(om);
+                        methodMap.put(kom, om);
+                    }
                 }
+            } catch (LinkageError ignored) {
             }
         }
 
