@@ -142,5 +142,6 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             // Preserve interrupt status
             Thread.currentThread().interrupt();
         }
+        scheduledPool = null;
     }
 }

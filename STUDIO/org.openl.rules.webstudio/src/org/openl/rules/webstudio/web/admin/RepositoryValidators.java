@@ -17,8 +17,6 @@ import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
@@ -137,13 +135,8 @@ public final class RepositoryValidators {
         }
     }
 
-    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
-            DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
+    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
-            DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
-            // Close connection to repository before checking connection
-            dtr.destroy();
-
             validateInstantiation(repoConfig);
         } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
