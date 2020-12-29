@@ -57,26 +57,26 @@ public class OpenAPITypeUtils {
 
     private static Map<String, TypeInfo> initPrimitiveMap() {
         Map<String, TypeInfo> primitiveMap = new HashMap<>();
-        primitiveMap.put(FLOAT_PRIMITIVE, new TypeInfo(float.class.getName(), FLOAT_PRIMITIVE));
-        primitiveMap.put(DOUBLE_PRIMITIVE, new TypeInfo(double.class.getName(), DOUBLE_PRIMITIVE));
-        primitiveMap.put(LONG_PRIMITIVE, new TypeInfo(long.class.getName(), LONG_PRIMITIVE));
-        primitiveMap.put(INTEGER_PRIMITIVE, new TypeInfo(int.class.getName(), INTEGER_PRIMITIVE));
-        primitiveMap.put(BOOLEAN_PRIMITIVE, new TypeInfo(boolean.class.getName(), BOOLEAN_PRIMITIVE));
+        primitiveMap.put(float.class.getSimpleName(), new TypeInfo(float.class));
+        primitiveMap.put(double.class.getSimpleName(), new TypeInfo(double.class));
+        primitiveMap.put(long.class.getSimpleName(), new TypeInfo(long.class));
+        primitiveMap.put(int.class.getSimpleName(), new TypeInfo(int.class));
+        primitiveMap.put(boolean.class.getSimpleName(), new TypeInfo(boolean.class));
         return Collections.unmodifiableMap(primitiveMap);
     }
 
     private static Map<String, TypeInfo> initWrapperMap() {
         Map<String, TypeInfo> wrapperMap = new HashMap<>();
-        wrapperMap.put(DATE, new TypeInfo(Date.class.getName(), DATE));
-        wrapperMap.put(STRING, new TypeInfo(String.class.getName(), STRING));
-        wrapperMap.put(FLOAT_PRIMITIVE, new TypeInfo(Float.class.getName(), FLOAT));
-        wrapperMap.put(DOUBLE_PRIMITIVE, new TypeInfo(Double.class.getName(), DOUBLE));
-        wrapperMap.put(LONG_PRIMITIVE, new TypeInfo(Long.class.getName(), LONG));
-        wrapperMap.put(INTEGER_PRIMITIVE, new TypeInfo(Integer.class.getName(), INTEGER));
-        wrapperMap.put(BOOLEAN_PRIMITIVE, new TypeInfo(Boolean.class.getName(), BOOLEAN));
-        wrapperMap.put(OBJECT, new TypeInfo(Object.class.getName(), OBJECT));
-        wrapperMap.put("bigInt", new TypeInfo(BigInteger.class.getName(), BIG_INTEGER));
-        wrapperMap.put("bigDecimal", new TypeInfo(BigDecimal.class.getName(), BIG_DECIMAL));
+        wrapperMap.put(Date.class.getSimpleName(), new TypeInfo(Date.class));
+        wrapperMap.put(String.class.getSimpleName(), new TypeInfo(String.class));
+        wrapperMap.put(float.class.getSimpleName(), new TypeInfo(Float.class));
+        wrapperMap.put(double.class.getSimpleName(), new TypeInfo(Double.class));
+        wrapperMap.put(long.class.getSimpleName(), new TypeInfo(Long.class));
+        wrapperMap.put(int.class.getSimpleName(), new TypeInfo(Integer.class));
+        wrapperMap.put(boolean.class.getSimpleName(), new TypeInfo(Boolean.class));
+        wrapperMap.put(Object.class.getSimpleName(), new TypeInfo(Object.class));
+        wrapperMap.put("bigInt", new TypeInfo(BigInteger.class));
+        wrapperMap.put("bigDecimal", new TypeInfo(BigDecimal.class));
         return wrapperMap;
     }
 

@@ -171,7 +171,7 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(4, method1.getDeclaredAnnotations().length);
         assertNotNull(method1.getAnnotation(GET.class));
         assertEquals("/pet/{petId}", method1.getAnnotation(Path.class).value());
-        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
         assertEquals("Pet", method1.getAnnotation(RulesType.class).value());
 
         assertEquals(1, method1.getParameters()[0].getAnnotations().length);
@@ -296,6 +296,33 @@ public class OpenAPIJavaClassGeneratorTest {
     }
 
     @Test
+    public void EPBDS_10962() throws Exception {
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10962_generate.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+        assertEquals(1, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("mySpr3", double.class, double.class, double.class);
+        assertEquals(Double.class, method1.getReturnType());
+
+        assertEquals(3, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(GET.class));
+        assertEquals("/mySpr3/{double1}/{double2}/{double3}/{double4}", method1.getAnnotation(Path.class).value());
+        assertNull(method1.getAnnotation(Consumes.class));
+        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertEquals(1, method1.getParameters()[0].getDeclaredAnnotations().length);
+
+        ProjectModel projectModel2 = converter.extractProjectModel("test.converter/paths/openapi_EPBDS-10962_nothingToGenerate.json");
+
+        OpenAPIGeneratedClasses generated2 = new OpenAPIJavaClassGenerator(projectModel2).generate();
+        assertNull(generated2.getAnnotationTemplateClass());
+        assertTrue(generated2.getCommonClasses().isEmpty());
+    }
+
+    @Test
     public void resolveTypeTest() {
         TypeInfo typeInfo = new TypeInfo("Policy", true);
         assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
@@ -306,7 +333,7 @@ public class OpenAPIJavaClassGeneratorTest {
         typeInfo.setDimension(3);
         assertEquals(Object[][][].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
-        typeInfo = new TypeInfo(Integer.class.getName(), Integer.class.getSimpleName());
+        typeInfo = new TypeInfo(Integer.class);
         assertEquals(Integer.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
     }
 

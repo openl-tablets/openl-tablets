@@ -9,6 +9,7 @@ public class TypeInfo {
     private boolean datatype;
     private int dimension;
     private boolean reference;
+    private boolean primitive;
 
     public TypeInfo() {
     }
@@ -17,6 +18,13 @@ public class TypeInfo {
         this.javaName = name;
         this.simpleName = name;
         this.datatype = datatype;
+    }
+
+    public TypeInfo(Class<?> javaName) {
+        this.javaName = javaName.getName();
+        this.simpleName = javaName.getSimpleName();
+        this.primitive = javaName.isPrimitive();
+        this.datatype = false;
     }
 
     public TypeInfo(String javaName, String simpleName) {
@@ -76,6 +84,10 @@ public class TypeInfo {
 
     public void setDimension(int dimension) {
         this.dimension = dimension;
+    }
+
+    public boolean isPrimitive() {
+        return primitive;
     }
 
     @Override

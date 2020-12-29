@@ -35,7 +35,7 @@ public class SpreadsheetTableExporterTest {
         resultModel.setType("Double");
         resultModel.setName("TestDoubleSpr");
 
-        InputParameter inputParameter = new ParameterModel(new TypeInfo(String.class.getName(), "String"), "name");
+        InputParameter inputParameter = new ParameterModel(new TypeInfo(String.class), "name");
         resultModel.setParameters(Collections.singletonList(inputParameter));
         StepModel doubleStep = new StepModel("simpleCalculation", "Double", "=0.0d");
         StepModel stringStep = new StepModel("calculateName", "String", "=" + "\"\"");

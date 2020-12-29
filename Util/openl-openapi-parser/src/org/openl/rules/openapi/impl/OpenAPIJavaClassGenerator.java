@@ -3,6 +3,7 @@ package org.openl.rules.openapi.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -56,7 +57,10 @@ public class OpenAPIJavaClassGenerator {
      */
     private boolean generateDecision(SpreadsheetModel method) {
         final PathInfo pathInfo = method.getPathInfo();
-        if (!pathInfo.getOriginalPath().equals("/" + pathInfo.getFormattedPath())) {
+        StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
+        method.getParameters().stream().filter(InputParameter::isInPath).map(InputParameter::getName)
+                .forEach(name -> sb.append("/{").append(name).append('}'));
+        if (!pathInfo.getOriginalPath().equals(sb.toString())) {
             //if method name doesn't match expected path
             return true;
         }
@@ -106,10 +110,10 @@ public class OpenAPIJavaClassGenerator {
                 //if RuntimeContext is provided, POST by default.
                 return true;
             }
-            if (parameters.size() > 1) {
-                //if more than one parameter, POST by default.
+            if (parameters.size() > 3) {
+                //if more than 3 parameters, POST by default.
                 return true;
-            } else if (parameters.size() == 1 && parameters.get(0).getType().isReference()) {
+            } else if (!parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
                 //if there is one not simple parameter, POST by default.
                 return true;
             }
@@ -118,7 +122,7 @@ public class OpenAPIJavaClassGenerator {
                 if (parameters.isEmpty()) {
                     //if no context and empty params, GET by default.
                     return true;
-                } else if (parameters.size() == 1 && !parameters.get(0).getType().isReference()) {
+                } else if (parameters.size() < 4 && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
                     //if no context and there is one simple parameter, GET by default.
                     return true;
                 }
