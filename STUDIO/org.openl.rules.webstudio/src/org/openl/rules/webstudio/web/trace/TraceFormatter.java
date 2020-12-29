@@ -166,11 +166,11 @@ public class TraceFormatter {
     private static String format(Object o) {
         try {
             return FormattersManager.format(o);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             Logger log = LoggerFactory.getLogger(TraceFormatter.class);
             log.debug(e.getMessage(), e);
-
-            return String.format("<span style=\"color: red;\">throw '%s' exception. Cannot format '%s'</span>",
+            return String.format(
+                "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
                 e.getClass().getName(),
                 o.getClass().getName());
         }
