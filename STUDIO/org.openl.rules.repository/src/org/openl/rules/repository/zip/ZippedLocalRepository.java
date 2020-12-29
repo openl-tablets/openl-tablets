@@ -236,9 +236,11 @@ public class ZippedLocalRepository implements FolderRepository, Closeable {
             return files;
         }
         final Path walkRoot = resolvedPath.getPath();
-        Stream<Path> stream = walkRoot.equals(root) ? storage.values().stream()
-                                                    : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p));
-        List<Path> found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p)).collect(Collectors.toList());
+        List<Path> found;
+        try (Stream<Path> stream = walkRoot.equals(root) ? storage.values().stream()
+                                                    : Files.walk(walkRoot, 1).filter(p -> !walkRoot.equals(p))) {
+            found = stream.filter(p -> Files.isDirectory(p) || zipArchiveFilter(p)).collect(Collectors.toList());
+        }
         for (Path p : found) {
             CompoundPath cp = new CompoundPath(walkRoot.equals(root) ? p.getParent() : resolvedPath.getRoot(),
                 p,

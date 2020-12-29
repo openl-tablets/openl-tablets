@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
@@ -38,7 +39,10 @@ public class SimpleXlsResolvingStrategy implements ResolvingStrategy {
             return false;
         }
         try {
-            final boolean isExcelFile = Files.walk(folder, 1).anyMatch(this::isExcelFile);
+            final boolean isExcelFile;
+            try (Stream<Path> stream = Files.walk(folder, 1)) {
+                isExcelFile = stream.anyMatch(this::isExcelFile);
+            }
             if (isExcelFile) {
                 LOG.debug("Project in {} folder has been resolved as simple xls project.", folder);
             } else {
