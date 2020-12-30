@@ -1,7 +1,13 @@
 import java.nio.file.Files
 
 try {
-    assert Files.walk(new File(basedir, 'target/classes').toPath()).filter({ p -> !p.toFile().isDirectory()}).count() == 5
+    Files.walk(new File(basedir, 'target/classes').toPath()).with { stream ->
+        try {
+            assert stream.filter({ p -> !p.toFile().isDirectory()}).count() == 5
+        } finally {
+            stream.close()
+        }
+    }
     assert new File(basedir, 'target/classes/com/example/beans/Address.class').exists()
     assert new File(basedir, 'target/classes/com/example/beans/openl/Auto.class').exists()
     assert new File(basedir, 'target/classes/com/example/beans/openl/Person.class').exists()

@@ -12,6 +12,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -22,7 +23,9 @@ public final class GenRulesTypes {
     public static void main(String[] args) throws Exception {
 
         System.out.println("Generating Rules enumerations...");
-        Files.walk(Paths.get("enums")).filter(Files::isRegularFile).forEach(GenRulesTypes::generateEnumeration);
+        try (Stream<Path> stream = Files.walk(Paths.get("enums"))) {
+            stream.filter(Files::isRegularFile).forEach(GenRulesTypes::generateEnumeration);
+        }
     }
 
     private static void generateEnumeration(Path csvFile) {

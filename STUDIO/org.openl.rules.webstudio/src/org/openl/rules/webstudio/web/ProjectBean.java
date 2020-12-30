@@ -1480,7 +1480,7 @@ public class ProjectBean {
             return projectDescriptorManager.readOriginalDescriptor(file);
         } catch (FileNotFoundException ignored) {
             return descriptor;
-        } catch (ValidationException e) {
+        } catch (IOException | ValidationException e) {
             log.error(e.getMessage(), e);
             return descriptor;
         }

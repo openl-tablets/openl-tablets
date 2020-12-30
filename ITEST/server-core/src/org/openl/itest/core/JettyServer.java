@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Simple wrapper for Jetty Server
@@ -41,8 +42,8 @@ public class JettyServer {
     }
 
     private String getExtraClasspath() {
-        try {
-            return Files.walk(Paths.get("libs")).map(Path::toString).collect(Collectors.joining(","));
+        try (Stream<Path> stream = Files.walk(Paths.get("libs"))) {
+            return stream.map(Path::toString).collect(Collectors.joining(","));
         } catch (IOException e) {
             return null;
         }

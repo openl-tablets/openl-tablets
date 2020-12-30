@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
@@ -46,11 +47,8 @@ public class LocalRepository extends FileSystemRepository {
     }
 
     private File[] listAllFiles(File dir) {
-        try {
-            return Files.walk(dir.toPath())
-                    .filter(Files::isRegularFile)
-                    .map(Path::toFile)
-                    .toArray(File[]::new);
+        try (Stream<Path> stream = Files.walk(dir.toPath())) {
+            return stream.filter(Files::isRegularFile).map(Path::toFile).toArray(File[]::new);
         } catch (IOException unused) {
             return EMPTY_FILES;
         }
