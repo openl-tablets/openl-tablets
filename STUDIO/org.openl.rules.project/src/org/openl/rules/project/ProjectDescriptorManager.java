@@ -2,7 +2,6 @@ package org.openl.rules.project;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -65,10 +64,10 @@ public class ProjectDescriptorManager {
     }
 
     public ProjectDescriptor readDescriptor(Path file) throws IOException, ValidationException {
-        InputStream inputStream = Files.newInputStream(file);
-
-        ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
-        IOUtils.closeQuietly(inputStream);
+        ProjectDescriptor descriptor;
+        try (InputStream inputStream = Files.newInputStream(file)) {
+            descriptor = readDescriptorInternal(inputStream);
+        }
 
         postProcess(descriptor, file);
         validator.validate(descriptor);
@@ -81,11 +80,11 @@ public class ProjectDescriptorManager {
         return readDescriptor(source.toPath());
     }
 
-    public ProjectDescriptor readOriginalDescriptor(File filename) throws FileNotFoundException, ValidationException {
-        FileInputStream inputStream = new FileInputStream(filename);
-
-        ProjectDescriptor descriptor = readDescriptorInternal(inputStream);
-        IOUtils.closeQuietly(inputStream);
+    public ProjectDescriptor readOriginalDescriptor(File filename) throws IOException, ValidationException {
+        ProjectDescriptor descriptor;
+        try (FileInputStream inputStream = new FileInputStream(filename)) {
+            descriptor = readDescriptorInternal(inputStream);
+        }
 
         validator.validate(descriptor);
 
