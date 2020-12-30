@@ -1868,7 +1868,7 @@ public class RepositoryTreeController {
         } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(repositoryId,
+            final ProjectUploader uploader = new ProjectUploader(repositoryId,
                 uploadedFiles,
                 projectName,
                 projectFolder,
@@ -1879,12 +1879,14 @@ public class RepositoryTreeController {
                 modelsPath,
                 algorithmsPath,
                 modelsModuleName,
-                algorithmsModuleName).uploadProject();
+                algorithmsModuleName);
+            errorMessage = uploader.uploadProject();
             if (errorMessage != null) {
                 WebStudioUtils.addErrorMessage(errorMessage);
             } else {
                 try {
-                    RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
+                    final String technicalName = uploader.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                     resetStudioModel();
@@ -2043,6 +2045,9 @@ public class RepositoryTreeController {
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
+                    if (errorMessage == null) {
+                        projectName = projectUploader.getCreatedProjectName();
+                    }
                 }
             } else {
                 errorMessage = "There are no uploaded files.";
