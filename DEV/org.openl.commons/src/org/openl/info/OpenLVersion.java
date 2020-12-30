@@ -39,15 +39,17 @@ public final class OpenLVersion {
             }
         }
         url = props.getProperty("openl.url", "??");
+        String email = props.getProperty("openl.email");
         version = props.getProperty("openl.version", "???");
         buildDate = props.getProperty("openl.build.date", "????-??-??");
         buildNumber = props.getProperty("openl.commit.hash", "????");
 
         HashMap<String, String> source = new HashMap<>(6);
-        source.put("openl.site", OpenLVersion.getUrl());
-        source.put("openl.version", OpenLVersion.getVersion());
-        source.put("openl.build.date", OpenLVersion.getBuildDate());
-        source.put("openl.build.number", OpenLVersion.getBuildNumber());
+        source.put("openl.site", url);
+        source.put("openl.email", email);
+        source.put("openl.version", version);
+        source.put("openl.build.date", buildDate);
+        source.put("openl.build.number", buildNumber);
         source.put("openl.start.time", ZonedDateTime.now().toString());
         source.put("openl.start.milli", Long.toString(Instant.now().toEpochMilli()));
         info = Collections.unmodifiableMap(source);
