@@ -21,7 +21,8 @@ Content-Type: application/json
     ],
     "version": "#.##.#*",
     "buildNumber": "*****",
-    "url": "https://openl-tablets.org"
+    "url": "https://openl-tablets.org",
+    "email": "*"
 }
 
 
