@@ -34,7 +34,6 @@
 
         a {
             color: #0078D0;
-            margin-right: 10px;
         }
 
         #header {
@@ -51,6 +50,10 @@
             white-space: nowrap;
         }
 
+        #main a {
+            margin-right: 10px;
+        }
+
         #footer {
             border-top: 1px solid #ccc;
             font-size: 11px;
@@ -64,9 +67,24 @@
             right: 0;
         }
 
-        #footer a:not(.link) {
-            color: #666;
+        #footer .site {
             text-decoration: none;
+            color: #666;
+        }
+
+        #footer .email {
+            text-decoration: none;
+        }
+
+        #footer .email:before {
+            color: #666;
+            content: "  |  ";
+            cursor: default;
+        }
+
+        #footer .version {
+            font-style: italic;
+            float: right;
         }
 
         .note {
@@ -139,7 +157,12 @@
 <body>
 <div id="header">OpenL Tablets Rule Services</div>
 <div id="main"></div>
-<div id="footer">&#169; 2020 <a href="https://openl-tablets.org" target="_blank">OpenL Tablets</a></div>
+<div id="footer" style="display: none;">
+    <span class="copyright">© ${year}</span>
+    <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
+    <a class="email" href="mailto:${email}?subject=OpenL Tablets v${version} Feedback">Report a problem</a>
+    <span class="version" title="Built on ${buildDate}">v${version}</span>
+</div>
 <script>
     // <![CDATA[
     "use strict";
@@ -150,8 +173,8 @@
 
     xmlhttp.onload = function () {
         var servicesResponse = JSON.parse(this.response);
-        renderServices(servicesResponse);
         renderVersion(servicesResponse);
+        renderServices(servicesResponse);
     };
 
     xmlhttp.open("GET", url, true);
@@ -240,19 +263,17 @@
     }
 
     function renderVersion(servicesResponse) {
-        var version = servicesResponse.version;
-        var commitHash = servicesResponse.buildNumber;
-        var commitHashId = commitHash.endsWith('+') ? commitHash.substr(0, commitHash.length - 1) : commitHash;
+        var buildDate = servicesResponse.buildDate;
         var footerBlock = document.getElementById("footer");
-        var el = document.createElement("i");
-        el.style = "position:absolute;right:13px;";
-        var html = "<span title='Built on " + servicesResponse.buildDate + "'>v" + servicesResponse.version + "</span>";
-        if (version.endsWith('SNAPSHOT')) {
-            html += " Revision hash: ";
-            html += "<a class='link' href=https://sourceforge.net/p/openl-tablets/openl/ci/" + commitHashId + ">" + commitHash + "</a>";
-        }
-        el.innerHTML = html;
-        footerBlock.append(el);
+        var html = footerBlock.innerHTML
+            .replaceAll("${url}", servicesResponse.url)
+            .replaceAll("${email}", servicesResponse.email)
+            .replaceAll("${buildDate}", buildDate)
+            .replaceAll("${year}", buildDate.substr(0,4))
+            .replaceAll("${version}", servicesResponse.version)
+            .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
+        footerBlock.innerHTML = html;
+        footerBlock.style.display = "";
     }
 
     function deleteProject(serviceName) {

@@ -10,6 +10,7 @@
     <util:map id="uiConfig" key-type="java.lang.String">
         <entry key="deployerEnabled" value="${ruleservice.deployer.enabled}" value-type="java.lang.Boolean"/>
         <entry key="url" value="${openl.site}" value-type="java.lang.String"/>
+        <entry key="email" value="${openl.email}" value-type="java.lang.String"/>
         <entry key="version" value="${openl.version}" value-type="java.lang.String"/>
         <entry key="buildDate" value="${openl.build.date}" value-type="java.lang.String"/>
         <entry key="buildNumber" value="${openl.build.number}" value-type="java.lang.String"/>
