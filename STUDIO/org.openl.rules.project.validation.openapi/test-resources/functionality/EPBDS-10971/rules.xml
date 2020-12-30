@@ -1,0 +1,22 @@
+<project>
+  <name>EPBDS-10971</name>
+  <modules>
+    <module>
+      <name>Algorithms</name>
+      <rules-root path="rules/Algorithms.xlsx"/>
+    </module>
+    <module>
+      <name>Models</name>
+      <rules-root path="rules/Models.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+  <openapi>
+    <path>openapi.json</path>
+    <model-module-name>Models</model-module-name>
+    <algorithm-module-name>Algorithms</algorithm-module-name>
+    <mode>GENERATION</mode>
+  </openapi>
+</project>

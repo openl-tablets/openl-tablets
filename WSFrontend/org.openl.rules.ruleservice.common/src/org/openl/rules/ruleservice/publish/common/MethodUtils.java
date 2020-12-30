@@ -4,10 +4,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Objects;
 import java.util.Set;
 
 import org.openl.binding.MethodUtil;
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.types.IOpenClass;
@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 public final class MethodUtils {
     private MethodUtils() {
     }
-
 
     private static void validateAndUpdateParameterNames(String[] parameterNames) {
         Set<String> allNames = new HashSet<>(Arrays.asList(parameterNames));
@@ -63,12 +62,12 @@ public final class MethodUtils {
     private static Class<?>[] cutParameterTypes(Class<?>[] parameterTypes,
             boolean provideRuntimeContext,
             boolean provideVariations) {
-        if (provideRuntimeContext) {
+        if (provideRuntimeContext && parameterTypes.length > 0 && IRulesRuntimeContext.class
+            .isAssignableFrom(parameterTypes[0])) {
             parameterTypes = Arrays.copyOfRange(parameterTypes, 1, parameterTypes.length);
         }
         if (provideVariations) {
-            if (parameterTypes.length > 0 && Objects.equals(parameterTypes[parameterTypes.length - 1],
-                VariationsPack.class))
+            if (parameterTypes.length > 0 && parameterTypes[parameterTypes.length - 1] == VariationsPack.class)
                 parameterTypes = Arrays.copyOfRange(parameterTypes, 0, parameterTypes.length - 1);
         }
         return parameterTypes;
