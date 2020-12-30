@@ -34,6 +34,7 @@ import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.RulesType;
+import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancerHelper;
 import org.openl.util.StringUtils;
 
 public class OpenAPIJavaClassGenerator {
@@ -111,7 +112,7 @@ public class OpenAPIJavaClassGenerator {
                 //if RuntimeContext is provided, POST by default.
                 return true;
             }
-            if (parameters.size() > 3) {
+            if (parameters.size() > JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET) {
                 //if more than 3 parameters, POST by default.
                 return true;
             } else if (!parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
@@ -123,7 +124,7 @@ public class OpenAPIJavaClassGenerator {
                 if (parameters.isEmpty()) {
                     //if no context and empty params, GET by default.
                     return true;
-                } else if (parameters.size() < 4 && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
+                } else if (parameters.size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
                     //if no context and there is one simple parameter, GET by default.
                     return true;
                 }

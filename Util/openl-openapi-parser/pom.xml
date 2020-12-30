@@ -51,6 +51,10 @@
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
             <scope>test</scope>
         </dependency>
