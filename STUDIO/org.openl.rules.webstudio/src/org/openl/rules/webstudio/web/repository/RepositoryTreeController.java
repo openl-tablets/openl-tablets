@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -2590,11 +2591,16 @@ public class RepositoryTreeController {
 
             workspaceManager.refreshWorkspaces();
             repositoryTreeState.invalidateTree();
+            Optional<RulesProject> importedProject = userWorkspace.getProjectByPath(repositoryId, projectFolder);
+            importedProject
+                .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
+
             resetStudioModel();
 
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
             WebStudioUtils.addErrorMessage("Can't import the project: " + e.getMessage());
             clearForm();
         }
