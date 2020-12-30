@@ -60,6 +60,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.servers.Server;
 
 public class JAXRSOpenLServiceEnhancerHelper {
+
+    public static final int MAX_PARAMETERS_COUNT_FOR_GET = 3;
     private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXRSAnnotated";
 
     private static final Set<Class<?>> TEXT_MEDIA_TYPE_SET = new HashSet<>();
@@ -87,8 +89,6 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private static final String BAD_REQUEST_EXAMPLE = "{\"message\": \"Cannot parse 'bar' to JSON\", \"type\": \"BAD_REQUEST\"}";
         private static final String INTERNAL_SERVER_ERROR_MESSAGE = "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.";
         private static final String INTERNAL_SERVER_ERROR_EXAMPLE = "{\"message\": \"Failed to load lazy method.\", \"type\": \"COMPILATION\"}";
-
-        private static final int MAX_PARAMETERS_COUNT_FOR_GET = 4;
 
         private static final String REQUEST_PARAMETER_SUFFIX = "Request";
 
@@ -372,7 +372,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             boolean allParametersIsPrimitive = true;
             Class<?>[] originalParameterTypes = originalMethod.getParameterTypes();
             int numOfParameters = originalParameterTypes.length;
-            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET) {
+            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET) {
                 for (Class<?> parameterType : originalParameterTypes) {
                     if (!parameterType.isPrimitive()) {
                         allParametersIsPrimitive = false;
@@ -380,7 +380,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 }
             }
-            if (numOfParameters < MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
+            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
                 .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
                 StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
