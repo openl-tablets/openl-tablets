@@ -100,6 +100,7 @@ import org.openl.types.impl.AOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.text.TextInfo;
 
@@ -3402,8 +3403,15 @@ public final class DecisionTableHelper {
     public static XlsSheetGridModel createVirtualGrid(String poiSheetName, int numberOfColumns) {
         // Pre-2007 excel sheets had a limitation of 256 columns.
         Workbook workbook = numberOfColumns > 256 ? new XSSFWorkbook() : new HSSFWorkbook();
-        final Sheet sheet = workbook.createSheet(poiSheetName);
-        return createVirtualGrid(sheet);
+        try {
+            final Sheet sheet = workbook.createSheet(poiSheetName);
+            return createVirtualGrid(sheet);
+        } catch (Exception e) {
+            // If exception is thrown, we must close workbook in this method and rethrow exception.
+            // If no exception, workbook will be closed later.
+            IOUtils.closeQuietly(workbook);
+            throw e;
+        }
     }
 
     public static boolean isCollect(TableSyntaxNode tableSyntaxNode) {
@@ -3477,8 +3485,15 @@ public final class DecisionTableHelper {
      * Creates virtual {@link XlsSheetGridModel} with poi source sheet.
      */
     public static XlsSheetGridModel createVirtualGrid() {
-        Sheet sheet = new HSSFWorkbook().createSheet();
-        return createVirtualGrid(sheet);
+        final HSSFWorkbook workbook = new HSSFWorkbook();
+        try {
+            return createVirtualGrid(workbook.createSheet());
+        } catch (Exception e) {
+            // If exception is thrown, we must close workbook in this method and rethrow exception.
+            // If no exception, workbook will be closed later.
+            IOUtils.closeQuietly(workbook);
+            throw e;
+        }
     }
 
     /**
