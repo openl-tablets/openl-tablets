@@ -3399,6 +3399,10 @@ public final class DecisionTableHelper {
         throw new IllegalStateException();
     }
 
+    /**
+     * @deprecated Use plain grid model aka 2d array instead of building memory expensive Excel files.
+     */
+    @Deprecated
     public static XlsSheetGridModel createVirtualGrid() {
         Workbook workbook = new XSSFWorkbook();
         try {
