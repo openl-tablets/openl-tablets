@@ -113,6 +113,12 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
 
         if (delegate instanceof Closeable) {
             ((Closeable) delegate).close();
+        } else if (delegate != null) {
+            try {
+                delegate.close();
+            } catch (Exception e) {
+                throw new IOException(e);
+            }
         }
     }
 
