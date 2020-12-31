@@ -473,17 +473,27 @@ abstract class DBRepository implements Repository, Closeable {
             FileData data,
             InputStream stream) throws SQLException {
 
-        PreparedStatement statement = connection.prepareStatement(settings.insertFile);
-        statement.setString(1, data.getName());
-        statement.setString(2, data.getAuthor());
-        statement.setString(3, data.getComment());
-        if (stream != null) {
-            statement.setBinaryStream(4, stream);
-        } else {
-            // Workaround for PostgreSQL
-            statement.setBinaryStream(4, null, 0);
+        PreparedStatement statement = null;
+        try {
+            statement = connection.prepareStatement(settings.insertFile);
+            statement.setString(1, data.getName());
+            statement.setString(2, data.getAuthor());
+            statement.setString(3, data.getComment());
+            if (stream != null) {
+                statement.setBinaryStream(4, stream);
+            } else {
+                // Workaround for PostgreSQL
+                statement.setBinaryStream(4, null, 0);
+            }
+            return statement;
+        } catch (Exception e) {
+            // If exception is thrown, we must close statement in this method and rethrow exception.
+            // If no exception, statement will be closed later.
+            if (statement != null) {
+                SqlDBUtils.safeClose(statement);
+            }
+            throw e;
         }
-        return statement;
     }
 
     public void initialize() {
