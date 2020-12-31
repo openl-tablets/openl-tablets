@@ -28,4 +28,4 @@ jobs:
     - name: Maven version
       run: mvn -v
     - name: Build with Maven
-      run: mvn -B verify --file pom.xml
+      run: mvn -B verify --file pom.xml -Dmaven.wagon.http.retryHandler.count=5
