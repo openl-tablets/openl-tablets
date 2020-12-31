@@ -91,7 +91,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
             ValidatedCompiledOpenClass validatedCompiledOpenClass) throws RulesInstantiationException {
         RulesDeploy rulesDeployValue = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
         if (rulesDeployValue != null && rulesDeployValue.getServiceName() != null) {
-            final String serviceClassName = rulesDeployValue.getServiceName().trim();
+            final String serviceClassName = rulesDeployValue.getServiceClass().trim();
             if (!StringUtils.isEmpty(serviceClassName)) {
                 try {
                     return validatedCompiledOpenClass.getClassLoader().loadClass(serviceClassName);

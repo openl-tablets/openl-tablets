@@ -1,0 +1,66 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "param",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/param/param",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/myMethod/{param1}/{param2}/{param3}": {
+      "get": {
+        "summary": "double interpolate(double, double, double)",
+        "description": "Rules method: double interpolate(double param1, double param2, double param3)",
+        "operationId": "interpolate_1",
+        "parameters": [
+          {
+            "name": "param1",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "param2",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "param3",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+  }
+}
