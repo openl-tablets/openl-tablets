@@ -35,6 +35,7 @@ import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -140,8 +141,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
+        Repository repo = null;
         try {
-            Repository repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
+            repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
             if (repositorySettings != null) {
                 String setter = "setRepositorySettings";
                 try {
@@ -161,6 +163,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             return repo;
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);
+            // If exception is thrown, we must close repository in this method.
+            // If no exception, repository will be closed later.
+            if (repo != null) {
+                IOUtils.closeQuietly(repo);
+            }
+
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause == null) {
                 rootCause = e;
