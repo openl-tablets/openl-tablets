@@ -1,6 +1,7 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -40,12 +41,13 @@ public class ProjectResourceLoader {
                 if (resolvingStrategy != null) {
                     try {
                         ProjectDescriptor projectDescriptor = resolvingStrategy.resolveProject(projectFolder.toPath());
-                        URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[] { url });
-                        URL resourceURL = urlClassLoader1.getResource(name);
-                        if (resourceURL != null) {
-                            projectResources.add(new ProjectResource(projectDescriptor, resourceURL));
+                        try (URLClassLoader urlClassLoader1 = new URLClassLoader(new URL[] { url })) {
+                            URL resourceURL = urlClassLoader1.getResource(name);
+                            if (resourceURL != null) {
+                                projectResources.add(new ProjectResource(projectDescriptor, resourceURL));
+                            }
                         }
-                    } catch (ProjectResolvingException ignored) {
+                    } catch (ProjectResolvingException | IOException ignored) {
                     }
                 }
             }
