@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -256,10 +257,8 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
     }
 
     public void closeDb() throws IOException {
-        Connection connection;
-        try {
-            connection = getDBConnection();
-            connection.createStatement().execute("SHUTDOWN");
+        try (Connection connection = getDBConnection(); Statement statement = connection.createStatement()) {
+            statement.execute("SHUTDOWN");
         } catch (Exception e) {
             throw new IOException(e);
         }
@@ -267,13 +266,14 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
 
     private void recreateCache(Connection connection) throws IOException {
         PreparedStatement insertPreparedStatement = null;
-        PreparedStatement dropPreparedStatement = null;
+        PreparedStatement dropQueryPreparedStatement = null;
+        PreparedStatement dropStatePreparedStatement = null;
         PreparedStatement createPreparedStatement = null;
         try {
-            dropPreparedStatement = connection.prepareStatement(DROP_QUERY);
-            dropPreparedStatement.execute();
-            dropPreparedStatement = connection.prepareStatement(DROP_STATE_QUERY);
-            dropPreparedStatement.execute();
+            dropQueryPreparedStatement = connection.prepareStatement(DROP_QUERY);
+            dropQueryPreparedStatement.execute();
+            dropStatePreparedStatement = connection.prepareStatement(DROP_STATE_QUERY);
+            dropStatePreparedStatement.execute();
             ensureCacheExist(connection);
             createPreparedStatement = connection.prepareStatement(CREATE_CACHE_STATE_QUERY);
             createPreparedStatement.executeUpdate();
@@ -284,7 +284,8 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(insertPreparedStatement);
-            SqlDBUtils.safeClose(dropPreparedStatement);
+            SqlDBUtils.safeClose(dropQueryPreparedStatement);
+            SqlDBUtils.safeClose(dropStatePreparedStatement);
             SqlDBUtils.safeClose(createPreparedStatement);
         }
     }
@@ -293,13 +294,14 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
         PreparedStatement checkPreparedStatement = null;
         PreparedStatement selectPreparedStatement = null;
         PreparedStatement insertPreparedStatement = null;
+        ResultSet checkStateResult = null;
         ResultSet rs = null;
         int state = 0;
         try {
             connection.setAutoCommit(false);
             checkPreparedStatement = connection.prepareStatement(CHECK_STATE_QUERY);
-            ResultSet resultSet = checkPreparedStatement.executeQuery();
-            if (resultSet.next()) {
+            checkStateResult = checkPreparedStatement.executeQuery();
+            if (checkStateResult.next()) {
                 selectPreparedStatement = connection.prepareStatement(SELECT_CACHE_STATE_QUERY);
                 rs = selectPreparedStatement.executeQuery();
                 while (rs.next()) {
@@ -322,6 +324,7 @@ public class ProjectVersionH2CacheDB extends H2CacheDB {
             SqlDBUtils.safeClose(selectPreparedStatement);
             SqlDBUtils.safeClose(insertPreparedStatement);
             SqlDBUtils.safeClose(rs);
+            SqlDBUtils.safeClose(checkStateResult);
         }
     }
 }
