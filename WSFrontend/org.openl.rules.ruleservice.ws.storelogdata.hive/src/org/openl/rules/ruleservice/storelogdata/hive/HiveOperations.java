@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -139,7 +140,9 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                     String sqlQuery = extractSqlQueryForEntity(entityClass);
                     String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
-                        connection.createStatement().execute(q.trim());
+                        try (Statement statement = connection.createStatement()) {
+                            statement.execute(q.trim());
+                        }
                     }
                 } catch (IOException | SQLException e) {
                     throw new HiveTableCreationException(
