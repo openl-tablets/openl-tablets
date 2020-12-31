@@ -214,10 +214,9 @@ public class UserWorkspaceImpl implements UserWorkspace {
 
     @Override
     public Optional<RulesProject> getProjectByPath(String repositoryId, String realPath) {
-        return getProjects(false)
-            .stream()
-            .filter(p -> repositoryId.equals(p.getDesignRepository()
-                .getId()) && (realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/"))
+        return getProjects(false).stream()
+            .filter(p -> !p.isLocalOnly() && repositoryId.equals(p.getDesignRepository()
+                .getId()) && ((realPath.equals(p.getRealPath())) || realPath.startsWith(p.getRealPath() + "/")))
             .findFirst();
     }
 
