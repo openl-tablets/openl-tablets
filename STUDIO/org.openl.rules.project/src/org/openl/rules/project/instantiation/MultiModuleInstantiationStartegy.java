@@ -15,6 +15,7 @@ import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.util.IOUtils;
 
 /**
  * Instantiation strategy that combines several modules into single rules module.
@@ -50,15 +51,22 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {
         OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
-        for (Module module : modules) {
-            try {
-                CompiledDependency compiledDependency = getDependencyManager().loadDependency(
-                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
-                CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
-                classLoader.addClassLoader(compiledOpenClass.getClassLoader());
-            } catch (OpenLCompilationException e) {
-                throw new RulesInstantiationException(e.getMessage(), e);
+        try {
+            for (Module module : modules) {
+                try {
+                    CompiledDependency compiledDependency = getDependencyManager().loadDependency(
+                        new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
+                    CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
+                    classLoader.addClassLoader(compiledOpenClass.getClassLoader());
+                } catch (OpenLCompilationException e) {
+                    throw new RulesInstantiationException(e.getMessage(), e);
+                }
             }
+        } catch (Exception e) {
+            // If exception is thrown, we must close classLoader in this method and rethrow exception.
+            // If no exception, classLoader will be closed later.
+            IOUtils.closeQuietly(classLoader);
+            throw e;
         }
         return classLoader;
     }
