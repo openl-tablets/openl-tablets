@@ -39,6 +39,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,12 +67,22 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     public static Repository create(FolderRepository delegate,
             String baseFolder,
             RepositorySettings repositorySettings) throws IOException {
-        MappedRepository mappedRepository = new MappedRepository();
-        mappedRepository.setDelegate(delegate);
-        mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.yaml");
-        mappedRepository.setBaseFolder(baseFolder);
-        mappedRepository.setRepositorySettings(repositorySettings);
-        mappedRepository.initialize();
+        MappedRepository mappedRepository = null;
+        try {
+            mappedRepository = new MappedRepository();
+            mappedRepository.setDelegate(delegate);
+            mappedRepository.setConfigFile(delegate.getId() + "/openl-projects.yaml");
+            mappedRepository.setBaseFolder(baseFolder);
+            mappedRepository.setRepositorySettings(repositorySettings);
+            mappedRepository.initialize();
+        } catch (Exception e) {
+            // If exception is thrown, we must close repository in this method and rethrow exception.
+            // If no exception, repository will be closed later.
+            if (mappedRepository != null) {
+                IOUtils.closeQuietly(mappedRepository);
+            }
+            throw e;
+        }
         return mappedRepository;
     }
 
@@ -430,12 +441,25 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     public BranchRepository forBranch(String branch) throws IOException {
         BranchRepository delegateForBranch = ((BranchRepository) delegate).forBranch(branch);
 
-        MappedRepository mappedRepository = new MappedRepository();
-        mappedRepository.setDelegate((FolderRepository) delegateForBranch);
-        mappedRepository.setConfigFile(configFile);
-        mappedRepository.setBaseFolder(baseFolder);
-        mappedRepository.setRepositorySettings(repositorySettings);
-        mappedRepository.initialize();
+        MappedRepository mappedRepository = null;
+        try {
+            mappedRepository = new MappedRepository();
+            mappedRepository.setDelegate((FolderRepository) delegateForBranch);
+            mappedRepository.setConfigFile(configFile);
+            mappedRepository.setBaseFolder(baseFolder);
+            mappedRepository.setRepositorySettings(repositorySettings);
+            mappedRepository.initialize();
+        } catch (Exception e) {
+            // If exception is thrown, we must close repository in this method and rethrow exception.
+            // If no exception, repository will be closed later.
+            if (mappedRepository != null) {
+                // We don't close delegate in forBranch() method for now, because it can break main branch repository
+                // (for delegate).
+                mappedRepository.setDelegate(null);
+                IOUtils.closeQuietly(mappedRepository);
+            }
+            throw e;
+        }
 
         return mappedRepository;
     }
