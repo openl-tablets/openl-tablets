@@ -3,7 +3,6 @@ package org.openl.rules.openapi.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -44,7 +43,7 @@ public class OpenAPIJavaClassGenerator {
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
     private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
-    public static final String DEFAULT_OPEN_API_PATH = "org.openl.generated.openapi";
+    public static final String DEFAULT_OPEN_API_PATH = "org.openl.generated.services";
 
     private final ProjectModel projectModel;
 
@@ -138,7 +137,7 @@ public class OpenAPIJavaClassGenerator {
 
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
-            .create(DEFAULT_OPEN_API_PATH, "OpenAPIService");
+            .create(DEFAULT_OPEN_API_PATH, "Service");
         boolean hasMethods = false;
         for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
             if (!generateDecision(method)) {
