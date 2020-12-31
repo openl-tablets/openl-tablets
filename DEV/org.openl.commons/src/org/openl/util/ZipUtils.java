@@ -69,10 +69,6 @@ public final class ZipUtils {
 
     /**
      * Pack all files in a directory to a zip file.
-     *
-     * @param sourceDirectory
-     * @param targetFile
-     * @throws IOException
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
         if (!sourceDirectory.exists()) {
@@ -92,8 +88,8 @@ public final class ZipUtils {
     }
 
     public static boolean contains(File zipFile, Predicate<String> names) {
-        try {
-            Enumeration<? extends ZipEntry> entries = new ZipFile(zipFile).entries();
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
             while (entries.hasMoreElements()) {
                 ZipEntry zipEntry = entries.nextElement();
                 if (names.test(zipEntry.getName())) {
