@@ -27,7 +27,6 @@ public class DecisionTableBuilder {
     static final int CODE_EXPRESSION_ROW_INDEX = 2;
     /** condition name always is the next row after header row. */
     static final int COLUMN_TYPE_ROW_INDEX = 1;
-    private static final String DISPATCHER_TABLES_SHEET_FORMAT = "$%sDispatcher Tables Sheet";
     private String methodName;
     private List<IDecisionTableColumn> conditions;
     private DispatcherTableReturnColumn returnColumn;
@@ -104,17 +103,7 @@ public class DecisionTableBuilder {
 
     public XlsSheetGridModel build() {
 
-        int numberOfAllLocalParameters = 0;
-        for (IDecisionTableColumn condition : conditions) {
-            if (condition.getNumberOfLocalParameters() > 0) {
-                numberOfAllLocalParameters += condition.getNumberOfLocalParameters();
-            }
-        }
-        int numberOfColumns = numberOfAllLocalParameters + 1; // + 1 for return column
-
-        // TODO Excel has a maximum sheet name length limit. Find a solution for case when name is longer.
-        String sheetName = String.format(DISPATCHER_TABLES_SHEET_FORMAT, methodName);
-        XlsSheetGridModel sheetWithTable = DecisionTableHelper.createVirtualGrid(sheetName, numberOfColumns);
+        XlsSheetGridModel sheetWithTable = DecisionTableHelper.createVirtualGrid();
 
         // column index that is free for further writing
         int conditionsNumber = 0;
