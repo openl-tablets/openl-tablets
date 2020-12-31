@@ -11,6 +11,7 @@
 
     <context:property-placeholder/>
     <context:component-scan base-package="org.openl.rules.webstudio.web.install org.openl.rules.webstudio.web.admin org.openl.rules.webstudio.web.util"/>
+    <import resource="classpath:META-INF/cxf/cxf.xml" />
 
     <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">
         <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>
@@ -26,6 +27,7 @@
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
             <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
             <security:filter-chain pattern="/faces/pages/modules/install/**" filters="none"/>
+            <security:filter-chain pattern="/web/public/**" filters="none" />
             <security:filter-chain pattern="/**" filters="installerPage"/>
         </security:filter-chain-map>
     </bean>
@@ -33,4 +35,26 @@
     <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceWrapper">
         <!-- It's delegate will be initialized in InstallWizard before the first usage of groupManagementService -->
     </bean>
+
+
+    <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
+        <property name="address" value=""/>
+        <property name="serviceBeans">
+            <list>
+                <bean class="org.openl.rules.rest.SysInfoService"/>
+                <bean class="org.openl.rules.rest.NotificationService"/>
+                <bean class="org.openl.rules.rest.PropertyService"/>
+            </list>
+        </property>
+        <property name="providers">
+            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
+                <constructor-arg name="mapper">
+                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                        <property name="serializationInclusion" value="NON_DEFAULT"/>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+    </bean>
+
 </beans>
