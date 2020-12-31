@@ -129,6 +129,7 @@ public class ProjectUploader {
                     RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
                     if (!userWorkspace.isOpenedOtherProject(createdProject)) {
                         createdProject.open();
+                        createdProjectName = createdProject.getName();
                     }
                 }
             } catch (IOException e) {
