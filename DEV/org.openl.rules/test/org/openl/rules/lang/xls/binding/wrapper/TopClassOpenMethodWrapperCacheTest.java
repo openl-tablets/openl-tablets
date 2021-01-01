@@ -19,7 +19,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TopClassOpenMethodWrapperCacheTest {
 
-    private static final int AWAIT_TIMEOUT = 60;
+    private static final int AWAIT_TIMEOUT = 120;
 
     @Test
     public void test() {
