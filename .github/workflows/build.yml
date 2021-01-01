@@ -14,7 +14,7 @@ on:
       mavenArgs:
         description: 'Maven parameters'
         required: true
-        default: '-B verify --file pom.xml -Dmaven.wagon.http.retryHandler.count=5'
+        default: '-B verify --file pom.xml "-Dmaven.wagon.http.retryHandler.count=5"'
 
 jobs:
   build:
