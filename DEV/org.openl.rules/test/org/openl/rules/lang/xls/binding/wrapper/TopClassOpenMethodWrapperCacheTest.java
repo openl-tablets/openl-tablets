@@ -55,13 +55,9 @@ public class TopClassOpenMethodWrapperCacheTest {
         assertNotNull(m2);
 
         // Check cache when a method has dependency on a class
+        // There is no reason to keep openClass2 in the cache, if no reference exists to the key.
+        // Zulu JVM cleans weak references eager.
         openClass2 = null;
-        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(3));
-        assertNotNull(openClass1);
-        assertNull(openClass2);
-        assertNotNull(m1);
-        assertNotNull(m2);
-
         m2 = null;
         given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(2));
         assertNotNull(openClass1);
