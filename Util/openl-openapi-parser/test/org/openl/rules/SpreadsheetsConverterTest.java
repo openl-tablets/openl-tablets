@@ -580,7 +580,7 @@ public class SpreadsheetsConverterTest {
     @Test
     public void testSpreadsheetWithManyParamsCreation() throws IOException {
         ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
@@ -601,6 +601,14 @@ public class SpreadsheetsConverterTest {
         List<StepModel> steps = mySprModel.getSteps();
         List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
         assertEquals(expectedStepsForBla, stepsNames);
+
+        ProjectModel projectModel2 = converter
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
+        List<SpreadsheetModel> spreadsheetModels2 = projectModel2.getSpreadsheetResultModels();
+        SpreadsheetModel mySprModel2 = findSpreadsheet(spreadsheetModels2, "CoverageFactors");
+        assertEquals("SpreadsheetResult", mySprModel2.getType());
+        List<InputParameter> parameters2 = mySprModel2.getParameters();
+        assertEquals(1, parameters2.size());
     }
 
     @Test
