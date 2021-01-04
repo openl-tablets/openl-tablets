@@ -585,15 +585,7 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
         List<InputParameter> parameters = mySprModel.getParameters();
-        assertEquals(1, parameters.size());
-
-        InputParameter objParameter = findInputParameter(parameters, "coverageFactorsRequest");
-        validateGeneratedModel("CoverageFactorsRequest",
-                objParameter.getType().getSimpleName(),
-                "CoverageFactorsRequest",
-                objParameter.getType().getJavaName(),
-                "coverageFactorsRequest",
-                objParameter.getName());
+        assertEquals(10, parameters.size());
 
         List<String> expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
                 "PortabilityFactor",

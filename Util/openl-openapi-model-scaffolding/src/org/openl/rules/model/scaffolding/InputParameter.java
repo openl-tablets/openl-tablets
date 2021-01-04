@@ -7,6 +7,4 @@ public interface InputParameter {
     TypeInfo getType();
 
     boolean isInPath();
-
-    boolean isContainsRuntimeContext();
 }

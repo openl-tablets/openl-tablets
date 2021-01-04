@@ -7,7 +7,6 @@ public class ParameterModel implements InputParameter {
     private final TypeInfo type;
     private final String name;
     private boolean inPath;
-    private boolean containsRuntimeContext;
 
     public ParameterModel(TypeInfo type, String name) {
         this.type = type;
@@ -28,14 +27,6 @@ public class ParameterModel implements InputParameter {
 
     public void setInPath(boolean inPath) {
         this.inPath = inPath;
-    }
-
-    public boolean isContainsRuntimeContext() {
-        return containsRuntimeContext;
-    }
-
-    public void setContainsRuntimeContext(boolean containsRuntimeContext) {
-        this.containsRuntimeContext = containsRuntimeContext;
     }
 
     @Override
