@@ -510,7 +510,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
         return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.stream()
-            .anyMatch(x -> x.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT));
+                .anyMatch(x -> x.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT) || x.isContainsRuntimeContext());
     }
 
     public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {

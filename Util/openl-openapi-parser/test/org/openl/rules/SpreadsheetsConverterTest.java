@@ -578,6 +578,40 @@ public class SpreadsheetsConverterTest {
     }
 
     @Test
+    public void testSpreadsheetWithManyParamsCreation() throws IOException {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
+        List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
+        SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
+        assertEquals("SpreadsheetResult", mySprModel.getType());
+        List<InputParameter> parameters = mySprModel.getParameters();
+        assertEquals(1, parameters.size());
+
+        InputParameter objParameter = findInputParameter(parameters, "coverageFactorsRequest");
+        validateGeneratedModel("CoverageFactorsRequest",
+                objParameter.getType().getSimpleName(),
+                "CoverageFactorsRequest",
+                objParameter.getType().getJavaName(),
+                "coverageFactorsRequest",
+                objParameter.getName());
+
+        List<String> expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
+                "PortabilityFactor",
+                "DisabilityDefinitionFactor",
+                "FICAMatchingFactor",
+                "BenefitPercentFactor",
+                "ReturnToWorkFactor",
+                "CoverageFactor",
+                "ProgressiveIllnessProtection",
+                "PreExistingFactor",
+                "WorkIncentiveFactor",
+                "NetClaimCostAggregatedFactor");
+        List<StepModel> steps = mySprModel.getSteps();
+        List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
+        assertEquals(expectedStepsForBla, stepsNames);
+    }
+
+    @Test
     public void testSpreadsheetCreation() throws IOException {
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");

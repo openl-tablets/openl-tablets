@@ -14,7 +14,7 @@ public class ParameterModelTest {
         ParameterModel nameParam = new ParameterModel(new TypeInfo(String.class), "name");
         ParameterModel oneMoreNameParam = new ParameterModel(new TypeInfo(String.class), "name");
         ParameterModel surnameParam = new ParameterModel(new TypeInfo(String.class), "surname");
-        ParameterModel integerParam = new ParameterModel();
+
 
         assertEquals(nameParam, nameParam);
         assertEquals(nameParam, oneMoreNameParam);
@@ -24,8 +24,7 @@ public class ParameterModelTest {
         assertNotEquals(nameParam, surnameParam);
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 
-        integerParam.setName("name");
-        integerParam.setType(new TypeInfo(Integer.class.getName(), "Integer", false));
+        ParameterModel integerParam = new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer", false), "name");
         assertEquals("name", integerParam.getName());
         assertEquals("Integer", integerParam.getType().getSimpleName());
         assertNotEquals(nameParam, integerParam);

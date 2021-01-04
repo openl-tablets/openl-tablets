@@ -633,9 +633,10 @@ public class OpenLOpenAPIUtils {
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
-                        result.add(new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
-                            normalizeName(p.getName()),
-                            isInPath));
+                        ParameterModel parameterModel = new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
+                                normalizeName(p.getName()));
+                        parameterModel.setInPath(isInPath);
+                        result.add(parameterModel);
                     }
                 }
             }
@@ -660,8 +661,9 @@ public class OpenLOpenAPIUtils {
             if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
-                result = new ArrayList<>(Collections.singletonList(
-                    new ParameterModel(new TypeInfo(name, true), StringUtils.uncapitalize(normalizeName(name)))));
+                ParameterModel parameterModel = new ParameterModel(new TypeInfo(name, true), StringUtils.uncapitalize(normalizeName(name)));
+                parameterModel.setContainsRuntimeContext(properties.values().stream().anyMatch(v -> OpenAPITypeUtils.extractType(v, false).getSimpleName().equals(OpenAPIScaffoldingConverter.DEFAULT_RUNTIME_CONTEXT)));
+                result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()
                     .stream()
