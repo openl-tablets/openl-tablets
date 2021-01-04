@@ -136,25 +136,18 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         if (metaInfo instanceof ValueMetaInfo) {
-            setMetaInfo((ValueMetaInfo) metaInfo);
+            this.metaInfo = (ValueMetaInfo) metaInfo;
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
                     metaInfo.getDisplayName(IMetaInfo.LONG),
                     new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
-                setMetaInfo(valueMetaInfo);
+                this.metaInfo = valueMetaInfo;
             } catch (Exception e) {
                 LOG.debug("Failed to set meta info for StringValue '{}'", value, e);
-                setMetaInfo((ValueMetaInfo) null);
+                this.metaInfo = null;
             }
         }
-    }
-
-    /**
-     * Sets the metainfo for the value
-     */
-    public void setMetaInfo(ValueMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
     }
 
     /**
