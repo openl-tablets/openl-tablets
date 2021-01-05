@@ -330,6 +330,7 @@
                     <timestampPropertyName>build.date</timestampPropertyName>
                     <timestampFormat>{0,date,yyyy-MM-dd}</timestampFormat>
                     <revisionOnScmFailure>UNKNOWN</revisionOnScmFailure>
+                    <shortRevisionLength>12</shortRevisionLength>
                     <format>{0}</format>
                     <items>
                         <item>scmVersion</item>
