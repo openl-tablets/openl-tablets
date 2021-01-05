@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -32,6 +33,9 @@ public class OpenAPITypeUtils {
     protected static final Map<String, TypeInfo> WRAPPER_CLASSES = initWrapperMap();
 
     public static final String SCHEMAS_LINK = "#/components/schemas/";
+
+    public static final String DEFAULT_RUNTIME_CONTEXT = "DefaultRulesRuntimeContext";
+    public static final TypeInfo RUNTIME_CONTEXT_TYPE = new TypeInfo(IRulesRuntimeContext.class, TypeInfo.Type.RUNTIMECONTEXT);
 
     public static final String OBJECT = "Object";
     public static final String DATE = "Date";
@@ -83,6 +87,9 @@ public class OpenAPITypeUtils {
     public static TypeInfo extractType(Schema<?> schema, boolean allowPrimitiveTypes) {
         if (schema.get$ref() != null) {
             String simpleName = getSimpleName(schema.get$ref());
+            if (DEFAULT_RUNTIME_CONTEXT.equals(simpleName)) {
+                return RUNTIME_CONTEXT_TYPE;
+            }
             return new TypeInfo(simpleName, simpleName, true, 0);
         }
         String schemaType = schema.getType();

@@ -1,5 +1,7 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT;
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.RUNTIME_CONTEXT_TYPE;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 
 import java.util.ArrayList;
@@ -574,7 +576,7 @@ public class OpenLOpenAPIUtils {
                 }
             }
         }
-        boolean containsRuntimeContext = parameterModels.stream().anyMatch(v -> v.getType().getSimpleName().equals(OpenAPIScaffoldingConverter.DEFAULT_RUNTIME_CONTEXT));
+        boolean containsRuntimeContext = parameterModels.stream().anyMatch(v -> v.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
         if (!containsRuntimeContext && parameterModels.size() > MAX_PARAMETERS_COUNT) {
             String dataTypeName = getDataTypeName(path);
             DatatypeModel dt = new DatatypeModel(dataTypeName);
@@ -659,11 +661,17 @@ public class OpenLOpenAPIUtils {
         }
         if (CollectionUtils.isNotEmpty(properties)) {
             int propertiesCount = properties.size();
-            boolean containsRuntimeContext = properties.values().stream().anyMatch(v -> OpenAPITypeUtils.extractType(v, false).getSimpleName().equals(OpenAPIScaffoldingConverter.DEFAULT_RUNTIME_CONTEXT));
+            boolean containsRuntimeContext = properties.values().stream().anyMatch(v -> OpenAPITypeUtils.extractType(v, false).getType() == TypeInfo.Type.RUNTIMECONTEXT);
             if (!containsRuntimeContext && (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT)) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
-                ParameterModel parameterModel = new ParameterModel(new TypeInfo(name, name, TypeInfo.Type.DATATYPE), StringUtils.uncapitalize(normalizeName(name)));
+                TypeInfo typeInfo;
+                if (DEFAULT_RUNTIME_CONTEXT.equals(name)) {
+                    typeInfo = RUNTIME_CONTEXT_TYPE;
+                } else {
+                    typeInfo = new TypeInfo(name, name, TypeInfo.Type.DATATYPE);
+                }
+                ParameterModel parameterModel = new ParameterModel(typeInfo, StringUtils.uncapitalize(normalizeName(name)));
                 result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()

@@ -59,7 +59,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     public static final String SPR_RESULT_LINK = SCHEMAS_LINK + SPREADSHEET_RESULT;
     public static final String ANY_SPREADSHEET_RESULT = "AnySpreadsheetResult";
     public static final String RESULT = "Result";
-    public static final String DEFAULT_RUNTIME_CONTEXT = "DefaultRulesRuntimeContext";
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
     private static final Set<String> IGNORED_FIELDS = Collections
         .unmodifiableSet(new HashSet<>(Collections.singletonList("@class")));
@@ -390,7 +389,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     private void removeContextFromParams(List<SpreadsheetModel> sprModelsWithRC) {
         for (SpreadsheetModel spreadsheetModel : sprModelsWithRC) {
             spreadsheetModel.getParameters()
-                .removeIf(parameter -> parameter.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT));
+                .removeIf(parameter -> parameter.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
         }
     }
 
@@ -467,7 +466,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         SpreadsheetModel calledModel = calledSpr.getModel();
                         List<InputParameter> parameters = calledModel.getParameters();
                         boolean contains = parameters.stream()
-                            .anyMatch(x -> x.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT));
+                            .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
                         String value = String.join(",",
                             Collections.nCopies(contains ? parameters.size() - 1 : parameters.size(), "null"));
                         String calledName = calledModel.getName();
@@ -513,12 +512,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
         return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.stream()
-                .anyMatch(x -> x.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT));
+                .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
     }
 
     public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {
         return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.size() == 1 && inputParameters.stream()
-            .anyMatch(x -> x.getType().getSimpleName().equals(DEFAULT_RUNTIME_CONTEXT));
+            .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
     }
 
     private List<SpreadsheetParserModel> extractSprModels(OpenAPI openAPI,
