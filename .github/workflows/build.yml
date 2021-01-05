@@ -39,7 +39,7 @@ jobs:
       with:
         java-version: ${{ matrix.java }}
     - name: Set environment variables
-      run: echo "CACHE_ID=$(date +%U)" >> $GITHUB_ENV"
+      run: echo "CACHE_ID=$(date +%U)" >> $GITHUB_ENV
     - name: Cache local Maven repository
       uses: actions/cache@v2
       with:
