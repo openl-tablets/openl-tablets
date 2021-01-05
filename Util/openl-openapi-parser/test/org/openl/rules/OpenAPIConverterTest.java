@@ -3,6 +3,7 @@ package org.openl.rules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class OpenAPIConverterTest {
         assertEquals("someValue", dsParam.getName());
         TypeInfo dsType = dsParam.getType();
         validateTypeInfo("SomeValue", dsType.getSimpleName(), "SomeValue", dsType.getJavaName());
-        assertTrue(dsType.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, dsType.getType());
     }
 
     @Test
@@ -93,7 +94,7 @@ public class OpenAPIConverterTest {
         InputParameter param = parameters.iterator().next();
         TypeInfo type = param.getType();
         validateTypeInfo("RequestModel", type.getSimpleName(), "RequestModel", type.getJavaName());
-        assertTrue(type.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, type.getType());
         assertFalse(param.isInPath());
     }
 
@@ -113,7 +114,7 @@ public class OpenAPIConverterTest {
         TypeInfo type = param.getType();
         assertEquals("RequestModel", type.getSimpleName());
         assertFalse(param.isInPath());
-        assertTrue(type.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, type.getType());
     }
 
     @Test
@@ -150,12 +151,12 @@ public class OpenAPIConverterTest {
         assertEquals("object", inputParam.getName());
         TypeInfo inputParamType = inputParam.getType();
         validateTypeInfo("java.lang.Object", inputParamType.getJavaName(), "Object", inputParamType.getSimpleName());
-        assertFalse(inputParamType.isDatatype());
+        assertEquals(TypeInfo.Type.OBJECT, inputParamType.getType());
         assertFalse(inputParam.isInPath());
         PathInfo testSpreadsheetPathInfo = testSpreadsheet.getPathInfo();
         TypeInfo returnType = testSpreadsheetPathInfo.getReturnType();
         validateTypeInfo("java.lang.Double", returnType.getJavaName(), "Double", returnType.getSimpleName());
-        assertFalse(returnType.isDatatype());
+        assertEquals(TypeInfo.Type.OBJECT, returnType.getType());
 
         ProjectModel anyOf = converter.extractProjectModel("test.converter/project/oneOfAndAnyOf/anyOfInRequest.json");
         List<SpreadsheetModel> anyOfModels = anyOf.getSpreadsheetResultModels();
@@ -182,7 +183,7 @@ public class OpenAPIConverterTest {
         InputParameter ip = parameters.iterator().next();
         TypeInfo type = ip.getType();
         assertEquals("body", type.getSimpleName());
-        assertTrue(type.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, type.getType());
         assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals(type.getSimpleName())));
         assertFalse(ip.isInPath());
     }
@@ -221,7 +222,7 @@ public class OpenAPIConverterTest {
             returnType.getJavaName(),
             "inline_response_200",
             returnType.getSimpleName());
-        assertFalse(returnType.isDatatype());
+        assertNull(returnType.getType());
 
         String spreadsheetType = spreadsheetModel.getType();
         assertEquals(SPREADSHEET_RESULT, spreadsheetType);
@@ -229,7 +230,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         InputParameter catParam = findInputParameter(parameters, "cat");
         TypeInfo catType = catParam.getType();
-        assertTrue(catType.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, catType.getType());
         assertTrue(datatypeModels.stream().anyMatch(dm -> dm.getName().equals(catType.getSimpleName())));
 
         validateParameter(parameters, "voice", "java.lang.String", "String");
@@ -272,7 +273,7 @@ public class OpenAPIConverterTest {
         InputParameter catParam = parameters.iterator().next();
         TypeInfo catType = catParam.getType();
         assertEquals("Cat", catType.getSimpleName());
-        assertTrue(catType.isDatatype());
+        assertEquals(TypeInfo.Type.DATATYPE, catType.getType());
         assertTrue(datatypeModels.stream().anyMatch(dt -> dt.getName().equals(catType.getSimpleName())));
     }
 

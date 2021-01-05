@@ -24,7 +24,7 @@ public class ParameterModelTest {
         assertNotEquals(nameParam, surnameParam);
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 
-        ParameterModel integerParam = new ParameterModel(new TypeInfo(Integer.class.getName(), "Integer", false), "name");
+        ParameterModel integerParam = new ParameterModel(new TypeInfo(Integer.class), "name");
         assertEquals("name", integerParam.getName());
         assertEquals("Integer", integerParam.getType().getSimpleName());
         assertNotEquals(nameParam, integerParam);

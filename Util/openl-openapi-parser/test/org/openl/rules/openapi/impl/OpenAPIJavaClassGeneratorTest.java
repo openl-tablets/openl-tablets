@@ -324,7 +324,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
     @Test
     public void resolveTypeTest() {
-        TypeInfo typeInfo = new TypeInfo("Policy", true);
+        TypeInfo typeInfo = new TypeInfo("Policy", "Policy", TypeInfo.Type.DATATYPE);
         assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(1);

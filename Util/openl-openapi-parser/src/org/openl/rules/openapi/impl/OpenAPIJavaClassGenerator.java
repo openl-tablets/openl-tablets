@@ -114,7 +114,7 @@ public class OpenAPIJavaClassGenerator {
             if (parameters.size() > JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET) {
                 //if more than 3 parameters, POST by default.
                 return true;
-            } else if (!parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
+            } else if (!parameters.stream().allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
                 //if there is at least one non-primitive parameter, POST by default.
                 return true;
             }
@@ -123,7 +123,8 @@ public class OpenAPIJavaClassGenerator {
                 if (parameters.isEmpty()) {
                     //if no context and empty params, GET by default.
                     return true;
-                } else if (parameters.size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
+                } else if (parameters.size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET
+                        && parameters.stream().allMatch(p -> p.getType().getType() == TypeInfo.Type.PRIMITIVE)) {
                     //if no context and if there are less than 3 parameters and they are all primitive, GET by default.
                     return true;
                 }
@@ -187,7 +188,7 @@ public class OpenAPIJavaClassGenerator {
             methodBuilder.addParameter(visitMethodParameter(parameter, extraMethod));
         }
 
-        if (returnTypeInfo.isDatatype()) {
+        if (returnTypeInfo.getType() == TypeInfo.Type.DATATYPE) {
             methodBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
                 .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(returnTypeInfo.getSimpleName()))
                 .build());
@@ -201,7 +202,7 @@ public class OpenAPIJavaClassGenerator {
     private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
         final TypeInfo paramType = parameter.getType();
         MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
-        if (paramType.isDatatype()) {
+        if (paramType.getType() == TypeInfo.Type.DATATYPE) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
                 .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(paramType.getSimpleName()))
                 .build());
@@ -236,7 +237,7 @@ public class OpenAPIJavaClassGenerator {
     }
 
     static String resolveType(TypeInfo typeInfo) {
-        if (typeInfo.isDatatype()) {
+        if (typeInfo.getType() == TypeInfo.Type.DATATYPE) {
             Class<?> type = DEFAULT_DATATYPE_CLASS;
             if (typeInfo.getDimension() > 0) {
                 int[] dimensions = new int[typeInfo.getDimension()];

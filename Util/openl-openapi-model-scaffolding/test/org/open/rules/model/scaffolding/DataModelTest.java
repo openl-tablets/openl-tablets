@@ -15,11 +15,14 @@ public class DataModelTest {
 
     @Test
     public void testDataModelCreation() {
-        PathInfo pi = new PathInfo("a/b/c", "abc", "GET", new TypeInfo("Bank", true), APPLICATION_JSON, APPLICATION_JSON);
+        PathInfo pi = new PathInfo("a/b/c", "abc", "GET",
+                new TypeInfo("Bank", "Bank", TypeInfo.Type.DATATYPE),
+                APPLICATION_JSON,
+                APPLICATION_JSON);
         PathInfo qualityInfo = new PathInfo("/qualityI",
             "/qI",
             "GET",
-            new TypeInfo("QualityIndicators", true),
+            new TypeInfo("QualityIndicators", "QualityIndicators", TypeInfo.Type.DATATYPE),
             APPLICATION_JSON,
             APPLICATION_JSON);
         DatatypeModel dtm = new DatatypeModel("test");

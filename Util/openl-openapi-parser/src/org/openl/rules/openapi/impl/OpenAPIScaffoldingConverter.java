@@ -243,14 +243,17 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             PathInfo pathInfo = model.getPathInfo();
             if (pathInfo != null) {
                 TypeInfo returnType = pathInfo.getReturnType();
-                returnType.setIsDatatype(
-                    dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(returnType.getSimpleName())));
+                if (dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(returnType.getSimpleName()))) {
+                    returnType.setType(TypeInfo.Type.DATATYPE);
+                }
             }
 
             List<InputParameter> parameters = model.getParameters();
             for (InputParameter parameter : parameters) {
                 TypeInfo type = parameter.getType();
-                type.setIsDatatype(dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(type.getSimpleName())));
+                if (dataTypeNames.contains(OpenAPITypeUtils.removeArrayBrackets(type.getSimpleName()))) {
+                    type.setType(TypeInfo.Type.DATATYPE);
+                }
             }
         }
     }
@@ -302,7 +305,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             model.setPathInfo(new PathInfo("/" + modelName,
                 modelName,
                 PathItem.HttpMethod.POST.name(),
-                new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT)));
+                new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT, TypeInfo.Type.SPREADSHEET)));
             lostModel.setModel(model);
             spreadsheetParserModels.add(lostModel);
         }

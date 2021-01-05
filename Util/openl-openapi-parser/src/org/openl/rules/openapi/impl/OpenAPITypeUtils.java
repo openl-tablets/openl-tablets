@@ -1,5 +1,7 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT_CLASS_NAME;
+
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -21,8 +23,6 @@ import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
 import io.swagger.v3.oas.models.media.Schema;
-
-import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT_CLASS_NAME;
 
 public class OpenAPITypeUtils {
 
@@ -77,21 +77,17 @@ public class OpenAPITypeUtils {
         wrapperMap.put(Object.class.getSimpleName(), new TypeInfo(Object.class));
         wrapperMap.put("bigInt", new TypeInfo(BigInteger.class));
         wrapperMap.put("bigDecimal", new TypeInfo(BigDecimal.class));
-        return wrapperMap;
+        return Collections.unmodifiableMap(wrapperMap);
     }
 
     public static TypeInfo extractType(Schema<?> schema, boolean allowPrimitiveTypes) {
-        TypeInfo result = null;
         if (schema.get$ref() != null) {
             String simpleName = getSimpleName(schema.get$ref());
-            result = new TypeInfo();
-            result.setSimpleName(simpleName);
-            result.setJavaName(simpleName);
-            result.setIsReference(true);
-            return result;
+            return new TypeInfo(simpleName, simpleName, true, 0);
         }
         String schemaType = schema.getType();
         String format = schema.getFormat();
+        TypeInfo result = null;
         if ("string".equals(schemaType)) {
             result = "date".equals(format) || "date-time".equals(format) ? WRAPPER_CLASSES.get(DATE)
                                                                          : WRAPPER_CLASSES.get(STRING);

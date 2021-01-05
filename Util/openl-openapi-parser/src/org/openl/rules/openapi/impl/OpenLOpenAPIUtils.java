@@ -588,7 +588,7 @@ public class OpenLOpenAPIUtils {
             dt.setFields(fields);
             dts.add(dt);
             parameterModels = Collections.singletonList(
-                new ParameterModel(new TypeInfo(dataTypeName, true), StringUtils.uncapitalize(dt.getName())));
+                new ParameterModel(new TypeInfo(dataTypeName, dataTypeName, TypeInfo.Type.DATATYPE), StringUtils.uncapitalize(dt.getName())));
         }
         return parameterModels;
     }
@@ -663,7 +663,7 @@ public class OpenLOpenAPIUtils {
             if (!containsRuntimeContext && (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT)) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
-                ParameterModel parameterModel = new ParameterModel(new TypeInfo(name, true), StringUtils.uncapitalize(normalizeName(name)));
+                ParameterModel parameterModel = new ParameterModel(new TypeInfo(name, name, TypeInfo.Type.DATATYPE), StringUtils.uncapitalize(normalizeName(name)));
                 result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()
@@ -708,8 +708,6 @@ public class OpenLOpenAPIUtils {
                     }
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
                         parameter += "Param";
-                    } else {
-                        typeInfo.setSimpleName(StringUtils.capitalize(type));
                     }
                     result = new ArrayList<>(
                         Collections.singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter)))));

@@ -54,7 +54,7 @@ public class DataTableExporterTest {
         PathInfo info = new PathInfo("/getTest",
             "/getTest",
             "GET",
-            new TypeInfo("Test", true),
+            new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
             "application/json",
             "application/json");
         DataModel dm = new DataModel("getTest", "Test", info, dt);
@@ -68,7 +68,7 @@ public class DataTableExporterTest {
         PathInfo infoForNotOk = new PathInfo("/getMyModel",
             "/my/model",
             "POST",
-            new TypeInfo("Unknown", true),
+            new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
             "text/plain",
             "text/html");
         DataModel myModel = new DataModel("getMyModel", "Test", infoForNotOk, secondModel);

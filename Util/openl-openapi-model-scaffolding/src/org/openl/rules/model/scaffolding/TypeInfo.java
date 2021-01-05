@@ -5,38 +5,24 @@ import java.util.Objects;
 public class TypeInfo {
 
     private String javaName;
-    private String simpleName;
-    private boolean datatype;
+    private final String simpleName;
+    private Type type;
     private int dimension;
-    private boolean reference;
-    private boolean primitive;
-
-    public TypeInfo() {
-    }
-
-    public TypeInfo(String name, boolean datatype) {
-        this.javaName = name;
-        this.simpleName = name;
-        this.datatype = datatype;
-    }
+    private final boolean reference;
 
     public TypeInfo(Class<?> javaName) {
-        this.javaName = javaName.getName();
-        this.simpleName = javaName.getSimpleName();
-        this.primitive = javaName.isPrimitive();
-        this.datatype = false;
+        this(javaName, javaName.isPrimitive() ? Type.PRIMITIVE : Type.OBJECT);
     }
 
-    public TypeInfo(String javaName, String simpleName) {
-        this.javaName = javaName;
-        this.simpleName = simpleName;
-        this.datatype = false;
+    public TypeInfo(Class<?> javaName, Type type) {
+        this(javaName.getName(), javaName.getSimpleName(), type);
     }
 
-    public TypeInfo(String javaName, String simpleName, boolean datatype) {
+    public TypeInfo(String javaName, String simpleName, Type type) {
         this.javaName = javaName;
         this.simpleName = simpleName;
-        this.datatype = datatype;
+        this.type = type;
+        this.reference = false;
     }
 
     public TypeInfo(String javaName, String simpleName, boolean reference, int dimension) {
@@ -58,24 +44,16 @@ public class TypeInfo {
         return simpleName;
     }
 
-    public void setSimpleName(String simpleName) {
-        this.simpleName = simpleName;
+    public Type getType() {
+        return type;
     }
 
-    public boolean isDatatype() {
-        return datatype;
-    }
-
-    public void setIsDatatype(boolean datatype) {
-        this.datatype = datatype;
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public boolean isReference() {
         return reference;
-    }
-
-    public void setIsReference(boolean reference) {
-        this.reference = reference;
     }
 
     public int getDimension() {
@@ -84,10 +62,6 @@ public class TypeInfo {
 
     public void setDimension(int dimension) {
         this.dimension = dimension;
-    }
-
-    public boolean isPrimitive() {
-        return primitive;
     }
 
     @Override
@@ -99,13 +73,23 @@ public class TypeInfo {
             return false;
         }
         TypeInfo typeInfo = (TypeInfo) o;
-        return datatype == typeInfo.datatype && Objects.equals(javaName, typeInfo.javaName) && Objects
+        return type == typeInfo.type && Objects.equals(javaName, typeInfo.javaName) && Objects
             .equals(simpleName, typeInfo.simpleName) && Objects.equals(dimension, typeInfo.dimension) && Objects
                 .equals(reference, typeInfo.reference);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(javaName, simpleName, datatype, dimension, reference);
+        return Objects.hash(javaName, simpleName, type, dimension, reference);
+    }
+
+    public enum Type {
+
+        RUNTIMECONTEXT,
+        SPREADSHEET,
+        DATATYPE,
+        OBJECT,
+        PRIMITIVE
+
     }
 }

@@ -19,49 +19,49 @@ public class PathInfoTest {
         PathInfo xyzPath = new PathInfo("/x/y/z",
             "xyz",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             APPLICATION_JSON,
             TEXT_PLAIN);
         PathInfo xyzPathText = new PathInfo("/x/y/z",
             "xyz",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             TEXT_PLAIN,
             TEXT_PLAIN);
         PathInfo xyzPathJSON = new PathInfo("/x/y/z",
             "xyz",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             APPLICATION_JSON,
             APPLICATION_JSON);
         PathInfo oneMoreXyzPath = new PathInfo("/x/y/z",
             "xyz",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             APPLICATION_JSON,
             TEXT_PLAIN);
         PathInfo xyzStringPath = new PathInfo("/x/y/z",
             "xyz",
             POST,
-            new TypeInfo(String.class.getName(), "String", false),
+            new TypeInfo(String.class),
             APPLICATION_JSON,
             TEXT_PLAIN);
         PathInfo xyFormattedPath = new PathInfo("/x/y/z",
             "xy",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             TEXT_JAVASCRIPT,
             TEXT_PLAIN);
         PathInfo xyOriginalPath = new PathInfo("/x/y",
             "xyz",
             POST,
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             TEXT_JAVASCRIPT,
             TEXT_JAVASCRIPT);
         PathInfo xyzPUT = new PathInfo("/x/y/z",
             "xyz",
             "PUT",
-            new TypeInfo(Double.class.getName(), "Double", false),
+            new TypeInfo(Double.class),
             TEXT_PLAIN,
             APPLICATION_JSON);
 
@@ -89,7 +89,7 @@ public class PathInfoTest {
         bankRatingPath.setOriginalPath("/bankRating");
         bankRatingPath.setFormattedPath("bankRating");
         bankRatingPath.setOperation("POST");
-        bankRatingPath.setReturnType(new TypeInfo(Double.class.getName(), "Double", false));
+        bankRatingPath.setReturnType(new TypeInfo(Double.class));
         bankRatingPath.setProduces(APPLICATION_JSON);
         bankRatingPath.setConsumes(TEXT_PLAIN);
 
