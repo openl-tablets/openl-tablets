@@ -67,10 +67,9 @@
         </developer>
     </developers>
     <scm>
-        <connection>scm:hg:${staging.hg.repo.url}</connection>
-        <developerConnection>scm:hg:${staging.hg.repo.url}</developerConnection>
-        <url>scm:git:git://github.com/openl-tablets/openl-tablets.git</url>
-        <tag>HEAD</tag>
+        <connection>scm:git:https://github.com/openl-tablets/openl-tablets.git</connection>
+        <developerConnection>scm:git:git@github.com:openl-tablets/openl-tablets.git</developerConnection>
+        <url>https://github.com/openl-tablets/openl-tablets</url>
     </scm>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -79,7 +78,6 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <staging.hg.repo.url>https://vno-hg.exigengroup.com/hg/openl-pub</staging.hg.repo.url>
         <org.springframework.version>5.2.12.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.4.2</org.springsecurity.version>
         <org.hibernate.version>5.2.18.Final</org.hibernate.version>
