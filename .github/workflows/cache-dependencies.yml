@@ -26,8 +26,8 @@ jobs:
         path: ~/.m2/repository
         key: maven-${{ env.WEEK }}-${{ env.DAY }}
         restore-keys: |
-          maven-${{ env.WEEK }}-
+          maven-${{ env.WEEK }}
     - name: Maven version
       run: mvn -v
     - name: Download Maven Dependencies
-      run: mvn dependency:go-offline -Pgpg-sign -Dsonar -Psources -Powasp -Dmaven.wagon.http.retryHandler.count=5
+      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:collect -Pgpg-sign -Dsonar -Psources -Powasp -Dmaven.wagon.http.retryHandler.count=5
