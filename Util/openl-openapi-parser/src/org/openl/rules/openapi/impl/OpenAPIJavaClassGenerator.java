@@ -115,7 +115,7 @@ public class OpenAPIJavaClassGenerator {
                 //if more than 3 parameters, POST by default.
                 return true;
             } else if (!parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
-                //if there is one not simple parameter, POST by default.
+                //if there is at least one non-primitive parameter, POST by default.
                 return true;
             }
         } else if (HttpMethod.POST.equalsIgnoreCase(pathInfo.getOperation())) {
@@ -124,7 +124,7 @@ public class OpenAPIJavaClassGenerator {
                     //if no context and empty params, GET by default.
                     return true;
                 } else if (parameters.size() <= JAXRSOpenLServiceEnhancerHelper.MAX_PARAMETERS_COUNT_FOR_GET && parameters.stream().allMatch(p -> p.getType().isPrimitive())) {
-                    //if no context and there is one simple parameter, GET by default.
+                    //if no context and if there are less than 3 parameters and they are all primitive, GET by default.
                     return true;
                 }
             }
