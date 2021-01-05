@@ -388,8 +388,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private void removeContextFromParams(List<SpreadsheetModel> sprModelsWithRC) {
         for (SpreadsheetModel spreadsheetModel : sprModelsWithRC) {
-            spreadsheetModel.getParameters()
-                .removeIf(parameter -> parameter.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
+            spreadsheetModel.getParameters().stream().filter(p -> p.getType().getType()  == TypeInfo.Type.RUNTIMECONTEXT)
+                    .findFirst().ifPresent(context -> {
+                spreadsheetModel.getParameters().remove(context);
+                spreadsheetModel.getPathInfo().setRuntimeContextParameter(context);
+            });
         }
     }
 

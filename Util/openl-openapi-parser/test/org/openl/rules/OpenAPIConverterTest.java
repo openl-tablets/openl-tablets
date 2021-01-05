@@ -560,6 +560,32 @@ public class OpenAPIConverterTest {
         assertEquals("Double", doubleResultSprModel.getType());
     }
 
+    @Test
+    public void test_EPBDS_10988() throws IOException {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
+        assertNotNull(projectModel);
+
+        assertTrue(projectModel.isRuntimeContextProvided());
+
+        assertEquals(1, projectModel.getSpreadsheetResultModels().size());
+        SpreadsheetModel sprModel = projectModel.getSpreadsheetResultModels().get(0);
+
+        assertEquals(1, sprModel.getParameters().size());
+        InputParameter param1 = sprModel.getParameters().get(0);
+        assertEquals("param1", param1.getName());
+        assertEquals("java.lang.String", param1.getType().getJavaName());
+        assertEquals("String", param1.getType().getSimpleName());
+        assertEquals(TypeInfo.Type.OBJECT, param1.getType().getType());
+
+        InputParameter param0 = sprModel.getPathInfo().getRuntimeContextParameter();
+        assertNotNull(param0);
+        assertEquals("param0", param0.getName());
+        assertEquals("org.openl.rules.context.IRulesRuntimeContext", param0.getType().getJavaName());
+        assertEquals("IRulesRuntimeContext", param0.getType().getSimpleName());
+        assertEquals(TypeInfo.Type.RUNTIMECONTEXT, param0.getType().getType());
+    }
+
     private void validateParameter(final List<InputParameter> parameters,
             final String paramName,
             final String expectedJavaName,

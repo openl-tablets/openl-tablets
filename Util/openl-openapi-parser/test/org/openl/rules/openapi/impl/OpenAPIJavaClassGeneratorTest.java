@@ -337,6 +337,39 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(Integer.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
     }
 
+    @Test
+    public void test_EPBDS_10988() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+        assertEquals(1, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("getTestData1", IRulesRuntimeContext.class, String.class);
+        assertEquals(Double.class, method1.getReturnType());
+        assertEquals(4, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(POST.class));
+        assertEquals("/getTestData1", method1.getAnnotation(Path.class).value());
+        assertArrayEquals(new String[] { "text/plain" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Consumes.class).value());
+        assertEquals(1, method1.getParameters()[0].getAnnotations().length);
+        assertEquals("param0", method1.getParameters()[0].getAnnotation(Name.class).value());
+        assertEquals(0, method1.getParameters()[1].getAnnotations().length);
+    }
+
+    @Test
+    public void test_mustNotGenerateInterface() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/paths/openapi_defaultContext.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        assertNull(generated.getAnnotationTemplateClass());
+        assertTrue(generated.getCommonClasses().isEmpty());
+    }
+
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());

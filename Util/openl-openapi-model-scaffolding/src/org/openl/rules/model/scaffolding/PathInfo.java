@@ -9,6 +9,7 @@ public class PathInfo {
     private String produces;
     private String operation;
     private TypeInfo returnType;
+    private InputParameter runtimeContextParameter;
 
     public PathInfo() {
     }
@@ -82,6 +83,14 @@ public class PathInfo {
         this.produces = produces;
     }
 
+    public InputParameter getRuntimeContextParameter() {
+        return runtimeContextParameter;
+    }
+
+    public void setRuntimeContextParameter(InputParameter runtimeContextParameter) {
+        this.runtimeContextParameter = runtimeContextParameter;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -108,6 +117,9 @@ public class PathInfo {
         if (!Objects.equals(produces, pathInfo.produces)) {
             return false;
         }
+        if (!Objects.equals(runtimeContextParameter, pathInfo.runtimeContextParameter)) {
+            return false;
+        }
         return Objects.equals(returnType, pathInfo.returnType);
     }
 
@@ -119,6 +131,7 @@ public class PathInfo {
         result = 31 * result + (returnType != null ? returnType.hashCode() : 0);
         result = 31 * result + (produces != null ? produces.hashCode() : 0);
         result = 31 * result + (consumes != null ? consumes.hashCode() : 0);
+        result = 31 * result + (runtimeContextParameter != null ? runtimeContextParameter.hashCode() : 0);
         return result;
     }
 }

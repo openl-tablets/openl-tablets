@@ -23,7 +23,6 @@ import org.openl.gen.JavaInterfaceImplBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
 import org.openl.gen.TypeDescription;
-import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
@@ -41,9 +40,9 @@ public class OpenAPIJavaClassGenerator {
     private static final String DEFAULT_JSON_TYPE = "application/json";
     private static final String DEFAULT_SIMPLE_TYPE = "text/plain";
     private static final Class<?> DEFAULT_DATATYPE_CLASS = Object.class;
-    private static final String RULES_CTX_CLASS = IRulesRuntimeContext.class.getName();
     public static final String VALUE = "value";
     public static final String DEFAULT_OPEN_API_PATH = "org.openl.generated.services";
+    public static final String DEFAULT_RUNTIME_CTX_PARAM_NAME = "runtimeContext";
 
     private final ProjectModel projectModel;
 
@@ -84,7 +83,11 @@ public class OpenAPIJavaClassGenerator {
                     //if context, application/json by default
                     return true;
                 }
-            }else if (parameters.isEmpty()) {
+                if (!parameters.isEmpty() && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(pathInfo.getRuntimeContextParameter().getName())) {
+                    //if runtimeContext param name is not default
+                    return true;
+                }
+            } else if (parameters.isEmpty()) {
                 if (!DEFAULT_SIMPLE_TYPE.equals(pathInfo.getConsumes())) {
                     //if no prams, text/plan by default
                     return true;
@@ -144,9 +147,7 @@ public class OpenAPIJavaClassGenerator {
             if (!generateDecision(method)) {
                 continue;
             }
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method,
-                projectModel.isRuntimeContextProvided(),
-                false);
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method, false);
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
             hasMethods = true;
         }
@@ -157,7 +158,7 @@ public class OpenAPIJavaClassGenerator {
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
                 extraMethodBuilder.byteCode());
             builder.addCommonClass(javaClassFile);
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, false, true);
+            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
                 .withProperty(VALUE, new TypeDescription(javaClassFile.getJavaNameWithPackage()))
                 .build());
@@ -171,17 +172,23 @@ public class OpenAPIJavaClassGenerator {
         return builder.build();
     }
 
-    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel,
-            boolean runtimeContext,
-            boolean extraMethod) {
+    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel, boolean extraMethod) {
 
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
         MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
             resolveType(returnTypeInfo));
 
-        if (runtimeContext) {
-            methodBuilder.addParameter(MethodParameterBuilder.create(RULES_CTX_CLASS).build());
+        InputParameter runtimeCtxParam = sprModel.getPathInfo().getRuntimeContextParameter();
+        if (runtimeCtxParam != null) {
+            MethodParameterBuilder ctxBuilder = MethodParameterBuilder.create(runtimeCtxParam.getType().getJavaName());
+            final String paramName = runtimeCtxParam.getName();
+            if (sprModel.getParameters().size() > 0 && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(paramName)) {
+                ctxBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Name.class)
+                        .withProperty(VALUE, paramName)
+                        .build());
+            }
+            methodBuilder.addParameter(ctxBuilder.build());
         }
 
         for (InputParameter parameter : sprModel.getParameters()) {
@@ -208,8 +215,9 @@ public class OpenAPIJavaClassGenerator {
                 .build());
         }
         if (extraMethod) {
-            methodParamBuilder.addAnnotation(
-                AnnotationDescriptionBuilder.create(Name.class).withProperty(VALUE, parameter.getName()).build());
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(Name.class)
+                    .withProperty(VALUE, parameter.getName())
+                    .build());
         }
         if (parameter.isInPath()) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(PathParam.class)
