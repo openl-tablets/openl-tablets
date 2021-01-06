@@ -158,7 +158,7 @@ public class DataTableTest {
 
         StepModel step = steps.iterator().next();
         assertEquals("Result", step.getName());
-        assertEquals("=new String[]{}", step.getValue());
+        assertEquals("= new String[]{}", step.getValue());
     }
 
     @Test

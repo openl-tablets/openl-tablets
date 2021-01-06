@@ -58,7 +58,7 @@ public class DataTypeConverterTest {
         assertEquals(1, steps.size());
         StepModel resultStep = steps.iterator().next();
         assertEquals("Result", resultStep.getName());
-        assertEquals("=new DriverRisk()", resultStep.getValue());
+        assertEquals("= new DriverRisk()", resultStep.getValue());
     }
 
     @Test
@@ -242,7 +242,7 @@ public class DataTypeConverterTest {
         assertTrue(cdTcodeValidationResultStep.isPresent());
         StepModel stepModel = cdTcodeValidationResultStep.get();
         assertEquals("BigInteger", stepModel.getType());
-        assertEquals("=java.math.BigInteger.ZERO", stepModel.getValue());
+        assertEquals("= java.math.BigInteger.ZERO", stepModel.getValue());
 
         Optional<StepModel> cdTCodeToBeProcessedStep = sm.getSteps()
             .stream()
@@ -251,7 +251,7 @@ public class DataTypeConverterTest {
         assertTrue(cdTCodeToBeProcessedStep.isPresent());
         StepModel cdTCodeToBeProcessedStepModel = cdTCodeToBeProcessedStep.get();
         assertEquals("BigDecimal", cdTCodeToBeProcessedStepModel.getType());
-        assertEquals("=java.math.BigDecimal.ZERO", cdTCodeToBeProcessedStepModel.getValue());
+        assertEquals("= java.math.BigDecimal.ZERO", cdTCodeToBeProcessedStepModel.getValue());
     }
 
     @Test

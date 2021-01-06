@@ -180,29 +180,29 @@ public class OpenAPITypeUtils {
         switch (type) {
             case INTEGER:
             case INTEGER_PRIMITIVE:
-                return "=0";
+                return "= 0";
             case BIG_INTEGER:
-                return "=java.math.BigInteger.ZERO";
+                return "= java.math.BigInteger.ZERO";
             case LONG:
             case LONG_PRIMITIVE:
-                return "=0L";
+                return "= 0L";
             case DOUBLE:
             case DOUBLE_PRIMITIVE:
-                return "=0.0";
+                return "= 0.0";
             case FLOAT:
             case FLOAT_PRIMITIVE:
-                return "=0.0f";
+                return "= 0.0f";
             case BIG_DECIMAL:
-                return "=java.math.BigDecimal.ZERO";
+                return "= java.math.BigDecimal.ZERO";
             case STRING:
-                return "=" + "\"\"";
+                return "= \"\"";
             case DATE:
-                return "=new Date()";
+                return "= new Date()";
             case BOOLEAN:
             case BOOLEAN_PRIMITIVE:
-                return "=false";
+                return "= false";
             default:
-                return "=new Object()";
+                return "= new Object()";
         }
     }
 

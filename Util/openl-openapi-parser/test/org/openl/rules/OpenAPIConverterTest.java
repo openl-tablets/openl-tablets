@@ -422,7 +422,7 @@ public class OpenAPIConverterTest {
         assertEquals(1, secondModelSteps.size());
         StepModel secondModelResultStep = secondModelSteps.iterator().next();
         validateTypeInfo("Result", secondModelResultStep.getName(), "MyFirsSpr[]", secondModelResultStep.getType());
-        assertEquals("=new SpreadsheetResultmyFirsSpr[]{myFirsSpr(null)}", secondModelResultStep.getValue());
+        assertEquals("= new SpreadsheetResultmyFirsSpr[]{myFirsSpr(null)}", secondModelResultStep.getValue());
         assertFalse(pm.getDatatypeModels().stream().anyMatch(x -> x.getName().equals("MyFirsSpr")));
 
     }

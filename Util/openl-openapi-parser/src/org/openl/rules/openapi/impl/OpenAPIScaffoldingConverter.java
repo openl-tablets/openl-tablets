@@ -278,7 +278,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     String simpleType = OpenAPITypeUtils.removeArrayBrackets(type);
                     if (notUsedDataTypeWithRefToSpreadsheet.contains(simpleType)) {
                         String call = makeCall(type, "");
-                        model.setValue(type.endsWith("[]") ? makeArrayCall(type, simpleType, "") : "=" + call);
+                        model.setValue(type.endsWith("[]") ? makeArrayCall(type, simpleType, "") : "= " + call);
                     }
                 }
             }
@@ -327,6 +327,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String type = OpenAPITypeUtils.removeArrayBrackets(stepType);
         String modelToCall = "";
         int size = 0;
+        String value = "";
         if (!type.equals(modelName) && !refSpreadsheets.contains(SCHEMAS_LINK + type)) {
             return step;
         }
@@ -339,15 +340,17 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             if (optionalModel.isPresent()) {
                 SpreadsheetParserModel spreadsheetParserModel = optionalModel.get();
                 modelToCall = spreadsheetParserModel.getModel().getName();
-                size = spreadsheetParserModel.getModel().getParameters().size();
+                value = spreadsheetParserModel.getModel().getParameters().stream()
+                        .map(InputParameter::getType)
+                        .map(OpenAPITypeUtils::geJavaDefaultValue)
+                        .collect(Collectors.joining(", "));
             }
         }
-        String value = String.join(",", Collections.nCopies(size, "null"));
         String call = makeCall(modelToCall, value);
         if (stepType.endsWith("[]")) {
             step.setValue(makeArrayCall(stepType, modelToCall, call));
         } else {
-            step.setValue("=" + call);
+            step.setValue("= " + call);
         }
         return step;
     }
@@ -486,10 +489,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                                 .map(InputParameter::getType)
                                 .filter(t -> t.getType() != TypeInfo.Type.RUNTIMECONTEXT)
                                 .map(OpenAPITypeUtils::geJavaDefaultValue)
-                                .collect(Collectors.joining(","));
+                                .collect(Collectors.joining(", "));
                         String calledName = calledModel.getName();
                         String call = makeCall(calledName, value);
-                        step.setValue(isArray ? makeArrayCall(stepType, calledName, call) : "=" + call);
+                        step.setValue(isArray ? makeArrayCall(stepType, calledName, call) : "= " + call);
                     }
                 }
             }
@@ -502,7 +505,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String openingBrackets = String.join("", Collections.nCopies(dimension, "{"));
         String closingBrackets = String.join("", Collections.nCopies(dimension, "}"));
         String arrayBrackets = String.join("", Collections.nCopies(dimension, "[]"));
-        return new StringBuilder().append("=new SpreadsheetResult")
+        return new StringBuilder().append("= new SpreadsheetResult")
             .append(name)
             .append(arrayBrackets)
             .append(openingBrackets)
@@ -885,7 +888,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private String createNewInstance(String type) {
-        StringBuilder result = new StringBuilder().append("=").append("new ").append(type);
+        StringBuilder result = new StringBuilder().append("= ").append("new ").append(type);
         if (type.endsWith("[]")) {
             result.append("{}");
         } else {
