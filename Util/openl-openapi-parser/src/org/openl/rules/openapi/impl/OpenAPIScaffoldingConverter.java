@@ -26,6 +26,7 @@ import java.util.stream.Collectors;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -230,6 +231,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty() || (!dataModels.isEmpty() && dataModels.stream()
                 .allMatch(dt -> dt.getPathInfo().getRuntimeContextParameter() != null));
 
+        if (isRuntimeContextProvided) {
+            //remove defaultRuntimeContext from dts - it will be generated automatically in the interface
+            dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
+        }
         removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
