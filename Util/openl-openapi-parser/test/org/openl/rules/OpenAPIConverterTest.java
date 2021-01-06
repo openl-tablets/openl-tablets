@@ -53,7 +53,7 @@ public class OpenAPIConverterTest {
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<DataModel> dataModels = projectModel.getDataModels();
-        assertEquals(6, datatypeModels.size());
+        assertEquals(5, datatypeModels.size());
         assertEquals(4, dataModels.size());
         assertEquals(33, spreadsheetModels.size());
         assertTrue(projectModel.isRuntimeContextProvided());
@@ -592,7 +592,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
         assertNotNull(projectModel);
-        assertEquals(3, projectModel.getDatatypeModels().size());
+        assertEquals(2, projectModel.getDatatypeModels().size());
         DatatypeModel datatypeModel = projectModel.getDatatypeModels().stream()
                 .filter(x -> "MyDatatype".equals(x.getName()))
                 .findFirst()

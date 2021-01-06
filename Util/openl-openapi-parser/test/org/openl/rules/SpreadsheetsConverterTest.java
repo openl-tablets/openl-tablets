@@ -366,7 +366,7 @@ public class SpreadsheetsConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(5, datatypeModels.size());
+        assertEquals(4, datatypeModels.size());
         Optional<SpreadsheetModel> corporateRatingCalculation = projectModel.getSpreadsheetResultModels()
             .stream()
             .filter(x -> x.getName().equals("CorporateRatingCalculation"))
