@@ -7,6 +7,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.junit.Test;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -41,19 +43,19 @@ public class ProjectModelTest {
     public void testProjectModelWithContext() {
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
             false,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -74,19 +76,19 @@ public class ProjectModelTest {
 
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
             Collections.emptyList());
         ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
             true,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.singletonList(firstSpr),
             Collections.emptyList());
@@ -106,19 +108,19 @@ public class ProjectModelTest {
         DatatypeModel oneMoreDm = new DatatypeModel("Meat");
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
-            Arrays.asList(dm, oneMoreDm),
+                asSet(dm, oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
-            Arrays.asList(dm, oneMoreDm),
+                asSet(dm, oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
             true,
-            Collections.singletonList(oneMoreDm),
+                asSet(oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -132,4 +134,8 @@ public class ProjectModelTest {
         assertEquals(1, bankRatingWithOneDataType.getDatatypeModels().size());
     }
 
+    @SafeVarargs
+    private static <T> Set<T> asSet(T... args) {
+        return new LinkedHashSet<>(Arrays.asList(args));
+    }
 }

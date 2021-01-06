@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.excel.builder.ExcelFileBuilder;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -33,7 +34,7 @@ public class OpenAPIHelper {
         }
     }
 
-    public InputStream generateDataTypesFile(final List<DatatypeModel> datatypeModels) throws IOException {
+    public InputStream generateDataTypesFile(final Set<DatatypeModel> datatypeModels) throws IOException {
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
             ExcelFileBuilder.generateDataTypes(datatypeModels, bos);
             byte[] dtBytes = bos.toByteArray();

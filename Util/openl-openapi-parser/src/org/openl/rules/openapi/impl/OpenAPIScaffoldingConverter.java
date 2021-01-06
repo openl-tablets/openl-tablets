@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -137,7 +138,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-        List<DatatypeModel> dts = new ArrayList<>();
+        Set<DatatypeModel> dts = new LinkedHashSet<>();
         List<SpreadsheetParserModel> spreadsheetParserModels = extractSprModels(openAPI,
             jxPathContext,
             pathWithPotentialSprResult.keySet(),
@@ -529,7 +530,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             Set<String> pathsWithPrimitiveReturns,
             Set<String> refsToExpand,
             Set<String> pathsWithSpreadsheets,
-            List<DatatypeModel> dts,
+            Set<DatatypeModel> dts,
             Set<String> childSet) {
         List<SpreadsheetParserModel> spreadSheetModels = new ArrayList<>();
         Paths paths = openAPI.getPaths();
@@ -569,7 +570,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             JXPathContext jxPathContext,
             Set<String> pathWithPotentialSprResult,
             Set<String> refsToExpand,
-            List<DatatypeModel> dts,
+            Set<DatatypeModel> dts,
             List<SpreadsheetParserModel> spreadSheetModels,
             Paths paths,
             PathType spreadsheetResultPath,
@@ -596,7 +597,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             String path,
             Set<String> refsToExpand,
             PathType pathType,
-            List<DatatypeModel> dts,
+            Set<DatatypeModel> dts,
             Set<String> childSet) {
         SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
         SpreadsheetModel spr = new SpreadsheetModel();

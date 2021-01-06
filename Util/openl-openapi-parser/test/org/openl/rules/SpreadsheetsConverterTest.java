@@ -353,7 +353,7 @@ public class SpreadsheetsConverterTest {
     public void testMissedDataType() throws IOException {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10386_datatype_was_missed.json");
-        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(3, datatypeModels.size());
         Optional<DatatypeModel> anotherDatatype = datatypeModels.stream()
             .filter(x -> x.getName().equals("AnotherDatatype"))
@@ -365,7 +365,7 @@ public class SpreadsheetsConverterTest {
     public void testExtraDataType() throws IOException {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10387_extra_datatype.yaml");
-        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(5, datatypeModels.size());
         Optional<SpreadsheetModel> corporateRatingCalculation = projectModel.getSpreadsheetResultModels()
             .stream()
@@ -434,7 +434,7 @@ public class SpreadsheetsConverterTest {
     public void testTypeGeneration() throws IOException {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated.json");
-        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
@@ -445,7 +445,7 @@ public class SpreadsheetsConverterTest {
 
         ProjectModel projectModelArray = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10433_type_not_generated_arr.json");
-        List<DatatypeModel> dts = projectModelArray.getDatatypeModels();
+        Set<DatatypeModel> dts = projectModelArray.getDatatypeModels();
         assertEquals(1, dts.size());
 
     }
@@ -465,7 +465,7 @@ public class SpreadsheetsConverterTest {
     public void testDiscriminatorField() throws IOException {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10422_discriminator_field.yaml");
-        List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<FieldModel> fields = datatypeModels.stream()
             .flatMap(x -> x.getFields().stream())
             .collect(Collectors.toList());
@@ -616,7 +616,7 @@ public class SpreadsheetsConverterTest {
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10799_spreadsheets_creation.json");
 
-        List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
         assertEquals(1, datatypeModels.size());
         DatatypeModel dm = datatypeModels.iterator().next();
         assertEquals("JAXRSErrorResponse", dm.getName());
@@ -685,7 +685,7 @@ public class SpreadsheetsConverterTest {
     public void testFilteringWithAnySpreadsheetResult() throws IOException {
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAny.json");
-        List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
 
         assertEquals(1, datatypeModels.size());
         assertEquals("JAXRSErrorResponse", datatypeModels.iterator().next().getName());
@@ -725,7 +725,7 @@ public class SpreadsheetsConverterTest {
     public void testSpreadsheetResultInDataTypes() throws IOException {
         ProjectModel pathProject = converter
             .extractProjectModel("test.converter/datatype/spreadsheetResultDataType.json");
-        List<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = pathProject.getDatatypeModels();
         assertFalse(datatypeModels.stream().anyMatch(dm -> dm.getName().equals("SpreadsheetResult")));
 
     }

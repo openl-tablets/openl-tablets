@@ -49,7 +49,7 @@ public class SpreadsheetTableExporterTest {
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             false,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.singletonList(resultModel),
             Collections.emptyList());

@@ -18,6 +18,8 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFRow;
@@ -78,7 +80,7 @@ public class DatatypeTableExporterTest {
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             false,
-            Arrays.asList(dt, oneMoreModel),
+            asSet(dt, oneMoreModel),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
@@ -262,7 +264,7 @@ public class DatatypeTableExporterTest {
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
 
         try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
-            ExcelFileBuilder.generateDataTypes(Collections.singletonList(dt), bos);
+            ExcelFileBuilder.generateDataTypes(asSet(dt), bos);
             try (OutputStream fos = new FileOutputStream(DATATYPE_TEST_PROJECT_NAME)) {
                 fos.write(bos.toByteArray());
             }
@@ -286,5 +288,10 @@ public class DatatypeTableExporterTest {
                 break;
             }
         }
+    }
+
+    @SafeVarargs
+    private static <T> Set<T> asSet(T... args) {
+        return new LinkedHashSet<>(Arrays.asList(args));
     }
 }

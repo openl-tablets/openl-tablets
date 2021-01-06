@@ -2,9 +2,11 @@ package org.openl.rules.model.scaffolding;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import org.openl.rules.model.scaffolding.data.DataModel;
 
@@ -12,7 +14,7 @@ public class ProjectModel {
 
     private String name;
     private boolean isRuntimeContextProvided;
-    private List<DatatypeModel> datatypeModels = new ArrayList<>();
+    private Set<DatatypeModel> datatypeModels = new HashSet<>();
     private List<SpreadsheetModel> spreadsheetModels;
     private List<DataModel> dataModels = new ArrayList<>();
     /*
@@ -26,7 +28,7 @@ public class ProjectModel {
 
     public ProjectModel(String name,
             boolean isRuntimeContextProvided,
-            List<DatatypeModel> datatypeModels,
+            Set<DatatypeModel> datatypeModels,
             List<DataModel> dataModels,
             List<SpreadsheetModel> spreadsheetModels,
             List<SpreadsheetModel> modelsForInterface) {
@@ -46,7 +48,7 @@ public class ProjectModel {
         this.name = name;
     }
 
-    public List<DatatypeModel> getDatatypeModels() {
+    public Set<DatatypeModel> getDatatypeModels() {
         return datatypeModels;
     }
 

@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.model.scaffolding.DatatypeModel;
@@ -147,7 +148,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
         try {
             ProjectModel projectModel = getProjectModel(projectBuilder, converter);
-            List<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+            Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
             List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
             List<DataModel> dataModels = projectModel.getDataModels();
             EnvironmentModel environmentModel;

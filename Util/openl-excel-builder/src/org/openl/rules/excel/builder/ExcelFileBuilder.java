@@ -76,7 +76,7 @@ public class ExcelFileBuilder {
      * @param datatypeModels - data type models.
      * @param outputStream - output stream with models.
      */
-    public static void generateDataTypes(List<DatatypeModel> datatypeModels, OutputStream outputStream) {
+    public static void generateDataTypes(Set<DatatypeModel> datatypeModels, OutputStream outputStream) {
         writeDataTypes(datatypeModels, outputStream);
     }
 
@@ -113,7 +113,7 @@ public class ExcelFileBuilder {
      * @param datatypeModels
      * @param outputStream
      */
-    private static void writeDataTypes(List<DatatypeModel> datatypeModels, OutputStream outputStream) {
+    private static void writeDataTypes(Set<DatatypeModel> datatypeModels, OutputStream outputStream) {
         SXSSFWorkbook tempWorkbook = null;
         try (SXSSFWorkbook workbook = tempWorkbook = ExcelTemplateUtils.getTemplate()) {
             Map<String, TableStyle> stylesMap = ExcelTemplateUtils.extractTemplateInfo(workbook);

@@ -35,7 +35,7 @@ public class EnvironmentTableExporterTest {
 
         ProjectModel projectModel = new ProjectModel(TEST_PROJECT,
             false,
-            Collections.emptyList(),
+            Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());

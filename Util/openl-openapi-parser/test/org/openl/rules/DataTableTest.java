@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,7 +63,7 @@ public class DataTableTest {
         ProjectModel pm = converter.extractProjectModel("test.converter/data_tables/openapi.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
-        List<DatatypeModel> datatypeModels = pm.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = pm.getDatatypeModels();
         assertEquals(8, spreadsheetResultModels.size());
         assertTrue(CollectionUtils.isEmpty(dataModels));
         assertEquals(14, datatypeModels.size());
@@ -142,7 +143,7 @@ public class DataTableTest {
             .extractProjectModel("test.converter/data_tables/EPBDS-10839_get_capital_letter.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
         List<DataModel> dataModels = pm.getDataModels();
-        List<DatatypeModel> datatypeModels = pm.getDatatypeModels();
+        Set<DatatypeModel> datatypeModels = pm.getDatatypeModels();
         assertTrue(dataModels.isEmpty());
         assertEquals(1, datatypeModels.size());
         DatatypeModel dm = datatypeModels.iterator().next();

@@ -536,7 +536,7 @@ public class OpenLOpenAPIUtils {
             OpenAPI openAPI,
             Set<String> refsToExpand,
             PathItem pathItem,
-            List<DatatypeModel> dts,
+            Set<DatatypeModel> dts,
             String path) {
         return visitPathItemForParametersOfRequest(jxPathContext, openAPI, pathItem, refsToExpand, dts, path);
     }
@@ -545,7 +545,7 @@ public class OpenLOpenAPIUtils {
             OpenAPI openAPI,
             PathItem pathItem,
             Set<String> refsToExpand,
-            List<DatatypeModel> dts,
+            Set<DatatypeModel> dts,
             String path) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
