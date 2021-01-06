@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
@@ -483,10 +482,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                         calledRefs.add(calledSpr.getReturnRef());
                         SpreadsheetModel calledModel = calledSpr.getModel();
                         List<InputParameter> parameters = calledModel.getParameters();
-                        boolean contains = parameters.stream()
-                            .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
-                        String value = String.join(",",
-                            Collections.nCopies(contains ? parameters.size() - 1 : parameters.size(), "null"));
+                        String value = parameters.stream()
+                                .map(InputParameter::getType)
+                                .filter(t -> t.getType() != TypeInfo.Type.RUNTIMECONTEXT)
+                                .map(OpenAPITypeUtils::geJavaDefaultValue)
+                                .collect(Collectors.joining(","));
                         String calledName = calledModel.getName();
                         String call = makeCall(calledName, value);
                         step.setValue(isArray ? makeArrayCall(stepType, calledName, call) : "=" + call);

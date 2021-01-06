@@ -177,45 +177,50 @@ public class OpenAPITypeUtils {
     }
 
     public static String getSimpleValue(String type) {
-        String result;
         switch (type) {
             case INTEGER:
             case INTEGER_PRIMITIVE:
-                result = "=0";
-                break;
+                return "=0";
             case BIG_INTEGER:
-                result = "=java.math.BigInteger.ZERO";
-                break;
+                return "=java.math.BigInteger.ZERO";
             case LONG:
             case LONG_PRIMITIVE:
-                result = "=0L";
-                break;
+                return "=0L";
             case DOUBLE:
             case DOUBLE_PRIMITIVE:
-                result = "=0.0";
-                break;
+                return "=0.0";
             case FLOAT:
             case FLOAT_PRIMITIVE:
-                result = "=0.0f";
-                break;
+                return "=0.0f";
             case BIG_DECIMAL:
-                result = "=java.math.BigDecimal.ZERO";
-                break;
+                return "=java.math.BigDecimal.ZERO";
             case STRING:
-                result = "=" + "\"\"";
-                break;
+                return "=" + "\"\"";
             case DATE:
-                result = "=new Date()";
-                break;
+                return "=new Date()";
             case BOOLEAN:
             case BOOLEAN_PRIMITIVE:
-                result = "=false";
-                break;
+                return "=false";
             default:
-                result = "=new Object()";
-                break;
+                return "=new Object()";
         }
-        return result;
+    }
+
+    public static String geJavaDefaultValue(TypeInfo type) {
+        switch (type.getJavaName()) {
+            case INTEGER_PRIMITIVE:
+                return "0";
+            case LONG_PRIMITIVE:
+                return "0L";
+            case DOUBLE_PRIMITIVE:
+                return "0.0";
+            case FLOAT_PRIMITIVE:
+                return  "0.0f";
+            case BOOLEAN_PRIMITIVE:
+                return "false";
+            default:
+                return "null";
+        }
     }
 
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
