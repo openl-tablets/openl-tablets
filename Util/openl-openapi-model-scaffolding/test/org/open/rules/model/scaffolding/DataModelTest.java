@@ -52,6 +52,6 @@ public class DataModelTest {
         assertEquals(qualityIndicatorsCorrectPathInfo.getName(), "qualityIndicators");
         assertEquals(qualityIndicatorsCorrectPathInfo.getType(), "QualityIndicator");
         assertEquals(qualityIndicatorsCorrectPathInfo.getDatatypeModel(), dtm);
-        assertEquals(qualityIndicatorsCorrectPathInfo.getInfo(), qualityInfo);
+        assertEquals(qualityIndicatorsCorrectPathInfo.getPathInfo(), qualityInfo);
     }
 }

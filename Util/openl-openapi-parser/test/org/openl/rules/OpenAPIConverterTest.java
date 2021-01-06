@@ -587,6 +587,22 @@ public class OpenAPIConverterTest {
         assertEquals(TypeInfo.Type.RUNTIMECONTEXT, param0.getType().getType());
     }
 
+    @Test
+    public void test_EPBDS_10993() throws IOException {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
+        assertNotNull(projectModel);
+        assertEquals(3, projectModel.getDatatypeModels().size());
+        DatatypeModel datatypeModel = projectModel.getDatatypeModels().stream()
+                .filter(x -> "MyDatatype".equals(x.getName()))
+                .findFirst()
+                .orElse(null);
+        assertNotNull(datatypeModel);
+        assertEquals(1, projectModel.getDataModels().size());
+        DataModel dataModel = projectModel.getDataModels().get(0);
+        assertEquals(datatypeModel, dataModel.getDatatypeModel());
+    }
+
     private void validateParameter(final List<InputParameter> parameters,
             final String paramName,
             final String expectedJavaName,

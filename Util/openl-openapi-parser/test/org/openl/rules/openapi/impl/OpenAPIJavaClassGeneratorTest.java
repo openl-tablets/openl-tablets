@@ -370,6 +370,81 @@ public class OpenAPIJavaClassGeneratorTest {
         assertTrue(generated.getCommonClasses().isEmpty());
     }
 
+    @Test
+    public void test_DataTables() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        assertNull(generated.getAnnotationTemplateClass());
+        assertTrue(generated.getCommonClasses().isEmpty());
+    }
+
+    @Test
+    public void test_DataTables2() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/data_tables/openapi_dataTables.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+        assertEquals(1, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
+        assertEquals(Object[].class, method1.getReturnType());
+        assertEquals(5, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(POST.class));
+        assertEquals("/getPolicyData", method1.getAnnotation(Path.class).value());
+        assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "multipart/form-data" }, method1.getAnnotation(Consumes.class).value());
+        assertEquals(0, method1.getParameters()[0].getAnnotations().length);
+    }
+
+    @Test
+    public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        Set<Class<?>> commonClasses = new HashSet<>();
+        for (JavaClassFile javaClass : generated.getCommonClasses()) {
+            Class<?> clazz = defineClass(javaClass.getJavaNameWithPackage(), javaClass.getByteCode());
+            assertJavaClass(javaClass.getJavaNameWithPackage(), clazz);
+            if (!commonClasses.add(clazz)) {
+                fail("Duplicated class!");
+            }
+        }
+        JavaClassFile javaInterface = generated.getAnnotationTemplateClass();
+        Class<?> interfaceClass = defineClass(javaInterface.getJavaNameWithPackage(), javaInterface.getByteCode());
+        assertInterfaceDescription(javaInterface.getJavaNameWithPackage(), interfaceClass);
+        assertEquals(2, interfaceClass.getDeclaredMethods().length);
+
+        Method method1 = interfaceClass.getDeclaredMethod("getPolicyData", IRulesRuntimeContext.class);
+        assertEquals(Object[].class, method1.getReturnType());
+        assertEquals(5, method1.getDeclaredAnnotations().length);
+        assertNotNull(method1.getAnnotation(POST.class));
+        assertEquals("/getPolicyData", method1.getAnnotation(Path.class).value());
+        assertEquals("Policy", method1.getAnnotation(RulesType.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method1.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "multipart/form-data" }, method1.getAnnotation(Consumes.class).value());
+        assertEquals(0, method1.getParameters()[0].getAnnotations().length);
+
+        Method method2 = interfaceClass.getDeclaredMethod("spr", Object.class);
+        assertEquals(Object.class, method2.getReturnType());
+        assertEquals(6, method2.getDeclaredAnnotations().length);
+        assertNotNull(method2.getAnnotation(POST.class));
+        assertEquals("/spr", method2.getAnnotation(Path.class).value());
+        assertEquals("Policy", method2.getAnnotation(RulesType.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Produces.class).value());
+        assertArrayEquals(new String[] { "application/json" }, method2.getAnnotation(Consumes.class).value());
+        assertEquals(2, method2.getParameters()[0].getAnnotations().length);
+        assertEquals("Policy", method2.getParameters()[0].getAnnotation(RulesType.class).value());
+        assertEquals("policy", method2.getParameters()[0].getAnnotation(Name.class).value());
+        assertTrue(commonClasses.contains(method2.getAnnotation(ServiceExtraMethod.class).value()));
+    }
+
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());

@@ -148,7 +148,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts,
             childSet);
 
-        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI, spreadsheetResultRefs);
+        List<DataModel> dataModels = extractDataModels(spreadsheetParserModels, openAPI, spreadsheetResultRefs, dts);
         List<String> linkedRefs = spreadsheetParserModels.stream()
             .filter(SpreadsheetParserModel::isRefIsDataType)
             .map(SpreadsheetParserModel::getReturnRef)
@@ -227,7 +227,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
             .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
         List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
-        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty();
+        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty() || (!dataModels.isEmpty() && dataModels.stream()
+                .allMatch(dt -> dt.getPathInfo().getRuntimeContextParameter() != null));
+
         removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
@@ -347,8 +349,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels,
-            OpenAPI openAPI,
-            Set<String> sprResultRefs) {
+                                              OpenAPI openAPI,
+                                              Set<String> sprResultRefs,
+                                              Set<DatatypeModel> dts) {
         List<SpreadsheetParserModel> potentialDataModels = spreadsheetModels.stream()
             .filter(x -> x.getModel()
                 .getPathInfo()
@@ -377,11 +380,17 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 }
                 spreadsheetModels.remove(potentialDataModel);
                 String dataTableName = formatTableName(potentialDataModel.getModel().getName());
-                dataModels.add(new DataModel(dataTableName,
-                    type,
-                    potentialDataModel.getModel().getPathInfo(),
-                    isSimpleType(type) ? createSimpleModel(type)
-                                       : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type))));
+                DataModel dataModel = new DataModel(dataTableName,
+                        type,
+                        potentialDataModel.getModel().getPathInfo(),
+                        isSimpleType(type) ? createSimpleModel(type)
+                                : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type)));
+                dataModel.getPathInfo().getReturnType().setType(TypeInfo.Type.DATATYPE);
+                if (parametersNotEmpty) {
+                    dataModel.getPathInfo().setRuntimeContextParameter(parameters.iterator().next());
+                }
+                dts.add(dataModel.getDatatypeModel());
+                dataModels.add(dataModel);
             }
         }
         return dataModels;

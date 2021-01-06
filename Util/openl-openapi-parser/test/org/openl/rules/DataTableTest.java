@@ -41,7 +41,7 @@ public class DataTableTest {
         DataModel petsB = findDataModel(dataModels, "PetsB");
         assertEquals("PetsB", petsB.getName());
         assertEquals("Pet", petsB.getType());
-        PathInfo info = petsB.getInfo();
+        PathInfo info = petsB.getPathInfo();
         assertEquals("/getpetsB", info.getOriginalPath());
         assertEquals("getpetsB", info.getFormattedPath());
         assertEquals("application/json", info.getProduces());

@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-public class SpreadsheetModel implements Model {
+public class SpreadsheetModel implements MethodModel {
 
     private String name;
     private List<InputParameter> parameters;

@@ -24,9 +24,9 @@ import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
 import org.openl.gen.TypeDescription;
 import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.MethodModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
-import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.ruleservice.core.annotations.Name;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -55,7 +55,7 @@ public class OpenAPIJavaClassGenerator {
      * @param method candidate
      * @return {@code true} if require decoration
      */
-    private boolean generateDecision(SpreadsheetModel method) {
+    private boolean generateDecision(MethodModel method) {
         final PathInfo pathInfo = method.getPathInfo();
         StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
         method.getParameters().stream().filter(InputParameter::isInPath).map(InputParameter::getName)
@@ -143,16 +143,22 @@ public class OpenAPIJavaClassGenerator {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
             .create(DEFAULT_OPEN_API_PATH, "Service");
         boolean hasMethods = false;
-        for (SpreadsheetModel method : projectModel.getSpreadsheetResultModels()) {
+        for (MethodModel method : projectModel.getSpreadsheetResultModels()) {
             if (!generateDecision(method)) {
                 continue;
             }
-            MethodDescriptionBuilder methodDesc = visitInterfaceMethod(method, false);
-            javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
+            javaInterfaceBuilder.addAbstractMethod(visitInterfaceMethod(method, false).build());
+            hasMethods = true;
+        }
+        for (MethodModel method : projectModel.getDataModels()) {
+            if (!generateDecision(method)) {
+                continue;
+            }
+            javaInterfaceBuilder.addAbstractMethod(visitInterfaceMethod(method, false).build());
             hasMethods = true;
         }
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
-        for (SpreadsheetModel extraMethod : projectModel.getNotOpenLModels()) {
+        for (MethodModel extraMethod : projectModel.getNotOpenLModels()) {
             hasMethods = true;
             JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class, DEFAULT_OPEN_API_PATH);
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
@@ -172,7 +178,7 @@ public class OpenAPIJavaClassGenerator {
         return builder.build();
     }
 
-    private MethodDescriptionBuilder visitInterfaceMethod(SpreadsheetModel sprModel, boolean extraMethod) {
+    private MethodDescriptionBuilder visitInterfaceMethod(MethodModel sprModel, boolean extraMethod) {
 
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
