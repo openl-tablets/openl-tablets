@@ -603,6 +603,13 @@ public class OpenAPIConverterTest {
         assertEquals(datatypeModel, dataModel.getDatatypeModel());
     }
 
+    @Test
+    public void test_EPBDS_10999() throws IOException {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
+        assertNotNull(projectModel);
+    }
+
     private void validateParameter(final List<InputParameter> parameters,
             final String paramName,
             final String expectedJavaName,

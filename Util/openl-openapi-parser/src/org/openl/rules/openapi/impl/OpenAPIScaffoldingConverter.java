@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -29,6 +31,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.MethodModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -235,12 +238,68 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
         }
         removeContextFromParams(sprModelsWithRC);
+        //removeOrphanDatatypes(dts, spreadsheetModels, dataModels);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
             dts,
             dataModels,
             isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
+    }
+
+    private void removeOrphanDatatypes(Set<DatatypeModel> datatypes, List<SpreadsheetModel> spreadsheets, List<DataModel> dataModels) {
+        Set<DatatypeModel> candidates = new HashSet<>();
+
+        for (DatatypeModel datatype : datatypes) {
+            final String dtName = datatype.getName();
+            if (spreadsheets.stream().anyMatch(spr -> checkDatatypeSprUsage(spr, dtName))
+                    || dataModels.stream().anyMatch(m -> checkDatatypeUsage(m, dtName))) {
+                continue;
+            }
+            candidates.add(datatype);
+        }
+        Set<DatatypeModel> usedDts = new HashSet<>(datatypes);
+        usedDts.removeAll(candidates);
+        while (true) {
+            boolean reCheck = false;
+            Iterator<DatatypeModel> it = candidates.iterator();
+            while (it.hasNext()) {
+                final DatatypeModel datatype = it.next();
+                if (usedDts.stream().anyMatch(dt -> checkDatatypeUsage(dt, datatype.getName()))) {
+                    usedDts.add(datatype);
+                    it.remove();
+                    reCheck = true;
+                    break;
+                }
+            }
+            if (!reCheck) {
+                break;
+            }
+        }
+        datatypes.removeAll(candidates);
+    }
+
+    private boolean checkDatatypeUsage(MethodModel method, String datatype) {
+        final Predicate<TypeInfo> isUsed = type -> type.getType() == TypeInfo.Type.DATATYPE
+                && type.getSimpleName().equals(datatype);
+
+        return isUsed.test(method.getPathInfo().getReturnType())
+                || method.getParameters().stream().map(InputParameter::getType).anyMatch(isUsed);
+    }
+
+    private boolean checkDatatypeUsage(DatatypeModel datatypeModel, String datatype) {
+        if (datatype.equals(datatypeModel.getParent())) {
+            return true;
+        }
+        return datatypeModel.getFields().stream()
+                .map(FieldModel::getType)
+                .anyMatch(datatype::equals);
+    }
+
+    private boolean checkDatatypeSprUsage(SpreadsheetModel spr, String datatype) {
+        return checkDatatypeUsage(spr, datatype) || spr.getSteps().stream()
+                .map(StepModel::getType)
+                .anyMatch(datatype::equals);
     }
 
     private void checkTypes(List<SpreadsheetParserModel> parserModels, Set<String> dataTypeNames) {
@@ -326,7 +385,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String stepType = typeInfo.getSimpleName();
         String type = OpenAPITypeUtils.removeArrayBrackets(stepType);
         String modelToCall = "";
-        int size = 0;
         String value = "";
         if (!type.equals(modelName) && !refSpreadsheets.contains(SCHEMAS_LINK + type)) {
             return step;
