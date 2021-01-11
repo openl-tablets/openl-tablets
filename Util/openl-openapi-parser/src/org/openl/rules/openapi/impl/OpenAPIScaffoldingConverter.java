@@ -15,10 +15,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -164,16 +166,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .map(SpreadsheetParserModel::getReturnRef)
             .collect(Collectors.toSet());
 
-        Set<String> calledRefs = fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
+        fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
 
-        Set<String> allFieldsRefs = refsWithFields.entrySet()
-            .stream()
-            .filter(x -> datatypeRefs.contains(x.getKey()))
-            .flatMap(x -> x.getValue().stream())
-            .collect(Collectors.toSet());
+        Set<String> allFieldsRefs = retrieveAllFieldsRefs(datatypeRefs, refsWithFields);
         // case when any datatype has a link in a field to the spreadsheet
         Set<String> dtToAdd = allFieldsRefs.stream()
-            .filter(x -> !SPR_RESULT_LINK.equals(x) && !datatypeRefs.contains(x) && !calledRefs.contains(x))
+            .filter(x -> !SPR_RESULT_LINK.equals(x) && !datatypeRefs.contains(x))
             .collect(Collectors.toSet());
 
         // If there is a datatype to add which was returned by any spreadsheet model, it will be transformed
@@ -241,6 +239,21 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dataModels,
             isRuntimeContextProvided ? sprModelsWithRC : spreadsheetModels,
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
+    }
+
+    private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {
+        Set<String> allFieldsRefs = new HashSet<>();
+        Queue<String> queue = new LinkedList<>(datatypeRefs);
+        while (!queue.isEmpty()) {
+            final String dtRef = queue.poll();
+            refsWithFields.getOrDefault(dtRef, Collections.emptySet()).stream()
+                    .filter(x -> !datatypeRefs.contains(x) && !allFieldsRefs.contains(x))
+                    .forEach(x -> {
+                        queue.add(x);
+                        allFieldsRefs.add(x);
+                    });
+        }
+        return allFieldsRefs;
     }
 
     private void checkTypes(List<SpreadsheetParserModel> parserModels, Set<String> dataTypeNames) {
@@ -326,7 +339,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String stepType = typeInfo.getSimpleName();
         String type = OpenAPITypeUtils.removeArrayBrackets(stepType);
         String modelToCall = "";
-        int size = 0;
         String value = "";
         if (!type.equals(modelName) && !refSpreadsheets.contains(SCHEMAS_LINK + type)) {
             return step;
@@ -653,7 +665,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
         TypeInfo typeInfo = extractType(responseSchema, false);
         if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
-            typeInfo.setJavaName(SPREADSHEET_RESULT_CLASS_NAME);
+            typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
+                    typeInfo.getSimpleName(),
+                    TypeInfo.Type.SPREADSHEET,
+                    typeInfo.getDimension(),
+                    typeInfo.isReference());
         }
         String usedSchemaInResponse = typeInfo.getSimpleName();
         pathInfo.setReturnType(typeInfo);
