@@ -14,14 +14,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.Set;
-import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,7 +31,6 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
-import org.openl.rules.model.scaffolding.MethodModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -167,16 +166,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .map(SpreadsheetParserModel::getReturnRef)
             .collect(Collectors.toSet());
 
-        Set<String> calledRefs = fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
+        fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
 
-        Set<String> allFieldsRefs = refsWithFields.entrySet()
-            .stream()
-            .filter(x -> datatypeRefs.contains(x.getKey()))
-            .flatMap(x -> x.getValue().stream())
-            .collect(Collectors.toSet());
+        Set<String> allFieldsRefs = retrieveAllFieldsRefs(datatypeRefs, refsWithFields);
         // case when any datatype has a link in a field to the spreadsheet
         Set<String> dtToAdd = allFieldsRefs.stream()
-            .filter(x -> !SPR_RESULT_LINK.equals(x) && !datatypeRefs.contains(x) && !calledRefs.contains(x))
+            .filter(x -> !SPR_RESULT_LINK.equals(x) && !datatypeRefs.contains(x))
             .collect(Collectors.toSet());
 
         // If there is a datatype to add which was returned by any spreadsheet model, it will be transformed
@@ -238,7 +233,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
         }
         removeContextFromParams(sprModelsWithRC);
-        //removeOrphanDatatypes(dts, spreadsheetModels, dataModels);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
             dts,
@@ -247,59 +241,18 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             isRuntimeContextProvided ? sprModelsDivided.get(Boolean.FALSE) : Collections.emptyList());
     }
 
-    private void removeOrphanDatatypes(Set<DatatypeModel> datatypes, List<SpreadsheetModel> spreadsheets, List<DataModel> dataModels) {
-        Set<DatatypeModel> candidates = new HashSet<>();
-
-        for (DatatypeModel datatype : datatypes) {
-            final String dtName = datatype.getName();
-            if (spreadsheets.stream().anyMatch(spr -> checkDatatypeSprUsage(spr, dtName))
-                    || dataModels.stream().anyMatch(m -> checkDatatypeUsage(m, dtName))) {
-                continue;
-            }
-            candidates.add(datatype);
+    private Set<String> retrieveAllFieldsRefs(Set<String> datatypeRefs, Map<String, Set<String>> refsWithFields) {
+        Set<String> allFieldsRefs = new HashSet<>();
+        Queue<String> queue = new LinkedList<>(datatypeRefs);
+        while (!queue.isEmpty()) {
+            final String dtRef = queue.poll();
+            Set<String> lostDTs = refsWithFields.getOrDefault(dtRef, Collections.emptySet()).stream()
+                    .filter(x -> !datatypeRefs.contains(x) && !allFieldsRefs.contains(x))
+                    .collect(Collectors.toSet());
+            queue.addAll(lostDTs);
+            allFieldsRefs.addAll(lostDTs);
         }
-        Set<DatatypeModel> usedDts = new HashSet<>(datatypes);
-        usedDts.removeAll(candidates);
-        while (true) {
-            boolean reCheck = false;
-            Iterator<DatatypeModel> it = candidates.iterator();
-            while (it.hasNext()) {
-                final DatatypeModel datatype = it.next();
-                if (usedDts.stream().anyMatch(dt -> checkDatatypeUsage(dt, datatype.getName()))) {
-                    usedDts.add(datatype);
-                    it.remove();
-                    reCheck = true;
-                    break;
-                }
-            }
-            if (!reCheck) {
-                break;
-            }
-        }
-        datatypes.removeAll(candidates);
-    }
-
-    private boolean checkDatatypeUsage(MethodModel method, String datatype) {
-        final Predicate<TypeInfo> isUsed = type -> type.getType() == TypeInfo.Type.DATATYPE
-                && type.getSimpleName().equals(datatype);
-
-        return isUsed.test(method.getPathInfo().getReturnType())
-                || method.getParameters().stream().map(InputParameter::getType).anyMatch(isUsed);
-    }
-
-    private boolean checkDatatypeUsage(DatatypeModel datatypeModel, String datatype) {
-        if (datatype.equals(datatypeModel.getParent())) {
-            return true;
-        }
-        return datatypeModel.getFields().stream()
-                .map(FieldModel::getType)
-                .anyMatch(datatype::equals);
-    }
-
-    private boolean checkDatatypeSprUsage(SpreadsheetModel spr, String datatype) {
-        return checkDatatypeUsage(spr, datatype) || spr.getSteps().stream()
-                .map(StepModel::getType)
-                .anyMatch(datatype::equals);
+        return allFieldsRefs;
     }
 
     private void checkTypes(List<SpreadsheetParserModel> parserModels, Set<String> dataTypeNames) {
@@ -682,7 +635,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
         TypeInfo typeInfo = extractType(responseSchema, false);
         if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
-            typeInfo.setJavaName(SPREADSHEET_RESULT_CLASS_NAME);
+            typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
+                    typeInfo.getSimpleName(),
+                    TypeInfo.Type.SPREADSHEET,
+                    typeInfo.getDimension(),
+                    typeInfo.isReference());
         }
         String usedSchemaInResponse = typeInfo.getSimpleName();
         pathInfo.setReturnType(typeInfo);

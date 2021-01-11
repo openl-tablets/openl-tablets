@@ -3,7 +3,6 @@ package org.openl.rules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -223,7 +222,7 @@ public class OpenAPIConverterTest {
             returnType.getJavaName(),
             "inline_response_200",
             returnType.getSimpleName());
-        assertNull(returnType.getType());
+        assertEquals(TypeInfo.Type.SPREADSHEET, returnType.getType());
 
         String spreadsheetType = spreadsheetModel.getType();
         assertEquals(SPREADSHEET_RESULT, spreadsheetType);
@@ -607,6 +606,10 @@ public class OpenAPIConverterTest {
     public void test_EPBDS_10999() throws IOException {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
+        assertEquals(4, projectModel.getDatatypeModels().size());
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "DogDatatype".equals(dt.getName())));
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "CatDatatype".equals(dt.getName())));
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "AnySpreadsheetResult".equals(dt.getName())));
         assertNotNull(projectModel);
     }
 
