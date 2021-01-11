@@ -141,9 +141,9 @@
             <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-release/</url>
         </repository>
         <snapshotRepository>
-            <id>internal-minsk</id>
+            <id>github</id>
             <name>Snapshot Repository</name>
-            <url>https://mnsnexus.exigengroup.com/nexus/content/repositories/openl-snapshot/</url>
+            <url>https://maven.pkg.github.com/openl-tablets/openl-tablets</url>
         </snapshotRepository>
     </distributionManagement>
     <build>

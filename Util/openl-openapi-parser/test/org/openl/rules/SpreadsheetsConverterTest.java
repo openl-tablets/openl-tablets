@@ -580,7 +580,7 @@ public class SpreadsheetsConverterTest {
     @Test
     public void testSpreadsheetWithManyParamsCreation() throws IOException {
         ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.yaml");
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params_with_runtime.yaml");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
@@ -588,22 +588,22 @@ public class SpreadsheetsConverterTest {
         assertEquals(10, parameters.size());
 
         List<String> expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
-                "PortabilityFactor",
-                "DisabilityDefinitionFactor",
-                "FICAMatchingFactor",
-                "BenefitPercentFactor",
-                "ReturnToWorkFactor",
-                "CoverageFactor",
-                "ProgressiveIllnessProtection",
-                "PreExistingFactor",
-                "WorkIncentiveFactor",
-                "NetClaimCostAggregatedFactor");
+            "PortabilityFactor",
+            "DisabilityDefinitionFactor",
+            "FICAMatchingFactor",
+            "BenefitPercentFactor",
+            "ReturnToWorkFactor",
+            "CoverageFactor",
+            "ProgressiveIllnessProtection",
+            "PreExistingFactor",
+            "WorkIncentiveFactor",
+            "NetClaimCostAggregatedFactor");
         List<StepModel> steps = mySprModel.getSteps();
         List<String> stepsNames = steps.stream().map(StepModel::getName).collect(Collectors.toList());
         assertEquals(expectedStepsForBla, stepsNames);
 
         ProjectModel projectModel2 = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10969_many_params.yaml");
         List<SpreadsheetModel> spreadsheetModels2 = projectModel2.getSpreadsheetResultModels();
         SpreadsheetModel mySprModel2 = findSpreadsheet(spreadsheetModels2, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel2.getType());

@@ -226,10 +226,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
         List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
         boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty() || (!dataModels.isEmpty() && dataModels.stream()
-                .allMatch(dt -> dt.getPathInfo().getRuntimeContextParameter() != null));
+            .allMatch(dt -> dt.getPathInfo().getRuntimeContextParameter() != null));
 
         if (isRuntimeContextProvided) {
-            //remove defaultRuntimeContext from dts - it will be generated automatically in the interface
+            // remove defaultRuntimeContext from dts - it will be generated automatically in the interface
             dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
         }
         removeContextFromParams(sprModelsWithRC);
@@ -351,10 +351,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             if (optionalModel.isPresent()) {
                 SpreadsheetParserModel spreadsheetParserModel = optionalModel.get();
                 modelToCall = spreadsheetParserModel.getModel().getName();
-                value = spreadsheetParserModel.getModel().getParameters().stream()
-                        .map(InputParameter::getType)
-                        .map(OpenAPITypeUtils::geJavaDefaultValue)
-                        .collect(Collectors.joining(", "));
+                value = spreadsheetParserModel.getModel()
+                    .getParameters()
+                    .stream()
+                    .map(InputParameter::getType)
+                    .map(OpenAPITypeUtils::getJavaDefaultValue)
+                    .collect(Collectors.joining(", "));
             }
         }
         String call = makeCall(modelToCall, value);
@@ -367,9 +369,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private List<DataModel> extractDataModels(List<SpreadsheetParserModel> spreadsheetModels,
-                                              OpenAPI openAPI,
-                                              Set<String> sprResultRefs,
-                                              Set<DatatypeModel> dts) {
+            OpenAPI openAPI,
+            Set<String> sprResultRefs,
+            Set<DatatypeModel> dts) {
         List<SpreadsheetParserModel> potentialDataModels = spreadsheetModels.stream()
             .filter(x -> x.getModel()
                 .getPathInfo()
@@ -399,10 +401,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 spreadsheetModels.remove(potentialDataModel);
                 String dataTableName = formatTableName(potentialDataModel.getModel().getName());
                 DataModel dataModel = new DataModel(dataTableName,
-                        type,
-                        potentialDataModel.getModel().getPathInfo(),
-                        isSimpleType(type) ? createSimpleModel(type)
-                                : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type)));
+                    type,
+                    potentialDataModel.getModel().getPathInfo(),
+                    isSimpleType(type) ? createSimpleModel(type)
+                                       : createModelForDataTable(openAPI, type, getSchemas(openAPI).get(type)));
                 dataModel.getPathInfo().getReturnType().setType(TypeInfo.Type.DATATYPE);
                 if (parametersNotEmpty) {
                     dataModel.getPathInfo().setRuntimeContextParameter(parameters.iterator().next());
@@ -416,11 +418,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     private void removeContextFromParams(List<SpreadsheetModel> sprModelsWithRC) {
         for (SpreadsheetModel spreadsheetModel : sprModelsWithRC) {
-            spreadsheetModel.getParameters().stream().filter(p -> p.getType().getType()  == TypeInfo.Type.RUNTIMECONTEXT)
-                    .findFirst().ifPresent(context -> {
-                spreadsheetModel.getParameters().remove(context);
-                spreadsheetModel.getPathInfo().setRuntimeContextParameter(context);
-            });
+            spreadsheetModel.getParameters()
+                .stream()
+                .filter(p -> p.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT)
+                .findFirst()
+                .ifPresent(context -> {
+                    spreadsheetModel.getParameters().remove(context);
+                    spreadsheetModel.getPathInfo().setRuntimeContextParameter(context);
+                });
         }
     }
 
@@ -434,6 +439,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 datatypeRefs.remove(model.getReturnRef());
             }
         }
+        final Set<String> datatypeNames = datatypeRefs.stream()
+            .map(OpenAPITypeUtils::getSimpleName)
+            .collect(Collectors.toSet());
+
         for (SpreadsheetParserModel model : models) {
             SpreadsheetModel spreadsheetModel = model.getModel();
             String spreadsheetType = spreadsheetModel.getType();
@@ -450,15 +459,16 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             Optional<Pair<String, String>> willBeCalled = sprResultNames.stream()
                 .filter(p -> p.getKey().equals(refType) && !p.getValue().equals(spreadsheetModel.getName()))
                 .findAny();
+            PathInfo existingPathInfo = spreadsheetModel.getPathInfo();
             if (willBeCalled.isPresent()) {
                 // change return type if the array of spreadsheets will be returned
                 boolean isArray = returnType.endsWith("[]");
                 if (isArray) {
-                    PathInfo pathInfo = spreadsheetModel.getPathInfo();
-                    int dimension = pathInfo.getReturnType().getDimension();
+                    int dimension = existingPathInfo.getReturnType().getDimension();
                     spreadsheetModel.setType(SPREADSHEET_RESULT + willBeCalled.get().getValue() + String.join("",
                         Collections.nCopies(dimension, "[]")));
-                    pathInfo.getReturnType().setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(dimension));
+                    existingPathInfo.getReturnType()
+                        .setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(dimension));
                 }
             }
             for (StepModel step : spreadsheetModel.getSteps()) {
@@ -493,14 +503,33 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     // the called spreadsheet was found
                     if (foundSpr.isPresent()) {
                         SpreadsheetParserModel calledSpr = foundSpr.get();
-                        calledRefs.add(calledSpr.getReturnRef());
+                        String calledRef = calledSpr.getReturnRef();
+                        calledRefs.add(calledRef);
+
                         SpreadsheetModel calledModel = calledSpr.getModel();
+                        if (datatypeNames.contains(calledModel.getName())) {
+                            String name = getSimpleName(calledRef);
+                            calledModel.setName(name);
+                            PathInfo calledPathInfo = calledModel.getPathInfo();
+                            calledPathInfo.getReturnType()
+                                .setJavaName(OpenAPITypeUtils
+                                    .getSpreadsheetArrayClassName(calledPathInfo.getReturnType().getDimension()));
+                            calledPathInfo.setFormattedPath(name);
+
+                            if (calledRef.equals(parserModel.getReturnRef())) {
+                                int dimension = existingPathInfo.getReturnType().getDimension();
+                                spreadsheetModel.setType(
+                                    SPREADSHEET_RESULT + name + String.join("", Collections.nCopies(dimension, "[]")));
+                                existingPathInfo.getReturnType()
+                                        .setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(dimension));
+                            }
+                        }
                         List<InputParameter> parameters = calledModel.getParameters();
                         String value = parameters.stream()
-                                .map(InputParameter::getType)
-                                .filter(t -> t.getType() != TypeInfo.Type.RUNTIMECONTEXT)
-                                .map(OpenAPITypeUtils::geJavaDefaultValue)
-                                .collect(Collectors.joining(", "));
+                            .map(InputParameter::getType)
+                            .filter(t -> t.getType() != TypeInfo.Type.RUNTIMECONTEXT)
+                            .map(OpenAPITypeUtils::getJavaDefaultValue)
+                            .collect(Collectors.joining(", "));
                         String calledName = calledModel.getName();
                         String call = makeCall(calledName, value);
                         step.setValue(isArray ? makeArrayCall(stepType, calledName, call) : "= " + call);
@@ -544,7 +573,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
         return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.stream()
-                .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
+            .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
     }
 
     public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {

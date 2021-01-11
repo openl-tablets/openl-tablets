@@ -190,9 +190,10 @@ public class InterfaceGenerator {
         String methodName = method.getName();
         IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         Class<?> returnType = method.getType().getInstanceClass();
-
+        if (returnType == null) {
+            returnType = Object.class;
+        }
         Class<?>[] paramTypes = getInstanceClasses(paramClasses);
-
         return createRuleInfo(methodName, paramTypes, returnType);
     }
 
@@ -304,9 +305,12 @@ public class InterfaceGenerator {
 
         if (openClasses != null) {
             for (IOpenClass openClass : openClasses) {
-
                 Class<?> clazz = openClass.getInstanceClass();
-                classes.add(clazz);
+                if (clazz != null) {
+                    classes.add(clazz);
+                } else {
+                    classes.add(Object.class);
+                }
             }
         }
 
