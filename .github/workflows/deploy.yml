@@ -55,3 +55,5 @@ jobs:
 
     - name: Build with Maven
       run: mvn ${{ github.event.inputs.mavenArgs }}
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
