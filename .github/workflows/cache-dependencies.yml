@@ -44,4 +44,4 @@ jobs:
       run: mvn -v
 
     - name: Download Maven Dependencies
-      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -Pgpg-sign -Dsonar -Psources -Powasp
+      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -Pgpg-sign -Dsonar -Psources -Powasp "-Dmaven.wagon.http.retryHandler.count=5"
