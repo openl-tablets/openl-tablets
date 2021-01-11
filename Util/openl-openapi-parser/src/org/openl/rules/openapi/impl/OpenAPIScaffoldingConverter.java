@@ -177,6 +177,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         // If there is a datatype to add which was returned by any spreadsheet model, it will be transformed
         spreadsheetParserModels.stream().filter(x -> dtToAdd.contains(x.getReturnRef())).forEach(x -> {
             SpreadsheetModel model = x.getModel();
+            String type = getSimpleName(x.getReturnRef());
+            model.setType(type);
+            model.getPathInfo().setReturnType(new TypeInfo(type, type, TypeInfo.Type.DATATYPE));
             model.setSteps(makeSingleStep(getSimpleName(x.getReturnRef())));
         });
         datatypeRefs.addAll(dtToAdd);
