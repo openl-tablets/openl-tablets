@@ -11,35 +11,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  strategy:
-    fail-fast: false
-    max-parallel: 1
-    matrix:
-      os: [ubuntu-latest, windows-latest, macOS-latest]
+  build:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
 
-  runs-on: ${{ matrix.os }}
+    name: Cache for ${{ runner.os }}
 
-  name: Cache for ${{ runner.os }}
-  steps:
+    runs-on: ${{ matrix.os }}
 
-  - uses: actions/checkout@v2
+    steps:
 
-  - name: Set environment variables
-    run: |
-      echo "WEEK=$(date +%U)" >> $GITHUB_ENV
-      echo "DAY=$(date +%w)" >> $GITHUB_ENV
-    shell: bash
+    - uses: actions/checkout@v2
 
-  - name: Cache local Maven repository
-    uses: actions/cache@v2
-    with:
-      path: ~/.m2/repository
-      key: maven-${{ env.WEEK }}-${{ env.DAY }}
-      restore-keys: |
-        maven-${{ env.WEEK }}
+    - name: Set environment variables
+      run: |
+        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
+        echo "DAY=$(date +%w)" >> $GITHUB_ENV
+      shell: bash
 
-  - name: Maven version
-    run: mvn -v
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: maven-${{ env.WEEK }}-${{ env.DAY }}
+        restore-keys: |
+          maven-${{ env.WEEK }}
 
-  - name: Download Maven Dependencies
-    run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -Pgpg-sign -Dsonar -Psources -Powasp
+    - name: Maven version
+      run: mvn -v
+
+    - name: Download Maven Dependencies
+      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -Pgpg-sign -Dsonar -Psources -Powasp
