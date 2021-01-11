@@ -11,11 +11,43 @@ on:
   workflow_dispatch:
 
 jobs:
-  cache-dependencies:
+  cache-linux:
 
-    name: Cache Dependencies
+    name: Cache for Linux
 
     runs-on: ubuntu-latest
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Set environment variables
+      run: |
+        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
+        echo "DAY=$(date +%w)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: maven-${{ env.WEEK }}-${{ env.DAY }}
+        restore-keys: |
+          maven-${{ env.WEEK }}
+
+    - name: Maven version
+      run: mvn -v
+
+    - name: Download Maven Dependencies
+      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:collect -Pgpg-sign -Dsonar -Psources -Powasp -Dmaven.wagon.http.retryHandler.count=5
+
+  cache-windows:
+
+    needs: cache-linux
+
+    name: Cache for Windows
+
+    runs-on: windows-latest
 
     steps:
 
