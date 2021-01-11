@@ -264,7 +264,7 @@ public class SpreadsheetStructureBuilder {
                 spreadsheetCell.setValue(method);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);
-                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
@@ -275,7 +275,7 @@ public class SpreadsheetStructureBuilder {
                 ConstantOpenField constOpenField = (ConstantOpenField) openField;
                 spreadsheetCell.setValue(constOpenField.getValue());
             } catch (Exception e) {
-                String message = "Cannot parse cell.";
+                String message = "Cannot parse cell value.";
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {
@@ -308,7 +308,7 @@ public class SpreadsheetStructureBuilder {
                 IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Exception t) {
-                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
+                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
                 spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
         }

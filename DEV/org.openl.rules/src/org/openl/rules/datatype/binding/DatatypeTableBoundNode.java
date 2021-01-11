@@ -593,7 +593,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             }
             fields.put(fieldName, fieldDescription);
         } catch (RuntimeException e) {
-            String errorMessage = String.format("Cannot parse cell value '%s'", defaultValueCode);
+            String errorMessage = String.format("Cannot parse cell value '%s'.", defaultValueCode);
             BindHelper.processError(errorMessage, e, defaultValueCellSource, bindingContext);
         }
 

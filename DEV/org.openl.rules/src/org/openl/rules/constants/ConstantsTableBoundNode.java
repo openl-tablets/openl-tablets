@@ -141,7 +141,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
                     objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
                 }
             } catch (RuntimeException e) {
-                String message = String.format("Cannot parse cell value '%s'", value);
+                String message = String.format("Cannot parse cell value '%s'.", value);
                 BindHelper.processError(message, e, defaultValueSrc, cxt);
                 objectValue = null;
             }
