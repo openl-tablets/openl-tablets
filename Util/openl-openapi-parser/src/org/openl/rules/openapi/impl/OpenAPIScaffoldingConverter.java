@@ -246,11 +246,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Queue<String> queue = new LinkedList<>(datatypeRefs);
         while (!queue.isEmpty()) {
             final String dtRef = queue.poll();
-            Set<String> lostDTs = refsWithFields.getOrDefault(dtRef, Collections.emptySet()).stream()
+            refsWithFields.getOrDefault(dtRef, Collections.emptySet()).stream()
                     .filter(x -> !datatypeRefs.contains(x) && !allFieldsRefs.contains(x))
-                    .collect(Collectors.toSet());
-            queue.addAll(lostDTs);
-            allFieldsRefs.addAll(lostDTs);
+                    .forEach(x -> {
+                        queue.add(x);
+                        allFieldsRefs.add(x);
+                    });
         }
         return allFieldsRefs;
     }
