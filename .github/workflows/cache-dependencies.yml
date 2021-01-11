@@ -43,8 +43,6 @@ jobs:
 
   cache-windows:
 
-    needs: cache-linux
-
     name: Cache for Windows
 
     runs-on: windows-latest
