@@ -248,10 +248,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             final String dtRef = queue.poll();
             refsWithFields.getOrDefault(dtRef, Collections.emptySet()).stream()
                     .filter(x -> !datatypeRefs.contains(x) && !allFieldsRefs.contains(x))
-                    .forEach(x -> {
-                        queue.add(x);
-                        allFieldsRefs.add(x);
-                    });
+                    .filter(allFieldsRefs::add)
+                    .forEach(queue::add);
         }
         return allFieldsRefs;
     }
