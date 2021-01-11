@@ -450,7 +450,7 @@ public class OpenAPIJavaClassGeneratorTest {
 
     @Test
     public void test_nameConflictTest() throws Exception {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10995.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> optionalVM = spreadsheetResultModels.stream()
             .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
