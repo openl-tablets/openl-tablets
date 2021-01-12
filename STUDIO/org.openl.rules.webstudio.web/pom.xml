@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.openl.rules</groupId>
+        <artifactId>org.openl.rules.studio-pom</artifactId>
+        <version>5.24.0-SNAPSHOT</version>
+    </parent>
+    <artifactId>org.openl.rules.webstudio.web</artifactId>
+    <packaging>jar</packaging>
+    <name>OpenL - STUDIO - Web</name>
+    <description>OpenL WebStudio Web</description>
+    <url>https://openl-tablets.org</url>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <systemPropertyVariables>
+                        <openapi.output.dir>${project.build.directory}/openapi/</openapi.output.dir>
+                    </systemPropertyVariables>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.workspace</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-openapi-parser</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.project.validation.openapi</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>openl-excel-builder</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.albfernandez.richfaces</groupId>
+            <artifactId>richfaces</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.faces</artifactId>
+        </dependency>
+
+        <!-- For testing purposes -->
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.test</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>
