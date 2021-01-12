@@ -24,10 +24,11 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 * JDK 8
 * Maven 3.6.3
 * 512 MiB RAM free
+* 2 GiB Disk space free
 
 #### Build command:
 
-`mvn clean verify`
+`mvn`
 
 Estimated build time: ~15 minutes
 
