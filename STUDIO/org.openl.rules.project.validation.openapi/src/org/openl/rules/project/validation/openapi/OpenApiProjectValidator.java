@@ -498,14 +498,15 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                 boolean found = false;
                 if (!CollectionUtils.isEmpty(expectedOperation.getParameters())) {
                     for (Parameter p : expectedOperation.getParameters()) {
-                        Parameter expectedParameter = context.getActualOpenAPIResolver().resolve(p, Parameter::get$ref);
+                        Parameter expectedParameter = context.getExpectedOpenAPIResolver()
+                            .resolve(p, Parameter::get$ref);
                         if (Objects.equals(actualParameter.getIn(), expectedParameter.getIn())) {
                             int index = findParameterIndex(context.getMethod(),
                                 actualParameter.getIn(),
                                 actualParameter.getName());
                             if ("path".equalsIgnoreCase(actualParameter.getIn())) {
                                 String s = extractPathParameterName(context.getExpectedPath(), index);
-                                if (Objects.equals(s, expectedParameter.getName())) {
+                                if (s != null && Objects.equals(s, expectedParameter.getName())) {
                                     found = true;
                                     validateParameter(context,
                                         openMethod,
@@ -553,7 +554,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                                 actualParameter.getName());
                             if ("path".equalsIgnoreCase(actualParameter.getIn())) {
                                 String s = extractPathParameterName(context.getExpectedPath(), index);
-                                if (Objects.equals(s, expectedParameter.getName())) {
+                                if (s != null && Objects.equals(s, expectedParameter.getName())) {
                                     found = true;
                                     break;
                                 }
@@ -681,14 +682,18 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private String extractPathParameterName(String path, int index) {
         String s = path;
-        int i = 0;
-        while (i < index) {
-            s = s.substring(s.indexOf("}") + 1);
-            i++;
+        try {
+            int i = 0;
+            while (i < index) {
+                s = s.substring(s.indexOf("}") + 1);
+                i++;
+            }
+            s = s.substring(s.indexOf("{") + 1);
+            s = s.substring(0, s.indexOf("}"));
+            return s;
+        } catch (IndexOutOfBoundsException e) {
+            return null;
         }
-        s = s.substring(s.indexOf("{") + 1);
-        s = s.substring(0, s.indexOf("}"));
-        return s;
     }
 
     private void validateParameter(Context context,
