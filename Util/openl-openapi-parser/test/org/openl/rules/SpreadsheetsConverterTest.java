@@ -814,6 +814,27 @@ public class SpreadsheetsConverterTest {
 
     }
 
+    @Test
+    public void testEPBDS_10979() throws IOException {
+        ProjectModel projectModel = converter
+                .extractProjectModel("test.converter/spreadsheets/EPBDS-10979_sprGeneration.json");
+        assertEquals(3, projectModel.getDatatypeModels().size());
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "MyDatatype".equals(dt.getName())));
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "Spr5".equals(dt.getName())));
+        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "CensusSummary".equals(dt.getName())));
+        SpreadsheetModel sp1 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr1");
+        assertEquals("CensusSummary", sp1.getType());
+        assertEquals(1, sp1.getSteps().size());
+        assertEquals("CensusSummary", sp1.getSteps().get(0).getType());
+        assertEquals("= new CensusSummary()", sp1.getSteps().get(0).getValue());
+
+        SpreadsheetModel sp4 = findSpreadsheet(projectModel.getSpreadsheetResultModels(), "Spr4");
+        assertEquals("SpreadsheetResult", sp4.getType());
+        assertEquals(2, sp4.getSteps().size());
+        assertEquals("CensusSummary[]", sp4.getSteps().get(0).getType());
+        assertEquals("= new CensusSummary[]{}", sp4.getSteps().get(0).getValue());
+    }
+
     private SpreadsheetModel findSpreadsheet(final List<SpreadsheetModel> spreadsheetModels, final String sprName) {
         Optional<SpreadsheetModel> spreadsheet = spreadsheetModels.stream()
             .filter(x -> x.getName().equals(sprName))

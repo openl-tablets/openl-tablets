@@ -1,0 +1,83 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "myDeploy",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/myDeploy",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/PlanDetails": {
+      "post": {
+        "summary": "bla",
+        "description": "bla",
+        "operationId": "PlanDetails",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanDetailsRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PlanDetails"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PlanDetails": {
+        "type": "object",
+        "properties": {
+          "Plan": {
+            "type": "string"
+          },
+          "Coverages": {
+            "type": "string"
+          }
+        }
+      },
+      "PlanDetailsRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "type": "string"
+          },
+          "plan": {
+            "type": "string"
+          }
+        }
+      },
+      "ExtractRatingDetails": {
+        "type": "object",
+        "properties": {
+          "PolicyRatesAndPremiums": {
+            "type": "string"
+          },
+          "Plans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PlanDetails"
+            }
+          }
+        }
+      }
+    }
+  }
+}

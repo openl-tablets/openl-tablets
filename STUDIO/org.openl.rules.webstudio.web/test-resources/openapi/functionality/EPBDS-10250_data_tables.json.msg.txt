@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Expected operation 'DELETE' is not found for path '/getpetsA/{id}'.
