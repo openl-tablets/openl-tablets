@@ -10,14 +10,9 @@ on:
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:
-      mavenArgs:
-        description: 'Maven parameters'
-        required: true
-        default: '-B deploy --file pom.xml -Psources -DskipTests '
-      java:
-        description: 'Java version (8, 11)'
-        required: true
-        default: '8'
+      branch:
+        description: 'Branch to build'
+        required: false
 
 jobs:
   deploy:
@@ -28,11 +23,14 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Checkout ${{ github.event.inputs.branch }}
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
 
     - uses: actions/setup-java@v1
       with:
-        java-version: ${{ github.event.inputs.java }}
+        java-version: 8
 
     - name: Set environment variables
       run: |
@@ -50,10 +48,7 @@ jobs:
           maven-${{ env.WEEK }}
           maven-
 
-    - name: Maven version
-      run: mvn -v
-
     - name: Build with Maven
-      run: mvn ${{ github.event.inputs.mavenArgs }}
+      run: mvn -B deploy --file pom.xml -Psources -DskipTests
       env:
         GITHUB_TOKEN: ${{ github.token }}
