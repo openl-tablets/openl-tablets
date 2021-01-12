@@ -168,8 +168,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .map(SpreadsheetParserModel::getReturnRef)
             .collect(Collectors.toSet());
 
-        fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
-
         Set<String> allFieldsRefs = retrieveAllFieldsRefs(datatypeRefs, refsWithFields);
         // case when any datatype has a link in a field to the spreadsheet
         Set<String> dtToAdd = allFieldsRefs.stream()
@@ -184,6 +182,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             model.getPathInfo().setReturnType(new TypeInfo(type, type, TypeInfo.Type.DATATYPE));
             model.setSteps(makeSingleStep(getSimpleName(x.getReturnRef())));
         });
+        fillCallsInSteps(spreadsheetParserModels, datatypeRefs);
+
         datatypeRefs.addAll(dtToAdd);
         refSpreadsheets.removeAll(dtToAdd);
 
