@@ -1,0 +1,6 @@
+ERROR: OpenAPI Reconciliation: Unexpected operation 'POST' with media type 'application/json' is found for path '/myTestWithParams2/{pidId}'.
+ERROR: OpenAPI Reconciliation: Expected query parameter 'sum' is not found in method 'myTestWithParams2' related to path '/myTestWithParams2/{pidId}'.
+ERROR: OpenAPI Reconciliation: Expected operation 'POST' with media type 'text/plain' is not found for path '/myTestWithArrayDoubleRBTP'.
+ERROR: OpenAPI Reconciliation: Unexpected operation 'POST' with media type 'application/json' is found for path '/myTestWithArrayDoubleRBTP'.
+ERROR: OpenAPI Reconciliation: Expected response is not found in operation 'POST' with media type 'text/plain' for path '/myTestWithArrayDoubleRBTP'.
+ERROR: OpenAPI Reconciliation: Unexpected response is found in operation 'POST' with media type 'application/json' for path '/myTestWithArrayDoubleRBTP'.
