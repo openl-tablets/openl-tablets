@@ -50,6 +50,6 @@ jobs:
           maven-
 
     - name: Build with Maven
-      run: mvn -B deploy --file pom.xml -Psources -DskipTests
+      run: mvn -B deploy -Psources -DskipTests
       env:
         GITHUB_TOKEN: ${{ github.token }}
