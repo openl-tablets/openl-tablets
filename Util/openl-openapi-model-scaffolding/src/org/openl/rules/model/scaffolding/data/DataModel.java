@@ -15,6 +15,7 @@ public class DataModel implements MethodModel {
     private final String type;
     private final PathInfo pathInfo;
     private final DatatypeModel datatypeModel;
+    private boolean include;
 
     public DataModel(String name, String type, PathInfo info, DatatypeModel dataType) {
         this.name = name;
@@ -43,6 +44,16 @@ public class DataModel implements MethodModel {
     @Override
     public List<InputParameter> getParameters() {
         return Collections.emptyList();
+    }
+
+    @Override
+    public boolean isInclude() {
+        return include;
+    }
+
+    @Override
+    public void setInclude(boolean include) {
+        this.include = include;
     }
 
     @Override

@@ -15,6 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -409,6 +411,7 @@ public class OpenAPIJavaClassGeneratorTest {
     public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
+        assertSetEquals(toSet(".+ getPolicyData()"), projectModel.getIncludeMethodFilter());
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         Set<Class<?>> commonClasses = new HashSet<>();
@@ -451,6 +454,8 @@ public class OpenAPIJavaClassGeneratorTest {
     @Test
     public void test_nameConflictTest() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10995_name_conflict.json");
+        assertSetEquals(toSet(".+ MyLovelySpreadsheet(.+)", ".+ Party(.+)"),
+                projectModel.getIncludeMethodFilter());
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> optionalVM = spreadsheetResultModels.stream()
             .filter(model -> model.getName().equals("MyLovelySpreadsheet"))
@@ -490,6 +495,16 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals("Watch", validationMessageMethod.getParameters()[0].getAnnotation(RulesType.class).value());
     }
 
+    @Test
+    public void test_EPBDS_10979() throws Exception {
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10979_extraSpr.json");
+        assertSetEquals(toSet(".+ PlanDetails(.+)"), projectModel.getIncludeMethodFilter());
+
+        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+        assertNull(generated.getAnnotationTemplateClass());
+        assertTrue(generated.getCommonClasses().isEmpty());
+    }
+
     private static void assertInterfaceDescription(String expectedName, Class<?> interfaceClass) {
         assertNotNull(interfaceClass);
         assertTrue(interfaceClass.isInterface());
@@ -515,5 +530,24 @@ public class OpenAPIJavaClassGeneratorTest {
         assertTrue("Class must be public", (clazz.getModifiers() & Modifier.PUBLIC) != 0);
         assertEquals(expectedName, clazz.getName());
         clazz.newInstance();// just for sure
+    }
+
+    private static void assertSetEquals(Set<String> expected, Set<String> actual) {
+        Set<String> rest = new HashSet<>(actual);
+        rest.removeAll(expected);
+        if (!rest.isEmpty()) {
+            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
+        }
+
+        rest = new HashSet<>(expected);
+        rest.removeAll(actual);
+        if (!rest.isEmpty()) {
+            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
+        }
+    }
+
+    private static Set<String> toSet(String... args) {
+        return Stream.of(args)
+                .collect(Collectors.toSet());
     }
 }

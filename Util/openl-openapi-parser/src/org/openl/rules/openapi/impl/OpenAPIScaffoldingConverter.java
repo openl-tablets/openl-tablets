@@ -22,6 +22,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,7 @@ import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.model.scaffolding.DatatypeModel;
 import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
+import org.openl.rules.model.scaffolding.MethodModel;
 import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
@@ -222,9 +224,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Set<String> dtNames = dts.stream().map(DatatypeModel::getName).collect(Collectors.toSet());
         checkTypes(spreadsheetParserModels, dtNames);
 
+        final Consumer<MethodModel> applyInclude = method -> {
+            method.setInclude(openAPI.getPaths().get(method.getPathInfo().getOriginalPath()) != null);
+        };
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
+        spreadsheetModels.forEach(applyInclude);
+        dataModels.forEach(applyInclude);
+
         Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
             .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
         List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);

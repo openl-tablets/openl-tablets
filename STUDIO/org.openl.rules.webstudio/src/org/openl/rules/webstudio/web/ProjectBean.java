@@ -876,6 +876,14 @@ public class ProjectBean {
             internalOpenAPIPath,
             converter);
 
+        modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam))
+                .findFirst()
+                .ifPresent(m -> {
+                    MethodFilter filter = new MethodFilter();
+                    filter.setIncludes(projectModel.getIncludeMethodFilter());
+                    m.setMethodFilter(filter);
+                });
+
         addDataTypesFile(modelModulePathParam, currentProject, projectModel);
 
         addAlgorithmsFile(modelModuleNameParam, algorithmModulePathParam, currentProject, projectModel);
