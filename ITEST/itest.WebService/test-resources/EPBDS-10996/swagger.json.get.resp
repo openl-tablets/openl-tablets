@@ -1,0 +1,112 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+    "basePath": "/EPBDS-10996/EPBDS-10996",
+    "definitions": {
+        "JAXRSErrorResponse": {
+            "properties": {
+                "details": {
+                    "items": {
+                        "type": "string"
+                    },
+                    "type": "array"
+                },
+                "message": {
+                    "type": "string"
+                },
+                "type": {
+                    "enum": [
+                        "USER_ERROR",
+                        "RULES_RUNTIME",
+                        "COMPILATION",
+                        "SYSTEM",
+                        "BAD_REQUEST",
+                        "VALIDATION"
+                    ],
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        },
+        "MyDatatype": {
+            "properties": {
+                "abc": {
+                    "type": "string"
+                }
+            },
+            "type": "object"
+        }
+    },
+    "info": {
+        "title": "EPBDS-10996_EPBDS-10996",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/getMyData2": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "description": "Method: org.openl.generated.beans.MyDatatype[][] getMyData2()",
+                "operationId": "getMyData2",
+                "parameters": [],
+                "produces": [
+                    "application/json"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "successful operation",
+                        "schema": {
+                            "items": {
+                                "items": {
+                                    "$ref": "#/definitions/MyDatatype"
+                                },
+                                "type": "array"
+                            },
+                            "type": "array"
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Cannot parse 'bar' to JSON",
+                                "type": "BAD_REQUEST"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Custom user errors in rules or validation errors in input parameters",
+                        "examples": {
+                            "application/json": {
+                                "message": "Some message",
+                                "type": "USER_ERROR"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+                        "examples": {
+                            "application/json": {
+                                "message": "Failed to load lazy method.",
+                                "type": "COMPILATION"
+                            }
+                        },
+                        "schema": {
+                            "$ref": "#/definitions/JAXRSErrorResponse"
+                        }
+                    }
+                },
+                "summary": "MyDatatype[][] getMyData2()"
+            }
+        }
+    },
+    "swagger": "2.0"
+}

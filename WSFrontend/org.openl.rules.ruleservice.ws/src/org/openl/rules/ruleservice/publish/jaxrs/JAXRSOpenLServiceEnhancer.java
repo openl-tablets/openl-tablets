@@ -557,14 +557,18 @@ public final class JAXRSOpenLServiceEnhancer {
                         t = t.getComponentType();
                         dim++;
                     }
-                    if (!originalMethod.isAnnotationPresent(ApiResponse.class) && dim < 2) {
+                    if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
                         AnnotationVisitor av1 = av.visitArray("responses");
                         AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         av2.visit("description", "Successful operation");
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                        if (dim < 2) {
+                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                        } else {
+                            addSchemaOpenApiAnnotation(av4, Object.class);
+                        }
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
@@ -604,7 +608,8 @@ public final class JAXRSOpenLServiceEnhancer {
             } else if (type == Character.class || type == char.class) {
                 av1.visit("type", "string");
             } else if (Map.class.isAssignableFrom(type)) {
-                av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema annotations.
+                av1.visit("implementation", Type.getType(Object.class)); // Impossible to define Map through Schema
+                                                                         // annotations.
             } else {
                 av1.visit("implementation", Type.getType(type));
             }
