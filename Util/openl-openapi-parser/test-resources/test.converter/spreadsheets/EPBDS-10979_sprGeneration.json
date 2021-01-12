@@ -1,0 +1,254 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "REN Statutory STD_REN Statutory STD",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/REN%20Statutory%20STD/REN%20Statutory%20STD",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/Spr4": {
+      "post": {
+        "summary": "Spr4 Spr4(Policy, MyDatatype, Integer, Double)",
+        "description": "Rules method: SpreadsheetResultSpr4 Spr4(org.openl.generated.model.di.st.Policy policy, org.openl.generated.model.di.st.MyDatatype plan, java.lang.Integer censusLives, java.lang.Double caseSizeFactor)",
+        "operationId": "Spr4",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spr4"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Spr6": {
+      "post": {
+        "summary": "Spr6 Spr6(Policy, Boolean, Boolean)",
+        "description": "Rules method: SpreadsheetResultSpr6 Spr6(org.openl.generated.model.di.st.Policy policy, java.lang.Boolean isUnder50Lives, java.lang.Boolean isCombinedRateCalc)",
+        "operationId": "Spr6",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spr6"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Spr2": {
+      "post": {
+        "summary": "Spr2 Spr2(Policy)",
+        "description": "Rules method: SpreadsheetResultSpr2 Spr2(org.openl.generated.model.di.st.Policy policy)",
+        "operationId": "Spr2",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spr2"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Spr3": {
+      "post": {
+        "summary": "Spr3 Spr3(Policy, Boolean)",
+        "description": "Rules method: SpreadsheetResultSpr3 Spr3(org.openl.generated.model.di.st.Policy policy, java.lang.Boolean isCombinedRateCalc)",
+        "operationId": "Spr3",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Spr3"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Spr1": {
+      "post": {
+        "summary": "CensusSummary Spr1(String, String, String, SpreadsheetResult[])",
+        "description": "Rules method: org.openl.generated.model.di.st.CensusSummary Spr1(java.lang.String planID, AgeBand ageBand, Gender gender, SpreadsheetResultCalculateEmployeeNCC[] censusEmployeesCalc)",
+        "operationId": "Spr1",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CensusSummary"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyDatatype": {
+        "type": "object",
+        "properties": {
+          "planID": {
+            "type": "string"
+          }
+        }
+      },
+      "Spr4": {
+        "type": "object",
+        "properties": {
+          "CalculateCensusSummaries": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CensusSummary"
+            }
+          },
+          "Spr5": {
+            "$ref": "#/components/schemas/Spr5"
+          }
+        }
+      },
+      "CensusSummary": {
+        "type": "object",
+        "properties": {
+          "planID": {
+            "type": "string"
+          }
+        }
+      },
+      "Spr5": {
+        "type": "object",
+        "properties": {
+          "planID": {
+            "type": "string"
+          },
+          "censusSummary": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CensusSummary"
+            }
+          }
+        }
+      },
+      "Spr2": {
+        "type": "object",
+        "properties": {
+          "MyDatatypesWithLivesCalc": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyDatatype"
+            }
+          },
+          "Spr4": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr4"
+            }
+          }
+        }
+      },
+      "Spr6": {
+        "type": "object",
+        "properties": {
+          "ManualRatesCalculation": {
+            "$ref": "#/components/schemas/Spr2"
+          },
+          "MyDatatypesDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr5"
+            }
+          }
+        }
+      },
+      "Spr3": {
+        "type": "object",
+        "properties": {
+          "RemovePFLMyDatatype": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MyDatatype"
+            }
+          },
+          "Spr2": {
+            "$ref": "#/components/schemas/Spr2"
+          },
+          "MyDatatypesDetails": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Spr5"
+            }
+          }
+        }
+      }
+    }
+  }
+}

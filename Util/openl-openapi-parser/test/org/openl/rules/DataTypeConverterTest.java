@@ -259,6 +259,7 @@ public class DataTypeConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/datatype/EPBDS-10843_lost_datatype.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
+        assertEquals(5, datatypeModels.size());
         assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals("NewNewDatatype")));
     }
 
