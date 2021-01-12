@@ -610,9 +610,10 @@ public class JAXRSOpenLServiceEnhancerHelper {
                                                                     originalMethod.getName(),
                                                                     originalMethod.getParameterTypes(),
                                                                     false);
+                String truncatedSummary = summary.substring(0, Math.min(summary.length(), 120));
                 if (!originalMethod.isAnnotationPresent(ApiOperation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ApiOperation.class), true);
-                    av.visit("value", summary.substring(0, Math.min(summary.length(), 120)));
+                    av.visit("value", truncatedSummary);
                     av.visit("notes", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
                     av.visit("response", Type.getType(extractOriginalType(originalMethod.getReturnType())));
                     av.visit("nickname", nickname);
@@ -621,7 +622,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 if (!originalMethod.isAnnotationPresent(Operation.class)) {
                     AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(Operation.class), true);
                     av.visit("operationId", nickname);
-                    av.visit("summary", summary.substring(0, Math.min(summary.length(), 120)));
+                    av.visit("summary", truncatedSummary);
                     av.visit("description", (openMethod != null ? "Rules method: " : "Method: ") + detailedSummary);
                     Class<?> t = originalMethod.getReturnType();
                     int dim = 0;
@@ -629,14 +630,18 @@ public class JAXRSOpenLServiceEnhancerHelper {
                         t = t.getComponentType();
                         dim++;
                     }
-                    if (!originalMethod.isAnnotationPresent(ApiResponse.class) && dim < 2) {
+                    if (!originalMethod.isAnnotationPresent(ApiResponse.class)) {
                         AnnotationVisitor av1 = av.visitArray("responses");
                         AnnotationVisitor av2 = av1.visitAnnotation("responses", Type.getDescriptor(ApiResponse.class));
                         av2.visit("responseCode", String.valueOf(Response.Status.OK.getStatusCode()));
                         av2.visit("description", "Successful operation");
                         AnnotationVisitor av3 = av2.visitArray("content");
                         AnnotationVisitor av4 = av3.visitAnnotation("responses", Type.getDescriptor(Content.class));
-                        addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                        if (dim < 2) {
+                            addSchemaOpenApiAnnotation(av4, originalMethod.getReturnType());
+                        } else {
+                            addSchemaOpenApiAnnotation(av4, Object.class);
+                        }
                         av4.visitEnd();
                         av3.visitEnd();
                         av2.visitEnd();
