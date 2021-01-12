@@ -14,7 +14,7 @@ public interface MethodModel extends Model {
         StringBuilder builder = new StringBuilder(".+ ")
                 .append(getPathInfo().getFormattedPath())
                 .append('(');
-        if (!getParameters().isEmpty()) {
+        if (!getParameters().isEmpty() || getPathInfo().getRuntimeContextParameter() != null) {
             builder.append(".+");
         }
         builder.append(')');
