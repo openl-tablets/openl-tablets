@@ -206,7 +206,7 @@ public class OpenAPITypeUtils {
         }
     }
 
-    public static String geJavaDefaultValue(TypeInfo type) {
+    public static String getJavaDefaultValue(TypeInfo type) {
         switch (type.getJavaName()) {
             case INTEGER_PRIMITIVE:
                 return "0";

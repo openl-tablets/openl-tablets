@@ -32,6 +32,14 @@ public class TypeInfo {
         this.dimension = dimension;
     }
 
+    public TypeInfo(String javaName, String simpleName, Type type, int dimension, boolean reference) {
+        this.javaName = javaName;
+        this.simpleName = simpleName;
+        this.type = type;
+        this.dimension = dimension;
+        this.reference = reference;
+    }
+
     public String getJavaName() {
         return javaName;
     }

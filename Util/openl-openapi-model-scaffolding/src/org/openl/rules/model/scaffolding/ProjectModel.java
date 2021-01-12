@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.openl.rules.model.scaffolding.data.DataModel;
 
@@ -17,6 +19,7 @@ public class ProjectModel {
     private Set<DatatypeModel> datatypeModels = new HashSet<>();
     private List<SpreadsheetModel> spreadsheetModels;
     private List<DataModel> dataModels = new ArrayList<>();
+    private Set<String> includeMethodFilter;
     /*
      * Spreadsheets which will be generate through interface. for case, when isRuntimeContextProvided is true, but these
      * spreadsheets don't have it.
@@ -66,6 +69,16 @@ public class ProjectModel {
 
     public List<DataModel> getDataModels() {
         return dataModels;
+    }
+
+    public Set<String> getIncludeMethodFilter() {
+        if (includeMethodFilter == null) {
+            includeMethodFilter = Stream.concat(spreadsheetModels.stream(), dataModels.stream())
+                    .filter(MethodModel::isInclude)
+                    .map(MethodModel::getMethodFilterPattern)
+                    .collect(Collectors.toSet());
+        }
+        return includeMethodFilter;
     }
 
     @Override

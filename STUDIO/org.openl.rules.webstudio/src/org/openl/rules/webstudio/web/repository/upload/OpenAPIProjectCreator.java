@@ -22,6 +22,7 @@ import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 import org.openl.rules.project.ProjectDescriptorManager;
+import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
@@ -186,7 +187,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
                 addJavaClassFile(projectBuilder, javaClassFile);
             }
 
-            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass);
+            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass, projectModel.getIncludeMethodFilter());
             addFile(projectBuilder,
                 rulesFile,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
@@ -237,8 +238,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectModel;
     }
 
-    private InputStream generateRulesFile(boolean genJavaClasses) throws IOException, ValidationException {
-        ProjectDescriptor descriptor = defineDescriptor(genJavaClasses);
+    private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException, ValidationException {
+        ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             projectDescriptorManager.writeDescriptor(descriptor, baos);
             byte[] descriptorBytes = baos.toByteArray();
@@ -246,7 +247,7 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         }
     }
 
-    private ProjectDescriptor defineDescriptor(boolean genJavaClasses) {
+    private ProjectDescriptor defineDescriptor(boolean genJavaClasses, Set<String> algorithmsInclude) {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         OpenAPI openAPI = new OpenAPI();
         openAPI.setAlgorithmModuleName(algorithmsModuleName);
@@ -258,6 +259,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         Module rulesModule = new Module();
         rulesModule.setRulesRootPath(new PathEntry(algorithmsPath));
         rulesModule.setName(algorithmsModuleName);
+        MethodFilter filter = new MethodFilter();
+        filter.setIncludes(algorithmsInclude);
+        rulesModule.setMethodFilter(filter);
         modules.add(rulesModule);
 
         Module modelsModule = new Module();

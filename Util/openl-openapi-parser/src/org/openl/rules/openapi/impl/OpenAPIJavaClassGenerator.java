@@ -56,6 +56,9 @@ public class OpenAPIJavaClassGenerator {
      * @return {@code true} if require decoration
      */
     private boolean generateDecision(MethodModel method) {
+        if (!method.isInclude()) {
+            return false;
+        }
         final PathInfo pathInfo = method.getPathInfo();
         StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
         method.getParameters().stream().filter(InputParameter::isInPath).map(InputParameter::getName)
