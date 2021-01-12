@@ -18,6 +18,7 @@ import org.openl.rules.model.scaffolding.PathInfo;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -43,7 +44,7 @@ public class DataTableTest {
         assertEquals("Pet", petsB.getType());
         PathInfo info = petsB.getPathInfo();
         assertEquals("/getpetsB", info.getOriginalPath());
-        assertEquals("getpetsB", info.getFormattedPath());
+        assertEquals("getPetsB", info.getFormattedPath());
         assertEquals("application/json", info.getProduces());
         assertNull(info.getConsumes());
         assertEquals("Pet[]", info.getReturnType().getSimpleName());
@@ -169,6 +170,41 @@ public class DataTableTest {
         ProjectModel projectModel2 = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10990_default_runtime_context_generate.json");
         assertEquals(3, projectModel2.getDatatypeModels().size());
+    }
+
+    @Test
+    public void test_dataTables() throws Exception {
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/data_tables_types.json");
+        List<DataModel> dataModels = projectModel.getDataModels();
+        assertEquals(4, dataModels.size());
+
+        DataModel newDatatypeData = findDataModel(dataModels, "NewDatatypeData");
+        PathInfo newDatatypeDataPathInfo = newDatatypeData.getPathInfo();
+        assertEquals("[Ljava.util.Date;", newDatatypeDataPathInfo.getReturnType().getJavaName());
+        assertEquals(TypeInfo.Type.OBJECT, newDatatypeDataPathInfo.getReturnType().getType());
+        assertEquals("getNewDatatypeData", newDatatypeDataPathInfo.getFormattedPath());
+        assertEquals("/getNewData/typeData", newDatatypeDataPathInfo.getOriginalPath());
+
+        DataModel mystrData = findDataModel(dataModels, "MystrData");
+        PathInfo strDataPathInfo = mystrData.getPathInfo();
+        assertEquals("[Ljava.lang.String;", strDataPathInfo.getReturnType().getJavaName());
+        assertEquals(TypeInfo.Type.OBJECT, strDataPathInfo.getReturnType().getType());
+        assertEquals("getMystrData", strDataPathInfo.getFormattedPath());
+        assertEquals("/getMys/trData", strDataPathInfo.getOriginalPath());
+
+        DataModel myDatatypeData = findDataModel(dataModels, "MyDatatypeData");
+        PathInfo myDatatypeDataPathInfo = myDatatypeData.getPathInfo();
+        assertEquals("MyDatatype[]", myDatatypeDataPathInfo.getReturnType().getJavaName());
+        assertEquals(TypeInfo.Type.DATATYPE, myDatatypeDataPathInfo.getReturnType().getType());
+        assertEquals("getMyDatatypeData", myDatatypeDataPathInfo.getFormattedPath());
+        assertEquals("/getMyData/typeData",myDatatypeDataPathInfo.getOriginalPath());
+
+        DataModel superDatatypeData = findDataModel(dataModels, "SuperDatatypeData");
+        PathInfo superDatatypeDataPathInfo = superDatatypeData.getPathInfo();
+        assertEquals("SuperDatatype[]", superDatatypeDataPathInfo.getReturnType().getJavaName());
+        assertEquals(TypeInfo.Type.DATATYPE, superDatatypeDataPathInfo.getReturnType().getType());
+        assertEquals("getSuperDatatypeData", superDatatypeDataPathInfo.getFormattedPath());
+        assertEquals("/getSuper/DatatypeData", superDatatypeDataPathInfo.getOriginalPath());
     }
 
     private DataModel findDataModel(final List<DataModel> dataModels, final String modelName) {

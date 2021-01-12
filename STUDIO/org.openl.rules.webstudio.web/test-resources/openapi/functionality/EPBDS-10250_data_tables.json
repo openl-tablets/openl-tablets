@@ -173,18 +173,20 @@
         "allOf": [
           {
             "$ref": "#/components/schemas/NewPet"
+          },
+          {
+            "type": "object",
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
           }
-        ],
-        "type": "object",
-        "required": [
-          "id"
-        ],
-        "properties": {
-          "id": {
-            "type": "integer",
-            "format": "int64"
-          }
-        }
+        ]
       },
       "PetWithFields": {
         "type": "object",
