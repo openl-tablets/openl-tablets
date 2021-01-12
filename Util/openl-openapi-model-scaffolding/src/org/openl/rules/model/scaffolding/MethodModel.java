@@ -13,11 +13,13 @@ public interface MethodModel extends Model {
     default String getMethodFilterPattern() {
         StringBuilder builder = new StringBuilder(".+ ")
                 .append(getPathInfo().getFormattedPath())
-                .append('(');
-        if (!getParameters().isEmpty() || getPathInfo().getRuntimeContextParameter() != null) {
+                .append("\\(");
+        if (!getParameters().isEmpty()) {
             builder.append(".+");
+        } else if (getPathInfo().getRuntimeContextParameter() != null) {
+            builder.append(".*");
         }
-        builder.append(')');
+        builder.append("\\)");
 
         return builder.toString();
     }
