@@ -540,6 +540,13 @@
                             <groupId>org.apache.maven.plugins</groupId>
                             <artifactId>maven-war-plugin</artifactId>
                             <configuration>
+                                <!--Jboss Modules are not exposing some dependencies needed by Objenesis to do constructor injection (reproduced on java11 + jboss7.2 - 7.3).
+                                The solution is to add the dependencies by updating the project build-->
+                                <archive>
+                                    <manifestEntries>
+                                        <Dependencies>jdk.unsupported</Dependencies>
+                                    </manifestEntries>
+                                </archive>
                                 <webResources>
                                     <resource>
                                         <directory>target</directory>
