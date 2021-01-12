@@ -238,7 +238,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
             if (usedOpenApiComponentNamesWithRequestParameterSuffix == null) {
                 usedOpenApiComponentNamesWithRequestParameterSuffix = new HashSet<>();
                 for (Method method : originalClass.getDeclaredMethods()) {
-                    processClassForSwaggerComponentNamesConflictResolving(method.getReturnType());
+                    processClassForOpenApiComponentNamesConflictResolving(method.getReturnType());
                     for (Class<?> paramType : method.getParameterTypes()) {
                         processClassForSwaggerComponentNamesConflictResolving(paramType);
                     }
