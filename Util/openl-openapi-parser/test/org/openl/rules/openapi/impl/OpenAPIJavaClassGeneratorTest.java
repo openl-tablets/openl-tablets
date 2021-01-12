@@ -411,7 +411,7 @@ public class OpenAPIJavaClassGeneratorTest {
     public void test_dataTablesAndRuntimeContextAndExtraMethod() throws Exception {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/data_tables/openapi_dataTablesAndRuntimeContextAndExtraMethod.json");
-        assertSetEquals(toSet(".+ getPolicyData()"), projectModel.getIncludeMethodFilter());
+        assertSetEquals(toSet(".+ getPolicyData(.+)"), projectModel.getIncludeMethodFilter());
 
         OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
         Set<Class<?>> commonClasses = new HashSet<>();
