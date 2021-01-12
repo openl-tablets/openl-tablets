@@ -20,7 +20,6 @@ public final class AdministrationSettings {
 
     public static final String USER_WORKSPACE_HOME = "user.workspace.home";
     public static final String PROJECT_HISTORY_COUNT = "project.history.count";
-    public static final String PROJECT_HISTORY_UNLIMITED = "project.history.unlimited";
     public static final String DATE_PATTERN = "data.format.date";
     public static final String TIME_PATTERN = "data.format.time";
     public static final String DATETIME_PATTERN = "data.format.datetime";
