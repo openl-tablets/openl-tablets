@@ -234,8 +234,15 @@ public class CompositeGrid extends AGrid {
                         // table region
                         // and we need to move merged region to current grid.
                         // calculate horizontal and vertical steps for moving.
-                        int dx = mappedRegions[j].getLeft() - tableRegion.getLeft();
-                        int dy = mappedRegions[j].getTop() - tableRegion.getTop();
+                        int dx;
+                        int dy;
+                        if (!gridTables[j].isNormalOrientation()) {
+                            dx = mappedRegions[j].getLeft() - tableRegion.getTop();
+                            dy = mappedRegions[j].getTop() - tableRegion.getLeft();
+                        } else {
+                            dx = mappedRegions[j].getLeft() - tableRegion.getLeft();
+                            dy = mappedRegions[j].getTop() - tableRegion.getTop();
+                        }
 
                         // move intersection from one place to another.
                         IGridRegion moved = IGridRegion.Tool.move(intersection, dx, dy);
