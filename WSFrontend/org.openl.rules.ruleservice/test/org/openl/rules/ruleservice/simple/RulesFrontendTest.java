@@ -41,9 +41,9 @@ public class RulesFrontendTest {
         assertNotNull(services);
         assertEquals(
             new HashSet<>(
-                Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "RulesFrontendTest_multimodule")),
+                Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name", "RulesFrontendTest_multimodule")),
             new HashSet<>(services));
-        assertEquals(2, services.size());
+        assertEquals(3, services.size());
     }
 
     @Test
@@ -61,13 +61,13 @@ public class RulesFrontendTest {
     public void testProxyServicesNotExistedService() throws RuleServiceUndeployException,
                                                      RuleServiceDeployException,
                                                      MethodInvocationException {
-        assertEquals(2, frontend.getServiceNames().size());
+        assertEquals(3, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
         OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
 
         serviceManager.undeploy("RulesFrontendTest_multimodule");
-        assertEquals(Collections.singletonList("org.openl.rules.tutorial4.Tutorial4Interface"),
+        assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
             frontend.getServiceNames());
 
         try {

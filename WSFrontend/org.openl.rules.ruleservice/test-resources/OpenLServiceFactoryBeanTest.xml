@@ -3,6 +3,11 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+	<bean id="simpleService" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
+		<constructor-arg name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
+		<constructor-arg name="serviceName" value="simple/name"/>
+	</bean>
+
 	<bean id="ruleService1" class="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBean">
 		<constructor-arg name="proxyInterface" value="org.openl.rules.ruleservice.simple.OpenLServiceFactoryBeanTest.ServiceInterface"/>
 		<constructor-arg name="serviceName" value="RulesFrontendTest_multimodule"/>

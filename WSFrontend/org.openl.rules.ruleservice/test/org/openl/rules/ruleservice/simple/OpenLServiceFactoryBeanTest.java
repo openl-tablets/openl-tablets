@@ -19,10 +19,32 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class OpenLServiceFactoryBeanTest {
 
     @Resource
+    private ServiceInterface simpleService;
+
+    @Resource
     private ServiceInterface ruleService1;
 
     @Resource
     private ServiceInterface ruleService2;
+
+    @Test
+    public void testSimpleService() {
+        assertNotNull(simpleService);
+        assertEquals("Good Morning", simpleService.baseHello(5));
+        assertEquals("Good Morning", simpleService.baseHello(10));
+        assertEquals("Good Afternoon", simpleService.baseHello(15));
+        assertEquals("Good Evening", simpleService.baseHello(20));
+    }
+
+    @Test
+    public void testSimpleServiceAbsentMethods() {
+        try {
+            simpleService.absent(null);
+            fail();
+        } catch (Exception e) {
+            assertEquals("org.openl.rules.ruleservice.simple.MethodInvocationException: Method 'absent(java.lang.String)' is not found in service 'simple/name'.", e.getMessage());
+        }
+    }
 
     @Test
     public void testDefaultFrontend() {
@@ -73,6 +95,7 @@ public class OpenLServiceFactoryBeanTest {
         String worldHello(Integer a, String s);
         String worldHello(String s);
         String absent(String s);
+        String baseHello(int arg);
     }
 
     public static abstract class FrontendImpl implements RulesFrontend {
