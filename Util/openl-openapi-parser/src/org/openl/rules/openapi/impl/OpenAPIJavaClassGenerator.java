@@ -3,12 +3,14 @@ package org.openl.rules.openapi.impl;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.util.List;
+import java.util.stream.Stream;
 
 import javax.ws.rs.Consumes;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
-import javax.ws.rs.HttpMethod;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.OPTIONS;
 import javax.ws.rs.PATCH;
 import javax.ws.rs.POST;
@@ -16,6 +18,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.JavaInterfaceByteCodeBuilder;
@@ -61,7 +64,9 @@ public class OpenAPIJavaClassGenerator {
         }
         final PathInfo pathInfo = method.getPathInfo();
         StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
-        method.getParameters().stream().filter(InputParameter::isInPath).map(InputParameter::getName)
+        method.getParameters().stream()
+                .filter(p -> p.getIn() == InputParameter.In.PATH)
+                .map(InputParameter::getName)
                 .forEach(name -> sb.append("/{").append(name).append('}'));
         if (!pathInfo.getOriginalPath().equals(sb.toString())) {
             //if method name doesn't match expected path
@@ -69,7 +74,7 @@ public class OpenAPIJavaClassGenerator {
         }
         if (StringUtils.isNotBlank(pathInfo.getProduces())) {
             final TypeInfo typeInfo = pathInfo.getReturnType();
-            if (typeInfo.isReference()) {
+            if (typeInfo.isReference() || typeInfo.getDimension() > 0) {
                 if (!DEFAULT_JSON_TYPE.equals(pathInfo.getProduces())) {
                     //if return type is not simple, application/json by default
                     return true;
@@ -97,7 +102,7 @@ public class OpenAPIJavaClassGenerator {
                 }
             } else {
                 if (parameters.size() == 1) {
-                    if (parameters.get(0).getType().isReference()) {
+                    if (parameters.get(0).getType().isReference() ||  parameters.get(0).getType().getDimension() > 0) {
                         if (!DEFAULT_JSON_TYPE.equals(pathInfo.getConsumes())) {
                             //if one not simple param, application/json by default
                             return true;
@@ -112,7 +117,7 @@ public class OpenAPIJavaClassGenerator {
                 }
             }
         }
-        if (HttpMethod.GET.equalsIgnoreCase(pathInfo.getOperation())) {
+        if (pathInfo.getOperation() == PathInfo.Operation.GET) {
             if (projectModel.isRuntimeContextProvided()) {
                 //if RuntimeContext is provided, POST by default.
                 return true;
@@ -124,7 +129,7 @@ public class OpenAPIJavaClassGenerator {
                 //if there is at least one non-primitive parameter, POST by default.
                 return true;
             }
-        } else if (HttpMethod.POST.equalsIgnoreCase(pathInfo.getOperation())) {
+        } else if (pathInfo.getOperation() == PathInfo.Operation.POST) {
             if (!projectModel.isRuntimeContextProvided()) {
                 if (parameters.isEmpty()) {
                     //if no context and empty params, GET by default.
@@ -145,24 +150,14 @@ public class OpenAPIJavaClassGenerator {
     public OpenAPIGeneratedClasses generate() {
         JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder
             .create(DEFAULT_OPEN_API_PATH, "Service");
-        boolean hasMethods = false;
-        for (MethodModel method : projectModel.getSpreadsheetResultModels()) {
-            if (!generateDecision(method)) {
-                continue;
-            }
-            javaInterfaceBuilder.addAbstractMethod(visitInterfaceMethod(method, false).build());
-            hasMethods = true;
-        }
-        for (MethodModel method : projectModel.getDataModels()) {
-            if (!generateDecision(method)) {
-                continue;
-            }
-            javaInterfaceBuilder.addAbstractMethod(visitInterfaceMethod(method, false).build());
-            hasMethods = true;
-        }
+
+        Stream.concat(projectModel.getSpreadsheetResultModels().stream(), projectModel.getDataModels().stream())
+                .filter(this::generateDecision)
+                .map(method -> visitInterfaceMethod(method, false).build())
+                .forEach(javaInterfaceBuilder::addAbstractMethod);
+
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         for (MethodModel extraMethod : projectModel.getNotOpenLModels()) {
-            hasMethods = true;
             JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class, DEFAULT_OPEN_API_PATH);
             JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
                 extraMethodBuilder.byteCode());
@@ -174,7 +169,7 @@ public class OpenAPIJavaClassGenerator {
             javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
         }
 
-        if (hasMethods) {
+        if (javaInterfaceBuilder.hasMethods()) {
             builder.setAnnotationTemplateClass(
                 new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(), javaInterfaceBuilder.build().byteCode()));
         }
@@ -228,10 +223,10 @@ public class OpenAPIJavaClassGenerator {
                     .withProperty(VALUE, parameter.getName())
                     .build());
         }
-        if (parameter.isInPath()) {
-            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(PathParam.class)
-                .withProperty(VALUE, parameter.getName())
-                .build());
+        if (parameter.getIn() != null) {
+            methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(chooseParamAnnotation(parameter.getIn()))
+                    .withProperty(VALUE, parameter.getName())
+                    .build());
         }
         return methodParamBuilder.build();
     }
@@ -266,22 +261,39 @@ public class OpenAPIJavaClassGenerator {
         }
     }
 
-    private Class<? extends Annotation> chooseOperationAnnotation(String operation) {
-        if (HttpMethod.GET.equalsIgnoreCase(operation)) {
-            return GET.class;
-        } else if (HttpMethod.POST.equalsIgnoreCase(operation)) {
-            return POST.class;
-        } else if (HttpMethod.PUT.equalsIgnoreCase(operation)) {
-            return PUT.class;
-        } else if (HttpMethod.DELETE.equalsIgnoreCase(operation)) {
-            return DELETE.class;
-        } else if (HttpMethod.PATCH.equalsIgnoreCase(operation)) {
-            return PATCH.class;
-        } else if (HttpMethod.HEAD.equals(operation)) {
-            return HEAD.class;
-        } else if (HttpMethod.OPTIONS.equals(operation)) {
-            return OPTIONS.class;
+    private Class<? extends Annotation> chooseOperationAnnotation(PathInfo.Operation operation) {
+        switch (operation) {
+            case GET:
+                return GET.class;
+            case POST:
+                return POST.class;
+            case PUT:
+                return PUT.class;
+            case DELETE:
+                return DELETE.class;
+            case PATCH:
+                return PATCH.class;
+            case HEAD:
+                return HEAD.class;
+            case OPTIONS:
+                return OPTIONS.class;
+            default:
+                throw new IllegalStateException("Unable to find operation annotation.");
         }
-        throw new IllegalStateException("Unable to find operation annotation.");
+    }
+
+    private Class<? extends Annotation> chooseParamAnnotation(InputParameter.In in) {
+        switch (in) {
+            case PATH:
+                return PathParam.class;
+            case QUERY:
+                return QueryParam.class;
+            case COOKIE:
+                return CookieParam.class;
+            case HEADER:
+                return HeaderParam.class;
+            default:
+                throw new IllegalStateException("Unable to find param annotation.");
+        }
     }
 }

@@ -3,6 +3,7 @@ package org.openl.rules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
@@ -95,7 +96,7 @@ public class OpenAPIConverterTest {
         TypeInfo type = param.getType();
         validateTypeInfo("RequestModel", type.getSimpleName(), "RequestModel", type.getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
-        assertFalse(param.isInPath());
+        assertNull(param.getIn());
     }
 
     @Test
@@ -113,7 +114,7 @@ public class OpenAPIConverterTest {
         assertEquals("requestModel", param.getName());
         TypeInfo type = param.getType();
         assertEquals("RequestModel", type.getSimpleName());
-        assertFalse(param.isInPath());
+        assertNull(param.getIn());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
     }
 
@@ -152,7 +153,7 @@ public class OpenAPIConverterTest {
         TypeInfo inputParamType = inputParam.getType();
         validateTypeInfo("java.lang.Object", inputParamType.getJavaName(), "Object", inputParamType.getSimpleName());
         assertEquals(TypeInfo.Type.OBJECT, inputParamType.getType());
-        assertFalse(inputParam.isInPath());
+        assertNull(inputParam.getIn());
         PathInfo testSpreadsheetPathInfo = testSpreadsheet.getPathInfo();
         TypeInfo returnType = testSpreadsheetPathInfo.getReturnType();
         validateTypeInfo("java.lang.Double", returnType.getJavaName(), "Double", returnType.getSimpleName());
@@ -185,7 +186,7 @@ public class OpenAPIConverterTest {
         assertEquals("body", type.getSimpleName());
         assertEquals(TypeInfo.Type.DATATYPE, type.getType());
         assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals(type.getSimpleName())));
-        assertFalse(ip.isInPath());
+        assertNull(ip.getIn());
     }
 
     @Test
@@ -201,7 +202,7 @@ public class OpenAPIConverterTest {
         assertEquals(1, parameters.size());
         InputParameter inputParameter = parameters.iterator().next();
         assertEquals("object", inputParameter.getName());
-        assertFalse(inputParameter.isInPath());
+        assertNull(inputParameter.getIn());
         TypeInfo type = inputParameter.getType();
         validateTypeInfo("java.lang.Object", type.getJavaName(), "Object", type.getSimpleName());
     }

@@ -44,6 +44,15 @@ public class JavaInterfaceByteCodeBuilder {
     }
 
     /**
+     * Check if methods were added
+     *
+     * @return {@code true} if methods are defined
+     */
+    public boolean hasMethods() {
+        return !methods.isEmpty();
+    }
+
+    /**
      * Create Java Interface Builder with custom class name. Package name will be added by default
      *
      * @param interfaceName java interface name without package

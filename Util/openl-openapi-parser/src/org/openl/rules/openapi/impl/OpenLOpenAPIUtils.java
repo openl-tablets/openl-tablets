@@ -632,13 +632,15 @@ public class OpenLOpenAPIUtils {
                     if (ref != null && refsToExpand.contains(ref)) {
                         result.addAll(collectParameters(openAPI, refsToExpand, resSchema, ref));
                     } else {
-                        boolean isInPath = "path".equals(p.getIn());
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
                         ParameterModel parameterModel = new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
                                 normalizeName(p.getName()));
-                        parameterModel.setInPath(isInPath);
+                        Optional.ofNullable(p.getIn())
+                                .map(String::toUpperCase)
+                                .map(InputParameter.In::valueOf)
+                                .ifPresent(parameterModel::setIn);
                         result.add(parameterModel);
                     }
                 }

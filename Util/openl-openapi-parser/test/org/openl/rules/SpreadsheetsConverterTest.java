@@ -553,7 +553,7 @@ public class SpreadsheetsConverterTest {
             apiBlaModelPathInfo.getConsumes());
         validateGeneratedModel("text/plain",
             apiBlaModelPathInfo.getProduces(),
-            "POST",
+            PathInfo.Operation.POST,
             apiBlaModelPathInfo.getOperation(),
             "AnotherDatatype",
             apiBlaModelPathInfo.getReturnType().getSimpleName());
@@ -569,7 +569,7 @@ public class SpreadsheetsConverterTest {
             apiTodoModelPathInfo.getConsumes());
         validateGeneratedModel("text/html",
             apiTodoModelPathInfo.getProduces(),
-            "POST",
+            PathInfo.Operation.POST,
             apiTodoModelPathInfo.getOperation(),
             "Integer",
             apiTodoModelPathInfo.getReturnType().getSimpleName());
@@ -855,12 +855,12 @@ public class SpreadsheetsConverterTest {
         return param.get();
     }
 
-    private void validateGeneratedModel(final String expectedType,
-            final String type,
-            final String expectedName,
-            final String name,
-            final String expectedValue,
-            final String value) {
+    private <T, R, G> void validateGeneratedModel(final T expectedType,
+            final T type,
+            final R expectedName,
+            final R name,
+            final G expectedValue,
+            final G value) {
         assertEquals(expectedType, type);
         assertEquals(expectedName, name);
         assertEquals(expectedValue, value);

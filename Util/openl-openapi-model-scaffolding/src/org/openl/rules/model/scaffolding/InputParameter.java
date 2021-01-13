@@ -6,5 +6,14 @@ public interface InputParameter {
 
     TypeInfo getType();
 
-    boolean isInPath();
+    In getIn();
+
+    enum In {
+
+        PATH,
+        QUERY,
+        HEADER,
+        COOKIE
+
+    }
 }

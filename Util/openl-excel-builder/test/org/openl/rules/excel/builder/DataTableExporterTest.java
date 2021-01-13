@@ -53,7 +53,7 @@ public class DataTableExporterTest {
         dt.setFields(Arrays.asList(stringField, doubleField, dateField, booleanField, customTypeField));
         PathInfo info = new PathInfo("/getTest",
             "/getTest",
-            "GET",
+            PathInfo.Operation.GET,
             new TypeInfo("Test", "Test", TypeInfo.Type.DATATYPE),
             "application/json",
             "application/json");
@@ -67,7 +67,7 @@ public class DataTableExporterTest {
         secondModel.setFields(Arrays.asList(integerField, sumField, isOkField));
         PathInfo infoForNotOk = new PathInfo("/getMyModel",
             "/my/model",
-            "POST",
+            PathInfo.Operation.POST,
             new TypeInfo("Unknown", "Unknown", TypeInfo.Type.DATATYPE),
             "text/plain",
             "text/html");

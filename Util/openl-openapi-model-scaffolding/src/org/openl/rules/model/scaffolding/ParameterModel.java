@@ -6,7 +6,7 @@ public class ParameterModel implements InputParameter {
 
     private final TypeInfo type;
     private final String name;
-    private boolean inPath;
+    private In in;
 
     public ParameterModel(TypeInfo type, String name) {
         this.type = type;
@@ -21,12 +21,12 @@ public class ParameterModel implements InputParameter {
         return name;
     }
 
-    public boolean isInPath() {
-        return inPath;
+    public In getIn() {
+        return in;
     }
 
-    public void setInPath(boolean inPath) {
-        this.inPath = inPath;
+    public void setIn(In in) {
+        this.in = in;
     }
 
     @Override
@@ -37,25 +37,12 @@ public class ParameterModel implements InputParameter {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         ParameterModel that = (ParameterModel) o;
-
-        if (!Objects.equals(type, that.type)) {
-            return false;
-        }
-
-        if (inPath != that.inPath) {
-            return false;
-        }
-
-        return Objects.equals(name, that.name);
+        return Objects.equals(type, that.type) && Objects.equals(name, that.name) && in == that.in;
     }
 
     @Override
     public int hashCode() {
-        int result = type != null ? type.hashCode() : 0;
-        result = 31 * result + (inPath ? 1 : 0);
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
+        return Objects.hash(type, name, in);
     }
 }

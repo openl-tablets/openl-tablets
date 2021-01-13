@@ -139,13 +139,13 @@ public class SpreadsheetModelTest {
     public void testSprWithPathInfo() {
         PathInfo xyzInfo = new PathInfo("/xyz",
             "xyz",
-            "GET",
+            PathInfo.Operation.GET,
             new TypeInfo(String.class),
             "application/json",
             "text/plain");
         PathInfo xyInfo = new PathInfo("/xyz/xy/{far}",
             "xyzxy",
-            "GET",
+            PathInfo.Operation.GET,
             new TypeInfo(String.class),
             "application/json",
             "text/plain");

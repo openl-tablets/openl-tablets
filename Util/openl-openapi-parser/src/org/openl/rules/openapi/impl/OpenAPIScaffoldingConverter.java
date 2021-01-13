@@ -334,7 +334,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             model.setSteps(steps);
             model.setPathInfo(new PathInfo("/" + modelName,
                 modelName,
-                PathItem.HttpMethod.POST.name(),
+                PathInfo.Operation.POST,
                 new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT, TypeInfo.Type.SPREADSHEET)));
             lostModel.setModel(model);
             spreadsheetParserModels.add(lostModel);
@@ -399,7 +399,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 continue;
             }
             PathInfo potentialDataTablePathInfo = potentialDataModel.getModel().getPathInfo();
-            String operationMethod = potentialDataTablePathInfo.getOperation();
+            String operationMethod = potentialDataTablePathInfo.getOperation().name();
             // if get operation without parameters or post with only runtime context
             List<InputParameter> parameters = potentialDataModel.getModel().getParameters();
             boolean parametersNotEmpty = CollectionUtils.isNotEmpty(parameters);
@@ -719,7 +719,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         PathInfo pathInfo = new PathInfo();
         final OperationInfo operation = findOperation(pathItem);
         pathInfo.setOriginalPath(path);
-        pathInfo.setOperation(operation.getMethod());
+        pathInfo.setOperation(Optional.ofNullable(operation.getMethod())
+                .map(String::toUpperCase)
+                .map(PathInfo.Operation::valueOf)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid method operation")));
         pathInfo.setConsumes(operation.getConsumes());
         pathInfo.setProduces(operation.getProduces());
         return pathInfo;

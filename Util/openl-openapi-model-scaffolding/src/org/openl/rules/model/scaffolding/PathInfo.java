@@ -7,14 +7,14 @@ public class PathInfo {
     private String formattedPath;
     private String consumes;
     private String produces;
-    private String operation;
+    private Operation operation;
     private TypeInfo returnType;
     private InputParameter runtimeContextParameter;
 
     public PathInfo() {
     }
 
-    public PathInfo(String originalPath, String formattedPath, String operation, TypeInfo typeInfo) {
+    public PathInfo(String originalPath, String formattedPath, Operation operation, TypeInfo typeInfo) {
         this.originalPath = originalPath;
         this.formattedPath = formattedPath;
         this.operation = operation;
@@ -22,11 +22,11 @@ public class PathInfo {
     }
 
     public PathInfo(String originalPath,
-            String formattedPath,
-            String operation,
-            TypeInfo returnType,
-            String consumes,
-            String produces) {
+                    String formattedPath,
+                    Operation operation,
+                    TypeInfo returnType,
+                    String consumes,
+                    String produces) {
         this.originalPath = originalPath;
         this.formattedPath = formattedPath;
         this.operation = operation;
@@ -51,11 +51,11 @@ public class PathInfo {
         this.formattedPath = formattedPath;
     }
 
-    public String getOperation() {
+    public Operation getOperation() {
         return operation;
     }
 
-    public void setOperation(String operation) {
+    public void setOperation(Operation operation) {
         this.operation = operation;
     }
 
@@ -99,39 +99,32 @@ public class PathInfo {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-
         PathInfo pathInfo = (PathInfo) o;
-
-        if (!Objects.equals(originalPath, pathInfo.originalPath)) {
-            return false;
-        }
-        if (!Objects.equals(formattedPath, pathInfo.formattedPath)) {
-            return false;
-        }
-        if (!Objects.equals(operation, pathInfo.operation)) {
-            return false;
-        }
-        if (!Objects.equals(consumes, pathInfo.consumes)) {
-            return false;
-        }
-        if (!Objects.equals(produces, pathInfo.produces)) {
-            return false;
-        }
-        if (!Objects.equals(runtimeContextParameter, pathInfo.runtimeContextParameter)) {
-            return false;
-        }
-        return Objects.equals(returnType, pathInfo.returnType);
+        return Objects.equals(originalPath, pathInfo.originalPath)
+                && Objects.equals(formattedPath, pathInfo.formattedPath)
+                && Objects.equals(consumes, pathInfo.consumes)
+                && Objects.equals(produces, pathInfo.produces)
+                && operation == pathInfo.operation
+                && Objects.equals(returnType, pathInfo.returnType)
+                && Objects.equals(runtimeContextParameter, pathInfo.runtimeContextParameter);
     }
 
     @Override
     public int hashCode() {
-        int result = originalPath != null ? originalPath.hashCode() : 0;
-        result = 31 * result + (formattedPath != null ? formattedPath.hashCode() : 0);
-        result = 31 * result + (operation != null ? operation.hashCode() : 0);
-        result = 31 * result + (returnType != null ? returnType.hashCode() : 0);
-        result = 31 * result + (produces != null ? produces.hashCode() : 0);
-        result = 31 * result + (consumes != null ? consumes.hashCode() : 0);
-        result = 31 * result + (runtimeContextParameter != null ? runtimeContextParameter.hashCode() : 0);
-        return result;
+        return Objects.hash(originalPath, formattedPath, consumes, produces, operation, returnType,
+                runtimeContextParameter);
+    }
+
+    public enum Operation {
+
+        POST,
+        GET,
+        PUT,
+        PATCH,
+        DELETE,
+        HEAD,
+        OPTIONS,
+        TRACE
+
     }
 }
