@@ -113,8 +113,8 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String toString() {
-        StringBuilder tableVizualization = new StringBuilder();
-        tableVizualization.append(super.toString())
+        StringBuilder tableVisualization = new StringBuilder();
+        tableVisualization.append(super.toString())
             .append(isNormalOrientation() ? "[N]" : "[T]")
             .append("(")
             .append(getWidth())
@@ -131,17 +131,17 @@ public abstract class AGridTable implements IGridTable {
                     strValue = "EMPTY";
                 }
                 length += strValue.length();
-                tableVizualization.append(strValue);
-                tableVizualization.append("|");
+                tableVisualization.append(strValue);
+                tableVisualization.append("|");
             }
-            tableVizualization.append("\n");
+            tableVisualization.append("\n");
             for (int k = 0; k <= length; k++) {
-                tableVizualization.append("-");
+                tableVisualization.append("-");
             }
-            tableVizualization.append("\n");
+            tableVisualization.append("\n");
         }
 
-        return tableVizualization.toString();
+        return tableVisualization.toString();
     }
 
 }
