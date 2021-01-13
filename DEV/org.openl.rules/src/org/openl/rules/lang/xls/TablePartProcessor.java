@@ -90,9 +90,9 @@ public class TablePartProcessor {
                                                                                             "height") + " = " + myDim + " instead of " + dimension;
                     if (vertical) {
                         throw new OpenLCompilationException(message,
-                                null,
-                                null,
-                                makeSourceModule(tablePart.getTable()));
+                            null,
+                            null,
+                            makeSourceModule(tablePart.getTable()));
                     } else {
                         messages.add(OpenLMessagesUtils.newErrorMessage(message));
                     }
@@ -100,8 +100,15 @@ public class TablePartProcessor {
             }
             tables[cnt++] = table;
         }
-
-        CompositeGrid grid = new CompositeGrid(tables, vertical);
+        CompositeGrid grid;
+        if (vertical) {
+            grid = new CompositeGrid(tables, true);
+        } else {
+            // Ignore table header and headers from all tables except first and expand width of cells to table total
+            // width if horizontal merge is used. This is special behaviour for table parts and special composite grid
+            // is used here.
+            grid = new HorizontalTablePartsCompositeGrid(tables);
+        }
 
         IGridTable table = new GridTable(0, 0, grid.getHeight() - 1, grid.getWidth() - 1, grid);
 

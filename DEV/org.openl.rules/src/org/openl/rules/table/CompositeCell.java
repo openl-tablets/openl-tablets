@@ -5,7 +5,7 @@ import java.util.Date;
 import org.openl.rules.table.ui.ICellFont;
 import org.openl.rules.table.ui.ICellStyle;
 
-class CompositeCell implements ICell {
+public class CompositeCell implements ICell {
 
     private final int column;
     private final int row;
