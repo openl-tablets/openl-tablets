@@ -172,12 +172,38 @@ public class OpenLOpenAPIUtils {
             PathTarget target) {
         Map<String, Integer> types = new HashMap<>();
         visitOpenAPI(openAPI, jxPathContext, target, (Schema<?> s) -> {
-            if (s.get$ref() != null) {
-                String ref = s.get$ref();
+            String ref = s.get$ref();
+            if (ref != null) {
                 types.merge(ref, 1, Integer::sum);
             }
         });
         return types;
+    }
+
+    public static Map<String, Set<String>> collectPathsWithParams(OpenAPI openAPI,
+                                                                  JXPathContext jxPathContext) {
+        Map<String, Set<String>> resultMap = new HashMap<>();
+        Set<String> visitedSchemas = new HashSet<>();
+        Map<String, PathItem> paths = openAPI.getPaths();
+        if (CollectionUtils.isNotEmpty(paths)) {
+            for (Map.Entry<String, PathItem> pathWithItem : paths.entrySet()) {
+                visitPathItemRequests(pathWithItem.getValue(), jxPathContext, (Schema<?> s) -> {
+                    String ref = s.get$ref();
+                    if (ref != null) {
+                        String path = pathWithItem.getKey();
+                        Set<String> requestRefs = resultMap.get(path);
+                        if (requestRefs == null) {
+                            requestRefs = new HashSet<>();
+                            requestRefs.add(ref);
+                            resultMap.put(path, requestRefs);
+                        } else {
+                            requestRefs.add(ref);
+                        }
+                    }
+                }, visitedSchemas);
+            }
+        }
+        return resultMap;
     }
 
     public static Map<String, Set<String>> getAllUsedRefResponses(OpenAPI openAPI, JXPathContext jxPathContext) {
@@ -576,7 +602,8 @@ public class OpenLOpenAPIUtils {
                 }
             }
         }
-        boolean containsRuntimeContext = parameterModels.stream().anyMatch(v -> v.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
+        boolean containsRuntimeContext = parameterModels.stream()
+            .anyMatch(v -> v.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
         if (!containsRuntimeContext && parameterModels.size() > MAX_PARAMETERS_COUNT) {
             String dataTypeName = getDataTypeName(path);
             DatatypeModel dt = new DatatypeModel(dataTypeName);
@@ -589,8 +616,9 @@ public class OpenLOpenAPIUtils {
             }
             dt.setFields(fields);
             dts.add(dt);
-            parameterModels = Collections.singletonList(
-                new ParameterModel(new TypeInfo(dataTypeName, dataTypeName, TypeInfo.Type.DATATYPE), StringUtils.uncapitalize(dt.getName())));
+            parameterModels = Collections
+                .singletonList(new ParameterModel(new TypeInfo(dataTypeName, dataTypeName, TypeInfo.Type.DATATYPE),
+                    StringUtils.uncapitalize(dt.getName())));
         }
         return parameterModels;
     }
@@ -663,8 +691,7 @@ public class OpenLOpenAPIUtils {
         }
         if (CollectionUtils.isNotEmpty(properties)) {
             int propertiesCount = properties.size();
-            boolean containsRuntimeContext = properties.values().stream().anyMatch(v -> OpenAPITypeUtils.extractType(v, false).getType() == TypeInfo.Type.RUNTIMECONTEXT);
-            if (!containsRuntimeContext && (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT)) {
+            if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
                 TypeInfo typeInfo;
@@ -673,7 +700,8 @@ public class OpenLOpenAPIUtils {
                 } else {
                     typeInfo = new TypeInfo(name, name, TypeInfo.Type.DATATYPE);
                 }
-                ParameterModel parameterModel = new ParameterModel(typeInfo, StringUtils.uncapitalize(normalizeName(name)));
+                ParameterModel parameterModel = new ParameterModel(typeInfo,
+                    StringUtils.uncapitalize(normalizeName(name)));
                 result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()

@@ -585,7 +585,15 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel mySprModel = findSpreadsheet(spreadsheetModels, "CoverageFactors");
         assertEquals("SpreadsheetResult", mySprModel.getType());
         List<InputParameter> parameters = mySprModel.getParameters();
-        assertEquals(10, parameters.size());
+        assertEquals(1, parameters.size());
+
+        InputParameter objParameter = findInputParameter(parameters, "coverageFactorsRequest");
+        validateGeneratedModel("CoverageFactorsRequest",
+            objParameter.getType().getSimpleName(),
+            "CoverageFactorsRequest",
+            objParameter.getType().getJavaName(),
+            "coverageFactorsRequest",
+            objParameter.getName());
 
         List<String> expectedStepsForBla = Arrays.asList("HospitalConfinementWaiverRate",
             "PortabilityFactor",
@@ -817,7 +825,7 @@ public class SpreadsheetsConverterTest {
     @Test
     public void testEPBDS_10979() throws IOException {
         ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/spreadsheets/EPBDS-10979_sprGeneration.json");
+            .extractProjectModel("test.converter/spreadsheets/EPBDS-10979_sprGeneration.json");
         assertEquals(3, projectModel.getDatatypeModels().size());
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "MyDatatype".equals(dt.getName())));
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "Spr5".equals(dt.getName())));

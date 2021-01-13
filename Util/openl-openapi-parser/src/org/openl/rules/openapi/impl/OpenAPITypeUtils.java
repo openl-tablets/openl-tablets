@@ -35,7 +35,9 @@ public class OpenAPITypeUtils {
     public static final String SCHEMAS_LINK = "#/components/schemas/";
 
     public static final String DEFAULT_RUNTIME_CONTEXT = "DefaultRulesRuntimeContext";
-    public static final TypeInfo RUNTIME_CONTEXT_TYPE = new TypeInfo(IRulesRuntimeContext.class, TypeInfo.Type.RUNTIMECONTEXT);
+    public static final String LINK_TO_DEFAULT_RUNTIME_CONTEXT = SCHEMAS_LINK + DEFAULT_RUNTIME_CONTEXT;
+    public static final TypeInfo RUNTIME_CONTEXT_TYPE = new TypeInfo(IRulesRuntimeContext.class,
+        TypeInfo.Type.RUNTIMECONTEXT);
 
     public static final String OBJECT = "Object";
     public static final String DATE = "Date";
@@ -215,7 +217,7 @@ public class OpenAPITypeUtils {
             case DOUBLE_PRIMITIVE:
                 return "0.0";
             case FLOAT_PRIMITIVE:
-                return  "0.0f";
+                return "0.0f";
             case BOOLEAN_PRIMITIVE:
                 return "false";
             default:

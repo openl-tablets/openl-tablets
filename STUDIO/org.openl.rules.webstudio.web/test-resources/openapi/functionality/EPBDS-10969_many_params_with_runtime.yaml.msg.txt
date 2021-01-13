@@ -1,2 +1,11 @@
-ERROR: Type 'IRulesRuntimeContext' is not found.
-ERROR: Type 'IRulesRuntimeContext' is not found.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'workIncentiveIncluded' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'portability' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'coverageType' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'matchFICA' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'returnToWork' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'disabilityDefinition' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'coverageBasis' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'SIC' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'progressiveIllnessProtection' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'firstDayHospitalization' is not found in method 'CoverageFactors'.
+ERROR: OpenAPI Reconciliation: Unexpected parameter 'coverageFactorsRequest' is found in method 'CoverageFactors'.

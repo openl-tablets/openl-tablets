@@ -1,5 +1,6 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.LINK_TO_DEFAULT_RUNTIME_CONTEXT;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.APPLICATION_JSON;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.TEXT_PLAIN;
@@ -85,6 +86,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         Map<String, Integer> allUsedSchemaRefsInRequests = OpenLOpenAPIUtils
             .getAllUsedSchemaRefs(openAPI, jxPathContext, OpenLOpenAPIUtils.PathTarget.REQUESTS);
+
+        Map<String, Set<String>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(openAPI,
+            jxPathContext);
+
+        boolean isRuntimeContextProvided = allUsedSchemaRefsInRequests.keySet()
+            .stream()
+            .anyMatch(LINK_TO_DEFAULT_RUNTIME_CONTEXT::equals);
 
         Set<String> allUnusedRefs = OpenLOpenAPIUtils.getUnusedSchemaRefs(openAPI, allUsedSchemaRefs.keySet());
 
@@ -235,15 +243,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         dataModels.forEach(applyInclude);
 
         Map<Boolean, List<SpreadsheetModel>> sprModelsDivided = spreadsheetModels.stream()
-            .collect(Collectors.partitioningBy(x -> containsRuntimeContext(x.getParameters())));
+            .collect(Collectors.partitioningBy(spreadsheetModel -> containsRuntimeContext(
+                pathsWithRequestsRefs.get(spreadsheetModel.getPathInfo().getOriginalPath()))));
         List<SpreadsheetModel> sprModelsWithRC = sprModelsDivided.get(Boolean.TRUE);
-        boolean isRuntimeContextProvided = !sprModelsWithRC.isEmpty() || (!dataModels.isEmpty() && dataModels.stream()
-            .allMatch(dt -> dt.getPathInfo().getRuntimeContextParameter() != null));
 
-        if (isRuntimeContextProvided) {
-            // remove defaultRuntimeContext from dts - it will be generated automatically in the interface
-            dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
-        }
+        // remove defaultRuntimeContext from dts - it will be generated automatically in the interface
+        dts.removeIf(dt -> dt.getName().equals(OpenAPITypeUtils.DEFAULT_RUNTIME_CONTEXT));
+
         removeContextFromParams(sprModelsWithRC);
         return new ProjectModel(projectName,
             isRuntimeContextProvided,
@@ -596,9 +602,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return count;
     }
 
-    public boolean containsRuntimeContext(final Collection<InputParameter> inputParameters) {
-        return CollectionUtils.isNotEmpty(inputParameters) && inputParameters.stream()
-            .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
+    public boolean containsRuntimeContext(final Set<String> inputParameters) {
+        return inputParameters != null && inputParameters.stream().anyMatch(LINK_TO_DEFAULT_RUNTIME_CONTEXT::equals);
     }
 
     public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {
@@ -720,9 +725,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         final OperationInfo operation = findOperation(pathItem);
         pathInfo.setOriginalPath(path);
         pathInfo.setOperation(Optional.ofNullable(operation.getMethod())
-                .map(String::toUpperCase)
-                .map(PathInfo.Operation::valueOf)
-                .orElseThrow(() -> new IllegalArgumentException("Invalid method operation")));
+            .map(String::toUpperCase)
+            .map(PathInfo.Operation::valueOf)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid method operation")));
         pathInfo.setConsumes(operation.getConsumes());
         pathInfo.setProduces(operation.getProduces());
         return pathInfo;
@@ -885,11 +890,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             properties = schema.getProperties();
         }
         if (properties != null) {
-            fields = properties.entrySet()
-                .stream()
-                .filter(property -> !IGNORED_FIELDS.contains(property.getKey()))
-                .map(this::extractField)
-                .collect(Collectors.toList());
+            fields = properties.entrySet().stream().filter(property -> {
+                boolean isIgnoredField = IGNORED_FIELDS.contains(property.getKey());
+                String ref = property.getValue().get$ref();
+                boolean isRuntimeContext = ref != null && ref.equals(LINK_TO_DEFAULT_RUNTIME_CONTEXT);
+                return !(isIgnoredField || isRuntimeContext);
+            }).map(this::extractField).collect(Collectors.toList());
         }
         dm.setFields(fields);
         return dm;

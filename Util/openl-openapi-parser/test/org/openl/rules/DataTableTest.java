@@ -166,10 +166,10 @@ public class DataTableTest {
     public void test_EPBDS_10990() throws Exception {
         ProjectModel projectModel = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10990_no_default_runtime_context_generate.json");
-        assertEquals(1, projectModel.getDatatypeModels().size());
+        assertEquals(2, projectModel.getDatatypeModels().size());
         ProjectModel projectModel2 = converter
                 .extractProjectModel("test.converter/data_tables/EPBDS-10990_default_runtime_context_generate.json");
-        assertEquals(3, projectModel2.getDatatypeModels().size());
+        assertEquals(2, projectModel2.getDatatypeModels().size());
     }
 
     @Test
