@@ -743,7 +743,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         } else if ("header".equalsIgnoreCase(in)) {
             predicate = e -> e instanceof HeaderParam && Objects.equals(((HeaderParam) e).value(), name);
         } else if ("cookie".equalsIgnoreCase(in)) {
-            predicate = e -> e instanceof QueryParam && Objects.equals(((QueryParam) e).value(), name);
+            predicate = e -> e instanceof CookieParam && Objects.equals(((CookieParam) e).value(), name);
         } else {
             throw new IllegalStateException("Parameter type is not resolved");
         }

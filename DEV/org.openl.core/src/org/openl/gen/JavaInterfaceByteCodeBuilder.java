@@ -48,8 +48,8 @@ public class JavaInterfaceByteCodeBuilder {
      *
      * @return {@code true} if methods are defined
      */
-    public boolean hasMethods() {
-        return !methods.isEmpty();
+    public boolean isEmpty() {
+        return methods.isEmpty();
     }
 
     /**

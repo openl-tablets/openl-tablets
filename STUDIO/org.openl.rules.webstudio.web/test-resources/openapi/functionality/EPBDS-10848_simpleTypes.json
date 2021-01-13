@@ -150,6 +150,42 @@
         }
       }
     },
+    "/myTestWithParams4": {
+      "post": {
+        "description": "request body with text/plain",
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "name": "fromCookie",
+            "in": "cookie"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "name": "fromHeader",
+            "in": "header"
+          }
+        ],
+        "responses": {
+          "default": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int64"
+                }
+              }
+            },
+            "description": "simple schema returned"
+          }
+        }
+      }
+    },
     "/myTestWithParams2/{pidId}": {
       "parameters": [
         {
