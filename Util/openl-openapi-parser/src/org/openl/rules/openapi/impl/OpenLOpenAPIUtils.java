@@ -165,6 +165,10 @@ public class OpenLOpenAPIUtils {
         visitOpenAPI(openAPI, jxPathContext, (Schema<?> s) -> {
             String ref = s.get$ref();
             if (ref != null) {
+                Schema<?> x = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
+                if (!OpenAPITypeUtils.isRefForComplexType(jxPathContext, x)) {
+                    return;
+                }
                 types.merge(ref, 1, Integer::sum);
             }
         });
@@ -181,6 +185,10 @@ public class OpenLOpenAPIUtils {
                 visitPathItemRequests(pathWithItem.getValue(), jxPathContext, (Schema<?> s) -> {
                     String ref = s.get$ref();
                     if (ref != null) {
+                        Schema<?> x = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
+                        if (!OpenAPITypeUtils.isRefForComplexType(jxPathContext, x)) {
+                            return;
+                        }
                         String path = pathWithItem.getKey();
                         Map<String, Integer> requestRefs = resultMap.get(path);
                         if (requestRefs == null) {
@@ -218,6 +226,7 @@ public class OpenLOpenAPIUtils {
                                     if (mediaTypeSchema != null) {
                                         Set<String> refs = OpenLOpenAPIUtils
                                             .visitSchema(jxPathContext, mediaTypeSchema, false, false);
+                                        // TODO maybe check refs there too? for linkage with simple?
                                         allSchemaRefResponses.put(p.getKey(), refs);
                                     }
                                 }
@@ -616,13 +625,13 @@ public class OpenLOpenAPIUtils {
                     Schema<?> resSchema = resolve(jxPathContext, paramSchema, Schema::get$ref);
                     String ref = paramSchema.get$ref();
                     if (ref != null && refsToExpand.contains(ref)) {
-                        result.addAll(collectParameters(openAPI, refsToExpand, resSchema, ref));
+                        result.addAll(collectParameters(openAPI, jxPathContext, refsToExpand, resSchema, ref));
                     } else {
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
                         ParameterModel parameterModel = new ParameterModel(
-                            OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
+                            OpenAPITypeUtils.extractType(jxPathContext, paramSchema, allowPrimitiveTypes),
                             normalizeName(p.getName()));
                         Optional.ofNullable(p.getIn())
                             .map(String::toUpperCase)
@@ -637,6 +646,7 @@ public class OpenLOpenAPIUtils {
     }
 
     private static List<InputParameter> collectParameters(OpenAPI openAPI,
+            JXPathContext jxPathContext,
             Set<String> refsToExpand,
             Schema<?> paramSchema,
             String ref) {
@@ -665,7 +675,7 @@ public class OpenLOpenAPIUtils {
             } else {
                 result = properties.entrySet()
                     .stream()
-                    .map(OpenLOpenAPIUtils::extractParameter)
+                    .map(p -> OpenLOpenAPIUtils.extractParameter(p, jxPathContext))
                     .collect(Collectors.toList());
             }
         }
@@ -691,10 +701,11 @@ public class OpenLOpenAPIUtils {
             String ref = mediaType.getContent().getSchema().get$ref();
             // only root schema is expandable
             if (ref != null && refsToExpand.contains(ref)) {
-                result = collectParameters(openAPI, refsToExpand, resSchema, ref);
+                result = collectParameters(openAPI, jxPathContext, refsToExpand, resSchema, ref);
             } else {
                 // non expandable
-                TypeInfo typeInfo = OpenAPITypeUtils.extractType(mediaType.getContent().getSchema(), false);
+                TypeInfo typeInfo = OpenAPITypeUtils
+                    .extractType(jxPathContext, mediaType.getContent().getSchema(), false);
                 String type = typeInfo.getSimpleName();
                 if (StringUtils.isBlank(type)) {
                     result = Collections.emptyList();
@@ -714,10 +725,10 @@ public class OpenLOpenAPIUtils {
         return result;
     }
 
-    public static ParameterModel extractParameter(Map.Entry<String, Schema> property) {
+    public static ParameterModel extractParameter(Map.Entry<String, Schema> property, JXPathContext jxPathContext) {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
-        TypeInfo typeModel = OpenAPITypeUtils.extractType(valueSchema, false);
+        TypeInfo typeModel = OpenAPITypeUtils.extractType(jxPathContext, valueSchema, false);
         return new ParameterModel(typeModel, normalizeName(propertyName));
     }
 
