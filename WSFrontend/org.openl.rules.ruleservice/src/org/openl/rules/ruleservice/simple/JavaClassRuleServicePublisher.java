@@ -52,7 +52,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
             }
             frontend.registerService(service);
             runningServices.put(service.getName(), service);
-            log.info("Service '{}' has been deployed succesfully.", service.getName());
+            log.info("Service '{}' has been deployed successfully.", service.getName());
         } catch (Exception e) {
             throw new RuleServiceDeployException("Failed to deploy a service.", e);
         }
@@ -67,7 +67,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", serviceName));
         }
-        log.info("Service '{}' has been undeployed succesfully.", serviceName);
+        log.info("Service '{}' has been undeployed successfully.", serviceName);
     }
 
     public void setFrontend(RulesFrontend frontend) {

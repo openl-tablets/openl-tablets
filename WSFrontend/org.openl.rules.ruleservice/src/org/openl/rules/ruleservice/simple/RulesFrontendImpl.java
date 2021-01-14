@@ -35,7 +35,7 @@ public class RulesFrontendImpl implements RulesFrontend {
         Objects.requireNonNull(service, "service cannot be null");
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
-            log.warn("Service '{}' has already been registered. Replaced with new service bean.", service.getName());
+            log.warn("Service '{}' is already registered. Replaced with new service bean.", service.getName());
         }
     }
 
