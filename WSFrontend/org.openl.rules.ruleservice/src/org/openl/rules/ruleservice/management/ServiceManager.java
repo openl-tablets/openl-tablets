@@ -1,5 +1,7 @@
 package org.openl.rules.ruleservice.management;
 
+import java.util.Collection;
+
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
@@ -40,4 +42,6 @@ public interface ServiceManager {
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
     OpenLService getServiceByName(String name);
+
+    Collection<OpenLService> getServices();
 }

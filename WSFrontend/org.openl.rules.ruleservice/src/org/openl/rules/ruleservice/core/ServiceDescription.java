@@ -261,6 +261,14 @@ public final class ServiceDescription {
         } else if (!name.equals(other.name)) {
             return false;
         }
+
+        if (servicePath == null) {
+            if (other.servicePath != null) {
+                return false;
+            }
+        } else if (!servicePath.equals(other.servicePath)) {
+            return false;
+        }
         return true;
     }
 

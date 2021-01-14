@@ -301,7 +301,7 @@ public final class OpenLService {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (name == null ? 0 : name.hashCode());
+        result = prime * result + (servicePath == null ? 0 : servicePath.hashCode());
         return result;
     }
 
@@ -318,11 +318,11 @@ public final class OpenLService {
             return false;
         }
         OpenLService other = (OpenLService) obj;
-        if (name == null) {
-            if (other.name != null) {
+        if (servicePath == null) {
+            if (other.servicePath != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!servicePath.equals(other.servicePath)) {
             return false;
         }
         return true;

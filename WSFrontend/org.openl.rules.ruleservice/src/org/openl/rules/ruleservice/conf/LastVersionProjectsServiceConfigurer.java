@@ -144,11 +144,9 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         serviceDescriptionBuilder.setServicePath(project.getFolderPath());
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
-                        if (!serviceDescriptions.contains(serviceDescription) && !serviceURLs
-                            .contains(serviceDescription.getUrl()) && serviceGroupSupported(rulesDeploy)) {
+                        if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
                             serviceURLs.add(serviceDescription.getUrl());
                             serviceDescriptions.add(serviceDescription);
-                        } else {
                             if (serviceDescriptions.contains(serviceDescription)) {
                                 log.warn(
                                     "Service '{}' already exists in the deployment list. The second service has been skipped. Please, use unique name for services.",

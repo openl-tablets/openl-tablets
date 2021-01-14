@@ -304,7 +304,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (Objects.equals(service.getName(), serviceName)) {
+            if (Objects.equals(service.getServicePath(), serviceName)) {
                 return service;
             }
         }

@@ -61,7 +61,7 @@ public class RulesDeployerRestController {
      * Redeploys target zip input stream
      */
     @POST
-    @Path("/{serviceName}")
+    @Path("/{serviceName:.+}")
     @Consumes("application/zip")
     public Response deploy(@PathParam("serviceName") final String serviceName,
             @Context HttpServletRequest request) throws Exception {
@@ -80,7 +80,7 @@ public class RulesDeployerRestController {
      * @throws IOException if not possible to read the file.
      */
     @GET
-    @Path("/{serviceName}")
+    @Path("/{serviceName:.+}")
     @Produces("application/zip")
     public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = serviceManager.getServiceByName(serviceName);
@@ -99,7 +99,7 @@ public class RulesDeployerRestController {
      * @param serviceName the name of the service to delete.
      */
     @DELETE
-    @Path("/{serviceName}")
+    @Path("/{serviceName:.+}")
     public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
         OpenLService service = serviceManager.getServiceByName(serviceName);
         if (service == null) {

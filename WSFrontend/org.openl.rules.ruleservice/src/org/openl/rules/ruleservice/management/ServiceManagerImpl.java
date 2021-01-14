@@ -8,9 +8,11 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
@@ -132,13 +134,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 .getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-                if (services.containsKey(serviceDescription.getName())) {
-                    log.warn(
-                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration.",
-                        serviceDescription.getName());
-                } else {
-                    services.put(serviceDescription.getName(), serviceDescription);
-                }
+//                if (services.containsKey(serviceDescription.getName())) {
+//                    log.warn(
+//                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration.",
+//                        serviceDescription.getName());
+//                } else {
+                    services.put(serviceDescription.getServicePath(), serviceDescription);
+//                }
             }
             return services;
         } catch (Exception e) {
@@ -209,7 +211,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void undeploy(ServiceDescription serviceDescription) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceDescription, "service cannot be null");
-        String serviceName = serviceDescription.getName();
+        String serviceName = serviceDescription.getServicePath();
         OpenLService service = getServiceByName(serviceName);
         try {
             this.openLServiceInProcess = service;
@@ -244,11 +246,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
-        String serviceName = serviceDescription.getName();
-        OpenLService service = getServiceByName(serviceName);
-        if (service != null) {
+        String servicePath = serviceDescription.getServicePath();
+        if (getServiceByName(servicePath) != null) {
             throw new RuleServiceDeployException(
-                String.format("The service with name '%s' is already deployed.", serviceName));
+                String.format("The service with path '%s' is already deployed.", servicePath));
         }
         try {
             this.serviceDescriptionInProcess = serviceDescription;
@@ -256,15 +257,15 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             this.openLServiceInProcess = newService;
             this.serviceDescriptionInProcess = serviceDescription;
             deploy(newService);
-            log.info("Service '{}' has been deployed successfully.", serviceName);
+            log.info("Service '{}' has been deployed successfully.", servicePath);
         } catch (RuleServiceInstantiationException e) {
             throw new RuleServiceDeployException("Failed on deploy a service.", e);
         } finally {
             this.serviceDescriptionInProcess = null;
             this.openLServiceInProcess = null;
             // Register a service even it was deployed unsuccessfully.
-            services.put(serviceName, serviceDescription);
-            startDates.put(serviceName, new Date());
+            services.put(servicePath, serviceDescription);
+            startDates.put(servicePath, new Date());
         }
     }
 
@@ -303,7 +304,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
         }
         Throwable exception = service.getException();
-        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
+        if (exception == null) {
+            boolean suchNameExists = services2.values().stream().anyMatch(v -> !v.getServicePath().equals(service.getServicePath()) && v.getName().equals(service.getName()));
+            if (suchNameExists) {
+                return Collections.singleton("Service with such name (" + service.getName() + ") already exists.");
+            }
+        }
+        return Collections.singleton(exception.toString());
+//        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
     }
 
     @Override
@@ -343,12 +351,12 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
         return services.values().stream().map(s -> {
-            OpenLService serviceByName = getServiceByName(s.getName());
+            OpenLService serviceByName = getServiceByName(s.getServicePath());
             Map<String, String> urls = serviceByName != null ? serviceByName.getUrls() : Collections.emptyMap();
             return new ServiceInfo(startDates
-                .get(s.getName()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
+                .get(s.getServicePath()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
         })
-            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
+            .sorted(Comparator.comparing(ServiceInfo::getServicePath, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
     }
 
@@ -357,7 +365,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
         if (compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors()) {
             supportedPublishers.forEach((id, publisher) -> {
-                if (publisher.getServiceByName(service.getName()) != null) {
+                if (publisher.getServiceByName(service.getServicePath()) != null) {
                     String url = publisher.getUrl(service);
                     result.put(id, url);
                 }
@@ -369,7 +377,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        final String serviceName = service.getName();
+        final String servicePath = service.getServicePath();
         Collection<String> sp = service.getPublishers();
         if (CollectionUtils.isEmpty(sp)) {
             sp = defaultRuleServicePublishers;
@@ -383,7 +391,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 } else {
                     log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
                         p,
-                        service.getName());
+                        service.getServicePath());
                 }
             }
             if (publishers.isEmpty()) {
@@ -405,13 +413,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 break;
             }
         }
-        services2.put(serviceName, service);
+        services2.put(servicePath, service);
         if (e1 != null) {
             for (RuleServicePublisher publisher : deployedPublishers) {
                 try {
                     publisher.undeploy(service);
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy service '{}'.", serviceName, e);
+                    log.error("Failed to undeploy service '{}'.", servicePath, e);
                 }
             }
             throw new RuleServiceDeployException("Failed to deploy service.", e1);
@@ -427,9 +435,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        return services2.get(serviceName);
+    public OpenLService getServiceByName(String servicePath) {
+        Objects.requireNonNull(servicePath, "servicePath cannot be null");
+        return services2.get(servicePath);
+    }
+
+    @Override
+    public Collection<OpenLService> getServices() {
+        return Collections.unmodifiableCollection(services2.values());
     }
 
     @Override

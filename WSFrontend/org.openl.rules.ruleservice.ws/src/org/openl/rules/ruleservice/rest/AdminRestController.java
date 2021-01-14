@@ -83,7 +83,7 @@ public class AdminRestController {
      * @return a list of method descriptors of the given OpenL service.
      */
     @GET
-    @Path("/services/{serviceName}/methods/")
+    @Path("/services/{serviceName:.+}/methods/")
     public Response getServiceMethodNames(@PathParam("serviceName") final String serviceName) {
         return okOrNotFound(serviceManager.getServiceMethods(serviceName));
     }
@@ -92,13 +92,14 @@ public class AdminRestController {
      * @return a list of messages of the given OpenL service.
      */
     @GET
-    @Path("/services/{serviceName}/errors/")
+    //space
+    @Path("/services/{serviceName:.+}/errors/")
     public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
         return okOrNotFound(serviceManager.getServiceErrors(serviceName));
     }
 
     @GET
-    @Path("/services/{serviceName}/MANIFEST.MF")
+    @Path("/services/{serviceName:.+}/MANIFEST.MF")
     public Response getManifest(@PathParam("serviceName") final String serviceName) {
         return okOrNotFound(serviceManager.getManifest(serviceName));
     }

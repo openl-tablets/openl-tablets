@@ -51,7 +51,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
                     String.format("Service '%s' is already deployed.", service.getName()));
             }
             frontend.registerService(service);
-            runningServices.put(service.getName(), service);
+            runningServices.put(service.getServicePath(), service);
             log.info("Service '{}' has been deployed successfully.", service.getName());
         } catch (Exception e) {
             throw new RuleServiceDeployException("Failed to deploy a service.", e);
@@ -61,9 +61,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     @Override
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        String serviceName = service.getName();
+        String serviceName = service.getServicePath();
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        frontend.unregisterService(serviceName);
+        frontend.unregisterService(service.getName());
         if (runningServices.remove(serviceName) == null) {
             throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", serviceName));
         }

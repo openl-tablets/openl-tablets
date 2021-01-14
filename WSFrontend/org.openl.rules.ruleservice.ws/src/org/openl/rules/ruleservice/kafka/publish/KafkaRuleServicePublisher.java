@@ -679,7 +679,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot null.");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (service.getServicePath().equals(serviceName)) {
                 return service;
             }
         }

@@ -101,7 +101,7 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
     public OpenLService getServiceByName(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (service.getServicePath().equals(serviceName)) {
                 return service;
             }
         }
