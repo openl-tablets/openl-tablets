@@ -11,6 +11,7 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -227,7 +228,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         dts.removeIf(
             x -> notUsedDataTypeWithRefToSpreadsheet.contains(x.getName()) || SPREADSHEET_RESULT.equals(x.getName()));
         // create spreadsheet from potential models
-        createLostSpreadsheets(openAPI, spreadsheetParserModels, refSpreadsheets, notUsedDataTypeWithRefToSpreadsheet);
+        createLostSpreadsheets(openAPI,
+            spreadsheetParserModels,
+            refSpreadsheets,
+            notUsedDataTypeWithRefToSpreadsheet,
+            pathsWithRequestsRefs,
+            isRuntimeContextProvided);
         // change steps with in the spreadsheets to these potential models
         setCallsAndReturnTypeToLostSpreadsheet(spreadsheetParserModels, notUsedDataTypeWithRefToSpreadsheet);
 
@@ -319,7 +325,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     private void createLostSpreadsheets(OpenAPI openAPI,
             List<SpreadsheetParserModel> spreadsheetParserModels,
             Set<String> refSpreadsheets,
-            List<String> notUsedDataTypeWithRefToSpreadsheet) {
+            List<String> notUsedDataTypeWithRefToSpreadsheet,
+            Map<String, Map<String, Integer>> pathsWithRequestsRefs,
+            boolean isRuntimeContextProvided) {
         for (String modelName : notUsedDataTypeWithRefToSpreadsheet) {
             SpreadsheetParserModel lostModel = new SpreadsheetParserModel();
             SpreadsheetModel model = new SpreadsheetModel();
@@ -339,12 +347,20 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 }
             }
             model.setSteps(steps);
-            model.setPathInfo(new PathInfo("/" + modelName,
+            String originalPath = "/" + modelName;
+            model.setPathInfo(new PathInfo(originalPath,
                 modelName,
                 PathInfo.Operation.POST,
                 new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT, TypeInfo.Type.SPREADSHEET)));
             lostModel.setModel(model);
             spreadsheetParserModels.add(lostModel);
+            if (isRuntimeContextProvided) {
+                if (!pathsWithRequestsRefs.containsKey(originalPath)) {
+                    Map<String, Integer> mapWithRC = new HashMap<>();
+                    mapWithRC.put(LINK_TO_DEFAULT_RUNTIME_CONTEXT, 1);
+                    pathsWithRequestsRefs.put(originalPath, mapWithRC);
+                }
+            }
         }
     }
 
@@ -374,6 +390,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     .getParameters()
                     .stream()
                     .map(InputParameter::getType)
+                    .filter(t -> t.getType() != TypeInfo.Type.RUNTIMECONTEXT)
                     .map(OpenAPITypeUtils::getJavaDefaultValue)
                     .collect(Collectors.joining(", "));
             }
