@@ -19,8 +19,8 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
         if (t == null) {
             return null;
         }
-        ICell delegate = t.grid().getCell(t.getCol(), t.getRow());
-        if (row < delegate.getHeight()) {
+        ICell firstRowCell = t.grid().getCell(t.getCol(), t.getRow());
+        if (row < firstRowCell.getHeight()) {
             IGridRegion reg = getRegionContaining(0, 0);
             IGridRegion region;
             if (reg != null) {
@@ -28,34 +28,38 @@ class HorizontalTablePartsCompositeGrid extends CompositeGrid {
             } else {
                 region = new GridRegion(row, column, row, column + getWidth() - 1);
             }
-            return new CompositeCell(column, row, region, delegate, t.getGridTable());
+            return new CompositeCell(column, row, region, firstRowCell, t.getGridTable());
         } else {
-            Transform t1 = transform(0, delegate.getHeight());// Properties parsing and merge
+            Transform t1 = transform(0, firstRowCell.getHeight());// Properties parsing and merge
             if (t1 != null) {
-                ICell delegate1 = t1.grid().getCell(t1.getCol(), t1.getRow());
-                if (row < delegate.getHeight() + delegate1.getHeight() && PropertiesHelper.PROPERTIES_HEADER
-                    .equals(delegate1.getStringValue())) {
-                    Transform t2 = transform(delegate1.getWidth(), row);
+                ICell propertiesCell = t1.grid().getCell(t1.getCol(), t1.getRow());
+                if (row < firstRowCell.getHeight() + propertiesCell.getHeight() && PropertiesHelper.PROPERTIES_HEADER
+                    .equals(propertiesCell.getStringValue())) {
+                    Transform t2 = transform(propertiesCell.getWidth(), row);
                     if (t2 != null) {
-                        ICell delegate2 = t2.grid().getCell(t2.getCol(), t2.getRow());
-                        Transform t3 = transform(delegate1.getWidth() + delegate2.getWidth(), row);
+                        ICell propertiesNameCell = t2.grid().getCell(t2.getCol(), t2.getRow());
+                        Transform t3 = transform(propertiesCell.getWidth() + propertiesNameCell.getWidth(), row);
                         if (t3 != null) {
-                            ICell delegate3 = t3.grid().getCell(t3.getCol(), t3.getRow());
-                            if (column >= delegate1.getWidth() + delegate2.getWidth()) {
-                                IGridRegion reg = getRegionContaining(delegate1.getWidth() + delegate2.getWidth(), row);
+                            ICell propertiesValueCell = t3.grid().getCell(t3.getCol(), t3.getRow());
+                            if (column >= propertiesCell.getWidth() + propertiesNameCell.getWidth()) {
+                                IGridRegion reg = getRegionContaining(
+                                    propertiesCell.getWidth() + propertiesNameCell.getWidth(),
+                                    row);
                                 IGridRegion region;
                                 if (reg != null) {
                                     region = new GridRegion(reg.getTop(),
                                         reg.getLeft(),
                                         reg.getBottom(),
-                                        reg.getLeft() + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
+                                        reg.getLeft() + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                            .getWidth()));
                                 } else {
                                     region = new GridRegion(row,
                                         column,
                                         row,
-                                        column + getWidth() - 1 - (delegate1.getWidth() + delegate2.getWidth()));
+                                        column + getWidth() - 1 - (propertiesCell.getWidth() + propertiesNameCell
+                                            .getWidth()));
                                 }
-                                return new CompositeCell(column, row, region, delegate3, t3.getGridTable());
+                                return new CompositeCell(column, row, region, propertiesValueCell, t3.getGridTable());
                             }
                         }
                     }
