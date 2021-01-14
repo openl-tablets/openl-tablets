@@ -81,14 +81,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         }
         JXPathContext jxPathContext = JXPathContext.newContext(openAPI);
         String projectName = openAPI.getInfo().getTitle();
-        Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils
-            .getAllUsedSchemaRefs(openAPI, jxPathContext, OpenLOpenAPIUtils.PathTarget.ALL);
+        Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(openAPI, jxPathContext);
 
-        Map<String, Integer> allUsedSchemaRefsInRequests = OpenLOpenAPIUtils
-            .getAllUsedSchemaRefs(openAPI, jxPathContext, OpenLOpenAPIUtils.PathTarget.REQUESTS);
-
-        Map<String, Set<String>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(openAPI,
+        Map<String, Map<String, Integer>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(openAPI,
             jxPathContext);
+        Map<String, Integer> allUsedSchemaRefsInRequests = pathsWithRequestsRefs.values()
+            .stream()
+            .flatMap(m -> m.entrySet().stream())
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, Integer::sum));
 
         boolean isRuntimeContextProvided = allUsedSchemaRefsInRequests.keySet()
             .stream()
@@ -112,13 +112,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         // all the requests which were used only once per project needed to be extracted
         // if it's extends from other model it will be an inline type
-        Set<String> refsToExpand = allUsedSchemaRefsInRequests.entrySet()
-            .stream()
-            .filter(x -> x.getValue()
-                .equals(1) && (!allUsedSchemaRefs.containsKey(x.getKey()) || allUsedSchemaRefs.get(x.getKey())
-                    .equals(1)) && !parents.contains(x.getKey()) && !fieldsRefs.contains(x.getKey()))
-            .map(Map.Entry::getKey)
-            .collect(Collectors.toSet());
+        Set<String> refsToExpand = allUsedSchemaRefsInRequests.entrySet().stream().filter(refWithCount -> {
+            String ref = refWithCount.getKey();
+            Integer numberOfRefUsage = refWithCount.getValue();
+            boolean refIsParentOrField = !parents.contains(ref) && !fieldsRefs.contains(ref);
+            boolean refIsNotRuntimeContext = !ref.equals(LINK_TO_DEFAULT_RUNTIME_CONTEXT);
+            return refIsNotRuntimeContext && numberOfRefUsage
+                .equals(1) && (!allUsedSchemaRefs.containsKey(ref) || allUsedSchemaRefs.get(ref)
+                    .equals(1)) && refIsParentOrField;
+        }).map(Map.Entry::getKey).collect(Collectors.toSet());
 
         // path + schemas
         Map<String, Set<String>> allRefsInResponses = OpenLOpenAPIUtils.getAllUsedRefResponses(openAPI, jxPathContext);
@@ -155,7 +157,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             primitiveReturnsPaths,
             refsToExpand,
             spreadsheetPaths,
-            dts,
             childSet);
         Set<String> dataModelRefs = new HashSet<>();
         List<DataModel> dataModels = extractDataModels(spreadsheetParserModels,
@@ -602,8 +603,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return count;
     }
 
-    public boolean containsRuntimeContext(final Set<String> inputParameters) {
-        return inputParameters != null && inputParameters.stream().anyMatch(LINK_TO_DEFAULT_RUNTIME_CONTEXT::equals);
+    public boolean containsRuntimeContext(final Map<String, Integer> inputParametersEntry) {
+        return inputParametersEntry != null && inputParametersEntry.containsKey(LINK_TO_DEFAULT_RUNTIME_CONTEXT);
     }
 
     public boolean containsOnlyRuntimeContext(final Collection<InputParameter> inputParameters) {
@@ -617,7 +618,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             Set<String> pathsWithPrimitiveReturns,
             Set<String> refsToExpand,
             Set<String> pathsWithSpreadsheets,
-            Set<DatatypeModel> dts,
             Set<String> childSet) {
         List<SpreadsheetParserModel> spreadSheetModels = new ArrayList<>();
         Paths paths = openAPI.getPaths();
@@ -626,7 +626,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 jxPathContext,
                 pathWithPotentialSprResult,
                 refsToExpand,
-                dts,
                 spreadSheetModels,
                 paths,
                 PathType.SPREADSHEET_RESULT_PATH,
@@ -635,7 +634,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 jxPathContext,
                 pathsWithPrimitiveReturns,
                 refsToExpand,
-                dts,
                 spreadSheetModels,
                 paths,
                 PathType.SIMPLE_RETURN_PATH,
@@ -644,7 +642,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 jxPathContext,
                 pathsWithSpreadsheets,
                 refsToExpand,
-                dts,
                 spreadSheetModels,
                 paths,
                 PathType.SPREADSHEET_PATH,
@@ -657,7 +654,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             JXPathContext jxPathContext,
             Set<String> pathWithPotentialSprResult,
             Set<String> refsToExpand,
-            Set<DatatypeModel> dts,
             List<SpreadsheetParserModel> spreadSheetModels,
             Paths paths,
             PathType spreadsheetResultPath,
@@ -671,7 +667,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     path,
                     refsToExpand,
                     spreadsheetResultPath,
-                    dts,
                     childSet);
                 spreadSheetModels.add(spr);
             }
@@ -684,7 +679,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             String path,
             Set<String> refsToExpand,
             PathType pathType,
-            Set<DatatypeModel> dts,
             Set<String> childSet) {
         SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
         SpreadsheetModel spr = new SpreadsheetModel();
@@ -704,7 +698,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         pathInfo.setReturnType(typeInfo);
         boolean isChild = childSet.contains(usedSchemaInResponse);
         List<InputParameter> parameters = OpenLOpenAPIUtils
-            .extractParameters(jxPathContext, openAPI, refsToExpand, pathItem, dts, path);
+            .extractParameters(jxPathContext, openAPI, refsToExpand, pathItem);
         String normalizedPath = replaceBrackets(path);
         String formattedName = normalizeName(normalizedPath);
         spr.setName(formattedName);
