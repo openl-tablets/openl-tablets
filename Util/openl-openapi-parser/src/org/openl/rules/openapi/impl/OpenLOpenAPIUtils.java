@@ -20,8 +20,6 @@ import java.util.stream.Collectors;
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
 import org.apache.commons.lang3.tuple.Pair;
-import org.openl.rules.model.scaffolding.DatatypeModel;
-import org.openl.rules.model.scaffolding.FieldModel;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -110,11 +108,6 @@ public class OpenLOpenAPIUtils {
         return type;
     }
 
-    public enum PathTarget {
-        REQUESTS,
-        ALL
-    }
-
     public static Pair<Operation, PathItem.HttpMethod> getOperation(PathItem path) {
         Operation result;
         PathItem.HttpMethod method = PathItem.HttpMethod.GET;
@@ -167,11 +160,9 @@ public class OpenLOpenAPIUtils {
         }
     }
 
-    public static Map<String, Integer> getAllUsedSchemaRefs(OpenAPI openAPI,
-            JXPathContext jxPathContext,
-            PathTarget target) {
+    public static Map<String, Integer> getAllUsedSchemaRefs(OpenAPI openAPI, JXPathContext jxPathContext) {
         Map<String, Integer> types = new HashMap<>();
-        visitOpenAPI(openAPI, jxPathContext, target, (Schema<?> s) -> {
+        visitOpenAPI(openAPI, jxPathContext, (Schema<?> s) -> {
             String ref = s.get$ref();
             if (ref != null) {
                 types.merge(ref, 1, Integer::sum);
@@ -180,9 +171,9 @@ public class OpenLOpenAPIUtils {
         return types;
     }
 
-    public static Map<String, Set<String>> collectPathsWithParams(OpenAPI openAPI,
-                                                                  JXPathContext jxPathContext) {
-        Map<String, Set<String>> resultMap = new HashMap<>();
+    public static Map<String, Map<String, Integer>> collectPathsWithParams(OpenAPI openAPI,
+            JXPathContext jxPathContext) {
+        Map<String, Map<String, Integer>> resultMap = new HashMap<>();
         Set<String> visitedSchemas = new HashSet<>();
         Map<String, PathItem> paths = openAPI.getPaths();
         if (CollectionUtils.isNotEmpty(paths)) {
@@ -191,14 +182,14 @@ public class OpenLOpenAPIUtils {
                     String ref = s.get$ref();
                     if (ref != null) {
                         String path = pathWithItem.getKey();
-                        Set<String> requestRefs = resultMap.get(path);
+                        Map<String, Integer> requestRefs = resultMap.get(path);
                         if (requestRefs == null) {
-                            requestRefs = new HashSet<>();
-                            requestRefs.add(ref);
-                            resultMap.put(path, requestRefs);
+                            requestRefs = new HashMap<>();
+                            requestRefs.put(ref, 1);
                         } else {
-                            requestRefs.add(ref);
+                            requestRefs.merge(ref, 1, Integer::sum);
                         }
+                        resultMap.put(path, requestRefs);
                     }
                 }, visitedSchemas);
             }
@@ -253,20 +244,13 @@ public class OpenLOpenAPIUtils {
         return result;
     }
 
-    private static void visitOpenAPI(OpenAPI openAPI,
-            JXPathContext jxPathContext,
-            PathTarget target,
-            Consumer<Schema<?>> visitor) {
+    private static void visitOpenAPI(OpenAPI openAPI, JXPathContext jxPathContext, Consumer<Schema<?>> visitor) {
         Map<String, PathItem> paths = openAPI.getPaths();
         Set<String> visitedSchemas = new HashSet<>();
 
         if (paths != null) {
             for (PathItem path : paths.values()) {
-                if (target == PathTarget.ALL) {
-                    visitPathItem(path, jxPathContext, visitor, visitedSchemas);
-                } else if (target == PathTarget.REQUESTS) {
-                    visitPathItemRequests(path, jxPathContext, visitor, visitedSchemas);
-                }
+                visitPathItem(path, jxPathContext, visitor, visitedSchemas);
             }
         }
     }
@@ -561,18 +545,14 @@ public class OpenLOpenAPIUtils {
     public static List<InputParameter> extractParameters(JXPathContext jxPathContext,
             OpenAPI openAPI,
             Set<String> refsToExpand,
-            PathItem pathItem,
-            Set<DatatypeModel> dts,
-            String path) {
-        return visitPathItemForParametersOfRequest(jxPathContext, openAPI, pathItem, refsToExpand, dts, path);
+            PathItem pathItem) {
+        return visitPathItemForParametersOfRequest(jxPathContext, openAPI, pathItem, refsToExpand);
     }
 
     private static List<InputParameter> visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
             OpenAPI openAPI,
             PathItem pathItem,
-            Set<String> refsToExpand,
-            Set<DatatypeModel> dts,
-            String path) {
+            Set<String> refsToExpand) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
         if (CollectionUtils.isNotEmpty(pathParameters)) {
@@ -602,29 +582,7 @@ public class OpenLOpenAPIUtils {
                 }
             }
         }
-        boolean containsRuntimeContext = parameterModels.stream()
-            .anyMatch(v -> v.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
-        if (!containsRuntimeContext && parameterModels.size() > MAX_PARAMETERS_COUNT) {
-            String dataTypeName = getDataTypeName(path);
-            DatatypeModel dt = new DatatypeModel(dataTypeName);
-            List<FieldModel> fields = new ArrayList<>();
-            for (InputParameter parameterModel : parameterModels) {
-                FieldModel fm = new FieldModel(parameterModel.getName(),
-                    parameterModel.getType().getSimpleName(),
-                    null);
-                fields.add(fm);
-            }
-            dt.setFields(fields);
-            dts.add(dt);
-            parameterModels = Collections
-                .singletonList(new ParameterModel(new TypeInfo(dataTypeName, dataTypeName, TypeInfo.Type.DATATYPE),
-                    StringUtils.uncapitalize(dt.getName())));
-        }
         return parameterModels;
-    }
-
-    private static String getDataTypeName(String path) {
-        return normalizeName(path) + "Request";
     }
 
     public static String normalizeName(String originalName) {
@@ -663,12 +621,13 @@ public class OpenLOpenAPIUtils {
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
                         }
-                        ParameterModel parameterModel = new ParameterModel(OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
-                                normalizeName(p.getName()));
+                        ParameterModel parameterModel = new ParameterModel(
+                            OpenAPITypeUtils.extractType(paramSchema, allowPrimitiveTypes),
+                            normalizeName(p.getName()));
                         Optional.ofNullable(p.getIn())
-                                .map(String::toUpperCase)
-                                .map(InputParameter.In::valueOf)
-                                .ifPresent(parameterModel::setIn);
+                            .map(String::toUpperCase)
+                            .map(InputParameter.In::valueOf)
+                            .ifPresent(parameterModel::setIn);
                         result.add(parameterModel);
                     }
                 }
@@ -691,7 +650,7 @@ public class OpenLOpenAPIUtils {
         }
         if (CollectionUtils.isNotEmpty(properties)) {
             int propertiesCount = properties.size();
-            if (propertiesCount > MAX_PARAMETERS_COUNT || propertiesCount == MIN_PARAMETERS_COUNT) {
+            if (propertiesCount == MIN_PARAMETERS_COUNT) {
                 refsToExpand.remove(ref);
                 String name = OpenAPITypeUtils.getSimpleName(ref);
                 TypeInfo typeInfo;

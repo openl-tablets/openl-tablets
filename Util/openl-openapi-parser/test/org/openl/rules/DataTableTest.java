@@ -163,16 +163,6 @@ public class DataTableTest {
     }
 
     @Test
-    public void test_EPBDS_10990() throws Exception {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/data_tables/EPBDS-10990_no_default_runtime_context_generate.json");
-        assertEquals(2, projectModel.getDatatypeModels().size());
-        ProjectModel projectModel2 = converter
-                .extractProjectModel("test.converter/data_tables/EPBDS-10990_default_runtime_context_generate.json");
-        assertEquals(2, projectModel2.getDatatypeModels().size());
-    }
-
-    @Test
     public void test_dataTables() throws Exception {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/data_tables_types.json");
         List<DataModel> dataModels = projectModel.getDataModels();
@@ -197,7 +187,7 @@ public class DataTableTest {
         assertEquals("MyDatatype[]", myDatatypeDataPathInfo.getReturnType().getJavaName());
         assertEquals(TypeInfo.Type.DATATYPE, myDatatypeDataPathInfo.getReturnType().getType());
         assertEquals("getMyDatatypeData", myDatatypeDataPathInfo.getFormattedPath());
-        assertEquals("/getMyData/typeData",myDatatypeDataPathInfo.getOriginalPath());
+        assertEquals("/getMyData/typeData", myDatatypeDataPathInfo.getOriginalPath());
 
         DataModel superDatatypeData = findDataModel(dataModels, "SuperDatatypeData");
         PathInfo superDatatypeDataPathInfo = superDatatypeData.getPathInfo();

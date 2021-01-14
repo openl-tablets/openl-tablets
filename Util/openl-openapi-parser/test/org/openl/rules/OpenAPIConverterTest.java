@@ -284,7 +284,7 @@ public class OpenAPIConverterTest {
             .extractProjectModel("test.converter/project/expand/expand_exceeds_limit.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(5, datatypeModels.size());
+        assertEquals(4, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
     }
 
@@ -293,7 +293,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(104, datatypeModels.size());
+        assertEquals(103, datatypeModels.size());
         assertEquals(9, spreadsheetModels.size());
     }
 
@@ -563,8 +563,7 @@ public class OpenAPIConverterTest {
 
     @Test
     public void test_EPBDS_10988() throws IOException {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/EPBDS-10988_OpenAPI.json");
         assertNotNull(projectModel);
 
         assertTrue(projectModel.isRuntimeContextProvided());
@@ -589,14 +588,14 @@ public class OpenAPIConverterTest {
 
     @Test
     public void test_EPBDS_10993() throws IOException {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10993.json");
         assertNotNull(projectModel);
         assertEquals(2, projectModel.getDatatypeModels().size());
-        DatatypeModel datatypeModel = projectModel.getDatatypeModels().stream()
-                .filter(x -> "MyDatatype".equals(x.getName()))
-                .findFirst()
-                .orElse(null);
+        DatatypeModel datatypeModel = projectModel.getDatatypeModels()
+            .stream()
+            .filter(x -> "MyDatatype".equals(x.getName()))
+            .findFirst()
+            .orElse(null);
         assertNotNull(datatypeModel);
         assertEquals(1, projectModel.getDataModels().size());
         DataModel dataModel = projectModel.getDataModels().get(0);
@@ -605,12 +604,12 @@ public class OpenAPIConverterTest {
 
     @Test
     public void test_EPBDS_10999() throws IOException {
-        ProjectModel projectModel = converter
-                .extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/openapi_EPBDS-10999.json");
         assertEquals(4, projectModel.getDatatypeModels().size());
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "DogDatatype".equals(dt.getName())));
         assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "CatDatatype".equals(dt.getName())));
-        assertTrue(projectModel.getDatatypeModels().stream().anyMatch(dt -> "AnySpreadsheetResult".equals(dt.getName())));
+        assertTrue(
+            projectModel.getDatatypeModels().stream().anyMatch(dt -> "AnySpreadsheetResult".equals(dt.getName())));
         assertNotNull(projectModel);
     }
 

@@ -1,9 +1,0 @@
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'aaa' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'bb' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'ccc' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'eee' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'ddd' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'ttt' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'ggg' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'yyy' is not found in method 'mySpr2'.
-ERROR: OpenAPI Reconciliation: Unexpected parameter 'mySpr2Request' is found in method 'mySpr2'.

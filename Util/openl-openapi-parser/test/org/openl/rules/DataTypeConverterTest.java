@@ -187,14 +187,12 @@ public class DataTypeConverterTest {
             "test.converter/datatype/EPBDS-10285_datatype_with_exceeding_limit_fields_number.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        assertEquals(3, datatypeModels.size());
+        assertEquals(2, datatypeModels.size());
         Optional<SpreadsheetModel> apiTodo = spreadsheetModels.stream()
             .filter(x -> x.getName().equals("apiTodo"))
             .findFirst();
         assertTrue(apiTodo.isPresent());
-        InputParameter inputParameter = apiTodo.get().getParameters().iterator().next();
-        assertEquals("AnotherDatatype", inputParameter.getType().getSimpleName());
-        assertEquals("anotherDatatype", inputParameter.getName());
+        assertEquals(12, apiTodo.get().getParameters().size());
     }
 
     @Test
