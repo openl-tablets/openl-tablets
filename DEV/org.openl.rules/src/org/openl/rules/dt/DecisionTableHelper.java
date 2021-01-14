@@ -1525,7 +1525,11 @@ public final class DecisionTableHelper {
                 for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
                     IOpenClass paramType = definition.getHeader().getSignature().getParameterType(i);
                     if (paramType.getField(param) != null) {
-                        usedParamIndexesByField.add(i);
+                        for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
+                            if (paramType.equals(header.getSignature().getParameterType(j))) {
+                                usedParamIndexesByField.add(j);
+                            }
+                        }
                         break;
                     }
                 }
