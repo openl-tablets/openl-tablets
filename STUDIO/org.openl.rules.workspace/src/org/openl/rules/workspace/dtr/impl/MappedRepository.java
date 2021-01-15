@@ -493,9 +493,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
                     throw new IOException("Project \"" + project.getName() + "\" with path \"" + project
                         .getPath() + "\" is already imported.");
                 }
-
-                projectsWithSameName.forEach(p -> p.setDuplicated(true));
-                project.setDuplicated(true);
             }
             externalToInternal.getProjects().add(project);
 
