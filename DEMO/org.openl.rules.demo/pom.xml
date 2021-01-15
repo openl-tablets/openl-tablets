@@ -36,7 +36,7 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <finalName>openl-tablets-demo-${project.version}</finalName>
+                            <finalName>openl-tablets-demo</finalName>
                             <descriptors>
                                 <descriptor>assembly-zip.xml</descriptor>
                             </descriptors>
