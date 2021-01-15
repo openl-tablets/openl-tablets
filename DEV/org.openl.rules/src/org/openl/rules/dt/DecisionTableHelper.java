@@ -2526,7 +2526,7 @@ public final class DecisionTableHelper {
         return Collections.emptyList();
     }
 
-    private static int getFirstColumnForHCondition(ILogicalTable originalTable,
+    public static int getFirstColumnForHCondition(ILogicalTable originalTable,
             int numberOfHCondition,
             int firstColumnHeight) {
         int w = originalTable.getSource().getWidth();
@@ -2787,7 +2787,7 @@ public final class DecisionTableHelper {
         return sb.toString();
     }
 
-    private static int getNumberOfHConditions(ILogicalTable tableBody) {
+    public static int getNumberOfHConditions(ILogicalTable tableBody) {
         int w = tableBody.getSource().getWidth();
         int d = tableBody.getSource().getCell(0, 0).getHeight();
         int k = 0;
