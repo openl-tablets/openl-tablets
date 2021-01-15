@@ -171,7 +171,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             for (List<ServiceDescription> serviceDescriptionsForDeployment : groupedServices.values()) {
                 if (hasAtLeastOneToDeploy(serviceDescriptionsForDeployment)) {
                     for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
-                        ServiceDescription old = services.get(serviceDescription.getName());
+                        ServiceDescription old = services.get(serviceDescription.getServicePath());
                         if (old != null) {
                             try {
                                 undeploy(old);
