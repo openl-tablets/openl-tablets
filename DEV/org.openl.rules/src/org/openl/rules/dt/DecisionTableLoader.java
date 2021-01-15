@@ -1,5 +1,6 @@
 package org.openl.rules.dt;
 
+import static org.openl.rules.dt.DecisionTableHelper.isLookup;
 import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
@@ -99,6 +100,42 @@ public class DecisionTableLoader {
             tableStructure.columnsNumber);
     }
 
+    private enum Direction {
+        UNKNOWN,
+        TRANSPOSED,
+        NORMAL;
+    }
+
+    private boolean isLookupByHConditions(ILogicalTable tableBody) {
+        int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
+        int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
+        int firstColumnForHCondition = DecisionTableHelper
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
+        return firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
+            .getCell(firstColumnForHCondition, 0)
+            .getHeight();
+    }
+
+    private Direction detectTableDirection(TableSyntaxNode tableSyntaxNode) {
+        Direction direction = Direction.UNKNOWN;
+        if (isSmart(tableSyntaxNode)) {
+            ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+            if (tableBody != null && isLookup(tableSyntaxNode)) {
+                if (isLookupByHConditions(tableBody)) {
+                    direction = Direction.NORMAL;
+                }
+                if (isLookupByHConditions(tableBody.transpose())) {
+                    if (Direction.UNKNOWN.equals(direction)) {
+                        direction = Direction.TRANSPOSED;
+                    } else {
+                        direction = Direction.UNKNOWN;
+                    }
+                }
+            }
+        }
+        return direction;
+    }
+
     public void loadAndBind(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             OpenL openl,
@@ -107,7 +144,15 @@ public class DecisionTableLoader {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
         int height = tableBody == null ? 0 : tableBody.getHeight();
         int width = tableBody == null ? 0 : tableBody.getWidth();
-        boolean firstTransposedThenNormal = width > height && width >= MAX_COLUMNS_IN_DT;
+
+        Direction direction = detectTableDirection(tableSyntaxNode);
+        boolean f = width > height && width >= MAX_COLUMNS_IN_DT;
+        if (Direction.TRANSPOSED.equals(direction)) {
+            f = true;
+        } else if (Direction.NORMAL.equals(direction)) {
+            f = false;
+        }
+        final boolean firstTransposedThenNormal = f;
         CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
             loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext);
         }, bindingContext);
@@ -116,8 +161,8 @@ public class DecisionTableLoader {
             // If table have errors, try to compile transposed variant.
             // Note that compiling transposed table consumes memory twice and for big tables it does not make any sense
             // for smart tables
-            if (tableBody == null || !isSmart(
-                tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT) {
+            if (Direction.UNKNOWN.equals(direction) && (tableBody == null || !isSmart(
+                tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT)) {
                 CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
                     () -> loadAndBind(tableSyntaxNode,
                         decisionTable,
