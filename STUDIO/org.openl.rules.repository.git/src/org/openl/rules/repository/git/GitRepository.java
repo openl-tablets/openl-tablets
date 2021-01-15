@@ -777,8 +777,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             // Unknown host
             if (cause instanceof UnknownHostException) {
-                String error = "Invalid URL " + uri;
-                throw new IllegalArgumentException(error);
+                String error = "Unknown host for URL " + uri;
+                final String message = cause.getMessage();
+                if (message != null) {
+                    error += " Root cause message: " + message;
+                }
+                throw new IllegalArgumentException(error, e);
             }
 
             // Other cases
