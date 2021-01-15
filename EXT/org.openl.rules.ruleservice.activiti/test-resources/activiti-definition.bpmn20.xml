@@ -8,13 +8,13 @@
 
 		<sequenceFlow id='flow2' sourceRef='theStart' targetRef='theTask1'>
 			<conditionExpression xsi:type="tFormalExpression">
-				<![CDATA[${openLEngine.execute('datasource_Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).toDouble() > 400}]]>
+				<![CDATA[${openLEngine.execute('Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).toDouble() > 400}]]>
 			</conditionExpression>
 		</sequenceFlow>
 
 		<sequenceFlow id='flow3' sourceRef='theStart' targetRef='theTask2'>
 			<conditionExpression xsi:type="tFormalExpression">
-				<![CDATA[${openLEngine.execute('datasource_Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).toDouble() <= 400}]]>
+				<![CDATA[${openLEngine.execute('Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).toDouble() <= 400}]]>
 			</conditionExpression>
 		</sequenceFlow>
 

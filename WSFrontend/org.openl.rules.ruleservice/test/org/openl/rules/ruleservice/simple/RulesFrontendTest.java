@@ -66,7 +66,7 @@ public class RulesFrontendTest {
         assertEquals("World, Good Morning!", result);
         OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
 
-        serviceManager.undeploy("RulesFrontendTest_multimodule");
+        serviceManager.undeploy("multimodule");
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
             frontend.getServiceNames());
 

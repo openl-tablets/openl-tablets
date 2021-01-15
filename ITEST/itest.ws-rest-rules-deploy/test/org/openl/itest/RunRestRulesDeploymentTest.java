@@ -39,7 +39,7 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
         client.send("deployed-rules_services.get");
         client.send("deployed-rules_methods.get");
-        client.get("/admin/deploy/deployed-rules", "/rules-to-deploy.zip");
+        client.get("/admin/deploy/deploy/rules-to-deploy/rules-to-deploy", "/rules-to-deploy.zip");
         client.send("deployed-rules_hello.post");
 
         // should be always redeployed

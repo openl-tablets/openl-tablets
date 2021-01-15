@@ -37,8 +37,10 @@ public class RulesPublisherTest implements ApplicationContextAware {
     private static final String DATA2 = "data2";
     private static final String TUTORIAL4_INTERFACE = "org.openl.rules.tutorial4.Tutorial4Interface";
     private static final String DATA1 = "data1";
-    private static final String TUTORIAL4 = "org.openl.rules.tutorial4.Tutorial4Interface";
-    private static final String MULTI_MODULE = "RulesPublisherTest_multimodule";
+    private static final String TUTORIAL4 = "org.openl.tablets.tutorial4";
+    private static final String MULTI_MODULE = "multimodule";
+    private static final String TUTORIAL4_SERVICE_NAME = "org.openl.rules.tutorial4.Tutorial4Interface";
+    private static final String MULTI_MODULE_SERVICE_NAME = "RulesPublisherTest_multimodule";
 
     private ApplicationContext applicationContext;
 
@@ -54,9 +56,9 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
-        assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", 10));
-        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
-        assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
+        assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE_SERVICE_NAME, "worldHello", 10));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
+        assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA2)));
     }
 
     public interface SimpleInterface {
@@ -71,27 +73,25 @@ public class RulesPublisherTest implements ApplicationContextAware {
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         ServiceManager publisher = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertEquals(2, serviceManager.getServicesInfo().size());
-        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
-        assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4, COVERAGE)));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
+        assertEquals(2, Array.getLength(frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE)));
         publisher.undeploy(TUTORIAL4);
         try {
-            frontend.getValue(TUTORIAL4, COVERAGE);
+            frontend.getValue(TUTORIAL4_SERVICE_NAME, COVERAGE);
             Assert.fail();
         } catch (MethodInvocationException ignored) {
         }
-        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
+        assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE_SERVICE_NAME, DATA1)));
     }
 
     @Test
-    public void testCompilationByRequest() throws Exception {
+    public void testCompilationByRequest() {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Collection<String> serviceNames = frontend.getServiceNames();
-        assertEquals(2, serviceNames.size());
-        for (String sn : serviceNames) {
-            OpenLService service = serviceManager.getServiceByName(sn);
+        assertEquals(2, frontend.getServiceNames().size());
+        for (OpenLService service : serviceManager.getServices()) {
             assertNull("OpenLService must be not compiled for java publisher if not used before.", service.getCompiledOpenClass());
         }
     }
@@ -139,7 +139,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
             .newInstance();
         Method nameSetter = driver.getClass().getMethod("setName", String.class);
         nameSetter.invoke(driver, "name");
-        Class<?> returnType = frontend.execute(TUTORIAL4, "driverAgeType", driver)
+        Class<?> returnType = frontend.execute(TUTORIAL4_SERVICE_NAME, "driverAgeType", driver)
             .getClass();
         assertTrue(returnType.isEnum());
         assertEquals("org.openl.rules.tutorial4.DriverAgeType", returnType.getName());

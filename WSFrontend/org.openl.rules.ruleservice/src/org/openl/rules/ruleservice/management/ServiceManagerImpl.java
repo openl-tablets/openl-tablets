@@ -304,14 +304,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
         }
         Throwable exception = service.getException();
-        if (exception == null) {
-            boolean suchNameExists = services2.values().stream().anyMatch(v -> !v.getServicePath().equals(service.getServicePath()) && v.getName().equals(service.getName()));
-            if (suchNameExists) {
-                return Collections.singleton("Service with such name (" + service.getName() + ") already exists.");
-            }
-        }
-        return Collections.singleton(exception.toString());
-//        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
+        return exception != null ? Collections.singleton(exception.toString()) : Collections.emptyList();
     }
 
     @Override

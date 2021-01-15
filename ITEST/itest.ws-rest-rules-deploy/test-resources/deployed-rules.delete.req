@@ -1,2 +1,2 @@
-DELETE /admin/deploy/deployed-rules HTTP/1.1
+DELETE /admin/deploy/deploy/rules-to-deploy/rules-to-deploy HTTP/1.1
 
