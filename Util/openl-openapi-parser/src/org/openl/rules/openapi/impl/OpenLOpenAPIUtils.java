@@ -632,7 +632,8 @@ public class OpenLOpenAPIUtils {
                         }
                         ParameterModel parameterModel = new ParameterModel(
                             OpenAPITypeUtils.extractType(jxPathContext, paramSchema, allowPrimitiveTypes),
-                            normalizeName(p.getName()));
+                            normalizeName(p.getName()),
+                            p.getName());
                         Optional.ofNullable(p.getIn())
                             .map(String::toUpperCase)
                             .map(InputParameter.In::valueOf)
@@ -670,7 +671,8 @@ public class OpenLOpenAPIUtils {
                     typeInfo = new TypeInfo(name, name, TypeInfo.Type.DATATYPE);
                 }
                 ParameterModel parameterModel = new ParameterModel(typeInfo,
-                    StringUtils.uncapitalize(normalizeName(name)));
+                    StringUtils.uncapitalize(normalizeName(name)),
+                    name);
                 result = Collections.singletonList(parameterModel);
             } else {
                 result = properties.entrySet()
@@ -717,8 +719,8 @@ public class OpenLOpenAPIUtils {
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
                         parameter += "Param";
                     }
-                    result = new ArrayList<>(
-                        Collections.singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter)))));
+                    result = new ArrayList<>(Collections
+                        .singletonList((new ParameterModel(typeInfo, StringUtils.uncapitalize(parameter), parameter))));
                 }
             }
         }
@@ -729,7 +731,7 @@ public class OpenLOpenAPIUtils {
         String propertyName = property.getKey();
         Schema<?> valueSchema = property.getValue();
         TypeInfo typeModel = OpenAPITypeUtils.extractType(jxPathContext, valueSchema, false);
-        return new ParameterModel(typeModel, normalizeName(propertyName));
+        return new ParameterModel(typeModel, normalizeName(propertyName), propertyName);
     }
 
 }
