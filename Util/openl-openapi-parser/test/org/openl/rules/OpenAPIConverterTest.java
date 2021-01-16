@@ -357,7 +357,9 @@ public class OpenAPIConverterTest {
         SpreadsheetModel model = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams2");
         List<InputParameter> withPathParams = model.getParameters();
         assertEquals(2, withPathParams.size());
-        Optional<InputParameter> pidId = withPathParams.stream().filter(x -> x.getFormattedName().equals("pidId")).findFirst();
+        Optional<InputParameter> pidId = withPathParams.stream()
+            .filter(x -> x.getFormattedName().equals("pidId"))
+            .findFirst();
         assertTrue(pidId.isPresent());
         assertEquals("double", pidId.get().getType().getSimpleName());
 
@@ -632,7 +634,9 @@ public class OpenAPIConverterTest {
     }
 
     private InputParameter findInputParameter(final List<InputParameter> parameters, final String cat) {
-        Optional<InputParameter> catOptional = parameters.stream().filter(x -> x.getFormattedName().equals(cat)).findFirst();
+        Optional<InputParameter> catOptional = parameters.stream()
+            .filter(x -> x.getFormattedName().equals(cat))
+            .findFirst();
         assertTrue(catOptional.isPresent());
         return catOptional.get();
     }

@@ -879,7 +879,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 schemaName = OpenAPITypeUtils.getSimpleName(datatypeRef);
             }
             Schema<?> schema = getSchemas(openAPI).get(schemaName);
-            if (schema != null && OpenAPITypeUtils.isRefForComplexType(jxPathContext, schema)) {
+            if (schema != null && OpenAPITypeUtils.isComplexSchema(jxPathContext, schema)) {
                 DatatypeModel dm = createModel(jxPathContext, openAPI, schemaName, schema);
                 result.add(dm);
             }

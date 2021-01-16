@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Return type of method 'mySpr5' must be compatible with OpenAPI schema 'Array2DDoubles'.

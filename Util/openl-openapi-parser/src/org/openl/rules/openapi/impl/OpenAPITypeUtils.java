@@ -92,7 +92,7 @@ public class OpenAPITypeUtils {
         Schema<?> foundSchema = null;
         if (schema.get$ref() != null) {
             foundSchema = OpenLOpenAPIUtils.resolve(pathContext, schema, Schema::get$ref);
-            isRefToComplexType = isRefForComplexType(pathContext, foundSchema);
+            isRefToComplexType = isComplexSchema(pathContext, foundSchema);
         }
 
         if (isRefToComplexType) {
@@ -147,7 +147,7 @@ public class OpenAPITypeUtils {
         return result;
     }
 
-    public static boolean isRefForComplexType(JXPathContext pathContext, Schema<?> foundSchema) {
+    public static boolean isComplexSchema(JXPathContext pathContext, Schema<?> foundSchema) {
         boolean result = false;
         if (foundSchema instanceof ComposedSchema) {
             result = true;

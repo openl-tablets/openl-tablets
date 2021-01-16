@@ -64,8 +64,7 @@ public class OpenAPIProjectCreatorTest {
 
     private UserWorkspace userWorkspaceMock;
     private FileSystemRepository tempRepo;
-    private boolean executionMode;
-    private boolean allTestsMustFails;
+    private boolean executionMode = Boolean.FALSE;
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 

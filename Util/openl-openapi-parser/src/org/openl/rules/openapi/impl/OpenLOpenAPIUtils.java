@@ -166,7 +166,7 @@ public class OpenLOpenAPIUtils {
             String ref = s.get$ref();
             if (ref != null) {
                 Schema<?> x = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
-                if (!OpenAPITypeUtils.isRefForComplexType(jxPathContext, x)) {
+                if (!OpenAPITypeUtils.isComplexSchema(jxPathContext, x)) {
                     return;
                 }
                 types.merge(ref, 1, Integer::sum);
@@ -186,7 +186,7 @@ public class OpenLOpenAPIUtils {
                     String ref = s.get$ref();
                     if (ref != null) {
                         Schema<?> x = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
-                        if (!OpenAPITypeUtils.isRefForComplexType(jxPathContext, x)) {
+                        if (!OpenAPITypeUtils.isComplexSchema(jxPathContext, x)) {
                             return;
                         }
                         String path = pathWithItem.getKey();
@@ -226,7 +226,6 @@ public class OpenLOpenAPIUtils {
                                     if (mediaTypeSchema != null) {
                                         Set<String> refs = OpenLOpenAPIUtils
                                             .visitSchema(jxPathContext, mediaTypeSchema, false, false);
-                                        // TODO maybe check refs there too? for linkage with simple?
                                         allSchemaRefResponses.put(p.getKey(), refs);
                                     }
                                 }
@@ -246,8 +245,13 @@ public class OpenLOpenAPIUtils {
         Set<String> result = new HashSet<>();
         Set<String> visitedSchema = new HashSet<>();
         visitSchema(jxPathContext, schema, null, visitedSchema, (Schema<?> x) -> {
-            if (x.get$ref() != null) {
-                result.add(x.get$ref());
+            String ref = x.get$ref();
+            if (ref != null) {
+                Schema<?> s = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
+                if (!OpenAPITypeUtils.isComplexSchema(jxPathContext, s)) {
+                    return;
+                }
+                result.add(ref);
             }
         }, visitInterfaces, visitProperties);
         return result;
