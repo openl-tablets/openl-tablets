@@ -1191,13 +1191,15 @@ public final class DecisionTableHelper {
         Map<DTHeader, IOpenClass> hConditionTypes = new HashMap<>();
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
-            if (column > originalTable.getSource().getWidth()) {
-                String message = "Wrong table structure: Columns count is less than parameters count";
-                throw new OpenLCompilationException(message);
-            }
-            if (column == originalTable.getSource().getWidth()) {
-                String message = "Wrong table structure: There is no column for return values";
-                throw new OpenLCompilationException(message);
+            if (!isLookup(tableSyntaxNode)) {
+                if (column > originalTable.getSource().getWidth()) {
+                    String message = "Wrong table structure: Columns count is less than parameters count";
+                    throw new OpenLCompilationException(message);
+                }
+                if (column > originalTable.getSource().getWidth()) {
+                    String message = "Wrong table structure: There is no column for return values";
+                    throw new OpenLCompilationException(message);
+                }
             }
             // write headers
             //
