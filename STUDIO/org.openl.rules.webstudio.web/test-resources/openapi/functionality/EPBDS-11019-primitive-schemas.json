@@ -1,0 +1,206 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "11019",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/DoubleResult/DoubleResult",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/mySpr1": {
+      "post": {
+        "summary": "Double mySpr(Double)",
+        "description": "Rules method: java.lang.Double mySpr(java.lang.Double a)",
+        "operationId": "mySpr",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SimpleRequestBodyUsedOnce"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr2": {
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SimpleRequestBodyUsedTwice"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr3": {
+      "post": {
+        "requestBody": {
+          "$ref": "#/components/requestBodies/SimpleRequestBodyUsedTwice"
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr4": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Array2DDoubles"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimpleObject"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/mySpr5": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/2DDoubleArray"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "requestBodies": {
+      "SimpleRequestBodyUsedOnce": {
+        "content": {
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/IAmIntParamWhichIsUsedInRequestOnce"
+            }
+          }
+        }
+      },
+      "SimpleRequestBodyUsedTwice": {
+        "content": {
+          "text/plain": {
+            "schema": {
+              "$ref": "#/components/schemas/IAmDateTimeParameterUsedTwice"
+            }
+          }
+        }
+      }
+    },
+    "responses": {
+      "2DDoubleArray": {
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Array2DDoubles"
+            }
+          }
+        },
+        "description": "success"
+      }
+    },
+    "parameters": {
+    },
+    "headers": {
+    },
+    "schemas": {
+      "IAmDateTimeParameterUsedTwice": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "IAmIntParamWhichIsUsedInRequestOnce": {
+        "type": "integer",
+        "format": "int32"
+      },
+      "IAmStringSchema": {
+        "type": "string",
+        "example": "Hello, World"
+      },
+      "IAmDateSchema": {
+        "type": "string",
+        "format": "date"
+      },
+      "Array2DDoubles": {
+        "type": "array",
+        "items": {
+          "type": "array",
+          "items": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "SimpleObject": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          }
+        }
+      },
+      "ComplexObject": {
+        "type": "object",
+        "properties": {
+          "birthDate": {
+            "$ref": "#/components/schemas/IAmDateSchema"
+          },
+          "name": {
+            "$ref": "#/components/schemas/IAmStringSchema"
+          }
+        }
+      }
+    }
+  }
+}

@@ -263,7 +263,7 @@ public class OpenAPIJavaClassGeneratorTest {
         assertEquals(1, method1.getParameters()[3].getAnnotations().length);
         assertEquals("someStep", method1.getParameters()[3].getAnnotation(Name.class).value());
 
-        Method method2 = interfaceClass.getDeclaredMethod("apiTodo", IRulesRuntimeContext.class);
+        Method method2 = interfaceClass.getDeclaredMethod("apiTodo1", IRulesRuntimeContext.class);
         assertEquals(Integer.class, method2.getReturnType());
         assertEquals(4, method2.getDeclaredAnnotations().length);
         assertNotNull(method2.getAnnotation(POST.class));

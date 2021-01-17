@@ -64,8 +64,7 @@ public class OpenAPIProjectCreatorTest {
 
     private UserWorkspace userWorkspaceMock;
     private FileSystemRepository tempRepo;
-    private boolean executionMode;
-    private boolean allTestsMustFails;
+    private boolean executionMode = Boolean.FALSE;
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -106,8 +105,8 @@ public class OpenAPIProjectCreatorTest {
     }
 
     protected CompiledOpenClass validate(CompiledOpenClass compiledOpenClass,
-                                         ProjectDescriptor projectDescriptor,
-                                         RulesInstantiationStrategy rulesInstantiationStrategy) {
+            ProjectDescriptor projectDescriptor,
+            RulesInstantiationStrategy rulesInstantiationStrategy) {
         try {
             OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
             return openApiProjectValidator.validate(projectDescriptor, rulesInstantiationStrategy);
@@ -130,7 +129,7 @@ public class OpenAPIProjectCreatorTest {
             return false;
         }
         File[] files = testsDir.listFiles();
-        //files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
+        // files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
         if (files == null) {
             log.warn("Test folder is not found.");
             return false;
@@ -154,16 +153,15 @@ public class OpenAPIProjectCreatorTest {
                     OpenAPIProjectCreator projectCreator = null;
                     try {
                         projectCreator = new OpenAPIProjectCreator(new ProjectFile(uploadedFile),
-                                REPO_ID,
-                                sourceFile,
-                                sourceFile,
-                                userWorkspaceMock,
-                                DEFAULT_COMMENT,
-                                MOCK_MODEL_PATH,
-                                MOCK_ALGORITHM_PATH,
-                                MOCK_MODEL_NAME,
-                                MOCK_ALGORITHM_NAME
-                        );
+                            REPO_ID,
+                            sourceFile,
+                            sourceFile,
+                            userWorkspaceMock,
+                            DEFAULT_COMMENT,
+                            MOCK_MODEL_PATH,
+                            MOCK_ALGORITHM_PATH,
+                            MOCK_MODEL_NAME,
+                            MOCK_ALGORITHM_NAME);
                         String error = projectCreator.createRulesProject();
                         if (error != null) {
                             throw new RuntimeException(error);
@@ -178,8 +176,8 @@ public class OpenAPIProjectCreatorTest {
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
                     compiledOpenClass = validate(compiledOpenClass,
-                            engineFactory.getProjectDescriptor(),
-                            engineFactory.getRulesInstantiationStrategy());
+                        engineFactory.getProjectDescriptor(),
+                        engineFactory.getRulesInstantiationStrategy());
                 } catch (Exception e) {
                     error(messagesCount++, startTime, sourceFile, "Compilation fails.", e);
                     testsFailed = true;
@@ -203,18 +201,18 @@ public class OpenAPIProjectCreatorTest {
                 try {
                     String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
                     for (String message : content
-                            .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
+                        .split("\\u000D\\u000A|[\\u000A\\u000B\\u000C\\u000D\\u0085\\u2028\\u2029]")) {
                         if (!StringUtils.isBlank(message)) {
                             expectedMessages.add(message.trim());
                         }
                     }
                 } catch (IOException exc) {
                     error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "Failed to read the message file '{}'.",
-                            msgFile,
-                            exc);
+                        startTime,
+                        sourceFile,
+                        "Failed to read the message file '{}'.",
+                        msgFile,
+                        exc);
                 }
 
                 Collection<OpenLMessage> unexpectedMessages = new LinkedHashSet<>();
@@ -242,12 +240,12 @@ public class OpenAPIProjectCreatorTest {
                     error(messagesCount++, startTime, sourceFile, "  UNEXPECTED messages:");
                     for (OpenLMessage msg : unexpectedMessages) {
                         error(messagesCount++,
-                                startTime,
-                                sourceFile,
-                                "   {}: {}    at {}",
-                                msg.getSeverity(),
-                                msg.getSummary(),
-                                msg.getSourceLocation());
+                            startTime,
+                            sourceFile,
+                            "   {}: {}    at {}",
+                            msg.getSeverity(),
+                            msg.getSummary(),
+                            msg.getSourceLocation());
                     }
                 }
                 if (!restMessages.isEmpty()) {
@@ -263,12 +261,12 @@ public class OpenAPIProjectCreatorTest {
             if (success && compiledOpenClass.hasErrors()) {
                 for (OpenLMessage msg : compiledOpenClass.getMessages()) {
                     error(messagesCount++,
-                            startTime,
-                            sourceFile,
-                            "   {}: {}    at {}",
-                            msg.getSeverity(),
-                            msg.getSummary(),
-                            msg.getSourceLocation());
+                        startTime,
+                        sourceFile,
+                        "   {}: {}    at {}",
+                        msg.getSeverity(),
+                        msg.getSummary(),
+                        msg.getSourceLocation());
                 }
             }
 

@@ -56,7 +56,7 @@ public class SpreadsheetResultTableExporter extends AbstractOpenlTableExporter<S
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_NAME_TEMPLATE, model.getName());
         String parameters = model.getParameters()
             .stream()
-            .map(x -> x.getType().getSimpleName() + " " + x.getName())
+            .map(x -> x.getType().getSimpleName() + " " + x.getFormattedName())
             .collect(Collectors.joining(", "));
         sprHeaderText = sprHeaderText.replaceAll(SPREADSHEET_RESULT_SIGNATURE, parameters);
 
