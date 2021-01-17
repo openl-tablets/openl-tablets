@@ -56,6 +56,7 @@ public class OpenAPIHelper {
             }
         }
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        rd.setProvideVariations(projectModel.areVariationsProvided());
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
             rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
         }

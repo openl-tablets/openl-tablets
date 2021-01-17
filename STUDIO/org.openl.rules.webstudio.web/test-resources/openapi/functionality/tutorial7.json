@@ -1,0 +1,1549 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Tutorial 7 - Introduction to Table Properties_Tutorial 7 - Introduction to Table Properties",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/ruleservice/REST/Tutorial%207%20-%20Introduction%20to%20Table%20Properties/Tutorial%207%20-%20Introduction%20to%20Table%20Properties",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/LiquidityRatioScore": {
+      "post": {
+        "summary": "Double LiquidityRatioScore(IRulesRuntimeContext, Double)",
+        "description": "Method: java.lang.Double LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+        "operationId": "LiquidityRatioScore",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiquidityRatioScoreRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/LiquidityRatioScore1": {
+      "post": {
+        "summary": "VariationsResult LiquidityRatioScore(IRulesRuntimeContext, Double, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, org.openl.rules.variation.VariationsPack)",
+        "operationId": "LiquidityRatioScore_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LiquidityRatioScoreRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DiscountPercentage1": {
+      "post": {
+        "summary": "VariationsResult DiscountPercentage(IRulesRuntimeContext, Car, int, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult DiscountPercentage(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, int, org.openl.rules.variation.VariationsPack)",
+        "operationId": "DiscountPercentage_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscountPercentageRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/DiscountPercentage": {
+      "post": {
+        "summary": "Double DiscountPercentage(IRulesRuntimeContext, Car, int)",
+        "description": "Method: java.lang.Double DiscountPercentage(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, int)",
+        "operationId": "DiscountPercentage",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DiscountPercentageRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PriceForOrder": {
+      "post": {
+        "summary": "Double PriceForOrder(IRulesRuntimeContext, Car, int, Address)",
+        "description": "Method: java.lang.Double PriceForOrder(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, int, org.openl.generated.beans.Address)",
+        "operationId": "PriceForOrder",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceForOrderRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/PriceForOrder1": {
+      "post": {
+        "summary": "VariationsResult PriceForOrder(IRulesRuntimeContext, Car, int, Address, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult PriceForOrder(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, int, org.openl.generated.beans.Address, org.openl.rules.variation.VariationsPack)",
+        "operationId": "PriceForOrder_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PriceForOrderRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CarPrice": {
+      "post": {
+        "summary": "Double CarPrice(IRulesRuntimeContext, Car, Address)",
+        "description": "Method: java.lang.Double CarPrice(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, org.openl.generated.beans.Address)",
+        "operationId": "CarPrice",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarPriceRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/CarPrice1": {
+      "post": {
+        "summary": "VariationsResult CarPrice(IRulesRuntimeContext, Car, Address, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult CarPrice(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Car, org.openl.generated.beans.Address, org.openl.rules.variation.VariationsPack)",
+        "operationId": "CarPrice_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CarPriceRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getCarData": {
+      "post": {
+        "summary": "Car[] getCarData(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.Car[] getCarData(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getCarData",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Car"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getCarData1": {
+      "post": {
+        "summary": "VariationsResult getCarData(IRulesRuntimeContext, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult getCarData(org.openl.rules.context.IRulesRuntimeContext, org.openl.rules.variation.VariationsPack)",
+        "operationId": "getCarData_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetCarDataRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAddressData": {
+      "post": {
+        "summary": "Address[] getAddressData(IRulesRuntimeContext)",
+        "description": "Method: org.openl.generated.beans.Address[] getAddressData(org.openl.rules.context.IRulesRuntimeContext)",
+        "operationId": "getAddressData",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Address"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/getAddressData1": {
+      "post": {
+        "summary": "VariationsResult getAddressData(IRulesRuntimeContext, VariationsPack)",
+        "description": "Method: org.openl.rules.variation.VariationsResult getAddressData(org.openl.rules.context.IRulesRuntimeContext, org.openl.rules.variation.VariationsPack)",
+        "operationId": "getAddressData_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetAddressDataRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariationsResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "DefaultRulesRuntimeContext": {
+        "type": "object",
+        "properties": {
+          "currentDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lob": {
+            "type": "string"
+          },
+          "nature": {
+            "type": "string"
+          },
+          "usState": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "AK",
+              "AZ",
+              "AR",
+              "CA",
+              "CO",
+              "CT",
+              "DC",
+              "DE",
+              "FL",
+              "GA",
+              "HI",
+              "ID",
+              "IL",
+              "IN",
+              "IA",
+              "KS",
+              "KY",
+              "LA",
+              "ME",
+              "MD",
+              "MA",
+              "MI",
+              "MN",
+              "MS",
+              "MO",
+              "MT",
+              "NE",
+              "NV",
+              "NH",
+              "NJ",
+              "NM",
+              "NY",
+              "NC",
+              "ND",
+              "OH",
+              "OK",
+              "OR",
+              "PA",
+              "PR",
+              "RI",
+              "SC",
+              "SD",
+              "TN",
+              "TX",
+              "UT",
+              "VT",
+              "VA",
+              "WA",
+              "WV",
+              "WI",
+              "WY"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "AE",
+              "AL",
+              "AR",
+              "AS",
+              "AT",
+              "AU",
+              "BA",
+              "BE",
+              "BG",
+              "BH",
+              "BO",
+              "BR",
+              "BY",
+              "CA",
+              "CH",
+              "CK",
+              "CL",
+              "CN",
+              "CO",
+              "CR",
+              "CS",
+              "CY",
+              "CZ",
+              "DE",
+              "DK",
+              "DO",
+              "DZ",
+              "EC",
+              "EE",
+              "EG",
+              "ES",
+              "FI",
+              "FJ",
+              "FR",
+              "GB",
+              "GR",
+              "GT",
+              "HK",
+              "HN",
+              "HR",
+              "HU",
+              "ID",
+              "IE",
+              "IL",
+              "IN",
+              "IQ",
+              "IS",
+              "IT",
+              "JO",
+              "JP",
+              "KW",
+              "LB",
+              "LT",
+              "LU",
+              "LV",
+              "MA",
+              "MK",
+              "MT",
+              "MX",
+              "MY",
+              "NI",
+              "NL",
+              "NO",
+              "NZ",
+              "OM",
+              "PA",
+              "PE",
+              "PG",
+              "PH",
+              "PL",
+              "PR",
+              "PT",
+              "PY",
+              "QA",
+              "RO",
+              "RU",
+              "SA",
+              "SB",
+              "SD",
+              "SE",
+              "SG",
+              "SI",
+              "SK",
+              "SV",
+              "SY",
+              "TH",
+              "TN",
+              "TO",
+              "TR",
+              "TW",
+              "UA",
+              "US",
+              "UY",
+              "VE",
+              "VN",
+              "VU",
+              "WS",
+              "YE",
+              "ZA"
+            ]
+          },
+          "usRegion": {
+            "type": "string",
+            "enum": [
+              "MW",
+              "NE",
+              "SE",
+              "SW",
+              "W"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "DZD",
+              "ARS",
+              "AUD",
+              "BHD",
+              "BYR",
+              "BOB",
+              "BAM",
+              "BRL",
+              "CAD",
+              "CLP",
+              "CNY",
+              "COP",
+              "CRC",
+              "HRK",
+              "CZK",
+              "DKK",
+              "DOP",
+              "EGP",
+              "EUR",
+              "GTQ",
+              "HNL",
+              "HKD",
+              "HUF",
+              "ISK",
+              "INR",
+              "IDR",
+              "IQD",
+              "ILS",
+              "JPY",
+              "JOD",
+              "KWD",
+              "LVL",
+              "LBP",
+              "LTL",
+              "MKD",
+              "MYR",
+              "MXN",
+              "MAD",
+              "NZD",
+              "NIO",
+              "NOK",
+              "OMR",
+              "PAB",
+              "PYG",
+              "PEN",
+              "PHP",
+              "PLN",
+              "QAR",
+              "RON",
+              "RUB",
+              "SAR",
+              "RSD",
+              "SGD",
+              "ZAR",
+              "SDG",
+              "SEK",
+              "CHF",
+              "SYP",
+              "TWD",
+              "TND",
+              "TRY",
+              "UAH",
+              "AED",
+              "GBP",
+              "USD",
+              "UYU",
+              "VEF",
+              "VND",
+              "YER"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "ALB",
+              "ARA",
+              "BEL",
+              "BUL",
+              "CAT",
+              "CHI",
+              "SCR",
+              "CZE",
+              "DAN",
+              "DUT",
+              "ENG",
+              "FIN",
+              "FRE",
+              "GER",
+              "GRE",
+              "HEB",
+              "HIN",
+              "HUN",
+              "IND",
+              "GLE",
+              "ITA",
+              "JPN",
+              "LAV",
+              "LIT",
+              "MAC",
+              "MAY",
+              "MLT",
+              "NOR",
+              "POL",
+              "POR",
+              "RUM",
+              "RUS",
+              "SCC",
+              "SLO",
+              "SPA",
+              "THA",
+              "TUR",
+              "UKR",
+              "VIE"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "NCSA",
+              "EU",
+              "EMEA",
+              "APJ"
+            ]
+          },
+          "caProvince": {
+            "type": "string",
+            "enum": [
+              "AB",
+              "BC",
+              "PE",
+              "MB",
+              "NB",
+              "NS",
+              "NU",
+              "ON",
+              "QC",
+              "SK",
+              "NL",
+              "YT",
+              "NT"
+            ]
+          },
+          "caRegion": {
+            "type": "string",
+            "enum": [
+              "QC",
+              "HQ"
+            ]
+          }
+        }
+      },
+      "LiquidityRatioScoreRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "liquidityRatio": {
+            "type": "number",
+            "format": "double"
+          }
+        }
+      },
+      "VariationsResult": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "byte"
+            }
+          },
+          "variationResults": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "object"
+            }
+          },
+          "variationFailures": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "ArgumentReplacementVariation": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Variation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "updatedArgumentIndex": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "valueToSet": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      },
+      "ComplexVariation": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Variation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "variations": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/components/schemas/Variation"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "DeepCloningVariation": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Variation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "variation": {
+                "$ref": "#/components/schemas/Variation"
+              }
+            }
+          }
+        ]
+      },
+      "JXPathVariation": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Variation"
+          },
+          {
+            "type": "object",
+            "properties": {
+              "updatedArgumentIndex": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "path": {
+                "type": "string"
+              },
+              "valueToSet": {
+                "type": "object"
+              }
+            }
+          }
+        ]
+      },
+      "LiquidityRatioScoreRequest1": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "liquidityRatio": {
+            "type": "number",
+            "format": "double"
+          },
+          "variationPack": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      },
+      "NoVariation": {
+        "type": "object",
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/Variation"
+          }
+        ]
+      },
+      "Variation": {
+        "required": [
+          "@class"
+        ],
+        "type": "object",
+        "properties": {
+          "variationID": {
+            "type": "string"
+          },
+          "@class": {
+            "type": "string"
+          }
+        },
+        "discriminator": {
+          "propertyName": "@class"
+        }
+      },
+      "VariationsPack": {
+        "type": "object",
+        "properties": {
+          "variations": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Variation"
+            }
+          }
+        }
+      },
+      "Car": {
+        "type": "object",
+        "properties": {
+          "model": {
+            "type": "string"
+          },
+          "brand": {
+            "type": "string"
+          }
+        }
+      },
+      "DiscountPercentageRequest1": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "numberOfCars": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "variationPack": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      },
+      "DiscountPercentageRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "numberOfCars": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "properties": {
+          "country": {
+            "type": "string"
+          },
+          "region": {
+            "type": "string"
+          }
+        }
+      },
+      "PriceForOrderRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "numberOfCars": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "billingAddress": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "PriceForOrderRequest1": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "numberOfCars": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "billingAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "variationPack": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      },
+      "CarPriceRequest": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "billingAddress": {
+            "$ref": "#/components/schemas/Address"
+          }
+        }
+      },
+      "CarPriceRequest1": {
+        "type": "object",
+        "properties": {
+          "runtimeContext": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "car": {
+            "$ref": "#/components/schemas/Car"
+          },
+          "billingAddress": {
+            "$ref": "#/components/schemas/Address"
+          },
+          "variationPack": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      },
+      "GetCarDataRequest1": {
+        "type": "object",
+        "properties": {
+          "arg0": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "arg1": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      },
+      "GetAddressDataRequest1": {
+        "type": "object",
+        "properties": {
+          "arg0": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "arg1": {
+            "$ref": "#/components/schemas/VariationsPack"
+          }
+        }
+      }
+    }
+  }
+}

@@ -294,7 +294,9 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel apiBlaModel = modelsToClass.iterator().next();
         List<InputParameter> parameters = apiBlaModel.getParameters();
         assertEquals(4, parameters.size());
-        Set<String> parameterNames = parameters.stream().map(InputParameter::getFormattedName).collect(Collectors.toSet());
+        Set<String> parameterNames = parameters.stream()
+            .map(InputParameter::getFormattedName)
+            .collect(Collectors.toSet());
         assertTrue(parameterNames.contains("id"));
         assertTrue(parameterNames.contains("name"));
         assertTrue(parameterNames.contains("isCompleted"));
@@ -835,6 +837,12 @@ public class SpreadsheetsConverterTest {
         assertEquals("= new CensusSummary[]{}", sp4.getSteps().get(0).getValue());
     }
 
+    @Test
+    public void testVariations() throws IOException {
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/tutorial7.json");
+        assertTrue(projectModel.areVariationsProvided());
+    }
+
     private SpreadsheetModel findSpreadsheet(final List<SpreadsheetModel> spreadsheetModels, final String sprName) {
         Optional<SpreadsheetModel> spreadsheet = spreadsheetModels.stream()
             .filter(x -> x.getName().equals(sprName))
@@ -850,7 +858,9 @@ public class SpreadsheetsConverterTest {
     }
 
     private InputParameter findInputParameter(final List<InputParameter> parameters, final String paramName) {
-        Optional<InputParameter> param = parameters.stream().filter(x -> x.getFormattedName().equals(paramName)).findFirst();
+        Optional<InputParameter> param = parameters.stream()
+            .filter(x -> x.getFormattedName().equals(paramName))
+            .findFirst();
         assertTrue(param.isPresent());
         return param.get();
     }

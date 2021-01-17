@@ -76,13 +76,14 @@ public class OpenLOpenAPIUtils {
     }
 
     public static Set<String> getUnusedSchemaRefs(OpenAPI openAPI, Iterable<String> usedRefs) {
-        Map<String, Schema> schemas = getSchemas(openAPI);
-        Set<String> unusedSchemas = new HashSet<>(schemas.keySet());
+        Set<String> schemaNames = getSchemas(openAPI).keySet()
+            .stream()
+            .map(name -> SCHEMAS_LINK + name)
+            .collect(Collectors.toSet());
         for (String usedRef : usedRefs) {
-            String simpleName = OpenAPITypeUtils.getSimpleName(usedRef);
-            unusedSchemas.remove(simpleName);
+            schemaNames.remove(usedRef);
         }
-        return unusedSchemas;
+        return schemaNames;
     }
 
     public static Schema<?> getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
@@ -738,4 +739,7 @@ public class OpenLOpenAPIUtils {
         return new ParameterModel(typeModel, normalizeName(propertyName), propertyName);
     }
 
+    public static boolean checkVariations(OpenAPI openAPI, Set<String> variationsSchemasName) {
+        return getSchemas(openAPI).keySet().containsAll(variationsSchemasName);
+    }
 }
