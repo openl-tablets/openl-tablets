@@ -137,10 +137,10 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     }
 
     @Override
-    public OpenLService getServiceByDeploy(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getDeployPath().equals(serviceName)) {
+            if (service.getDeployPath().equals(deployPath)) {
                 return service;
             }
         }

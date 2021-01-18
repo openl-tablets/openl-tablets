@@ -45,7 +45,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("project1");
+        OpenLService service = serviceManager.getServiceByDeploy("project1");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         String[] methods = {
@@ -74,7 +74,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("project2");
+        OpenLService service = serviceManager.getServiceByDeploy("project2");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 
@@ -100,7 +100,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("project3");
+        OpenLService service = serviceManager.getServiceByDeploy("project3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 

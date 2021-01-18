@@ -33,9 +33,9 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      * {@inheritDoc}
      */
     @Override
-    public OpenLService getServiceByDeploy(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        return runningServices.get(serviceName);
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot be null");
+        return runningServices.get(deployPath);
     }
 
     /**
@@ -45,7 +45,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         try {
-            OpenLService registeredService = frontend.findServiceByName(service.getName());
+            OpenLService registeredService = frontend.findServiceByDeploy(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
                     String.format("Service '%s' is already deployed.", service.getName()));
@@ -61,13 +61,13 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     @Override
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        String serviceName = service.getDeployPath();
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        String deployPath = service.getDeployPath();
+        Objects.requireNonNull(deployPath, "deployPath cannot be null");
         frontend.unregisterService(service.getName());
-        if (runningServices.remove(serviceName) == null) {
-            throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", serviceName));
+        if (runningServices.remove(deployPath) == null) {
+            throw new RuleServiceUndeployException(String.format("Service '%s' has not been deployed.", deployPath));
         }
-        log.info("Service '{}' has been undeployed successfully.", serviceName);
+        log.info("Service '{}' has been undeployed successfully.", deployPath);
     }
 
     public void setFrontend(RulesFrontend frontend) {

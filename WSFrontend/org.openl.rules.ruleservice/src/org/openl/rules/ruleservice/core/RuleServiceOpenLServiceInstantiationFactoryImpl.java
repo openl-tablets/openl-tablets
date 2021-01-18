@@ -238,7 +238,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
         builder.setName(serviceDescription.getName())
             .setUrl(serviceDescription.getUrl())
-            .setServicePath(serviceDescription.getServicePath())
+            .setDeployPath(serviceDescription.getDeployPath())
             .setServiceClassName(serviceDescription.getServiceClassName())
             .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
             .setRmiName(serviceDescription.getRmiName())

@@ -15,10 +15,10 @@ public interface RulesFrontend {
      * This method is designed for extending service functionality. Modify returned OpenLService object, can be result
      * of system failure. Please, don't modify returned OpenLService object.
      *
-     * @param serviceName service name
+     * @param deployPath service deployPath
      * @return found service
      */
-    OpenLService findServiceByName(String serviceName);
+    OpenLService findServiceByDeploy(String deployPath);
 
     /**
      * Executes method with specified parameters.

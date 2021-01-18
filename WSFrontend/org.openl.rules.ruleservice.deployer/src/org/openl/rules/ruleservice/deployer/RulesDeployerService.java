@@ -111,19 +111,19 @@ public class RulesDeployerService implements Closeable {
     /**
      * Read a service by the given path name.
      *
-     * @param serviceName the path name of the service to read.
+     * @param deployPath deployPath of the service to read.
      * @return the InputStream containing project archive.
      * @throws IOException if not possible to read the file.
      */
-    public InputStream read(String serviceName) throws IOException {
+    public InputStream read(String deployPath) throws IOException {
         if (deployRepo.supports().folders()) {
-            serviceName = serviceName + "/";
-            List<FileData> files = deployRepo.list(serviceName);
+            deployPath = deployPath + "/";
+            List<FileData> files = deployRepo.list(deployPath);
             ByteArrayOutputStream fos = new ByteArrayOutputStream();
             ZipOutputStream zipOut = new ZipOutputStream(fos);
             for (FileData fileData : files) {
                 FileItem fileItem = deployRepo.read(fileData.getName());
-                ZipEntry zipEntry = new ZipEntry(fileItem.getData().getName().replace(serviceName, ""));
+                ZipEntry zipEntry = new ZipEntry(fileItem.getData().getName().replace(deployPath, ""));
                 zipOut.putNextEntry(zipEntry);
                 InputStream stream = fileItem.getStream();
                 byte[] bytes = new byte[1024];
@@ -137,31 +137,31 @@ public class RulesDeployerService implements Closeable {
             fos.close();
             return new ByteArrayInputStream(fos.toByteArray());
         } else {
-            return deployRepo.read(serviceName).getStream();
+            return deployRepo.read(deployPath).getStream();
         }
     }
 
     /**
      * Delete a file or mark it as deleted.
      *
-     * @param serviceName the path name of the file to delete.
+     * @param deployPath deployPath of the file to delete.
      * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
      */
-    public boolean delete(String serviceName) throws IOException {
-        FileData fileDate = deployRepo.check(serviceName);
+    public boolean delete(String deployPath) throws IOException {
+        FileData fileDate = deployRepo.check(deployPath);
         if (deployRepo.delete(fileDate)) {
-            deleteDeploymentDescriptors(serviceName);
+            deleteDeploymentDescriptors(deployPath);
             return true;
         }
         return false;
     }
 
-    private void deleteDeploymentDescriptors(String serviceName) throws IOException {
+    private void deleteDeploymentDescriptors(String deployPath) throws IOException {
         if (deployRepo.supports().folders()) {
-            if (serviceName.charAt(0) == '/') {
-                serviceName = serviceName.substring(1);
+            if (deployPath.charAt(0) == '/') {
+                deployPath = deployPath.substring(1);
             }
-            final String deploymentName = serviceName.split("/")[0];
+            final String deploymentName = deployPath.split("/")[0];
             if (((FolderRepository) deployRepo).listFolders(deploymentName).isEmpty()) {
                 for (String deployDescriptorFile : DEPLOY_DESCRIPTOR_FILES) {
                     FileData fd = deployRepo.check(deploymentName + "/" + deployDescriptorFile);

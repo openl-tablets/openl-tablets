@@ -100,7 +100,7 @@ public final class OpenLService {
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
         this(builder.name,
             builder.url,
-            builder.servicePath,
+            builder.deployPath,
             builder.serviceClassName,
             builder.rmiServiceClassName,
             builder.rmiName,
@@ -337,7 +337,7 @@ public final class OpenLService {
     public static class OpenLServiceBuilder {
         private String name;
         private String url;
-        private String servicePath;
+        private String deployPath;
         private String serviceClassName;
         private String rmiServiceClassName;
         private String rmiName;
@@ -494,13 +494,13 @@ public final class OpenLService {
         }
 
         /**
-         * Sets servicePath to the builder.
+         * Sets deployPath to the builder.
          *
-         * @param servicePath
+         * @param deployPath
          * @return
          */
-        public OpenLServiceBuilder setServicePath(String servicePath) {
-            this.servicePath = servicePath;
+        public OpenLServiceBuilder setDeployPath(String deployPath) {
+            this.deployPath = deployPath;
             return this;
         }
 

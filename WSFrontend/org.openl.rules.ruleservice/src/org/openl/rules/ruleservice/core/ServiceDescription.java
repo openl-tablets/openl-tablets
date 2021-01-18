@@ -17,7 +17,7 @@ import org.openl.rules.project.model.RulesDeploy;
 public final class ServiceDescription {
     private final String name;
     private final String url;
-    private final String servicePath;
+    private final String deployPath;
     private final String serviceClassName;
     private final String rmiServiceClassName;
     private final String rmiName;
@@ -44,7 +44,7 @@ public final class ServiceDescription {
      */
     ServiceDescription(String name,
             String url,
-            String servicePath,
+            String deployPath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -61,7 +61,7 @@ public final class ServiceDescription {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
-        this.servicePath = servicePath;
+        this.deployPath = deployPath;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
@@ -140,8 +140,8 @@ public final class ServiceDescription {
      *
      * @return
      */
-    public String getServicePath() {
-        return servicePath;
+    public String getDeployPath() {
+        return deployPath;
     }
 
     /**
@@ -262,11 +262,11 @@ public final class ServiceDescription {
             return false;
         }
 
-        if (servicePath == null) {
-            if (other.servicePath != null) {
+        if (deployPath == null) {
+            if (other.deployPath != null) {
                 return false;
             }
-        } else if (!servicePath.equals(other.servicePath)) {
+        } else if (!deployPath.equals(other.deployPath)) {
             return false;
         }
         return true;

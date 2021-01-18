@@ -83,9 +83,9 @@ public class AdminRestController {
      * @return a list of method descriptors of the given OpenL service.
      */
     @GET
-    @Path("/services/{serviceName:.+}/methods/")
-    public Response getServiceMethodNames(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(serviceManager.getServiceMethods(serviceName));
+    @Path("/services/{deployPath:.+}/methods/")
+    public Response getServiceMethodNames(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getServiceMethods(deployPath));
     }
 
     /**
@@ -93,15 +93,15 @@ public class AdminRestController {
      */
     @GET
     //space
-    @Path("/services/{serviceName:.+}/errors/")
-    public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(serviceManager.getServiceErrors(serviceName));
+    @Path("/services/{deployPath:.+}/errors/")
+    public Response getServiceErrors(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getServiceErrors(deployPath));
     }
 
     @GET
-    @Path("/services/{serviceName:.+}/MANIFEST.MF")
-    public Response getManifest(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(serviceManager.getManifest(serviceName));
+    @Path("/services/{deployPath:.+}/MANIFEST.MF")
+    public Response getManifest(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getManifest(deployPath));
     }
 
     private static Response okOrNotFound(Object entity) {

@@ -54,9 +54,9 @@ public class RulesFrontendImpl implements RulesFrontend {
     }
 
     @Override
-    public OpenLService findServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        return getService(serviceName);
+    public OpenLService findServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "serviceName cannot be null");
+        return getService(deployPath);
     }
 
     /**

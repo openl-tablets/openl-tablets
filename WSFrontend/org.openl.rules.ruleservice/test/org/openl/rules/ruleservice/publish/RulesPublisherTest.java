@@ -7,7 +7,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
-import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -97,7 +96,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
     }
 
     private int getCount(ServiceManager publisher) throws Exception {
-        Class<?> counter = publisher.getServiceByName(TUTORIAL4)
+        Class<?> counter = publisher.getServiceByDeploy(TUTORIAL4)
             .getServiceBean()
             .getClass()
             .getClassLoader()
@@ -118,7 +117,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         }
         int c = getCount(serviceManager);
         assertEquals(executedTimes, c - count);
-        Object driver = serviceManager.getServiceByName(TUTORIAL4)
+        Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
@@ -132,7 +131,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
-        Object driver = serviceManager.getServiceByName(TUTORIAL4)
+        Object driver = serviceManager.getServiceByDeploy(TUTORIAL4)
             .getServiceClass()
             .getClassLoader()
             .loadClass(DRIVER)
@@ -151,11 +150,11 @@ public class RulesPublisherTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        Class<?> tutorial4ServiceClass = serviceManager.getServiceByName(TUTORIAL4).getServiceClass();
+        Class<?> tutorial4ServiceClass = serviceManager.getServiceByDeploy(TUTORIAL4).getServiceClass();
         assertTrue(tutorial4ServiceClass.isInterface());
         assertEquals(TUTORIAL4_INTERFACE, tutorial4ServiceClass.getName());
 
-        Class<?> multiModuleServiceClass = serviceManager.getServiceByName(MULTI_MODULE).getServiceClass();
+        Class<?> multiModuleServiceClass = serviceManager.getServiceByDeploy(MULTI_MODULE).getServiceClass();
         assertNotNull(multiModuleServiceClass);
 
     }

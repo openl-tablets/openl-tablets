@@ -676,10 +676,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
      * {@inheritDoc}
      */
     @Override
-    public OpenLService getServiceByDeploy(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot null.");
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot null.");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getDeployPath().equals(serviceName)) {
+            if (service.getDeployPath().equals(deployPath)) {
                 return service;
             }
         }

@@ -37,7 +37,7 @@ public class RuleServicePublisherListenerTest implements ApplicationContextAware
 
         Assert.assertFalse(serviceManager.getServicesInfo().isEmpty());
 
-        OpenLService service = publisher.getServiceByName("org.openl.tablets.tutorial4");
+        OpenLService service = publisher.getServiceByDeploy("org.openl.tablets.tutorial4");
 
         Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
         Assert.assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);

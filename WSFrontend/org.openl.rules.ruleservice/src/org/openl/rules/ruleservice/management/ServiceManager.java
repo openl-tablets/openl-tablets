@@ -29,19 +29,19 @@ public interface ServiceManager {
     /**
      * Undeploys currently running service.
      *
-     * @param serviceName Name of the service to undeploy.
+     * @param deployPath deployPath of the service to undeploy.
      * @throws RuleServiceDeployException
      */
-    void undeploy(String serviceName) throws RuleServiceUndeployException;
+    void undeploy(String deployPath) throws RuleServiceUndeployException;
 
     /**
-     * Searches for the service from currently running with the specified name or null if service with specified name
+     * Searches for the service from currently running with the specified deployPath or null if service with specified deployPath
      * wasn't deployed.
      *
-     * @param name Name of the service to find.
-     * @return Service with the specified name or null if service with specified name wasn't deployed.
+     * @param deployPath deployPath of the service to find.
+     * @return Service with the specified deployPath or null if service with specified deployPath wasn't deployed.
      */
-    OpenLService getServiceByName(String name);
+    OpenLService getServiceByDeploy(String deployPath);
 
     Collection<OpenLService> getServices();
 }

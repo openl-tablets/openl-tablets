@@ -137,7 +137,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 //                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration.",
 //                        serviceDescription.getName());
 //                } else {
-                    services.put(serviceDescription.getServicePath(), serviceDescription);
+                    services.put(serviceDescription.getDeployPath(), serviceDescription);
 //                }
             }
             return services;
@@ -148,12 +148,12 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void undeployUnnecessary(Map<String, ServiceDescription> newServices) {
-        for (String serviceName : services.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY)) {
-            if (!newServices.containsKey(serviceName)) {
+        for (String deployPath : services.keySet().toArray(StringUtils.EMPTY_STRING_ARRAY)) {
+            if (!newServices.containsKey(deployPath)) {
                 try {
-                    undeploy(services.get(serviceName));
+                    undeploy(services.get(deployPath));
                 } catch (RuleServiceUndeployException e) {
-                    log.error("Failed to undeploy service '{}'.", serviceName, e);
+                    log.error("Failed to undeploy service '{}'.", deployPath, e);
                 }
             }
         }
@@ -169,7 +169,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             for (List<ServiceDescription> serviceDescriptionsForDeployment : groupedServices.values()) {
                 if (hasAtLeastOneToDeploy(serviceDescriptionsForDeployment)) {
                     for (ServiceDescription serviceDescription : serviceDescriptionsForDeployment) {
-                        ServiceDescription old = services.get(serviceDescription.getServicePath());
+                        ServiceDescription old = services.get(serviceDescription.getDeployPath());
                         if (old != null) {
                             try {
                                 undeploy(old);
@@ -209,8 +209,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private void undeploy(ServiceDescription serviceDescription) throws RuleServiceUndeployException {
         Objects.requireNonNull(serviceDescription, "service cannot be null");
-        String serviceName = serviceDescription.getServicePath();
-        OpenLService service = getServiceByName(serviceName);
+        String serviceName = serviceDescription.getDeployPath();
+        OpenLService service = getServiceByDeploy(serviceName);
         try {
             this.openLServiceInProcess = service;
             this.serviceDescriptionInProcess = serviceDescription;
@@ -244,8 +244,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     private void deploy(ServiceDescription serviceDescription) throws RuleServiceDeployException {
-        String servicePath = serviceDescription.getServicePath();
-        if (getServiceByName(servicePath) != null) {
+        String servicePath = serviceDescription.getDeployPath();
+        if (getServiceByDeploy(servicePath) != null) {
             throw new RuleServiceDeployException(
                 String.format("The service with path '%s' is already deployed.", servicePath));
         }
@@ -285,8 +285,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public Collection<String> getServiceErrors(String serviceName) {
-        OpenLService service = getServiceByName(serviceName);
+    public Collection<String> getServiceErrors(String deployPath) {
+        OpenLService service = getServiceByDeploy(deployPath);
         if (service == null) {
             return null;
         }
@@ -306,8 +306,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public Manifest getManifest(String serviceName) {
-        ServiceDescription service = services.get(serviceName);
+    public Manifest getManifest(String deployPath) {
+        ServiceDescription service = services.get(deployPath);
         if (service == null) {
             return null;
         }
@@ -315,8 +315,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public Collection<MethodDescriptor> getServiceMethods(String serviceName) {
-        OpenLService service = getServiceByName(serviceName);
+    public Collection<MethodDescriptor> getServiceMethods(String deployPath) {
+        OpenLService service = getServiceByDeploy(deployPath);
         if (service != null) {
             try {
                 return Arrays.stream(service.getServiceClass().getMethods())
@@ -342,10 +342,10 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
         return services.values().stream().map(s -> {
-            OpenLService serviceByName = getServiceByName(s.getServicePath());
+            OpenLService serviceByName = getServiceByDeploy(s.getDeployPath());
             Map<String, String> urls = serviceByName != null ? serviceByName.getUrls() : Collections.emptyMap();
             return new ServiceInfo(startDates
-                .get(s.getServicePath()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
+                .get(s.getDeployPath()), s.getName(), urls, s.getDeployPath(), s.getManifest() != null);
         })
             .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
@@ -426,9 +426,9 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public OpenLService getServiceByName(String servicePath) {
-        Objects.requireNonNull(servicePath, "servicePath cannot be null");
-        return services2.get(servicePath);
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "servicePath cannot be null");
+        return services2.get(deployPath);
     }
 
     @Override
@@ -437,13 +437,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     @Override
-    public void undeploy(String serviceName) throws RuleServiceUndeployException {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
-        OpenLService undeployService = services2.get(serviceName);
-        Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", serviceName));
+    public void undeploy(String deployPath) throws RuleServiceUndeployException {
+        Objects.requireNonNull(deployPath, "deployPath cannot be null");
+        OpenLService undeployService = services2.get(deployPath);
+        Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", deployPath));
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
-            if (publisher.getServiceByDeploy(serviceName) != null) {
+            if (publisher.getServiceByDeploy(deployPath) != null) {
                 try {
                     publisher.undeploy(undeployService);
                 } catch (RuleServiceUndeployException e) {
@@ -452,16 +452,16 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             }
         }
         if (e1 == null) {
-            services2.remove(serviceName);
+            services2.remove(deployPath);
         } else {
             throw new RuleServiceUndeployException("Failed to undeploy a service.", e1);
         }
-        fireUndeployListeners(serviceName);
+        fireUndeployListeners(deployPath);
     }
 
-    private void fireUndeployListeners(String serviceName) {
+    private void fireUndeployListeners(String deployPath) {
         for (RuleServicePublisherListener listener : listeners) {
-            listener.onUndeploy(serviceName);
+            listener.onUndeploy(deployPath);
         }
     }
 

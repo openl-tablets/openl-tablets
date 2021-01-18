@@ -351,7 +351,7 @@ public class JAXRSOpenLServiceEnhancerTest {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
-                .setServicePath("testPath")
+                .setDeployPath("testPath")
             .setServiceClass(clazz)
             .build(new AbstractOpenLServiceInitializer() {
                 @Override

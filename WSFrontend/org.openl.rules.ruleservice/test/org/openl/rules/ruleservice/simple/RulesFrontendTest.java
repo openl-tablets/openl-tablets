@@ -7,7 +7,6 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
@@ -64,7 +63,7 @@ public class RulesFrontendTest {
         assertEquals(3, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
-        OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
+        OpenLService openLService = serviceManager.getServiceByDeploy("RulesFrontendTest_multimodule");
 
         serviceManager.undeploy("multimodule");
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
