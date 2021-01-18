@@ -72,7 +72,7 @@ public class ServiceRootClassNamesBindingFactoryBean extends AbstractFactoryBean
                     throw new ObjectMapperConfigurationParsingException(
                         String.format("Expected string value for '%s' in the configuration for service '%s'.",
                             ProjectJacksonObjectMapperFactoryBean.ROOT_CLASS_NAMES_BINDING,
-                            openLService.getServicePath()));
+                            openLService.getDeployPath()));
                 }
             }
         }

@@ -245,14 +245,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 if (noWadl) {
-                    noWadlServices.add(service.getServicePath());
+                    noWadlServices.add(service.getDeployPath());
                 }
-                log.info("Service '{}' has been exposed with URL '{}'.", service.getServicePath(), url);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getDeployPath(), url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getServicePath()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
             if (swaggerObjectMapperHack != null) {
@@ -301,10 +301,10 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     }
 
     @Override
-    public OpenLService getServiceByName(String serviceName) {
+    public OpenLService getServiceByDeploy(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (Objects.equals(service.getServicePath(), serviceName)) {
+            if (Objects.equals(service.getDeployPath(), serviceName)) {
                 return service;
             }
         }
@@ -317,17 +317,17 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'.", service.getServicePath()));
+                String.format("There is no running service with name '%s'.", service.getDeployPath()));
         }
         try {
             SwaggerRulesRedeployWorkaround.reset();
             server.destroy();
             //TODO
             runningServices.remove(service);
-            noWadlServices.remove(service.getServicePath());
-            log.info("Service '{}' has been undeployed successfully.", service.getServicePath());
+            noWadlServices.remove(service.getDeployPath());
+            log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getServicePath()),
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
     }

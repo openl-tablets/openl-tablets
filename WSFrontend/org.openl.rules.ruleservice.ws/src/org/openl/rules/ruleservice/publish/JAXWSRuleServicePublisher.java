@@ -125,22 +125,22 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
-                log.info("Service '{}' has been exposed with URL '{}'.", service.getServicePath(), serviceAddress);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getDeployPath(), serviceAddress);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getServicePath()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    public OpenLService getServiceByName(String serviceName) {
+    public OpenLService getServiceByDeploy(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getServicePath().equals(serviceName)) {
+            if (service.getDeployPath().equals(serviceName)) {
                 return service;
             }
         }
@@ -153,14 +153,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         ServiceServer server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service '%s'.", service.getServicePath()));
+                String.format("There is no running service '%s'.", service.getDeployPath()));
         }
         try {
             server.getServer().destroy();
             runningServices.remove(service);
-            log.info("Service '{}' has been undeployed successfully.", service.getServicePath());
+            log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getServicePath()),
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
 

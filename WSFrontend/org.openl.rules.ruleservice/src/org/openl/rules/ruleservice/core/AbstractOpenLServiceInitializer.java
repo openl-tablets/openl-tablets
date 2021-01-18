@@ -21,7 +21,7 @@ public abstract class AbstractOpenLServiceInitializer implements OpenLServiceIni
     protected void validate(OpenLService openLService) throws RuleServiceInstantiationException {
         if (openLService.getServiceClass().getMethods().length == 0) {
             throw new RuleServiceInstantiationException(
-                String.format("Service '%s' does not have any methods to deploy.", openLService.getServicePath()));
+                String.format("Service '%s' does not have any methods to deploy.", openLService.getDeployPath()));
         }
     }
 

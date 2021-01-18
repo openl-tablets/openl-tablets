@@ -25,7 +25,7 @@ public final class OpenLService {
      */
     private final String name;
     private final String url;
-    private final String servicePath;
+    private final String deployPath;
     private String serviceClassName;
     private String rmiServiceClassName;
     private final String rmiName;
@@ -64,7 +64,7 @@ public final class OpenLService {
      */
     OpenLService(String name,
             String url,
-            String servicePath,
+            String deployPath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -76,7 +76,7 @@ public final class OpenLService {
             Class<?> serviceClass) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
-        this.servicePath = servicePath;
+        this.deployPath = deployPath;
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
@@ -136,8 +136,8 @@ public final class OpenLService {
      *
      * @return servicePath
      */
-    public String getServicePath() {
-        return servicePath;
+    public String getDeployPath() {
+        return deployPath;
     }
 
     /**
@@ -301,7 +301,7 @@ public final class OpenLService {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (servicePath == null ? 0 : servicePath.hashCode());
+        result = prime * result + (deployPath == null ? 0 : deployPath.hashCode());
         return result;
     }
 
@@ -318,11 +318,11 @@ public final class OpenLService {
             return false;
         }
         OpenLService other = (OpenLService) obj;
-        if (servicePath == null) {
-            if (other.servicePath != null) {
+        if (deployPath == null) {
+            if (other.deployPath != null) {
                 return false;
             }
-        } else if (!servicePath.equals(other.servicePath)) {
+        } else if (!deployPath.equals(other.deployPath)) {
             return false;
         }
         return true;

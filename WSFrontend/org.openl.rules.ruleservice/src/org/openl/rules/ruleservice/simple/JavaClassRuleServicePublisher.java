@@ -33,7 +33,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
      * {@inheritDoc}
      */
     @Override
-    public OpenLService getServiceByName(String serviceName) {
+    public OpenLService getServiceByDeploy(String serviceName) {
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         return runningServices.get(serviceName);
     }
@@ -51,7 +51,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
                     String.format("Service '%s' is already deployed.", service.getName()));
             }
             frontend.registerService(service);
-            runningServices.put(service.getServicePath(), service);
+            runningServices.put(service.getDeployPath(), service);
             log.info("Service '{}' has been deployed successfully.", service.getName());
         } catch (Exception e) {
             throw new RuleServiceDeployException("Failed to deploy a service.", e);
@@ -61,7 +61,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     @Override
     public void undeploy(OpenLService service) throws RuleServiceUndeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        String serviceName = service.getServicePath();
+        String serviceName = service.getDeployPath();
         Objects.requireNonNull(serviceName, "serviceName cannot be null");
         frontend.unregisterService(service.getName());
         if (runningServices.remove(serviceName) == null) {

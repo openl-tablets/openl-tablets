@@ -8,11 +8,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
@@ -358,7 +356,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         CompiledOpenClass compiledOpenClass = service.getCompiledOpenClass();
         if (compiledOpenClass != null && service.getException() == null && !compiledOpenClass.hasErrors()) {
             supportedPublishers.forEach((id, publisher) -> {
-                if (publisher.getServiceByName(service.getServicePath()) != null) {
+                if (publisher.getServiceByDeploy(service.getDeployPath()) != null) {
                     String url = publisher.getUrl(service);
                     result.put(id, url);
                 }
@@ -370,7 +368,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
-        final String servicePath = service.getServicePath();
+        final String servicePath = service.getDeployPath();
         Collection<String> sp = service.getPublishers();
         if (CollectionUtils.isEmpty(sp)) {
             sp = defaultRuleServicePublishers;
@@ -384,7 +382,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 } else {
                     log.warn("Publisher for '{}' is not registered. Please, check the configuration for service '{}'.",
                         p,
-                        service.getServicePath());
+                        service.getDeployPath());
                 }
             }
             if (publishers.isEmpty()) {
@@ -445,7 +443,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         Objects.requireNonNull(undeployService, String.format("Service '%s' has not been found.", serviceName));
         RuleServiceUndeployException e1 = null;
         for (RuleServicePublisher publisher : supportedPublishers.values()) {
-            if (publisher.getServiceByName(serviceName) != null) {
+            if (publisher.getServiceByDeploy(serviceName) != null) {
                 try {
                     publisher.undeploy(undeployService);
                 } catch (RuleServiceUndeployException e) {

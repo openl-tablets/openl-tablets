@@ -87,7 +87,7 @@ public class RulesDeployerRestController {
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        InputStream read = rulesDeployerService.read(service.getServicePath());
+        InputStream read = rulesDeployerService.read(service.getDeployPath());
         return Response.ok(read)
             .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
             .build();
@@ -105,7 +105,7 @@ public class RulesDeployerRestController {
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        boolean deleted = rulesDeployerService.delete(service.getServicePath());
+        boolean deleted = rulesDeployerService.delete(service.getDeployPath());
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }
 }
