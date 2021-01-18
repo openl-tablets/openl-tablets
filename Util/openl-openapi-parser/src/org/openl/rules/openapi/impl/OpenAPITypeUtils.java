@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.apache.commons.jxpath.JXPathContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.util.CollectionUtils;
@@ -86,13 +87,23 @@ public class OpenAPITypeUtils {
         return Collections.unmodifiableMap(wrapperMap);
     }
 
-    public static TypeInfo extractType(Schema<?> schema, boolean allowPrimitiveTypes) {
+    public static TypeInfo extractType(JXPathContext pathContext, Schema<?> schema, boolean allowPrimitiveTypes) {
+        boolean isRefToComplexType = false;
+        Schema<?> foundSchema = null;
         if (schema.get$ref() != null) {
+            foundSchema = OpenLOpenAPIUtils.resolve(pathContext, schema, Schema::get$ref);
+            isRefToComplexType = isComplexSchema(pathContext, foundSchema);
+        }
+
+        if (isRefToComplexType) {
             String simpleName = getSimpleName(schema.get$ref());
             if (DEFAULT_RUNTIME_CONTEXT.equals(simpleName)) {
                 return RUNTIME_CONTEXT_TYPE;
             }
             return new TypeInfo(simpleName, simpleName, true, 0);
+        }
+        if (foundSchema != null) {
+            schema = foundSchema;
         }
         String schemaType = schema.getType();
         String format = schema.getFormat();
@@ -120,7 +131,7 @@ public class OpenAPITypeUtils {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
         } else if (schema instanceof ArraySchema) {
             ArraySchema arraySchema = (ArraySchema) schema;
-            TypeInfo type = extractType(arraySchema.getItems(), false);
+            TypeInfo type = extractType(pathContext, arraySchema.getItems(), false);
             String name = type.getSimpleName() + "[]";
             int dim = type.getDimension() + 1;
             if (type.isReference()) {
@@ -132,6 +143,19 @@ public class OpenAPITypeUtils {
         }
         if (result == null) {
             result = WRAPPER_CLASSES.get(OBJECT);
+        }
+        return result;
+    }
+
+    public static boolean isComplexSchema(JXPathContext pathContext, Schema<?> foundSchema) {
+        boolean result = false;
+        if (foundSchema instanceof ComposedSchema) {
+            result = true;
+        } else if (foundSchema instanceof ArraySchema) {
+            TypeInfo typeInfo = extractType(pathContext, foundSchema, false);
+            result = typeInfo.isReference();
+        } else if (OBJECT.toLowerCase().equals(foundSchema.getType())) {
+            result = true;
         }
         return result;
     }
