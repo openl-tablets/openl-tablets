@@ -20,6 +20,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
@@ -255,12 +256,16 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             ICell expressionCell,
             int d,
             int z) {
-        IOpenMethodHeader header;
         String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
         String headerCode = prefix + signatureCode + ")";
-        header = OpenLManager.makeMethodHeader(getOpenl(),
-            new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
-            dtHeaderBindingContext);
+        IOpenMethodHeader header;
+        try {
+            header = OpenLManager.makeMethodHeader(getOpenl(),
+                new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
+                dtHeaderBindingContext);
+        } catch (OpenLCompilationException e) {
+            throw new IllegalStateException("Illegal state", e);
+        }
         if (!cxt.isExecutionMode()) {
             addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
         }
