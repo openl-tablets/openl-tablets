@@ -1,5 +1,8 @@
 package org.openl.rules.runtime;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 /**
  * The class what represents information about rule.
  */
@@ -45,4 +48,20 @@ public class RuleInfo {
         this.paramTypes = paramTypes;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        RuleInfo ruleInfo = (RuleInfo) o;
+        return Objects.equals(name, ruleInfo.name) && Arrays.equals(paramTypes, ruleInfo.paramTypes);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(name);
+        result = 31 * result + Arrays.hashCode(paramTypes);
+        return result;
+    }
 }

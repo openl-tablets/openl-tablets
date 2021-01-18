@@ -1,0 +1,3 @@
+ERROR: Type 'VariationsPack' is not found.
+ERROR: Type 'null-Class' is defined with errors.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/RatingBasis1'.

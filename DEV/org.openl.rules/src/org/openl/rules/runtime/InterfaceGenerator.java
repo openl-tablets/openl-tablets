@@ -22,6 +22,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
@@ -235,8 +236,8 @@ public class InterfaceGenerator {
         }
         if (member instanceof IOpenMethod) {
             IOpenMethod openMethod = (IOpenMethod) member;
-            for (IOpenClass openClass : openMethod.getSignature().getParameterTypes()) {
-                if (isInvalidType(openClass, validationMap)) {
+            for (IOpenClass parameterType : openMethod.getSignature().getParameterTypes()) {
+                if (isInvalidType(parameterType, validationMap)) {
                     return true;
                 }
             }
@@ -266,6 +267,10 @@ public class InterfaceGenerator {
                     return true;
                 }
             }
+        }
+        if (NullOpenClass.isAnyNull(openClass)) {
+            invalidTypeMap.put(openClass, Boolean.TRUE);
+            return true;
         }
         return false;
     }
@@ -309,7 +314,7 @@ public class InterfaceGenerator {
                 if (clazz != null) {
                     classes.add(clazz);
                 } else {
-                    classes.add(Object.class);
+                    throw new IllegalStateException("Instance class cannot be null");
                 }
             }
         }

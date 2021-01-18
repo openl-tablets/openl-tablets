@@ -1,9 +1,9 @@
 ERROR: Type 'Test' is not found.
 ERROR: Type 'null-Class' is defined with errors.
 ERROR: Cannot parse cell value 'aaa' to the necessary type.
-ERROR: OpenAPI Reconciliation: Return type of method 'spr1' must be compatible with OpenAPI schema 'Spr1'.
 ERROR: OpenAPI Reconciliation: Type of cell '$Step11' must be compatible with OpenAPI type 'integer(int32)' that incompatible with actual type 'string'.
 ERROR: OpenAPI Reconciliation: Type of cell '$Step12' must be compatible with OpenAPI type 'integer(int32)' that incompatible with actual type 'string'.
 ERROR: OpenAPI Reconciliation: Type of cell '$Step13' must be compatible with OpenAPI type 'integer(int32)' that incompatible with actual type 'string'.
 ERROR: OpenAPI Reconciliation: Expected non transient cell for schema property 'Step14' is not found.
 ERROR: OpenAPI Reconciliation: Unexpected schema property 'Step14213' related to cell '$Step14213' is found.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/spr1'.
