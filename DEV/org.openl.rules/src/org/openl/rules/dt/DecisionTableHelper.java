@@ -3522,7 +3522,7 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static class NumberOfColumnsUnderTitleCounter {
+    public static class NumberOfColumnsUnderTitleCounter {
         final ILogicalTable logicalTable;
         final int firstColumnHeight;
         final Map<Integer, List<Integer>> numberOfColumnsMap = new HashMap<>();
@@ -3539,17 +3539,17 @@ public final class DecisionTableHelper {
             return w1;
         }
 
-        private int get(int column) {
+        public int get(int column) {
             List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
             return numberOfColumns.size();
         }
 
-        private int getWidth(int column, int num) {
+        public int getWidth(int column, int num) {
             List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
             return numberOfColumns.get(num);
         }
 
-        private NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
+        public NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
             this.logicalTable = logicalTable;
             this.firstColumnHeight = firstColumnHeight;
         }

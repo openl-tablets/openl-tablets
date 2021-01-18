@@ -111,9 +111,22 @@ public class DecisionTableLoader {
         int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = DecisionTableHelper
             .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
-        return firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
+        if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
             .getCell(firstColumnForHCondition, 0)
-            .getHeight();
+            .getHeight()) {
+            final DecisionTableHelper.NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter = new DecisionTableHelper.NumberOfColumnsUnderTitleCounter(
+                tableBody,
+                firstColumnHeight);
+            int i = firstColumnForHCondition;
+            while (i < tableBody.getSource().getWidth()) {
+                int c = numberOfColumnsUnderTitleCounter.get(i);
+                if (c > 1) {
+                    return true;
+                }
+                i = i + tableBody.getSource().getCell(i, 0).getWidth();
+            }
+        }
+        return false;
     }
 
     private Direction detectTableDirection(TableSyntaxNode tableSyntaxNode) {
