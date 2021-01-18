@@ -111,21 +111,19 @@
 
     <script>
         //<![CDATA[
-        var $jq = jQuery.noConflict();
-
         var checkbox1;
         var checkbox2;
 
-        var $compareBtn = $jq('#compareBtn');
+        var $compareBtn = $j('#compareBtn');
         $compareBtn.prop("disabled", true);
 
-        $jq('#changes').on("change", "input[type='checkbox']", function () {
-            if ($jq(this).is(":checked")) {
-                $jq(checkbox2).prop("checked", false);
+        $j('#changes').on("change", "input[type='checkbox']", function () {
+            if ($j(this).is(":checked")) {
+                $j(checkbox2).prop("checked", false);
                 checkbox2 = checkbox1;
                 checkbox1 = this;
             } else {
-                if (!$jq(checkbox1).is(":checked")) {
+                if (!$j(checkbox1).is(":checked")) {
                     checkbox1 = checkbox2;
                 }
                 checkbox2 = null;
@@ -133,52 +131,53 @@
             $compareBtn.prop("disabled", checkbox2 == null);
         });
 
-        $jq('#changes').on("click", "a", function (e) {
+        $j('#changes').on("click", "a", function (e) {
             e.preventDefault();
-            var row = $jq(this).closest(".row");
-            $j('#versionToRestore').val($jq(row).find("input[type='checkbox']").val());
-            $j('#changeDate').text($jq(row).find(".modifiedOn").text());
+            var row = $j(this).closest(".row");
+            $j('#versionToRestore').val($j(row).find("input[type='checkbox']").val());
+            $j('#changeDate').text($j(row).find(".modifiedOn").text());
             RichFaces.$('confirmRestore').show();
         });
 
         function compare() {
             var url = '#{contextPath}/faces/pages/modules/compare.xhtml?disableUpload=true';
-            url += "&version1=" + $jq(checkbox1).val();
-            url += "&version2=" + $jq(checkbox2).val();
+            url += "&version1=" + $j(checkbox1).val();
+            url += "&version2=" + $j(checkbox2).val();
             window.open(url, 'Compare', 'width=1240,height=700,screenX=50,screenY=100,resizable=yes,scrollbars=yes,status=yes');
         }
 
         function restore() {
-            $jq.ajax({
+            $j.ajax({
                 type: "POST",
                 contentType: 'text/plain',
                 url: "#{contextPath}/web/history/restore",
                 data: jQuery("#versionToRestore").val(),
                 datatype: "json"
             }).done(function () {
-                $jq('#changes').trigger('refresh');
+                $j('#changes').trigger('refresh');
                 ws.ui.success("Restoring changes was successful!");
                 ws.nav.reload(true);
                 ws.ui.hideLoader();
                 $compareBtn.prop("disabled", true);
+                RichFaces.$('confirmRestore').hide();
             }).fail(function () {
                 ws.ui.error("Restoring changes was failed!");
+                RichFaces.$('confirmRestore').hide();
             });
-            RichFaces.$('confirmRestore').hide();
         }
 
-        $jq('#changes').bind('refresh', function () {
-            $jq.ajax({
+        $j('#changes').bind('refresh', function () {
+            $j.ajax({
                 url: "#{contextPath}/web/history/project",
                 datatype: "json"
             })
                 .done(function (data) {
                     if (data.length > 0) {
-                        $jq('.page .noChanges').hide();
-                        var rowTemplate = $jq('#changes>div:nth-child(2)');
-                        var htmlTemplate = $jq('<div/>').append(rowTemplate).html();
+                        $j('.page .noChanges').hide();
+                        var rowTemplate = $j('#changes>div:nth-child(2)');
+                        var htmlTemplate = $j('<div/>').append(rowTemplate).html();
                         var history = htmlTemplate;
-                        $jq('#changes div.row').remove();
+                        $j('#changes div.row').remove();
 
                         data.forEach(function (item) {
                             history += htmlTemplate
@@ -186,18 +185,18 @@
                                 .replace(/{type}/g, item.current ? "current" : "")
                                 .replace(/{modifiedOn}/g, item.modifiedOn);
                         });
-                        $jq('#changes').append(history);
-                        $jq('.page .page-header span').text(data.length - 1);
-                        $jq('.page .historyTable').show();
+                        $j('#changes').append(history);
+                        $j('.page .page-header span').text(data.length - 1);
+                        $j('.page .historyTable').show();
                     } else {
-                        $jq('.page .historyTable').hide();
-                        $jq('.page .noChanges').show();
+                        $j('.page .historyTable').hide();
+                        $j('.page .noChanges').show();
                     }
-                    checkbox1 = $jq(".current input[type='checkbox']");
-                    $jq(checkbox1).prop("checked", true);
+                    checkbox1 = $j(".current input[type='checkbox']");
+                    $j(checkbox1).prop("checked", true);
                 });
         });
-        $jq('#changes').trigger('refresh');
+        $j('#changes').trigger('refresh');
         //]]>
     </script>
 
