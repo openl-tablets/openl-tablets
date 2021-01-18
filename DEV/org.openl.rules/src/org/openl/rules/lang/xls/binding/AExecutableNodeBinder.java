@@ -11,6 +11,7 @@ import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -65,7 +66,11 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         try {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
             IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-            return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+            try {
+                return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+            } catch (OpenLCompilationException e) {
+                throw new SyntaxNodeException(e.getMessage(), e.getOriginalCause(), tableSyntaxNode);
+            }
         } finally {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }

@@ -19,9 +19,10 @@ import org.openl.util.MessageUtils;
 public abstract class ANodeBinder implements INodeBinder {
 
     public static IBoundNode bindChildNode(ISyntaxNode node, IBindingContext bindingContext) {
-
+        if (node == null) {
+            return new ErrorBoundNode(null);
+        }
         INodeBinder binder = findBinder(node, bindingContext);
-
         try {
             return binder.bind(node, bindingContext);
         } catch (Exception | LinkageError e) {
@@ -64,16 +65,12 @@ public abstract class ANodeBinder implements INodeBinder {
         }
     }
 
-    public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
-            IBindingContext bindingContext) {
+    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext) {
 
         return bindChildren(parentNode, bindingContext, 0, parentNode.getNumberOfChildren());
     }
 
-    public static IBoundNode[] bindChildren(ISyntaxNode parentNode,
-            IBindingContext bindingContext,
-            int from,
-            int to) {
+    public static IBoundNode[] bindChildren(ISyntaxNode parentNode, IBindingContext bindingContext, int from, int to) {
 
         int n = to - from;
 

@@ -5,6 +5,7 @@ import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.DoubleValue;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
@@ -27,9 +28,13 @@ import junit.framework.TestCase;
  */
 public class BinderTest extends TestCase {
 
-    private void _testMethodHeader(String code, IOpenClass type, String openlName, int numPar) {
+    private void _testMethodHeader(String code,
+            IOpenClass type,
+            String openlName,
+            int numPar) throws OpenLCompilationException {
         OpenL openl = OpenL.getInstance(openlName);
-        IOpenMethodHeader header = OpenLManager.makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
+        IOpenMethodHeader header = OpenLManager
+            .makeMethodHeader(openl, new StringSourceCodeModule(code, null), openl.getBinder().makeBindingContext());
         Assert.assertEquals(type, header.getType());
         Assert.assertEquals(numPar, header.getSignature().getParameterTypes().length);
     }
@@ -84,7 +89,7 @@ public class BinderTest extends TestCase {
         _testNoError("DoubleValue d1, d2; d1 + d2", DoubleValue.class, OpenL.OPENL_JAVA_NAME);
     }
 
-    public void testMethodHeader() {
+    public void testMethodHeader() throws OpenLCompilationException {
         _testMethodHeader("int x()", JavaOpenClass.INT, OpenL.OPENL_J_NAME, 0);
         _testMethodHeader("void x(int zz, double aa)", JavaOpenClass.VOID, OpenL.OPENL_J_NAME, 2);
     }
