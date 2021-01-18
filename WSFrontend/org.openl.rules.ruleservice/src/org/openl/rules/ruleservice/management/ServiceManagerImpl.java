@@ -349,7 +349,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
             return new ServiceInfo(startDates
                 .get(s.getServicePath()), s.getName(), urls, s.getServicePath(), s.getManifest() != null);
         })
-            .sorted(Comparator.comparing(ServiceInfo::getServicePath, String.CASE_INSENSITIVE_ORDER))
+            .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
     }
 
