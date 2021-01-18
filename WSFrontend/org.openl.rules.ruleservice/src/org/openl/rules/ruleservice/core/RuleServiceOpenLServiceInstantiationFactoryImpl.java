@@ -157,7 +157,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 log.error("Failed to load a service class '{}'.", serviceClassName, e);
             }
         }
-        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getName());
+        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getServicePath());
         Class<?> instanceClass = instantiationStrategy.getInstanceClass();
         Object serviceTarget = instantiationStrategy.instantiate();
         serviceClass = processGeneratedServiceClass(serviceDescription,
@@ -181,7 +181,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface is used.", service.getName());
+            log.info("Service class is undefined for service '{}'. Default RMI interface is used.", service.getServicePath());
             service.setRmiServiceClassName(null); // RMI default will be used
         }
         service.setRmiServiceClass(serviceClass);
@@ -259,7 +259,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                        String.format("Failed to initialize service '%s'.", openLService.getName()),
+                        String.format("Failed to initialize service '%s'.", openLService.getServicePath()),
                         e);
                 }
             }

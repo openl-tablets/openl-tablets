@@ -245,14 +245,14 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
                 Server wsServer = svrFactory.create();
                 runningServices.put(service, wsServer);
                 if (noWadl) {
-                    noWadlServices.add(service.getName());
+                    noWadlServices.add(service.getServicePath());
                 }
-                log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), url);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getServicePath(), url);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getServicePath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
             if (swaggerObjectMapperHack != null) {
@@ -317,16 +317,17 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
         Server server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'.", service.getName()));
+                String.format("There is no running service with name '%s'.", service.getServicePath()));
         }
         try {
             SwaggerRulesRedeployWorkaround.reset();
             server.destroy();
+            //TODO
             runningServices.remove(service);
-            noWadlServices.remove(service.getName());
-            log.info("Service '{}' has been undeployed successfully.", service.getName());
+            noWadlServices.remove(service.getServicePath());
+            log.info("Service '{}' has been undeployed successfully.", service.getServicePath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getServicePath()),
                 t);
         }
     }

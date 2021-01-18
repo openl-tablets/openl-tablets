@@ -125,12 +125,12 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
-                log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), serviceAddress);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getServicePath(), serviceAddress);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getServicePath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -153,14 +153,14 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         ServiceServer server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service '%s'.", service.getName()));
+                String.format("There is no running service '%s'.", service.getServicePath()));
         }
         try {
             server.getServer().destroy();
             runningServices.remove(service);
-            log.info("Service '{}' has been undeployed successfully.", service.getName());
+            log.info("Service '{}' has been undeployed successfully.", service.getServicePath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getServicePath()),
                 t);
         }
 

@@ -89,9 +89,9 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
 
             ServiceServer serviceServer = new ServiceServer(rmiName, rmiHandler);
             runningServices.put(service, serviceServer);
-            log.info("Service '{}' has been exposed with RMI name '{}'.", service.getName(), rmiName);
+            log.info("Service '{}' has been exposed with RMI name '{}'.", service.getServicePath(), rmiName);
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getServicePath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -114,15 +114,15 @@ public class RmiRuleServicePublisher implements RuleServicePublisher {
         ServiceServer server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                    String.format("There is no running service with name '%s'.", service.getName()));
+                    String.format("There is no running service with name '%s'.", service.getServicePath()));
         }
         try {
             getRegistry().unbind(server.getName());
             UnicastRemoteObject.unexportObject(server.getRmiHandler(), true);
             runningServices.remove(service);
-            log.info("Service '{}' has been undeployed succesfully.", service.getName());
+            log.info("Service '{}' has been undeployed succesfully.", service.getServicePath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()), t);
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getServicePath()), t);
         }
     }
 
