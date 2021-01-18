@@ -569,7 +569,8 @@ public class OpenLOpenAPIUtils {
             Set<String> refsToExpand) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
-        if (CollectionUtils.isNotEmpty(pathParameters)) {
+        boolean pathParametersArePresented = CollectionUtils.isNotEmpty(pathParameters);
+        if (pathParametersArePresented) {
             parameterModels.addAll(collectInputParams(openAPI, jxPathContext, pathParameters, refsToExpand, true));
         }
         Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
@@ -577,22 +578,26 @@ public class OpenLOpenAPIUtils {
             Operation satisfyingOperation = satisfyingOperationWithMethod.getLeft();
             PathItem.HttpMethod method = satisfyingOperationWithMethod.getRight();
             List<Parameter> parameters = satisfyingOperation.getParameters();
-            if (CollectionUtils.isNotEmpty(parameters)) {
-                boolean allowPrimitiveTypes = method.equals(PathItem.HttpMethod.GET);
+            boolean allowPrimitiveTypes = method.equals(PathItem.HttpMethod.GET);
+            boolean operationsParametersArePresented = CollectionUtils.isNotEmpty(parameters);
+            if (operationsParametersArePresented) {
                 parameterModels
                     .addAll(collectInputParams(openAPI, jxPathContext, parameters, refsToExpand, allowPrimitiveTypes));
-            } else {
-                RequestBody requestBody = resolve(jxPathContext,
-                    satisfyingOperation.getRequestBody(),
-                    RequestBody::get$ref);
-                if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
-                    MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
-                    if (mediaType != null) {
-                        MediaType content = mediaType.getContent();
-                        Schema<?> resSchema = resolve(jxPathContext, content.getSchema(), Schema::get$ref);
-                        parameterModels
-                            .addAll(collectInputParams(jxPathContext, openAPI, refsToExpand, mediaType, resSchema));
-                    }
+            }
+            RequestBody requestBody = resolve(jxPathContext,
+                satisfyingOperation.getRequestBody(),
+                RequestBody::get$ref);
+            if (requestBody != null && CollectionUtils.isNotEmpty(requestBody.getContent())) {
+                MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(requestBody.getContent());
+                if (mediaType != null) {
+                    MediaType content = mediaType.getContent();
+                    Schema<?> resSchema = resolve(jxPathContext, content.getSchema(), Schema::get$ref);
+                    parameterModels.addAll(collectInputParams(jxPathContext,
+                        openAPI,
+                        refsToExpand,
+                        mediaType,
+                        resSchema,
+                        pathParametersArePresented || operationsParametersArePresented));
                 }
             }
         }
@@ -693,14 +698,15 @@ public class OpenLOpenAPIUtils {
             OpenAPI openAPI,
             Set<String> refsToExpand,
             MediaTypeInfo mediaType,
-            Schema<?> resSchema) {
+            Schema<?> resSchema,
+            boolean parametersArePresented) {
         List<InputParameter> result = new ArrayList<>();
         if (resSchema != null) {
             // search for refsToExpandInside
             // go through the schema and all the parameters
             Set<String> allSchemasUsedInRequest = visitSchema(jxPathContext, resSchema, false, true);
             boolean requestBodyHasExpandableParam = allSchemasUsedInRequest.stream().anyMatch(refsToExpand::contains);
-            if (requestBodyHasExpandableParam) {
+            if (requestBodyHasExpandableParam || parametersArePresented) {
                 for (String internalModel : allSchemasUsedInRequest) {
                     refsToExpand.remove(internalModel);
                 }
