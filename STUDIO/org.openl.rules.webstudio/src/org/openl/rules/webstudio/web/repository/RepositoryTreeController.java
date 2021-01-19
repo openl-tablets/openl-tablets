@@ -394,14 +394,29 @@ public class RepositoryTreeController {
     }
 
     private Collection<String> getDependencies(AProject project, boolean recursive) {
+        Collection<String> processedProjects = new HashSet<>();
         Collection<String> dependencies = new HashSet<>();
         if (project != null) {
-            calcDependencies(dependencies, project, recursive);
+            processedProjects.add(project.getName());
+            calcDependencies(project, recursive, processedProjects, dependencies);
         }
         return dependencies;
     }
 
-    private void calcDependencies(Collection<String> result, AProject project, boolean recursive) {
+    /**
+     * Calc project dependencies. Only closed projects will be included in the result.
+     *
+     * @param project inspecting project
+     * @param recursive if false, only direct dependencies will be included. If true, dependencies of dependent projects
+     *            will be included
+     * @param processedProjects collections with already checked projects. Includes every checked for dependencies
+     *            project name. Needed to avoid stack overflow.
+     * @param result calculated project names for dependencies. Doesn't include closed/archived/not existing projects.
+     */
+    private void calcDependencies(AProject project,
+            boolean recursive,
+            Collection<String> processedProjects,
+            Collection<String> result) {
         List<ProjectDependencyDescriptor> dependencies;
         try {
             dependencies = projectDescriptorResolver.getDependencies(project);
@@ -416,18 +431,24 @@ public class RepositoryTreeController {
 
         for (ProjectDependencyDescriptor dependency : dependencies) {
             try {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency.getName());
+                final String dependencyName = dependency.getName();
+                if (processedProjects.contains(dependencyName)) {
+                    continue;
+                } else {
+                    processedProjects.add(dependencyName);
+                }
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependencyName);
                 if (projectNode == null) {
                     continue;
                 }
                 String physicalName = projectNode.getName();
                 AProject dependentProject = userWorkspace.getProject(physicalName, false);
                 if (canOpen(dependentProject)) {
-                    result.add(dependency.getName());
+                    result.add(dependencyName);
                 }
 
                 if (recursive) {
-                    calcDependencies(result, dependentProject, true);
+                    calcDependencies(dependentProject, true, processedProjects, result);
                 }
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
@@ -1356,6 +1377,7 @@ public class RepositoryTreeController {
         try {
             repositoryTreeState.getSelectedProject().open();
             openDependenciesIfNeeded();
+            repositoryTreeState.invalidateTree();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
@@ -1391,6 +1413,7 @@ public class RepositoryTreeController {
 
             repositoryProject.openVersion(version);
             openDependenciesIfNeeded();
+            repositoryTreeState.invalidateTree();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
         } catch (Exception e) {
@@ -1887,7 +1910,7 @@ public class RepositoryTreeController {
      * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration
      * tab).
      *
-     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)}
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen()}
      *         is invoked
      */
     public boolean isCurrentProjectSelected() {
