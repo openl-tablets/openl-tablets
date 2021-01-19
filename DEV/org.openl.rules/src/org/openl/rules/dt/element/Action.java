@@ -109,7 +109,6 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
-                                                                         IOpenMethodHeader header,
                                                                          IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
@@ -164,7 +163,7 @@ public class Action extends FunctionalRow implements IAction {
                 methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
-                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, header, bindingContext);
+                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
                 }
             }
         }

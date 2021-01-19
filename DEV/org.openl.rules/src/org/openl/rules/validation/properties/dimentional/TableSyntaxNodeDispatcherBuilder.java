@@ -159,10 +159,10 @@ class TableSyntaxNodeDispatcherBuilder {
             IMethodSignature signature = new MethodSignature(params);
             OpenMethodHeader header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
 
-            DecisionTableBoundNode boundNode = null;
-            if (moduleOpenClass != null) {
-                boundNode = new DecisionTableBoundNode(tsn, moduleOpenClass.getOpenl(), header, moduleOpenClass);
-            }
+            DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn,
+                moduleOpenClass.getOpenl(),
+                header,
+                moduleOpenClass);
             DecisionTable decisionTable = new DecisionTable(header, boundNode);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(
