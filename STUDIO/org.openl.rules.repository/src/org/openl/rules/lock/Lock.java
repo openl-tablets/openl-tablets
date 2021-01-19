@@ -72,7 +72,10 @@ public class Lock {
                     lockAcquired = finishLockCreating(prepareLock);
                 }
             } catch (Exception e) {
-                LOG.info("Failure to create a lock file '{}'.", lockPath);
+                LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
+                    lockPath,
+                    e.getClass().getName(),
+                    e.getMessage());
             }
             if (!lockAcquired) {
                 // Delete because of it loos lock
@@ -86,10 +89,17 @@ public class Lock {
         long millisTimeout = unit.toMillis(time);
         long deadline = System.currentTimeMillis() + millisTimeout;
         boolean result = tryLock(lockedBy);
-        long sleepTime = millisTimeout < 100 ? 1 : millisTimeout / 100;
-        while (!result && deadline > System.currentTimeMillis()) {
+        long sleepTime = 1;
+        while (!result) {
+            long restTime = deadline - System.currentTimeMillis();
+            if (restTime <= 0) {
+                // No time for waiting! Exit.
+                break;
+            }
+            sleepTime *= 1.618; // 1.6180339887498948482
+            sleepTime = sleepTime > restTime ? restTime : sleepTime;
             try {
-                TimeUnit.MILLISECONDS.sleep(millisTimeout / 100);
+                TimeUnit.MILLISECONDS.sleep(sleepTime);
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -217,7 +227,7 @@ public class Lock {
         }
     }
 
-    Path createLockFile(String userName) throws IOException {
+    Path createLockFile(String userName) {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         try {
             Files.createDirectories(lockPath);
