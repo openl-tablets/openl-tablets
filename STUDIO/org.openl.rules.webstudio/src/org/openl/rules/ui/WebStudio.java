@@ -536,7 +536,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         needCompile = true;
     }
 
-    public void resetProjects() {
+    public synchronized void resetProjects() {
+        doResetProjects();
+    }
+
+    private void doResetProjects() {
         forcedCompile = true;
         projects = null;
         try {
@@ -549,7 +553,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public synchronized void reset() {
-        resetProjects();
+        doResetProjects();
         currentModule = null;
         currentProject = null;
     }
@@ -774,7 +778,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             });
 
-            resetProjects();
+            doResetProjects();
 
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
@@ -1327,7 +1331,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
                     String actualName = rulesUserSession.getUserWorkspace().getActualName(project);
 
-                    resetProjects();
+                    doResetProjects();
 
                     return actualName.equals(descriptor.getName()) ? null : actualName;
                 }
