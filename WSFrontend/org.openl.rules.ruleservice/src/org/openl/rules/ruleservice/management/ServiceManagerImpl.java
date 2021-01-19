@@ -132,14 +132,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 .getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-                // if (services.containsKey(serviceDescription.getName())) {
-                // log.warn(
-                // "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check
-                // your configuration.",
-                // serviceDescription.getName());
-                // } else {
                 services.put(serviceDescription.getDeployPath(), serviceDescription);
-                // }
             }
             return services;
         } catch (Exception e) {
