@@ -55,7 +55,6 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
         Collection<IDeployment> deployments = ruleServiceLoader.getDeployments();
 
         Collection<ServiceDescription> serviceDescriptions = new HashSet<>();
-        Set<String> serviceURLs = new HashSet<>();
         for (IDeployment deployment : deployments) {
             if (!deploymentMatcher.hasMatches(deployment.getDeploymentName())) {
                 continue;
@@ -145,17 +144,12 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
                         if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
-                            serviceURLs.add(serviceDescription.getUrl());
                             serviceDescriptions.add(serviceDescription);
+                        } else {
                             if (serviceDescriptions.contains(serviceDescription)) {
-                                log.warn(
-                                    "Service '{}' already exists in the deployment list. The second service has been skipped. Please, use unique name for services.",
-                                    serviceDescription.getName());
-                            }
-                            if (serviceURLs.contains(serviceDescription.getUrl())) {
-                                log.warn(
-                                    "URL '{}' has already been registered. The second service has been skipped. Please, use unique URLs for services.",
-                                    serviceDescription.getUrl());
+                                log.error(
+                                    "Service '{}' already exists in the deployment list.",
+                                    serviceDescription.getDeployPath());
                             }
                         }
                     }

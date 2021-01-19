@@ -43,13 +43,13 @@ public class ServiceConfigurationBooleanFactoryBean extends AbstractFactoryBean<
             throw new ServiceConfigurationException(
                 String.format("Expected true/false value for '%s' in the deployment configuration for service '%s'.",
                     getPropertyName().trim(),
-                    getServiceDescription().getName()));
+                    getServiceDescription().getDeployPath()));
         } else {
             if (value != null) {
                 throw new ServiceConfigurationException(String.format(
                     "Expected true/false value for '%s' in the deployment configuration for service '%s'.",
                     getPropertyName().trim(),
-                    getServiceDescription().getName()));
+                    getServiceDescription().getDeployPath()));
             }
         }
         return ret;

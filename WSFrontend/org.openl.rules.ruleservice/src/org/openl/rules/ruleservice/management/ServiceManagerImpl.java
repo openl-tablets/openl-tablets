@@ -132,13 +132,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                 .getServicesToBeDeployed(ruleServiceLoader);
             Map<String, ServiceDescription> services = new HashMap<>();
             for (ServiceDescription serviceDescription : servicesToBeDeployed) {
-//                if (services.containsKey(serviceDescription.getName())) {
-//                    log.warn(
-//                        "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check your configuration.",
-//                        serviceDescription.getName());
-//                } else {
-                    services.put(serviceDescription.getDeployPath(), serviceDescription);
-//                }
+                // if (services.containsKey(serviceDescription.getName())) {
+                // log.warn(
+                // "Service '{}' is duplicated! Only one service with this the same name can be deployed! Please, check
+                // your configuration.",
+                // serviceDescription.getName());
+                // } else {
+                services.put(serviceDescription.getDeployPath(), serviceDescription);
+                // }
             }
             return services;
         } catch (Exception e) {
@@ -174,7 +175,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                             try {
                                 undeploy(old);
                             } catch (RuleServiceUndeployException e) {
-                                log.error("Failed to undeploy service '{}'.", serviceDescription.getName(), e);
+                                log.error("Failed to undeploy service '{}'.", serviceDescription.getDeployPath(), e);
                             }
                         }
                     }
@@ -182,7 +183,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
                         try {
                             deploy(serviceDescription);
                         } catch (RuleServiceDeployException e) {
-                            log.error("Failed to deploy service '{}'.", serviceDescription.getName(), e);
+                            log.error("Failed to deploy service '{}'.", serviceDescription.getDeployPath(), e);
                         }
                     }
                 }
@@ -194,7 +195,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
 
     private boolean hasAtLeastOneToDeploy(List<ServiceDescription> serviceDescriptionsForCurrentDeployment) {
         for (ServiceDescription serviceDescription : serviceDescriptionsForCurrentDeployment) {
-            ServiceDescription old = services.get(serviceDescription.getName());
+            ServiceDescription old = services.get(serviceDescription.getDeployPath());
             if (old != null) {
                 CommonVersion oldVersion = old.getDeployment().getVersion();
                 if (oldVersion.compareTo(serviceDescription.getDeployment().getVersion()) != 0) {
@@ -268,8 +269,7 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     }
 
     public XlsModuleOpenClass getXlsModuleOpenClassInProcess() throws RuleServiceInstantiationException {
-        return openLServiceInProcess != null ? (XlsModuleOpenClass) openLServiceInProcess.getOpenClass()
-                                             : null;
+        return openLServiceInProcess != null ? (XlsModuleOpenClass) openLServiceInProcess.getOpenClass() : null;
     }
 
     public RulesDeploy getRulesDeployInProcess() {

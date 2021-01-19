@@ -181,7 +181,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface is used.", service.getDeployPath());
+            log.info("Service class is undefined for service '{}'. Default RMI interface is used.",
+                service.getDeployPath());
             service.setRmiServiceClassName(null); // RMI default will be used
         }
         service.setRmiServiceClass(serviceClass);
@@ -213,9 +214,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 if (annotationTemplateClass.isInterface()) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, openClass, classLoader);
-                    log.info("Annotation template class '{}' is used for service: {}.",
+                    log.info("Annotation template class '{}' is used for service {}.",
                         annotationTemplateClassName,
-                        serviceDescription.getName());
+                        serviceDescription.getDeployPath());
                     return decoratedClass;
                 }
                 log.error("Failed to apply annotation template class '{}'. Interface is expected, but class is found.",
@@ -232,7 +233,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
      */
     @Override
     public OpenLService createService(final ServiceDescription serviceDescription) {
-        log.debug("Resolving modules for service '{}'.", serviceDescription.getName());
+        log.debug("Resolving modules for service '{}'.", serviceDescription.getDeployPath());
         Collection<Module> modules = serviceDescription.getModules();
 
         OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();

@@ -232,44 +232,19 @@ public final class ServiceDescription {
         return publishers;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (name == null ? 0 : name.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ServiceDescription that = (ServiceDescription) o;
+        return deployPath.equals(that.deployPath);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ServiceDescription other = (ServiceDescription) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-
-        if (deployPath == null) {
-            if (other.deployPath != null) {
-                return false;
-            }
-        } else if (!deployPath.equals(other.deployPath)) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        return Objects.hash(deployPath);
     }
 
     /**
@@ -490,7 +465,7 @@ public final class ServiceDescription {
         }
 
         /**
-         * Builds ServiceDesctiption.
+         * Builds ServiceDescription.
          *
          * @return
          */
