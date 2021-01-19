@@ -86,6 +86,7 @@ public class Lock {
         long millisTimeout = unit.toMillis(time);
         long deadline = System.currentTimeMillis() + millisTimeout;
         boolean result = tryLock(lockedBy);
+        long sleepTime = millisTimeout < 100 ? 1 : millisTimeout / 100;
         while (!result && deadline > System.currentTimeMillis()) {
             try {
                 TimeUnit.MILLISECONDS.sleep(millisTimeout / 100);
