@@ -706,14 +706,18 @@ public class OpenLOpenAPIUtils {
             // go through the schema and all the parameters
             Set<String> allSchemasUsedInRequest = visitSchema(jxPathContext, resSchema, false, true);
             boolean requestBodyHasExpandableParam = allSchemasUsedInRequest.stream().anyMatch(refsToExpand::contains);
-            if (requestBodyHasExpandableParam || parametersArePresented) {
+            if (requestBodyHasExpandableParam) {
                 for (String internalModel : allSchemasUsedInRequest) {
                     refsToExpand.remove(internalModel);
                 }
             }
             String ref = mediaType.getContent().getSchema().get$ref();
+            boolean refIsPresented = ref != null;
+            if (parametersArePresented && refIsPresented) {
+                refsToExpand.remove(ref);
+            }
             // only root schema is expandable
-            if (ref != null && refsToExpand.contains(ref)) {
+            if (refIsPresented && refsToExpand.contains(ref)) {
                 result = collectParameters(openAPI, jxPathContext, refsToExpand, resSchema, ref);
             } else {
                 // non expandable
