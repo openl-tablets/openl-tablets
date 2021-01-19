@@ -88,7 +88,7 @@ public class Lock {
         boolean result = tryLock(lockedBy);
         while (!result && deadline > System.currentTimeMillis()) {
             try {
-                TimeUnit.MILLISECONDS.sleep(millisTimeout / 10);
+                TimeUnit.MILLISECONDS.sleep(millisTimeout / 100);
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
