@@ -66,8 +66,8 @@ public class OpenAPIJavaClassGenerator {
         }
         final PathInfo pathInfo = method.getPathInfo();
         StringBuilder sb = new StringBuilder("/" + pathInfo.getFormattedPath());
-        method.getParameters()
-            .stream()
+        final List<InputParameter> parameters = method.getParameters();
+        parameters.stream()
             .filter(p -> p.getIn() == InputParameter.In.PATH)
             .map(InputParameter::getFormattedName)
             .forEach(name -> sb.append("/{").append(name).append('}'));
@@ -87,7 +87,15 @@ public class OpenAPIJavaClassGenerator {
                 return true;
             }
         }
-        final List<InputParameter> parameters = method.getParameters();
+        final boolean requestBodyIsPresented = parameters.stream().map(InputParameter::getIn).anyMatch(Objects::isNull);
+        final boolean otherParamsArePresented = parameters.stream()
+            .map(InputParameter::getIn)
+            .anyMatch(Objects::nonNull);
+
+        if (requestBodyIsPresented && otherParamsArePresented) {
+            return true;
+        }
+
         if (parameters.stream()
             .map(InputParameter::getIn)
             .filter(Objects::nonNull)
@@ -240,8 +248,8 @@ public class OpenAPIJavaClassGenerator {
         }
         final String originalParameterName = parameter.getOriginalName();
         final String formattedParameterName = parameter.getFormattedName();
-        final String parameterName = originalParameterName.equalsIgnoreCase(formattedParameterName) ? formattedParameterName
-                                                                                          : originalParameterName;
+        final String parameterName = originalParameterName
+            .equalsIgnoreCase(formattedParameterName) ? formattedParameterName : originalParameterName;
         if (extraMethod) {
             methodParamBuilder.addAnnotation(
                 AnnotationDescriptionBuilder.create(Name.class).withProperty(VALUE, parameterName).build());
