@@ -1,15 +1,5 @@
 package org.openl.rules.serialization;
 
-/*-
- * #%L
- * OpenL - STUDIO - Jackson
- * %%
- * Copyright (C) 2016 - 2020 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Opcodes;

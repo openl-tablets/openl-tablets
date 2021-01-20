@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;

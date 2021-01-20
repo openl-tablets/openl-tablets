@@ -7,16 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/*
- * #%L
- * OpenL - Rules - Serialization
- * %%
- * Copyright (C) 2016 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 public final class JsonUtils {
 
     private JsonUtils() {

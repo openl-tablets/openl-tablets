@@ -1,15 +1,5 @@
 package org.openl.rules.serialization;
 
-/*
- * #%L
- * OpenL - Rules - Serialization
- * %%
- * Copyright (C) 2016 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;

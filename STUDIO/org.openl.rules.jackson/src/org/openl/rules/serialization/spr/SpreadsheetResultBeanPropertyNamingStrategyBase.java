@@ -1,15 +1,5 @@
 package org.openl.rules.serialization.spr;
 
-/*-
- * #%L
- * OpenL - STUDIO - Jackson
- * %%
- * Copyright (C) 2016 - 2020 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.lang.reflect.Field;
 import java.util.Objects;
 
