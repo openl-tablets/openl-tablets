@@ -104,9 +104,9 @@
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
         <!-- 128MB allows do not worry about OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~350% -->
-        <surefire.argLine>-Xms8m -Xmx128m</surefire.argLine>
+        <surefire.argLine>-Xms8m -Xmx128m -Xss256k</surefire.argLine>
         <!-- Fine tuned settings to detects memory and performance issues -->
-        <surefire.argLine.perf>-Xms8m -Xmx55m</surefire.argLine.perf>
+        <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k</surefire.argLine.perf>
         <openl.home>${project.build.directory}/openl-test</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
