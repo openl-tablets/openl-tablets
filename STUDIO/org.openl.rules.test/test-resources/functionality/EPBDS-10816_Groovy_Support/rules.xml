@@ -11,6 +11,6 @@
     </module>
   </modules>
   <classpath>
-    <entry path="groovy"/>
+    <entry path="classes"/>
   </classpath>
 </project>
