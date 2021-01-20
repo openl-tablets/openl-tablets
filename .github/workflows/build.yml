@@ -15,7 +15,9 @@ on:
         description: 'Maven goals and parameters'
         required: false
         default: '-DnoPerf'
-
+      branch:
+        description: 'Branch to build'
+        required: false
 jobs:
   build:
     strategy:
@@ -31,7 +33,10 @@ jobs:
 
     steps:
 
-    - uses: actions/checkout@v2
+    - name: Checkout ${{ github.event.inputs.branch }}
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
 
     - name: Setup Java ${{ matrix.java }}
       uses: actions/setup-java@v1
