@@ -1,5 +1,6 @@
 package org.openl.rules.openapi.impl;
 
+import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT;
 import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT_CLASS_NAME;
 
 import java.math.BigDecimal;
@@ -14,6 +15,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.JXPathContext;
+import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.util.CollectionUtils;
@@ -39,6 +41,8 @@ public class OpenAPITypeUtils {
     public static final String LINK_TO_DEFAULT_RUNTIME_CONTEXT = SCHEMAS_LINK + DEFAULT_RUNTIME_CONTEXT;
     public static final TypeInfo RUNTIME_CONTEXT_TYPE = new TypeInfo(IRulesRuntimeContext.class,
         TypeInfo.Type.RUNTIMECONTEXT);
+    public static final TypeInfo SPREADSHEET_RESULT_TYPE = new TypeInfo(SpreadsheetResult.class,
+        TypeInfo.Type.SPREADSHEET);
 
     public static final String OBJECT = "Object";
     public static final String DATE = "Date";
@@ -99,6 +103,9 @@ public class OpenAPITypeUtils {
             String simpleName = getSimpleName(schema.get$ref());
             if (DEFAULT_RUNTIME_CONTEXT.equals(simpleName)) {
                 return RUNTIME_CONTEXT_TYPE;
+            }
+            if (SPREADSHEET_RESULT.equals(simpleName)) {
+                return SPREADSHEET_RESULT_TYPE;
             }
             return new TypeInfo(simpleName, simpleName, true, 0);
         }
