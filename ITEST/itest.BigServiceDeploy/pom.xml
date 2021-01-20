@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx2048m</surefire.argLine>
+        <surefire.argLine>-Xms128m -Xmx2048m -Xss256k</surefire.argLine>
     </properties>
 
     <parent>

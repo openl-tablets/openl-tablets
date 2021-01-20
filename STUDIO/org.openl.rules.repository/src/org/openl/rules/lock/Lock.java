@@ -19,6 +19,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.util.CollectionUtils;
@@ -72,7 +73,10 @@ public class Lock {
                     lockAcquired = finishLockCreating(prepareLock);
                 }
             } catch (Exception e) {
-                LOG.info("Failure to create a lock file '{}'.", lockPath);
+                LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
+                    lockPath,
+                    e.getClass().getName(),
+                    e.getMessage());
             }
             if (!lockAcquired) {
                 // Delete because of it loos lock
@@ -86,9 +90,17 @@ public class Lock {
         long millisTimeout = unit.toMillis(time);
         long deadline = System.currentTimeMillis() + millisTimeout;
         boolean result = tryLock(lockedBy);
-        while (!result && deadline > System.currentTimeMillis()) {
+        while (!result) {
+            long restTime = deadline - System.currentTimeMillis();
+            if (restTime <= 0) {
+                // No time for waiting! Exit.
+                break;
+            }
+
+            // 1 is guaranty non zero sleep time
+            long sleepTime = Math.min(restTime / 10 + 1, ThreadLocalRandom.current().nextLong(20, 1000));
             try {
-                TimeUnit.MILLISECONDS.sleep(millisTimeout / 10);
+                TimeUnit.MILLISECONDS.sleep(sleepTime);
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -216,7 +228,7 @@ public class Lock {
         }
     }
 
-    Path createLockFile(String userName) throws IOException {
+    Path createLockFile(String userName) {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         try {
             Files.createDirectories(lockPath);

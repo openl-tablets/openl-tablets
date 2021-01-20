@@ -24,6 +24,7 @@ public class LockTest {
 
     private Lock lock;
     private Path tempDirectoryPath;
+    static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
     @Before
     public void setUp() throws IOException {
@@ -94,14 +95,15 @@ public class LockTest {
     }
 
     private void testSimultaneousMultiThreads(boolean diffUsers) throws InterruptedException {
-        int streaming = 10;
+        int streaming = MAX_THREADS;
+        int attempts = 100;
         AtomicBoolean passed = new AtomicBoolean(true);
         AtomicInteger testedValue = new AtomicInteger(0);
         CountDownLatch countDown = new CountDownLatch(streaming);
         for (int i = 0; i < streaming; i++) {
             int finalI = i;
             Thread thread = new Thread(() -> {
-                for (int j = 0; j < 100; j++) {
+                for (int j = 0; j < attempts; j++) {
                     try {
                         String userName = diffUsers ? "user" + finalI : "";
                         if (lock.tryLock(userName)) {
@@ -120,6 +122,7 @@ public class LockTest {
                         }
                     } catch (Exception e) {
                         passed.set(false);
+                        e.printStackTrace();
                         break;
                     }
                 }
@@ -128,6 +131,50 @@ public class LockTest {
             thread.start();
         }
         countDown.await();
+        assertTrue(passed.get());
+    }
+
+    @Test
+    public void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
+        int streaming = MAX_THREADS;
+        int attempts = 100;
+        AtomicBoolean passed = new AtomicBoolean(true);
+        AtomicInteger testedValue = new AtomicInteger(0);
+        CountDownLatch countDown = new CountDownLatch(streaming);
+        AtomicInteger locksCounter = new AtomicInteger();
+        for (int i = 0; i < streaming; i++) {
+            int finalI = i;
+            Thread thread = new Thread(() -> {
+                for (int j = 0; j < attempts; j++) {
+                    try {
+                        String userName = "user" + finalI;
+                        if (lock.tryLock(userName, 30, TimeUnit.SECONDS)) {
+                            locksCounter.getAndIncrement();
+                            testedValue.set(31);
+                            for (int k = 0; k <= 1000; k++) {
+                                int i1 = testedValue.get();
+                                testedValue.set(i1 + k);
+                                Thread.yield();
+                            }
+                            //Test that more than one thread does not receive locks at the same time and do not interfere with calculations
+                            if (testedValue.get() != 500531) {
+                                passed.set(false);
+                                break;
+                            }
+                            lock.unlock();
+                        }
+                    } catch (Exception e) {
+                        passed.set(false);
+                        e.printStackTrace();
+                        break;
+                    }
+                }
+                countDown.countDown();
+            });
+            thread.start();
+        }
+        countDown.await();
+        assertEquals(streaming * attempts, locksCounter.get());
         assertTrue(passed.get());
     }
 

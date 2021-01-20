@@ -127,44 +127,42 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
 
     private void loadProjects() {
         List<FileData> folders = localRepository.listFolders("");
-        synchronized (localProjects) {
-            for (FileData folder : folders) {
-                AProject lpi;
-                String name = folder.getName();
-                String repositoryPath = designTimeRepository.getRulesLocation() + name;
-                ProjectState projectState = localRepository.getProjectState(name);
-                LocalRepository repository = getRepository(projectState.getRepositoryId());
-                FileData fileData = projectState.getFileData();
-                if (fileData == null) {
-                    String version = projectState.getProjectVersion();
-                    lpi = new AProject(repository, name, version);
-                    repositoryPath = "<local-path>/" + name;
-                } else {
-                    FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
-                    if (mappingData != null) {
-                        repositoryPath = mappingData.getInternalPath();
+        for (FileData folder : folders) {
+            AProject lpi;
+            String name = folder.getName();
+            String repositoryPath = designTimeRepository.getRulesLocation() + name;
+            ProjectState projectState = localRepository.getProjectState(name);
+            LocalRepository repository = getRepository(projectState.getRepositoryId());
+            FileData fileData = projectState.getFileData();
+            if (fileData == null) {
+                String version = projectState.getProjectVersion();
+                lpi = new AProject(repository, name, version);
+                repositoryPath = "<local-path>/" + name;
+            } else {
+                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    repositoryPath = mappingData.getInternalPath();
 
-                        String mappedName = name;
-                        Repository designRepo = designTimeRepository.getRepository(repository.getId());
-                        String rulesLocation = designTimeRepository.getRulesLocation();
-                        if (designRepo != null && designRepo.supports().mappedFolders()) {
-                            FolderMapper mapper = (FolderMapper) designRepo;
-                            String mappedPath = mapper.findMappedName(repositoryPath);
-                            if (mappedPath == null) {
-                                mappedName = mapper.getMappedName(name, repositoryPath);
-                            } else {
-                                mappedName = mappedPath.startsWith(rulesLocation)
-                                                                                  ? mappedPath
-                                                                                      .substring(rulesLocation.length())
-                                                                                  : mappedPath;
-                            }
+                    String mappedName = name;
+                    Repository designRepo = designTimeRepository.getRepository(repository.getId());
+                    String rulesLocation = designTimeRepository.getRulesLocation();
+                    if (designRepo != null && designRepo.supports().mappedFolders()) {
+                        FolderMapper mapper = (FolderMapper) designRepo;
+                        String mappedPath = mapper.findMappedName(repositoryPath);
+                        if (mappedPath == null) {
+                            mappedName = mapper.getMappedName(name, repositoryPath);
+                        } else {
+                            mappedName = mappedPath.startsWith(rulesLocation)
+                                                                              ? mappedPath
+                                                                                  .substring(rulesLocation.length())
+                                                                              : mappedPath;
                         }
-                        mappingData.setExternalPath(rulesLocation + mappedName);
                     }
-                    lpi = new AProject(repository, fileData);
+                    mappingData.setExternalPath(rulesLocation + mappedName);
                 }
-                localProjects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
+                lpi = new AProject(repository, fileData);
             }
+            localProjects.put(new ProjectKey(repository.getId(), repositoryPath), lpi);
         }
     }
 
@@ -173,8 +171,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         // check existing
         synchronized (localProjects) {
             localProjects.clear();
+            loadProjects();
         }
-        loadProjects();
     }
 
     @Override

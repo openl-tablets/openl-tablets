@@ -15,7 +15,7 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx2048m</surefire.argLine>
+        <surefire.argLine>-Xms128m -Xmx2048m -Xss256k</surefire.argLine>
         <maven.test.skip>true</maven.test.skip>
     </properties>
 

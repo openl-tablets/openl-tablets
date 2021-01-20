@@ -2,6 +2,8 @@ package org.openl.rules.lock;
 
 import java.time.Instant;
 
+import org.openl.util.StringUtils;
+
 /**
  * Lock description.
  *
@@ -15,9 +17,9 @@ public class LockInfo {
     private final Instant date;
     private final String userName;
 
-    public LockInfo(Instant date, String userName) {
+    LockInfo(Instant date, String userName) {
         this.date = date;
-        this.userName = userName;
+        this.userName = userName == null ? StringUtils.EMPTY : userName;
     }
 
     /**
@@ -30,7 +32,8 @@ public class LockInfo {
     }
 
     /**
-     * Returns an identification who or what sets the lock.
+     * Returns an identification who or what sets the lock. If a user cannot be determined then the empty String will be
+     * returned.
      */
     public String getLockedBy() {
         return userName;
