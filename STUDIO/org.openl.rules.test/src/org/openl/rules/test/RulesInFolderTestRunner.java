@@ -60,13 +60,16 @@ public class RulesInFolderTestRunner {
             return false;
         }
         File[] files = testsDir.listFiles();
-        //files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
+        // files = new File[] {new File(testsDir, "EPBDS-10072_ALL_multiple")};
         if (files == null) {
             log.warn("Test folder is not found.");
             return false;
         }
 
         for (File file : files) {
+            if (!file.getName().startsWith("EPBDS-10816_Groovy_Support")) {
+                continue;
+            }
             int messagesCount = 0;
             final long startTime = System.nanoTime();
             String sourceFile = file.getName();
