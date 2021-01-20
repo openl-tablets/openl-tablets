@@ -24,6 +24,7 @@ public class LockTest {
 
     private Lock lock;
     private Path tempDirectoryPath;
+    static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
     @Before
     public void setUp() throws IOException {
@@ -94,7 +95,7 @@ public class LockTest {
     }
 
     private void testSimultaneousMultiThreads(boolean diffUsers) throws InterruptedException {
-        int streaming = 10;
+        int streaming = MAX_THREADS;
         int attempts = 100;
         AtomicBoolean passed = new AtomicBoolean(true);
         AtomicInteger testedValue = new AtomicInteger(0);
@@ -135,7 +136,7 @@ public class LockTest {
 
     @Test
     public void testSimultaneousMultiThreadsWithWaiting() throws InterruptedException {
-        int streaming = 10;
+        int streaming = MAX_THREADS;
         int attempts = 100;
         AtomicBoolean passed = new AtomicBoolean(true);
         AtomicInteger testedValue = new AtomicInteger(0);
@@ -147,7 +148,7 @@ public class LockTest {
                 for (int j = 0; j < attempts; j++) {
                     try {
                         String userName = "user" + finalI;
-                        if (lock.tryLock(userName, 5, TimeUnit.SECONDS)) {
+                        if (lock.tryLock(userName, 10, TimeUnit.SECONDS)) {
                             locksCounter.getAndIncrement();
                             testedValue.set(31);
                             for (int k = 0; k <= 1000; k++) {
