@@ -148,7 +148,7 @@ public class LockTest {
                 for (int j = 0; j < attempts; j++) {
                     try {
                         String userName = "user" + finalI;
-                        if (lock.tryLock(userName, 10, TimeUnit.SECONDS)) {
+                        if (lock.tryLock(userName, 30, TimeUnit.SECONDS)) {
                             locksCounter.getAndIncrement();
                             testedValue.set(31);
                             for (int k = 0; k <= 1000; k++) {
