@@ -19,6 +19,7 @@ import java.time.ZoneOffset;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalUnit;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.util.CollectionUtils;
@@ -85,13 +86,10 @@ public class Lock {
         return lockAcquired;
     }
 
-    private static final double RATION = 1.25; // progression of sleeping
-
     public boolean tryLock(String lockedBy, long time, TimeUnit unit) {
         long millisTimeout = unit.toMillis(time);
         long deadline = System.currentTimeMillis() + millisTimeout;
         boolean result = tryLock(lockedBy);
-        long sleepTime = 0;
         while (!result) {
             long restTime = deadline - System.currentTimeMillis();
             if (restTime <= 0) {
@@ -99,17 +97,8 @@ public class Lock {
                 break;
             }
 
-            if (restTime > millisTimeout / 2) {
-                // In the first half of time we increase timeout to reduce CPU/Thread usage
-                sleepTime *= RATION;
-            } else {
-                // In the second part we reduce timeout to increase chance for acquiring the lock
-                sleepTime = Math.round(restTime * (1 - 1 / RATION));
-            }
-
-            // 1 is guaranty non zero sleep time or incremental character of the function
-            sleepTime = sleepTime > restTime ? restTime : (sleepTime + 1);
-
+            // 1 is guaranty non zero sleep time
+            long sleepTime = Math.min(restTime / 10 + 1, ThreadLocalRandom.current().nextLong(20, 1000));
             try {
                 TimeUnit.MILLISECONDS.sleep(sleepTime);
                 result = tryLock(lockedBy);
