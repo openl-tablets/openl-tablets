@@ -809,110 +809,115 @@ public class ProjectBean {
         if (modelModulePathParam.equalsIgnoreCase(algorithmModulePathParam)) {
             throw new Message("Module paths cannot be the same.");
         }
-        Module existingAlgorithmModule = studio.getModule(currentProjectDescriptor, algorithmModuleNameParam);
-        boolean isNewAlgorithmModule = existingAlgorithmModule == null;
-        Module existingModelModule = studio.getModule(currentProjectDescriptor, modelModuleNameParam);
-        boolean isNewDataModule = existingModelModule == null;
+        try {
+            studio.freezeProject(currentProjectDescriptor.getName());
+            Module existingAlgorithmModule = studio.getModule(currentProjectDescriptor, algorithmModuleNameParam);
+            boolean isNewAlgorithmModule = existingAlgorithmModule == null;
+            Module existingModelModule = studio.getModule(currentProjectDescriptor, modelModuleNameParam);
+            boolean isNewDataModule = existingModelModule == null;
 
-        validatePaths(algorithmModulePathParam, modelModulePathParam, isNewAlgorithmModule, isNewDataModule);
+            validatePaths(algorithmModulePathParam, modelModulePathParam, isNewAlgorithmModule, isNewDataModule);
 
-        boolean openAPIInfoChanged;
-        boolean classPathChanged = false;
+            boolean openAPIInfoChanged;
+            boolean classPathChanged = false;
 
-        final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
-        OpenAPI openAPI = new OpenAPI();
-        openAPI.setPath(openAPIPathParam);
-        openAPI.setMode(OpenAPI.Mode.GENERATION);
+            final OpenAPI existingOpenAPI = currentProjectDescriptor.getOpenapi();
+            OpenAPI openAPI = new OpenAPI();
+            openAPI.setPath(openAPIPathParam);
+            openAPI.setMode(OpenAPI.Mode.GENERATION);
 
-        List<PathEntry> currentClassPath = currentProjectDescriptor.getClasspath();
-        boolean openAPIClassesInClassPath = CollectionUtils.isNotEmpty(currentClassPath) && currentClassPath.stream()
-            .anyMatch(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
+            List<PathEntry> currentClassPath = currentProjectDescriptor.getClasspath();
+            boolean openAPIClassesInClassPath = CollectionUtils.isNotEmpty(currentClassPath) && currentClassPath.stream()
+                    .anyMatch(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
 
-        if (existingOpenAPI == null || existingOpenAPI.getPath() == null || existingOpenAPI.getMode() == null) {
-            openAPIInfoChanged = true;
-        } else {
-            boolean pathWasChanged = !existingOpenAPI.getPath().equals(openAPIPathParam);
-            boolean modeWasChanged = !existingOpenAPI.getMode().equals(OpenAPI.Mode.GENERATION);
-            openAPIInfoChanged = pathWasChanged || modeWasChanged;
-        }
-
-        RulesProject currentProject = studio.getCurrentProject();
-
-        AProjectArtefact openAPIFile = getOpenAPIFile(openAPIPathParam, currentProject);
-
-        if (!isNewAlgorithmModule) {
-            deleteExistingExcelFile(existingAlgorithmModule,
-                currentProject,
-                "It's impossible to delete existing generated Rules file.");
-            openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
-        } else {
-            Module rulesModule = new Module();
-            rulesModule.setRulesRootPath(new PathEntry(algorithmModulePathParam));
-            rulesModule.setName(algorithmModuleNameParam);
-            modules.add(rulesModule);
-            openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
-            openAPIInfoChanged = true;
-        }
-
-        if (!isNewDataModule) {
-            deleteExistingExcelFile(existingModelModule,
-                currentProject,
-                "It's impossible to delete existing generated Data Types file.");
-            openAPI.setModelModuleName(modelModuleNameParam);
-        } else {
-            Module modelsModule = new Module();
-            modelsModule.setRulesRootPath(new PathEntry(modelModulePathParam));
-            modelsModule.setName(modelModuleNameParam);
-            modules.add(modelsModule);
-            openAPI.setModelModuleName(modelModuleNameParam);
-            openAPIInfoChanged = true;
-        }
-
-        String workspacePath = studio.getWorkspacePath();
-        String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
-        OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
-
-        ProjectModel projectModel = getProjectModel(FileNameFormatter.normalizePath(workspacePath),
-            internalOpenAPIPath,
-            converter);
-
-        modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam))
-                .findFirst()
-                .ifPresent(m -> {
-                    MethodFilter filter = new MethodFilter();
-                    filter.setIncludes(projectModel.getIncludeMethodFilter());
-                    m.setMethodFilter(filter);
-                });
-
-        addDataTypesFile(modelModulePathParam, currentProject, projectModel);
-
-        addAlgorithmsFile(modelModuleNameParam, algorithmModulePathParam, currentProject, projectModel);
-
-        OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
-        boolean annotationTemplateClassesAreGenerated = generated.hasAnnotationTemplateClass();
-        deletePreviouslyGeneratedOpenAPIClasses(currentProject);
-        addGeneratedJavaClasses(currentProject, generated, annotationTemplateClassesAreGenerated);
-
-        if (annotationTemplateClassesAreGenerated) {
-            if (!openAPIClassesInClassPath) {
-                classPathChanged = true;
+            if (existingOpenAPI == null || existingOpenAPI.getPath() == null || existingOpenAPI.getMode() == null) {
+                openAPIInfoChanged = true;
+            } else {
+                boolean pathWasChanged = !existingOpenAPI.getPath().equals(openAPIPathParam);
+                boolean modeWasChanged = !existingOpenAPI.getMode().equals(OpenAPI.Mode.GENERATION);
+                openAPIInfoChanged = pathWasChanged || modeWasChanged;
             }
-        } else {
-            if (openAPIClassesInClassPath) {
-                classPathChanged = true;
+
+            RulesProject currentProject = studio.getCurrentProject();
+
+            AProjectArtefact openAPIFile = getOpenAPIFile(openAPIPathParam, currentProject);
+
+            if (!isNewAlgorithmModule) {
+                deleteExistingExcelFile(existingAlgorithmModule,
+                        currentProject,
+                        "It's impossible to delete existing generated Rules file.");
+                openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
+            } else {
+                Module rulesModule = new Module();
+                rulesModule.setRulesRootPath(new PathEntry(algorithmModulePathParam));
+                rulesModule.setName(algorithmModuleNameParam);
+                modules.add(rulesModule);
+                openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
+                openAPIInfoChanged = true;
             }
-        }
 
-        editOrCreateRulesDeploy(currentProject, projectModel, generated, currentProject.hasArtefact(RULES_DEPLOY_XML));
+            if (!isNewDataModule) {
+                deleteExistingExcelFile(existingModelModule,
+                        currentProject,
+                        "It's impossible to delete existing generated Data Types file.");
+                openAPI.setModelModuleName(modelModuleNameParam);
+            } else {
+                Module modelsModule = new Module();
+                modelsModule.setRulesRootPath(new PathEntry(modelModulePathParam));
+                modelsModule.setName(modelModuleNameParam);
+                modules.add(modelsModule);
+                openAPI.setModelModuleName(modelModuleNameParam);
+                openAPIInfoChanged = true;
+            }
 
-        refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+            String workspacePath = studio.getWorkspacePath();
+            String internalOpenAPIPath = openAPIFile.getArtefactPath().getStringValue();
+            OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
 
-        if (openAPIInfoChanged || classPathChanged) {
-            editDescriptorIfNeeded(currentProjectDescriptor,
-                openAPIInfoChanged,
-                classPathChanged,
-                openAPI,
-                annotationTemplateClassesAreGenerated);
+            ProjectModel projectModel = getProjectModel(FileNameFormatter.normalizePath(workspacePath),
+                    internalOpenAPIPath,
+                    converter);
+
+            modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam))
+                    .findFirst()
+                    .ifPresent(m -> {
+                        MethodFilter filter = new MethodFilter();
+                        filter.setIncludes(projectModel.getIncludeMethodFilter());
+                        m.setMethodFilter(filter);
+                    });
+
+            addDataTypesFile(modelModulePathParam, currentProject, projectModel);
+
+            addAlgorithmsFile(modelModuleNameParam, algorithmModulePathParam, currentProject, projectModel);
+
+            OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
+            boolean annotationTemplateClassesAreGenerated = generated.hasAnnotationTemplateClass();
+            deletePreviouslyGeneratedOpenAPIClasses(currentProject);
+            addGeneratedJavaClasses(currentProject, generated, annotationTemplateClassesAreGenerated);
+
+            if (annotationTemplateClassesAreGenerated) {
+                if (!openAPIClassesInClassPath) {
+                    classPathChanged = true;
+                }
+            } else {
+                if (openAPIClassesInClassPath) {
+                    classPathChanged = true;
+                }
+            }
+
+            editOrCreateRulesDeploy(currentProject, projectModel, generated, currentProject.hasArtefact(RULES_DEPLOY_XML));
+
+            refreshProject(currentProject.getRepository().getId(), currentProject.getName());
+
+            if (openAPIInfoChanged || classPathChanged) {
+                editDescriptorIfNeeded(currentProjectDescriptor,
+                        openAPIInfoChanged,
+                        classPathChanged,
+                        openAPI,
+                        annotationTemplateClassesAreGenerated);
+            }
+        } finally {
+            studio.releaseProject(currentProjectDescriptor.getName());
         }
     }
 
