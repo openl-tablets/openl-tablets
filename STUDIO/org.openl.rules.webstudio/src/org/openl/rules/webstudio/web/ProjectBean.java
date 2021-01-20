@@ -7,6 +7,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -273,7 +275,11 @@ public class ProjectBean {
         final PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
         final Predicate<Module> wildcardPathMatch = m -> pathMatcher.match(m.getRulesRootPath().getPath(), relativePath);
 
-        final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath().getPath(), relativePath);
+        final Path projectPath = projectDescriptor.getProjectFolder().toPath();
+        final Predicate<Module> strictPathMatch = m -> {
+            final String otherPath = projectPath.relativize(Paths.get(m.getRulesRootPath().getPath())).toString();
+            return Objects.equals(otherPath, relativePath);
+        };
         final Predicate<Module> checkDuplicatePath = strictPathMatch.or(wildcardPathMatch.and(this::isModuleWithWildcard));
         if (projectDescriptor.getModules().stream().filter(isEditedModule.negate()).anyMatch(checkDuplicatePath)) {
             WebStudioUtils.throwValidationError("Path is already covered with existing module.");
