@@ -11,6 +11,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
 
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
@@ -248,12 +251,32 @@ public class ProjectBean {
 
     // TODO Move messages to ValidationMessages.properties
     public void validateModulePath(FacesContext context, UIComponent toValidate, Object value) {
-        String path = (String) value;
+        final String path = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(path), "Cannot be empty");
+        ProjectDescriptor projectDescriptor = studio.getCurrentProjectDescriptor();
 
         if (!(path.contains("*") || path.contains("?"))) {
-            File moduleFile = new File(studio.getCurrentProjectDescriptor().getProjectFolder(), path);
+            File moduleFile = new File(projectDescriptor.getProjectFolder(), path);
             WebStudioUtils.validate(moduleFile.exists(), "File with such path does not exist");
+        }
+
+        final String oldName = Optional.ofNullable(WebStudioUtils.getRequestParameter("moduleNameOld"))
+                .filter(StringUtils::isNotBlank)
+                .orElseGet(() -> WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld"));
+        final String index = WebStudioUtils.getRequestParameter("moduleIndex");
+
+        final String relativePath = path.replace("\\", "/");
+
+        final boolean isNewModule = StringUtils.isBlank(oldName) && StringUtils.isBlank(index);
+        final Predicate<Module> isEditedModule = m -> !isNewModule && Objects.equals(oldName, m.getName());
+
+        final PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
+        final Predicate<Module> wildcardPathMatch = m -> pathMatcher.match(m.getRulesRootPath().getPath(), relativePath);
+
+        final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath().getPath(), relativePath);
+        final Predicate<Module> checkDuplicatePath = strictPathMatch.or(wildcardPathMatch.and(this::isModuleWithWildcard));
+        if (projectDescriptor.getModules().stream().filter(isEditedModule.negate()).anyMatch(checkDuplicatePath)) {
+            WebStudioUtils.throwValidationError("Path is already covered with existing module.");
         }
     }
 
