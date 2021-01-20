@@ -33,6 +33,8 @@ import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class LocalGitRepositoryTest {
+    private static final String FOLDER_IN_REPOSITORY = "rules/project1";
+
     private File root;
     private GitRepository repo;
 
@@ -333,6 +335,11 @@ public class LocalGitRepositoryTest {
             assertFalse(repo.isMergedInto(branch1, mainBranch));
             assertFalse(repo.isMergedInto(mainBranch, branch1));
         }
+    }
+
+    private void modifyFile(GitRepository repository, String path, String text) throws IOException {
+        String comment = "'" + path + "' in the branch '" + repository.getBranch() + "' was modified";
+        writeSampleFile(repository, path, text, comment);
     }
 
     private void writeSampleFile(Repository repository, String path, String comment) throws IOException {
