@@ -191,4 +191,18 @@ public class RunRestRulesDeploymentTest {
         client.send("EPBDS-10891/yaml_project_Project2.delete");
         client.send("admin_services_no_services.json.get");
     }
+
+    @Test
+    public void EPBDS_9876() {
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_name1_name1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_samename_name1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_url1_url1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_url2_url2.zip", 201);
+        client.send("EPBDS-9876/deployed-rules_services.get");
+        client.send("EPBDS-9876/deployed-rules.delete");
+        client.send("EPBDS-9876/deployed-rules.delete2");
+        client.send("EPBDS-9876/deployed-rules.delete3");
+        client.send("EPBDS-9876/deployed-rules.delete4");
+        client.send("admin_services_no_services.json.get");
+    }
 }
