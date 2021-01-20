@@ -71,7 +71,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
     public static final String SPREADSHEET_RESULT = "SpreadsheetResult";
     public static final String SPR_RESULT_LINK = SCHEMAS_LINK + SPREADSHEET_RESULT;
-    public static final String ANY_SPREADSHEET_RESULT = "AnySpreadsheetResult";
     public static final String RESULT = "Result";
     public static final Pattern PARAMETERS_BRACKETS_MATCHER = Pattern.compile("\\{.*?}");
     private static final Set<String> IGNORED_FIELDS = Collections
@@ -281,7 +280,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         // if no links from data types, but model has links to the spreadsheets -> it will be a spreadsheet
         // any spreadsheet result filtering there to avoid the broken project
         List<String> notUsedDataTypeWithRefToSpreadsheet = dts.stream()
-            .filter(x -> !usedInDataTypes.contains(x.getName()) && !ANY_SPREADSHEET_RESULT.equals(x.getName()))
+            .filter(x -> !usedInDataTypes.contains(x.getName()))
             .map(x -> Pair.of(x.getName(), x.getFields()))
             .filter(y -> y.getRight()
                 .stream()
@@ -626,9 +625,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 String stepType = step.getType();
                 boolean isArray = stepType.endsWith("[]");
                 String type = OpenAPITypeUtils.removeArrayBrackets(step.getType());
-                if (type.equals(ANY_SPREADSHEET_RESULT)) {
-                    step.setValue(isArray ? makeArrayCall(stepType, "", "") : createNewInstance(SPREADSHEET_RESULT));
-                } else if (sprResultNames.stream().anyMatch(x -> x.getKey().equals(type))) {
+                if (sprResultNames.stream().anyMatch(x -> x.getKey().equals(type))) {
                     Optional<SpreadsheetParserModel> foundSpr = Optional.empty();
                     if (willBeCalled.isPresent()) {
                         Pair<String, String> called = willBeCalled.get();

@@ -712,15 +712,11 @@ public class SpreadsheetsConverterTest {
             step.getName(),
             "AnySpreadsheetResult",
             step.getType(),
-            "= new SpreadsheetResult()",
+            "= mySmart(null)",
             step.getValue());
 
         ProjectModel pathProjectWithLostAny = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAnyAsLost.json");
-        assertTrue(pathProjectWithLostAny.getDatatypeModels()
-            .stream()
-            .anyMatch(model -> model.getName().equals("AnySpreadsheetResult")));
-
     }
 
     @Test
