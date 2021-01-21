@@ -1,4 +1,4 @@
-package org.openl.itest.service;
+package org.openl.itest.service
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
@@ -21,15 +21,16 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 
-public interface MyService {
+interface MyService {
 
     Integer parse(String num);
 
-    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
-    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
-    MyType parse1(@RulesType("java.lang.String") Object p); // will be skipped because of such method does not exist in rules
+    @ServiceCallBeforeInterceptor([InputInterceptor.class])
+    @ServiceCallAfterInterceptor([OutputInterceptor.class])
+    MyType parse1(@RulesType("java.lang.String") Object p);
+    // will be skipped because of such method does not exist in rules
 
-    @ServiceCallAfterInterceptor({ ResponseInterceptor.class })
+    @ServiceCallAfterInterceptor([ResponseInterceptor.class])
     Response parse2(@RulesType("java.lang.String") Object p);
 
     @GET
@@ -40,24 +41,24 @@ public interface MyService {
     @Path("parseX")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_XML)
-    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
-    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
+    @ServiceCallBeforeInterceptor([InputInterceptor.class])
+    @ServiceCallAfterInterceptor([OutputInterceptor.class])
     MyType parse4(String num);
 
     @GET
     @Path("parseXQueryParam")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_XML)
-    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
-    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
+    @ServiceCallBeforeInterceptor([InputInterceptor.class])
+    @ServiceCallAfterInterceptor([OutputInterceptor.class])
     MyType parse4QueryParam(@QueryParam("numParam") String num);
 
     @GET
     @Path("parseXPathParam/{num}")
     @Consumes(MediaType.TEXT_PLAIN)
     @Produces(MediaType.APPLICATION_XML)
-    @ServiceCallBeforeInterceptor({ InputInterceptor.class })
-    @ServiceCallAfterInterceptor({ OutputInterceptor.class })
+    @ServiceCallBeforeInterceptor([InputInterceptor.class])
+    @ServiceCallAfterInterceptor([OutputInterceptor.class])
     MyType parse4PathParam(@PathParam("num") String num);
 
     @ServiceExtraMethod(VirtualMethodHandler.class)
@@ -68,10 +69,11 @@ public interface MyService {
 
     MyType ping(MyType type);
 
-    @ServiceCallAfterInterceptor(value = { ToDoubleServiceMethodAfterAdvice.class,
-            NoConvertorServiceMethodAfterAdvice.class })
+    @ServiceCallAfterInterceptor(value = [ToDoubleServiceMethodAfterAdvice.class,
+            NoConvertorServiceMethodAfterAdvice.class])
     Double parse5(String num);
 
-    @ServiceCallAfterInterceptor(value = { OpenLTypeServiceMethodAfterAdvice.class })
+    @ServiceCallAfterInterceptor(value = [OpenLTypeServiceMethodAfterAdvice.class])
     Double parse6(String num);
 }
+
