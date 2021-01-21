@@ -239,17 +239,17 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return namespaceCache.get(name);
         }
 
-        IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
+        IOpenClass type = parent == null ? null : parent.getType(namespace, name);
         if (type != null) {
             namespaceCache.put(name, type);
             return type;
         }
 
-        if (parent == null) {
+        if (typeFactory == null) {
             namespaceCache.put(name, null);
             return null;
         } else {
-            type = parent.getType(namespace, name);
+            type = typeFactory.getType(namespace, name, configurationContext);
             namespaceCache.put(name, type);
             return type;
         }

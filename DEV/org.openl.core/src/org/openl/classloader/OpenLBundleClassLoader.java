@@ -40,6 +40,7 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             return classLoader;
         } else {
             GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
+            groovyClassLoader.setResourceLoader(new GroovyResourceLoader(groovyClassLoader.getResourceLoader()));
             if (urls != null) {
                 for (URL url : urls) {
                     groovyClassLoader.addURL(url);
