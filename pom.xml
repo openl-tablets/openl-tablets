@@ -119,6 +119,7 @@
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
         <owasp.version>6.0.3</owasp.version>
+        <groovy.version>3.0.7</groovy.version>
     </properties>
 
     <modules>
@@ -1825,6 +1826,11 @@
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.webstudio.web</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.codehaus.groovy</groupId>
+                <artifactId>groovy</artifactId>
+                <version>${groovy.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

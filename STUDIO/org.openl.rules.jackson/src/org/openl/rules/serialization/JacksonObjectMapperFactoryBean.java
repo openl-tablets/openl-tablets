@@ -58,6 +58,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
 
+import groovy.lang.GroovyObject;
+
 public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
     private static final AtomicLong incrementer = new AtomicLong();
@@ -231,6 +233,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         } else {
             mapper.deactivateDefaultTyping();
         }
+
+        mapper.addMixIn(GroovyObject.class, org.openl.rules.serialization.jackson.groovy.lang.GroovyObject.class);
 
         if (isSupportVariations()) {
             addMixIn(mapper, Variation.class, VariationType.class);

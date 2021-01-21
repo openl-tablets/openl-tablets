@@ -4,18 +4,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.IdentityHashMap;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.util.ClassUtils;
+import org.openl.util.IOUtils;
+
+import groovy.lang.GroovyClassLoader;
 
 /**
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
@@ -27,12 +22,31 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
 
     private final Map<String, byte[]> generatedClasses = new ConcurrentHashMap<>();
 
+    private final Set<GroovyClassLoader> groovyClassLoaders = new HashSet<>();
+
     public OpenLBundleClassLoader(ClassLoader parent) {
-        super(new URL[0], parent);
+        this(new URL[0], parent);
     }
 
     public OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, parent);
+        super(urls, applyGroovySupport(parent, urls));
+        if (getParent() instanceof GroovyClassLoader) {
+            groovyClassLoaders.add((GroovyClassLoader) getParent());
+        }
+    }
+
+    private static ClassLoader applyGroovySupport(ClassLoader classLoader, URL[] urls) {
+        if (classLoader instanceof OpenLBundleClassLoader || classLoader instanceof GroovyClassLoader) {
+            return classLoader;
+        } else {
+            GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
+            if (urls != null) {
+                for (URL url : urls) {
+                    groovyClassLoader.addURL(url);
+                }
+            }
+            return groovyClassLoader;
+        }
     }
 
     public void addClassLoader(ClassLoader classLoader) {
@@ -46,8 +60,11 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             .containsClassLoader(this)) {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
-
-        bundleClassLoaders.add(classLoader);
+        ClassLoader classLoader1 = applyGroovySupport(classLoader, new URL[0]);
+        if (classLoader1 instanceof GroovyClassLoader) {
+            groovyClassLoaders.add((GroovyClassLoader) classLoader1);
+        }
+        bundleClassLoaders.add(classLoader1);
     }
 
     public void addGeneratedClass(String name, byte[] byteCode) {
@@ -102,7 +119,6 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
     }
 
     private Class<?> findClassInBundles(String name, Set<ClassLoader> c) {
-
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             if (c.contains(bundleClassLoader)) {
                 continue;
@@ -234,5 +250,14 @@ public class OpenLBundleClassLoader extends OpenLClassLoader {
             }
         }
         return urls.toArray(new URL[0]);
+    }
+
+    @Override
+    public void close() throws IOException {
+        try {
+            super.close();
+        } finally {
+            groovyClassLoaders.forEach(IOUtils::closeQuietly);
+        }
     }
 }
