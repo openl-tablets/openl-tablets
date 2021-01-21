@@ -5,6 +5,8 @@ import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
+import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 
 /**
  * This binder is used for both: if-then-else statement and ternary q-mark statement.
@@ -12,7 +14,7 @@ import org.openl.types.IOpenClass;
  * @author Yury Molchan
  */
 public class IfNodeBinder extends ANodeBinder {
-
+    
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
         IBoundNode conditionNode = bindChildNode(node.getChild(0), bindingContext);
@@ -33,10 +35,17 @@ public class IfNodeBinder extends ANodeBinder {
 
             return buildIfElseNode(node, bindingContext, conditionNode, thenNode, type, elseNode, elseType);
         } else {
-            return new IfNode(node, conditionNode, thenNode, type);
+            return new IfNode(node, conditionNode, thenNode, getWrapperIfPrimitive(type));
 
         }
 
+    }
+
+    private static IOpenClass getWrapperIfPrimitive(IOpenClass openClass) {
+        if (openClass.getInstanceClass() != null && openClass.getInstanceClass().isPrimitive()) {
+            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(openClass.getInstanceClass()));
+        }
+        return openClass;
     }
 
     protected IBoundNode buildIfElseNode(ISyntaxNode node,
