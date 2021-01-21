@@ -106,7 +106,7 @@ public class OpenLBuilder extends AOpenLBuilder {
                 org.openl.binding.impl.BExChainSuffixBinder.class.getName(),
                 "where.expression",
                 org.openl.binding.impl.WhereExpressionNodeBinder.class.getName(),
-                "where.var.expalnation",
+                "where.var.explanation",
                 org.openl.binding.impl.WhereVarNodeBinder.class.getName(),
                 "list",
                 org.openl.binding.impl.ListNodeBinder.class.getName(),

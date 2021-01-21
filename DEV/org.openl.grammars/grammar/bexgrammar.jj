@@ -1607,7 +1607,7 @@ void WhereVarExpalnation() :
 {
   Word("identifier.var.explanation") "-" Expression()
   {
-    bop("where.var.expalnation", null);
+    bop("where.var.explanation", null);
   }
 }
 
