@@ -1086,7 +1086,7 @@ public class DataTableBindHelper {
                 }
             }
         } else {
-            if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
+            if (Map.class.isAssignableFrom(field.getType().getInstanceClass())) {
                 Object mapKey;
                 try {
                     mapKey = getCollectionKey(currentFieldNameNode,

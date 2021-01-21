@@ -1,6 +1,7 @@
 package org.openl.excel.grid;
 
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -17,7 +18,14 @@ import org.openl.excel.parser.SheetDescriptor;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.rules.lang.xls.*;
+import org.openl.rules.lang.xls.IXlsTableNames;
+import org.openl.rules.lang.xls.IncludeSearcher;
+import org.openl.rules.lang.xls.TablePart;
+import org.openl.rules.lang.xls.TablePartProcessor;
+import org.openl.rules.lang.xls.XlsHelper;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.XlsSheetSourceCodeModule;
+import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
 import org.openl.rules.lang.xls.syntax.OpenlSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
@@ -29,7 +37,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.util.ParserUtils;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.Dependency;
@@ -40,8 +47,7 @@ import org.openl.syntax.code.impl.ParsedCode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
-import org.openl.util.PathTool;
-import org.openl.util.StringTool;
+import org.openl.util.ParserUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
@@ -63,7 +69,7 @@ public class SequentialXlsLoader {
     }
 
     private WorksheetSyntaxNode[] createWorksheetNodes(TablePartProcessor tablePartProcessor,
-                                                       XlsWorkbookSourceCodeModule workbookSourceModule) {
+            XlsWorkbookSourceCodeModule workbookSourceModule) {
         IOpenSourceCodeModule source = workbookSourceModule.getSource();
 
         if (VirtualSourceCodeModule.SOURCE_URI.equals(source.getUri())) {
@@ -120,8 +126,6 @@ public class SequentialXlsLoader {
 
         preprocessWorkbook(source);
 
-        addInnerImports();
-
         WorkbookSyntaxNode[] workbooksArray = workbookNodes.toArray(new WorkbookSyntaxNode[workbookNodes.size()]);
         XlsModuleSyntaxNode syntaxNode = new XlsModuleSyntaxNode(workbooksArray,
             source,
@@ -130,11 +134,7 @@ public class SequentialXlsLoader {
 
         SyntaxNodeException[] parsingErrors = errors.toArray(new SyntaxNodeException[errors.size()]);
 
-        return new ParsedCode(syntaxNode,
-            source,
-            parsingErrors,
-            messages,
-            dependencies.toArray(new IDependency[dependencies.size()]));
+        return new ParsedCode(syntaxNode, source, parsingErrors, messages, dependencies.toArray(new IDependency[0]));
     }
 
     private void preprocessEnvironmentTable(TableSyntaxNode tableSyntaxNode, XlsSheetSourceCodeModule source) {
@@ -206,13 +206,9 @@ public class SequentialXlsLoader {
         imports.add(singleImport);
     }
 
-    private void addInnerImports() {
-        addImport("org.openl.rules.enumeration");
-    }
-
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
-                                        IGridTable table,
-                                        XlsSheetSourceCodeModule sheetSource) {
+            IGridTable table,
+            XlsSheetSourceCodeModule sheetSource) {
 
         int height = table.getHeight();
 
@@ -239,8 +235,11 @@ public class SequentialXlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = PathTool.mergePath(sheetSource.getWorkbookSource().getUri(),
-                            StringTool.encodeURL(include));
+                        String newURL = Paths.get(sheetSource.getWorkbookSource().getUri())
+                            .getParent()
+                            .resolve(include)
+                            .normalize()
+                            .toString();
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
@@ -258,10 +257,10 @@ public class SequentialXlsLoader {
     }
 
     private void registerIncludeError(TableSyntaxNode tableSyntaxNode,
-                                      IGridTable table,
-                                      int i,
-                                      String include,
-                                      Exception t) {
+            IGridTable table,
+            int i,
+            String include,
+            Exception t) {
         SyntaxNodeException se = SyntaxNodeExceptionUtils.createError("Include '" + include + "' is not found.",
             t,
             LocationUtils.createTextInterval(include),
@@ -278,8 +277,8 @@ public class SequentialXlsLoader {
     }
 
     private TableSyntaxNode preprocessTable(IGridTable table,
-                                            XlsSheetSourceCodeModule source,
-                                            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
+            XlsSheetSourceCodeModule source,
+            TablePartProcessor tablePartProcessor) throws OpenLCompilationException {
 
         TableSyntaxNode tsn = XlsHelper.createTableSyntaxNode(table, source);
 
@@ -319,8 +318,8 @@ public class SequentialXlsLoader {
     }
 
     private WorkbookSyntaxNode createWorkbookNode(TablePartProcessor tablePartProcessor,
-                                                  XlsWorkbookSourceCodeModule workbookSourceModule,
-                                                  WorksheetSyntaxNode[] sheetNodes) {
+            XlsWorkbookSourceCodeModule workbookSourceModule,
+            WorksheetSyntaxNode[] sheetNodes) {
         TableSyntaxNode[] mergedNodes = {};
         try {
             List<TablePart> tableParts = tablePartProcessor.mergeAllNodes();
@@ -339,8 +338,8 @@ public class SequentialXlsLoader {
     }
 
     private WorksheetSyntaxNode createWorksheetSyntaxNode(TablePartProcessor tablePartProcessor,
-                                                          XlsSheetSourceCodeModule sheetSource,
-                                                          IGridTable[] tables) {
+            XlsSheetSourceCodeModule sheetSource,
+            IGridTable[] tables) {
         List<TableSyntaxNode> tableNodes = new ArrayList<>();
 
         for (IGridTable table : tables) {

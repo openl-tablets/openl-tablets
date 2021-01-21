@@ -34,27 +34,38 @@ class FullClassnameSupport {
         throw new OpenlNotCheckedException();
     }
 
+    private static String getFirstIdentifierInChain(ISyntaxNode syntaxNode) {
+        if (syntaxNode instanceof IdentifierNode) {
+            return syntaxNode.getText();
+        } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
+            return getFirstIdentifierInChain(syntaxNode.getChild(0));
+        }
+        throw new OpenlNotCheckedException();
+    }
+
     static void rec(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
         if (syntaxNode == null) {
             return;
         }
         if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
-                String fieldName = tryFixChainWithPackage(syntaxNode, bindingContext).toString();
-                if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fieldName) != null) {
-                    try {
-                        Field field = BinaryNode.class.getDeclaredField("left");
-                        field.setAccessible(true);
-                        if (!(syntaxNode.getParent() instanceof BinaryNode)) {
-                            throw new IllegalStateException();
+                String variableName = getFirstIdentifierInChain(syntaxNode);
+                if (bindingContext.findVar(ISyntaxConstants.THIS_NAMESPACE, variableName, true) == null) {
+                    String fullClassName = tryFixChainWithPackage(syntaxNode, bindingContext).toString();
+                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassName) != null) {
+                        try {
+                            Field field = BinaryNode.class.getDeclaredField("left");
+                            field.setAccessible(true);
+                            if (!(syntaxNode.getParent() instanceof BinaryNode)) {
+                                throw new IllegalStateException();
+                            }
+                            field.set(syntaxNode.getParent(),
+                                new IdentifierNode("identifier",
+                                    syntaxNode.getSourceLocation(),
+                                    fullClassName,
+                                    syntaxNode.getModule()));
+                        } catch (IllegalAccessException | NoSuchFieldException ignored) {
                         }
-                        field.set(syntaxNode.getParent(),
-                            new IdentifierNode("identifier",
-                                syntaxNode.getSourceLocation(),
-                                fieldName,
-                                syntaxNode.getModule()));
-                    } catch (NoSuchFieldException e) {
-                    } catch (IllegalAccessException e) {
                     }
                 }
             } catch (OpenlNotCheckedException e) {
