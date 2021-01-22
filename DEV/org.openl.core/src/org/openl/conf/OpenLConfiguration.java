@@ -243,19 +243,24 @@ public class OpenLConfiguration implements IOpenLConfiguration {
             return namespaceCache.get(name);
         }
 
-        IOpenClass type = parent == null ? null : parent.getType(namespace, name);
-        if (type != null) {
+        IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
+        if (parent == null) {
             namespaceCache.put(name, type);
             return type;
-        }
-
-        if (typeFactory == null) {
-            namespaceCache.put(name, null);
-            return null;
         } else {
-            type = typeFactory.getType(namespace, name, configurationContext);
-            namespaceCache.put(name, type);
-            return type;
+            IOpenClass type1 = parent.getType(namespace, name);
+            if (type != null || type1 != null) {
+                if (type1 != null && type != null && !Objects.equals(type, type1)) {
+                    List<IOpenClass> foundTypes = new ArrayList<>();
+                    foundTypes.add(type);
+                    foundTypes.add(type1);
+                    throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
+                } else {
+                    namespaceCache.put(name, type != null ? type : type1);
+                    return type != null ? type : type1;
+                }
+            }
+            return null;
         }
     }
 
