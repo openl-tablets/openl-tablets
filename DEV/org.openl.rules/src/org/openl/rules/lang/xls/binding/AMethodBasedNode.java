@@ -112,7 +112,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenSourceCodeModule headerSyntaxNode = null;
             // Return type
             IOpenClass type = OpenClassUtils.getRootComponentClass(tableHeader.getType());
-            if (type != NullOpenClass.the && type.getInstanceClass() == null) {
+            if (!NullOpenClass.isAnyNull(type) && type.getInstanceClass() == null) {
                 headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
                 addTypeError(bindingContext, type, tableHeader.getTypeLocation(), headerSyntaxNode);
             }
@@ -120,7 +120,8 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             // Input parameters
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
             for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                IOpenClass parameterType = OpenClassUtils.getRootComponentClass(header.getSignature().getParameterType(i));
+                IOpenClass parameterType = OpenClassUtils
+                    .getRootComponentClass(header.getSignature().getParameterType(i));
 
                 ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
                 if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
@@ -134,13 +135,10 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     }
 
     private IOpenSourceCodeModule getHeaderSyntaxNode(IBindingContext bindingContext) {
-        IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(),
-                bindingContext);
+        IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
 
         int startPosition = getSignatureStartIndex();
-        return new SubTextSourceCodeModule(src,
-                startPosition,
-                src.getCode().length());
+        return new SubTextSourceCodeModule(src, startPosition, src.getCode().length());
     }
 
     protected void addTypeError(IBindingContext bindingContext,
