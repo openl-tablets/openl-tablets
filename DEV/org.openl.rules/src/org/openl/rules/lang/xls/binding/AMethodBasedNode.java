@@ -123,7 +123,7 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
                         OpenClassUtils.getRootComponentClass(header.getSignature().getParameterType(i));
 
                 ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
-                if (parameterType.getInstanceClass() == null) {
+                if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
                     if (headerSyntaxNode == null) {
                         headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
                     }

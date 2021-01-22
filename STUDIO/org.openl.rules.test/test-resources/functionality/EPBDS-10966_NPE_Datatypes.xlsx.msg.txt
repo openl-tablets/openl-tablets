@@ -2,7 +2,6 @@ ERROR: Type 'CoverageDetails' is not found.
 ERROR: Type 'PremiumAndRateCoverage' is not found.
 ERROR: Type 'RateCardPremium' is not found.
 ERROR: Type 'Policy' is not found.
-ERROR: Type 'null-Class' is defined with errors.
 ERROR: Type 'RateCardPremium' is not found.
 ERROR: Method 'RatingDetails(null-Class, null-Class)' is not found.
 ERROR: Type 'SpreadsheetResultPolicyRatesAndPremiums' is not found.

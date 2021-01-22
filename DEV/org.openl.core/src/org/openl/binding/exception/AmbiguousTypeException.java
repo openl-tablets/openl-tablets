@@ -29,8 +29,8 @@ public class AmbiguousTypeException extends OpenlNotCheckedException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Type ").append(typeName);
-        sb.append(" is ambiguous:\n").append("Matching types:\n");
+        sb.append("Type '").append(typeName);
+        sb.append("' is ambiguous:\n").append("Matching types:\n");
         for (IOpenClass type : matchingTypes) {
             sb.append(type.getName()).append('\n');
         }
