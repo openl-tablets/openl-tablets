@@ -18,35 +18,13 @@ import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
 
-    private static StringBuilder tryFixChainWithPackage(ISyntaxNode syntaxNode, IBindingContext bindingContext) {
+    private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) {
         if (syntaxNode instanceof IdentifierNode) {
-            return new StringBuilder(syntaxNode.getText());
-        } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
-            StringBuilder sb = tryFixChainWithPackage(syntaxNode.getChild(0), bindingContext);
-            if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, sb.toString()) != null) {
-                try {
-                    Field field = BinaryNode.class.getDeclaredField("left");
-                    field.setAccessible(true);
-                    ISyntaxNode node = syntaxNode.getChild(0);
-                    field.set(syntaxNode,
-                        new IdentifierNode("identifier", node.getSourceLocation(), sb.toString(), node.getModule()));
-                } catch (NoSuchFieldException | IllegalAccessException ignored) {
-                }
-            }
-            sb.append(".");
-            sb.append(tryFixChainWithPackage(syntaxNode.getChild(1), bindingContext));
-            return sb;
-        }
-        throw new OpenlNotCheckedException();
-    }
-
-    private static List<String> getIdentifierChain(ISyntaxNode syntaxNode) {
-        if (syntaxNode instanceof IdentifierNode) {
-            List<String> ret = new ArrayList<>();
-            ret.add(syntaxNode.getText());
+            List<ISyntaxNode> ret = new ArrayList<>();
+            ret.add(syntaxNode);
             return ret;
         } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
-            List<String> s = getIdentifierChain(syntaxNode.getChild(0));
+            List<ISyntaxNode> s = getIdentifierChain(syntaxNode.getChild(0));
             s.addAll(getIdentifierChain(syntaxNode.getChild(1)));
             return s;
         }
@@ -59,19 +37,18 @@ class FullClassnameSupport {
         }
         if ("local.var.declaration".equals(syntaxNode.getType())) {
             if ("identifier".equals(syntaxNode.getChild(1).getType())) {
-                localVariables.put(syntaxNode.getChild(1).getText(),
-                        syntaxNode.getChild(0).getChild(0).getText());
-            } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())){
+                localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
+            } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
                 localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
-                        syntaxNode.getChild(0).getChild(0).getText());
+                    syntaxNode.getChild(0).getChild(0).getText());
             } else {
                 throw new IllegalStateException("Unsupported syntax node type");
             }
         }
         if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
-                List<String> identifierChain = getIdentifierChain(syntaxNode);
-                String variableName = identifierChain.get(0);
+                List<ISyntaxNode> identifierChain = getIdentifierChain(syntaxNode);
+                String variableName = identifierChain.get(0).getText();
                 String variableType = localVariables.get(variableName);
                 IOpenClass type = null;
                 if (variableType != null) {
@@ -82,31 +59,21 @@ class FullClassnameSupport {
                         type = openField.getType();
                     }
                 }
-                int i = 1;
-                while (type != null && i < identifierChain.size()) {
-                    try {
-                        IOpenField openField = type.getField(identifierChain.get(i));
-                        type = openField != null ? openField.getType() : null;
-                    } catch (Exception | LinkageError e) {
-                        type = null;
-                    }
-                    i++;
-                }
                 if (type == null) {
-                    String fullClassName = tryFixChainWithPackage(syntaxNode, bindingContext).toString();
-                    if (bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassName) != null) {
-                        try {
-                            Field field = BinaryNode.class.getDeclaredField("left");
-                            field.setAccessible(true);
-                            if (!(syntaxNode.getParent() instanceof BinaryNode)) {
-                                throw new IllegalStateException();
-                            }
-                            field.set(syntaxNode.getParent(),
-                                new IdentifierNode("identifier",
-                                    syntaxNode.getSourceLocation(),
-                                    fullClassName,
-                                    syntaxNode.getModule()));
-                        } catch (IllegalAccessException | NoSuchFieldException ignored) {
+                    StringBuilder fullClassName = new StringBuilder();
+                    boolean f = false;
+                    for (int j = 0; j < identifierChain.size(); j++) {
+                        ISyntaxNode syntaxNode1 = identifierChain.get(j);
+                        if (f) {
+                            fullClassName.append(".");
+                        } else {
+                            f = true;
+                        }
+                        fullClassName.append(syntaxNode1.getText());
+                        type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassName.toString());
+                        if (validateTokensOnType(type, identifierChain, j + 1)) {
+                            updateSyntaxNode(syntaxNode, identifierChain, fullClassName.toString(), j);
+                            break;
                         }
                     }
                 }
@@ -122,6 +89,47 @@ class FullClassnameSupport {
                 rec(syntaxNode.getChild(i), bindingContext, localVariables);
             }
         }
+    }
+
+    private static void updateSyntaxNode(ISyntaxNode syntaxNode,
+            List<ISyntaxNode> identifierChain,
+            String fullClassName,
+            int j) {
+        try {
+            ISyntaxNode nodeToChange;
+            if (j < identifierChain.size() - 1) {
+                nodeToChange = identifierChain.get(j + 1).getParent();
+            } else {
+                nodeToChange = syntaxNode.getParent();
+            }
+            if (!(nodeToChange instanceof BinaryNode)) {
+                throw new IllegalStateException();
+            }
+            Field field = BinaryNode.class.getDeclaredField("left");
+            field.setAccessible(true);
+            field.set(nodeToChange,
+                new IdentifierNode("identifier",
+                    nodeToChange.getChild(0).getSourceLocation(),
+                    fullClassName,
+                    nodeToChange.getChild(0).getModule()));
+        } catch (IllegalAccessException | NoSuchFieldException ignored) {
+        }
+    }
+
+    private static boolean validateTokensOnType(IOpenClass type,
+            List<ISyntaxNode> identifierChain,
+            int firstIndexInChain) {
+        int i = firstIndexInChain;
+        while (type != null && i < identifierChain.size()) {
+            try {
+                IOpenField openField = type.getField(identifierChain.get(i).getText());
+                type = openField != null ? openField.getType() : null;
+            } catch (Exception | LinkageError e) {
+                type = null;
+            }
+            i++;
+        }
+        return type != null;
     }
 
     static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
