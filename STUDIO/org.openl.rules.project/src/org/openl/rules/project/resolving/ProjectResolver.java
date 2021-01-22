@@ -1,6 +1,7 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -27,7 +28,7 @@ public class ProjectResolver {
      * @param folder Folder to check
      * @return <code>null</code> if it is not OpenL project and {@link ResolvingStrategy} for this project otherwise.
      */
-    public ResolvingStrategy isRulesProject(File folder) {
+    public ResolvingStrategy isRulesProject(Path folder) {
         ServiceLoader<ResolvingStrategy> strategies = ServiceLoader.load(ResolvingStrategy.class);
 
         for (ResolvingStrategy strategy : strategies) {
@@ -38,12 +39,20 @@ public class ProjectResolver {
         return null;
     }
 
-    public ProjectDescriptor resolve(File file) throws ProjectResolvingException {
+    public ResolvingStrategy isRulesProject(File folder) {
+        return isRulesProject(folder.toPath());
+    }
+
+    public ProjectDescriptor resolve(Path file) throws ProjectResolvingException {
         ResolvingStrategy strategy = isRulesProject(file);
         if (strategy != null) {
             return strategy.resolveProject(file);
         }
         return null;
+    }
+
+    public ProjectDescriptor resolve(File file) throws ProjectResolvingException {
+        return resolve(file.toPath());
     }
 
     public List<ProjectDescriptor> resolve(File... files) {

@@ -301,7 +301,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     public RulesProject getCurrentProject() {
         if (currentProject != null) {
-            String projectFolder = currentProject.getProjectFolder().getName();
+            String projectFolder = currentProject.getProjectFolder().getFileName().toString();
             return getProject(projectFolder);
         }
         return null;
@@ -590,7 +590,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
             LocalRepository repository = rulesUserSession.getUserWorkspace().getLocalWorkspace().getRepository();
 
-            File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
+            File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
             String relativePath = getRelativePath(projectFolder, sourceFile);
             FileData data = new FileData();
             data.setName(projectFolder.getName() + "/" + relativePath);
@@ -646,7 +646,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             final LocalRepository repository = userWorkspace.getLocalWorkspace().getRepository();
             // project folder is not the same as project name
-            final String projectPath = projectDescriptor.getProjectFolder().getName();
+            final String projectPath = projectDescriptor.getProjectFolder().getFileName().toString();
 
             // Release resources that can be deleted or replaced
             getModel().clearModuleInfo();
@@ -657,7 +657,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
             zipWalker.iterateEntries(filesCollector);
             List<String> filesInZip = filesCollector.getFilePaths();
 
-            final File projectFolder = projectDescriptor.getProjectFolder();
+            final File projectFolder = projectDescriptor.getProjectFolder().toFile();
             Collection<File> files = getProjectFiles(projectFolder, filter);
 
             // Delete absent files in project
@@ -715,7 +715,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public ProjectDescriptor resolveProject(ProjectDescriptor oldProjectDescriptor) {
-        File projectFolder = oldProjectDescriptor.getProjectFolder();
+        File projectFolder = oldProjectDescriptor.getProjectFolder().toFile();
         model.resetSourceModified(); // Because we rewrite a file in the
         // workspace
 
@@ -791,7 +791,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     private List<String> getFilesInProject(PathFilter filter) {
-        final File projectFolder = getCurrentProjectDescriptor().getProjectFolder();
+        final File projectFolder = getCurrentProjectDescriptor().getProjectFolder().toFile();
         Collection<File> files = getProjectFiles(projectFolder, filter);
         final List<String> filesInProject = new ArrayList<>();
         for (File file : files) {
@@ -1076,7 +1076,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         } else {
             // Get a project
             ProjectDescriptor project = CollectionUtils.findFirst(getAllProjects(), projectDescriptor -> {
-                String projectURI = projectDescriptor.getProjectFolder().toURI().toString();
+                String projectURI = projectDescriptor.getProjectFolder().toFile().toURI().toString();
                 return tableURI.startsWith(projectURI);
             });
             if (project == null) {
@@ -1151,7 +1151,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private void setProjectBranch(ProjectDescriptor descriptor, String branch) {
         try {
-            String projectFolder = descriptor.getProjectFolder().getName();
+            String projectFolder = descriptor.getProjectFolder().getFileName().toString();
             RulesProject project = getProject(projectFolder);
             if (isSupportsBranches() && project != null) {
                 String previousBranch = project.getBranch();

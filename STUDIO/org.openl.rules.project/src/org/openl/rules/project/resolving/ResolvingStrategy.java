@@ -1,6 +1,6 @@
 package org.openl.rules.project.resolving;
 
-import java.io.File;
+import java.nio.file.Path;
 
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -16,12 +16,12 @@ public interface ResolvingStrategy {
      * @param folder Project root.
      * @return <code>true</code> if specified folder is OpenL project
      */
-    boolean isRulesProject(File folder);
+    boolean isRulesProject(Path folder);
 
     /**
      * @param folder Project root.
      * @return {@link ProjectDescriptor} that describes project
      */
-    ProjectDescriptor resolveProject(File folder) throws ProjectResolvingException;
+    ProjectDescriptor resolveProject(Path folder) throws ProjectResolvingException;
 
 }
