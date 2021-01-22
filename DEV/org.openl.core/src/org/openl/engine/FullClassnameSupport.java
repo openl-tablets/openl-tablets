@@ -61,6 +61,7 @@ class FullClassnameSupport {
                 }
                 if (type == null) {
                     StringBuilder fullClassName = new StringBuilder();
+                    String[] fullClassNames = new String[identifierChain.size()];
                     boolean f = false;
                     for (int j = 0; j < identifierChain.size(); j++) {
                         ISyntaxNode syntaxNode1 = identifierChain.get(j);
@@ -70,11 +71,17 @@ class FullClassnameSupport {
                             f = true;
                         }
                         fullClassName.append(syntaxNode1.getText());
-                        type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassName.toString());
-                        if (validateTokensOnType(type, identifierChain, j + 1)) {
-                            updateSyntaxNode(syntaxNode, identifierChain, fullClassName.toString(), j);
+                        fullClassNames[j] = fullClassName.toString();
+                    }
+
+                    int j = identifierChain.size() - 1;
+                    while (j >= 0) {
+                        type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, fullClassNames[j]);
+                        if (type != null) {
+                            updateSyntaxNode(syntaxNode, identifierChain, fullClassNames[j], j);
                             break;
                         }
+                        j--;
                     }
                 }
             } catch (OpenlNotCheckedException e) {
@@ -114,22 +121,6 @@ class FullClassnameSupport {
                     nodeToChange.getChild(0).getModule()));
         } catch (IllegalAccessException | NoSuchFieldException ignored) {
         }
-    }
-
-    private static boolean validateTokensOnType(IOpenClass type,
-            List<ISyntaxNode> identifierChain,
-            int firstIndexInChain) {
-        int i = firstIndexInChain;
-        while (type != null && i < identifierChain.size()) {
-            try {
-                IOpenField openField = type.getField(identifierChain.get(i).getText());
-                type = openField != null ? openField.getType() : null;
-            } catch (Exception | LinkageError e) {
-                type = null;
-            }
-            i++;
-        }
-        return type != null;
     }
 
     static void transformIdentifierBindersWithBindingContextInfo(IBindingContext bindingContext,
