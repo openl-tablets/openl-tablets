@@ -7,6 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  *
@@ -61,7 +62,9 @@ public class IdentifierBinder extends ANodeBinder {
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
-                BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
+                if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
+                    BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
+                }
             } else {
                 return makeErrorNode("Accessing to non-static field from a static class.", node, bindingContext);
             }
