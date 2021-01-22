@@ -3,6 +3,9 @@ package org.openl.rules.ruleservice.loader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
@@ -24,9 +27,11 @@ import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.repository.zip.AbstractArchiveRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
@@ -161,11 +166,57 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
 
             boolean folderStructure = isFolderStructure(folderPath);
 
-            Deployment deployment = new Deployment(repository,
-                folderPath,
-                deploymentFolderName,
-                commonVersion,
-                folderStructure);
+            //FIXME: Workaround for simple deployment zip files
+            Deployment deployment = null;
+            if (repository.supports().folders() && repository.supports().isLocal() && fileData.getPath() != null
+                    && AbstractArchiveRepository.zipArchiveFilter(fileData.getPath())) {
+                boolean isSimple;
+                try (FileSystem zipFS = FileSystems.newFileSystem(fileData.getPath(), Thread.currentThread().getContextClassLoader())) {
+                    Path zipRoot = zipFS.getPath("/");
+                    isSimple = projectResolver.isRulesProject(zipRoot) != null;
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                    isSimple = false;
+                }
+                if (isSimple) {
+                    String versionName = commonVersion.getVersionName();
+                    final String tempDeploymentName = deploymentFolderName + "_v" + versionName;
+                    deployment = new Deployment(tempRepo,
+                            tempDeploymentName,
+                            deploymentFolderName,
+                            commonVersion,
+                            true);
+                    Path tempDeploymentPath = tempPath.resolve(tempDeploymentName).resolve(deploymentFolderName);
+                    try {
+                        Files.createDirectories(tempDeploymentPath);
+                        List<FileData> artefacts = repository.list(getDeployPath() + deploymentFolderName);
+                        for (FileData artefactData : artefacts) {
+                            //create sub folders
+                            Path artefactPath = artefactData.getPath().getParent();
+                            artefactPath = tempDeploymentPath.resolve(artefactPath.toString().substring(1));
+                            Files.createDirectories(artefactPath);
+
+                            artefactPath = artefactPath.resolve(artefactData.getPath().getFileName().toString());
+                            FileItem artefactItem = repository.read(artefactData.getName());
+                            try (InputStream is = artefactItem.getStream()) {
+                                Files.copy(is, artefactPath);
+                            }
+                        }
+                        deployment.refresh();
+                    } catch (IOException e) {
+                        log.error(e.getMessage(), e);
+                        deployment = null;
+                    }
+                }
+            }
+
+            if (deployment == null) {
+                deployment = new Deployment(repository,
+                        folderPath,
+                        deploymentFolderName,
+                        commonVersion,
+                        folderStructure);
+            }
             deployments.putIfAbsent(deploymentFolderName, deployment);
         }
 
