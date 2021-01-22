@@ -163,7 +163,6 @@ public class JavaOpenClass extends AOpenClass {
         if (instanceClass.isArray()) {
             fields.put("length", new JavaArrayLengthField());
         }
-
         fields.put("class", new JavaClassClassField(instanceClass));
         BeanOpenField.collectFields(fields, instanceClass);
         return fields;
@@ -383,7 +382,7 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
-    private static class JavaClassClassField implements IOpenField {
+    public static class JavaClassClassField implements IOpenField {
         private final Class<?> instanceClass;
 
         public JavaClassClassField(Class<?> instanceClass) {
