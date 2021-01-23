@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenlNotCheckedException;
@@ -43,19 +42,16 @@ class FullClassnameSupport {
         throw new OpenlNotCheckedException();
     }
 
-    static void rec(ISyntaxNode syntaxNode,
-            IBindingContext bindingContext,
-            Stack<Map<String, String>> localVariablesStack) {
+    static void rec(ISyntaxNode syntaxNode, IBindingContext bindingContext, Map<String, String> localVariables) {
         if (syntaxNode == null) {
             return;
         }
         if ("local.var.declaration".equals(syntaxNode.getType())) {
             if ("identifier".equals(syntaxNode.getChild(1).getType())) {
-                localVariablesStack.peek()
-                    .put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
+                localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
             } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
-                localVariablesStack.peek()
-                    .put(syntaxNode.getChild(1).getChild(0).getText(), syntaxNode.getChild(0).getChild(0).getText());
+                localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
+                    syntaxNode.getChild(0).getChild(0).getText());
             } else {
                 throw new IllegalStateException("Unsupported syntax node type");
             }
@@ -63,13 +59,7 @@ class FullClassnameSupport {
             try {
                 List<ISyntaxNode> identifierChain = getIdentifierChain(syntaxNode);
                 String variableName = identifierChain.get(0).getText();
-                String variableType = null;
-                for (Map<String, String> variables : localVariablesStack) {
-                    variableType = variables.get(variableName);
-                    if (variableType != null) {
-                        break;
-                    }
-                }
+                String variableType = localVariables.get(variableName);
                 IOpenClass type = null;
                 if (variableType != null) {
                     type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, variableType);
@@ -107,21 +97,13 @@ class FullClassnameSupport {
             } catch (OpenlNotCheckedException e) {
                 int n = syntaxNode.getNumberOfChildren();
                 for (int i = 0; i < n; i++) {
-                    rec(syntaxNode.getChild(i), bindingContext, localVariablesStack);
+                    rec(syntaxNode.getChild(i), bindingContext, localVariables);
                 }
             }
         } else {
-            boolean blockStatement = false;
-            if ("block.statement".equals(syntaxNode.getType()) || "control.for".equals(syntaxNode.getType())) {
-                localVariablesStack.push(new HashMap<>());
-                blockStatement = true;
-            }
             int n = syntaxNode.getNumberOfChildren();
             for (int i = 0; i < n; i++) {
-                rec(syntaxNode.getChild(i), bindingContext, localVariablesStack);
-            }
-            if (blockStatement) {
-                localVariablesStack.pop();
+                rec(syntaxNode.getChild(i), bindingContext, localVariables);
             }
         }
     }
@@ -153,9 +135,7 @@ class FullClassnameSupport {
             IParsedCode parsedCode) {
         ISyntaxNode topNode = parsedCode.getTopNode();
         if (bindingContext != null) {
-            Stack<Map<String, String>> stack = new Stack<>();
-            stack.push(new HashMap<>());
-            rec(topNode, bindingContext, stack);
+            rec(topNode, bindingContext, new HashMap<>());
         }
     }
 }
