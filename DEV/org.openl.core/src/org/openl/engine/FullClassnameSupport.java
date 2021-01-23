@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.openl.binding.IBindingContext;
 import org.openl.exception.OpenlNotCheckedException;
@@ -17,6 +18,17 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 class FullClassnameSupport {
+    static final Field binaryNodeLeftField;
+
+    static {
+        Field binaryNodeLeftFieldTmp = null;
+        try {
+            binaryNodeLeftFieldTmp = BinaryNode.class.getDeclaredField("left");
+            binaryNodeLeftFieldTmp.setAccessible(true);
+        } catch (NoSuchFieldException ignored) {
+        }
+        binaryNodeLeftField = binaryNodeLeftFieldTmp;
+    }
 
     private static List<ISyntaxNode> getIdentifierChain(ISyntaxNode syntaxNode) {
         if (syntaxNode instanceof IdentifierNode) {
@@ -31,25 +43,33 @@ class FullClassnameSupport {
         throw new OpenlNotCheckedException();
     }
 
-    static void rec(ISyntaxNode syntaxNode, IBindingContext bindingContext, Map<String, String> localVariables) {
+    static void rec(ISyntaxNode syntaxNode,
+            IBindingContext bindingContext,
+            Stack<Map<String, String>> localVariablesStack) {
         if (syntaxNode == null) {
             return;
         }
         if ("local.var.declaration".equals(syntaxNode.getType())) {
             if ("identifier".equals(syntaxNode.getChild(1).getType())) {
-                localVariables.put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
+                localVariablesStack.peek()
+                    .put(syntaxNode.getChild(1).getText(), syntaxNode.getChild(0).getChild(0).getText());
             } else if ("local.var.name.init".equals(syntaxNode.getChild(1).getType())) {
-                localVariables.put(syntaxNode.getChild(1).getChild(0).getText(),
-                    syntaxNode.getChild(0).getChild(0).getText());
+                localVariablesStack.peek()
+                    .put(syntaxNode.getChild(1).getChild(0).getText(), syntaxNode.getChild(0).getChild(0).getText());
             } else {
                 throw new IllegalStateException("Unsupported syntax node type");
             }
-        }
-        if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
+        } else if ("chain.suffix.dot.identifier".equals(syntaxNode.getType())) {
             try {
                 List<ISyntaxNode> identifierChain = getIdentifierChain(syntaxNode);
                 String variableName = identifierChain.get(0).getText();
-                String variableType = localVariables.get(variableName);
+                String variableType = null;
+                for (Map<String, String> variables : localVariablesStack) {
+                    variableType = variables.get(variableName);
+                    if (variableType != null) {
+                        break;
+                    }
+                }
                 IOpenClass type = null;
                 if (variableType != null) {
                     type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, variableType);
@@ -87,13 +107,21 @@ class FullClassnameSupport {
             } catch (OpenlNotCheckedException e) {
                 int n = syntaxNode.getNumberOfChildren();
                 for (int i = 0; i < n; i++) {
-                    rec(syntaxNode.getChild(i), bindingContext, localVariables);
+                    rec(syntaxNode.getChild(i), bindingContext, localVariablesStack);
                 }
             }
         } else {
+            boolean blockStatement = false;
+            if ("block.statement".equals(syntaxNode.getType()) || "control.for".equals(syntaxNode.getType())) {
+                localVariablesStack.push(new HashMap<>());
+                blockStatement = true;
+            }
             int n = syntaxNode.getNumberOfChildren();
             for (int i = 0; i < n; i++) {
-                rec(syntaxNode.getChild(i), bindingContext, localVariables);
+                rec(syntaxNode.getChild(i), bindingContext, localVariablesStack);
+            }
+            if (blockStatement) {
+                localVariablesStack.pop();
             }
         }
     }
@@ -112,14 +140,12 @@ class FullClassnameSupport {
             if (!(nodeToChange instanceof BinaryNode)) {
                 throw new IllegalStateException();
             }
-            Field field = BinaryNode.class.getDeclaredField("left");
-            field.setAccessible(true);
-            field.set(nodeToChange,
+            binaryNodeLeftField.set(nodeToChange,
                 new IdentifierNode("identifier",
                     nodeToChange.getChild(0).getSourceLocation(),
                     fullClassName,
                     nodeToChange.getChild(0).getModule()));
-        } catch (IllegalAccessException | NoSuchFieldException ignored) {
+        } catch (IllegalAccessException ignored) {
         }
     }
 
@@ -127,7 +153,9 @@ class FullClassnameSupport {
             IParsedCode parsedCode) {
         ISyntaxNode topNode = parsedCode.getTopNode();
         if (bindingContext != null) {
-            rec(topNode, bindingContext, new HashMap<>());
+            Stack<Map<String, String>> stack = new Stack<>();
+            stack.push(new HashMap<>());
+            rec(topNode, bindingContext, stack);
         }
     }
 }
