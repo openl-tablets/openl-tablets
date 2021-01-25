@@ -17,13 +17,13 @@ class ThreadInvocationCaptor {
     private final int atLeast;
     private final int nThread;
 
-    public ThreadInvocationCaptor(int atLeast, int nThread) {
+    ThreadInvocationCaptor(int atLeast, int nThread) {
         this.atLeast = atLeast;
         this.nThread = nThread;
         this.waiter = new CountDownLatch(nThread * atLeast);
     }
 
-    public void capture() {
+    void capture() {
         Long threadId = Thread.currentThread().getId();
         AtomicInteger times = counterMap.get(threadId);
         if (times == null) {
@@ -36,8 +36,8 @@ class ThreadInvocationCaptor {
         }
     }
 
-    public void await(int timeout, TimeUnit unit) throws InterruptedException {
-        waiter.await(timeout, unit);
+    void await(int timeout) throws InterruptedException {
+        waiter.await(timeout, TimeUnit.SECONDS);
         assertEquals(String.format("'%s' must be created", nThread), nThread, counterMap.size());
         for (AtomicInteger times : counterMap.values()) {
             assertTrue(String.format("Each thread must be executed at least '%s' times", atLeast),

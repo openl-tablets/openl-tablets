@@ -1,17 +1,14 @@
 package org.openl.itest;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.model.MultipleFailureException;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
@@ -141,10 +138,10 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
-    public void test_EPBDS_8758_multithread() throws Exception {
+    public void test_EPBDS_8758_multithread() {
         client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.get("/REST/EPBDS-8758/doSomething", String.class));
+        AsyncExecutor executor = new AsyncExecutor(() -> client.get("/REST/EPBDS-8758/doSomething", String.class));
         TaskScheduler taskScheduler = new TaskScheduler();
 
         executor.start();
@@ -158,37 +155,36 @@ public class RunRestRulesDeploymentTest {
             client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v3.resp.txt");
         }, 2, TimeUnit.SECONDS);
 
-        List<Throwable> deployErrors = taskScheduler.await();
-        List<Throwable> invocationErrors = executor.stop();
+        boolean deployErrors = taskScheduler.await();
+        boolean invocationErrors = executor.stop();
 
         client.delete("/admin/delete/EPBDS-8758");
 
-        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
-                .collect(Collectors.toList()));
+        assertFalse(invocationErrors);
+        assertFalse(deployErrors);
     }
 
     @Test
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.get("/REST/EPBDS-8758/doSomething", "/EPBDS-8758/doSomething_v1.resp.txt");
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS, () -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
 
-        AsyncExecutor deployers = new AsyncExecutor(() -> {
+        AsyncExecutor deployers = AsyncExecutor.start(() -> {
             client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
         }, () -> {
             client.put("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
         });
 
-        deployers.start();
         TimeUnit.SECONDS.sleep(1);
-        List<Throwable> deployErrors = deployers.stop();
-        List<Throwable> invocationErrors = executor.stop();
+        boolean deployErrors = deployers.stop();
+        boolean invocationErrors = executor.stop();
 
         client.delete("/admin/delete/EPBDS-8758");
 
-        MultipleFailureException.assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream())
-                .collect(Collectors.toList()));
+        assertFalse(deployErrors);
+        assertFalse(invocationErrors);
     }
 
     @Test
