@@ -6,8 +6,10 @@ import java.util.Map;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.dt.DTScale;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
+import org.openl.rules.enumeration.DTCalculationModeEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -29,13 +31,20 @@ import org.openl.vm.IRuntimeEnv;
 public class Action extends FunctionalRow implements IAction {
 
     private static final String EXTRA_RET = "e$x$t$r$a$R$e$t";
-    private boolean isSingleReturnParam = false;
+    private boolean isSingleReturnParam;
     private IOpenClass returnType;
-    private ActionType actionType;
+    private final ActionType actionType;
+    private final DecisionTable decisionTableInvocableMethod;
 
-    public Action(String name, int row, ILogicalTable decisionTable, ActionType actionType, DTScale.RowScale scale) {
+    public Action(String name,
+            int row,
+            ILogicalTable decisionTable,
+            ActionType actionType,
+            DTScale.RowScale scale,
+            DecisionTable decisionTableInvocableMethod) {
         super(name, row, decisionTable, scale);
         this.actionType = actionType;
+        this.decisionTableInvocableMethod = decisionTableInvocableMethod;
     }
 
     @Override
@@ -50,17 +59,17 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     public boolean isReturnAction() {
-        return ActionType.RETURN.equals(actionType);
+        return ActionType.RETURN == actionType;
     }
 
     @Override
     public boolean isCollectReturnKeyAction() {
-        return ActionType.COLLECT_RETURN_KEY.equals(actionType);
+        return ActionType.COLLECT_RETURN_KEY == actionType;
     }
 
     @Override
     public boolean isCollectReturnAction() {
-        return ActionType.COLLECT_RETURN.equals(actionType);
+        return ActionType.COLLECT_RETURN == actionType;
     }
 
     @Override
@@ -71,7 +80,8 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         if (isSingleReturnParam) {
-            if (isEmpty(ruleN)) {
+            if (decisionTableInvocableMethod.getMethodProperties() != null && DTCalculationModeEnum.AVOID_EMPTY_RESULT
+                .equals(decisionTableInvocableMethod.getMethodProperties().getCalculationMode()) && isEmpty(ruleN)) {
                 return null;
             }
 
@@ -80,13 +90,13 @@ public class Action extends FunctionalRow implements IAction {
 
             Object returnValue = dest[0];
             IOpenMethod method = getMethod();
-            IOpenClass returnType = method.getType();
+            IOpenClass methodType = method.getType();
 
             // Check that returnValue object has the same type as a return type
             // of method. If they are same return returnValue as result of
             // execution.
             //
-            if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), returnType.getInstanceClass())) {
+            if (returnValue == null || ClassUtils.isAssignable(returnValue.getClass(), methodType.getInstanceClass())) {
                 return returnValue;
             }
 
@@ -101,15 +111,15 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
-        if (isEmpty(ruleN)) {
+        if (decisionTableInvocableMethod.getMethodProperties() != null && DTCalculationModeEnum.AVOID_EMPTY_RESULT
+            .equals(decisionTableInvocableMethod.getMethodProperties().getCalculationMode()) && isEmpty(ruleN)) {
             return null;
         }
 
         return getMethod().invoke(target, mergeParams(target, params, env, ruleN), env);
     }
 
-    private IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
-            IOpenMethodHeader header,
+    private static IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
             IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
@@ -119,7 +129,7 @@ public class Action extends FunctionalRow implements IAction {
         return cType != null ? cType : JavaOpenClass.OBJECT;
     }
 
-    private IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
+    private static IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
             IOpenMethodHeader header,
             IBindingContext bindingContext) {
         IOpenClass type = header.getType();
@@ -164,7 +174,7 @@ public class Action extends FunctionalRow implements IAction {
                 methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
-                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, header, bindingContext);
+                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
                 }
             }
         }

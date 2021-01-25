@@ -4,6 +4,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 import org.openl.exception.OpenLRuntimeException;
+import org.openl.rules.enumeration.DTCalculationModeEnum;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
 import org.openl.util.ClassUtils;
@@ -16,13 +17,15 @@ public class ActionInvoker implements Invokable {
 
     private final int[] rules;
     private final IBaseAction[] actions;
+    private final DecisionTable decisionTable;
 
-    ActionInvoker(int[] rules, IBaseAction[] actions) {
+    ActionInvoker(int[] rules, IBaseAction[] actions, DecisionTable decisionTable) {
         this.rules = rules;
         this.actions = actions;
+        this.decisionTable = decisionTable;
     }
 
-    private Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
+    private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
         int returnValuesLength = Array.getLength(returnValues);
         for (int i = 0; i < returnValuesLength; i++) {
             if (f[i] && Array.get(returnValues, i) != null) {
@@ -38,7 +41,7 @@ public class ActionInvoker implements Invokable {
             boolean[] f) {
         int returnValuesLength = Array.getLength(returnValues);
         for (int i = 0; i < returnValuesLength; i++) {
-            if (f[i] && Array.get(keyValues, i) != null && Array.get(returnValues, i) != null) {
+            if (f[i] && isValidResult(Array.get(keyValues, i)) && isValidResult(Array.get(returnValues, i))) {
                 returnValue.put(Array.get(keyValues, i), Array.get(returnValues, i));
             }
         }
@@ -49,8 +52,8 @@ public class ActionInvoker implements Invokable {
     private Object processReturnValue(Object returnValues, Object keyValues, boolean[] f, IOpenClass type) {
         if (type.isArray()) {
             int c = 0;
-            for (int i = 0; i < f.length; i++) {
-                if (f[i]) {
+            for (boolean b : f) {
+                if (b) {
                     c++;
                 }
             }
@@ -59,9 +62,8 @@ public class ActionInvoker implements Invokable {
             if (c == 0) {
                 int retLength = 0;
                 for (int i = 0; i < returnValuesLength; i++) {
-                    if (Array.get(returnValues, i) != null) {
+                    if (isValidResult(Array.get(returnValues, i))) {
                         retLength++;
-                        ;
                     }
                 }
                 ret = Array.newInstance(type.getComponentClass().getInstanceClass(), retLength);
@@ -70,7 +72,7 @@ public class ActionInvoker implements Invokable {
             }
             int j = 0;
             for (int i = 0; i < returnValuesLength; i++) {
-                if ((f[i] || c == 0) && Array.get(returnValues, i) != null) {
+                if ((f[i] || c == 0) && (isValidResult(Array.get(returnValues, i)))) {
                     Array.set(ret, j, Array.get(returnValues, i));
                     j++;
                 }
@@ -113,6 +115,12 @@ public class ActionInvoker implements Invokable {
         }
     }
 
+    private boolean isValidResult(Object actionResult) {
+        return actionResult != null || decisionTable
+            .getMethodProperties() != null && DTCalculationModeEnum.ALLOW_EMPTY_RESULT
+                .equals(decisionTable.getMethodProperties().getCalculationMode());
+    }
+
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         Object retVal = null;
@@ -138,46 +146,44 @@ public class ActionInvoker implements Invokable {
                 }
                 for (int i = 0; i < rules.length; i++) {
                     Object actionResult = action.executeAction(rules[i], target, params, env);
-                    if (actionResult != null && Array.get(returnValues, i) == null) {
+                    if (isValidResult(actionResult) && (Array.get(returnValues, i) == null || !f[i])) {
                         Array.set(returnValues, i, actionResult);
                         f[i] = true;
                     }
                 }
                 retVal = returnValues;
                 isCollectReturn = true;
+            } else if (action.isCollectReturnKeyAction()) {
+                if (keyValues == null) {
+                    keyValues = new Object[rules.length];
+                    if (f == null) {
+                        f = new boolean[rules.length];
+                        Arrays.fill(f, false);
+                    }
+                }
+                for (int i = 0; i < rules.length; i++) {
+                    Object actionResult = action.executeAction(rules[i], target, params, env);
+                    if (isValidResult(actionResult) && (Array.get(keyValues, i) == null || !f[i])) {
+                        Array.set(keyValues, i, actionResult);
+                        f[i] = true;
+                    }
+                }
             } else {
-                if (action.isCollectReturnKeyAction()) {
-                    if (keyValues == null) {
-                        keyValues = new Object[rules.length];
-                        if (f == null) {
-                            f = new boolean[rules.length];
-                            Arrays.fill(f, false);
+                int i;
+                Object actionResult = null;
+                for (i = 0; i < rules.length; i++) {
+                    if (action.isReturnAction()) {
+                        actionResult = action.executeAction(rules[i], target, params, env);
+                        if (isValidResult(actionResult)) {
+                            break;
                         }
+                    } else {
+                        action.executeAction(rules[i], target, params, env);
                     }
-                    for (int i = 0; i < rules.length; i++) {
-                        Object actionResult = action.executeAction(rules[i], target, params, env);
-                        if (actionResult != null && Array.get(keyValues, i) == null) {
-                            Array.set(keyValues, i, actionResult);
-                            f[i] = true;
-                        }
-                    }
-                } else {
-                    int i = 0;
-                    Object actionResult = null;
-                    for (i = 0; i < rules.length; i++) {
-                        if (action.isReturnAction()) {
-                            actionResult = action.executeAction(rules[i], target, params, env);
-                            if (actionResult != null) {
-                                break;
-                            }
-                        } else {
-                            action.executeAction(rules[i], target, params, env);
-                        }
-                    }
-                    if (retVal == null && (actionResult != null || i < rules.length)) {
-                        retVal = actionResult;
-                        isCollectReturn = false;
-                    }
+                }
+                if (retVal == null && actionResult != null) {
+                    retVal = actionResult;
+                    isCollectReturn = false;
                 }
             }
         }

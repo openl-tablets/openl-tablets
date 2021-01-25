@@ -457,6 +457,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public org.openl.rules.enumeration.DTCalculationModeEnum getCalculationMode() {
+        return (org.openl.rules.enumeration.DTCalculationModeEnum) getPropertyValue("calculationMode");
+    }
+
+    @Override
+    public void setCalculationMode(org.openl.rules.enumeration.DTCalculationModeEnum calculationMode) {
+        setFieldValue("calculationMode", calculationMode);
+        reset();
+    }
+
+    @Override
     public java.lang.String getPrecision() {
         return (java.lang.String) getPropertyValue("precision");
     }

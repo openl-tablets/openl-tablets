@@ -55,7 +55,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         IBaseAction[] actions = getInvokableMethod().getActionRows();
 
-        Object returnValue = Tracer.invoke(new ActionInvoker(rules, actions), target, params, env, this);
+        Object returnValue = Tracer.invoke(new ActionInvoker(rules, actions, getInvokableMethod()), target, params, env, this);
         if (returnValue != null) {
             return returnValue;
         }
