@@ -63,10 +63,12 @@ public class IdentifierBinder extends ANodeBinder {
 
             if (field.isStatic()) {
                 if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
-                    BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
+                    BindHelper.processWarn(String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                            field.getName(), target.getType().getName()), node, bindingContext);
                 }
             } else {
-                return makeErrorNode("Accessing to non-static field from a static class.", node, bindingContext);
+                return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
+                        field.getName(), target.getType().getName()), node, bindingContext);
             }
         }
 
