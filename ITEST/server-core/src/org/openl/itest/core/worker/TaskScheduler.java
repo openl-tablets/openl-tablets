@@ -57,6 +57,7 @@ public class TaskScheduler {
                 scheduledExecutor.awaitTermination(timeout, unit);
             }
         } catch (InterruptedException e) {
+            e.printStackTrace(); // For debug purposes
             errors.add(e);
         }
         return Collections.unmodifiableList(errors);
@@ -73,6 +74,7 @@ public class TaskScheduler {
             try {
                 command.run();
             } catch (Throwable e) {
+                e.printStackTrace(); // For debug purposes
                 errors.add(e);
             }
         };

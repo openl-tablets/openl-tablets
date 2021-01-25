@@ -71,6 +71,7 @@ public class AsyncExecutor {
         try {
             executor.awaitTermination(timeout, unit);
         } catch (InterruptedException e) {
+            e.printStackTrace(); // For debug purposes
             errors.add(e);
         }
         workers.stream().map(Wrapper::getErrors).forEach(errors::addAll);
@@ -103,6 +104,7 @@ public class AsyncExecutor {
                 try {
                     delegate.run();
                 } catch (Throwable error) {
+                    error.printStackTrace(); // For debug purposes
                     errors.add(error);
                 } finally {
                     invokedTimes++;
