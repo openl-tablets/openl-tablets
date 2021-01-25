@@ -28,7 +28,7 @@ public class AsyncExecutorTest {
         executor.start();
         List<Throwable> errors;
         try {
-            threadCaptor.await(5, TimeUnit.SECONDS);
+            threadCaptor.await(15, TimeUnit.SECONDS);
         } finally {
             errors = executor.stop();
         }
@@ -52,7 +52,7 @@ public class AsyncExecutorTest {
         executor.start();
         List<Throwable> errors;
         try {
-            threadCaptor.await(5, TimeUnit.SECONDS);
+            threadCaptor.await(15, TimeUnit.SECONDS);
         } finally {
             errors = executor.stop();
         }
