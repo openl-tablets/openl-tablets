@@ -457,13 +457,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
-    public org.openl.rules.enumeration.DTCalculationModeEnum getCalculationMode() {
-        return (org.openl.rules.enumeration.DTCalculationModeEnum) getPropertyValue("calculationMode");
+    public org.openl.rules.enumeration.DTResultCalculationModeEnum getResultCalculationMode() {
+        return (org.openl.rules.enumeration.DTResultCalculationModeEnum) getPropertyValue("resultCalculationMode");
     }
 
     @Override
-    public void setCalculationMode(org.openl.rules.enumeration.DTCalculationModeEnum calculationMode) {
-        setFieldValue("calculationMode", calculationMode);
+    public void setResultCalculationMode(org.openl.rules.enumeration.DTResultCalculationModeEnum resultCalculationMode) {
+        setFieldValue("resultCalculationMode", resultCalculationMode);
         reset();
     }
 

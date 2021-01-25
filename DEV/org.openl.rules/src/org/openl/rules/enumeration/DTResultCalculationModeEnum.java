@@ -1,12 +1,12 @@
 package org.openl.rules.enumeration;
 
-public enum DTCalculationModeEnum {
-    AVOID_EMPTY_RESULT("Avoid empty results and empty cells in the table ACTION and RET columns"),
-    ALLOW_EMPTY_RESULT("Take into account empty results and empty cells in the table ACTION and RET columns");
+public enum DTResultCalculationModeEnum {
+    AVOID_EMPTY("Avoid empty results and empty cells in the table ACTION and RET columns"),
+    ALLOW_EMPTY("Take into account empty results and empty cells in the table ACTION and RET columns");
 
     private final String displayName;
 
-    DTCalculationModeEnum(String displayName) {
+    DTResultCalculationModeEnum(String displayName) {
         this.displayName = displayName;
     }
 
@@ -15,8 +15,8 @@ public enum DTCalculationModeEnum {
         return displayName;
     }
 
-    public static DTCalculationModeEnum fromString(String displayName) {
-        for (DTCalculationModeEnum v : DTCalculationModeEnum.values()) {
+    public static DTResultCalculationModeEnum fromString(String displayName) {
+        for (DTResultCalculationModeEnum v : DTResultCalculationModeEnum.values()) {
             if (displayName.equalsIgnoreCase(v.displayName)) {
                 return v;
             }

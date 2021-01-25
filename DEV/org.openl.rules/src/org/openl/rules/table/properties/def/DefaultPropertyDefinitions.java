@@ -504,17 +504,17 @@ public final class DefaultPropertyDefinitions {
         definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 
         definitions[34] = new TablePropertyDefinition();
-        definitions[34].setDefaultValue("AVOID_EMPTY_RESULT");
+        definitions[34].setDefaultValue("AVOID_EMPTY");
         definitions[34].setDescription("The way of calculation of the DT table");
         definitions[34].setDimensional(false);
-        definitions[34].setDisplayName("Calculation Mode");
+        definitions[34].setDisplayName("Result Calculation Mode");
         definitions[34].setGroup("Dev");
         definitions[34].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[34].setName("calculationMode");
+        definitions[34].setName("resultCalculationMode");
         definitions[34].setPrimaryKey(false);
         definitions[34].setSystem(false);
         definitions[34].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTCalculationModeEnum.class));
+        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTResultCalculationModeEnum.class));
 
         definitions[35] = new TablePropertyDefinition();
         definitions[35].setConstraints(new Constraints("regexp:(-?[0-9]+)"));
@@ -533,7 +533,7 @@ public final class DefaultPropertyDefinitions {
         definitions[36].setDefaultValue("false");
         definitions[36].setDescription("Controls generation additional fields in an plain model for the Spreadsheet.");
         definitions[36].setDimensional(false);
-        definitions[36].setDisplayName("Detaled Plain Model");
+        definitions[36].setDisplayName("Detailed Plain Model");
         definitions[36].setGroup("Dev");
         definitions[36].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
         definitions[36].setName("detailedPlainModel");
