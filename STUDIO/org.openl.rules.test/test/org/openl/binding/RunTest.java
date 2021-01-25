@@ -412,9 +412,9 @@ public class RunTest {
         assertEquals("10d.class", double.class);
         assertEquals("int x = 5; x.class", int.class);
 
-        assertError("String.length()", "Accessing to non-static method from a static class.");
-        assertError("Double.isNaN()", "Accessing to non-static method from a static class.");
-        assertError("Double.getClass()", "Accessing to non-static method from a static class.");
+        assertError("String.length()", "Accessing to non-static method 'length' of static type 'java.lang.String'.");
+        assertError("Double.isNaN()", "Accessing to non-static method 'isNaN' of static type 'java.lang.Double'.");
+        assertError("Double.getClass()", "Accessing to non-static method 'getClass' of static type 'java.lang.Double'.");
         assertError("int.getClass()", "Method 'getClass()' is not found.");
     }
 
