@@ -274,6 +274,10 @@ public interface ITableProperties {
 
     void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
 
+    org.openl.rules.enumeration.DTCalculationModeEnum getCalculationMode();
+
+    void setCalculationMode(org.openl.rules.enumeration.DTCalculationModeEnum calculationMode);
+
     java.lang.String getPrecision();
 
     void setPrecision(java.lang.String precision);

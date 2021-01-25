@@ -581,12 +581,17 @@ public class DecisionTableLoader {
         if (DecisionTableHelper.isConditionHeader(header)) {
             tableStructure.conditions.add(new Condition(header, row, table, getConditionScale(tableStructure, header)));
         } else if (DecisionTableHelper.isValidActionHeader(header)) {
-            tableStructure.actions.add(new Action(header, row, table, ActionType.ACTION, DTScale.getStandardScale()));
+            tableStructure.actions
+                .add(new Action(header, row, table, ActionType.ACTION, DTScale.getStandardScale(), decisionTable));
         } else if (DecisionTableHelper.isValidRuleHeader(header)) {
             addRule(row, table, tableStructure, bindingContext);
         } else if (DecisionTableHelper.isValidKeyHeader(header)) {
-            tableStructure.actions
-                .add(new Action(header, row, table, ActionType.COLLECT_RETURN_KEY, DTScale.getStandardScale()));
+            tableStructure.actions.add(new Action(header,
+                row,
+                table,
+                ActionType.COLLECT_RETURN_KEY,
+                DTScale.getStandardScale(),
+                decisionTable));
             tableStructure.hasCollectReturnKeyAction = true;
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             if (tableStructure.hasCollectReturnAction) {
@@ -600,7 +605,8 @@ public class DecisionTableLoader {
                         0,
                         bindingContext));
             }
-            tableStructure.actions.add(new Action(header, row, table, ActionType.RETURN, DTScale.getStandardScale()));
+            tableStructure.actions
+                .add(new Action(header, row, table, ActionType.RETURN, DTScale.getStandardScale(), decisionTable));
             if (tableStructure.firstUsedReturnActionHeader == null) {
                 tableStructure.firstUsedReturnActionHeader = header;
             }
@@ -622,8 +628,12 @@ public class DecisionTableLoader {
                 tableStructure.firstUsedReturnActionHeader = header;
             }
             if (validateCollectReturnType(decisionTable)) {
-                tableStructure.actions
-                    .add(new Action(header, row, table, ActionType.COLLECT_RETURN, DTScale.getStandardScale()));
+                tableStructure.actions.add(new Action(header,
+                    row,
+                    table,
+                    ActionType.COLLECT_RETURN,
+                    DTScale.getStandardScale(),
+                    decisionTable));
             } else {
                 if (isSmart(decisionTable.getSyntaxNode()) || isSimple(decisionTable.getSyntaxNode())) {
                     boolean isMap = decisionTable.getSyntaxNode().getHeader().getCollectParameters().length > 0;
