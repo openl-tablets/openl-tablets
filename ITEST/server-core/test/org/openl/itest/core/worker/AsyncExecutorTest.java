@@ -16,7 +16,7 @@ import org.junit.Test;
 public class AsyncExecutorTest {
 
     @Test
-    public void testMultithreadExecution() throws InterruptedException {
+    public void testMultithreadExecution() {
         final int nThread = 3;
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(3, nThread);
 
@@ -38,7 +38,7 @@ public class AsyncExecutorTest {
     }
 
     @Test
-    public void testCriticalError() throws InterruptedException {
+    public void testCriticalError() {
         final int nThread = 3;
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, nThread);
 
@@ -61,7 +61,7 @@ public class AsyncExecutorTest {
     }
 
     @Test
-    public void testTimeout() throws InterruptedException {
+    public void testTimeout() {
         CountDownLatch waitToStart = new CountDownLatch(1);
         Runnable taskMock = mock(Runnable.class);
         doAnswer(args -> {
@@ -71,7 +71,11 @@ public class AsyncExecutorTest {
         }).when(taskMock).run();
 
         AsyncExecutor executor = AsyncExecutor.start(taskMock);
-        waitToStart.await(1, TimeUnit.SECONDS);
+        try {
+            waitToStart.await(1, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
         boolean error = executor.stop(1, TimeUnit.SECONDS);
 
         assertTrue(error);

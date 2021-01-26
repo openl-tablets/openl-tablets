@@ -24,7 +24,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testSubmit() throws InterruptedException {
+    public void testSubmit() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -50,7 +50,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testSubmitNegative() throws InterruptedException {
+    public void testSubmitNegative() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(2, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -72,7 +72,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testCriticalError() throws InterruptedException {
+    public void testCriticalError() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);
@@ -91,7 +91,7 @@ public class TaskSchedulerTest {
     }
 
     @Test
-    public void testTimeout() throws InterruptedException {
+    public void testTimeout() {
         ThreadInvocationCaptor threadCaptor = new ThreadInvocationCaptor(1, 1);
 
         Runnable command1 = mock(Runnable.class);

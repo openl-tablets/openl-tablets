@@ -1,5 +1,6 @@
 package org.openl.rules.repository.zip;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
@@ -44,7 +45,11 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                 if (uri.getScheme().startsWith("vfs")) {
                     // JBoss VFS Support
                     String urlString = res.getURL().toString();
-                    urlString = urlString.substring(0, urlString.lastIndexOf(".jar") + 4);
+                    int extPos = urlString.lastIndexOf(".jar");
+                    if (extPos < 0) {
+                        extPos = urlString.lastIndexOf(".zip");
+                    }
+                    urlString = urlString.substring(0, extPos + 4);
                     Object jarFile = new URL(urlString).openConnection().getContent();
                     VfsFile vfsFile = new VfsFile(jarFile);
                     path = vfsFile.getFile().toPath().getParent().resolve(vfsFile.getName());
@@ -66,6 +71,15 @@ public class JarLocalRepository extends AbstractArchiveRepository {
             getResources(PROJECT_DESCRIPTOR_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_XML_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
+            Stream<Resource> archives = null;
+            try {
+                archives = Stream.of(resourceResolver.getResources("/openl/*.zip"));
+            } catch (FileNotFoundException ignored) {
+                // OK
+            }
+            if (archives != null) {
+                archives.forEach(collector);
+            }
         } catch (IOException e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
         }
