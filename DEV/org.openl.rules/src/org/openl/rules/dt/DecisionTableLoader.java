@@ -381,7 +381,7 @@ public class DecisionTableLoader {
         }
         if (height == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             bindingContext.addMessage(OpenLMessagesUtils
-                .newWarnMessage("The table must have at least one row with values.", tableSyntaxNode));
+                .newWarnMessage("There are no rule rows in the table.", tableSyntaxNode));
         }
         ILogicalTable toParse = tableBody;
 
