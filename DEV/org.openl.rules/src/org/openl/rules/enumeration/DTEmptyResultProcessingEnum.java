@@ -2,8 +2,8 @@ package org.openl.rules.enumeration;
 
 public enum DTEmptyResultProcessingEnum {
 
-    SKIP("skip"),
-    RETURN("return");
+    SKIP("Skip"),
+    RETURN("Return");
 
     private final String displayName;
 
