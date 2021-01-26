@@ -20,9 +20,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/VariationsSupportTest",
+@TestPropertySource(properties = { "production-repository.uri=test-resources/VariationsSupportTest",
         "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.isSupportVariations=true" })
+        "ruleservice.isSupportVariations=true",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class VariationsSupportTest implements ApplicationContextAware {
     public static final String STANDARD = "Standard Driver";
