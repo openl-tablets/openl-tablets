@@ -9,7 +9,7 @@ import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
-import org.openl.rules.enumeration.DTResultCalculationModeEnum;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -80,8 +80,8 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         if (isSingleReturnParam) {
-            if (decisionTableInvocableMethod.getMethodProperties() != null && DTResultCalculationModeEnum.AVOID_EMPTY
-                .equals(decisionTableInvocableMethod.getMethodProperties().getResultCalculationMode()) && isEmpty(
+            if (decisionTableInvocableMethod.getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
+                .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing()) && isEmpty(
                     ruleN)) {
                 return null;
             }
@@ -112,8 +112,8 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
-        if (decisionTableInvocableMethod.getMethodProperties() != null && DTResultCalculationModeEnum.AVOID_EMPTY
-            .equals(decisionTableInvocableMethod.getMethodProperties().getResultCalculationMode()) && isEmpty(ruleN)) {
+        if (decisionTableInvocableMethod.getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
+            .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing()) && isEmpty(ruleN)) {
             return null;
         }
 

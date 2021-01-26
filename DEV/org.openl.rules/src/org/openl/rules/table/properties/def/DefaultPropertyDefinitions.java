@@ -504,17 +504,17 @@ public final class DefaultPropertyDefinitions {
         definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 
         definitions[34] = new TablePropertyDefinition();
-        definitions[34].setDefaultValue("AVOID_EMPTY");
-        definitions[34].setDescription("The way of calculation of the DT table");
+        definitions[34].setDefaultValue("SKIP");
+        definitions[34].setDescription("The way of processing result calculation of the DT table");
         definitions[34].setDimensional(false);
-        definitions[34].setDisplayName("Result Calculation Mode");
+        definitions[34].setDisplayName("Empty Result Processing");
         definitions[34].setGroup("Dev");
         definitions[34].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[34].setName("resultCalculationMode");
+        definitions[34].setName("emptyResultProcessing");
         definitions[34].setPrimaryKey(false);
         definitions[34].setSystem(false);
         definitions[34].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTResultCalculationModeEnum.class));
+        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTEmptyResultProcessingEnum.class));
 
         definitions[35] = new TablePropertyDefinition();
         definitions[35].setConstraints(new Constraints("regexp:(-?[0-9]+)"));
