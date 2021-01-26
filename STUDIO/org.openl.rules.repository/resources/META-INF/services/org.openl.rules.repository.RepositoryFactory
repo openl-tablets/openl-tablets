@@ -2,3 +2,4 @@ org.openl.rules.repository.db.JdbcDBRepositoryFactory
 org.openl.rules.repository.db.DatasourceDBRepositoryFactory
 org.openl.rules.repository.file.LocalRepositoryFactory
 org.openl.rules.repository.zip.ZipRepositoryFactory
+org.openl.rules.repository.zip.JarRepositoryFactory
