@@ -282,13 +282,20 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         Set<String> uniqueSetOfTitles = new HashSet<>();
         String title = null;
         Boolean singleParameter = null;
+        GridCellSourceCodeModule pGridCellSourceCodeModule = null;
         while (j < d) {
+            if (pGridCellSourceCodeModule != null && parametersForMergedTitle.size() == 1 && parametersForMergedTitle
+                .get(0) == null) {
+                String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
+                return;
+            }
             IGridTable pCodeTable = tableBody1.getSource()
                 .getSubtable(tableStructure1[headerIndexes1[PARAMETER_INDEX]], z + j, 1, 1);
             if (singleParameter == null) {
                 singleParameter = j + pCodeTable.getCell(0, 0).getHeight() >= d;
             }
-            GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
+            pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, cxt);
 
             ParameterDeclaration parameterDeclaration = null;
             String code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
@@ -308,6 +315,12 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                         parameterDeclaration = new ParameterDeclaration(type, parts[1]);
                     }
                 }
+            }
+
+            if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
+                String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
+                return;
             }
 
             parametersForMergedTitle.add(parameterDeclaration);
