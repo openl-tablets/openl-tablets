@@ -83,6 +83,7 @@ public class AsyncExecutor {
             executor.awaitTermination(timeout, unit);
         } catch (InterruptedException e) {
             e.printStackTrace(); // For debug purposes
+            Thread.currentThread().interrupt();
             return true;
         }
 
@@ -110,7 +111,7 @@ public class AsyncExecutor {
 
         @Override
         public void run() {
-            while (run && !error) {
+            while (run && !error && !Thread.currentThread().isInterrupted()) {
                 try {
                     delegate.run();
                 } catch (Exception | AssertionError ex) {
