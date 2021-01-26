@@ -4,7 +4,7 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.enumeration.DTResultCalculationModeEnum;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
 import org.openl.util.ClassUtils;
@@ -116,9 +116,8 @@ public class ActionInvoker implements Invokable {
     }
 
     private boolean isValidResult(Object actionResult) {
-        return actionResult != null || decisionTable
-            .getMethodProperties() != null && DTResultCalculationModeEnum.ALLOW_EMPTY
-                .equals(decisionTable.getMethodProperties().getResultCalculationMode());
+        return actionResult != null || decisionTable.getMethodProperties() != null && DTEmptyResultProcessingEnum.RETURN
+            .equals(decisionTable.getMethodProperties().getEmptyResultProcessing());
     }
 
     @Override
