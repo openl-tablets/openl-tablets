@@ -54,6 +54,7 @@ public class TaskScheduler {
             }
         } catch (InterruptedException e) {
             e.printStackTrace(); // For debug purposes
+            Thread.currentThread().interrupt();
             return true;
         }
         return error;
