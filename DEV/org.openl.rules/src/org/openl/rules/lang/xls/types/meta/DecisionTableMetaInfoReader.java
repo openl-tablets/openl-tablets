@@ -296,7 +296,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 sb.append(", ");
             }
             sb.append(type.getDisplayName(INamedThing.SHORT));
-            if (parameterNames != null && parameterNames[i] != null) {
+            if (parameterNames != null && i < parameterNames.length && parameterNames[i] != null) {
                 sb.append(StringUtils.SPACE).append(parameterNames[i]);
             }
             i++;
