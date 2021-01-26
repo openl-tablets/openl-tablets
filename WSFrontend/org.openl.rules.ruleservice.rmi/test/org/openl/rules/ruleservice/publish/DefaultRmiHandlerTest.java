@@ -19,7 +19,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.rmiPort=61099",
         "ruleservice.instantiation.strategy.lazy = false",
-        "ruleservice.datasource.dir=test-resources/DefaultRmiHandlerTest" })
+        "production-repository.uri=test-resources/DefaultRmiHandlerTest",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 public class DefaultRmiHandlerTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;

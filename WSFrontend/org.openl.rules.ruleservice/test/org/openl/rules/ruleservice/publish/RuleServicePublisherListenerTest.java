@@ -16,8 +16,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/RulesPublisherTest",
-        "ruleservice.isProvideRuntimeContext=false" })
+@TestPropertySource(properties = { "production-repository.uri=test-resources/RulesPublisherTest",
+        "ruleservice.isProvideRuntimeContext=false",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml" })
 public class RuleServicePublisherListenerTest implements ApplicationContextAware {
 
