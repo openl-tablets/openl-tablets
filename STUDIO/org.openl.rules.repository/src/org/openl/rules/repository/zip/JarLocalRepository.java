@@ -16,6 +16,16 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
 
+/**
+ * Read only implementation of Jar Repository to support deploying of jars from classpath as it is without
+ * unzipping to temporary directories.</br>
+ *
+ * <p>
+ * NOTE: This repository type doesn't support write actions!
+ * </p>
+ *
+ * @author Vladyslav Pikus
+ */
 public class JarLocalRepository extends AbstractArchiveRepository {
 
     private static final String PROJECT_DESCRIPTOR_FILE = "rules.xml";
