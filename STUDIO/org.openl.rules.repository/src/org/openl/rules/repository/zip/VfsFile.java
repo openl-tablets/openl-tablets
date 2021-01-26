@@ -6,6 +6,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+/**
+ * Decorator for JBoss VFS infrastructure
+ *
+ * @author Vladyslav Pikus
+ */
 public class VfsFile {
 
     private static final Method GET_NAME_METHOD;
@@ -17,10 +22,22 @@ public class VfsFile {
         this.vfsFile = Objects.requireNonNull(vfsFile);
     }
 
+    /**
+     * Get original file name
+     *
+     * @return file name
+     * @throws IOException
+     */
     public String getName() throws IOException {
         return (String) invokeMethod(GET_NAME_METHOD);
     }
 
+    /**
+     * Get file location in file system
+     *
+     * @return file
+     * @throws IOException
+     */
     public File getFile() throws IOException {
         return (File) invokeMethod(GET_PHYSICAL_FILE_METHOD);
     }
