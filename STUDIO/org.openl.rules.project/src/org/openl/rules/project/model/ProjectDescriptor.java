@@ -1,14 +1,23 @@
 package org.openl.rules.project.model;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.util.RuntimeExceptionWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.AntPathMatcher;
@@ -19,7 +28,7 @@ public class ProjectDescriptor {
     private String id;
     private String name;
     private String comment;
-    private File projectFolder;
+    private Path projectFolder;
     private List<Module> modules;
     private List<PathEntry> classpath;
 
@@ -51,11 +60,11 @@ public class ProjectDescriptor {
         this.dependencies = dependencies;
     }
 
-    public File getProjectFolder() {
+    public Path getProjectFolder() {
         return projectFolder;
     }
 
-    public void setProjectFolder(File projectRoot) {
+    public void setProjectFolder(Path projectRoot) {
         this.projectFolder = projectRoot;
     }
 
@@ -113,7 +122,7 @@ public class ProjectDescriptor {
         }
         URL projectUrl;
         try {
-            projectUrl = projectFolder.toURI().toURL();
+            projectUrl = projectFolder.toUri().normalize().toURL();
         } catch (MalformedURLException e) {
             log.error("Bad URL for the project folder '{}'", projectFolder, e);
             return new URL[] {};
@@ -155,7 +164,7 @@ public class ProjectDescriptor {
                     if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
                         processedClasspath.add(path + "/");
-                    } else if (new File(projectFolder, path).isDirectory()) {
+                    } else if (Files.isDirectory(projectFolder.resolve(path))) {
                         // it is a folder
                         processedClasspath.add(path + "/");
                     } else {
@@ -168,20 +177,24 @@ public class ProjectDescriptor {
         return processedClasspath;
     }
 
-    private void check(File folder, Collection<String> matched, String pathPattern, File rootFolder) {
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    check(file, matched, pathPattern, rootFolder);
-                } else {
-                    String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
+    private void check(Path folder, Collection<String> matched, String pathPattern, Path rootFolder) {
+        try {
+            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    if (attrs.isDirectory()) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    String relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
                     if (new AntPathMatcher().match(pathPattern, relativePath)) {
                         matched.add(relativePath);
                     }
+                    return FileVisitResult.CONTINUE;
                 }
-            }
+            });
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
         }
     }
 }

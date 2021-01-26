@@ -103,35 +103,35 @@ public class ProjectModel {
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
 
     private boolean openedInSingleModuleMode;
 
-    private WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
-    private WebStudio studio;
+    private final WebStudio studio;
 
-    private ColorFilterHolder filterHolder = new ColorFilterHolder();
+    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
     private TreeNode projectRoot = null;
 
     // TODO Fix performance
-    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
-    private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
-    private Map<String, List<OpenLMessage>> warnTableCache = new HashMap<>();
-    private Map<String, List<OpenLMessage>> errorTableCache = new HashMap<>();
-    private Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
+    private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
+    private final Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
+    private final Map<String, List<OpenLMessage>> warnTableCache = new HashMap<>();
+    private final Map<String, List<OpenLMessage>> errorTableCache = new HashMap<>();
+    private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
     private int errorNodesNumber = 0;
 
     private DependencyRulesGraph dependencyGraph;
 
     private SourceHistoryManager<File> historyManager;
 
-    private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
+    private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
@@ -976,7 +976,7 @@ public class ProjectModel {
             idTableCache.clear();
         }
 
-        File projectFolder = moduleInfo.getProject().getProjectFolder();
+        File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
         if (reloadType == ReloadType.FORCED) {
             ProjectResolver projectResolver = studio.getProjectResolver();
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
