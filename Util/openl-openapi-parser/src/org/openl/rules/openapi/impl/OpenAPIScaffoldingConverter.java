@@ -639,14 +639,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     }
                     // the called spreadsheet isn't returned by the model
                     if (Objects.equals(foundSpr, Optional.empty())) {
-                        foundSpr = models.stream()
-                            .filter(x -> x.getReturnRef() != null && type
-                                .equals(OpenAPITypeUtils.getSimpleName(x.getReturnRef())) && !x.getModel()
-                                    .getName()
-                                    .equals(spreadsheetModel.getName()) && x.getModel()
-                                        .getType()
-                                        .startsWith(SPREADSHEET_RESULT))
-                            .findAny();
+                        foundSpr = models.stream().filter(sprModel -> {
+                            boolean typesAreTheSame = sprModel.getReturnRef() != null && type
+                                .equals(OpenAPITypeUtils.getSimpleName(sprModel.getReturnRef()));
+                            boolean notItSelf = !sprModel.getModel().getName().equals(spreadsheetModel.getName());
+                            boolean isSpreadsheetResult = sprModel.getModel().getType().equals(SPREADSHEET_RESULT);
+                            return typesAreTheSame && notItSelf && isSpreadsheetResult;
+                        }).findAny();
                     }
                     // the called spreadsheet was found
                     if (foundSpr.isPresent()) {

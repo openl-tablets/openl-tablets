@@ -1,14 +1,12 @@
 package org.openl.itest;
 
-import java.util.List;
+import static org.junit.Assert.assertFalse;
+
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runners.model.MultipleFailureException;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
@@ -90,14 +88,13 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
-    public void test_EPBDS_8758_multithread() throws Exception {
+    public void test_EPBDS_8758_multithread() {
         client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.send("EPBDS-8758/doSomething_v1.get");
 
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
-            () -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
         TaskScheduler taskScheduler = new TaskScheduler();
 
         executor.start();
@@ -112,13 +109,13 @@ public class RunRestRulesDeploymentTest {
             client.send("EPBDS-8758/doSomething_v3.get");
         }, 2, TimeUnit.SECONDS);
 
-        List<Throwable> deployErrors = taskScheduler.await();
-        List<Throwable> invocationErrors = executor.stop();
+        boolean deployErrors = taskScheduler.await();
+        boolean invocationErrors = executor.stop();
 
         client.send("EPBDS-8758/EPBDS-8758.delete");
 
-        MultipleFailureException
-            .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
+        assertFalse(invocationErrors);
+        assertFalse(deployErrors);
         client.send("admin_services_no_services.json.get");
     }
 
@@ -129,23 +126,21 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.send("EPBDS-8758/doSomething_v1.get");
 
-        AsyncExecutor executor = new AsyncExecutor(AsyncExecutor.MAX_THREADS,
-            () -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
         executor.start();
 
-        AsyncExecutor deployers = new AsyncExecutor(
+        AsyncExecutor deployers = AsyncExecutor.start(
             () -> client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201),
             () -> client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201));
 
-        deployers.start();
         TimeUnit.SECONDS.sleep(1);
-        List<Throwable> deployErrors = deployers.stop();
-        List<Throwable> invocationErrors = executor.stop();
+        boolean deployErrors = deployers.stop();
+        boolean invocationErrors = executor.stop();
 
         client.send("EPBDS-8758/EPBDS-8758.delete");
 
-        MultipleFailureException
-            .assertEmpty(Stream.concat(deployErrors.stream(), invocationErrors.stream()).collect(Collectors.toList()));
+        assertFalse(deployErrors);
+        assertFalse(invocationErrors);
         client.send("admin_services_no_services.json.get");
     }
 
