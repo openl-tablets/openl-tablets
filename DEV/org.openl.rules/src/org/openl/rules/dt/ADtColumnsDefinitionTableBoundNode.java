@@ -286,7 +286,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         while (j < d) {
             if (pGridCellSourceCodeModule != null && parametersForMergedTitle.size() == 1 && parametersForMergedTitle
                 .get(0) == null) {
-                String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                String errMsg = "Parameter cell format: <type> or <type> <name>";
                 BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
                 return;
             }
@@ -303,7 +303,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 String[] parts = code.split("\\s+");
 
                 if (parts.length > 2) {
-                    String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                    String errMsg = "Parameter cell format: <type> or <type> <name>";
                     BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
                     return;
                 } else {
@@ -318,7 +318,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
             }
 
             if (!parametersForMergedTitle.isEmpty() && parameterDeclaration == null) {
-                String errMsg = "Parameter cell format: <type> or <type> <name>.";
+                String errMsg = "Parameter cell format: <type> or <type> <name>";
                 BindHelper.processError(errMsg, pGridCellSourceCodeModule, cxt);
                 return;
             }
