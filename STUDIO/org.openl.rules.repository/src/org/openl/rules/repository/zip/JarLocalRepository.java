@@ -71,15 +71,13 @@ public class JarLocalRepository extends AbstractArchiveRepository {
             getResources(PROJECT_DESCRIPTOR_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_XML_FILE).forEach(collector);
             getResources(DEPLOYMENT_DESCRIPTOR_YAML_FILE).forEach(collector);
-            Stream<Resource> archives = null;
+            Stream<Resource> archives;
             try {
                 archives = Stream.of(resourceResolver.getResources("/openl/*.zip"));
             } catch (FileNotFoundException ignored) {
-                // OK
+                archives = Stream.empty();// OK
             }
-            if (archives != null) {
-                archives.forEach(collector);
-            }
+            archives.forEach(collector);
         } catch (IOException e) {
             throw new IllegalStateException("Failed to initialize a repository.", e);
         }
