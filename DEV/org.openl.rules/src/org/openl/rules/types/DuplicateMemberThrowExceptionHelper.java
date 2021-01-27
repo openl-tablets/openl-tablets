@@ -35,7 +35,7 @@ public final class DuplicateMemberThrowExceptionHelper {
         if (newOpenMethod.equals(existedOpenMethod)) {
             return;
         }
-        if (existedOpenMethod.getSignature().getNumberOfParameters() != existedOpenMethod.getSignature()
+        if (existedOpenMethod.getSignature().getNumberOfParameters() != newOpenMethod.getSignature()
             .getNumberOfParameters()) {
             throw new IllegalStateException("Method signatures are not the same");
         }
