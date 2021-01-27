@@ -1,7 +1,7 @@
+ERROR: Field 'beanB' is not found in type 'org.openl.beans.BeanA'.
+ERROR: Field 'beanB' is not found in type 'org.openl.beans.BeanA'.
+ERROR: Field 'beanB' is not found in type 'org.openl.beans.BeanA'.
+ERROR: Field 'beanB' is not found in type 'org.openl.beans.BeanA'.
 ERROR: Type 'BeanB' is not found.
 ERROR: Type 'BeanB' is not found.
 ERROR: Type 'BeanB' is not found.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.
-ERROR: Cannot load type 'org.openl.beans.BeanB'.

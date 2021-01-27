@@ -7,6 +7,7 @@
 package org.openl.types;
 
 import java.util.Collection;
+import java.util.Collections;
 
 import org.openl.binding.IOpenLibrary;
 import org.openl.binding.exception.AmbiguousVarException;
@@ -163,4 +164,12 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     IOpenClass getArrayType(int dim);
 
     boolean isInterface();
+
+    IOpenField getStaticField(String name);
+
+    IOpenField getStaticField(String name, boolean strictMatch);
+
+    Collection<IOpenField> getStaticFields();
+
+    IOpenClass toStaticClass();
 }

@@ -40,7 +40,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         BindHelper.checkOnDeprecation(node, bindingContext, type);
-        return new TypeBoundNode(node, type);
+        return new TypeBoundNode(node, type.toStaticClass());
     }
 
     @Override
@@ -53,8 +53,13 @@ public class IdentifierBinder extends ANodeBinder {
             dims++;
             type = type.getComponentClass();
         }
+        IOpenField field;
+        if (target.isStaticTarget()) {
+            field = type.getStaticField(fieldName, false);
+        } else {
+            field = type.getField(fieldName, false);
+        }
 
-        IOpenField field = type.getField(fieldName, false);
         if (field == null) {
             throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
         }

@@ -13,6 +13,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.StaticOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -255,5 +256,25 @@ public class DomainOpenClass implements IOpenClass {
     @Override
     public boolean isInterface() {
         return false;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        return null;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        return null;
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        return null;
+    }
+
+    @Override
+    public IOpenClass toStaticClass() {
+        return this;
     }
 }

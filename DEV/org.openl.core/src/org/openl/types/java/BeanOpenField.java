@@ -44,7 +44,7 @@ public final class BeanOpenField implements IOpenField {
                 String fieldName = pd.getName();
                 Field field = null;
                 try {
-                    field = c.getDeclaredField(fieldName);
+                    c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
                     // Catch it
                     // if there is no such field => it was
@@ -78,7 +78,7 @@ public final class BeanOpenField implements IOpenField {
 
                 BeanOpenField bf = new BeanOpenField(pd);
 
-                if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                if (map.get(fieldName) == null || map.get(fieldName).isStatic()) {
                     map.put(fieldName, bf);
                 }
             }

@@ -24,6 +24,7 @@ import org.openl.meta.IMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.StaticOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class AOpenClass implements IOpenClass {
+
+    private volatile StaticOpenClass staticOpenClass;
+
     private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
     protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
@@ -500,5 +504,32 @@ public abstract class AOpenClass implements IOpenClass {
     @Override
     public boolean isInterface() {
         return false;
+    }
+
+    @Override
+    public IOpenClass toStaticClass() {
+        if (staticOpenClass == null) {
+            synchronized (this) {
+                if (staticOpenClass == null) {
+                    staticOpenClass = new StaticOpenClass(this);
+                }
+            }
+        }
+        return staticOpenClass;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        return null;
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        return null;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        return null;
     }
 }
