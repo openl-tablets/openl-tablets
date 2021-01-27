@@ -2470,7 +2470,7 @@ public final class DecisionTableHelper {
                         sb.append("/");
                         sb.append(StringUtils.SPACE);
                     }
-                    sb.append(originalTable.getCell(c0, i).getStringValue());
+                    sb.append(originalTable.getSource().getCell(c0, i).getStringValue());
                 }
                 message.append(StringUtils.SPACE);
                 message.append("There is no match for column '").append(sb.toString()).append("'.");
