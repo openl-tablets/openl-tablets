@@ -100,6 +100,7 @@
         <jetty.server.version>9.4.35.v20201120</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.13</elasticsearch.version>
+        <jakarta.activation.version>1.2.1</jakarta.activation.version>
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
         <!-- 48MB Should be enough to don't fall in OutOfMemoryError. It equals to MaxNonGCSize=30MB + ~50%-->
@@ -1151,9 +1152,14 @@
                 <version>2.3.3</version>
             </dependency>
             <dependency>
+                <groupId>com.sun.activation</groupId>
+                <artifactId>jakarta.activation</artifactId>
+                <version>${jakarta.activation.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>jakarta.activation</groupId>
                 <artifactId>jakarta.activation-api</artifactId>
-                <version>1.2.2</version>
+                <version>${jakarta.activation.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.sun.istack</groupId>
