@@ -1,2 +1,2 @@
-GET /REST/Tutorial1.zip/Tutorial1.zip/openapi.json HTTP/1.1
+GET /REST/Tutorial1/Tutorial1/openapi.json HTTP/1.1
 

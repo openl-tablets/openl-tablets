@@ -10,7 +10,7 @@ Content-Type: application/json
     "services": [{
             "startedTime": "*",
             "name": "deployed-rules",
-            "servicePath": "rules-to-deploy.zip",
+            "servicePath": "rules-to-deploy",
             "urls": {
                 "WEBSERVICE": "deployed-rules",
                 "RESTFUL": "REST/deployed-rules"
@@ -19,18 +19,18 @@ Content-Type: application/json
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
-            "name": "EPBDS-10916%20+Whitespaces in Name #.zip_EPBDS-10916%20+Whitespaces in Name #.zip",
-            "servicePath": "EPBDS-10916%20+Whitespaces in Name #.zip",
+            "name": "EPBDS-10916%20+Whitespaces in Name #_EPBDS-10916%20+Whitespaces in Name #",
+            "servicePath": "EPBDS-10916%20+Whitespaces in Name #",
             "urls": {
-                "WEBSERVICE": "EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip",
-                "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip"
+                "WEBSERVICE": "EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23",
+                "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23"
             },
             "hasManifest": false,
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
             "name": "multi_project_project1",
-            "servicePath": "multiproject.zip/project1",
+            "servicePath": "multiproject/project1",
             "urls": {
                 "RESTFUL": "multi_project/project1"
             },
@@ -39,7 +39,7 @@ Content-Type: application/json
         }, {
             "startedTime": "*",
             "name": "multi_project_project2",
-            "servicePath": "multiproject.zip/project2",
+            "servicePath": "multiproject/project2",
             "urls": {
                 "RESTFUL": "multi_project/project2"
             },
@@ -47,18 +47,18 @@ Content-Type: application/json
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
-            "name": "multiple-deployment_v1.zip_project2",
-            "servicePath": "multiple-deployment_v1.zip/project2",
+            "name": "multiple-deployment_v1_project2",
+            "servicePath": "multiple-deployment_v1/project2",
             "urls": {
-                "WEBSERVICE": "multiple-deployment_v1.zip/project2",
-                "RESTFUL": "REST/multiple-deployment_v1.zip/project2"
+                "WEBSERVICE": "multiple-deployment_v1/project2",
+                "RESTFUL": "REST/multiple-deployment_v1/project2"
             },
             "hasManifest": false,
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
             "name": "project1",
-            "servicePath": "multiple-deployment_v1.zip/project1",
+            "servicePath": "multiple-deployment_v1/project1",
             "urls": {
                 "WEBSERVICE": "project1",
                 "RESTFUL": "REST/project1"
@@ -68,7 +68,7 @@ Content-Type: application/json
         }, {
             "startedTime": "*",
             "name": "simple-jar",
-            "servicePath": "simple-jar.zip",
+            "servicePath": "simple-jar",
             "urls": {
                 "RESTFUL": "simple-jar-rs"
             },
@@ -76,11 +76,11 @@ Content-Type: application/json
             "status": "DEPLOYED"
         }, {
             "startedTime": "*",
-            "name": "Tutorial1.zip_Tutorial1.zip",
-            "servicePath": "Tutorial1.zip",
+            "name": "Tutorial1_Tutorial1",
+            "servicePath": "Tutorial1",
             "urls": {
-                "WEBSERVICE": "Tutorial1.zip/Tutorial1.zip",
-                "RESTFUL": "REST/Tutorial1.zip/Tutorial1.zip"
+                "WEBSERVICE": "Tutorial1/Tutorial1",
+                "RESTFUL": "REST/Tutorial1/Tutorial1"
             },
             "hasManifest": false,
             "status": "DEPLOYED"

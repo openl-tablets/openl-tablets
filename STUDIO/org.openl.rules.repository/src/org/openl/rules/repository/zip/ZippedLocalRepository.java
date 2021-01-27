@@ -13,6 +13,7 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -61,7 +62,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 if (!zipArchiveFilter(pathToArchive)) {
                     throw new IllegalStateException(String.format("[%s] is not archive.", archive));
                 }
-                String archiveName = pathToArchive.getFileName().toString();
+                String archiveName = FileUtils.getBaseName(pathToArchive.getFileName().toString());
                 if (localStorage.containsKey(archiveName)) {
                     throw new IllegalStateException(String.format("An archive name [%s] is duplicated!", archiveName));
                 }
@@ -74,7 +75,11 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                     @Override
                     public FileVisitResult visitFile(Path p, BasicFileAttributes attrs) {
                         if (attrs.isDirectory() || zipArchiveFilter(p)) {
-                            localStorage.put(p.getFileName().toString(), p);
+                            String archName = p.getFileName().toString();
+                            if (!attrs.isDirectory()) {
+                                archName = FileUtils.getBaseName(archName);
+                            }
+                            localStorage.put(archName, p);
                         }
                         return FileVisitResult.CONTINUE;
                     }

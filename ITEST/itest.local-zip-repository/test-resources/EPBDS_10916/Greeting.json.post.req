@@ -1,4 +1,4 @@
-POST /REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/Greeting HTTP/1.1
+POST /REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/Greeting HTTP/1.1
 Content-Type: application/json;q=1.0, */*;q=0.8
 Accept: text/plain
 
