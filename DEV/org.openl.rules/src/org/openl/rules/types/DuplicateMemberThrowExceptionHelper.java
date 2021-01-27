@@ -40,8 +40,8 @@ public final class DuplicateMemberThrowExceptionHelper {
             throw new IllegalStateException("Method signatures are not the same");
         }
         for (int i = 0; i < existedOpenMethod.getSignature().getNumberOfParameters(); i++) {
-            if (!Objects.equals(existedOpenMethod.getSignature().getParameterType(i),
-                newOpenMethod.getSignature().getParameterType(i))) {
+            if (!Objects.equals(existedOpenMethod.getSignature().getParameterType(i).getInstanceClass(),
+                newOpenMethod.getSignature().getParameterType(i).getInstanceClass())) {
                 throw new IllegalStateException("Method signatures are not the same");
             }
         }
