@@ -33,12 +33,9 @@ public class RepositorySettings implements Closeable {
     }
 
     public void lock(String fileName) throws IOException {
-        try {
-            lockManager.getLock(fileName).forceLock("", lockTimeToLive, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            // Restore interrupted state...
-            Thread.currentThread().interrupt();
-            throw new IOException("Can't create a lock for '" + fileName + "' because thread is interrupted", e);
+        boolean locked = lockManager.getLock(fileName).forceLock("", lockTimeToLive, TimeUnit.SECONDS);
+        if (!locked) {
+            throw new IOException("Can't create a lock for '" + fileName + "'");
         }
     }
 

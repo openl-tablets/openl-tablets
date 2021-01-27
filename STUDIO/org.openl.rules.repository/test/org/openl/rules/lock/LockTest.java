@@ -193,7 +193,7 @@ public class LockTest {
     }
 
     @Test
-    public void testForceLock() throws InterruptedException, IOException {
+    public void testForceLock() {
         boolean lock1 = lock.tryLock("user1");
         assertTrue(lock1);
         lock.forceLock("user2", 1, TimeUnit.SECONDS);
@@ -205,17 +205,11 @@ public class LockTest {
     public void testForceLockInterrupting() {
         assertTrue(lock.tryLock("user1"));
 
-        AtomicBoolean interrupted = new AtomicBoolean(false);
+        AtomicBoolean interrupted = new AtomicBoolean(true);
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
-            try {
-                // Set too big value for time to live
-                lock.forceLock("user3", 1, TimeUnit.MINUTES);
-            } catch (InterruptedException e) {
-                interrupted.set(true);
-            } catch (IOException e) {
-                interrupted.set(false);
-            }
+            boolean locked = lock.forceLock("user3", 1, TimeUnit.MINUTES);
+            interrupted.set(locked);
         });
 
         // Interrupt long running thread
@@ -225,7 +219,7 @@ public class LockTest {
         } catch (InterruptedException ignored) {
         } finally {
             assertTrue("Long running thread must be terminated", executor.isTerminated());
-            assertTrue("forceLock() must throw InterruptedException", interrupted.get());
+            assertFalse("forceLock() must not get a lock when it was interrupted", interrupted.get());
         }
 
         // Make sure that the lock isn't overridden.
