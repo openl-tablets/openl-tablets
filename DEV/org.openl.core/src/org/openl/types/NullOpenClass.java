@@ -289,4 +289,9 @@ public final class NullOpenClass implements IOpenClass {
     public IOpenClass toStaticClass() {
         return staticOpenClass;
     }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
 }

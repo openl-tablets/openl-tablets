@@ -532,4 +532,9 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getStaticField(String name, boolean strictMatch) {
         return null;
     }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
 }

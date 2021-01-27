@@ -14,10 +14,18 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
 
     private final String methodName;
     private final IOpenClass[] params;
+    private final IOpenClass target;
 
     public MethodNotFoundException(String methodName, IOpenClass... params) {
         this.methodName = methodName;
         this.params = params;
+        this.target = null;
+    }
+
+    public MethodNotFoundException(IOpenClass target, String methodName,  IOpenClass... params) {
+        this.methodName = methodName;
+        this.params = params;
+        this.target = target;
     }
 
     @Override
@@ -29,9 +37,15 @@ public class MethodNotFoundException extends OpenlNotCheckedException {
             sb.append(super.getMessage());
         }
 
-        sb.append("Method '");
+        sb.append(target != null && target.isStatic() ? "Static method '" : "Method '");
         MethodUtil.printMethod(methodName, params, sb);
-        sb.append("' is not found.");
+        sb.append("' is not found");
+
+        if (target != null) {
+            sb.append(" in type '").append(target.getName()).append("'");
+        }
+
+        sb.append(".");
 
         return sb.toString();
     }

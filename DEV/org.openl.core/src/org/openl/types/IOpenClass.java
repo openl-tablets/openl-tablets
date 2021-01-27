@@ -172,4 +172,6 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     Collection<IOpenField> getStaticFields();
 
     IOpenClass toStaticClass();
+
+    boolean isStatic();
 }

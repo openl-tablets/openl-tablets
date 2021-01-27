@@ -225,6 +225,11 @@ public class StaticOpenClass implements IOpenClass {
     }
 
     @Override
+    public boolean isStatic() {
+        return true;
+    }
+
+    @Override
     public String toString() {
         return delegate.toString();
     }

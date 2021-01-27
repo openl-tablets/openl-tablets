@@ -277,4 +277,9 @@ public class DomainOpenClass implements IOpenClass {
     public IOpenClass toStaticClass() {
         return this;
     }
+
+    @Override
+    public boolean isStatic() {
+        return false;
+    }
 }
