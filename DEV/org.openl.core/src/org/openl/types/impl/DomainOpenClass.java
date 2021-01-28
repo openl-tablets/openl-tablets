@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
@@ -13,7 +13,6 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
-import org.openl.types.StaticOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -74,7 +73,7 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
         return baseClass.getField(fname, strictMatch);
     }
 
@@ -119,7 +118,7 @@ public class DomainOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getVar(String vname, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String vname, boolean strictMatch) throws AmbiguousFieldException {
         return baseClass.getVar(vname, strictMatch);
     }
 

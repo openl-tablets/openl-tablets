@@ -6,12 +6,10 @@ import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
-import org.openl.types.impl.DomainOpenClass;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class StaticOpenClass implements IOpenClass {
@@ -58,7 +56,7 @@ public class StaticOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField staticVar = delegate.getVar(name, strictMatch);
         return staticVar != null && staticVar.isStatic() ? staticVar : null;
     }
@@ -109,7 +107,7 @@ public class StaticOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getField(String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException {
         return getStaticField(name, strictMatch);
     }
 

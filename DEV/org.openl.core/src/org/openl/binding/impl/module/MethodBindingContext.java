@@ -2,7 +2,7 @@ package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
@@ -64,7 +64,7 @@ public class MethodBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField var = localFrame.findLocalVar(namespace, name);
 
         if (var != null) {

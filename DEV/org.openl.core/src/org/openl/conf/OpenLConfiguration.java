@@ -9,7 +9,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -274,7 +274,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null
                                                  : methodFactory
                                                      .getVar(namespace, name, configurationContext, strictMatch);

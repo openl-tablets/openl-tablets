@@ -7,10 +7,9 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import org.openl.binding.IOpenLibrary;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaHolder;
 import org.openl.vm.IRuntimeEnv;
@@ -52,7 +51,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * @return
      * @since 5.0
      */
-    IOpenField getField(String name, boolean strictMatch) throws AmbiguousVarException;
+    IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException;
 
     IOpenField getIndexField();
 

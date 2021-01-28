@@ -16,14 +16,14 @@ import org.openl.types.IOpenField;
  * @author snshor
  *
  */
-public class AmbiguousVarException extends OpenlNotCheckedException {
+public class AmbiguousFieldException extends OpenlNotCheckedException {
 
     private final List<IOpenField> matchingFields;
 
-    private final String varName;
+    private final String fieldName;
 
-    public AmbiguousVarException(String varName, List<IOpenField> matchingFields) {
-        this.varName = varName;
+    public AmbiguousFieldException(String fieldName, List<IOpenField> matchingFields) {
+        this.fieldName = fieldName;
         this.matchingFields = matchingFields;
     }
 
@@ -31,8 +31,8 @@ public class AmbiguousVarException extends OpenlNotCheckedException {
     public String getMessage() {
         StringBuilder sb = new StringBuilder();
 
-        sb.append("Variable ").append(varName);
-        sb.append(" is ambiguous:\n").append("Matching fieldValues:\n");
+        sb.append("Field ").append(fieldName);
+        sb.append(" is ambiguous:\n").append("Matching fields:\n");
         boolean first = true;
         for (IOpenField f : matchingFields) {
             if (!first) {

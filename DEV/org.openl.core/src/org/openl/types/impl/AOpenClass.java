@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -114,14 +114,14 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getField(String fname) {
         try {
             return getField(fname, true);
-        } catch (AmbiguousVarException e) {
+        } catch (AmbiguousFieldException e) {
             LOG.debug("Ignored error: ", e);
             return null;
         }
     }
 
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
 
         IOpenField f;
         if (strictMatch) {
@@ -153,13 +153,13 @@ public abstract class AOpenClass implements IOpenClass {
         List<IOpenField> ff = nonUniqueLowerCaseFields.get(lfname);
 
         if (ff != null) {
-            throw new AmbiguousVarException(fname, ff);
+            throw new AmbiguousFieldException(fname, ff);
         }
 
         return searchFieldFromSuperClass(fname, strictMatch);
     }
 
-    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousVarException {
+    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField f;
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
@@ -221,7 +221,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
         return getField(name, strictMatch);
     }
 

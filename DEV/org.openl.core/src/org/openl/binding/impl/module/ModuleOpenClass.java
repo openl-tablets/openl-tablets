@@ -15,7 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -94,7 +94,7 @@ public class ModuleOpenClass extends ComponentOpenClass {
      * At first tries to get the field from current module, if can`t search in dependencies.
      */
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
         // try to get field from own field map
         //
         IOpenField field = super.getField(fname, strictMatch);
