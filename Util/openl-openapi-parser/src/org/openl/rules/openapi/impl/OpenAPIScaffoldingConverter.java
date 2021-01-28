@@ -448,9 +448,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         if (type.equals(modelName)) {
             modelToCall = modelName;
         } else {
-            Optional<SpreadsheetParserModel> optionalModel = spreadsheetParserModels.stream()
-                .filter(z -> z.getReturnRef() != null && z.getReturnRef().equals(SCHEMAS_LINK + type))
-                .findFirst();
+            Optional<SpreadsheetParserModel> optionalModel = Optional.empty();
+            for (SpreadsheetParserModel parserModel : spreadsheetParserModels) {
+                int dimension = parserModel.getModel().getPathInfo().getReturnType().getDimension();
+                String returnRef = parserModel.getReturnRef();
+                if (returnRef != null && returnRef.equals(SCHEMAS_LINK + type) && dimension == 0) {
+                    optionalModel = Optional.of(parserModel);
+                    break;
+                }
+            }
             if (optionalModel.isPresent()) {
                 SpreadsheetParserModel spreadsheetParserModel = optionalModel.get();
                 modelToCall = spreadsheetParserModel.getModel().getName();
