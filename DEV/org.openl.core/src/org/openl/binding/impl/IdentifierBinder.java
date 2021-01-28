@@ -61,7 +61,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         if (field == null) {
-            throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
+            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.", type.isStatic() ? "Static field" : "Field", fieldName, type));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {
