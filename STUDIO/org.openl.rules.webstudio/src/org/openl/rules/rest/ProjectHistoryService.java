@@ -103,7 +103,6 @@ public class ProjectHistoryService {
             model.reset(ReloadType.RELOAD);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
         }
-        return;
     }
 
     @DELETE
