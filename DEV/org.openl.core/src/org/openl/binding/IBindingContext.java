@@ -51,7 +51,7 @@ public interface IBindingContext extends ICastFactory {
     /**
      * @see {@link IOpenClass#getField(String, boolean)}
      */
-    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousVarException;
+    IOpenField findVar(String namespace, String vname, boolean strictMatch) throws AmbiguousFieldException;
 
     /**
      * @return reference to the variable holding a range object. The specifics of the range object is that it is defined

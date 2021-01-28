@@ -299,7 +299,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             } catch (NoSuchFieldException e) {
                 LOG.debug("Error occurred: ", e);
                 String errorMessage = String.format(
-                    "Field '%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    "%s '%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    dataType.isStatic() ? "Static field" : "Field",
                     fieldName,
                     datatypeClassName);
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);

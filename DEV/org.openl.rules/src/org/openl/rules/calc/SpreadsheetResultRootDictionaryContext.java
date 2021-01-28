@@ -2,7 +2,7 @@ package org.openl.rules.calc;
 
 import java.util.List;
 
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.types.IOpenField;
 
@@ -28,7 +28,7 @@ public class SpreadsheetResultRootDictionaryContext extends RootDictionaryContex
             return null;
         }
         if (ff.size() > 1) {
-            throw new AmbiguousVarException(lowerCaseName, ff);
+            throw new AmbiguousFieldException(lowerCaseName, ff);
         }
 
         return ff.get(0);

@@ -1,0 +1,3 @@
+WARN: Accessing to static field 'staticField' from non-static object of type 'org.openl.rules.beans.AccessBean'.
+WARN: Accessing to static field 'getId' from non-static object of type 'org.openl.rules.beans.AccessBean'.
+WARN: Accessing to static method 'name' from non-static object of type 'org.openl.rules.beans.AccessBean'.

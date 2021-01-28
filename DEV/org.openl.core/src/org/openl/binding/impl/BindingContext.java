@@ -119,7 +119,7 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         ILocalVar var = localFrame.findLocalVar(namespace, name);
         if (var != null) {
             return var;

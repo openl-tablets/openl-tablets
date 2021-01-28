@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.OpenFieldDelegator;
@@ -104,18 +104,18 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     @Override
-    public IOpenField findVariable(String name) throws AmbiguousVarException {
+    public IOpenField findVariable(String name) throws AmbiguousFieldException {
         return findField(name);
     }
 
-    public IOpenField findField(String name) throws AmbiguousVarException {
+    public IOpenField findField(String name) throws AmbiguousFieldException {
         name = name.toLowerCase();
         List<IOpenField> ff = fields.get(name);
         if (ff == null) {
             return null;
         }
         if (ff.size() > 1) {
-            throw new AmbiguousVarException(name, ff);
+            throw new AmbiguousFieldException(name, ff);
         }
 
         return ff.get(0);

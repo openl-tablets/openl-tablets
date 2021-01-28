@@ -227,7 +227,7 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            throw new MethodNotFoundException(methodName, types);
+            throw new MethodNotFoundException(type, methodName, types);
         }
 
         errorNode = validateMethod(node, bindingContext, target, methodCaller);

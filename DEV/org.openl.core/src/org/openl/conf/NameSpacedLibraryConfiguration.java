@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 
@@ -30,7 +30,7 @@ public class NameSpacedLibraryConfiguration extends AConfigurationElement {
 
     public IOpenField getField(String name,
             IConfigurableResourceContext cxt,
-            boolean strictMatch) throws AmbiguousVarException {
+            boolean strictMatch) throws AmbiguousFieldException {
         for (IMethodFactoryConfigurationElement factory : factories) {
             IOpenField field = factory.getLibrary(cxt).getVar(name, strictMatch);
             if (field != null) {
