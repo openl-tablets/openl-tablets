@@ -2,10 +2,12 @@ package org.openl.itest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
+@Ignore
 public class BigServiceDeployTest {
 
     private static JettyServer server;
