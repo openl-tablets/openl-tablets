@@ -1,6 +1,7 @@
 package org.openl.rules.rest;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
@@ -88,7 +89,17 @@ public class ProjectHistoryService {
         removeCurrentVersion(historyStoragePath);
         if (fileToRestore != null) {
             File currentSourceFile = model.getCurrentModuleWorkbook().getSourceFile();
-            FileUtils.copy(fileToRestore, currentSourceFile);
+            try {
+                FileUtils.copy(fileToRestore, currentSourceFile);
+            } catch (FileNotFoundException e) {
+                String msg;
+                if (e.getMessage().contains(".xls")) {
+                    msg = "Restoring changes was failed. Please close module Excel file and try again.";
+                } else {
+                    msg = "Restoring changes was failed because some resources are used.";
+                }
+                throw new IOException(msg);
+            }
             model.reset(ReloadType.RELOAD);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
         }

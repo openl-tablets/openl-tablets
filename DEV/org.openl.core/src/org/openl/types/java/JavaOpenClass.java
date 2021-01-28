@@ -55,6 +55,7 @@ public class JavaOpenClass extends AOpenClass {
     private volatile IAggregateInfo aggregateInfo;
 
     protected volatile Map<String, IOpenField> fields;
+    protected volatile Map<String, IOpenField> staticFields;
 
     private volatile List<IOpenClass> superClasses;
 
@@ -141,21 +142,25 @@ public class JavaOpenClass extends AOpenClass {
         if (fields == null) {
             synchronized (this) {
                 if (fields == null) {
-                    fields = initializeFields();
+                    initializeFields();
                 }
             }
         }
         return fields;
     }
 
-    private Map<String, IOpenField> initializeFields() {
-        Map<String, IOpenField> fields = new HashMap<>();
+    private void initializeFields() {
+        fields = new HashMap<>();
+        staticFields = new HashMap<>();
         Field[] ff = getInstanceClass().getDeclaredFields();
 
         if (isPublic(getInstanceClass())) {
             for (Field field : ff) {
                 if (isPublic(field)) {
                     fields.put(field.getName(), new JavaOpenField(field));
+                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                        staticFields.put(field.getName(), new JavaOpenField(field));
+                    }
                 }
             }
         }
@@ -163,8 +168,8 @@ public class JavaOpenClass extends AOpenClass {
             fields.put("length", new JavaArrayLengthField());
         }
         fields.put("class", new JavaClassClassField(instanceClass));
+        staticFields.put("class", new JavaClassClassField(instanceClass));
         BeanOpenField.collectFields(fields, instanceClass);
-        return fields;
     }
 
     @Override
@@ -536,6 +541,50 @@ public class JavaOpenClass extends AOpenClass {
             return true;
         }
 
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        if (staticFields == null) {
+            initializeFields();
+        }
+        IOpenField openField = staticFields.get(fname);
+        if (openField == null) {
+            for (IOpenClass superClass : superClasses()) {
+                if (!superClass.isInterface()) {
+                    return superClass.getStaticField(fname);
+                }
+            }
+        }
+        return openField;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname, boolean strictMatch) {
+        if (staticFields == null) {
+            initializeFields();
+        }
+        Optional<String> first = staticFields.keySet().stream().filter(f -> f.equalsIgnoreCase(fname)).findFirst();
+        return staticFields.get(first.get());
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        if (staticFields == null) {
+            initializeFields();
+        }
+        Collection<IOpenField> ret = new ArrayList<>(staticFields.values());
+        for (IOpenClass superClass : superClasses()) {
+            if (!superClass.isInterface()) {
+                Collection<IOpenField> staticFields = superClass.getStaticFields();
+                for (IOpenField staticField : staticFields) {
+                    if (ret.stream().noneMatch(e -> e.getName().equals(staticField.getName()))) {
+                        ret.add(staticField);
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
 }

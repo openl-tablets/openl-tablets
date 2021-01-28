@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.binding.impl.module.VariableInContextFinder;
@@ -80,7 +80,7 @@ public class TypeBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = context.findVariable(name);

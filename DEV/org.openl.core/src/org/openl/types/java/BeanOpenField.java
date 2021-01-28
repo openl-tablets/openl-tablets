@@ -42,9 +42,8 @@ public final class BeanOpenField implements IOpenField {
                 }
 
                 String fieldName = pd.getName();
-                Field field = null;
                 try {
-                    field = c.getDeclaredField(fieldName);
+                    c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
                     // Catch it
                     // if there is no such field => it was
@@ -52,7 +51,7 @@ public final class BeanOpenField implements IOpenField {
                     //
                     try {
                         String fname = ClassUtils.capitalize(fieldName);
-                        field = c.getDeclaredField(fname);
+                        Field field = c.getDeclaredField(fname);
                         // Reset the name
                         fieldName = field.getName();
                         pd.setName(fieldName);
@@ -63,7 +62,7 @@ public final class BeanOpenField implements IOpenField {
                             // when getAB() was generated for 'aB' field name.
                             // In this case Introspector returns 'AB' field name.
                             String fname = StringUtils.uncapitalize(fieldName);
-                            field = c.getDeclaredField(fname);
+                            Field field = c.getDeclaredField(fname);
                             // Reset the name
                             fieldName = field.getName();
                             pd.setName(fieldName);
@@ -78,7 +77,7 @@ public final class BeanOpenField implements IOpenField {
 
                 BeanOpenField bf = new BeanOpenField(pd);
 
-                if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                if (map.get(fieldName) == null || map.get(fieldName).isStatic()) {
                     map.put(fieldName, bf);
                 }
             }
