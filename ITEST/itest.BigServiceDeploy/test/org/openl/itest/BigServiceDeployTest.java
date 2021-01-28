@@ -6,7 +6,7 @@ import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-public class BigServiceDeploy {
+public class BigServiceDeployTest {
 
     private static JettyServer server;
     private static HttpClient client;

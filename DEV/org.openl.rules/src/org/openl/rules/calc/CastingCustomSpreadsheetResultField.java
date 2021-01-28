@@ -2,10 +2,13 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.Stack;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
@@ -61,6 +64,27 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (getDeclaringClass().getModule().getRulesModuleBindingContext() == null) {
                 throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
             }
+            //============ ATTENTION! DANGER ZONE! TURN BACK! ============
+            // Thread invocation Stack is too small to initialize lazy fields. Next lines initialize field types without recursion
+            Stack<IOpenField> fields = new Stack<>();
+            Set<IOpenField> resultFields = new HashSet<>();
+            Deque<IOpenField> deque = new LinkedList<>();
+            deque.push(field1);
+            deque.push(field2);
+            while (!deque.isEmpty()) {
+                IOpenField p = deque.pop();
+                if (p instanceof CastingCustomSpreadsheetResultField) {
+                    deque.push(((CastingCustomSpreadsheetResultField) p).field1);
+                    deque.push(((CastingCustomSpreadsheetResultField) p).field2);
+                } else {
+                    resultFields.add(p);
+                }
+                fields.push(p);
+            }
+            while (!fields.isEmpty()) {
+                fields.pop().getType();
+            }
+            //============ DANGER ZONE END! ============
             if (Objects.equals(field1.getType(), field2.getType())) {
                 this.type = field1.getType();
             } else {
@@ -68,8 +92,6 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                     .getRulesModuleBindingContext(), field1.getType(), field2.getType());
                 this.type = castToWiderType.getWiderType();
             }
-            Set<IOpenField> resultFields = new HashSet<>();
-            extractAllTypes(this, resultFields);
             Set<IOpenClass> types = new HashSet<>();
             this.casts = new ArrayList<>();
             for (IOpenField f : resultFields) {
@@ -84,16 +106,6 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (types.size() == 1) {
                 this.casts = null;
             }
-        }
-    }
-
-    private static void extractAllTypes(IOpenField field, Set<IOpenField> resultFields) {
-        if (field instanceof CastingCustomSpreadsheetResultField) {
-            CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
-            extractAllTypes(castingCustomSpreadsheetResultField.field1, resultFields);
-            extractAllTypes(castingCustomSpreadsheetResultField.field2, resultFields);
-        } else {
-            resultFields.add(field);
         }
     }
 
