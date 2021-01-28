@@ -6,9 +6,9 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Set;
-import java.util.Stack;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.openl.binding.impl.CastToWiderType;
@@ -66,7 +66,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             }
             //============ ATTENTION! DANGER ZONE! TURN BACK! ============
             // Thread invocation Stack is too small to initialize lazy fields. Next lines initialize field types without recursion
-            Stack<IOpenField> fields = new Stack<>();
+            List<CastingCustomSpreadsheetResultField> fields = new ArrayList<>();
             Set<IOpenField> resultFields = new HashSet<>();
             Deque<IOpenField> deque = new LinkedList<>();
             deque.push(field1);
@@ -76,13 +76,14 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 if (p instanceof CastingCustomSpreadsheetResultField) {
                     deque.push(((CastingCustomSpreadsheetResultField) p).field1);
                     deque.push(((CastingCustomSpreadsheetResultField) p).field2);
+                    fields.add(((CastingCustomSpreadsheetResultField) p));
                 } else {
                     resultFields.add(p);
                 }
-                fields.push(p);
             }
-            while (!fields.isEmpty()) {
-                fields.pop().getType();
+            ListIterator<CastingCustomSpreadsheetResultField> it = fields.listIterator(fields.size());
+            while (it.hasPrevious()) {
+                it.previous().initLazyFields();
             }
             //============ DANGER ZONE END! ============
             if (Objects.equals(field1.getType(), field2.getType())) {
