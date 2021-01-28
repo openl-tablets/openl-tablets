@@ -1,0 +1,212 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "test",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/test",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/SomeDatatypeByTheType": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomeDatatypeByTheTypeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Test"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MyTest": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyTestRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyTest1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/SomeDatatype": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SomeDatatypeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Test"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/MyTestEnd": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MyTestEndRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyTest1"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Test": {
+        "type": "object",
+        "properties": {
+          "decisionID": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "SomeDatatypeByTheTypeRequest": {
+        "type": "object",
+        "properties": {
+          "insureds": {
+            "type": "string"
+          },
+          "insuredIDs": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "channel": {
+            "type": "string"
+          }
+        }
+      },
+      "MyTest1": {
+        "type": "object",
+        "properties": {
+          "questionID": {
+            "type": "string"
+          },
+          "product": {
+            "type": "string"
+          },
+          "decisions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Test"
+            }
+          }
+        }
+      },
+      "MyTestRequest": {
+        "type": "object",
+        "properties": {
+          "questionID": {
+            "type": "string"
+          },
+          "questionnaireReply": {
+            "type": "string"
+          }
+        }
+      },
+      "SomeDatatypeRequest": {
+        "type": "object",
+        "properties": {
+          "insured": {
+            "type": "string"
+          },
+          "channel": {
+            "type": "string"
+          }
+        }
+      },
+      "MyTestEndRequest": {
+        "type": "object",
+        "properties": {
+          "questionID": {
+            "type": "string"
+          },
+          "questionnaireReply": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

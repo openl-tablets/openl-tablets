@@ -374,7 +374,19 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 SpreadsheetModel sprModel = spreadsheetParserModel.getModel();
                 String returnType = OpenAPITypeUtils.removeArrayBrackets(sprModel.getType());
                 if (notUsedDataTypeWithRefToSpreadsheet.contains(returnType)) {
-                    sprModel.setType(SPREADSHEET_RESULT);
+                    PathInfo pathInfo = sprModel.getPathInfo();
+                    TypeInfo pathReturnType = pathInfo.getReturnType();
+                    int dimension = pathReturnType.getDimension();
+                    if (dimension == 0) {
+                        sprModel.setType(SPREADSHEET_RESULT);
+                        pathInfo.setReturnType(
+                            new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT, TypeInfo.Type.SPREADSHEET));
+                    } else {
+                        sprModel.setType(
+                            SPREADSHEET_RESULT + returnType + String.join("", Collections.nCopies(dimension, "[]")));
+                        pathReturnType.setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(dimension));
+                        pathReturnType.setType(TypeInfo.Type.SPREADSHEET);
+                    }
                 }
                 for (StepModel model : sprModel.getSteps()) {
                     String type = model.getType();
@@ -448,9 +460,15 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         if (type.equals(modelName)) {
             modelToCall = modelName;
         } else {
-            Optional<SpreadsheetParserModel> optionalModel = spreadsheetParserModels.stream()
-                .filter(z -> z.getReturnRef() != null && z.getReturnRef().equals(SCHEMAS_LINK + type))
-                .findFirst();
+            Optional<SpreadsheetParserModel> optionalModel = Optional.empty();
+            for (SpreadsheetParserModel parserModel : spreadsheetParserModels) {
+                int dimension = parserModel.getModel().getPathInfo().getReturnType().getDimension();
+                String returnRef = parserModel.getReturnRef();
+                if (returnRef != null && returnRef.equals(SCHEMAS_LINK + type) && dimension == 0) {
+                    optionalModel = Optional.of(parserModel);
+                    break;
+                }
+            }
             if (optionalModel.isPresent()) {
                 SpreadsheetParserModel spreadsheetParserModel = optionalModel.get();
                 modelToCall = spreadsheetParserModel.getModel().getName();
@@ -612,9 +630,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             PathInfo existingPathInfo = spreadsheetModel.getPathInfo();
             if (willBeCalled.isPresent()) {
                 // change return type if the array of spreadsheets will be returned
-                boolean isArray = returnType.endsWith("[]");
-                if (isArray) {
-                    int dimension = existingPathInfo.getReturnType().getDimension();
+                int dimension = existingPathInfo.getReturnType().getDimension();
+                if (dimension > 0) {
                     spreadsheetModel.setType(SPREADSHEET_RESULT + willBeCalled.get().getValue() + String.join("",
                         Collections.nCopies(dimension, "[]")));
                     existingPathInfo.getReturnType()
