@@ -1,6 +1,8 @@
 package org.openl.rules.ruleservice.publish;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
 
@@ -12,9 +14,8 @@ import org.openl.rules.variation.JXPathVariation;
 import org.openl.rules.variation.NoVariation;
 import org.openl.rules.variation.VariationsPack;
 import org.openl.rules.variation.VariationsResult;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -25,17 +26,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "ruleservice.isSupportVariations=true",
         "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class VariationsSupportTest implements ApplicationContextAware {
+public class VariationsSupportTest {
     public static final String STANDARD = "Standard Driver";
     public static final String YOUNG = "Young Driver";
     public static final String SENIOR = "Senior Driver";
 
+    @Autowired
     private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @SuppressWarnings("unchecked")
     @Test

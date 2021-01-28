@@ -10,9 +10,8 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -21,15 +20,11 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "production-repository.uri=test-resources/MultiModuleDispatchingTest",
         "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class MultiModuleDispatchingTest implements ApplicationContextAware {
+public class MultiModuleDispatchingTest {
     private static final String SERVICE_NAME = "MultiModuleDispatchingTest_multimodule";
 
+    @Autowired
     private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @Test
     public void testMultiModuleService2() throws Exception {
@@ -42,25 +37,21 @@ public class MultiModuleDispatchingTest implements ApplicationContextAware {
         // dispatcher table
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY, OpenLSystemProperties.DISPATCHING_MODE_DT);
         cxt.setLob("lob1_1");
-        // assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy()
-        // instanceof LazyMultiModuleInstantiationStrategy);
-        assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob2_1");
-        assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob3_1");
-        assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", cxt));
 
         // dispatching by java code
         System.setProperty(OpenLSystemProperties.DISPATCHING_MODE_PROPERTY,
             OpenLSystemProperties.DISPATCHING_MODE_JAVA);
         cxt.setLob("lob1_1");
-        // assertTrue(publisher.findServiceByName(SERVICE_NAME).getInstantiationStrategy()
-        // instanceof LazyMultiModuleInstantiationStrategy);
-        assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello1", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob2_1");
-        assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello2", frontend.execute(SERVICE_NAME, "hello", cxt));
         cxt.setLob("lob3_1");
-        assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }));
+        assertEquals("Hello3", frontend.execute(SERVICE_NAME, "hello", cxt));
 
     }
 

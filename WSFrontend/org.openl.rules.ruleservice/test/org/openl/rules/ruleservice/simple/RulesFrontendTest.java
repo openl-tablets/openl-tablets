@@ -7,13 +7,10 @@ import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.openl.rules.ruleservice.core.OpenLService;
-import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +56,11 @@ public class RulesFrontendTest {
     }
 
     @Test
-    public void testProxyServicesNotExistedService() throws RuleServiceUndeployException,
-                                                     RuleServiceDeployException,
-                                                     MethodInvocationException {
+    public void testProxyServicesNotExistedService() throws RuleServiceUndeployException, MethodInvocationException {
         assertEquals(3, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
-        OpenLService openLService = serviceManager.getServiceByName("RulesFrontendTest_multimodule");
+        serviceManager.getServiceByName("RulesFrontendTest_multimodule");
 
         serviceManager.undeploy("RulesFrontendTest_multimodule");
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),

@@ -17,9 +17,8 @@ import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
 import org.openl.rules.ruleservice.simple.MethodInvocationException;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.ContextConfiguration;
@@ -32,7 +31,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext(classMode = ClassMode.AFTER_EACH_TEST_METHOD)
-public class RulesPublisherTest implements ApplicationContextAware {
+public class RulesPublisherTest {
     private static final String DRIVER = "org.openl.generated.beans.publisher.test.Driver";
     private static final String COVERAGE = "coverage";
     private static final String DATA2 = "data2";
@@ -41,12 +40,8 @@ public class RulesPublisherTest implements ApplicationContextAware {
     private static final String TUTORIAL4 = "org.openl.rules.tutorial4.Tutorial4Interface";
     private static final String MULTI_MODULE = "RulesPublisherTest_multimodule";
 
+    @Autowired
     private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @Test
     public void testMultiModuleService() throws Exception {
@@ -58,10 +53,6 @@ public class RulesPublisherTest implements ApplicationContextAware {
         assertEquals("World, Good Morning!", frontend.execute(MULTI_MODULE, "worldHello", 10));
         assertEquals(2, Array.getLength(frontend.getValue(MULTI_MODULE, DATA1)));
         assertEquals(3, Array.getLength(frontend.getValue(MULTI_MODULE, DATA2)));
-    }
-
-    public interface SimpleInterface {
-        String worldHello(int hour);
     }
 
     @Test
@@ -84,7 +75,7 @@ public class RulesPublisherTest implements ApplicationContextAware {
     }
 
     @Test
-    public void testCompilationByRequest() throws Exception {
+    public void testCompilationByRequest() {
         assertNotNull(applicationContext);
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);

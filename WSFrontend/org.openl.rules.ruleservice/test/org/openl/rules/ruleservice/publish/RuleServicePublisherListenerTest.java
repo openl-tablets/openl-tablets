@@ -8,9 +8,8 @@ import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -20,14 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml", "classpath:RuleServicePublisherListenerTest.xml" })
-public class RuleServicePublisherListenerTest implements ApplicationContextAware {
+public class RuleServicePublisherListenerTest {
 
+    @Autowired
     private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
 
     @Test
     public void test() throws Exception {
@@ -54,9 +49,5 @@ public class RuleServicePublisherListenerTest implements ApplicationContextAware
         Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
         Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onUndeployCount);
 
-    }
-
-    public interface SimpleInterface {
-        String worldHello(int hour);
     }
 }

@@ -17,7 +17,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class MultipleProjectsInDeploymentTest {
 
     @Autowired
-    RulesFrontend frontend;
+    private RulesFrontend frontend;
 
     @Test
     public void testInvoke() throws Exception {

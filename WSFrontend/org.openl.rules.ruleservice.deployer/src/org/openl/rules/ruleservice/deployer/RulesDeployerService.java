@@ -54,7 +54,6 @@ public class RulesDeployerService implements Closeable {
 
     private final Repository deployRepo;
     private final String deployPath;
-    private boolean supportDeployments = true;
 
     public RulesDeployerService(Repository repository, String deployPath) {
         this.deployRepo = repository;
@@ -73,12 +72,6 @@ public class RulesDeployerService implements Closeable {
      */
     public RulesDeployerService(Properties properties) {
         this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::getProperty);
-
-        if (StringUtils.isNotBlank(properties.getProperty("ruleservice.datasource.filesystem.supportDeployments"))) {
-            this.supportDeployments = Boolean.parseBoolean(properties.getProperty(
-                "ruleservice.datasource.filesystem.supportDeployments")) || !deployRepo.supports().isLocal();
-        }
-
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
             this.deployPath = "";
@@ -86,10 +79,6 @@ public class RulesDeployerService implements Closeable {
             String deployPath = properties.getProperty("production-repository.base.path");
             this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
         }
-    }
-
-    public void setSupportDeployments(boolean supportDeployments) {
-        this.supportDeployments = supportDeployments || !deployRepo.supports().isLocal();
     }
 
     /**
@@ -198,35 +187,21 @@ public class RulesDeployerService implements Closeable {
             }
         } else {
             if (deployRepo.supports().folders()) {
-                if (supportDeployments) {
-                    String deploymentName = getDeploymentName(zipEntries);
-                    if (StringUtils.isBlank(deploymentName)) {
-                        deploymentName = StringUtils.isNotBlank(originalName)
-                                ? originalName : randomDeploymentName();
-                    }
-                    if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
-                        LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
-                        return;
-                    }
-                    FileData dest = new FileData();
-                    dest.setName(deployPath + deploymentName);
-                    dest.setAuthor(DEFAULT_AUTHOR_NAME);
-                    dest.setSize(baos.size());
-                    FileChangesFromZip changes = new FileChangesFromZip(new ZipInputStream(new ByteArrayInputStream(baos.toByteArray())), dest.getName());
-                    ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)), ChangesetType.FULL);
-                } else {
-                    //split zip to single-project deployment if supportDeployments is false
-                    //FIXME delete it after removing of {ruleservice.datasource.filesystem.supportDeployments} property
-                    List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, ignoreIfExists);
-
-                    List<FolderItem> folderItems = fileItems.stream().map(fi -> {
-                        FileData data = fi.getData();
-                        FileChangesFromZip files = new FileChangesFromZip(new ZipInputStream(fi.getStream()),
-                                data.getName());
-                        return new FolderItem(data, files);
-                    }).collect(Collectors.toList());
-                    ((FolderRepository) deployRepo).save(folderItems, ChangesetType.FULL);
+                String deploymentName = getDeploymentName(zipEntries);
+                if (StringUtils.isBlank(deploymentName)) {
+                    deploymentName = StringUtils.isNotBlank(originalName)
+                            ? originalName : randomDeploymentName();
                 }
+                if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
+                    LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+                    return;
+                }
+                FileData dest = new FileData();
+                dest.setName(deployPath + deploymentName);
+                dest.setAuthor(DEFAULT_AUTHOR_NAME);
+                dest.setSize(baos.size());
+                FileChangesFromZip changes = new FileChangesFromZip(new ZipInputStream(new ByteArrayInputStream(baos.toByteArray())), dest.getName());
+                ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)), ChangesetType.FULL);
             } else {
                 //split zip to single-project deployment if repository doesn't support folders
                 List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, ignoreIfExists);
@@ -328,10 +303,7 @@ public class RulesDeployerService implements Closeable {
             return null;
         }
         FileData dest = new FileData();
-        String name = deployPath;
-        if (supportDeployments) {
-            name += deploymentName;
-        }
+        String name = deployPath + deploymentName;
         dest.setName(name + '/' + projectName);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
         return dest;

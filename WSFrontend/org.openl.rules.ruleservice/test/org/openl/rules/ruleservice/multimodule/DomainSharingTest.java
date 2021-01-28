@@ -1,14 +1,15 @@
 package org.openl.rules.ruleservice.multimodule;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -18,13 +19,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
         "ruleservice.isProvideRuntimeContext=false",
         "production-repository.factory = repo-file"})
 @ContextConfiguration(value = { "classpath:openl-ruleservice-beans.xml" })
-public class DomainSharingTest implements ApplicationContextAware {
-    private ApplicationContext applicationContext;
+public class DomainSharingTest {
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Test
     public void testInstantiation() throws Exception {
