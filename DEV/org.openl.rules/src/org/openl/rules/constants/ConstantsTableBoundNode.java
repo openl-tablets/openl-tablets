@@ -89,61 +89,64 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, nameCellSource, cxt);
         }
 
-        GridCellSourceCodeModule defaultValueSrc = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
-        String value = defaultValueSrc.getCode();
-        if (ParserUtils.isCommented(value) || StringUtils.isBlank(value)) {
-            value = null;
-        }
+        String value = null;
+        Object objectValue = null;
+        if (row.getWidth() > 2) {
+            GridCellSourceCodeModule defaultValueSrc = DatatypeTableBoundNode.getCellSource(row, cxt, 2);
+            value = defaultValueSrc.getCode();
+            if (ParserUtils.isCommented(value) || StringUtils.isBlank(value)) {
+                value = null;
+            }
 
-        Object objectValue;
-        if (DefaultValue.DEFAULT.equals(value)) {
-            objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
-        } else if (RuleRowHelper.isFormula(value)) {
-            SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
-            OpenMethodHeader methodHeader = new OpenMethodHeader(constantName,
-                constantType,
-                new MethodSignature(),
-                null);
-            try {
-                boolean noErrors;
-                CompositeMethod compositeMethod;
-                cxt.pushErrors();
-                // cxt.pushMessages();
+            if (DefaultValue.DEFAULT.equals(value)) {
+                objectValue = constantType.newInstance(openl.getVm().getRuntimeEnv());
+            } else if (RuleRowHelper.isFormula(value)) {
+                SubTextSourceCodeModule source = new SubTextSourceCodeModule(defaultValueSrc, 1);
+                OpenMethodHeader methodHeader = new OpenMethodHeader(constantName,
+                        constantType,
+                        new MethodSignature(),
+                        null);
                 try {
-                    compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
-                } finally {
+                    boolean noErrors;
+                    CompositeMethod compositeMethod;
+                    cxt.pushErrors();
+                    // cxt.pushMessages();
+                    try {
+                        compositeMethod = OpenLManager.makeMethod(openl, source, methodHeader, cxt);
+                    } finally {
 
-                    // cxt.popMessages();
-                    List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
-                    noErrors = syntaxNodeExceptions.isEmpty();
-                    syntaxNodeExceptions.forEach(cxt::addError);
-                }
-                if (noErrors) {
-                    objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
-                } else {
+                        // cxt.popMessages();
+                        List<SyntaxNodeException> syntaxNodeExceptions = cxt.popErrors();
+                        noErrors = syntaxNodeExceptions.isEmpty();
+                        syntaxNodeExceptions.forEach(cxt::addError);
+                    }
+                    if (noErrors) {
+                        objectValue = compositeMethod.invoke(null, IBoundNode.EMPTY_RESULT, openl.getVm().getRuntimeEnv());
+                    } else {
+                        objectValue = null;
+                    }
+                } catch (Exception ex) {
+                    BindHelper.processError(ex, defaultValueSrc, cxt);
                     objectValue = null;
                 }
-            } catch (Exception ex) {
-                BindHelper.processError(ex, defaultValueSrc, cxt);
+            } else if (String.class == constantType.getInstanceClass()) {
+                objectValue = value;
+            } else if (value == null) {
                 objectValue = null;
-            }
-        } else if (String.class == constantType.getInstanceClass()) {
-            objectValue = value;
-        } else if (value == null) {
-            objectValue = null;
-        } else if (constantType.getName().startsWith("[[")) {
-            BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
-            objectValue = null;
-        } else {
-            try {
-                objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
-                if (objectValue == null) {
-                    objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
-                }
-            } catch (RuntimeException e) {
+            } else if (constantType.getName().startsWith("[[")) {
+                BindHelper.processError("Multi-dimensional arrays are not supported.", defaultValueSrc, cxt);
+                objectValue = null;
+            } else {
+                try {
+                    objectValue = RuleRowHelper.loadNativeValue(row.getColumn(2).getCell(0, 0), constantType);
+                    if (objectValue == null) {
+                        objectValue = String2DataConvertorFactory.parse(constantType.getInstanceClass(), value, cxt);
+                    }
+                } catch (RuntimeException e) {
                 String message = String.format("Cannot parse cell value '%s'.", value);
-                BindHelper.processError(message, e, defaultValueSrc, cxt);
-                objectValue = null;
+                    BindHelper.processError(message, e, defaultValueSrc, cxt);
+                    objectValue = null;
+                }
             }
         }
 
