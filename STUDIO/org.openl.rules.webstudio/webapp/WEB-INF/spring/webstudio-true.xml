@@ -48,6 +48,8 @@
     </constructor-arg>
     </bean>
 
+    <bean id="restExceptionMapper" class="org.openl.rules.rest.RestExceptionMapper"/>
+
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
         <property name="serviceBeans">
@@ -64,13 +66,16 @@
             </list>
         </property>
         <property name="providers">
-            <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
-                <constructor-arg name="mapper">
-                    <bean class="com.fasterxml.jackson.databind.ObjectMapper">
-                        <property name="serializationInclusion" value="NON_DEFAULT"/>
-                    </bean>
-                </constructor-arg>
-            </bean>
+            <list>
+                <ref bean="restExceptionMapper"/>
+                <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
+                    <constructor-arg name="mapper">
+                        <bean class="com.fasterxml.jackson.databind.ObjectMapper">
+                            <property name="serializationInclusion" value="NON_DEFAULT"/>
+                        </bean>
+                    </constructor-arg>
+                </bean>
+            </list>
         </property>
     </bean>
 
