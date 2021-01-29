@@ -18,14 +18,14 @@
       <h:panelGroup id="eraseProjectData">
         <ui:param name="deleteBranch" value="#{repositoryTreeController.isDeleteBranch(repositoryTreeState.selectedProject)}"/>
 
-        <h:panelGroup rendered="#{deleteBranch}">
-          <h:outputText value="Are you sure you want to delete the branch '#{repositoryTreeState.selectedProject.branch}'?" />
-        </h:panelGroup>
-
         <h:panelGroup rendered="#{not deleteBranch}">
-          <h:outputText value="Are you sure you want to erase the project?" />
-
           <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
+
+            <h:outputText rendered="#{node.type eq 'project'}"
+                          value="Are you sure you want to erase the project?"/>
+            <h:outputText rendered="#{node.type eq 'deployment'}"
+                          value="Are you sure you want to erase the deploy configuration?"/>
+
           <ui:param name="useCustomComment"
                     value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}"/>
           <h:panelGroup rendered="#{useCustomComment}">
