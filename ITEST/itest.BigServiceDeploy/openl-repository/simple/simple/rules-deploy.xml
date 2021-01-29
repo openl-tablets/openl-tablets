@@ -2,4 +2,7 @@
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
     <url>simple</url>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
 </rules-deploy>

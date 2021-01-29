@@ -2,11 +2,10 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Deque;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.LinkedList;
+import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,16 +20,34 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     private List<Pair<IOpenClass, IOpenCast>> casts;
     private IOpenClass type;
-    private final IOpenField field1;
-    private final IOpenField field2;
+    private final Collection<IOpenField> fields;
+    private final IOpenClass[] declaringClasses;
 
     public CastingCustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass,
             String name,
             IOpenField field1,
             IOpenField field2) {
         super(declaringClass, name, null);
-        this.field1 = Objects.requireNonNull(field1, "field1 cannot be null");
-        this.field2 = Objects.requireNonNull(field2, "field2 cannot be null");
+        Objects.requireNonNull(field1, "field1 cannot be null");
+        Objects.requireNonNull(field2, "field2 cannot be null");
+        this.fields = new ArrayList<>(extractFields(field1));
+        this.fields.addAll(extractFields(field2));
+
+        List<IOpenClass> declaringClasses = new ArrayList<>();
+        extractFieldDeclaringClasses(field1, declaringClasses);
+        extractFieldDeclaringClasses(field2, declaringClasses);
+        this.declaringClasses = declaringClasses.toArray(IOpenClass.EMPTY);
+    }
+
+    private Collection<IOpenField> extractFields(IOpenField field) {
+        Collection<IOpenField> ret = new ArrayList<>();
+        if (field instanceof CastingCustomSpreadsheetResultField) {
+            CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
+            ret.addAll(castingCustomSpreadsheetResultField.fields);
+        } else {
+            ret.add(field);
+        }
+        return ret;
     }
 
     @Override
@@ -64,48 +81,30 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (getDeclaringClass().getModule().getRulesModuleBindingContext() == null) {
                 throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
             }
-            //============ ATTENTION! DANGER ZONE! TURN BACK! ============
-            // Thread invocation Stack is too small to initialize lazy fields. Next lines initialize field types without recursion
-            List<CastingCustomSpreadsheetResultField> fields = new ArrayList<>();
-            Set<IOpenField> resultFields = new HashSet<>();
-            Deque<IOpenField> deque = new LinkedList<>();
-            deque.push(field1);
-            deque.push(field2);
-            while (!deque.isEmpty()) {
-                IOpenField p = deque.pop();
-                if (p instanceof CastingCustomSpreadsheetResultField) {
-                    deque.push(((CastingCustomSpreadsheetResultField) p).field1);
-                    deque.push(((CastingCustomSpreadsheetResultField) p).field2);
-                    fields.add(((CastingCustomSpreadsheetResultField) p));
-                } else {
-                    resultFields.add(p);
-                }
-            }
-            ListIterator<CastingCustomSpreadsheetResultField> it = fields.listIterator(fields.size());
-            while (it.hasPrevious()) {
-                it.previous().initLazyFields();
-            }
-            //============ DANGER ZONE END! ============
-            if (Objects.equals(field1.getType(), field2.getType())) {
-                this.type = field1.getType();
-            } else {
-                CastToWiderType castToWiderType = CastToWiderType.create(getDeclaringClass().getModule()
-                    .getRulesModuleBindingContext(), field1.getType(), field2.getType());
-                this.type = castToWiderType.getWiderType();
-            }
             Set<IOpenClass> types = new HashSet<>();
-            this.casts = new ArrayList<>();
-            for (IOpenField f : resultFields) {
-                if (!types.contains(f.getType())) {
-                    IOpenCast cast = getDeclaringClass().getModule()
-                        .getRulesModuleBindingContext()
-                        .getCast(f.getType(), this.type);
-                    types.add(f.getType());
-                    this.casts.add(Pair.of(f.getType(), cast));
-                }
+            for (IOpenField f : fields) {
+                types.add(f.getType());
             }
             if (types.size() == 1) {
+                this.type = types.iterator().next();
                 this.casts = null;
+            } else {
+                Iterator<IOpenClass> itr = types.iterator();
+                IOpenClass t = itr.next();
+                while (itr.hasNext()) {
+                    IOpenClass t1 = itr.next();
+                    CastToWiderType castToWiderType = CastToWiderType
+                        .create(getDeclaringClass().getModule().getRulesModuleBindingContext(), t, t1);
+                    t = castToWiderType.getWiderType();
+                }
+                this.casts = new ArrayList<>();
+                this.type = t;
+                for (IOpenClass type : types) {
+                    IOpenCast cast = getDeclaringClass().getModule()
+                        .getRulesModuleBindingContext()
+                        .getCast(type, this.type);
+                    this.casts.add(Pair.of(type, cast));
+                }
             }
         }
     }
@@ -119,10 +118,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     @Override
     public IOpenClass[] getDeclaringClasses() {
-        List<IOpenClass> declaringClasses = new ArrayList<>();
-        extractFieldDeclaringClasses(field1, declaringClasses);
-        extractFieldDeclaringClasses(field2, declaringClasses);
-        return declaringClasses.toArray(IOpenClass.EMPTY);
+        return declaringClasses.clone();
     }
 
     private void extractFieldDeclaringClasses(IOpenField field, List<IOpenClass> declaringClasses) {

@@ -120,31 +120,27 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 parentTypeClass = x;
             }
         }
-        String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
+        String className = classFor.getName() + "$EnhancedMixInClassWithSubTypes$" + incrementer.getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        String typingPropertyName = StringUtils.isNotBlank(
+            getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+        if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+            typingPropertyName = null;
+        }
+        ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
+            originalClass,
+            parentTypeClass,
+            subTypeClasses.toArray(new Class<?>[0]),
+            typingPropertyName,
+            isSimpleClassNameAsTypingPropertyValue());
+        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
+        transformer.accept(classVisitor);
+        classWriter.visitEnd();
         try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
-            String typingPropertyName = StringUtils.isNotBlank(
-                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
-            if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-                typingPropertyName = null;
-            }
-            ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                originalClass,
-                parentTypeClass,
-                subTypeClasses.toArray(new Class<?>[0]),
-                typingPropertyName,
-                isSimpleClassNameAsTypingPropertyValue());
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
-            transformer.accept(classVisitor);
-            classWriter.visitEnd();
-            try {
-                ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-                return Class.forName(className, true, classLoader);
-            } catch (Exception e1) {
-                throw new IllegalStateException(e1);
-            }
+            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+            return Class.forName(className, true, classLoader);
+        } catch (Exception e1) {
+            throw new IllegalStateException(e1);
         }
     }
 
