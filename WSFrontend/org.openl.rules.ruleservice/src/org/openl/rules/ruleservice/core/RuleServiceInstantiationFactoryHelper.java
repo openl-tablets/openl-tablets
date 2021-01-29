@@ -3,9 +3,11 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -57,8 +59,8 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @author PUdalau
      */
     private static class RuleServiceInterceptorsSupportClassVisitor extends ClassVisitor {
-        private final Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange;
-        private final Collection<Method> methodsToRemove;
+        private final Map<String, List<Pair<Method, Pair<Class<?>, Boolean>>>> methodsWithReturnTypeNeedsChange;
+        private final Map<String, List<Method>> methodsToRemove;
 
         /**
          * Constructs instance with delegated {@link ClassVisitor} and set of methods.
@@ -70,36 +72,59 @@ public final class RuleServiceInstantiationFactoryHelper {
                 Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange,
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
-            this.methodsWithReturnTypeNeedsChange = Objects.requireNonNull(methodsWithReturnTypeNeedsChange,
-                "methodsWithReturnTypeNeedsChange cannot be null");
-            this.methodsToRemove = Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
+            Objects.requireNonNull(methodsWithReturnTypeNeedsChange, "methodsWithReturnTypeNeedsChange cannot be null");
+            this.methodsWithReturnTypeNeedsChange = new HashMap<>();
+            // Build map by method name to improve performance of the method search loop
+            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
+                List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = this.methodsWithReturnTypeNeedsChange
+                    .computeIfAbsent(entry.getKey().getName(), e -> new ArrayList<>());
+                listByMethodName.add(Pair.of(entry.getKey(), entry.getValue()));
+            }
+            Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
+            this.methodsToRemove = new HashMap<>();
+            // Build map by method name to improve performance of the method search loop
+            for (Method method : methodsToRemove) {
+                List<Method> listByMethodName = this.methodsToRemove.computeIfAbsent(method.getName(),
+                    e -> new ArrayList<>());
+                listByMethodName.add(method);
+            }
         }
 
         @Override
         public MethodVisitor visitMethod(int arg0, String arg1, String arg2, String arg3, String[] arg4) {
-            for (Method method : methodsToRemove) {
-                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
-                    return null;
+            List<Method> methodsToRemoveByName = methodsToRemove.get(arg1);
+            if (methodsToRemoveByName != null) {
+                for (Method method : methodsToRemoveByName) {
+                    if (arg2.equals(Type.getMethodDescriptor(method))) {
+                        return null;
+                    }
                 }
             }
 
-            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                Method method = entry.getKey();
-                if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
-                    Class<?> newRetType = entry.getValue().getKey();
-                    MethodVisitor mv = super.visitMethod(arg0, arg1, convertReturnType(arg2, newRetType), arg3, arg4);
-                    if (!entry.getValue().getValue()) {
-                        AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class),
-                            true);
-                        AnnotationVisitor av1 = av.visitArray("value");
-                        av1.visit("value",
-                            Type.getType(VariationsResult.class
-                                .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
-                                                    : SPRToPlainConverterAdvice.class));
-                        av1.visitEnd();
-                        av.visitEnd();
+            List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = methodsWithReturnTypeNeedsChange.get(arg1);
+            if (listByMethodName != null) {
+                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listByMethodName) {
+                    Method method = entry.getKey();
+                    if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
+                        Class<?> newRetType = entry.getValue().getKey();
+                        MethodVisitor mv = super.visitMethod(arg0,
+                            arg1,
+                            convertReturnType(arg2, newRetType),
+                            arg3,
+                            arg4);
+                        if (!entry.getValue().getValue()) {
+                            AnnotationVisitor av = mv
+                                .visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class), true);
+                            AnnotationVisitor av1 = av.visitArray("value");
+                            av1.visit("value",
+                                Type.getType(VariationsResult.class
+                                    .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
+                                                        : SPRToPlainConverterAdvice.class));
+                            av1.visitEnd();
+                            av.visitEnd();
+                        }
+                        return mv;
                     }
-                    return mv;
                 }
             }
 
