@@ -86,7 +86,7 @@ public class ProjectHistoryService {
         }
         String historyStoragePath = model.getHistoryStoragePath();
         File fileToRestore = get(historyStoragePath, versionToRestore);
-        removeCurrentVersion(historyStoragePath);
+        File currentVersion = getCurrentVersion(historyStoragePath);
         if (fileToRestore != null) {
             File currentSourceFile = model.getCurrentModuleWorkbook().getSourceFile();
             try {
@@ -102,6 +102,9 @@ public class ProjectHistoryService {
             }
             model.reset(ReloadType.RELOAD);
             fileToRestore.renameTo(new File(fileToRestore.getPath() + CURRENT_VERSION));
+            if (currentVersion != null) {
+                currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
+            }
         }
     }
 
@@ -152,9 +155,9 @@ public class ProjectHistoryService {
                 byte[] currentVersionBytes = Files.readAllBytes(currentVersion.toPath());
                 byte[] sourceBytes = Files.readAllBytes(source.toPath());
                 if (!Arrays.equals(currentVersionBytes, sourceBytes)) {
-                    removeCurrentVersion(storagePath);
                     File destFile = new File(storagePath, System.currentTimeMillis() + CURRENT_VERSION);
                     FileUtils.copy(source, destFile);
+                    removeCurrentVersion(currentVersion);
                     deleteHistoryOverLimit(storagePath);
                 }
             } catch (IOException e) {
@@ -218,8 +221,7 @@ public class ProjectHistoryService {
         return null;
     }
 
-    private static void removeCurrentVersion(String storagePath) {
-        File currentVersion = getCurrentVersion(storagePath);
+    private static void removeCurrentVersion(File currentVersion) {
         if (currentVersion != null) {
             currentVersion.renameTo(new File(currentVersion.getPath().replaceAll(CURRENT_VERSION + "$", "")));
         }
