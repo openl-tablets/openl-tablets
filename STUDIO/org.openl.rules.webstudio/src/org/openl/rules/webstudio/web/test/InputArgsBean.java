@@ -38,6 +38,7 @@ import org.openl.meta.IntValue;
 import org.openl.meta.LongValue;
 import org.openl.meta.ShortValue;
 import org.openl.rules.common.ProjectException;
+import org.openl.rules.context.DefaultRulesRuntimeContext;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.helpers.DoubleRange;
 import org.openl.rules.helpers.IntRange;
@@ -280,6 +281,9 @@ public class InputArgsBean {
                     if (!stringStringMap.isEmpty() && isProvideRuntimeContext()) {
                         String contextJson = stringStringMap.values().iterator().next();
                         runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class, objectMapper);
+                        if (runtimeContext == null) {
+                            runtimeContext = new DefaultRulesRuntimeContext();
+                        }
                     }
                 }
             } else {
