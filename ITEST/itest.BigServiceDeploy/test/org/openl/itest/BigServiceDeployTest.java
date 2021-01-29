@@ -26,6 +26,6 @@ public class BigServiceDeployTest {
 
     @Test
     public void testPingRest() {
-        client.get("/REST/simple/ping", "/simple_ping.resp.txt");
+        client.get("/simple/ping", "/simple_ping.resp.txt");
     }
 }
