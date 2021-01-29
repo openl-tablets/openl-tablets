@@ -225,8 +225,8 @@
           "content": {
             "text/plain": {
               "schema": {
-                "type": "integer",
-                "format": "int64"
+                "type": "string",
+                "format": "date-time"
               }
             }
           }
@@ -279,8 +279,8 @@
             "content": {
               "text/plain": {
                 "schema": {
-                  "type": "integer",
-                  "format": "int64"
+                  "type": "string",
+                  "format": "date-time"
                 }
               }
             }
@@ -609,8 +609,8 @@
             "format": "date-time"
           },
           "instant": {
-            "type": "integer",
-            "format": "int64"
+            "type": "string",
+            "format": "date-time"
           },
           "zonedDateTime": {
             "type": "string",
