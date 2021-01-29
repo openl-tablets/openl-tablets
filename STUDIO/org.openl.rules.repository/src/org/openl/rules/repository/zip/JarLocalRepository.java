@@ -50,8 +50,7 @@ public class JarLocalRepository extends AbstractArchiveRepository {
                         extPos = urlString.lastIndexOf(".zip");
                     }
                     urlString = urlString.substring(0, extPos + 4);
-                    Object jarFile = new URL(urlString).openConnection().getContent();
-                    VfsFile vfsFile = new VfsFile(jarFile);
+                    VfsFile vfsFile = new VfsURLConnection(new URL(urlString).openConnection()).getContent();
                     path = vfsFile.getFile().toPath().getParent().resolve(vfsFile.getName());
                     name = FileUtils.getBaseName(vfsFile.getName());
                 } else {

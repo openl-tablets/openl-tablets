@@ -52,7 +52,7 @@ import org.openl.util.ZipUtils;
  *
  * @author Vladyslav Pikus
  */
-public abstract class AbstractArchiveRepository implements FolderRepository, Closeable {
+abstract class AbstractArchiveRepository implements FolderRepository, Closeable {
 
     private static final int REGULAR_ARCHIVE_FILE_SIGN = 0x504B0304;
     private static final int EMPTY_ARCHIVE_FILE_SIGN = 0x504B0506;
