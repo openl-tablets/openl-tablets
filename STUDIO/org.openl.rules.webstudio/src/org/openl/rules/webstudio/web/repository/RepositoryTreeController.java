@@ -1143,6 +1143,7 @@ public class RepositoryTreeController {
             return null;
         }
 
+        String nodeType = getSelectedNode().getType();
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
@@ -1191,7 +1192,11 @@ public class RepositoryTreeController {
             repositoryTreeState.invalidateSelection();
 
             resetStudioModel();
-            WebStudioUtils.addInfoMessage("Project was erased successfully.");
+            if (UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)) {
+                WebStudioUtils.addInfoMessage("Deploy configuration was erased successfully.");
+            } else {
+                WebStudioUtils.addInfoMessage("Project was erased successfully.");
+            }
         } catch (Exception e) {
             repositoryTreeState.invalidateTree();
             String msg = e.getCause() instanceof IOException ? e

@@ -16,7 +16,11 @@
     <h:form id="eraseProjectForm">
       <h:panelGroup id="eraseProjectData">
         <h:panelGroup>
-          <h:outputText value="Are you sure you want to erase the project?" />
+
+          <h:outputText rendered="#{node.type eq 'project'}"
+                        value="Are you sure you want to erase the project?" />
+          <h:outputText rendered="#{node.type eq 'deployment'}"
+                        value="Are you sure you want to erase the deploy configuration?" />
 
           <ui:param name="node" value="#{repositoryTreeController.selectedNode}" />
           <ui:param name="useCustomComment"
