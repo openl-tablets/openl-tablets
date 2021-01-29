@@ -11,7 +11,7 @@ import java.util.Objects;
  *
  * @author Vladyslav Pikus
  */
-public class VfsFile {
+class VfsFile {
 
     private static final Method GET_NAME_METHOD;
     private static final Method GET_PHYSICAL_FILE_METHOD;
