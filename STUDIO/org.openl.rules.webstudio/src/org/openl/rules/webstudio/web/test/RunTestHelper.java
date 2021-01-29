@@ -99,6 +99,11 @@ public class RunTestHelper {
                 // View expired
                 return null;
             }
+            if (runtimeContext != null) {
+                // if context is provided, project method must be retrieved
+                method = model.getCompiledOpenClass().getOpenClassWithErrors().getMethod(method.getName(),
+                        method.getSignature().getParameterTypes());
+            }
             testSuite = new TestSuite(new TestDescription(method, runtimeContext, params, db));
         }
 
