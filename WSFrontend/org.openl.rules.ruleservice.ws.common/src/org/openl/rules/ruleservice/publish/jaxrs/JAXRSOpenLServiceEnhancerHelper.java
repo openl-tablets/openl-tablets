@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -123,7 +124,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 ObjectMapper openApiObjectMapper) {
             super(Opcodes.ASM5, arg0);
             this.serviceName = serviceName;
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.openClass = openClass;
             this.classLoader = classLoader;
             this.serviceExposedUrl = serviceExposedUrl;
