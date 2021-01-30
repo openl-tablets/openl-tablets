@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.jws.WebMethod;
@@ -51,15 +52,18 @@ public final class JAXWSOpenLServiceEnhancer {
     private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
-        private Class<?> originalClass;
-        private OpenLService service;
+        private final Class<?> originalClass;
+        private final OpenLService service;
 
         private Map<Method, String> operationNames = null;
 
+        private final Map<String, List<Method>> originalClassMethodsByName;
+
         JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service) {
             super(Opcodes.ASM5, arg0);
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.service = service;
+            this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
         @Override
@@ -101,7 +105,7 @@ public final class JAXWSOpenLServiceEnhancer {
 
         @Override
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
+            Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, methodName, arg2);
             if (originalMethod == null) {
                 throw new RuleServiceRuntimeException("Method is not found in the original class");
             }

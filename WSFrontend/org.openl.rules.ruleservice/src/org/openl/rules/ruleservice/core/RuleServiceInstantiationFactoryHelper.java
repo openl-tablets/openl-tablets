@@ -76,17 +76,17 @@ public final class RuleServiceInstantiationFactoryHelper {
             this.methodsWithReturnTypeNeedsChange = new HashMap<>();
             // Build map by method name to improve performance of the method search loop
             for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = this.methodsWithReturnTypeNeedsChange
+                List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = this.methodsWithReturnTypeNeedsChange
                     .computeIfAbsent(entry.getKey().getName(), e -> new ArrayList<>());
-                listByMethodName.add(Pair.of(entry.getKey(), entry.getValue()));
+                listOfMethods.add(Pair.of(entry.getKey(), entry.getValue()));
             }
             Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
             this.methodsToRemove = new HashMap<>();
             // Build map by method name to improve performance of the method search loop
             for (Method method : methodsToRemove) {
-                List<Method> listByMethodName = this.methodsToRemove.computeIfAbsent(method.getName(),
+                List<Method> listOfMethods = this.methodsToRemove.computeIfAbsent(method.getName(),
                     e -> new ArrayList<>());
-                listByMethodName.add(method);
+                listOfMethods.add(method);
             }
         }
 
@@ -101,9 +101,9 @@ public final class RuleServiceInstantiationFactoryHelper {
                 }
             }
 
-            List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = methodsWithReturnTypeNeedsChange.get(arg1);
-            if (listByMethodName != null) {
-                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listByMethodName) {
+            List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = methodsWithReturnTypeNeedsChange.get(arg1);
+            if (listOfMethods != null) {
+                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listOfMethods) {
                     Method method = entry.getKey();
                     if (arg1.equals(method.getName()) && arg2.equals(Type.getMethodDescriptor(method))) {
                         Class<?> newRetType = entry.getValue().getKey();

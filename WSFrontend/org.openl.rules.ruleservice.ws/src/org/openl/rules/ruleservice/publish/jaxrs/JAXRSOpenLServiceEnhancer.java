@@ -131,6 +131,7 @@ public final class JAXRSOpenLServiceEnhancer {
         private Map<Method, String> nicknames = null;
         private Map<Method, String> methodRequests = null;
         private final String serviceExposedUrl;
+        private final Map<String, List<Method>> originalClassMethodsByName;
 
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
@@ -138,10 +139,11 @@ public final class JAXRSOpenLServiceEnhancer {
                 OpenLService service,
                 String serviceExposedUrl) {
             super(Opcodes.ASM5, arg0);
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.classLoader = classLoader;
             this.service = service;
             this.serviceExposedUrl = serviceExposedUrl;
+            this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
         @Override
@@ -346,7 +348,7 @@ public final class JAXRSOpenLServiceEnhancer {
 
         @Override
         public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
+            Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, methodName, arg2);
             if (originalMethod == null) {
                 throw new RuleServiceRuntimeException("Method is not found in the original class.");
             }
