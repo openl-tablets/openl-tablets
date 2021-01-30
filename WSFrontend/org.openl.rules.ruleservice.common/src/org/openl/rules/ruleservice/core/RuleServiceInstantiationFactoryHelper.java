@@ -77,17 +77,17 @@ public final class RuleServiceInstantiationFactoryHelper {
             this.methodsWithReturnTypeNeedsChange = new HashMap<>();
             // Build map by method name to improve performance of the method search loop
             for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = this.methodsWithReturnTypeNeedsChange
+                List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = this.methodsWithReturnTypeNeedsChange
                     .computeIfAbsent(entry.getKey().getName(), e -> new ArrayList<>());
-                listByMethodName.add(Pair.of(entry.getKey(), entry.getValue()));
+                listOfMethods.add(Pair.of(entry.getKey(), entry.getValue()));
             }
             Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
             this.methodsToRemove = new HashMap<>();
             // Build map by method name to improve performance of the method search loop
             for (Method method : methodsToRemove) {
-                List<Method> listByMethodName = this.methodsToRemove.computeIfAbsent(method.getName(),
+                List<Method> listOfMethods = this.methodsToRemove.computeIfAbsent(method.getName(),
                     e -> new ArrayList<>());
-                listByMethodName.add(method);
+                listOfMethods.add(method);
             }
 
         }
@@ -98,17 +98,17 @@ public final class RuleServiceInstantiationFactoryHelper {
                 final String descriptor,
                 final String signature,
                 final String[] exceptions) {
-            List<Method> methodsToRemoveByName = methodsToRemove.get(name);
-            if (methodsToRemoveByName != null) {
-                for (Method method : methodsToRemoveByName) {
+            List<Method> listOfMethodsToRemove = methodsToRemove.get(name);
+            if (listOfMethodsToRemove != null) {
+                for (Method method : listOfMethodsToRemove) {
                     if (descriptor.equals(Type.getMethodDescriptor(method))) {
                         return null;
                     }
                 }
             }
-            List<Pair<Method, Pair<Class<?>, Boolean>>> listByMethodName = methodsWithReturnTypeNeedsChange.get(name);
-            if (listByMethodName != null) {
-                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listByMethodName) {
+            List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = methodsWithReturnTypeNeedsChange.get(name);
+            if (listOfMethods != null) {
+                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listOfMethods) {
                     Method method = entry.getKey();
                     if (descriptor.equals(Type.getMethodDescriptor(method))) {
                         Class<?> newRetType = entry.getValue().getKey();

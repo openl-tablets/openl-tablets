@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.jws.WebMethod;
@@ -52,14 +53,16 @@ public final class JAXWSOpenLServiceEnhancer {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
         private final Class<?> originalClass;
+        private final Map<String, List<Method>> originalClassMethodsByName;
         private final OpenLService service;
 
         private Map<Method, String> operationNames = null;
 
         JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service) {
             super(Opcodes.ASM5, arg0);
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.service = service;
+            this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
         @Override
@@ -93,14 +96,16 @@ public final class JAXWSOpenLServiceEnhancer {
             }
         }
 
-        @Override
-        public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, name, descriptor);
             if (originalMethod == null) {
                 throw new RuleServiceRuntimeException("Method is not found in the original class");
             }
-
-            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+            MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
             boolean foundWebMethodAnnotation = false;
             if (originalMethod.getAnnotation(WebMethod.class) != null) {

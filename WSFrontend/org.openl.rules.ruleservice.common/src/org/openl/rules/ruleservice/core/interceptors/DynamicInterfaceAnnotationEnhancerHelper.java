@@ -5,6 +5,8 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -16,6 +18,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.types.IOpenClass;
@@ -36,6 +39,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         private final Set<Method> foundMethods = new HashSet<>();
         private final IOpenClass openClass;
         private final ClassLoader classLoader;
+        private final Map<String, List<Method>> templateClassMethodsByName;
 
         public DynamicInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> templateClass,
@@ -45,6 +49,7 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             this.templateClass = templateClass;
             this.openClass = openClass;
             this.classLoader = classLoader;
+            this.templateClassMethodsByName = ASMUtils.buildMap(templateClass);
         }
 
         public Method[] getMissedMethods() {
@@ -77,8 +82,9 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                 final String[] exceptions) {
             if (templateClass != null) {
                 Method templateMethod = null;
-                for (Method method : templateClass.getMethods()) {
-                    if (name.equals(method.getName())) {
+                List<Method> methods = templateClassMethodsByName.get(name);
+                if (methods != null) {
+                    for (Method method : methods) {
                         Type[] typesInTemplateMethod = Type.getArgumentTypes(method);
                         Type[] typesInCurrentMethod = Type.getArgumentTypes(descriptor);
                         if (typesInCurrentMethod.length == typesInTemplateMethod.length) {
