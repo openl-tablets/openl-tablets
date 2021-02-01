@@ -16,7 +16,7 @@ import groovy.lang.GroovyClassLoader;
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
  * if can`t tries to find it in his parent.
  */
-public class OpenLBundleClassLoader extends OpenLClassLoader {
+public class OpenLBundleClassLoader extends URLClassLoader {
 
     private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
