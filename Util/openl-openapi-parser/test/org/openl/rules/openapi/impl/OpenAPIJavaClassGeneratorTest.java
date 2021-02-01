@@ -1,17 +1,10 @@
 package org.openl.rules.openapi.impl;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -28,7 +21,7 @@ import javax.ws.rs.Produces;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -50,7 +43,7 @@ public class OpenAPIJavaClassGeneratorTest {
     @Before
     public void setUp() {
         converter = new OpenAPIScaffoldingConverter();
-        newClassLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
+        newClassLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
     }
 
     @Test

@@ -16,7 +16,7 @@ import groovy.lang.GroovyClassLoader;
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
  * if can`t tries to find it in his parent.
  */
-public class OpenLBundleClassLoader extends URLClassLoader {
+public class OpenLClassLoader extends URLClassLoader {
 
     private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
@@ -24,11 +24,11 @@ public class OpenLBundleClassLoader extends URLClassLoader {
 
     private final Set<GroovyClassLoader> groovyClassLoaders = new HashSet<>();
 
-    public OpenLBundleClassLoader(ClassLoader parent) {
+    public OpenLClassLoader(ClassLoader parent) {
         this(new URL[0], parent);
     }
 
-    public OpenLBundleClassLoader(URL[] urls, ClassLoader parent) {
+    public OpenLClassLoader(URL[] urls, ClassLoader parent) {
         super(urls, applyGroovySupport(parent, urls));
         if (getParent() instanceof GroovyClassLoader) {
             groovyClassLoaders.add((GroovyClassLoader) getParent());
@@ -36,7 +36,7 @@ public class OpenLBundleClassLoader extends URLClassLoader {
     }
 
     private static ClassLoader applyGroovySupport(ClassLoader classLoader, URL[] urls) {
-        if (classLoader instanceof OpenLBundleClassLoader || classLoader instanceof GroovyClassLoader) {
+        if (classLoader instanceof OpenLClassLoader || classLoader instanceof GroovyClassLoader) {
             return classLoader;
         } else {
             GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
@@ -57,7 +57,7 @@ public class OpenLBundleClassLoader extends URLClassLoader {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
         }
 
-        if (classLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) classLoader)
+        if (classLoader instanceof OpenLClassLoader && ((OpenLClassLoader) classLoader)
             .containsClassLoader(this)) {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
@@ -82,7 +82,7 @@ public class OpenLBundleClassLoader extends URLClassLoader {
         }
 
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
-            if (bundleClassLoader instanceof OpenLBundleClassLoader && ((OpenLBundleClassLoader) bundleClassLoader)
+            if (bundleClassLoader instanceof OpenLClassLoader && ((OpenLClassLoader) bundleClassLoader)
                 .containsClassLoader(classLoader)) {
                 return true;
             }
@@ -130,15 +130,15 @@ public class OpenLBundleClassLoader extends URLClassLoader {
                 // be returned as a result
                 //
                 Class<?> clazz;
-                if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
-                    OpenLBundleClassLoader sbc = (OpenLBundleClassLoader) bundleClassLoader;
+                if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
+                    OpenLClassLoader sbc = (OpenLClassLoader) bundleClassLoader;
                     clazz = sbc.findLoadedClass(name);
                     if (clazz == null) {
                         clazz = sbc.findClassInBundles(name, c);
                     }
                 } else {
-                    if (bundleClassLoader instanceof OpenLBundleClassLoader) {
-                        clazz = ((OpenLBundleClassLoader) bundleClassLoader).loadClass(name, c);
+                    if (bundleClassLoader instanceof OpenLClassLoader) {
+                        clazz = ((OpenLClassLoader) bundleClassLoader).loadClass(name, c);
                     } else {
                         clazz = bundleClassLoader.loadClass(name);
                     }
@@ -156,8 +156,8 @@ public class OpenLBundleClassLoader extends URLClassLoader {
     private URL findResourceInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             URL url;
-            if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
                 url = sbcl.findResourceInBundleClassLoader(name);
             } else {
                 url = bundleClassLoader.getResource(name);
@@ -172,8 +172,8 @@ public class OpenLBundleClassLoader extends URLClassLoader {
     private InputStream findResourceAsStreamInBundleClassLoader(String name) {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             InputStream inputStream;
-            if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
                 inputStream = sbcl.findResourceAsStreamInBundleClassLoader(name);
             } else {
                 inputStream = bundleClassLoader.getResourceAsStream(name);
@@ -188,8 +188,8 @@ public class OpenLBundleClassLoader extends URLClassLoader {
     private Enumeration<URL> findResourcesInBundleClassLoader(String name) throws IOException {
         for (ClassLoader bundleClassLoader : bundleClassLoaders) {
             Enumeration<URL> resources;
-            if (bundleClassLoader instanceof OpenLBundleClassLoader && bundleClassLoader.getParent() == this) {
-                OpenLBundleClassLoader sbcl = (OpenLBundleClassLoader) bundleClassLoader;
+            if (bundleClassLoader instanceof OpenLClassLoader && bundleClassLoader.getParent() == this) {
+                OpenLClassLoader sbcl = (OpenLClassLoader) bundleClassLoader;
                 resources = sbcl.findResourcesInBundleClassLoader(name);
             } else {
                 resources = bundleClassLoader.getResources(name);

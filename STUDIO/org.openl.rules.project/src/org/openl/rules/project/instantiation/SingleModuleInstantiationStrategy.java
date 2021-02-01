@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -52,7 +52,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     @Override
     protected ClassLoader initClassLoader() {
         ProjectDescriptor project = getModule().getProject();
-        return new OpenLBundleClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
+        return new OpenLClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
     }
 
     @Override

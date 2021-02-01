@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
@@ -89,11 +89,11 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                                                               RuleServiceInstantiationException {
         ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) service.getOpenClass())
             .getClassGenerationClassLoader();
-        OpenLBundleClassLoader openLBundleClassLoader = new OpenLBundleClassLoader(null);
-        openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
-        openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
-        service.setClassLoader(openLBundleClassLoader);
-        return openLBundleClassLoader;
+        OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
+        openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
+        openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
+        service.setClassLoader(openLClassLoader);
+        return openLClassLoader;
     }
 
     private void compileOpenClass(OpenLService service,

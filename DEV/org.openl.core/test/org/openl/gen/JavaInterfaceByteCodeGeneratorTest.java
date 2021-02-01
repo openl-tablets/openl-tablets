@@ -18,7 +18,7 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.junit.Test;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
 import org.openl.util.ClassUtils;
 
@@ -220,7 +220,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
     private static Class<?> defineClass(String name, byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            ClassLoader newClassLoader = new OpenLBundleClassLoader(oldClassLoader);
+            ClassLoader newClassLoader = new OpenLClassLoader(oldClassLoader);
             Thread.currentThread().setContextClassLoader(newClassLoader);
             return ClassUtils.defineClass(name, bytes, newClassLoader);
         } finally {

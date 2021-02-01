@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Test;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.FieldDescription;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.datatype.gen.JavaBeanClassBuilder;
@@ -139,8 +139,8 @@ public class SimpleBeanByteCodeGeneratorTest {
         try {
             instance1 = clazz.newInstance();
             instance2 = clazz.newInstance();
-            equalsMethod = clazz.getMethod("equals", new Class[] { Object.class });
-            setFirstField = clazz.getMethod("setFirstField", new Class[] { String.class });
+            equalsMethod = clazz.getMethod("equals", Object.class);
+            setFirstField = clazz.getMethod("setFirstField", String.class);
             isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
         } catch (Exception e) {
             fail(e.getMessage());
@@ -150,7 +150,7 @@ public class SimpleBeanByteCodeGeneratorTest {
         // set field value for one of the instances
         try {
             assertNotNull(setFirstField);
-            setFirstField.invoke(instance1, new Object[] { "TestValue" });
+            setFirstField.invoke(instance1, "TestValue");
             isEqual = (Boolean) equalsMethod.invoke(instance1, new Object[] { instance2 });
         } catch (Exception e) {
             fail(e.getMessage());
@@ -159,15 +159,15 @@ public class SimpleBeanByteCodeGeneratorTest {
     }
 
     private Class<?> getBeanClass(String className, Map<String, FieldDescription> fields) {
-        ClassLoader simpleBundleClassLoader = new OpenLBundleClassLoader(
+        ClassLoader simpleClassLoader = new OpenLClassLoader(
             Thread.currentThread().getContextClassLoader());
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(simpleBundleClassLoader);
+            Thread.currentThread().setContextClassLoader(simpleClassLoader);
             JavaBeanClassBuilder beanBuilder = new JavaBeanClassBuilder(className);
             beanBuilder.addFields(fields);
             byte[] byteCode = beanBuilder.byteCode();
-            return ClassUtils.defineClass(className, byteCode, simpleBundleClassLoader);
+            return ClassUtils.defineClass(className, byteCode, simpleClassLoader);
         } catch (Exception e) {
             fail();
             return null;
