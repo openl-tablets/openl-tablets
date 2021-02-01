@@ -2,4 +2,8 @@
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
     <serviceName>simple3</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
 </rules-deploy>

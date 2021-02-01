@@ -25,7 +25,6 @@
     </util:map>
 
     <util:list id="defaultRuleServicePublishers">
-        <value>WEBSERVICE</value>
         <value>RESTFUL</value>
     </util:list>
 </beans>

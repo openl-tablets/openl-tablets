@@ -2,6 +2,10 @@
     <isProvideRuntimeContext>true</isProvideRuntimeContext>
     <isProvideVariations>true</isProvideVariations>
     <serviceName>simple1</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+        <publisher>RESTFUL</publisher>
+    </publishers>
     <configuration>
         <entry>
             <string>rootClassNamesBinding</string>
