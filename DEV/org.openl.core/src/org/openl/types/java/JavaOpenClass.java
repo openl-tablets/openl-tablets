@@ -13,10 +13,20 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
-import org.openl.gen.JavaInterfaceImplBuilder;
+import org.openl.gen.InterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -504,7 +514,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (generatedImplClass == null) {
                     synchronized (this) {
                         if (generatedImplClass == null) {
-                            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(getInstanceClass());
+                            InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
                             generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
                                 builder.byteCode(),
                                 Thread.currentThread().getContextClassLoader());

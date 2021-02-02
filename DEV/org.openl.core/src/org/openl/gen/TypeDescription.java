@@ -11,6 +11,7 @@ import java.util.Optional;
 public class TypeDescription {
 
     private final String typeName;
+    private final String canonicalName;
     private final String typeDescriptor;
     private final AnnotationDescription[] annotations;
 
@@ -21,7 +22,11 @@ public class TypeDescription {
      * @throws NullPointerException if type name is null
      */
     public TypeDescription(String typeName) {
-        this(typeName, AnnotationDescription.EMPTY_ANNOTATIONS);
+        this(typeName, null, AnnotationDescription.EMPTY_ANNOTATIONS);
+    }
+
+    public TypeDescription(String typeName, String canonicalName) {
+        this(typeName, canonicalName, AnnotationDescription.EMPTY_ANNOTATIONS);
     }
 
     /**
@@ -31,8 +36,9 @@ public class TypeDescription {
      * @param annotations type annotations
      * @throws NullPointerException if type name is null
      */
-    TypeDescription(String typeName, AnnotationDescription[] annotations) {
+    TypeDescription(String typeName, String canonicalName, AnnotationDescription[] annotations) {
         this.typeName = Objects.requireNonNull(typeName, "Type name is null.");
+        this.canonicalName = canonicalName;
         switch (typeName) {
             case "byte":
                 this.typeDescriptor = "B";
@@ -84,7 +90,7 @@ public class TypeDescription {
     /**
      * Get type descriptor
      *
-     * @return  type descriptor
+     * @return type descriptor
      */
     public String getTypeDescriptor() {
         return typeDescriptor;
@@ -92,6 +98,7 @@ public class TypeDescription {
 
     /**
      * Check if type is an array
+     * 
      * @return {@code true} if type is an array, otherwise {@code false}
      */
     public boolean isArray() {
@@ -105,6 +112,10 @@ public class TypeDescription {
      */
     public AnnotationDescription[] getAnnotations() {
         return annotations;
+    }
+
+    public String getCanonicalName() {
+        return canonicalName;
     }
 
     @Override

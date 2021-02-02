@@ -49,7 +49,7 @@ public class OpenAPIHelper {
         boolean fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {
-            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateClass().getJavaNameWithPackage());
+            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateGroovyFile().getNameWithPackage());
         } else {
             if (StringUtils.isNotBlank(rd.getAnnotationTemplateClassName())) {
                 rd.setAnnotationTemplateClassName(null);

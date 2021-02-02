@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import org.openl.gen.groovy.GroovyInterfaceScriptGenerator;
 import org.openl.util.StringUtils;
 
 /**
@@ -11,21 +12,26 @@ import org.openl.util.StringUtils;
  *
  * @author Vladyslav Pikus
  */
-public class JavaInterfaceByteCodeBuilder {
+public class InterfaceByteCodeBuilder {
 
     private final String nameWithPackage;
     private final List<MethodDescription> methods = new ArrayList<>();
 
-    private JavaInterfaceByteCodeBuilder(String nameWithPackage) {
+    private InterfaceByteCodeBuilder(String nameWithPackage) {
         this.nameWithPackage = nameWithPackage;
     }
 
     /**
      * Build {@link JavaInterfaceByteCodeGenerator} object
+     * 
      * @return instance of {@link JavaInterfaceByteCodeGenerator}
      */
-    public JavaInterfaceByteCodeGenerator build() {
+    public JavaInterfaceByteCodeGenerator buildJava() {
         return new JavaInterfaceByteCodeGenerator(nameWithPackage, methods);
+    }
+
+    public GroovyInterfaceScriptGenerator buildGroovy() {
+        return new GroovyInterfaceScriptGenerator(nameWithPackage, methods);
     }
 
     /**
@@ -34,7 +40,7 @@ public class JavaInterfaceByteCodeBuilder {
      * @param method method description
      * @return {@code this}
      */
-    public JavaInterfaceByteCodeBuilder addAbstractMethod(MethodDescription method) {
+    public InterfaceByteCodeBuilder addAbstractMethod(MethodDescription method) {
         methods.add(Objects.requireNonNull(method, "Method description is null"));
         return this;
     }
@@ -58,14 +64,14 @@ public class JavaInterfaceByteCodeBuilder {
      * @param interfaceName java interface name without package
      * @return Java Interface Builder
      */
-    public static JavaInterfaceByteCodeBuilder createWithDefaultPackage(String interfaceName) {
+    public static InterfaceByteCodeBuilder createWithDefaultPackage(String interfaceName) {
         interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
-        return new JavaInterfaceByteCodeBuilder(JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + interfaceName);
+        return new InterfaceByteCodeBuilder(JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + interfaceName);
     }
 
-    public static JavaInterfaceByteCodeBuilder create(String packagePath, String interfaceName) {
+    public static InterfaceByteCodeBuilder create(String packagePath, String interfaceName) {
         interfaceName = requireNonBlank(interfaceName, "Interface name is null or blank.");
-        return new JavaInterfaceByteCodeBuilder(packagePath + "." + interfaceName);
+        return new InterfaceByteCodeBuilder(packagePath + "." + interfaceName);
     }
 
     static String requireNonBlank(String str, String message) {

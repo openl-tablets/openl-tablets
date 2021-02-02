@@ -13,13 +13,15 @@ public class MethodDescriptionBuilder {
 
     private final String methodName;
     private final String returnType;
+    private final String canonicalName;
     private final List<TypeDescription> params = new ArrayList<>();
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
-    private MethodDescriptionBuilder(String methodName, String returnType) {
-        JavaInterfaceByteCodeBuilder.requireNonBlank(methodName, "Method name is null or blank.");
+    private MethodDescriptionBuilder(String methodName, String returnType, String canonicalName) {
+        InterfaceByteCodeBuilder.requireNonBlank(methodName, "Method name is null or blank.");
         this.methodName = methodName;
         this.returnType = returnType;
+        this.canonicalName = canonicalName;
     }
 
     /**
@@ -46,12 +48,15 @@ public class MethodDescriptionBuilder {
 
     /**
      * Build {@link MethodDescription} object
+     * 
      * @return instance of {@link MethodDescription}
      */
     public MethodDescription build() {
-        return new MethodDescription(methodName, returnType,
-                params.toArray(MethodDescription.NO_ARGS),
-                annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+        return new MethodDescription(methodName,
+            returnType,
+            canonicalName,
+            params.toArray(MethodDescription.NO_ARGS),
+            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
 
     /**
@@ -62,7 +67,7 @@ public class MethodDescriptionBuilder {
      * @return method parameter builder
      */
     public static MethodDescriptionBuilder create(String methodName, Class<?> returnType) {
-        return new MethodDescriptionBuilder(methodName, returnType.getName());
+        return new MethodDescriptionBuilder(methodName, returnType.getName(), returnType.getCanonicalName());
     }
 
     /**
@@ -72,7 +77,7 @@ public class MethodDescriptionBuilder {
      * @param returnType method return type
      * @return method parameter builder
      */
-    public static MethodDescriptionBuilder create(String methodName, String returnType) {
-        return new MethodDescriptionBuilder(methodName, returnType);
+    public static MethodDescriptionBuilder create(String methodName, String returnType, String simpleName) {
+        return new MethodDescriptionBuilder(methodName, returnType, simpleName);
     }
 }

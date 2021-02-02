@@ -28,7 +28,7 @@ import org.openl.rules.common.impl.ArtefactPathImpl;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
-import org.openl.rules.openapi.impl.JavaClassFile;
+import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -346,8 +346,8 @@ public class ProjectBean {
         }
 
         final String oldName = Optional.ofNullable(WebStudioUtils.getRequestParameter("moduleNameOld"))
-                .filter(StringUtils::isNotBlank)
-                .orElseGet(() -> WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld"));
+            .filter(StringUtils::isNotBlank)
+            .orElseGet(() -> WebStudioUtils.getRequestParameter("copyModuleForm:moduleNameOld"));
         final String index = WebStudioUtils.getRequestParameter("moduleIndex");
 
         final String relativePath = path.replace("\\", "/");
@@ -356,10 +356,12 @@ public class ProjectBean {
         final Predicate<Module> isEditedModule = m -> !isNewModule && Objects.equals(oldName, m.getName());
 
         final PathMatcher pathMatcher = projectDescriptorManager.getPathMatcher();
-        final Predicate<Module> wildcardPathMatch = m -> pathMatcher.match(m.getRulesRootPath().getPath(), relativePath);
+        final Predicate<Module> wildcardPathMatch = m -> pathMatcher.match(m.getRulesRootPath().getPath(),
+            relativePath);
 
         final Predicate<Module> strictPathMatch = m -> Objects.equals(m.getRulesRootPath().getPath(), relativePath);
-        final Predicate<Module> checkDuplicatePath = strictPathMatch.or(wildcardPathMatch.and(this::isModuleWithWildcard));
+        final Predicate<Module> checkDuplicatePath = strictPathMatch
+            .or(wildcardPathMatch.and(this::isModuleWithWildcard));
         if (projectDescriptor.getModules().stream().filter(isEditedModule.negate()).anyMatch(checkDuplicatePath)) {
             WebStudioUtils.throwValidationError("Path is already covered with existing module.");
         }
@@ -850,8 +852,9 @@ public class ProjectBean {
             openAPI.setMode(OpenAPI.Mode.GENERATION);
 
             List<PathEntry> currentClassPath = currentProjectDescriptor.getClasspath();
-            boolean openAPIClassesInClassPath = CollectionUtils.isNotEmpty(currentClassPath) && currentClassPath.stream()
-                    .anyMatch(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
+            boolean openAPIClassesInClassPath = CollectionUtils.isNotEmpty(currentClassPath) && currentClassPath
+                .stream()
+                .anyMatch(pathEntry -> pathEntry.getPath().equals(OpenAPIHelper.DEF_JAVA_CLASS_PATH));
 
             if (existingOpenAPI == null || existingOpenAPI.getPath() == null || existingOpenAPI.getMode() == null) {
                 openAPIInfoChanged = true;
@@ -867,8 +870,8 @@ public class ProjectBean {
 
             if (!isNewAlgorithmModule) {
                 deleteExistingExcelFile(existingAlgorithmModule,
-                        currentProject,
-                        "It's impossible to delete existing generated Rules file.");
+                    currentProject,
+                    "It's impossible to delete existing generated Rules file.");
                 openAPI.setAlgorithmModuleName(algorithmModuleNameParam);
             } else {
                 Module rulesModule = new Module();
@@ -881,8 +884,8 @@ public class ProjectBean {
 
             if (!isNewDataModule) {
                 deleteExistingExcelFile(existingModelModule,
-                        currentProject,
-                        "It's impossible to delete existing generated Data Types file.");
+                    currentProject,
+                    "It's impossible to delete existing generated Data Types file.");
                 openAPI.setModelModuleName(modelModuleNameParam);
             } else {
                 Module modelsModule = new Module();
@@ -898,16 +901,14 @@ public class ProjectBean {
             OpenAPIModelConverter converter = new OpenAPIScaffoldingConverter();
 
             ProjectModel projectModel = getProjectModel(FileNameFormatter.normalizePath(workspacePath),
-                    internalOpenAPIPath,
-                    converter);
+                internalOpenAPIPath,
+                converter);
 
-            modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam))
-                    .findFirst()
-                    .ifPresent(m -> {
-                        MethodFilter filter = new MethodFilter();
-                        filter.setIncludes(projectModel.getIncludeMethodFilter());
-                        m.setMethodFilter(filter);
-                    });
+            modules.stream().filter(m -> m.getName().equals(algorithmModuleNameParam)).findFirst().ifPresent(m -> {
+                MethodFilter filter = new MethodFilter();
+                filter.setIncludes(projectModel.getIncludeMethodFilter());
+                m.setMethodFilter(filter);
+            });
 
             addDataTypesFile(modelModulePathParam, currentProject, projectModel);
 
@@ -916,7 +917,7 @@ public class ProjectBean {
             OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
             boolean annotationTemplateClassesAreGenerated = generated.hasAnnotationTemplateClass();
             deletePreviouslyGeneratedOpenAPIClasses(currentProject);
-            addGeneratedJavaClasses(currentProject, generated, annotationTemplateClassesAreGenerated);
+            addGeneratedGroovyScripts(currentProject, generated, annotationTemplateClassesAreGenerated);
 
             if (annotationTemplateClassesAreGenerated) {
                 if (!openAPIClassesInClassPath) {
@@ -928,39 +929,42 @@ public class ProjectBean {
                 }
             }
 
-            editOrCreateRulesDeploy(currentProject, projectModel, generated, currentProject.hasArtefact(RULES_DEPLOY_XML));
+            editOrCreateRulesDeploy(currentProject,
+                projectModel,
+                generated,
+                currentProject.hasArtefact(RULES_DEPLOY_XML));
 
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
 
             if (openAPIInfoChanged || classPathChanged) {
                 editDescriptorIfNeeded(currentProjectDescriptor,
-                        openAPIInfoChanged,
-                        classPathChanged,
-                        openAPI,
-                        annotationTemplateClassesAreGenerated);
+                    openAPIInfoChanged,
+                    classPathChanged,
+                    openAPI,
+                    annotationTemplateClassesAreGenerated);
             }
         } finally {
             studio.releaseProject(currentProjectDescriptor.getName());
         }
     }
 
-    private void addGeneratedJavaClasses(RulesProject currentProject,
+    private void addGeneratedGroovyScripts(RulesProject currentProject,
             OpenAPIGeneratedClasses generated,
             boolean annotationTemplateClassesAreGenerated) {
         if (annotationTemplateClassesAreGenerated) {
             try {
-                String javaInterfacePath = openAPIHelper
-                    .makePathToTheGeneratedFile(generated.getAnnotationTemplateClass().getPath());
-                currentProject.addResource(javaInterfacePath, generated.getAnnotationTemplateClass().toInputStream());
+                GroovyScriptFile groovyFile = generated.getAnnotationTemplateGroovyFile();
+                String groovyPath = openAPIHelper.makePathToTheGeneratedFile(groovyFile.getPath());
+                currentProject.addResource(groovyPath, IOUtils.toInputStream(groovyFile.getScriptText()));
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
                 throw new Message("Failed to add generated annotation template class.");
             }
         }
         try {
-            for (JavaClassFile javaClassFile : generated.getCommonClasses()) {
-                String javaInterfacePath = openAPIHelper.makePathToTheGeneratedFile(javaClassFile.getPath());
-                currentProject.addResource(javaInterfacePath, javaClassFile.toInputStream());
+            for (GroovyScriptFile groovyCommonFile : generated.getGroovyCommonClasses()) {
+                String javaInterfacePath = openAPIHelper.makePathToTheGeneratedFile(groovyCommonFile.getPath());
+                currentProject.addResource(javaInterfacePath, IOUtils.toInputStream(groovyCommonFile.getScriptText()));
             }
         } catch (ProjectException e) {
             log.error(e.getMessage(), e);
@@ -970,7 +974,9 @@ public class ProjectBean {
 
     private void deletePreviouslyGeneratedOpenAPIClasses(RulesProject currentProject) {
         try {
-            currentProject.deleteArtefactsInFolder(OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/" + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".","/"));
+            currentProject.deleteArtefactsInFolder(
+                OpenAPIHelper.DEF_JAVA_CLASS_PATH + "/" + OpenAPIJavaClassGenerator.DEFAULT_OPEN_API_PATH.replace(".",
+                    "/"));
         } catch (ProjectException e) {
             log.error(e.getMessage(), e);
             throw new Message(

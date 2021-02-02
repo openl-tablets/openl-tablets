@@ -3,7 +3,7 @@ package org.openl.gen.writers;
 import org.objectweb.asm.ClassWriter;
 
 /**
- * Abstract chained byte code writter
+ * Abstract chained byte code writer
  *
  * @author Vladyslav Pikus
  */
@@ -12,15 +12,16 @@ public abstract class ChainedBeanByteCodeWriter implements BeanByteCodeWriter {
     private final BeanByteCodeWriter next;
 
     /**
-     * Initialize chained byte code writter with given parameter
-     * @param next link to the next writter
+     * Initialize chained byte code writer with given parameter
+     * 
+     * @param next link to the next writer
      */
     public ChainedBeanByteCodeWriter(ChainedBeanByteCodeWriter next) {
-        this.next = next == null ? EmptyWritter.getInstance() : next;
+        this.next = next == null ? EmptyWriter.getInstance() : next;
     }
 
     /**
-     * Write bytecode and call next writter
+     * Write bytecode and call next writer
      *
      * @param cw target class writer
      */
@@ -33,30 +34,30 @@ public abstract class ChainedBeanByteCodeWriter implements BeanByteCodeWriter {
     protected abstract void writeInternal(ClassWriter cw);
 
     /**
-     * Singleton empty writter stub.
+     * Singleton empty writer stub.
      *
      * @author Vladyslav Pikus
      */
-    private static class EmptyWritter implements BeanByteCodeWriter {
+    private static class EmptyWriter implements BeanByteCodeWriter {
 
         private static class Holder {
-            private static final EmptyWritter INSTANCE = new EmptyWritter();
+            private static final EmptyWriter INSTANCE = new EmptyWriter();
         }
 
-        private EmptyWritter() {
+        private EmptyWriter() {
         }
 
         /**
          * Just do nothing
          *
-         * @param cw  target class writer
+         * @param cw target class writer
          */
         @Override
         public void write(ClassWriter cw) {
-            //do nothing
+            // do nothing
         }
 
-        static EmptyWritter getInstance() {
+        static EmptyWriter getInstance() {
             return Holder.INSTANCE;
         }
     }

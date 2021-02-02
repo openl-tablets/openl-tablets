@@ -12,19 +12,24 @@ import java.util.Objects;
 public class MethodParameterBuilder {
 
     private final String parameterType;
+    private final String canonicalName;
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
-    private MethodParameterBuilder(String parameterType) {
-        JavaInterfaceByteCodeBuilder.requireNonBlank(parameterType, "Method name is null or blank.");
+    private MethodParameterBuilder(String parameterType, String canonicalName) {
+        InterfaceByteCodeBuilder.requireNonBlank(parameterType, "Method name is null or blank.");
         this.parameterType = parameterType;
+        this.canonicalName = canonicalName;
     }
 
     /**
      * Build {@link TypeDescription} object
+     * 
      * @return instance of {@link TypeDescription}
      */
     public TypeDescription build() {
-        return new TypeDescription(parameterType, annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+        return new TypeDescription(parameterType,
+            canonicalName,
+            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
 
     /**
@@ -40,19 +45,22 @@ public class MethodParameterBuilder {
 
     /**
      * Create builder from {@link Class} type
+     * 
      * @param parameterType method parameter class
      * @return method parameter builder
      */
     public static MethodParameterBuilder create(Class<?> parameterType) {
-        return new MethodParameterBuilder(parameterType.getName());
+        return new MethodParameterBuilder(parameterType.getName(), parameterType.getSimpleName());
     }
 
     /**
      * Create builder from custom type
+     * 
      * @param parameterType method parameter class
+     * @param canonicalName method importable parameter name
      * @return method parameter builder
      */
-    public static MethodParameterBuilder create(String parameterType) {
-        return new MethodParameterBuilder(parameterType);
+    public static MethodParameterBuilder create(String parameterType, String canonicalName) {
+        return new MethodParameterBuilder(parameterType, canonicalName);
     }
 }
