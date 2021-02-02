@@ -1042,7 +1042,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.40.0</version>
+                <version>3.38.0</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
