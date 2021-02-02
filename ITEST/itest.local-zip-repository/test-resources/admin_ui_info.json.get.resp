@@ -3,9 +3,9 @@ Content-Type: application/json
 
 {
      "buildDate": "*",
-     "buildNumber": "UNKNOWN",
+     "buildNumber":  "*",
      "deployerEnabled": false,
-     "email": "openltablets@eisgroup.com",
+     "email": "*",
      "noWadlServices": [],
      "services": [
          {
