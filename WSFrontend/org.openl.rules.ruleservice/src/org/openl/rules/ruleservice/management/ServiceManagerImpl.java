@@ -101,8 +101,8 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
         this.supportedPublishers.putAll(supportedPublishers);
     }
 
-    public void setDefaultRuleServicePublishers(Collection<String> defaultRuleServicePublishers) {
-        this.defaultRuleServicePublishers = defaultRuleServicePublishers;
+    public void setDefaultRuleServicePublishers(String[] defaultRuleServicePublishers) {
+        this.defaultRuleServicePublishers = Arrays.asList(defaultRuleServicePublishers);
     }
 
     /**

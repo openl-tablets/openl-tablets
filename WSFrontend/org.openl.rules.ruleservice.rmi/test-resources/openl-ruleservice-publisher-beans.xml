@@ -10,5 +10,4 @@
     <util:map id="ruleServicePublishers">
         <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
     </util:map>
-    <util:list id="defaultRuleServicePublishers"/>
 </beans>

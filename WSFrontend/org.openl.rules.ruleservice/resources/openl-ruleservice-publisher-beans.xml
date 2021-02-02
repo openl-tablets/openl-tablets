@@ -20,6 +20,4 @@
 	<util:map id="ruleServicePublishers">
 		<entry key="JAVA" value-ref="javaClassRuleServicePublisher"/>
 	</util:map>
-
-	<util:list id="defaultRuleServicePublishers"/>
 </beans>
