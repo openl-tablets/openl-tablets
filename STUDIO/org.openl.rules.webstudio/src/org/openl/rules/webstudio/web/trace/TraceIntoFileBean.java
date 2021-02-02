@@ -3,6 +3,8 @@ package org.openl.rules.webstudio.web.trace;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.servlet.http.HttpServletResponse;
@@ -54,7 +56,7 @@ public class TraceIntoFileBean {
 
         try {
             writer = response.getWriter();
-            print(tracer, 0, writer);
+            print(tracer, 0, writer, new HashSet<>());
             writer.close();
         } catch (IOException e) {
             log.error("Error when printing trace", e);
@@ -65,10 +67,12 @@ public class TraceIntoFileBean {
         FacesContext.getCurrentInstance().responseComplete();
     }
 
-    private void print(ITracerObject tracer, int level, Writer writer) throws IOException {
-
+    private void print(ITracerObject tracer, int level, Writer writer, Set<ITracerObject> cache) throws IOException {
         Iterable<ITracerObject> tracerObjects = tracer.getChildren();
         for (ITracerObject aTrace : tracerObjects) {
+            if (!cache.add(aTrace)) {
+                continue;
+            }
             writer.write(indents, 0, level % indents.length);
             writer.write("TRACE: ");
             writer.write(TraceFormatter.getDisplayName(aTrace));
@@ -79,7 +83,7 @@ public class TraceIntoFileBean {
             writer.write("&openl=");
             writer.write('\n');
 
-            print(aTrace, level + 1, writer);
+            print(aTrace, level + 1, writer, cache);
         }
     }
 }
