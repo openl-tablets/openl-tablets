@@ -596,7 +596,7 @@ public class TableEditorController extends BaseTableEditorController {
         int height = gridTable.getHeight();
         for (int i = 0; i < height; i++) {
             IGridTable row = gridTable.getRow(i);
-            if (isEmptyRow(row)) {
+            if (row != null && isEmptyRow(row)) {
                 return true;
             }
         }
