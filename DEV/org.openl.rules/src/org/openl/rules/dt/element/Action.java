@@ -34,7 +34,7 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam;
     private IOpenClass returnType;
     private final ActionType actionType;
-    private final DecisionTable decisionTableInvocableMethod;
+    private final boolean skipEmptyResult;
 
     public Action(String name,
             int row,
@@ -44,7 +44,9 @@ public class Action extends FunctionalRow implements IAction {
             DecisionTable decisionTableInvocableMethod) {
         super(name, row, decisionTable, scale);
         this.actionType = actionType;
-        this.decisionTableInvocableMethod = decisionTableInvocableMethod;
+        this.skipEmptyResult = decisionTableInvocableMethod
+            .getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
+                .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing());
     }
 
     @Override
@@ -80,9 +82,7 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         if (isSingleReturnParam) {
-            if (decisionTableInvocableMethod.getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
-                .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing()) && isEmpty(
-                    ruleN)) {
+            if (skipEmptyResult && isEmpty(ruleN)) {
                 return null;
             }
 
@@ -112,8 +112,7 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
-        if (decisionTableInvocableMethod.getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
-            .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing()) && isEmpty(ruleN)) {
+        if (skipEmptyResult && isEmpty(ruleN)) {
             return null;
         }
 

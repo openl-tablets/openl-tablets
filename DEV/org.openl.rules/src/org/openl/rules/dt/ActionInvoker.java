@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.*;
 
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.types.IOpenClass;
 import org.openl.types.Invokable;
 import org.openl.util.ClassUtils;
@@ -17,12 +16,12 @@ public class ActionInvoker implements Invokable {
 
     private final int[] rules;
     private final IBaseAction[] actions;
-    private final DecisionTable decisionTable;
+    private final boolean returnEmptyResult;
 
-    ActionInvoker(int[] rules, IBaseAction[] actions, DecisionTable decisionTable) {
+    ActionInvoker(int[] rules, IBaseAction[] actions, boolean returnEmptyResult) {
         this.rules = rules;
         this.actions = actions;
-        this.decisionTable = decisionTable;
+        this.returnEmptyResult = returnEmptyResult;
     }
 
     private static Object addReturnValues(Collection<Object> returnValue, Object returnValues, boolean[] f) {
@@ -116,8 +115,7 @@ public class ActionInvoker implements Invokable {
     }
 
     private boolean isValidResult(Object actionResult) {
-        return actionResult != null || decisionTable.getMethodProperties() != null && DTEmptyResultProcessingEnum.RETURN
-            .equals(decisionTable.getMethodProperties().getEmptyResultProcessing());
+        return actionResult != null || returnEmptyResult;
     }
 
     @Override
