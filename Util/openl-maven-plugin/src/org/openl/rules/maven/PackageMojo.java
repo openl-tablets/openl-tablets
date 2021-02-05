@@ -54,7 +54,7 @@ import org.yaml.snakeyaml.Yaml;
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
-    private static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    static final String DEPLOYMENT_CLASSIFIER = "deployment";
     private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)

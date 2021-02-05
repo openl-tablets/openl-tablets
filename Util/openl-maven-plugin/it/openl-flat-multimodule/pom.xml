@@ -25,6 +25,13 @@
                         <dependenciesThreshold>0</dependenciesThreshold>
                         <sourceDirectory>./</sourceDirectory>
                     </configuration>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>verify</goal>
+                            </goals>
+                        </execution>
+                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
