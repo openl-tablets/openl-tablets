@@ -640,7 +640,7 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
             }
         }
 
-        log.debug("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
+        log.warn("Mapping for external folder '{}' is not found. Use it as is.", externalPath);
         return externalPath;
     }
 
