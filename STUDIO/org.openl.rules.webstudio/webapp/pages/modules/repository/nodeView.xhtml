@@ -151,7 +151,7 @@
                                          onclick="if (!canOverwriteRevision()) return false; openNewFileDialog();return false;"
                                          title="#{uploadFileMessage}"/>
                         <h:commandButton id="exportVersionId" rendered="#{repositoryTreeState.canExport}" value="Export"
-                                         onclick="openExportVersionDialog();return false;"
+                                         onclick="openExportProjectDialog('#{artefact.repository.id}', '#{artefact.name}');return false;"
                                          title="Download the project as a zip archive"/>
                         <a4j:jsFunction name="openCompareWindow" action="#{repositoryDiffController.reset()}"
                                         oncomplete=" window.open('#{contextPath}/faces/pages/modules/repository/compare.xhtml?projectName=#{artefact.name}','compare','width=1240,height=700,screenX=50,screenY=100,resizable=no,scrollbars=yes,status=yes');"/>

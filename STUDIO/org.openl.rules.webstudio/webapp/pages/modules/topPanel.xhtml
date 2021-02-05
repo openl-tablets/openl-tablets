@@ -146,7 +146,7 @@
                                id="updateProjectButton"
                                title="Update project" value="Update"
                                rendered="#{!empty rProject and studio.model.editable and empty module}" />
-                <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog(); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openExportProjectDialog('#{rProject.repository.id}', '#{rProject.name}'); return false;"
                                id="exportProjectButton"
                                title="Download the project as a zip archive" value="Export"
                                rendered="#{!empty rProject and empty module}" />
