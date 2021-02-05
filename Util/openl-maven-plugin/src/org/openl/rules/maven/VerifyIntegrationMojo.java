@@ -33,10 +33,17 @@ public class VerifyIntegrationMojo extends BaseOpenLMojo {
             .getFile()
             .getPath();
 
+        final StandardEnvironment environment = new StandardEnvironment();
+        Map<String, Object> props = new HashMap<>();
+        props.put("production-repository.factory", "repo-zip");
+        props.put("production-repository.archives", pathDeployment);
+        environment.getPropertySources().addLast(new MapPropertySource("mavenIntegrationProperties", props));
+
         try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
-            context.setEnvironment(new ConfiguredEnvironment(pathDeployment));
+            context.setEnvironment(environment);
             context.register(Config.class);
             context.refresh();
+
             final RulesFrontend frontend = context.getBean(RulesFrontend.class);
             Collection<String> deployedServices = frontend.getServiceNames();
             if (deployedServices.size() == 0) {
@@ -56,16 +63,5 @@ public class VerifyIntegrationMojo extends BaseOpenLMojo {
 
     @ImportResource(locations = { "classpath:openl-ruleservice-beans.xml" })
     public static class Config {
-    }
-
-    private static class ConfiguredEnvironment extends StandardEnvironment {
-
-        public ConfiguredEnvironment(String pathDeployment) {
-            Map<String, Object> props = new HashMap<>();
-            props.put("production-repository.factory", "repo-zip");
-            props.put("production-repository.archives", pathDeployment);
-            getPropertySources().addLast(new MapPropertySource("mavenIntegrationProperties", props));
-        }
-
     }
 }
