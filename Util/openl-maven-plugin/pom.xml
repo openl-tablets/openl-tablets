@@ -28,6 +28,7 @@
         <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
         <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
         <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
+        <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
     </properties>
     <dependencies>
         <dependency>
