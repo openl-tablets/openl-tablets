@@ -19,6 +19,7 @@ import org.springframework.core.env.StandardEnvironment;
  * Verifies if resulted archive is compatible with Rules Engine
  *
  * @author Vladyslav Pikus
+ * @since 5.24.0
  */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY)
 public class VerifyMojo extends BaseOpenLMojo {
