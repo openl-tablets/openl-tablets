@@ -1,6 +1,7 @@
 package org.openl.gen.groovy;
 
 import java.lang.reflect.Array;
+import java.util.Set;
 
 import org.objectweb.asm.Type;
 import org.openl.gen.AnnotationDescription;
@@ -11,7 +12,9 @@ public class AnnotationTransformationHelper {
     private AnnotationTransformationHelper() {
     }
 
-    public static String transformAnnotation(AnnotationDescription annotation, Character lineOpening) {
+    public static String transformAnnotation(AnnotationDescription annotation,
+            Character lineOpening,
+            Set<String> imports) {
         StringBuilder annotationText;
         if (lineOpening == null) {
             annotationText = new StringBuilder();
@@ -19,7 +22,13 @@ public class AnnotationTransformationHelper {
             annotationText = new StringBuilder(lineOpening);
         }
         TypeDescription annotationType = annotation.getAnnotationType();
-        annotationText.append("@").append(annotationType.getTypeName());
+        annotationText.append("@");
+        String typeName = annotationType.getTypeName();
+        if (imports.contains(typeName)) {
+            annotationText.append(TypeHelper.makeImported(typeName));
+        } else {
+            annotationText.append(typeName);
+        }
         AnnotationDescription.AnnotationProperty[] properties = annotation.getProperties();
         int propertiesCount = properties.length;
         boolean moreThanOneProperty = propertiesCount > 1;
@@ -29,8 +38,8 @@ public class AnnotationTransformationHelper {
                 annotationText.append("(");
             }
             if (moreThanOneProperty) {
-                annotationText.append(System.lineSeparator());
-                annotationText.append("\t");
+                annotationText.append(GroovyMethodWriter.LINE_SEPARATOR);
+                annotationText.append(GroovyMethodWriter.TAB).append(GroovyMethodWriter.TAB);
             }
             annotationText.append(property.getName()).append(" ").append("=").append(" ");
             final Object value = property.getValue();
@@ -60,7 +69,8 @@ public class AnnotationTransformationHelper {
                 annotationText.append(", ");
             } else {
                 if (moreThanOneProperty) {
-                    annotationText.append(System.lineSeparator());
+                    annotationText.append(GroovyMethodWriter.LINE_SEPARATOR);
+                    annotationText.append(GroovyMethodWriter.TAB);
                 }
                 annotationText.append(")");
             }

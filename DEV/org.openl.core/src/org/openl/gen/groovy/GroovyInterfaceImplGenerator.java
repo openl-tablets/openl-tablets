@@ -1,5 +1,6 @@
 package org.openl.gen.groovy;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.openl.gen.MethodDescription;
@@ -48,7 +49,7 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
     protected String generateExtraMethods() {
         StringBuilder methods = new StringBuilder();
         if (writerChain != null) {
-            writerChain.write(methods, false);
+            writerChain.write(methods, false, Collections.emptySet());
         }
 
         return methods.toString();

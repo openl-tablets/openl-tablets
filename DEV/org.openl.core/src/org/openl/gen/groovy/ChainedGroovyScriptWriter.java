@@ -1,5 +1,7 @@
 package org.openl.gen.groovy;
 
+import java.util.Set;
+
 public abstract class ChainedGroovyScriptWriter implements GroovyWriter {
 
     private final GroovyWriter next;
@@ -9,12 +11,12 @@ public abstract class ChainedGroovyScriptWriter implements GroovyWriter {
     }
 
     @Override
-    public void write(StringBuilder s, boolean isAbstract) {
-        writeInternal(s, isAbstract);
-        next.write(s, isAbstract);
+    public void write(StringBuilder s, boolean isAbstract, Set<String> imports) {
+        writeInternal(s, isAbstract, imports);
+        next.write(s, isAbstract, imports);
     }
 
-    protected abstract void writeInternal(StringBuilder s, boolean isAbstract);
+    protected abstract void writeInternal(StringBuilder s, boolean isAbstract, Set<String> imports);
 
     private static class EmptyWriter implements GroovyWriter {
 
@@ -26,7 +28,7 @@ public abstract class ChainedGroovyScriptWriter implements GroovyWriter {
         }
 
         @Override
-        public void write(StringBuilder sb, boolean isAbstract) {
+        public void write(StringBuilder sb, boolean isAbstract, Set<String> imports) {
             // do nothing
         }
 

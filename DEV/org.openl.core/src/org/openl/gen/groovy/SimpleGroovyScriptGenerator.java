@@ -1,5 +1,7 @@
 package org.openl.gen.groovy;
 
+import java.util.Collections;
+
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -62,14 +64,16 @@ public class SimpleGroovyScriptGenerator {
                     new AnnotationDescription.AnnotationProperty("namespace", namespace),
                     new AnnotationDescription.AnnotationProperty("name", simpleClassName) });
 
-        result.append(AnnotationTransformationHelper.transformAnnotation(xmlRootElemDescription, null));
+        result.append(
+            AnnotationTransformationHelper.transformAnnotation(xmlRootElemDescription, null, Collections.emptySet()));
         result.append(LINE_SEPARATOR);
 
         AnnotationDescription xmlAccessorType = new AnnotationDescription(XmlAccessorType.class,
             new AnnotationDescription.AnnotationProperty[] {
                     new AnnotationDescription.AnnotationProperty("value", XmlAccessType.FIELD) });
 
-        result.append(AnnotationTransformationHelper.transformAnnotation(xmlAccessorType, null));
+        result
+            .append(AnnotationTransformationHelper.transformAnnotation(xmlAccessorType, null, Collections.emptySet()));
         result.append(LINE_SEPARATOR);
 
         AnnotationDescription xmlType = new AnnotationDescription(XmlType.class,
@@ -77,7 +81,7 @@ public class SimpleGroovyScriptGenerator {
                     new AnnotationDescription.AnnotationProperty("namespace", namespace),
                     new AnnotationDescription.AnnotationProperty("name", simpleClassName) });
 
-        result.append(AnnotationTransformationHelper.transformAnnotation(xmlType, null));
+        result.append(AnnotationTransformationHelper.transformAnnotation(xmlType, null, Collections.emptySet()));
         result.append(LINE_SEPARATOR);
         return result.toString();
     }
