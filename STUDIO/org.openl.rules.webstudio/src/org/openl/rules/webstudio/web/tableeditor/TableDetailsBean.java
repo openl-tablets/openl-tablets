@@ -276,8 +276,9 @@ public class TableDetailsBean {
                     if (enumArray) {
                         Enum<?>[] oldValueEnumArray = (Enum<?>[]) oldValue;
                         Enum<?>[] newValueArray = (Enum<?>[]) newValue;
-                        if (!(oldValueEnumArray.length == newValueArray.length && Arrays.asList(oldValueEnumArray)
-                            .containsAll(Arrays.asList(newValueArray)))) {
+                        if (!(oldValueEnumArray != null && oldValueEnumArray.length == newValueArray.length && Arrays
+                                .asList(oldValueEnumArray)
+                                .containsAll(Arrays.asList(newValueArray)))) {
                             setProperty = true;
                         }
                     } else if (stringArray && !Arrays.equals((String[]) oldValue,
