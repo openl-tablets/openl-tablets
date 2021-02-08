@@ -206,6 +206,7 @@
                 <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
                 <!-- Multimodule has 4 projects -->
                 <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
+                <multimodule.mavenOpts>-Xms16m -Xmx64m</multimodule.mavenOpts>
             </properties>
         </profile>
     </profiles>
