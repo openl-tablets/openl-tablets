@@ -300,12 +300,6 @@ public class OpenAPITypeUtils {
 
         // parent name only makes sense when there is a single obvious parent
         if (refedWithoutDiscriminator.size() == 1) {
-            if (hasAmbiguousParents) {
-                LOGGER.warn(
-                    "Deprecated inheritance without use of 'discriminator.propertyName. Model name: {}. Title: {}",
-                    composedSchema.getName(),
-                    composedSchema.getTitle());
-            }
             return refedWithoutDiscriminator.get(0);
         }
 

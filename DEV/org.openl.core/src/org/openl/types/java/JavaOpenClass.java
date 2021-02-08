@@ -149,9 +149,9 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if (fields == null) {
+        if (fields == null || staticFields == null) {
             synchronized (this) {
-                if (fields == null) {
+                if (fields == null || staticFields == null) {
                     initializeFields();
                 }
             }
@@ -160,26 +160,29 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private void initializeFields() {
-        fields = new HashMap<>();
-        staticFields = new HashMap<>();
         Field[] ff = getInstanceClass().getDeclaredFields();
+        Map<String, IOpenField> openFields = new HashMap<>();
+        Map<String, IOpenField> staticOpenFields = new HashMap<>();
 
         if (isPublic(getInstanceClass())) {
             for (Field field : ff) {
                 if (isPublic(field)) {
-                    fields.put(field.getName(), new JavaOpenField(field));
+                    openFields.put(field.getName(), new JavaOpenField(field));
                     if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
-                        staticFields.put(field.getName(), new JavaOpenField(field));
+                        staticOpenFields.put(field.getName(), new JavaOpenField(field));
                     }
                 }
             }
         }
         if (instanceClass.isArray()) {
-            fields.put("length", new JavaArrayLengthField());
+            openFields.put("length", new JavaArrayLengthField());
         }
-        fields.put("class", new JavaClassClassField(instanceClass));
-        staticFields.put("class", new JavaClassClassField(instanceClass));
-        BeanOpenField.collectFields(fields, instanceClass);
+        openFields.put("class", new JavaClassClassField(instanceClass));
+        staticOpenFields.put("class", new JavaClassClassField(instanceClass));
+        BeanOpenField.collectFields(openFields, instanceClass);
+
+        this.staticFields = staticOpenFields;
+        this.fields = openFields;
     }
 
     @Override
