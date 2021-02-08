@@ -33,6 +33,7 @@ public class VerifyMojo extends BaseOpenLMojo {
 
     /**
      * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
+     * 
      * @deprecated for troubleshooting purposes
      */
     @Parameter(property = "skipITs")
@@ -73,6 +74,9 @@ public class VerifyMojo extends BaseOpenLMojo {
                     throw new MojoFailureException(
                         String.format("OpenL Project '%s' has no public methods!", deployedService));
                 }
+                if (!serviceManager.getServiceErrors(deployedService).isEmpty()) {
+                    throw new MojoFailureException(String.format("OpenL Project '%s' has errors!", deployedService));
+                }
             }
         }
         info(String
@@ -82,6 +86,11 @@ public class VerifyMojo extends BaseOpenLMojo {
     @Override
     boolean isDisabled() {
         return skipTests || skipITs;
+    }
+
+    @Override
+    String getHeader() {
+        return "OPENL VERIFY";
     }
 
     @ImportResource(locations = { "classpath:openl-ruleservice-beans.xml" })
