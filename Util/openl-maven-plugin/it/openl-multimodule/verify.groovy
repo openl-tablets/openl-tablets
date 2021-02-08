@@ -31,6 +31,9 @@ try {
         assert zf.entries().findAll { !it.directory }.size() == 10
     }
 
+    def lines = new File(folder, 'build.log').readLines('UTF-8')
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal.multimodule:openl-rules-with-dependencies\' artifact') }
+
     return true
 } catch (Throwable e) {
     e.printStackTrace()

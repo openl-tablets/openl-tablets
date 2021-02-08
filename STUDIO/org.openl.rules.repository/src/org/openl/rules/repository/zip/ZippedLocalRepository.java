@@ -32,15 +32,17 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
     private String[] archives;
 
     public void initialize() {
-        File rootFile = new File(uri);
-        if (!rootFile.exists()) {
-            rootFile.mkdirs();
+        Path root = null;
+        if (uri != null) {
+            File rootFile = new File(uri);
+            if (!rootFile.exists()) {
+                rootFile.mkdirs();
+            }
+            root = rootFile.toPath();
+            if (!Files.isDirectory(root)) {
+                throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s].", root));
+            }
         }
-        Path root = rootFile.toPath();
-        if (!Files.isDirectory(root)) {
-            throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s].", root));
-        }
-        setRoot(root);
         final Map<String, Path> localStorage = new HashMap<>();
         if (archives != null && archives.length > 0) {
             for (String archive : archives) {
@@ -51,7 +53,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 Path pathToArchive = Paths.get(archive);
                 boolean exists = Files.exists(pathToArchive);
                 boolean isArchive = exists && zipArchiveFilter(pathToArchive);
-                if (!pathToArchive.isAbsolute() && (!exists || !isArchive)) {
+                if (!pathToArchive.isAbsolute() && (!exists || !isArchive) && root != null) {
                     // if path is not absolute, try to resolve it from root folder
                     pathToArchive = root.resolve(archive);
                     exists |= Files.exists(pathToArchive);
@@ -68,6 +70,12 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 }
                 localStorage.put(archiveName, pathToArchive);
             }
+            if (root == null) {
+                root = findCommonParentPath(localStorage.values());
+            }
+        }
+        if (root == null) {
+            throw new IllegalStateException("Failed to initialize root directory!");
         }
         if (localStorage.isEmpty()) {
             try {
@@ -88,6 +96,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 throw new IllegalStateException("Failed to initialize a repository", e);
             }
         }
+        setRoot(root);
         setStorage(localStorage);
     }
 

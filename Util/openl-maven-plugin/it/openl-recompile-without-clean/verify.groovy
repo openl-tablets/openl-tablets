@@ -22,7 +22,10 @@ try {
     assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-lib.jar')}).length == 2
 
     int threadCount = Runtime.runtime.availableProcessors() * 2.5
-    assert new File(folder, 'build.log').text.contains("Run tests using $threadCount threads.")
+
+    def lines = new File(folder, 'build.log').readLines('UTF-8')
+    assert lines.any { it.contains("Run tests using $threadCount threads.") }
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-recompile-without-clean\' artifact') }
 
     return true
 
