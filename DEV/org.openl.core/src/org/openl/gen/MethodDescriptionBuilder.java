@@ -13,15 +13,13 @@ public class MethodDescriptionBuilder {
 
     private final String methodName;
     private final String returnType;
-    private final String canonicalName;
     private final List<TypeDescription> params = new ArrayList<>();
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
-    private MethodDescriptionBuilder(String methodName, String returnType, String canonicalName) {
+    private MethodDescriptionBuilder(String methodName, String returnType) {
         InterfaceByteCodeBuilder.requireNonBlank(methodName, "Method name is null or blank.");
         this.methodName = methodName;
         this.returnType = returnType;
-        this.canonicalName = canonicalName;
     }
 
     /**
@@ -54,7 +52,6 @@ public class MethodDescriptionBuilder {
     public MethodDescription build() {
         return new MethodDescription(methodName,
             returnType,
-            canonicalName,
             params.toArray(MethodDescription.NO_ARGS),
             annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
@@ -67,7 +64,7 @@ public class MethodDescriptionBuilder {
      * @return method parameter builder
      */
     public static MethodDescriptionBuilder create(String methodName, Class<?> returnType) {
-        return new MethodDescriptionBuilder(methodName, returnType.getName(), returnType.getCanonicalName());
+        return new MethodDescriptionBuilder(methodName, returnType.getName());
     }
 
     /**
@@ -77,7 +74,7 @@ public class MethodDescriptionBuilder {
      * @param returnType method return type
      * @return method parameter builder
      */
-    public static MethodDescriptionBuilder create(String methodName, String returnType, String simpleName) {
-        return new MethodDescriptionBuilder(methodName, returnType, simpleName);
+    public static MethodDescriptionBuilder create(String methodName, String returnType) {
+        return new MethodDescriptionBuilder(methodName, returnType);
     }
 }

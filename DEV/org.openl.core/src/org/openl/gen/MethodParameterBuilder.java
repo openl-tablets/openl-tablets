@@ -12,13 +12,11 @@ import java.util.Objects;
 public class MethodParameterBuilder {
 
     private final String parameterType;
-    private final String canonicalName;
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
-    private MethodParameterBuilder(String parameterType, String canonicalName) {
+    private MethodParameterBuilder(String parameterType) {
         InterfaceByteCodeBuilder.requireNonBlank(parameterType, "Method name is null or blank.");
         this.parameterType = parameterType;
-        this.canonicalName = canonicalName;
     }
 
     /**
@@ -27,9 +25,7 @@ public class MethodParameterBuilder {
      * @return instance of {@link TypeDescription}
      */
     public TypeDescription build() {
-        return new TypeDescription(parameterType,
-            canonicalName,
-            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+        return new TypeDescription(parameterType, annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
 
     /**
@@ -50,17 +46,16 @@ public class MethodParameterBuilder {
      * @return method parameter builder
      */
     public static MethodParameterBuilder create(Class<?> parameterType) {
-        return new MethodParameterBuilder(parameterType.getName(), parameterType.getSimpleName());
+        return new MethodParameterBuilder(parameterType.getName());
     }
 
     /**
      * Create builder from custom type
      * 
      * @param parameterType method parameter class
-     * @param canonicalName method importable parameter name
      * @return method parameter builder
      */
-    public static MethodParameterBuilder create(String parameterType, String canonicalName) {
-        return new MethodParameterBuilder(parameterType, canonicalName);
+    public static MethodParameterBuilder create(String parameterType) {
+        return new MethodParameterBuilder(parameterType);
     }
 }

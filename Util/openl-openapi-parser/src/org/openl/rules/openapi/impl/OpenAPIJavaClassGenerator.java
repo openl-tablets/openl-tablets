@@ -21,8 +21,6 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
-import org.apache.commons.lang3.tuple.Pair;
-import org.objectweb.asm.Type;
 import org.openl.gen.AnnotationDescriptionBuilder;
 import org.openl.gen.InterfaceByteCodeBuilder;
 import org.openl.gen.InterfaceImplBuilder;
@@ -210,14 +208,12 @@ public class OpenAPIJavaClassGenerator {
     private MethodDescriptionBuilder visitInterfaceMethod(MethodModel sprModel, boolean extraMethod) {
         final PathInfo pathInfo = sprModel.getPathInfo();
         final TypeInfo returnTypeInfo = pathInfo.getReturnType();
-        final Pair<String, String> typeNames = resolveType(returnTypeInfo);
-        MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder
-            .create(pathInfo.getFormattedPath(), typeNames.getKey(), typeNames.getValue());
+        MethodDescriptionBuilder methodBuilder = MethodDescriptionBuilder.create(pathInfo.getFormattedPath(),
+            resolveType(returnTypeInfo));
 
         InputParameter runtimeCtxParam = sprModel.getPathInfo().getRuntimeContextParameter();
         if (runtimeCtxParam != null) {
-            MethodParameterBuilder ctxBuilder = MethodParameterBuilder.create(runtimeCtxParam.getType().getJavaName(),
-                runtimeCtxParam.getType().getJavaName());
+            MethodParameterBuilder ctxBuilder = MethodParameterBuilder.create(runtimeCtxParam.getType().getJavaName());
             final String paramName = runtimeCtxParam.getFormattedName();
             if (sprModel.getParameters().size() > 0 && !DEFAULT_RUNTIME_CTX_PARAM_NAME.equals(paramName)) {
                 ctxBuilder.addAnnotation(
@@ -243,8 +239,7 @@ public class OpenAPIJavaClassGenerator {
 
     private TypeDescription visitMethodParameter(InputParameter parameter, boolean extraMethod) {
         final TypeInfo paramType = parameter.getType();
-        final Pair<String, String> types = resolveType(paramType);
-        MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(types.getKey(), types.getValue());
+        MethodParameterBuilder methodParamBuilder = MethodParameterBuilder.create(resolveType(paramType));
         if (paramType.getType() == TypeInfo.Type.DATATYPE) {
             methodParamBuilder.addAnnotation(AnnotationDescriptionBuilder.create(RulesType.class)
                 .withProperty(VALUE, OpenAPITypeUtils.removeArrayBrackets(paramType.getSimpleName()))
@@ -284,23 +279,16 @@ public class OpenAPIJavaClassGenerator {
         }
     }
 
-    static Pair<String, String> resolveType(TypeInfo typeInfo) {
-        int dimension = typeInfo.getDimension();
+    static String resolveType(TypeInfo typeInfo) {
         if (typeInfo.getType() == TypeInfo.Type.DATATYPE) {
             Class<?> type = DEFAULT_DATATYPE_CLASS;
-            if (dimension > 0) {
-                int[] dimensions = new int[dimension];
+            if (typeInfo.getDimension() > 0) {
+                int[] dimensions = new int[typeInfo.getDimension()];
                 type = Array.newInstance(type, dimensions).getClass();
             }
-            return Pair.of(type.getName(), type.getCanonicalName());
+            return type.getName();
         } else {
-            String canonicalName;
-            if (dimension > 0) {
-                canonicalName = Type.getType(typeInfo.getJavaName()).getClassName();
-            } else {
-                canonicalName = typeInfo.getJavaName();
-            }
-            return Pair.of(typeInfo.getJavaName(), canonicalName);
+            return typeInfo.getJavaName();
         }
     }
 

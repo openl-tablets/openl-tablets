@@ -334,20 +334,16 @@ public class OpenAPIGroovyScriptGeneratorTest {
     @Test
     public void resolveTypeTest() {
         TypeInfo typeInfo = new TypeInfo("Policy", "Policy", TypeInfo.Type.DATATYPE);
-        assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getKey());
-        assertEquals(Object.class.getCanonicalName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getValue());
+        assertEquals(Object.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(1);
-        assertEquals(Object[].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getKey());
-        assertEquals("java.lang.Object[]", OpenAPIJavaClassGenerator.resolveType(typeInfo).getValue());
+        assertEquals(Object[].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo.setDimension(3);
-        assertEquals(Object[][][].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getKey());
-        assertEquals("java.lang.Object[][][]", OpenAPIJavaClassGenerator.resolveType(typeInfo).getValue());
+        assertEquals(Object[][][].class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
 
         typeInfo = new TypeInfo(Integer.class);
-        assertEquals(Integer.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getKey());
-        assertEquals(Integer.class.getCanonicalName(), OpenAPIJavaClassGenerator.resolveType(typeInfo).getKey());
+        assertEquals(Integer.class.getName(), OpenAPIJavaClassGenerator.resolveType(typeInfo));
     }
 
     @Test

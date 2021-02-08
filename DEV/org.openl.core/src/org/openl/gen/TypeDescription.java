@@ -2,6 +2,7 @@ package org.openl.gen;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.objectweb.asm.Type;
 
 /**
  * Type description.
@@ -22,11 +23,7 @@ public class TypeDescription {
      * @throws NullPointerException if type name is null
      */
     public TypeDescription(String typeName) {
-        this(typeName, null, AnnotationDescription.EMPTY_ANNOTATIONS);
-    }
-
-    public TypeDescription(String typeName, String canonicalName) {
-        this(typeName, canonicalName, AnnotationDescription.EMPTY_ANNOTATIONS);
+        this(typeName, AnnotationDescription.EMPTY_ANNOTATIONS);
     }
 
     /**
@@ -36,9 +33,9 @@ public class TypeDescription {
      * @param annotations type annotations
      * @throws NullPointerException if type name is null
      */
-    TypeDescription(String typeName, String canonicalName, AnnotationDescription[] annotations) {
+    TypeDescription(String typeName, AnnotationDescription[] annotations) {
         this.typeName = Objects.requireNonNull(typeName, "Type name is null.");
-        this.canonicalName = canonicalName;
+        this.canonicalName = Type.getObjectType(typeName).getClassName();
         switch (typeName) {
             case "byte":
                 this.typeDescriptor = "B";

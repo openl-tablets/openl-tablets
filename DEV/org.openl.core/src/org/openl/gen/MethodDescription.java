@@ -46,10 +46,7 @@ public class MethodDescription {
             AnnotationDescription[] annotations) {
         this(name,
             returnType.getName(),
-            returnType.getCanonicalName(),
-            Stream.of(argsTypes)
-                .map(argType -> new TypeDescription(argType.getName(), argType.getCanonicalName()))
-                .toArray(TypeDescription[]::new),
+            Stream.of(argsTypes).map(argType -> new TypeDescription(argType.getName())).toArray(TypeDescription[]::new),
             annotations);
     }
 
@@ -64,12 +61,11 @@ public class MethodDescription {
      */
     public MethodDescription(String name,
             String returnType,
-            String canonicalType,
             TypeDescription[] argsTypes,
             AnnotationDescription[] annotations) {
         Objects.requireNonNull(returnType, "Method return type is null.");
         this.name = Objects.requireNonNull(name, "Method name is null.");
-        this.returnType = new TypeDescription(returnType, canonicalType);
+        this.returnType = new TypeDescription(returnType);
         this.argsTypes = Optional.ofNullable(argsTypes).orElse(NO_ARGS);
         this.annotations = Optional.ofNullable(annotations).orElse(AnnotationDescription.EMPTY_ANNOTATIONS);
     }
