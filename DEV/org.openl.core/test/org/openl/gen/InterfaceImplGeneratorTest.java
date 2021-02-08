@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.openl.classloader.OpenLClassLoader;
 import org.openl.util.ClassUtils;
 
-public class JavaInterfaceImplGeneratorTest {
+public class InterfaceImplGeneratorTest {
 
     @Test
     public void testInterfaceImplGeneration() throws IllegalAccessException, InstantiationException {
@@ -38,7 +38,7 @@ public class JavaInterfaceImplGeneratorTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testNotInterfaceGeneration() {
-        new JavaInterfaceImplBuilder(Date.class);
+        new InterfaceImplBuilder(Date.class);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class JavaInterfaceImplGeneratorTest {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(simpleClassLoader);
-            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(clazzInterface);
+            InterfaceImplBuilder builder = new InterfaceImplBuilder(clazzInterface);
             byte[] byteCode = builder.byteCode();
             String className = builder.getBeanName();
             return ClassUtils.defineClass(className, byteCode, simpleClassLoader);

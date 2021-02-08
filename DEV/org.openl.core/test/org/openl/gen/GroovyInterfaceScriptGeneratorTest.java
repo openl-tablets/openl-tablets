@@ -10,7 +10,6 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -18,36 +17,34 @@ import java.util.Collections;
 import java.util.Date;
 
 import org.junit.Test;
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.gen.AnnotationDescription.AnnotationProperty;
-import org.openl.util.ClassUtils;
+import org.openl.gen.groovy.GroovyInterfaceScriptGenerator;
 
-public class JavaInterfaceByteCodeGeneratorTest {
+import groovy.lang.GroovyClassLoader;
+
+public class GroovyInterfaceScriptGeneratorTest {
 
     private static final Class<?>[] NO_ARGS = new Class<?>[0];
 
     @Test
-    public void testGenerateEmpty() throws IllegalAccessException, InvocationTargetException, ClassNotFoundException {
+    public void testGenerateEmpty() {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceEmpty";
-        JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
+        GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
             Collections.emptyList());
-        Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
     }
 
     @Test
-    public void testGenerateWithMethods() throws IllegalAccessException,
-                                          InvocationTargetException,
-                                          ClassNotFoundException,
-                                          NoSuchMethodException {
+    public void testGenerateWithMethods() throws NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethods";
         final Class<?>[] args2 = new Class<?>[] { Object.class, int.class, Date.class };
-        final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
+        final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
             Arrays.asList(new MethodDescription("doSomething", Object.class, NO_ARGS),
                 new MethodDescription("doSomething2", int.class, args2),
                 new MethodDescription("doSomething3", void.class, NO_ARGS)));
 
-        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         final Method[] methods = interfaceClass.getDeclaredMethods();
@@ -59,13 +56,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotations() throws IllegalAccessException,
-                                                        InvocationTargetException,
-                                                        ClassNotFoundException,
-                                                        NoSuchMethodException {
+    public void testGenerateWithMethodsAndAnnotations() throws NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
-        final JavaInterfaceByteCodeGenerator generator = new JavaInterfaceByteCodeGenerator(expectedName,
+        final GroovyInterfaceScriptGenerator generator = new GroovyInterfaceScriptGenerator(expectedName,
             Collections.singletonList(new MethodDescription("doSomething",
                 Object.class.getName(),
                 toArray(new TypeDescription(Object.class.getName()),
@@ -78,7 +72,7 @@ public class JavaInterfaceByteCodeGeneratorTest {
                     new AnnotationDescription(MyAnnotation3.class,
                         toArray(new AnnotationProperty("value", "foo"), new AnnotationProperty("field", "bar")))))));
 
-        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
@@ -105,13 +99,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder2() throws IllegalAccessException,
-                                                                InvocationTargetException,
-                                                                ClassNotFoundException,
-                                                                NoSuchMethodException {
+    public void testGenerateWithMethodsAndAnnotationsBuilder2() throws NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
-        final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
+        final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
             .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
             .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                 .addAnnotation(
@@ -123,9 +114,9 @@ public class JavaInterfaceByteCodeGeneratorTest {
                         .build())
                     .build())
                 .build())
-            .buildJava();
+            .buildGroovy();
 
-        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
@@ -142,13 +133,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder3() throws IllegalAccessException,
-                                                                InvocationTargetException,
-                                                                ClassNotFoundException,
-                                                                NoSuchMethodException {
+    public void testGenerateWithMethodsAndAnnotationsBuilder3() throws NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
-        final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
+        final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
             .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
             .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                 .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation5.class)
@@ -161,9 +149,9 @@ public class JavaInterfaceByteCodeGeneratorTest {
                         .build())
                     .build())
                 .build())
-            .buildJava();
+            .buildGroovy();
 
-        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
@@ -179,13 +167,10 @@ public class JavaInterfaceByteCodeGeneratorTest {
     }
 
     @Test
-    public void testGenerateWithMethodsAndAnnotationsBuilder() throws IllegalAccessException,
-                                                               InvocationTargetException,
-                                                               ClassNotFoundException,
-                                                               NoSuchMethodException {
+    public void testGenerateWithMethodsAndAnnotationsBuilder() throws NoSuchMethodException {
         final String expectedName = JavaInterfaceByteCodeGenerator.DEFAULT_PACKAGE + "ServiceWithMethodsAndAnnotations";
         final Class<?>[] args2 = new Class<?>[] { Object.class, Object.class };
-        final JavaInterfaceByteCodeGenerator generator = InterfaceByteCodeBuilder
+        final GroovyInterfaceScriptGenerator generator = InterfaceByteCodeBuilder
             .createWithDefaultPackage("ServiceWithMethodsAndAnnotations")
             .addAbstractMethod(MethodDescriptionBuilder.create("doSomething", Object.class)
                 .addAnnotation(AnnotationDescriptionBuilder.create(MyAnnotation.class).build())
@@ -202,9 +187,9 @@ public class JavaInterfaceByteCodeGeneratorTest {
                         AnnotationDescriptionBuilder.create(MyAnnotation2.class).withProperty("value", "foo").build())
                     .build())
                 .build())
-            .buildJava();
+            .buildGroovy();
 
-        final Class<?> interfaceClass = defineClass(expectedName, generator.byteCode());
+        final Class<?> interfaceClass = defineClass(generator.generatedText());
         assertInterfaceDescription(expectedName, interfaceClass);
 
         assertEquals(1, interfaceClass.getDeclaredMethods().length);
@@ -237,13 +222,12 @@ public class JavaInterfaceByteCodeGeneratorTest {
         assertEquals(expectedName, interfaceClass.getName());
     }
 
-    private static Class<?> defineClass(String name,
-            byte[] bytes) throws IllegalAccessException, ClassNotFoundException, InvocationTargetException {
+    private static Class<?> defineClass(String text) {
         final ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
-            ClassLoader newClassLoader = new OpenLClassLoader(oldClassLoader);
+            GroovyClassLoader newClassLoader = new GroovyClassLoader(oldClassLoader);
             Thread.currentThread().setContextClassLoader(newClassLoader);
-            return ClassUtils.defineClass(name, bytes, newClassLoader);
+            return newClassLoader.parseClass(text);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }

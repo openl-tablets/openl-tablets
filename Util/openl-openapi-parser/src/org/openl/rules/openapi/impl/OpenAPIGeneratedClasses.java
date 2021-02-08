@@ -6,48 +6,49 @@ import java.util.Set;
 
 public class OpenAPIGeneratedClasses {
 
-    private final JavaClassFile annotationTemplateClass;
-    private final Set<JavaClassFile> commonClasses;
+    private final GroovyScriptFile annotationGroovyScript;
+    private final Set<GroovyScriptFile> groovyCommonClasses;
 
-    private OpenAPIGeneratedClasses(JavaClassFile annotationTemplateClass, Set<JavaClassFile> commonClasses) {
-        this.annotationTemplateClass = annotationTemplateClass;
-        this.commonClasses = commonClasses;
+    public OpenAPIGeneratedClasses(GroovyScriptFile annotationGroovyScript, Set<GroovyScriptFile> groovyScriptFiles) {
+        this.annotationGroovyScript = annotationGroovyScript;
+        this.groovyCommonClasses = groovyScriptFiles;
     }
 
-    public JavaClassFile getAnnotationTemplateClass() {
-        return annotationTemplateClass;
+    public GroovyScriptFile getAnnotationTemplateGroovyFile() {
+        return annotationGroovyScript;
     }
 
-    public Set<JavaClassFile> getCommonClasses() {
-        return commonClasses;
+    public Set<GroovyScriptFile> getGroovyCommonClasses() {
+        return groovyCommonClasses;
     }
 
     public boolean hasAnnotationTemplateClass() {
-        return annotationTemplateClass != null;
+        return annotationGroovyScript != null;
     }
 
     static final class Builder {
 
-        private JavaClassFile annotationTemplateClass;
-        private final Set<JavaClassFile> commonClasses = new HashSet<>();
+        private GroovyScriptFile groovyScriptFile;
+        private final Set<GroovyScriptFile> groovyCommonClasses = new HashSet<>();
 
         private Builder() {
         }
 
-        public Builder setAnnotationTemplateClass(JavaClassFile annotationTemplateClass) {
-            this.annotationTemplateClass = annotationTemplateClass;
-            return this;
-        }
-
-        public Builder addCommonClass(JavaClassFile classFile) {
-            if (!commonClasses.add(classFile)) {
-                throw new IllegalArgumentException(String.format("Java Class '%s' is duplicated.", classFile));
+        public Builder addGroovyCommonScript(GroovyScriptFile groovyScriptFile) {
+            if (!groovyCommonClasses.add(groovyScriptFile)) {
+                throw new IllegalArgumentException(
+                    String.format("Groovy File Script '%s' is duplicated.", groovyScriptFile));
             }
             return this;
         }
 
+        public Builder setGroovyScriptFile(GroovyScriptFile annotationTemplateClass) {
+            this.groovyScriptFile = annotationTemplateClass;
+            return this;
+        }
+
         public OpenAPIGeneratedClasses build() {
-            return new OpenAPIGeneratedClasses(annotationTemplateClass, Collections.unmodifiableSet(commonClasses));
+            return new OpenAPIGeneratedClasses(groovyScriptFile, Collections.unmodifiableSet(groovyCommonClasses));
         }
 
         public static Builder initialize() {

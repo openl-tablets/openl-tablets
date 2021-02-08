@@ -17,7 +17,7 @@ public class MethodDescriptionBuilder {
     private final List<AnnotationDescription> annotations = new ArrayList<>();
 
     private MethodDescriptionBuilder(String methodName, String returnType) {
-        JavaInterfaceByteCodeBuilder.requireNonBlank(methodName, "Method name is null or blank.");
+        InterfaceByteCodeBuilder.requireNonBlank(methodName, "Method name is null or blank.");
         this.methodName = methodName;
         this.returnType = returnType;
     }
@@ -46,12 +46,14 @@ public class MethodDescriptionBuilder {
 
     /**
      * Build {@link MethodDescription} object
+     * 
      * @return instance of {@link MethodDescription}
      */
     public MethodDescription build() {
-        return new MethodDescription(methodName, returnType,
-                params.toArray(MethodDescription.NO_ARGS),
-                annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
+        return new MethodDescription(methodName,
+            returnType,
+            params.toArray(MethodDescription.NO_ARGS),
+            annotations.toArray(AnnotationDescription.EMPTY_ANNOTATIONS));
     }
 
     /**

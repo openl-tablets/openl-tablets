@@ -22,8 +22,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
 import org.openl.gen.AnnotationDescriptionBuilder;
-import org.openl.gen.JavaInterfaceByteCodeBuilder;
-import org.openl.gen.JavaInterfaceImplBuilder;
+import org.openl.gen.InterfaceByteCodeBuilder;
+import org.openl.gen.InterfaceImplBuilder;
 import org.openl.gen.MethodDescriptionBuilder;
 import org.openl.gen.MethodParameterBuilder;
 import org.openl.gen.TypeDescription;
@@ -177,31 +177,30 @@ public class OpenAPIJavaClassGenerator {
     }
 
     public OpenAPIGeneratedClasses generate() {
-        JavaInterfaceByteCodeBuilder javaInterfaceBuilder = JavaInterfaceByteCodeBuilder.create(DEFAULT_OPEN_API_PATH,
-            "Service");
+        InterfaceByteCodeBuilder interfaceBuilder = InterfaceByteCodeBuilder.create(DEFAULT_OPEN_API_PATH, "Service");
 
         Stream.concat(projectModel.getSpreadsheetResultModels().stream(), projectModel.getDataModels().stream())
             .filter(this::generateDecision)
             .map(method -> visitInterfaceMethod(method, false).build())
-            .forEach(javaInterfaceBuilder::addAbstractMethod);
+            .forEach(interfaceBuilder::addAbstractMethod);
 
         OpenAPIGeneratedClasses.Builder builder = OpenAPIGeneratedClasses.Builder.initialize();
         for (MethodModel extraMethod : projectModel.getNotOpenLModels()) {
-            JavaInterfaceImplBuilder extraMethodBuilder = new JavaInterfaceImplBuilder(ServiceExtraMethodHandler.class,
+            InterfaceImplBuilder extraMethodBuilder = new InterfaceImplBuilder(ServiceExtraMethodHandler.class,
                 DEFAULT_OPEN_API_PATH);
-            JavaClassFile javaClassFile = new JavaClassFile(extraMethodBuilder.getBeanName(),
-                extraMethodBuilder.byteCode());
-            builder.addCommonClass(javaClassFile);
+            GroovyScriptFile groovyScriptFile = new GroovyScriptFile(extraMethodBuilder.getScriptName(),
+                extraMethodBuilder.scriptText());
+            builder.addGroovyCommonScript(groovyScriptFile);
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, true);
             methodDesc.addAnnotation(AnnotationDescriptionBuilder.create(ServiceExtraMethod.class)
-                .withProperty(VALUE, new TypeDescription(javaClassFile.getJavaNameWithPackage()))
+                .withProperty(VALUE, new TypeDescription(groovyScriptFile.getNameWithPackage()))
                 .build());
-            javaInterfaceBuilder.addAbstractMethod(methodDesc.build());
+            interfaceBuilder.addAbstractMethod(methodDesc.build());
         }
 
-        if (!javaInterfaceBuilder.isEmpty()) {
-            builder.setAnnotationTemplateClass(
-                new JavaClassFile(javaInterfaceBuilder.getNameWithPackage(), javaInterfaceBuilder.build().byteCode()));
+        if (!interfaceBuilder.isEmpty()) {
+            builder.setGroovyScriptFile(new GroovyScriptFile(interfaceBuilder.getNameWithPackage(),
+                interfaceBuilder.buildGroovy().generatedText()));
         }
         return builder.build();
     }
