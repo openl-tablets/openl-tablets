@@ -21,7 +21,7 @@ import org.springframework.core.env.StandardEnvironment;
  * @author Vladyslav Pikus
  */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY)
-public class VerifyIntegrationMojo extends BaseOpenLMojo {
+public class VerifyMojo extends BaseOpenLMojo {
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws MojoFailureException {
