@@ -59,6 +59,7 @@ public class VerifyIntegrationMojo extends BaseOpenLMojo {
                 }
             }
         }
+        info(String.format("Verification is passed for '%s:%s' artifact", project.getGroupId(), project.getArtifactId()));
     }
 
     @ImportResource(locations = { "classpath:openl-ruleservice-beans.xml" })
