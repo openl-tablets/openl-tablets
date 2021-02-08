@@ -29,6 +29,7 @@
         <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
         <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
         <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
+        <gen-datatypes.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-datatypes.timeoutInSeconds>
     </properties>
     <dependencies>
         <dependency>
@@ -208,6 +209,8 @@
                 <!-- Multimodule has 4 projects -->
                 <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
                 <multimodule.mavenOpts>-Xms16m -Xmx64m</multimodule.mavenOpts>
+                <!-- this module could be failed from time to time previously as well -->
+                <gen-datatypes.timeoutInSeconds>35</gen-datatypes.timeoutInSeconds>
             </properties>
         </profile>
     </profiles>
