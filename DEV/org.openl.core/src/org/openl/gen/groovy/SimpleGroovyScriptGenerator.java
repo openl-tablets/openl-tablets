@@ -1,6 +1,9 @@
 package org.openl.gen.groovy;
 
-import java.util.Collections;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
@@ -12,7 +15,6 @@ import org.openl.gen.AnnotationDescription;
 public class SimpleGroovyScriptGenerator {
 
     private static final String CLASS = "class";
-    private final String LINE_SEPARATOR = System.lineSeparator();
 
     private final String packageName;
     private final String simpleClassName;
@@ -33,13 +35,16 @@ public class SimpleGroovyScriptGenerator {
         scriptText.append("package")
             .append(" ")
             .append(packageName)
-            .append(System.lineSeparator())
-            .append(System.lineSeparator());
+            .append(GroovyMethodWriter.LINE_SEPARATOR)
+            .append(GroovyMethodWriter.LINE_SEPARATOR);
 
+        scriptText.append(generateImports());
         scriptText.append(generateJAXBAnnotations());
         scriptText.append(generateClassDescription());
-
-        scriptText.append(" ").append("{").append(System.lineSeparator());
+        scriptText.append(" ")
+            .append("{")
+            .append(GroovyMethodWriter.LINE_SEPARATOR)
+            .append(GroovyMethodWriter.LINE_SEPARATOR);
 
         scriptText.append(generateExtraMethods());
 
@@ -65,24 +70,23 @@ public class SimpleGroovyScriptGenerator {
                     new AnnotationDescription.AnnotationProperty("name", simpleClassName) });
 
         result.append(
-            AnnotationTransformationHelper.transformAnnotation(xmlRootElemDescription, null, Collections.emptySet()));
-        result.append(LINE_SEPARATOR);
+            AnnotationTransformationHelper.transformAnnotation(xmlRootElemDescription, null, getDefaultImports()));
+        result.append(GroovyMethodWriter.LINE_SEPARATOR);
 
         AnnotationDescription xmlAccessorType = new AnnotationDescription(XmlAccessorType.class,
             new AnnotationDescription.AnnotationProperty[] {
                     new AnnotationDescription.AnnotationProperty("value", XmlAccessType.FIELD) });
 
-        result
-            .append(AnnotationTransformationHelper.transformAnnotation(xmlAccessorType, null, Collections.emptySet()));
-        result.append(LINE_SEPARATOR);
+        result.append(AnnotationTransformationHelper.transformAnnotation(xmlAccessorType, null, getDefaultImports()));
+        result.append(GroovyMethodWriter.LINE_SEPARATOR);
 
         AnnotationDescription xmlType = new AnnotationDescription(XmlType.class,
             new AnnotationDescription.AnnotationProperty[] {
                     new AnnotationDescription.AnnotationProperty("namespace", namespace),
                     new AnnotationDescription.AnnotationProperty("name", simpleClassName) });
 
-        result.append(AnnotationTransformationHelper.transformAnnotation(xmlType, null, Collections.emptySet()));
-        result.append(LINE_SEPARATOR);
+        result.append(AnnotationTransformationHelper.transformAnnotation(xmlType, null, getDefaultImports()));
+        result.append(GroovyMethodWriter.LINE_SEPARATOR);
         return result.toString();
     }
 
@@ -94,8 +98,20 @@ public class SimpleGroovyScriptGenerator {
         return new String[] { "java.io.Serializable" };
     }
 
+    protected Set<String> getDefaultImports() {
+        return new HashSet<>(Arrays.asList(Method.class.getName(),
+            XmlAccessorType.class.getName(),
+            XmlAccessType.class.getName(),
+            XmlType.class.getName(),
+            XmlRootElement.class.getName()));
+    }
+
     protected String generateClassDescription() {
         return new StringBuilder(CLASS).append(" ").append(getSimpleClassName()).toString();
+    }
+
+    protected String generateImports() {
+        return "";
     }
 
 }

@@ -44,7 +44,7 @@ public class AnnotationTransformationHelper {
             annotationText.append(property.getName()).append(" ").append("=").append(" ");
             final Object value = property.getValue();
 
-            String readableValue = convertValue(value);
+            String readableValue = convertValue(value, imports);
             if (property.isType()) {
                 annotationText.append(Type.getType((String) value).getClassName()).append(".class");
             } else if (property.isArray()) {
@@ -53,7 +53,7 @@ public class AnnotationTransformationHelper {
                     int length = Array.getLength(value);
                     for (int i = 0; i < length; i++) {
                         final Object elemValue = Array.get(value, i);
-                        annotationText.append(convertValue(elemValue));
+                        annotationText.append(convertValue(elemValue, imports));
                         if (i < length - 1) {
                             annotationText.append(",");
                         }
@@ -78,12 +78,16 @@ public class AnnotationTransformationHelper {
         return annotationText.toString();
     }
 
-    private static String convertValue(final Object value) {
+    private static String convertValue(final Object value, final Set<String> imports) {
         String readableValue = value.toString();
         if (value instanceof String) {
             readableValue = "'" + value + "'";
         } else if (value instanceof Enum) {
-            readableValue = value.getClass().getName() + "." + value;
+            String className = value.getClass().getName();
+            if (imports.contains(className)) {
+                className = TypeHelper.makeImported(className);
+            }
+            readableValue = className + "." + value;
         }
         return readableValue;
     }

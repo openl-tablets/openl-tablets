@@ -93,7 +93,12 @@ public class GroovyInterfaceScriptGenerator {
         }
 
         s.append(GroovyMethodWriter.LINE_SEPARATOR);
-        s.append("interface").append(" ").append(name).append(" ").append("{").append(System.lineSeparator());
+        s.append("interface")
+            .append(" ")
+            .append(name)
+            .append(" ")
+            .append("{")
+            .append(GroovyMethodWriter.LINE_SEPARATOR);
         if (writerChain != null) {
             writerChain.write(s, true, imports);
         }

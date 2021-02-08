@@ -1,7 +1,9 @@
 package org.openl.gen.groovy;
 
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.gen.MethodDescription;
 
@@ -38,7 +40,19 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
     }
 
     protected String generateClassDescription() {
-        String implementationChain = String.join(", ", getDefaultInterfaces());
+        String[] defaultInterfaces = getDefaultInterfaces();
+        StringBuilder implementationChain = new StringBuilder();
+        for (int i = 0; i < defaultInterfaces.length; i++) {
+            String defaultInterface = defaultInterfaces[i];
+            if (getDefaultImports().contains(defaultInterface)) {
+                implementationChain.append(TypeHelper.makeImported(defaultInterface));
+            } else {
+                implementationChain.append(defaultInterface);
+            }
+            if (i < defaultInterfaces.length - 1) {
+                implementationChain.append(", ");
+            }
+        }
         StringBuilder description = new StringBuilder(super.generateClassDescription()).append(" ")
             .append(IMPLEMENTS)
             .append(" ")
@@ -49,9 +63,24 @@ public class GroovyInterfaceImplGenerator extends SimpleGroovyScriptGenerator {
     protected String generateExtraMethods() {
         StringBuilder methods = new StringBuilder();
         if (writerChain != null) {
-            writerChain.write(methods, false, Collections.emptySet());
+            writerChain.write(methods, false, getDefaultImports());
         }
-
         return methods.toString();
+    }
+
+    protected Set<String> getDefaultImports() {
+        Set<String> fullImports = new HashSet<>(super.getDefaultImports());
+        fullImports.addAll(Arrays.asList(getDefaultInterfaces()));
+        return fullImports;
+    }
+
+    protected String generateImports() {
+        StringBuilder imports = new StringBuilder();
+        for (String defaultImport : getDefaultImports()) {
+            imports.append("import").append(" ").append(defaultImport);
+            imports.append(GroovyMethodWriter.LINE_SEPARATOR);
+        }
+        imports.append(GroovyMethodWriter.LINE_SEPARATOR);
+        return imports.toString();
     }
 }
