@@ -190,7 +190,7 @@ public class OpenAPIJavaClassGenerator {
         for (MethodModel extraMethod : projectModel.getNotOpenLModels()) {
             InterfaceImplBuilder extraMethodBuilder = new InterfaceImplBuilder(ServiceExtraMethodHandler.class,
                 DEFAULT_OPEN_API_PATH);
-            GroovyScriptFile groovyScriptFile = new GroovyScriptFile(extraMethodBuilder.getBeanName(),
+            GroovyScriptFile groovyScriptFile = new GroovyScriptFile(extraMethodBuilder.getScriptName(),
                 extraMethodBuilder.scriptText());
             builder.addGroovyCommonScript(groovyScriptFile);
             MethodDescriptionBuilder methodDesc = visitInterfaceMethod(extraMethod, true);

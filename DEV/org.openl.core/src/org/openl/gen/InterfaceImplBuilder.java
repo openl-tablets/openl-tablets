@@ -23,11 +23,13 @@ import org.openl.util.RuntimeExceptionWrapper;
 public class InterfaceImplBuilder {
 
     private static final String DEFAULT_PACKAGE = "org.openl.generated";
-    private static final String NAME_PATTERN = ".%s%oImpl";
+    private static final String NAME_PATTERN = ".$%o%sImpl";
+    private static final String SCRIPT_NAME_PATTERN = ".%s%oImpl";
     private static final AtomicInteger counter = new AtomicInteger();
 
     private final Class<?> clazzInterface;
     private final String beanName;
+    private final String scriptName;
     private final Map<String, FieldDescription> beanFields = new TreeMap<>();
     private final List<MethodDescription> beanStubMethods = new ArrayList<>();
 
@@ -37,7 +39,9 @@ public class InterfaceImplBuilder {
         }
         this.clazzInterface = clazzInterface;
         this.beanName = String
-            .format(packagePath + NAME_PATTERN, clazzInterface.getSimpleName(), counter.incrementAndGet());
+            .format(packagePath + NAME_PATTERN, counter.incrementAndGet(), clazzInterface.getSimpleName());
+        this.scriptName = String
+            .format(packagePath + SCRIPT_NAME_PATTERN, clazzInterface.getSimpleName(), counter.incrementAndGet());
         init();
     }
 
@@ -86,12 +90,16 @@ public class InterfaceImplBuilder {
         return beanName;
     }
 
+    public String getScriptName() {
+        return scriptName;
+    }
+
     public byte[] byteCode() {
         return new JavaInterfaceImplGenerator(beanName, clazzInterface, beanFields, beanStubMethods).byteCode();
     }
 
     public String scriptText() {
-        return new GroovyInterfaceImplGenerator(beanName, clazzInterface, beanStubMethods).scriptText();
+        return new GroovyInterfaceImplGenerator(scriptName, clazzInterface, beanStubMethods).scriptText();
     }
 
 }

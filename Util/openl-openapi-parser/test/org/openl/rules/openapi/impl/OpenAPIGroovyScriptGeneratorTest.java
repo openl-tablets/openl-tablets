@@ -26,7 +26,6 @@ import javax.ws.rs.Produces;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.openl.classloader.OpenLClassLoader;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.model.scaffolding.PathInfo;
@@ -41,7 +40,7 @@ import org.openl.rules.ruleservice.core.interceptors.RulesType;
 
 import groovy.lang.GroovyClassLoader;
 
-public class OpenAPIJavaClassGeneratorTest {
+public class OpenAPIGroovyScriptGeneratorTest {
 
     private OpenAPIModelConverter converter;
     private GroovyClassLoader groovyClassLoader;
