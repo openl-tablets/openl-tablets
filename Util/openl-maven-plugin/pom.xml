@@ -27,6 +27,7 @@
         <gen-spreadsheetresult.mavenOpts>${invoker.mavenOpts}</gen-spreadsheetresult.mavenOpts>
         <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
         <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
+        <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
     </properties>
     <dependencies>
         <dependency>
@@ -203,6 +204,8 @@
                 <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
                 <!-- due double work of packaging: 30s * 2 -->
                 <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
+                <!-- Multimodule has 4 projects -->
+                <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
             </properties>
         </profile>
     </profiles>
