@@ -32,13 +32,6 @@
                 <configuration>
                     <deploymentPackage>true</deploymentPackage>
                 </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

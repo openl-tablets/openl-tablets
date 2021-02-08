@@ -22,13 +22,6 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

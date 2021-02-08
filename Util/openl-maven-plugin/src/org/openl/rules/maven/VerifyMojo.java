@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
+import org.apache.maven.plugins.annotations.Parameter;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -23,6 +24,20 @@ import org.springframework.core.env.StandardEnvironment;
  */
 @Mojo(name = "verify", defaultPhase = LifecyclePhase.VERIFY)
 public class VerifyMojo extends BaseOpenLMojo {
+
+    /**
+     * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
+     */
+    @Parameter(property = "skipTests")
+    private boolean skipTests;
+
+    /**
+     * Parameter to skip running OpenL Tablets verify goal if it set to 'true'.
+     * @deprecated for troubleshooting purposes
+     */
+    @Parameter(property = "skipITs")
+    @Deprecated
+    private boolean skipITs;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws MojoFailureException {
@@ -60,7 +75,13 @@ public class VerifyMojo extends BaseOpenLMojo {
                 }
             }
         }
-        info(String.format("Verification is passed for '%s:%s' artifact", project.getGroupId(), project.getArtifactId()));
+        info(String
+            .format("Verification is passed for '%s:%s' artifact", project.getGroupId(), project.getArtifactId()));
+    }
+
+    @Override
+    boolean isDisabled() {
+        return skipTests || skipITs;
     }
 
     @ImportResource(locations = { "classpath:openl-ruleservice-beans.xml" })

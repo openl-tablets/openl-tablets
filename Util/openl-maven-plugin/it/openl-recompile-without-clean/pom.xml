@@ -25,7 +25,6 @@
                     <execution>
                         <goals>
                             <goal>generate</goal>
-                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
