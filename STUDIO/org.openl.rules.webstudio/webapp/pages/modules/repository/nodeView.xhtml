@@ -97,7 +97,7 @@
                             <h:commandButton id="closeId1" rendered="#{repositoryTreeState.canClose}" value="Close"
                                              action="#{repositoryTreeController.closeProject}" title="#{closeMessage}"
                                              immediate="true"
-                                             onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? rich:component('modalCloseProject').concat('.show();return false;') : ''}"/>
+                                             onclick="#{repositoryTreeController.hasDependingProjects || repositoryTreeState.selectedProjectModified ? 'openCloseProjectDialog();return false;' : ''}"/>
                         </h:panelGroup>
 
                         <h:panelGroup
@@ -110,7 +110,7 @@
                                              type="button"
                                              title="#{openVersionMessage}"/>
                             <h:commandButton id="closeId2" rendered="#{repositoryTreeState.canClose}" value="Close"
-                                             onclick="#{rich:component('modalCloseProject')}.show();return false;"
+                                             onclick="openCloseProjectDialog();return false;"
                                              title="#{closeMessage}"/>
                         </h:panelGroup>
 
