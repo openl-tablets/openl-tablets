@@ -5,8 +5,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 import org.openl.rules.project.xml.SupportedVersion;
 
 public class RulesDeployGuiWrapper {
-    private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.WEBSERVICE,
-            PublisherType.RESTFUL };
+    private static final PublisherType[] DEFAULT_PUBLISHERS = new PublisherType[] { PublisherType.RESTFUL };
 
     private final RulesDeploy rulesDeploy;
     private String configuration;
