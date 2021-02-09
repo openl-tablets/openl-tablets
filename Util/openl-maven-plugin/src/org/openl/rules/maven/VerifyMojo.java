@@ -69,13 +69,15 @@ public class VerifyMojo extends BaseOpenLMojo {
             }
             final ServiceManagerImpl serviceManager = context.getBean("serviceManager", ServiceManagerImpl.class);
             for (String deployedService : deployedServices) {
+                // don't remove next line even if you remove "OpenL Project '%s' has no public methods!" exception
+                // otherwise ServiceErrors will be always empty even if it's not true
                 Collection<MethodDescriptor> methods = serviceManager.getServiceMethods(deployedService);
+                if (!serviceManager.getServiceErrors(deployedService).isEmpty()) {
+                    throw new MojoFailureException(String.format("OpenL Project '%s' has errors!", deployedService));
+                }
                 if (methods == null || methods.size() == 0) {
                     throw new MojoFailureException(
                         String.format("OpenL Project '%s' has no public methods!", deployedService));
-                }
-                if (!serviceManager.getServiceErrors(deployedService).isEmpty()) {
-                    throw new MojoFailureException(String.format("OpenL Project '%s' has errors!", deployedService));
                 }
             }
         }
