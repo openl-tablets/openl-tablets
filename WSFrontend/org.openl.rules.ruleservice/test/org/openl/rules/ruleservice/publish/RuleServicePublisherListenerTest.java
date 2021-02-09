@@ -33,18 +33,18 @@ public class RuleServicePublisherListenerTest {
 
         Assert.assertFalse(serviceManager.getServicesInfo().isEmpty());
 
-        OpenLService service = publisher.getServiceByDeploy("org.openl.tablets.tutorial4");
+        OpenLService service = publisher.getServiceByDeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
 
         Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onDeployCount);
         Assert.assertEquals(0, RuleServicePublisherListenerTestListener.onUndeployCount);
 
-        publisher.undeploy("org.openl.tablets.tutorial4");
+        publisher.undeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
         publisher.deploy(service);
 
         Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
         Assert.assertEquals(1, RuleServicePublisherListenerTestListener.onUndeployCount);
 
-        publisher.undeploy("org.openl.tablets.tutorial4");
+        publisher.undeploy("RulesPublisherTest/org.openl.tablets.tutorial4");
 
         Assert.assertEquals(3, RuleServicePublisherListenerTestListener.onDeployCount);
         Assert.assertEquals(2, RuleServicePublisherListenerTestListener.onUndeployCount);

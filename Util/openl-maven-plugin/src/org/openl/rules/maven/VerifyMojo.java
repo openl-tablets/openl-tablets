@@ -3,11 +3,13 @@ package org.openl.rules.maven;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
@@ -62,7 +64,8 @@ public class VerifyMojo extends BaseOpenLMojo {
             context.refresh();
 
             final RulesFrontend frontend = context.getBean(RulesFrontend.class);
-            Collection<String> deployedServices = frontend.getServiceNames();
+
+            Collection<String> deployedServices = frontend.getServices().stream().map(OpenLService::getDeployPath).collect(Collectors.toList());
             if (deployedServices.size() == 0) {
                 throw new MojoFailureException(
                     String.format("Failed to deploy '%s:%s'", project.getGroupId(), project.getArtifactId()));

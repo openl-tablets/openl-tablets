@@ -45,7 +45,7 @@ public class JavaClassRuleServicePublisher implements RuleServicePublisher {
     public void deploy(OpenLService service) throws RuleServiceDeployException {
         Objects.requireNonNull(service, "service cannot be null");
         try {
-            OpenLService registeredService = frontend.findServiceByDeploy(service.getName());
+            OpenLService registeredService = frontend.findServiceByName(service.getName());
             if (registeredService != null) {
                 throw new RuleServiceDeployException(
                     String.format("Service '%s' is already deployed.", service.getName()));

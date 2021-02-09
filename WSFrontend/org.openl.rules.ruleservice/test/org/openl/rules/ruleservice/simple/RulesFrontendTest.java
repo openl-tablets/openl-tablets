@@ -60,9 +60,9 @@ public class RulesFrontendTest {
         assertEquals(3, frontend.getServiceNames().size());
         Object result = frontend.execute("RulesFrontendTest_multimodule", "worldHello", 10);
         assertEquals("World, Good Morning!", result);
-        serviceManager.getServiceByDeploy("RulesFrontendTest_multimodule");
+        serviceManager.getServiceByDeploy("RulesFrontendTest/multimodule");
 
-        serviceManager.undeploy("multimodule");
+        serviceManager.undeploy("RulesFrontendTest/multimodule");
         assertEquals(Arrays.asList("org.openl.rules.tutorial4.Tutorial4Interface", "simple/name"),
             frontend.getServiceNames());
 

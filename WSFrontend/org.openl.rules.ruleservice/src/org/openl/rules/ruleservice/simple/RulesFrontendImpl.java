@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.simple;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,14 +50,19 @@ public class RulesFrontendImpl implements RulesFrontend {
     }
 
     @Override
-    public java.util.Collection<String> getServiceNames() {
+    public Collection<String> getServiceNames() {
         return new ArrayList<>(runningServices.keySet());
     }
 
     @Override
-    public OpenLService findServiceByDeploy(String deployPath) {
-        Objects.requireNonNull(deployPath, "serviceName cannot be null");
-        return getService(deployPath);
+    public Collection<OpenLService> getServices() {
+        return runningServices.values();
+    }
+
+    @Override
+    public OpenLService findServiceByName(String serviceName) {
+        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+        return getService(serviceName);
     }
 
     /**

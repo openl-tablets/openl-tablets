@@ -36,8 +36,8 @@ public class RulesPublisherTest {
     private static final String DATA2 = "data2";
     private static final String TUTORIAL4_INTERFACE = "org.openl.rules.tutorial4.Tutorial4Interface";
     private static final String DATA1 = "data1";
-    private static final String TUTORIAL4 = "org.openl.tablets.tutorial4";
-    private static final String MULTI_MODULE = "multimodule";
+    private static final String TUTORIAL4 = "RulesPublisherTest/org.openl.tablets.tutorial4";
+    private static final String MULTI_MODULE = "RulesPublisherTest/multimodule";
     private static final String TUTORIAL4_SERVICE_NAME = "org.openl.rules.tutorial4.Tutorial4Interface";
     private static final String MULTI_MODULE_SERVICE_NAME = "RulesPublisherTest_multimodule";
 

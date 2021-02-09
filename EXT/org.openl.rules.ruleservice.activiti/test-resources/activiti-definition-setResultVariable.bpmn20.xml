@@ -9,7 +9,7 @@
 		<sequenceFlow id='flow1' sourceRef='theStart' targetRef='task' />
 
 		<serviceTask id="task"
-			activiti:expression="${openLEngine.execute('Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).asDouble().set(execution, 'resultVariable')}" />
+			activiti:expression="${openLEngine.execute('datasource/Tutorial1', 'DriverPremium1', driverAge, driverMaritalStatus).asDouble().set(execution, 'resultVariable')}" />
 
 		<sequenceFlow id='flow2' sourceRef='task' targetRef='theTask1'>
 			<conditionExpression xsi:type="tFormalExpression">
