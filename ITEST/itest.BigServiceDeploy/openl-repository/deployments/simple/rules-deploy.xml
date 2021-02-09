@@ -1,5 +1,0 @@
-<rules-deploy>
-    <isProvideRuntimeContext>false</isProvideRuntimeContext>
-    <isProvideVariations>false</isProvideVariations>
-    <url>simple</url>
-</rules-deploy>

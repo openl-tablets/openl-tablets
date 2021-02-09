@@ -457,6 +457,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
+        return (org.openl.rules.enumeration.DTEmptyResultProcessingEnum) getPropertyValue("emptyResultProcessing");
+    }
+
+    @Override
+    public void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
+        setFieldValue("emptyResultProcessing", emptyResultProcessing);
+        reset();
+    }
+
+    @Override
     public java.lang.String getPrecision() {
         return (java.lang.String) getPropertyValue("precision");
     }

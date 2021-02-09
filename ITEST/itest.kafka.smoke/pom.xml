@@ -15,7 +15,7 @@
     <url>https://openl-tablets.org</url>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx512m</surefire.argLine>
+        <surefire.argLine>-Xms128m -Xmx512m -Xss256k</surefire.argLine>
     </properties>
 
     <build>

@@ -4,11 +4,11 @@ Content-Type: application/json
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "EPBDS-10916%20+Whitespaces in Name #.zip_EPBDS-10916%20+Whitespaces in Name #.zip",
+        "title": "EPBDS-10916%20+Whitespaces in Name #_EPBDS-10916%20+Whitespaces in Name #",
         "version": "1.0.0"
     },
     "servers": [{
-            "url": "/REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip",
+            "url": "/REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23",
             "variables": {}
         }
     ],

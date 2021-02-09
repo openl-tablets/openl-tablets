@@ -7,7 +7,9 @@
 package org.openl.conf;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.binding.exception.AmbiguousTypeException;
 import org.openl.types.IOpenClass;
@@ -31,7 +33,7 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
     }
 
     public IOpenClass getType(String name, IConfigurableResourceContext cxt) throws AmbiguousTypeException {
-        List<IOpenClass> foundTypes = new ArrayList<>(2);
+        Set<IOpenClass> foundTypes = new HashSet<>();
 
         for (ITypeFactoryConfigurationElement confElem : factories) {
             IOpenClass type = confElem.getLibrary(cxt).getType(name);
@@ -44,9 +46,9 @@ public class NameSpacedTypeConfiguration extends AConfigurationElement {
             case 0:
                 return null;
             case 1:
-                return foundTypes.get(0);
+                return foundTypes.iterator().next();
             default:
-                throw new AmbiguousTypeException(name, foundTypes);
+                throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
         }
     }
 

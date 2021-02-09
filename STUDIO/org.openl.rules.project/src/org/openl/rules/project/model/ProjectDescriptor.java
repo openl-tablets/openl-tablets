@@ -37,6 +37,8 @@ public class ProjectDescriptor {
     private String[] propertiesFileNamePatterns;
     private String propertiesFileNameProcessor;
 
+    private volatile URL[] classPathUrls;
+
     public String[] getPropertiesFileNamePatterns() {
         return propertiesFileNamePatterns;
     }
@@ -129,11 +131,11 @@ public class ProjectDescriptor {
         if ("jar".equals(jarURI.getScheme())) {
             URI uriToZip = jarURI;
             if (uriToZip.getSchemeSpecificPart().contains("%")) {
-                //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                // FIXME workaround to fix double URI encoding for URIs from ZipPath
                 try {
                     uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
                 } catch (URISyntaxException ignored) {
-                    //it's ok. let's use original one
+                    // it's ok. let's use original one
                 }
             }
             return uriToZip;
@@ -154,77 +156,98 @@ public class ProjectDescriptor {
         if (classpath == null) {
             return new URL[] { projectUrl };
         }
-        List<URL> urls = new ArrayList<>();
-        urls.add(projectUrl);
-        for (String path : processClasspathPathPatterns()) {
-            URL url;
-            try {
-                url = new URL(path).toURI().normalize().toURL();
-            } catch (URISyntaxException | MalformedURLException e1) {
-                try {
-                    url = new URL(projectUrl, path).toURI().normalize().toURL();
-                    //FIXME
-                    if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+        if (classPathUrls == null) {
+            synchronized (this) {
+                if (classPathUrls == null) {
+                    List<URL> urls = new ArrayList<>();
+                    urls.add(projectUrl);
+                    List<URL> originalUrls = new ArrayList<>(urls);
+                    for (String path : processClasspathPathPatterns()) {
+                        path = path.replaceAll("\\\\", "/");
+                        URL url;
+                        URL originalUrl;
                         try {
-                            Path temp = Files.createTempFile(FileUtils.getBaseName(path), FileUtils.getExtension(path));
-                            temp.toFile().deleteOnExit();
-                            try (InputStream is = url.openStream()) {
-                                Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+                            url = new URL(path.startsWith("/") ? "file://" + path : path).toURI().normalize().toURL();
+                            originalUrl = url;
+                        } catch (URISyntaxException | MalformedURLException e1) {
+                            try {
+                                url = new URL(projectUrl.getProtocol(),
+                                    projectUrl.getHost(),
+                                    projectUrl.getPort(),
+                                    projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
+                                    null).toURI().normalize().toURL();
+                                originalUrl = url;
+                                // FIXME
+                                if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+                                    try {
+                                        Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
+                                            FileUtils.getExtension(path));
+                                        temp.toFile().deleteOnExit();
+                                        try (InputStream is = url.openStream()) {
+                                            Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+                                        }
+                                        url = temp.toUri().normalize().toURL();
+                                    } catch (FileNotFoundException ignored) {
+                                        // do nothing. It's OK
+                                    } catch (IOException e) {
+                                        throw RuntimeExceptionWrapper.wrap(e);
+                                    }
+                                }
+                            } catch (URISyntaxException | MalformedURLException e2) {
+                                continue;
                             }
-                            url = temp.toUri().normalize().toURL();
-                        } catch (FileNotFoundException ignored) {
-                            //do nothing. It's OK
-                        } catch (IOException e) {
-                            throw RuntimeExceptionWrapper.wrap(e);
+                        }
+                        boolean f = false;
+                        for (URL url1 : originalUrls) {
+                            if (url1.sameFile(originalUrl)) {
+                                f = true;
+                            }
+                        }
+                        if (!f) {
+                            originalUrls.add(originalUrl);
+                            urls.add(url);
                         }
                     }
-                } catch (URISyntaxException | MalformedURLException e2) {
-                    continue;
+                    classPathUrls = urls.toArray(new URL[0]);
                 }
-            }
-            boolean f = false;
-            for (URL url1 : urls) {
-                if (url1.sameFile(url)) {
-                    f = true;
-                }
-            }
-            if (!f) {
-                urls.add(url);
             }
         }
-        return urls.toArray(new URL[0]);
+        return classPathUrls;
     }
 
     private Set<String> processClasspathPathPatterns() {
-        Set<String> processedClasspath = new HashSet<>(classpath.size());
-        for (PathEntry pathEntry : classpath) {
+        Set<String> pathEntries = new HashSet<>();
+        for (PathEntry pathEntry : this.classpath) {
             String path = pathEntry.getPath().replace('\\', '/').trim();
+            if (path.startsWith("./")) {
+                path = path.substring(2);
+            }
             if (path.contains("*") || path.contains("?")) {
-                check(projectFolder, processedClasspath, path, projectFolder);
+                resolve(projectFolder, pathEntries, path, projectFolder);
             } else {
                 // without wildcard path
                 if (path.endsWith("/")) {
                     // it is a folder
-                    processedClasspath.add(path);
+                    pathEntries.add(path);
                 } else {
                     File file = new File(path);
                     if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
-                        processedClasspath.add(path + "/");
+                        pathEntries.add(path + "/");
                     } else if (Files.isDirectory(projectFolder.resolve(path))) {
                         // it is a folder
-                        processedClasspath.add(path + "/");
+                        pathEntries.add(path + "/");
                     } else {
                         // it is a file
-                        processedClasspath.add(path);
+                        pathEntries.add(path);
                     }
                 }
             }
         }
-        return processedClasspath;
+        return pathEntries;
     }
 
-    private void check(Path folder, Collection<String> matched, String pathPattern, Path rootFolder) {
+    private void resolve(Path folder, Collection<String> pathEntries, String pathPattern, Path rootFolder) {
         try {
             Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
                 @Override
@@ -235,7 +258,7 @@ public class ProjectDescriptor {
                     String relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
                     if (new AntPathMatcher().match(pathPattern, relativePath)) {
-                        matched.add(relativePath);
+                        pathEntries.add(relativePath);
                     }
                     return FileVisitResult.CONTINUE;
                 }

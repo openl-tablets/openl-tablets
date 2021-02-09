@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.binding.IBindingContext;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.DoubleValue;
 import org.openl.rules.helpers.CharRange;
@@ -181,8 +181,8 @@ public class String2DataConvertorFactory {
                 if (cl == classLoader) {
                     toRemove.add(clazz);
                 }
-                if (classLoader instanceof OpenLBundleClassLoader) {
-                    if (((OpenLBundleClassLoader) classLoader).containsClassLoader(cl)) {
+                if (classLoader instanceof OpenLClassLoader) {
+                    if (((OpenLClassLoader) classLoader).containsClassLoader(cl)) {
                         toRemove.add(clazz);
                     }
                 }

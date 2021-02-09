@@ -5,9 +5,9 @@ Content-Type: application/json
     "swagger": "2.0",
     "info": {
         "version": "1.0.0",
-        "title": "EPBDS-10916%20+Whitespaces in Name #.zip_EPBDS-10916%20+Whitespaces in Name #.zip"
+        "title": "EPBDS-10916%20+Whitespaces in Name #_EPBDS-10916%20+Whitespaces in Name #"
     },
-    "basePath": "/REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23.zip",
+    "basePath": "/REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23",
     "paths": {
         "/DriverPremium2": {
             "post": {

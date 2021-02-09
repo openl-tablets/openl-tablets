@@ -2,6 +2,7 @@ package org.openl.gen;
 
 import java.util.Objects;
 import java.util.Optional;
+import org.objectweb.asm.Type;
 
 /**
  * Type description.
@@ -11,6 +12,7 @@ import java.util.Optional;
 public class TypeDescription {
 
     private final String typeName;
+    private final String canonicalName;
     private final String typeDescriptor;
     private final AnnotationDescription[] annotations;
 
@@ -33,6 +35,7 @@ public class TypeDescription {
      */
     TypeDescription(String typeName, AnnotationDescription[] annotations) {
         this.typeName = Objects.requireNonNull(typeName, "Type name is null.");
+        this.canonicalName = Type.getObjectType(typeName).getClassName();
         switch (typeName) {
             case "byte":
                 this.typeDescriptor = "B";
@@ -84,7 +87,7 @@ public class TypeDescription {
     /**
      * Get type descriptor
      *
-     * @return  type descriptor
+     * @return type descriptor
      */
     public String getTypeDescriptor() {
         return typeDescriptor;
@@ -92,6 +95,7 @@ public class TypeDescription {
 
     /**
      * Check if type is an array
+     * 
      * @return {@code true} if type is an array, otherwise {@code false}
      */
     public boolean isArray() {
@@ -105,6 +109,10 @@ public class TypeDescription {
      */
     public AnnotationDescription[] getAnnotations() {
         return annotations;
+    }
+
+    public String getCanonicalName() {
+        return canonicalName;
     }
 
     @Override

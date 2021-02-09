@@ -2,9 +2,9 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j">
 
-    <f:view transient="true">
     <rich:popupPanel id="exportProject" minWidth="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Export project" />
@@ -15,24 +15,42 @@
         </f:facet>
 
         <h:form id="exportProjectForm">
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportProjectData">
-                <h:outputText value="Project Name:" />
-                <h:outputLabel id="exportingProjectName" value="#{studio.currentProject.businessName}" />
-            </h:panelGrid>
+            <h:panelGroup id="exportProjectData">
+                <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+                    <h:outputLabel value="Project Name:" />
+                    <h:outputText value="#{exportBean.businessName}" />
+                    <h:outputLabel for="projectVersionToExport" styleClass="required" value="Project Revision:" />
+                    <h:selectOneMenu id="projectVersionToExport" value="#{exportBean.version}" required="true" >
+                        <f:ajax event="change" execute="projectVersionToExport" />
+                        <f:ajax event="focus" execute="projectVersionToExport" />
+                        <f:selectItems value="#{exportBean.selectedProjectVersions}" />
+                    </h:selectOneMenu>
+                </h:panelGrid>
+            </h:panelGroup>
 
             <footer>
-                <h:commandButton value="Export" action="#{studio.exportProject}"
-                    onclick="ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
+                <h:commandButton value="Export" action="#{exportBean.exportProject}"
+                                   onclick="ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
                 <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportProject').hide();" />
             </footer>
+            <a4j:jsFunction name="renderExportProjectForm" render="exportProjectData" oncomplete="showExportProjectDialog()">
+                <a4j:param name="repositoryId" assignTo="#{exportBean.repositoryId}"/>
+                <a4j:param name="projectName" assignTo="#{exportBean.initProject}"/>
+            </a4j:jsFunction><script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
         </h:form>
 
     </rich:popupPanel>
-    </f:view>
 
     <script>
-        function openExportProjectDialog() {
+        //<![CDATA[
+
+        function openExportProjectDialog(repositoryId, projectName) {
+            renderExportProjectForm(repositoryId, projectName);
+        }
+
+        function showExportProjectDialog() {
             RichFaces.$('exportProject').show();
+            focusElement('exportProjectForm:projectVersionToExport');
         }
 
         $j(function () {
@@ -58,5 +76,7 @@
             };
             ResponseMonitor.register($j('#exportProjectForm').get(), options);
         });
+
+        //]]>
     </script>
 </ui:composition>

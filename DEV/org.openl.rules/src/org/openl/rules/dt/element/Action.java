@@ -6,8 +6,10 @@ import java.util.Map;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.rules.dt.DTScale;
+import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
 import org.openl.rules.dt.storage.IStorage;
+import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
@@ -32,10 +34,19 @@ public class Action extends FunctionalRow implements IAction {
     private boolean isSingleReturnParam;
     private IOpenClass returnType;
     private final ActionType actionType;
+    private final boolean skipEmptyResult;
 
-    public Action(String name, int row, ILogicalTable decisionTable, ActionType actionType, DTScale.RowScale scale) {
+    public Action(String name,
+            int row,
+            ILogicalTable decisionTable,
+            ActionType actionType,
+            DTScale.RowScale scale,
+            DecisionTable decisionTableInvocableMethod) {
         super(name, row, decisionTable, scale);
         this.actionType = actionType;
+        this.skipEmptyResult = decisionTableInvocableMethod
+            .getMethodProperties() != null && DTEmptyResultProcessingEnum.SKIP
+                .equals(decisionTableInvocableMethod.getMethodProperties().getEmptyResultProcessing());
     }
 
     @Override
@@ -71,7 +82,7 @@ public class Action extends FunctionalRow implements IAction {
         }
 
         if (isSingleReturnParam) {
-            if (isEmpty(ruleN)) {
+            if (skipEmptyResult && isEmpty(ruleN)) {
                 return null;
             }
 
@@ -101,7 +112,7 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private Object executeActionInternal(int ruleN, Object target, Object[] params, IRuntimeEnv env) {
-        if (isEmpty(ruleN)) {
+        if (skipEmptyResult && isEmpty(ruleN)) {
             return null;
         }
 
@@ -109,8 +120,7 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnKeyAction(TableSyntaxNode tableSyntaxNode,
-                                                                         IOpenMethodHeader header,
-                                                                         IBindingContext bindingContext) {
+            IBindingContext bindingContext) {
         IOpenClass cType = null;
         if (tableSyntaxNode.getHeader().getCollectParameters().length > 0) {
             cType = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
@@ -120,8 +130,8 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     private static IOpenClass extractMethodTypeForCollectReturnAction(TableSyntaxNode tableSyntaxNode,
-                                                                      IOpenMethodHeader header,
-                                                                      IBindingContext bindingContext) {
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
         IOpenClass type = header.getType();
         if (type.isArray()) {
             return type.getComponentClass();
@@ -164,7 +174,7 @@ public class Action extends FunctionalRow implements IAction {
                 methodType = extractMethodTypeForCollectReturnAction(tableSyntaxNode, header, bindingContext);
             } else {
                 if (isCollectReturnKeyAction()) {
-                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, header, bindingContext);
+                    methodType = extractMethodTypeForCollectReturnKeyAction(tableSyntaxNode, bindingContext);
                 }
             }
         }
@@ -191,9 +201,8 @@ public class Action extends FunctionalRow implements IAction {
             OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
-        if (EXTRA_RET.equals(methodSource.getCode())
-                && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())
-                && getParams() == null) {
+        if (EXTRA_RET.equals(methodSource
+            .getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
             ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
 
             IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] { extraParam };

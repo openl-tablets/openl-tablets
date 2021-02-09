@@ -58,7 +58,7 @@ public class MethodTableBoundNode extends AMethodBasedNode {
         ILogicalTable bodyTable = logicalTable.getRows(tableHasProperties ? 2 : 1);
 
         if (bodyTable == null) {
-            String errorMessage = "Method table must contain a body section";
+            String errorMessage = "Body section is mandatory for Method table.";
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, tsn);
             bindingContext.addError(error);
         } else {

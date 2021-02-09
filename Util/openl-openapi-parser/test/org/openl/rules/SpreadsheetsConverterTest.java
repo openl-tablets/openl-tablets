@@ -115,7 +115,7 @@ public class SpreadsheetsConverterTest {
         assertFalse(parameters.isEmpty());
         InputParameter next = parameters.iterator().next();
         assertEquals("Integer", next.getType().getSimpleName());
-        assertEquals("integer", next.getName());
+        assertEquals("integer", next.getFormattedName());
         assertFalse(helloKittyModel.getSteps().isEmpty());
         StepModel kittyStep = helloKittyModel.getSteps().iterator().next();
         assertEquals("Result", kittyStep.getName());
@@ -125,12 +125,12 @@ public class SpreadsheetsConverterTest {
         assertFalse(bla112Params.isEmpty());
         assertEquals(2, bla112Params.size());
         Optional<InputParameter> firstParam = bla112Params.stream()
-            .filter(x -> x.getName().equals("__32$12HI"))
+            .filter(x -> x.getFormattedName().equals("__32$12HI"))
             .findFirst();
         assertTrue(firstParam.isPresent());
 
         Optional<InputParameter> secondParam = bla112Params.stream()
-            .filter(x -> x.getName().equals("byeBye"))
+            .filter(x -> x.getFormattedName().equals("byeBye"))
             .findFirst();
         assertTrue(secondParam.isPresent());
     }
@@ -209,7 +209,7 @@ public class SpreadsheetsConverterTest {
             "java.lang.Object",
             objParameter.getType().getJavaName(),
             "objField",
-            objParameter.getName());
+            objParameter.getFormattedName());
 
         InputParameter mapParameter = findInputParameter(parameters, "mapField");
         validateGeneratedModel("Object",
@@ -217,7 +217,7 @@ public class SpreadsheetsConverterTest {
             "java.lang.Object",
             mapParameter.getType().getJavaName(),
             "mapField",
-            mapParameter.getName());
+            mapParameter.getFormattedName());
 
         InputParameter listParameter = findInputParameter(parameters, "listField");
         validateGeneratedModel("Object[]",
@@ -225,7 +225,7 @@ public class SpreadsheetsConverterTest {
             "[Ljava.lang.Object;",
             listParameter.getType().getJavaName(),
             "listField",
-            listParameter.getName());
+            listParameter.getFormattedName());
 
         InputParameter doubleParameter = findInputParameter(parameters, "doubleField");
         validateGeneratedModel("Double",
@@ -233,7 +233,7 @@ public class SpreadsheetsConverterTest {
             "java.lang.Double",
             doubleParameter.getType().getJavaName(),
             "doubleField",
-            doubleParameter.getName());
+            doubleParameter.getFormattedName());
 
         SpreadsheetModel mySpr2Model = findSpreadsheet(spreadsheetModels, "mySpr2");
         assertEquals("Object", mySpr2Model.getType());
@@ -241,7 +241,7 @@ public class SpreadsheetsConverterTest {
         assertEquals(1, spr2Parameters.size());
         InputParameter objectParam = spr2Parameters.iterator().next();
         assertEquals("Object", objectParam.getType().getSimpleName());
-        assertEquals("object", objectParam.getName());
+        assertEquals("object", objectParam.getFormattedName());
 
         List<StepModel> objSteps = mySpr2Model.getSteps();
         assertEquals(1, objSteps.size());
@@ -294,7 +294,9 @@ public class SpreadsheetsConverterTest {
         SpreadsheetModel apiBlaModel = modelsToClass.iterator().next();
         List<InputParameter> parameters = apiBlaModel.getParameters();
         assertEquals(4, parameters.size());
-        Set<String> parameterNames = parameters.stream().map(InputParameter::getName).collect(Collectors.toSet());
+        Set<String> parameterNames = parameters.stream()
+            .map(InputParameter::getFormattedName)
+            .collect(Collectors.toSet());
         assertTrue(parameterNames.contains("id"));
         assertTrue(parameterNames.contains("name"));
         assertTrue(parameterNames.contains("isCompleted"));
@@ -310,7 +312,7 @@ public class SpreadsheetsConverterTest {
         assertEquals(1, parameters.size());
         InputParameter param = parameters.iterator().next();
         assertEquals("Double[]", param.getType().getSimpleName());
-        assertEquals("double", param.getName());
+        assertEquals("double", param.getFormattedName());
     }
 
     @Test
@@ -535,7 +537,7 @@ public class SpreadsheetsConverterTest {
         assertEquals(1, parameters.size());
         InputParameter next = parameters.iterator().next();
         assertEquals("WrapperObject", next.getType().getSimpleName());
-        assertEquals("wrapperObject", next.getName());
+        assertEquals("wrapperObject", next.getFormattedName());
     }
 
     @Test
@@ -710,15 +712,11 @@ public class SpreadsheetsConverterTest {
             step.getName(),
             "AnySpreadsheetResult",
             step.getType(),
-            "= new SpreadsheetResult()",
+            "= mySmart(null)",
             step.getValue());
 
         ProjectModel pathProjectWithLostAny = converter
             .extractProjectModel("test.converter/spreadsheets/smallExampleWithAnyAsLost.json");
-        assertTrue(pathProjectWithLostAny.getDatatypeModels()
-            .stream()
-            .anyMatch(model -> model.getName().equals("AnySpreadsheetResult")));
-
     }
 
     @Test
@@ -835,6 +833,12 @@ public class SpreadsheetsConverterTest {
         assertEquals("= new CensusSummary[]{}", sp4.getSteps().get(0).getValue());
     }
 
+    @Test
+    public void testVariations() throws IOException {
+        ProjectModel projectModel = converter.extractProjectModel("test.converter/problems/tutorial7.json");
+        assertTrue(projectModel.areVariationsProvided());
+    }
+
     private SpreadsheetModel findSpreadsheet(final List<SpreadsheetModel> spreadsheetModels, final String sprName) {
         Optional<SpreadsheetModel> spreadsheet = spreadsheetModels.stream()
             .filter(x -> x.getName().equals(sprName))
@@ -850,7 +854,9 @@ public class SpreadsheetsConverterTest {
     }
 
     private InputParameter findInputParameter(final List<InputParameter> parameters, final String paramName) {
-        Optional<InputParameter> param = parameters.stream().filter(x -> x.getName().equals(paramName)).findFirst();
+        Optional<InputParameter> param = parameters.stream()
+            .filter(x -> x.getFormattedName().equals(paramName))
+            .findFirst();
         assertTrue(param.isPresent());
         return param.get();
     }

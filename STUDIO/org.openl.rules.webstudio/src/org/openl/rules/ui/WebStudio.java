@@ -191,18 +191,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         externalProperties.put(key, value);
     }
 
-    private static void addCookie(String name, String value, int age) {
-        Cookie cookie = new Cookie(name, StringTool.encodeURL(value));
-        String contextPath = ((HttpServletRequest) WebStudioUtils.getExternalContext().getRequest()).getContextPath();
-        if (!StringUtils.isEmpty(contextPath)) {
-            cookie.setPath(contextPath);
-        } else {
-            cookie.setPath("/"); // EPBDS-7613
-        }
-        cookie.setMaxAge(age);
-        ((HttpServletResponse) WebStudioUtils.getExternalContext().getResponse()).addCookie(cookie);
-    }
-
     private void initWorkspace(HttpSession session) {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(session);
 
@@ -396,48 +384,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return null;
     }
 
-    public String exportProject() {
-        File file = null;
-        String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
-        String cookieName = cookePrefix + "_" + WebStudioUtils.getRequestParameter(cookePrefix);
-        try {
-            RulesProject forExport = getCurrentProject();
-            // Export fresh state of the project (it could be modified in
-            // background by Excel)
-            forExport.refresh();
-            String userName = rulesUserSession.getUserName();
-
-            FileData fileData = forExport.getFileData();
-            String modifiedOnStr = new SimpleDateFormat("yyyy-MM-dd_HH-mm-ss").format(fileData.getModifiedAt());
-            String suffix = fileData.getAuthor() + "-" + modifiedOnStr;
-            String fileName = String.format("%s-%s.zip", forExport.getName(), suffix);
-            file = ProjectExportHelper.export(new WorkspaceUserImpl(userName), forExport);
-
-            final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
-            addCookie(cookieName, "success", -1);
-
-            ExportFile.writeOutContent(response, file, fileName);
-            facesContext.responseComplete();
-        } catch (ProjectException e) {
-            String message;
-            if (e.getCause() instanceof FileNotFoundException) {
-                if (e.getMessage().contains(".xls")) {
-                    message = "Failed to export the project. Please close module Excel file and try again.";
-                } else {
-                    message = "Failed to export the project because some resources are used.";
-                }
-            } else {
-                message = "Failed to export the project. See logs for details.";
-            }
-
-            log.error(message, e);
-            addCookie(cookieName, message, -1);
-        } finally {
-            FileUtils.deleteQuietly(file);
-        }
-        return null;
-    }
 
     public ProjectDescriptor getCurrentProjectDescriptor() {
         return currentProject;
@@ -536,7 +482,11 @@ public class WebStudio implements DesignTimeRepositoryListener {
         needCompile = true;
     }
 
-    public void resetProjects() {
+    public synchronized void resetProjects() {
+        doResetProjects();
+    }
+
+    private void doResetProjects() {
         forcedCompile = true;
         projects = null;
         try {
@@ -549,7 +499,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     }
 
     public synchronized void reset() {
-        resetProjects();
+        doResetProjects();
         currentModule = null;
         currentProject = null;
     }
@@ -620,7 +570,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (module != null && (needCompile && (isAutoCompile() || manualCompile) || forcedCompile || moduleChanged)) {
                 if (forcedCompile) {
                     reset(ReloadType.FORCED);
-                } else if (needCompile) {
+                } else if (needCompile || moduleChanged) {
+                    //if moduleChanged is true - we need to reset the project because we change tableSyntaxNode directly
+                    //must be rewritten - tableSyntaxNode must be changed only on project saving
                     reset(ReloadType.SINGLE);
                 } else {
                     model.setModuleInfo(module);
@@ -774,7 +726,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 }
             });
 
-            resetProjects();
+            doResetProjects();
 
         } catch (ValidationException e) {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
@@ -1327,7 +1279,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
                     String actualName = rulesUserSession.getUserWorkspace().getActualName(project);
 
-                    resetProjects();
+                    doResetProjects();
 
                     return actualName.equals(descriptor.getName()) ? null : actualName;
                 }

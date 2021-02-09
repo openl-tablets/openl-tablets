@@ -7,7 +7,6 @@ public class ProjectInfo {
     private String path;
     private Date modifiedAt;
     private boolean archived;
-    private boolean duplicated = false;
 
     public ProjectInfo() {
     }
@@ -52,19 +51,10 @@ public class ProjectInfo {
         this.archived = archived;
     }
 
-    public boolean isDuplicated() {
-        return duplicated;
-    }
-
-    public void setDuplicated(boolean duplicated) {
-        this.duplicated = duplicated;
-    }
-
     public ProjectInfo copy() {
         ProjectInfo info = new ProjectInfo(getName(), getPath());
         info.setModifiedAt(getModifiedAt());
         info.setArchived(isArchived());
-        info.setDuplicated(isDuplicated());
         return info;
     }
 }

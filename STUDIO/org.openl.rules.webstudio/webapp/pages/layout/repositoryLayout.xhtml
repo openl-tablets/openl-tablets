@@ -16,7 +16,7 @@
 
         <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
         <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="#{contextPath}/css/common.css?4" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?5" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
@@ -30,6 +30,7 @@
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
         <script src="#{contextPath}/javascript/bomjs.js"></script>
+        <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
 
         <h:outputScript name="jsf.js" library="javax.faces" />
 
@@ -75,6 +76,12 @@
                     },
                     info: function(content) {
                         message(content, 8000, true);
+                    },
+                    showLoader: function() {
+                        showLoader();
+                    },
+                    hideLoader: function() {
+                        hideLoader();
                     }
                 }
             };

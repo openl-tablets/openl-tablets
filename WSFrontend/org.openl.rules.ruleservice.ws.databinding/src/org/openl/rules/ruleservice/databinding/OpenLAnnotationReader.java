@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding;
 
-/*-
- * #%L
- * OpenL - RuleService - Web Services - Databinding
- * %%
- * Copyright (C) 2015 - 2019 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.lang.reflect.AnnotatedElement;
 
 import org.apache.cxf.aegis.type.AegisType;

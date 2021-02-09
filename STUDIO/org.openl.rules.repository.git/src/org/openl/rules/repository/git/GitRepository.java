@@ -777,8 +777,12 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             // Unknown host
             if (cause instanceof UnknownHostException) {
-                String error = "Invalid URL " + uri;
-                throw new IllegalArgumentException(error);
+                String error = "Unknown host for URL " + uri;
+                final String message = cause.getMessage();
+                if (message != null) {
+                    error += " Root cause message: " + message;
+                }
+                throw new IllegalArgumentException(error, e);
             }
 
             // Other cases
@@ -1101,7 +1105,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         Ref advertisedRef = fetchResult.getAdvertisedRef(Constants.R_HEADS + branch);
         Ref localRef = git.getRepository().findRef(branch);
         if (localRef != null && advertisedRef != null && !localRef.getObjectId().equals(advertisedRef.getObjectId())) {
-            if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId())) {
+            if (isMergedInto(advertisedRef.getObjectId(), localRef.getObjectId(), false)) {
                 // We enter here only if we have inconsistent repository state. Need additional investigation if this
                 // occurred. For example this can happen if we discarded locally some commit but the branch didn't move
                 // to the desired new HEAD.
@@ -1860,14 +1864,26 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("isMergedInto(): lock");
             readLock.lock();
             Repository repository = git.getRepository();
-            return isMergedInto(repository.resolve(from), repository.resolve(to));
+            return isMergedInto(repository.resolve(from), repository.resolve(to), true);
         } finally {
             readLock.unlock();
             log.debug("isMergedInto(): unlock");
         }
     }
 
-    private boolean isMergedInto(ObjectId fromId, ObjectId toId) throws IOException {
+    /**
+     * Checks if commit with id {@code fromId} is merged to commit with id {@code toId}.
+     *
+     * @param fromId origin
+     * @param toId destination
+     * @param skipEmptyChanges If false, it works as in git: Determine if a commit is reachable from another commit. If
+     *            true, commits with empty changes will be skipped. In the latter case if there are no valuable changes
+     *            in other branch (for example only merge commits gotten from our branch), this method returns true. If
+     *            you are interested in all unmerged commits (including empty ones), use "false".
+     * @return true if commit {@code fromId} is merged to commit with id {@code toId} and false otherwise.
+     * @throws IOException if any error is occurred during this method
+     */
+    private boolean isMergedInto(ObjectId fromId, ObjectId toId, boolean skipEmptyChanges) throws IOException {
         Repository repository = git.getRepository();
 
         try (RevWalk revWalk = new RevWalk(repository)) {
@@ -1877,12 +1893,22 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             RevCommit fromCommit = revWalk.parseCommit(fromId);
             RevCommit toCommit = revWalk.parseCommit(toId);
             boolean merged = revWalk.isMergedInto(fromCommit, toCommit);
-            if (!merged) {
-                try (DiffFormatter diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
-                    diffFormatter.setRepository(git.getRepository());
-                    List<DiffEntry> diffEntries = diffFormatter.scan(fromCommit, toCommit);
-                    if (diffEntries.isEmpty()) {
-                        return true;
+            if (!merged && skipEmptyChanges) {
+                if (fromCommit.getParentCount() == 2) {
+                    // fromCommit is a merge commit
+                    final RevCommit parent1 = fromCommit.getParent(0);
+                    final RevCommit parent2 = fromCommit.getParent(1);
+
+                    if (hasSameContent(parent1, fromCommit) || hasSameContent(parent2, fromCommit)) {
+                        // Merge commit has same content as one of their parents
+                        final boolean firstParentMerged = isMergedInto(parent1, toCommit, true);
+                        final boolean secondParentMerged = isMergedInto(parent2, toCommit, true);
+                        if (firstParentMerged && secondParentMerged) {
+                            // If both parents are merged to our commit and one of the parents is same as child (merge
+                            // commit), we can assume that the merge commit doesn't have any valuable updates.
+                            // So we can assume that all valuable changes are merged.
+                            return true;
+                        }
                     }
                 }
             }
@@ -1892,6 +1918,17 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         } catch (Exception e) {
             throw new IOException(e.getMessage(), e);
         }
+    }
+
+    private boolean hasSameContent(RevCommit commit1, RevCommit commit2) throws IOException {
+        try (DiffFormatter diffFormatter = new DiffFormatter(NullOutputStream.INSTANCE)) {
+            diffFormatter.setRepository(git.getRepository());
+            List<DiffEntry> diffEntries = diffFormatter.scan(commit1, commit2);
+            if (diffEntries.isEmpty()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void saveMultipleFiles(FileData folderData,

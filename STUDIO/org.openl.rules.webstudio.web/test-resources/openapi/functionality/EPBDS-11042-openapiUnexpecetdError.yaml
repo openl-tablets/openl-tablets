@@ -1,0 +1,95 @@
+openapi: 3.0.1
+info:
+  title: openApiDtaFailure1_openApiDtaFailure1
+  version: 1.0.0
+servers:
+  - url: /webservice/openApiDtaFailure1/openApiDtaFailure1
+    variables: { }
+paths:
+  /mySpr/{queryParam1}:
+    post:
+      summary: Double mySpr(MyDatatype)
+      description: "Rules method: java.lang.Double mySpr(org.openl.generated.beans.MyDatatype\
+        \ param)"
+      operationId: id
+      parameters:
+        - name: queryParam1
+          in: path
+          description: Query param 1
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyDatatype'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          description: Successful operation
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+components:
+  schemas:
+    JAXRSErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+            - USER_ERROR
+            - RULES_RUNTIME
+            - COMPILATION
+            - SYSTEM
+            - BAD_REQUEST
+            - VALIDATION
+        details:
+          type: array
+          items:
+            type: string
+    MyDatatype:
+      type: object
+      properties:
+        field1:
+          type: string
+          example: field3
+        param2:
+          type: string
+          example: field3
+      xml:
+        name: MyDatatype
+        namespace: http://beans.generated.openl.org

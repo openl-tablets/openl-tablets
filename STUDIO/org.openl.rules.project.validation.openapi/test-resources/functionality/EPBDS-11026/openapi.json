@@ -1,0 +1,513 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "preconfig-policy-commercial-rating-rules",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "/webservice/property-cl",
+			"variables": {}
+		}
+	],
+	"paths": {
+		"/RatingBasis1": {
+			"post": {
+				"summary": "VariationsResult RatingBasis(IRulesRuntimeContext, String, String, String, String, String, Double, Double, VariationsPac",
+				"description": "Method: org.openl.rules.variation.VariationsResult RatingBasis(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Double, java.lang.Double, org.openl.rules.variation.VariationsPack)",
+				"operationId": "RatingBasis_1",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RatingBasisRequest1"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+							"content": {
+							"text/plain": {
+								"schema": {
+									"type": "number",
+									"format": "double"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/RatingBasis": {
+			"post": {
+				"summary": "DoubleValue RatingBasis(IRulesRuntimeContext, String, String, String, String, String, Double, Double)",
+				"description": "Method: org.openl.meta.DoubleValue RatingBasis(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.String, java.lang.Double, java.lang.Double)",
+				"operationId": "RatingBasis",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/RatingBasisRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"content": {
+							"text/plain": {
+								"schema": {
+									"type": "number",
+									"format": "double"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"DefaultRulesRuntimeContext": {
+				"type": "object",
+				"properties": {
+					"currentDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"requestDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lob": {
+						"type": "string"
+					},
+					"nature": {
+						"type": "string"
+					},
+					"usState": {
+						"type": "string",
+						"enum": [
+							"AL",
+							"AK",
+							"AZ",
+							"AR",
+							"CA",
+							"CO",
+							"CT",
+							"DC",
+							"DE",
+							"FL",
+							"GA",
+							"HI",
+							"ID",
+							"IL",
+							"IN",
+							"IA",
+							"KS",
+							"KY",
+							"LA",
+							"ME",
+							"MD",
+							"MA",
+							"MI",
+							"MN",
+							"MS",
+							"MO",
+							"MT",
+							"NE",
+							"NV",
+							"NH",
+							"NJ",
+							"NM",
+							"NY",
+							"NC",
+							"ND",
+							"OH",
+							"OK",
+							"OR",
+							"PA",
+							"PR",
+							"RI",
+							"SC",
+							"SD",
+							"TN",
+							"TX",
+							"UT",
+							"VT",
+							"VA",
+							"WA",
+							"WV",
+							"WI",
+							"WY"
+						]
+					},
+					"country": {
+						"type": "string",
+						"enum": [
+							"AE",
+							"AL",
+							"AR",
+							"AS",
+							"AT",
+							"AU",
+							"BA",
+							"BE",
+							"BG",
+							"BH",
+							"BO",
+							"BR",
+							"BY",
+							"CA",
+							"CH",
+							"CK",
+							"CL",
+							"CN",
+							"CO",
+							"CR",
+							"CS",
+							"CY",
+							"CZ",
+							"DE",
+							"DK",
+							"DO",
+							"DZ",
+							"EC",
+							"EE",
+							"EG",
+							"ES",
+							"FI",
+							"FJ",
+							"FR",
+							"GB",
+							"GR",
+							"GT",
+							"HK",
+							"HN",
+							"HR",
+							"HU",
+							"ID",
+							"IE",
+							"IL",
+							"IN",
+							"IQ",
+							"IS",
+							"IT",
+							"JO",
+							"JP",
+							"KW",
+							"LB",
+							"LT",
+							"LU",
+							"LV",
+							"MA",
+							"MK",
+							"MT",
+							"MX",
+							"MY",
+							"NI",
+							"NL",
+							"NO",
+							"NZ",
+							"OM",
+							"PA",
+							"PE",
+							"PG",
+							"PH",
+							"PL",
+							"PR",
+							"PT",
+							"PY",
+							"QA",
+							"RO",
+							"RU",
+							"SA",
+							"SB",
+							"SD",
+							"SE",
+							"SG",
+							"SI",
+							"SK",
+							"SV",
+							"SY",
+							"TH",
+							"TN",
+							"TO",
+							"TR",
+							"TW",
+							"UA",
+							"US",
+							"UY",
+							"VE",
+							"VN",
+							"VU",
+							"WS",
+							"YE",
+							"ZA"
+						]
+					},
+					"usRegion": {
+						"type": "string",
+						"enum": [
+							"MW",
+							"NE",
+							"SE",
+							"SW",
+							"W"
+						]
+					},
+					"currency": {
+						"type": "string",
+						"enum": [
+							"ALL",
+							"DZD",
+							"ARS",
+							"AUD",
+							"BHD",
+							"BYR",
+							"BOB",
+							"BAM",
+							"BRL",
+							"CAD",
+							"CLP",
+							"CNY",
+							"COP",
+							"CRC",
+							"HRK",
+							"CZK",
+							"DKK",
+							"DOP",
+							"EGP",
+							"EUR",
+							"GTQ",
+							"HNL",
+							"HKD",
+							"HUF",
+							"ISK",
+							"INR",
+							"IDR",
+							"IQD",
+							"ILS",
+							"JPY",
+							"JOD",
+							"KWD",
+							"LVL",
+							"LBP",
+							"LTL",
+							"MKD",
+							"MYR",
+							"MXN",
+							"MAD",
+							"NZD",
+							"NIO",
+							"NOK",
+							"OMR",
+							"PAB",
+							"PYG",
+							"PEN",
+							"PHP",
+							"PLN",
+							"QAR",
+							"RON",
+							"RUB",
+							"SAR",
+							"RSD",
+							"SGD",
+							"ZAR",
+							"SDG",
+							"SEK",
+							"CHF",
+							"SYP",
+							"TWD",
+							"TND",
+							"TRY",
+							"UAH",
+							"AED",
+							"GBP",
+							"USD",
+							"UYU",
+							"VEF",
+							"VND",
+							"YER"
+						]
+					},
+					"lang": {
+						"type": "string",
+						"enum": [
+							"ALB",
+							"ARA",
+							"BEL",
+							"BUL",
+							"CAT",
+							"CHI",
+							"SCR",
+							"CZE",
+							"DAN",
+							"DUT",
+							"ENG",
+							"FIN",
+							"FRE",
+							"GER",
+							"GRE",
+							"HEB",
+							"HIN",
+							"HUN",
+							"IND",
+							"GLE",
+							"ITA",
+							"JPN",
+							"LAV",
+							"LIT",
+							"MAC",
+							"MAY",
+							"MLT",
+							"NOR",
+							"POL",
+							"POR",
+							"RUM",
+							"RUS",
+							"SCC",
+							"SLO",
+							"SPA",
+							"THA",
+							"TUR",
+							"UKR",
+							"VIE"
+						]
+					},
+					"region": {
+						"type": "string",
+						"enum": [
+							"NCSA",
+							"EU",
+							"EMEA",
+							"APJ"
+						]
+					},
+					"caProvince": {
+						"type": "string",
+						"enum": [
+							"AB",
+							"BC",
+							"PE",
+							"MB",
+							"NB",
+							"NS",
+							"NU",
+							"ON",
+							"QC",
+							"SK",
+							"NL",
+							"YT",
+							"NT"
+						]
+					},
+					"caRegion": {
+						"type": "string",
+						"enum": [
+							"QC",
+							"HQ"
+						]
+					}
+				}
+			},
+			"Variation": {
+				"required": [
+					"@class"
+				],
+				"type": "object",
+				"properties": {
+					"variationID": {
+						"type": "string"
+					},
+					"@class": {
+						"type": "string"
+					}
+				},
+				"discriminator": {
+					"propertyName": "@class"
+				}
+			},
+			"VariationsPack": {
+				"type": "object",
+				"properties": {
+					"variations": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/Variation"
+						}
+					}
+				}
+			},
+			"RatingBasisRequest1": {
+				"type": "object",
+				"properties": {
+					"runtimeContext": {
+						"$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+					},
+					"ratingBasis": {
+						"type": "string"
+					},
+					"classCode": {
+						"type": "string"
+					},
+					"coverageType": {
+						"type": "string"
+					},
+					"group": {
+						"type": "string"
+					},
+					"constructionType": {
+						"type": "string"
+					},
+					"tentativeBGIRate": {
+						"type": "number",
+						"format": "double"
+					},
+					"specificBGIRate": {
+						"type": "number",
+						"format": "double"
+					},
+					"variationPack": {
+						"$ref": "#/components/schemas/VariationsPack"
+					}
+				}
+			},
+			"RatingBasisRequest": {
+				"type": "object",
+				"properties": {
+					"runtimeContext": {
+						"$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+					},
+					"ratingBasis": {
+						"type": "string"
+					},
+					"classCode": {
+						"type": "string"
+					},
+					"coverageType": {
+						"type": "string"
+					},
+					"group": {
+						"type": "string"
+					},
+					"constructionType": {
+						"type": "string"
+					},
+					"tentativeBGIRate": {
+						"type": "number",
+						"format": "double"
+					},
+					"specificBGIRate": {
+						"type": "number",
+						"format": "double"
+					}
+				}
+			}
+		}
+	}
+}

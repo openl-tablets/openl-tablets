@@ -1,0 +1,19 @@
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'type' is already declared in parent class 'ProblemFields'.
+WARN: Field 'title' is already declared in parent class 'ProblemFields'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'not_created' is found in type 'RulesRequestSummary'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'deleted' is found in type 'RulesRequestSummary'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'not_deleted' is found in type 'RulesRequestSummary'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'created' is found in type 'RulesRequestSummary'.
+ERROR: OpenAPI Reconciliation: Expected operation 'POST' is not found for path '/labs/1/tweets/stream/filter/rules'.

@@ -38,7 +38,7 @@
 		<property name="ruleServiceInstantiationFactory" ref="ruleServiceInstantiationFactory"/>
 		<property name="ruleServiceLoader" ref="ruleServiceLoader"/>
 		<property name="supportedPublishers" ref="ruleServicePublishers"/>
-		<property name="defaultRuleServicePublishers" ref="defaultRuleServicePublishers"/>
+		<property name="defaultRuleServicePublishers" value="${ruleservice.publishers:}"/>
 	</bean>
 
 	<bean id="openLServiceInProcess" factory-bean="serviceManager" factory-method="getOpenLServiceInProcess" scope="prototype"/>

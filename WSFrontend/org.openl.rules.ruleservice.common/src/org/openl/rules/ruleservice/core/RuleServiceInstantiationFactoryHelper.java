@@ -3,9 +3,11 @@ package org.openl.rules.ruleservice.core;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -58,8 +60,8 @@ public final class RuleServiceInstantiationFactoryHelper {
      * @author PUdalau
      */
     private static class RuleServiceInterceptorsSupportClassVisitor extends ClassVisitor {
-        private final Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange;
-        private final Collection<Method> methodsToRemove;
+        private final Map<String, List<Pair<Method, Pair<Class<?>, Boolean>>>> methodsWithReturnTypeNeedsChange;
+        private final Map<String, List<Method>> methodsToRemove;
 
         /**
          * Constructs instance with delegated {@link ClassVisitor} and set of methods.
@@ -71,9 +73,23 @@ public final class RuleServiceInstantiationFactoryHelper {
                 Map<Method, Pair<Class<?>, Boolean>> methodsWithReturnTypeNeedsChange,
                 Collection<Method> methodsToRemove) {
             super(Opcodes.ASM5, visitor);
-            this.methodsWithReturnTypeNeedsChange = Objects.requireNonNull(methodsWithReturnTypeNeedsChange,
-                "methodsWithReturnTypeNeedsChange cannot be null");
-            this.methodsToRemove = Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
+            Objects.requireNonNull(methodsWithReturnTypeNeedsChange, "methodsWithReturnTypeNeedsChange cannot be null");
+            this.methodsWithReturnTypeNeedsChange = new HashMap<>();
+            // Build map by method name to improve performance of the method search loop
+            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
+                List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = this.methodsWithReturnTypeNeedsChange
+                    .computeIfAbsent(entry.getKey().getName(), e -> new ArrayList<>());
+                listOfMethods.add(Pair.of(entry.getKey(), entry.getValue()));
+            }
+            Objects.requireNonNull(methodsToRemove, "methodsToRemove cannot be null");
+            this.methodsToRemove = new HashMap<>();
+            // Build map by method name to improve performance of the method search loop
+            for (Method method : methodsToRemove) {
+                List<Method> listOfMethods = this.methodsToRemove.computeIfAbsent(method.getName(),
+                    e -> new ArrayList<>());
+                listOfMethods.add(method);
+            }
+
         }
 
         @Override
@@ -82,35 +98,40 @@ public final class RuleServiceInstantiationFactoryHelper {
                 final String descriptor,
                 final String signature,
                 final String[] exceptions) {
-            for (Method method : methodsToRemove) {
-                if (name.equals(method.getName()) && descriptor.equals(Type.getMethodDescriptor(method))) {
-                    return null;
-                }
-            }
-            for (Entry<Method, Pair<Class<?>, Boolean>> entry : methodsWithReturnTypeNeedsChange.entrySet()) {
-                Method method = entry.getKey();
-                if (name.equals(method.getName()) && descriptor.equals(Type.getMethodDescriptor(method))) {
-                    Class<?> newRetType = entry.getValue().getKey();
-                    MethodVisitor mv = super.visitMethod(access,
-                        name,
-                        Type.getMethodDescriptor(Type.getType(newRetType), Type.getArgumentTypes(descriptor)),
-                        signature,
-                        exceptions);
-                    if (!entry.getValue().getValue()) {
-                        AnnotationVisitor av = mv.visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class),
-                            true);
-                        AnnotationVisitor av1 = av.visitArray("value");
-                        av1.visit("value",
-                            Type.getType(VariationsResult.class
-                                .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
-                                                    : SPRToPlainConverterAdvice.class));
-                        av1.visitEnd();
-                        av.visitEnd();
+            List<Method> listOfMethodsToRemove = methodsToRemove.get(name);
+            if (listOfMethodsToRemove != null) {
+                for (Method method : listOfMethodsToRemove) {
+                    if (descriptor.equals(Type.getMethodDescriptor(method))) {
+                        return null;
                     }
-                    return mv;
                 }
             }
-
+            List<Pair<Method, Pair<Class<?>, Boolean>>> listOfMethods = methodsWithReturnTypeNeedsChange.get(name);
+            if (listOfMethods != null) {
+                for (Pair<Method, Pair<Class<?>, Boolean>> entry : listOfMethods) {
+                    Method method = entry.getKey();
+                    if (descriptor.equals(Type.getMethodDescriptor(method))) {
+                        Class<?> newRetType = entry.getValue().getKey();
+                        MethodVisitor mv = super.visitMethod(access,
+                            name,
+                            Type.getMethodDescriptor(Type.getType(newRetType), Type.getArgumentTypes(descriptor)),
+                            signature,
+                            exceptions);
+                        if (!entry.getValue().getValue()) {
+                            AnnotationVisitor av = mv
+                                .visitAnnotation(Type.getDescriptor(ServiceCallAfterInterceptor.class), true);
+                            AnnotationVisitor av1 = av.visitArray("value");
+                            av1.visit("value",
+                                Type.getType(VariationsResult.class
+                                    .equals(newRetType) ? VariationResultSPRToPlainConverterAdvice.class
+                                                        : SPRToPlainConverterAdvice.class));
+                            av1.visitEnd();
+                            av.visitEnd();
+                        }
+                        return mv;
+                    }
+                }
+            }
             return super.visitMethod(access, name, descriptor, signature, exceptions);
         }
     }

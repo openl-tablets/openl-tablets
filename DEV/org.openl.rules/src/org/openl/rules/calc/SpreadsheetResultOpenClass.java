@@ -37,10 +37,10 @@ public final class SpreadsheetResultOpenClass extends JavaOpenClass {
     @Override
     public IOpenField getField(String fieldName, boolean strictMatch) {
         IOpenField openField = null;
-        if (strictMatchCache.containsKey(fieldName)) {
+        if (strictMatch && strictMatchCache.containsKey(fieldName)) {
             openField = strictMatchCache.get(fieldName);
         }
-        if (noStrictMatchCache.containsKey(fieldName.toLowerCase())) {
+        if (!strictMatch && noStrictMatchCache.containsKey(fieldName.toLowerCase())) {
             openField = noStrictMatchCache.get(fieldName.toLowerCase());
         }
         if (openField != null && openField != RESOLVING_IN_PROGRESS) {

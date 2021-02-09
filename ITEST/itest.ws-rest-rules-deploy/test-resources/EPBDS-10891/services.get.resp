@@ -6,7 +6,6 @@ Content-Type: application/json
         "name": "yaml_project_Project1",
         "servicePath": "deploy/yaml_project/Project1",
         "urls": {
-            "WEBSERVICE": "yaml_project/Project1",
             "RESTFUL": "REST/yaml_project/Project1"
         },
         "hasManifest": false,
@@ -16,7 +15,6 @@ Content-Type: application/json
         "name": "yaml_project_Project2",
         "servicePath": "deploy/yaml_project/Project2",
         "urls": {
-            "WEBSERVICE": "yaml_project/Project2",
             "RESTFUL": "REST/yaml_project/Project2"
         },
         "hasManifest": false,

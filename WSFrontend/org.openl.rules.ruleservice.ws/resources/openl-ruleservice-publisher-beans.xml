@@ -23,9 +23,4 @@
         <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>
         <entry key="KAFKA" value-ref="kafkaServicesRuleServicePublisher"/>
     </util:map>
-
-    <util:list id="defaultRuleServicePublishers">
-        <value>WEBSERVICE</value>
-        <value>RESTFUL</value>
-    </util:list>
 </beans>

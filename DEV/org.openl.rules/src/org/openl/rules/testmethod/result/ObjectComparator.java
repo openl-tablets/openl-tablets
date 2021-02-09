@@ -36,10 +36,10 @@ class ObjectComparator extends GenericComparator<Object> {
                 } catch (Exception ignored) {
                 }
             }
-            TestResultComparator comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), delta);
-            if (comparator.getClass() != this.getClass()) {
-                return comparator.isEqual(expectedValue, actualValue);
-            }
+        }
+        TestResultComparator comparator = TestResultComparatorFactory.getComparator(expectedValue.getClass(), delta);
+        if (comparator.getClass() != this.getClass()) {
+            return comparator.isEqual(expectedValue, actualValue);
         }
         return Objects.equals(expectedValue, actualValue);
     }

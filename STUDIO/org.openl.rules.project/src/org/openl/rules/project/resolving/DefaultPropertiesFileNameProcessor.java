@@ -70,12 +70,12 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
     }
 
     @Override
-    public ITableProperties process(String fileName) throws NoMatchFileNameException {
+    public ITableProperties process(String modulePath) throws NoMatchFileNameException {
 
-        Matcher fileNameMatcher = fileNameRegexpPattern.matcher(fileName);
+        Matcher fileNameMatcher = fileNameRegexpPattern.matcher(modulePath);
         if (!fileNameMatcher.matches()) {
             throw new NoMatchFileNameException(
-                String.format("File '%s' does not match file name pattern '%s'.", fileName, pattern));
+                String.format("File '%s' does not match file name pattern '%s'.", modulePath, pattern));
         }
         TableProperties props = new TableProperties();
         for (String propertyName : propertyNames) {
@@ -86,7 +86,7 @@ public class DefaultPropertiesFileNameProcessor implements PropertiesFileNamePro
             } catch (Exception e) {
                 throw new NoMatchFileNameException(String.format(
                     "File '%s' does not match file name pattern '%s'.\r\n Invalid property: %s.\r\n Message: %s.",
-                    fileName,
+                    modulePath,
                     pattern,
                     propertyName,
                     e.getMessage()));

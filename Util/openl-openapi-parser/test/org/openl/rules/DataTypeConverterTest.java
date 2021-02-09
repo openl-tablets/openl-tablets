@@ -159,19 +159,19 @@ public class DataTypeConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(4, parameters.size());
 
-        Optional<InputParameter> numDui = parameters.stream().filter(x -> x.getName().equals("numDUI")).findFirst();
+        Optional<InputParameter> numDui = parameters.stream().filter(x -> x.getFormattedName().equals("numDUI")).findFirst();
         assertTrue(numDui.isPresent());
 
         Optional<InputParameter> numAccidents = parameters.stream()
-            .filter(x -> x.getName().equals("numAccidents"))
+            .filter(x -> x.getFormattedName().equals("numAccidents"))
             .findFirst();
         assertTrue(numAccidents.isPresent());
 
-        Optional<InputParameter> category = parameters.stream().filter(x -> x.getName().equals("category")).findFirst();
+        Optional<InputParameter> category = parameters.stream().filter(x -> x.getFormattedName().equals("category")).findFirst();
         assertTrue(category.isPresent());
 
         Optional<InputParameter> numMovingViolations = parameters.stream()
-            .filter(x -> x.getName().equals("numMovingViolations"))
+            .filter(x -> x.getFormattedName().equals("numMovingViolations"))
             .findFirst();
         assertTrue(numMovingViolations.isPresent());
 

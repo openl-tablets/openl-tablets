@@ -23,7 +23,7 @@ import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.engine.ExtendableModuleOpenClass;
 import org.openl.engine.OpenLSystemProperties;
@@ -81,7 +81,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     private final ClassLoader classLoader;
 
-    private final OpenLBundleClassLoader classGenerationClassLoader;
+    private final OpenLClassLoader classGenerationClassLoader;
 
     private RulesModuleBindingContext rulesModuleBindingContext;
 
@@ -115,7 +115,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         this.dispatchingValidationEnabled = OpenLSystemProperties
             .isDispatchingValidationEnabled(bindingContext.getExternalParams());
         this.classLoader = classLoader;
-        this.classGenerationClassLoader = new OpenLBundleClassLoader(null);
+        this.classGenerationClassLoader = new OpenLClassLoader(null);
         this.classGenerationClassLoader.addClassLoader(classLoader);
         this.rulesModuleBindingContext = new RulesModuleBindingContext(bindingContext, this);
 
@@ -161,7 +161,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return classLoader;
     }
 
-    public OpenLBundleClassLoader getClassGenerationClassLoader() {
+    public OpenLClassLoader getClassGenerationClassLoader() {
         return classGenerationClassLoader;
     }
 

@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -24,16 +23,12 @@ public final class ZipArchiver implements Closeable {
     private final ZipOutputStream zos;
     private final byte[] buffer = new byte[BUFFER_SIZE];
 
-    public ZipArchiver(OutputStream os) {
-        this.zos = new ZipOutputStream(os);
-    }
-
     public ZipArchiver(Path file) throws IOException {
         Path dir = file.getParent();
         if (dir != null) {
             Files.createDirectories(dir);
         }
-        OutputStream os = Files.newOutputStream(file, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
+        OutputStream os = Files.newOutputStream(file);
         this.zos = new ZipOutputStream(os);
     }
 

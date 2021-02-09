@@ -7,50 +7,61 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.boot.web.server.LocalServerPort;
 
 @SpringBootTest(classes = { SpringBootWebApp.class }, webEnvironment = WebEnvironment.RANDOM_PORT)
 public class SpringBootWebAppTest {
-    @LocalServerPort
-    private int port;
 
     @Autowired
     private TestRestTemplate restTemplate;
 
     @Test
-    public void indexPage() throws Exception {
-        String response = restTemplate.getForObject("http://localhost:" + port + "/", String.class);
+    public void indexPage() {
+        String response = restTemplate.getForObject("/", String.class);
         assertThat(response).contains("OpenL Tablets Rule Services");
     }
 
     @Test
-    public void favicon() throws Exception {
-        byte[] response = restTemplate.getForObject("http://localhost:" + port + "/favicon.ico", byte[].class);
+    public void favicon() {
+        byte[] response = restTemplate.getForObject("/favicon.ico", byte[].class);
         assertThat(response).hasSize(1086);
     }
 
     @Test
-    public void adminInfo() throws Exception {
-        String response = restTemplate.getForObject("http://localhost:" + port + "/admin/ui/info", String.class);
+    public void adminInfo() {
+        String response = restTemplate.getForObject("/admin/ui/info", String.class);
         assertThat(response).contains("\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"status\":\"DEPLOYED\"");
     }
 
     @Test
-    public void openAPI() throws Exception {
-        String response = restTemplate.getForObject("http://localhost:" + port + "/openl-rules-rs/openapi.json", String.class);
+    public void openAPI() {
+        String response = restTemplate.getForObject("/openl-rules-rs/openapi.json", String.class);
         assertThat(response).contains("SayHello");
     }
 
     @Test
-    public void postEmpty() throws Exception {
-        String response = restTemplate.postForObject("http://localhost:" + port + "/openl-rules-rs/SayHello", "", String.class);
+    public void postEmpty() {
+        String response = restTemplate.postForObject("/openl-rules-rs/SayHello", "", String.class);
         assertThat(response).contains("Hello, World!");
     }
 
 
     @Test
-    public void postMister() throws Exception {
-        String response = restTemplate.postForObject("http://localhost:" + port + "/openl-rules-rs/SayHello", "Mister", String.class);
+    public void postMister() {
+        String response = restTemplate.postForObject("/openl-rules-rs/SayHello", "Mister", String.class);
         assertThat(response).contains("Hello, Mister!");
+    }
+
+    @Test
+    public void deployZipFromOpenLFolder() {
+        String response = restTemplate.postForObject("/REST/deployed-rules/hello", new Request1("John Smith"), String.class);
+        assertThat(response).contains("Hello, John Smith");
+    }
+
+    public static class Request1 {
+        public String name;
+
+        public Request1(String name) {
+            this.name = name;
+        }
     }
 }

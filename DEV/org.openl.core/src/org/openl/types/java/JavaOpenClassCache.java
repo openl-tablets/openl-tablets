@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.meta.*;
 
 public final class JavaOpenClassCache {
@@ -105,8 +105,8 @@ public final class JavaOpenClassCache {
                 if (classLoader == cl) {
                     toRemove.add(c);
                 }
-                if (cl instanceof OpenLBundleClassLoader) {
-                    if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
+                if (cl instanceof OpenLClassLoader) {
+                    if (((OpenLClassLoader) cl).containsClassLoader(classLoader)) {
                         toRemove.add(c);
                     }
                 }

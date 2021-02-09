@@ -1,7 +1,16 @@
 package org.openl.rules.webstudio.web.tableeditor;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.faces.model.SelectItem;
 import javax.faces.model.SelectItemGroup;
@@ -262,13 +271,26 @@ public class TableDetailsBean {
                 if (newValue == null && oldValue != null) {
                     // if value is empty we have to delete it
                     propsToRemove.add(name);
-                } else if (enumArray && !Arrays.equals((Enum<?>[]) oldValue,
-                    (Enum<?>[]) newValue) || stringArray && !Arrays.equals((String[]) oldValue,
-                        (String[]) newValue) || !enumArray && !stringArray && ObjectUtils.notEqual(oldValue,
-                            newValue)) {
-                    tableEditorModel.setProperty(name,
-                        newValue.getClass().isArray() && ArrayUtils.getLength(newValue) == 0 ? null : newValue);
-                    toSave = true;
+                } else {
+                    boolean setProperty = false;
+                    if (enumArray) {
+                        Enum<?>[] oldValueEnumArray = (Enum<?>[]) oldValue;
+                        Enum<?>[] newValueArray = (Enum<?>[]) newValue;
+                        if (!(oldValueEnumArray != null && oldValueEnumArray.length == newValueArray.length && Arrays
+                                .asList(oldValueEnumArray)
+                                .containsAll(Arrays.asList(newValueArray)))) {
+                            setProperty = true;
+                        }
+                    } else if (stringArray && !Arrays.equals((String[]) oldValue,
+                        (String[]) newValue) || !stringArray && ObjectUtils.notEqual(oldValue, newValue)) {
+                        setProperty = true;
+                    }
+                    if (setProperty) {
+                        tableEditorModel.setProperty(name,
+                            newValue != null && newValue.getClass().isArray() && ArrayUtils
+                                .getLength(newValue) == 0 ? null : newValue);
+                        toSave = true;
+                    }
                 }
             }
         }

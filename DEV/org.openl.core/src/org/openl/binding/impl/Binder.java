@@ -88,11 +88,13 @@ public class Binder implements IOpenBinder {
         }
 
         ISyntaxNode syntaxNode = parsedCode.getTopNode();
-
-        bindingContext.pushLocalVarContext();
-        IBoundNode boundNode = ANodeBinder.bindChildNode(syntaxNode, bindingContext);
-        bindingContext.popLocalVarContext();
-
+        IBoundNode boundNode;
+        try {
+            bindingContext.pushLocalVarContext();
+            boundNode = ANodeBinder.bindChildNode(syntaxNode, bindingContext);
+        } finally {
+            bindingContext.popLocalVarContext();
+        }
         return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages());
     }
 }

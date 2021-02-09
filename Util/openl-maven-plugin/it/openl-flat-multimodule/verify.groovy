@@ -76,6 +76,11 @@ try {
         // There must be no extra jar
         assert zf.entries().findAll { !it.directory }.size() == 4
     }
+
+    def lines = new File(folder, 'build.log').readLines('UTF-8')
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-child-dependency\' artifact') }
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-parent-project\' artifact') }
+
     return true
 } catch(Throwable e) {
     e.printStackTrace()

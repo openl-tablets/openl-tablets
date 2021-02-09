@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.rmi;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - RMI
- * %%
- * Copyright (C) 2015 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 

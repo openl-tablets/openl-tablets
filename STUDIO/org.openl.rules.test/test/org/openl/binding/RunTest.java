@@ -250,7 +250,7 @@ public class RunTest {
             "aaabbddZZZ");
 
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(String s) !@ s.getDay() < 5]",
-            "Method 'getDay()' is not found.");
+            "Method 'getDay()' is not found in type 'java.lang.String'.");
         assertError("String[] ary = {\"bb\", \"ddd\", \"aaa\"}; ary[(Date d) !@ d.getDay() < 5]",
             "Cannot cast 'java.lang.String' to 'java.util.Date'.");
 
@@ -411,10 +411,10 @@ public class RunTest {
         assertEquals("10d.class", double.class);
         assertEquals("int x = 5; x.class", int.class);
 
-        assertError("String.length()", "Accessing to non-static method from a static class.");
-        assertError("Double.isNaN()", "Accessing to non-static method from a static class.");
-        assertError("Double.getClass()", "Accessing to non-static method from a static class.");
-        assertError("int.getClass()", "Method 'getClass()' is not found.");
+        assertError("String.length()", "Static method 'length()' is not found in type 'java.lang.String'.");
+        assertError("Double.isNaN()", "Static method 'isNaN()' is not found in type 'java.lang.Double'.");
+        assertError("Double.getClass()", "Static method 'getClass()' is not found in type 'java.lang.Double'.");
+        assertError("int.getClass()", "Static method 'getClass()' is not found in type 'int'.");
     }
 
     @Test

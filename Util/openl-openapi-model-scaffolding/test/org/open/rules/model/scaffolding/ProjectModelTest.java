@@ -43,17 +43,20 @@ public class ProjectModelTest {
     public void testProjectModelWithContext() {
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
+            false,
             Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
+            false,
             Collections.emptySet(),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithoutContext = new ProjectModel(BANK_RATING,
+            false,
             false,
             Collections.emptySet(),
             Collections.emptyList(),
@@ -76,18 +79,21 @@ public class ProjectModelTest {
 
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
+            false,
             Collections.emptySet(),
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
+            false,
             Collections.emptySet(),
             Collections.emptyList(),
             Arrays.asList(firstSpr, secondSpr),
             Collections.emptyList());
         ProjectModel bankRatingWithOneSpr = new ProjectModel(BANK_RATING,
             true,
+            false,
             Collections.emptySet(),
             Collections.emptyList(),
             Collections.singletonList(firstSpr),
@@ -108,19 +114,22 @@ public class ProjectModelTest {
         DatatypeModel oneMoreDm = new DatatypeModel("Meat");
         ProjectModel bankRating = new ProjectModel(BANK_RATING,
             true,
-                asSet(dm, oneMoreDm),
+            false,
+            asSet(dm, oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingCopy = new ProjectModel(BANK_RATING,
             true,
-                asSet(dm, oneMoreDm),
+            false,
+            asSet(dm, oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());
         ProjectModel bankRatingWithOneDataType = new ProjectModel(BANK_RATING,
             true,
-                asSet(oneMoreDm),
+            false,
+            asSet(oneMoreDm),
             Collections.emptyList(),
             Collections.emptyList(),
             Collections.emptyList());

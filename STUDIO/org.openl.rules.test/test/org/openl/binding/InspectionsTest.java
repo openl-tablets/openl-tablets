@@ -6,10 +6,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.impl.CompositeMethod;
 
@@ -18,7 +18,7 @@ public class InspectionsTest {
     private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
-    public void testConditionTypes() throws SyntaxNodeException {
+    public void testConditionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num ==== num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num <= num ? 1 : 2", ALWAYS_TRUE);
@@ -35,7 +35,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testDifferentExpressionTypes() throws SyntaxNodeException {
+    public void testDifferentExpressionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
         checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
@@ -60,7 +60,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testNoWarning() throws SyntaxNodeException {
+    public void testNoWarning() throws OpenLCompilationException {
         Object result;
 
         result = checkNoMessage(
@@ -81,7 +81,7 @@ public class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkWarning(String expression, String expectedMessage) throws SyntaxNodeException {
+    private <T> T checkWarning(String expression, String expectedMessage) throws OpenLCompilationException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();
@@ -98,7 +98,7 @@ public class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkNoMessage(String expression) throws SyntaxNodeException {
+    private <T> T checkNoMessage(String expression) throws OpenLCompilationException {
         StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IBindingContext bindingContext = openl.getBinder().makeBindingContext();

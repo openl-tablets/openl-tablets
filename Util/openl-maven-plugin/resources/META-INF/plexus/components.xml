@@ -32,6 +32,9 @@
                             <package>
                                 org.openl.rules:openl-maven-plugin:package
                             </package>
+                            <verify>
+                                org.openl.rules:openl-maven-plugin:verify
+                            </verify>
                             <install>
                                 org.apache.maven.plugins:maven-install-plugin:install
                             </install>
@@ -89,6 +92,9 @@
                             <package>
                                 org.openl.rules:openl-maven-plugin:package
                             </package>
+                            <verify>
+                                org.openl.rules:openl-maven-plugin:verify
+                            </verify>
                             <install>
                                 org.apache.maven.plugins:maven-install-plugin:install
                             </install>

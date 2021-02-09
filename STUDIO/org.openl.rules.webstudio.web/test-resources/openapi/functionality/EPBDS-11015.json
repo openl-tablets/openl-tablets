@@ -1,0 +1,220 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/statement/{a}/{b}/{c}": {
+      "get": {
+        "tags": [
+          "accounts"
+        ],
+        "summary": "Выписка по счетам",
+        "description": "Возвращает список транзакций по одному либо нескольким счетам",
+        "operationId": "getStatement",
+        "parameters": [
+          {
+            "name": "a",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          {
+            "name": "c",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Успешное выполнение запроса",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatementResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          }
+        },
+        "x-st-position": 5,
+        "x-st-code-samples": [
+          {
+            "lang": "cURL",
+            "sample": "curl -X GET \\\r\n  'https://developerhub.alfabank.by:8273/partner/1.0.2/accounts/statement/?number=<number1>,<number2>&dateFrom=30.09.2018Z&dateTo=30.10.2018&pageNo=1&pageRowCount=50&transactions=0&cacheKey=<cacheKey>' \\\r\n  -H 'Authorization: Bearer <accessToken>'\r\n"
+          },
+          {
+            "lang": "Java",
+            "sample": "OkHttpClient client = new OkHttpClient();\r\n\r\nRequest request = new Request.Builder()\r\n  .url(\"https://developerhub.alfabank.by:8273/partner/1.0.2/accounts/statement/?number=<number1>,<number2>&dateFrom=30.09.2018&dateTo=30.10.2018&pageNo=1&pageRowCount=50&transactions=0&cacheKey=<cacheKey>\")\r\n  .get()\r\n  .addHeader(\"Authorization\", \"Bearer <accessToken>\")\r\n  .build();\r\n\r\nResponse response = client.newCall(request).execute();\r\n"
+          },
+          {
+            "lang": "Node",
+            "sample": "var request = require(\"request\");\r\n\r\nvar options = { method: 'GET',\r\n  url: 'https://developerhub.alfabank.by:8273/partner/1.0.2/accounts/statement/',\r\n  qs:\r\n   { number: '<number1>,<number2>',\r\n     dateFrom: '30.09.2018',\r\n     dateTo: '30.10.2018',\r\n     pageNo: '1',\r\n     pageRowCount: '50',\r\n     transactions: '0',\r\n     cacheKey: '<cacheKey>' },\r\n  headers:\r\n   { Authorization: 'Bearer <accessToken>' } };\r\n\r\nrequest(options, function (error, response, body) {\r\n  if (error) throw new Error(error);\r\n\r\n  console.log(body);\r\n});\r\n"
+          },
+          {
+            "lang": "Swift",
+            "sample": "import Foundation\r\n\r\nlet headers = [\r\n  \"Authorization\": \"Bearer <accessToken>\"\r\n]\r\n\r\nlet request = NSMutableURLRequest(url: NSURL(string: \"https://developerhub.alfabank.by:8273/partner/1.0.2/accounts/statement/?number=<number1>,<number2>&dateFrom=30.09.2018&dateTo=30.10.2018&pageNo=1&pageRowCount=50&transactions=0&cacheKey=<cacheKey>\")! as URL,\r\n                                        cachePolicy: .useProtocolCachePolicy,\r\n                                    timeoutInterval: 10.0)\r\nrequest.httpMethod = \"GET\"\r\nrequest.allHTTPHeaderFields = headers\r\n\r\nlet session = URLSession.shared\r\nlet dataTask = session.dataTask(with: request as URLRequest, completionHandler: { (data, response, error) -> Void in\r\n  if (error != nil) {\r\n    print(error)\r\n  } else {\r\n    let httpResponse = response as? HTTPURLResponse\r\n    print(httpResponse)\r\n  }\r\n})\r\n\r\ndataTask.resume()\r\n"
+          }
+        ],
+        "x-scope": "accounts",
+        "x-auth-type": "Application & Application User",
+        "x-throttling-tier": "Unlimited",
+        "security": [
+          {
+            "default": [
+              "accounts"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Statement": {
+        "type": "object",
+        "properties": {
+          "number": {
+            "type": "string",
+            "description": "Номер счета"
+          },
+          "operType": {
+            "type": "string",
+            "description": "Тип операции (D - дебет, C - кредит)"
+          },
+          "operCode": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Код вида операции"
+          },
+          "operCodeName": {
+            "type": "string",
+            "description": "Наименование вида операции"
+          },
+          "operDate": {
+            "type": "string",
+            "format": "date",
+            "example": "06.08.2019",
+            "description": "Дата исполнения документа"
+          },
+          "acceptDate": {
+            "type": "string",
+            "format": "date-time",
+            "example": "2019-08-06T09:00:00.000",
+            "description": "Дата и время проведения операции"
+          },
+          "docId": {
+            "type": "string",
+            "description": "Идентификатор документа"
+          },
+          "docNum": {
+            "type": "string",
+            "description": "Номер документа"
+          },
+          "docType": {
+            "type": "string",
+            "description": "Код типа документа"
+          },
+          "amount": {
+            "type": "number",
+            "description": "Сумма"
+          },
+          "amountEq": {
+            "type": "number",
+            "description": "Сумма эквивалент"
+          },
+          "currCode": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Код валюты (цифр.)"
+          },
+          "currIso": {
+            "type": "string",
+            "description": "Код валюты (симв.)"
+          },
+          "purpose": {
+            "type": "string",
+            "description": "Назначение"
+          },
+          "corrName": {
+            "type": "string",
+            "description": "Наименование корреспондента"
+          },
+          "corrUnp": {
+            "type": "string",
+            "description": "УНП корреспондента"
+          },
+          "corrNumber": {
+            "type": "string",
+            "description": "Счет корреспондента"
+          },
+          "corrBic": {
+            "type": "string",
+            "description": "Код банка корреспондента"
+          },
+          "corrBank": {
+            "type": "string",
+            "description": "Наименование банка корреспондента"
+          },
+          "budgetCode": {
+            "type": "string",
+            "description": "Код платежа в бюджет"
+          },
+          "printId": {
+            "type": "string",
+            "description": "Идентификатор для печати приложения"
+          }
+        },
+        "description": "Модель операции в выписке"
+      },
+      "StatementResponse": {
+        "type": "object",
+        "properties": {
+          "totalRowCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Полное количество строк в выборке"
+          },
+          "cacheKey": {
+            "type": "string",
+            "description": "Ключ кэша"
+          },
+          "page": {
+            "type": "array",
+            "description": "Список строк на странице",
+            "items": {
+              "$ref": "#/components/schemas/Statement"
+            }
+          }
+        },
+        "description": "Выходная модель, содержащая выписку"
+      }
+    }
+  }
+}

@@ -2,16 +2,6 @@ package org.openl.rules.variation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 /**
  * Empty variation that represents original calculation without any changes of arguments.
  *

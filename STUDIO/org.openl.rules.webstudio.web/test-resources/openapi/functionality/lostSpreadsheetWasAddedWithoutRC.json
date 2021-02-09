@@ -1,0 +1,200 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "myDeploy",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "/webservice/REST/myDeploy",
+			"variables": {}
+		}
+	],
+	"paths": {
+		"/PlanDetails": {
+			"post": {
+				"summary": "bla",
+				"description": "bla",
+				"operationId": "PlanDetails",
+				"requestBody": {
+					"content": {
+						"application/json": {
+							"schema": {
+								"$ref": "#/components/schemas/PlanDetailsRequest"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"description": "Successful operation",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/PlanDetails"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"DefaultRulesRuntimeContext": {
+				"type": "object",
+				"properties": {
+					"currentDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"requestDate": {
+						"type": "string",
+						"format": "date-time"
+					},
+					"lob": {
+						"type": "string"
+					},
+					"nature": {
+						"type": "string"
+					},
+					"usState": {
+						"type": "string",
+						"enum": [
+							"AL",
+							"AK",
+							"AZ",
+							"AR",
+							"CA",
+							"CO",
+							"WA",
+							"WV",
+							"WI",
+							"WY"
+						]
+					},
+					"country": {
+						"type": "string",
+						"enum": [
+							"AE",
+							"AL",
+							"AR",
+							"AS",
+							"AT",
+						"VN",
+							"VU",
+							"WS",
+							"YE",
+							"ZA"
+						]
+					},
+					"usRegion": {
+						"type": "string",
+						"enum": [
+							"MW",
+							"NE",
+							"SE",
+							"SW",
+							"W"
+						]
+					},
+					"currency": {
+						"type": "string",
+						"enum": [
+							"ALL",
+				"GBP",
+							"USD",
+							"UYU",
+							"VEF",
+							"VND",
+							"YER"
+						]
+					},
+					"lang": {
+						"type": "string",
+						"enum": [
+							"ALB",
+							"SLO",
+							"SPA",
+							"THA",
+							"TUR",
+							"UKR",
+							"VIE"
+						]
+					},
+					"region": {
+						"type": "string",
+						"enum": [
+							"NCSA",
+							"EU",
+							"EMEA",
+							"APJ"
+						]
+					},
+					"caProvince": {
+						"type": "string",
+						"enum": [
+							"AB",
+							"BC",
+							"PE",
+							"MB",
+							"NB",
+							"NS",
+							"NU",
+							"ON",
+							"QC",
+							"SK",
+							"NL",
+							"YT",
+							"NT"
+						]
+					},
+					"caRegion": {
+						"type": "string",
+						"enum": [
+							"QC",
+							"HQ"
+						]
+					}
+				}
+			},
+			"PlanDetails": {
+				"type": "object",
+				"properties": {
+					"Plan": {
+						"type": "string"
+					},
+					"Coverages": {
+						"type": "string"
+					}
+				}
+			},
+			"PlanDetailsRequest": {
+				"type": "object",
+				"properties": {
+					"runtimeContext": {
+						"$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+					},
+					"plan": {
+						"type": "string"
+					}
+				}
+			},
+			"ExtractRatingDetails": {
+				"type": "object",
+				"properties": {
+					"PolicyRatesAndPremiums": {
+						"type": "string"
+					},
+					"Plans": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/PlanDetails"
+						}
+					}
+				}
+			}
+		}
+	}
+}

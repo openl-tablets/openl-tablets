@@ -11,12 +11,13 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = {"ruleservice.datasource.dir=test-resources/MultipleProjectsInDeploymentTest" })
+@TestPropertySource(properties = {"production-repository.uri=test-resources/MultipleProjectsInDeploymentTest",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration({"classpath:openl-ruleservice-beans.xml"})
 public class MultipleProjectsInDeploymentTest {
 
     @Autowired
-    RulesFrontend frontend;
+    private RulesFrontend frontend;
 
     @Test
     public void testInvoke() throws Exception {

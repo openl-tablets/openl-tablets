@@ -12,7 +12,8 @@
         </module>
     </modules>
     <classpath>
-        <entry path="lib/*.jar"/>
+        <entry path="classes"/>
+        <entry path="classes1"/>
     </classpath>
     <properties-file-name-pattern>MAIN-%startRequestDate:yyyyMMdd%</properties-file-name-pattern>
 </project>

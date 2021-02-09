@@ -227,7 +227,7 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            throw new MethodNotFoundException(methodName, types);
+            throw new MethodNotFoundException(type, methodName, types);
         }
 
         errorNode = validateMethod(node, bindingContext, target, methodCaller);
@@ -244,9 +244,11 @@ public class MethodNodeBinder extends ANodeBinder {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
-                BindHelper.processWarn("Accessing to static method from non-static object.", node, bindingContext);
+                BindHelper.processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
+                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
             } else {
-                return makeErrorNode("Accessing to non-static method from a static class.", node, bindingContext);
+                return makeErrorNode(String.format("Accessing to non-static method '%s' of static type '%s'.",
+                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
             }
         }
         return null;

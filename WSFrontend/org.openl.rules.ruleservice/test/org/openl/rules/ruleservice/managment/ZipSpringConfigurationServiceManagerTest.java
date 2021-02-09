@@ -28,7 +28,7 @@ public class ZipSpringConfigurationServiceManagerTest {
 
     @Test
     public void testServiceManager() throws MethodInvocationException {
-        Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
+        Object object = frontend.execute("org.openl.tablets_org.openl.tablets",
                 "vehicleEligibilityScore",
                 RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional");
         assertTrue(object instanceof org.openl.meta.DoubleValue);

@@ -21,7 +21,7 @@ public final class DefaultPropertyDefinitions {
 
     static {
         // <<< INSERT TablePropertiesDefinition >>>
-        definitions = new TablePropertyDefinition[40];
+        definitions = new TablePropertyDefinition[41];
 
         definitions[0] = new TablePropertyDefinition();
         definitions[0].setConstraints(new Constraints("unique in:module"));
@@ -504,40 +504,39 @@ public final class DefaultPropertyDefinitions {
         definitions[33].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.RecalculateEnum.class));
 
         definitions[34] = new TablePropertyDefinition();
-        definitions[34].setConstraints(new Constraints("regexp:(-?[0-9]+)"));
-        definitions[34].setDescription("Precision of comparing the returned results with the expected ones");
+        definitions[34].setDefaultValue("SKIP");
+        definitions[34].setDescription("The way of processing result calculation of the DT table");
         definitions[34].setDimensional(false);
-        definitions[34].setDisplayName("Precision");
+        definitions[34].setDisplayName("Empty Result Processing");
         definitions[34].setGroup("Dev");
         definitions[34].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[34].setName("precision");
+        definitions[34].setName("emptyResultProcessing");
         definitions[34].setPrimaryKey(false);
         definitions[34].setSystem(false);
-        definitions[34].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+        definitions[34].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[34].setType(org.openl.types.java.JavaOpenClass.getOpenClass(org.openl.rules.enumeration.DTEmptyResultProcessingEnum.class));
 
         definitions[35] = new TablePropertyDefinition();
-        definitions[35].setDefaultValue("false");
-        definitions[35].setDescription("Controls generation additional properties with table structure details in an output model");
+        definitions[35].setConstraints(new Constraints("regexp:(-?[0-9]+)"));
+        definitions[35].setDescription("Precision of comparing the returned results with the expected ones");
         definitions[35].setDimensional(false);
-        definitions[35].setDisplayName("Table Structure Details");
+        definitions[35].setDisplayName("Precision");
         definitions[35].setGroup("Dev");
         definitions[35].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[35].setName("tableStructureDetails");
+        definitions[35].setName("precision");
         definitions[35].setPrimaryKey(false);
-        definitions[35].setSecurityFilter("no");
         definitions[35].setSystem(false);
-        definitions[35].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+        definitions[35].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_TEST_METHOD, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[35].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
 
         definitions[36] = new TablePropertyDefinition();
-        definitions[36].setDefaultValue("true");
-        definitions[36].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
+        definitions[36].setDefaultValue("false");
+        definitions[36].setDescription("Controls generation additional properties with table structure details in an output model");
         definitions[36].setDimensional(false);
-        definitions[36].setDisplayName("Auto Type Discovery");
+        definitions[36].setDisplayName("Table Structure Details");
         definitions[36].setGroup("Dev");
         definitions[36].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[36].setName("autoType");
+        definitions[36].setName("tableStructureDetails");
         definitions[36].setPrimaryKey(false);
         definitions[36].setSecurityFilter("no");
         definitions[36].setSystem(false);
@@ -546,12 +545,12 @@ public final class DefaultPropertyDefinitions {
 
         definitions[37] = new TablePropertyDefinition();
         definitions[37].setDefaultValue("true");
-        definitions[37].setDescription("If true calculates all cells in the Spreadsheet, otherwise calculates only cells these are requred for a result. By default = true.");
+        definitions[37].setDescription("Controls new Spreadsheet Auto Type Discovery feature.");
         definitions[37].setDimensional(false);
-        definitions[37].setDisplayName("Calculate All Cells");
+        definitions[37].setDisplayName("Auto Type Discovery");
         definitions[37].setGroup("Dev");
         definitions[37].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[37].setName("calculateAllCells");
+        definitions[37].setName("autoType");
         definitions[37].setPrimaryKey(false);
         definitions[37].setSecurityFilter("no");
         definitions[37].setSystem(false);
@@ -559,33 +558,47 @@ public final class DefaultPropertyDefinitions {
         definitions[37].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 
         definitions[38] = new TablePropertyDefinition();
-        definitions[38].setDefaultValue("false");
-        definitions[38].setDescription("Controls parallel execution feature. By default = false.");
+        definitions[38].setDefaultValue("true");
+        definitions[38].setDescription("If true calculates all cells in the Spreadsheet, otherwise calculates only cells these are requred for a result. By default = true.");
         definitions[38].setDimensional(false);
-        definitions[38].setDisplayName("Concurrent Execution");
+        definitions[38].setDisplayName("Calculate All Cells");
         definitions[38].setGroup("Dev");
         definitions[38].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[38].setName("parallel");
+        definitions[38].setName("calculateAllCells");
         definitions[38].setPrimaryKey(false);
         definitions[38].setSecurityFilter("no");
         definitions[38].setSystem(false);
-        definitions[38].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[38].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_PROPERTIES });
         definitions[38].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
 
         definitions[39] = new TablePropertyDefinition();
-        definitions[39].setConstraints(new Constraints("list: Defined by method getNature()"));
-        definitions[39].setDescription("Nature (type) for which this table works and should be used");
-        definitions[39].setDimensional(true);
-        definitions[39].setDisplayName("Nature");
-        definitions[39].setExpression(new MatchingExpression("eq(nature)"));
-        definitions[39].setGroup("Business Dimension");
+        definitions[39].setDefaultValue("false");
+        definitions[39].setDescription("Controls parallel execution feature. By default = false.");
+        definitions[39].setDimensional(false);
+        definitions[39].setDisplayName("Concurrent Execution");
+        definitions[39].setGroup("Dev");
         definitions[39].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
-        definitions[39].setName("nature");
+        definitions[39].setName("parallel");
         definitions[39].setPrimaryKey(false);
-        definitions[39].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[39].setSecurityFilter("no");
         definitions[39].setSystem(false);
         definitions[39].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES });
-        definitions[39].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
+        definitions[39].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.Boolean.class));
+
+        definitions[40] = new TablePropertyDefinition();
+        definitions[40].setConstraints(new Constraints("list: Defined by method getNature()"));
+        definitions[40].setDescription("Nature (type) for which this table works and should be used");
+        definitions[40].setDimensional(true);
+        definitions[40].setDisplayName("Nature");
+        definitions[40].setExpression(new MatchingExpression("eq(nature)"));
+        definitions[40].setGroup("Business Dimension");
+        definitions[40].setInheritanceLevel(new InheritanceLevel[] { InheritanceLevel.MODULE, InheritanceLevel.CATEGORY, InheritanceLevel.TABLE });
+        definitions[40].setName("nature");
+        definitions[40].setPrimaryKey(false);
+        definitions[40].setSecurityFilter("yes (coma separated filter specification by user role: category/role pairs)");
+        definitions[40].setSystem(false);
+        definitions[40].setTableType(new XlsNodeTypes[] { XlsNodeTypes.XLS_DT, XlsNodeTypes.XLS_SPREADSHEET, XlsNodeTypes.XLS_TBASIC, XlsNodeTypes.XLS_COLUMN_MATCH, XlsNodeTypes.XLS_METHOD, XlsNodeTypes.XLS_PROPERTIES });
+        definitions[40].setType(org.openl.types.java.JavaOpenClass.getOpenClass(java.lang.String.class));
         // <<< END INSERT TablePropertiesDefinition >>>
     }
 

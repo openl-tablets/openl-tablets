@@ -1,11 +1,11 @@
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
-WARN: The table must have at least one row with values.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
 ERROR: Invalid structure of decision table.

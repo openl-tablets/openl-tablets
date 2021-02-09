@@ -24,7 +24,7 @@ import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
@@ -161,7 +161,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
         }
         if (errors.isEmpty() && beanClassCanBeGenerated(bindingContext)) {
             String datatypeClassName = dataType.getJavaName();
-            OpenLBundleClassLoader classLoader = (OpenLBundleClassLoader) Thread.currentThread()
+            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread()
                 .getContextClassLoader();
             try {
                 Class<?> beanClass = classLoader.loadClass(datatypeClassName);
@@ -299,7 +299,8 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             } catch (NoSuchFieldException e) {
                 LOG.debug("Error occurred: ", e);
                 String errorMessage = String.format(
-                    "Field '%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    "%s '%s' is not found in class '%s'. " + "Please, update the class to be compatible with the datatype.",
+                    dataType.isStatic() ? "Static field" : "Field",
                     fieldName,
                     datatypeClassName);
                 BindHelper.processError(errorMessage, tableSyntaxNode, cxt);
@@ -677,7 +678,7 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             if (!byteCodeReadyToLoad) {
                 return;
             }
-            OpenLBundleClassLoader classLoader = (OpenLBundleClassLoader) Thread.currentThread()
+            OpenLClassLoader classLoader = (OpenLClassLoader) Thread.currentThread()
                 .getContextClassLoader();
             Class<?> datatypeClass = classLoader.loadClass(dataType.getJavaName());
             dataType.setInstanceClass(datatypeClass);

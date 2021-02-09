@@ -7,9 +7,8 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -18,15 +17,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
         "ruleservice.rmiPort=61099",
         "ruleservice.instantiation.strategy.lazy = false",
-        "ruleservice.datasource.dir=test-resources/StaticRmiHandlerTest" })
+        "production-repository.uri=test-resources/StaticRmiHandlerTest",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
-public class StaticRmiHandlerTest implements ApplicationContextAware {
-    private ApplicationContext applicationContext;
+public class StaticRmiHandlerTest {
 
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Test
     public void test() throws Exception {

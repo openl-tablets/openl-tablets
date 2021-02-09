@@ -11,7 +11,7 @@ import java.util.TreeMap;
 
 import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.conf.UserContext;
 import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
@@ -58,11 +58,11 @@ public class XlsDiff2 {
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
         final ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader bundleCl = null;
+        ClassLoader classLoader = null;
         try {
-            bundleCl = new OpenLBundleClassLoader(oldCl);
-            Thread.currentThread().setContextClassLoader(bundleCl);
-            UserContext ucxt = new UserContext(bundleCl, ".");
+            classLoader = new OpenLClassLoader(oldCl);
+            Thread.currentThread().setContextClassLoader(classLoader);
+            UserContext ucxt = new UserContext(classLoader, ".");
 
             IParsedCode pc = new Parser(ucxt).parseAsModule(src);
             IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
@@ -79,7 +79,7 @@ public class XlsDiff2 {
 
             return tables;
         } finally {
-            OpenClassUtil.releaseClassLoader(bundleCl);
+            OpenClassUtil.releaseClassLoader(classLoader);
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }

@@ -81,7 +81,7 @@ public class ServiceInterfaceMethodInterceptingTest {
 
     public static class NonExistedMethodServiceExtraMethodHandler implements ServiceExtraMethodHandler<Double> {
         @Override
-        public Double invoke(Method interfaceMethod, Object serviceBean, Object... args) throws Exception {
+        public Double invoke(Method interfaceMethod, Object serviceBean, Object... args) {
             return 12345d;
         }
     }
@@ -155,7 +155,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
+        calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertEquals(100, instance.driverRiskScoreOverloadTest(runtimeContext, "High Risk Driver"), 0.1);
     }
@@ -169,7 +169,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
+        calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertEquals(12345, instance.nonExistedMethod("High Risk Driver"), 0.1);
     }
@@ -183,7 +183,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
+        calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Assert.assertNotNull(instance.loadClassMethod());
     }
@@ -197,7 +197,7 @@ public class ServiceInterfaceMethodInterceptingTest {
         OverloadInterface instance = (OverloadInterface) service.getServiceBean();
         IRulesRuntimeContext runtimeContext = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         Calendar calendar = Calendar.getInstance();
-        calendar.set(2009, 5, 15);
+        calendar.set(2009, Calendar.JUNE, 15);
         runtimeContext.setCurrentDate(calendar.getTime());
         Double result = instance.driverRiskScoreNoOverloadTest(runtimeContext, "High Risk Driver");
         Assert.assertEquals(-1d, result, 0.1d);

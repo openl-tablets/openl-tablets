@@ -3,6 +3,23 @@ package org.openl.rules.java;
 import org.openl.OpenL;
 import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
+import org.openl.meta.*;
+import org.openl.rules.calc.SpreadsheetResult;
+import org.openl.rules.enumeration.CaProvincesEnum;
+import org.openl.rules.enumeration.CaRegionsEnum;
+import org.openl.rules.enumeration.CountriesEnum;
+import org.openl.rules.enumeration.CurrenciesEnum;
+import org.openl.rules.enumeration.LanguagesEnum;
+import org.openl.rules.enumeration.OriginsEnum;
+import org.openl.rules.enumeration.RegionsEnum;
+import org.openl.rules.enumeration.UsRegionsEnum;
+import org.openl.rules.enumeration.UsStatesEnum;
+import org.openl.rules.helpers.CharRange;
+import org.openl.rules.helpers.DateRange;
+import org.openl.rules.helpers.DoubleRange;
+import org.openl.rules.helpers.InOrNotIn;
+import org.openl.rules.helpers.IntRange;
+import org.openl.rules.helpers.StringRange;
 import org.openl.rules.vm.SimpleRulesVM;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.vm.SimpleVM;
@@ -134,11 +151,36 @@ public class OpenLBuilder extends AOpenLBuilder {
         typeLibrary.setNamespace(ISyntaxConstants.THIS_NAMESPACE);
 
         JavaImportTypeConfiguration javaImport1 = new JavaImportTypeConfiguration();
-        javaImport1.addPackageImport("org.openl.rules.helpers");
-        javaImport1.addPackageImport("org.openl.meta");
-        javaImport1.addPackageImport("org.openl.rules.helpers.scope");
-        javaImport1.addPackageImport("org.openl.rules.calc");
-        javaImport1.addPackageImport("org.openl.rules.calc.result");
+        javaImport1.addClassImport(CharRange.class.getName());
+        javaImport1.addClassImport(DateRange.class.getName());
+        javaImport1.addClassImport(IntRange.class.getName());
+        javaImport1.addClassImport(StringRange.class.getName());
+        javaImport1.addClassImport(DoubleRange.class.getName());
+        javaImport1.addClassImport(InOrNotIn.class.getName());
+
+        javaImport1.addClassImport(ByteValue.class.getName());
+        javaImport1.addClassImport(ShortValue.class.getName());
+        javaImport1.addClassImport(IntValue.class.getName());
+        javaImport1.addClassImport(LongValue.class.getName());
+        javaImport1.addClassImport(FloatValue.class.getName());
+        javaImport1.addClassImport(DoubleValue.class.getName());
+        javaImport1.addClassImport(StringValue.class.getName());
+        javaImport1.addClassImport(BigIntegerValue.class.getName());
+        javaImport1.addClassImport(BigDecimalValue.class.getName());
+        javaImport1.addClassImport(ObjectValue.class.getName());
+
+        javaImport1.addClassImport(SpreadsheetResult.class.getName());
+
+        javaImport1.addClassImport(CaProvincesEnum.class.getName());
+        javaImport1.addClassImport(CaRegionsEnum.class.getName());
+        javaImport1.addClassImport(CountriesEnum.class.getName());
+        javaImport1.addClassImport(CurrenciesEnum.class.getName());
+        javaImport1.addClassImport(LanguagesEnum.class.getName());
+        javaImport1.addClassImport(RegionsEnum.class.getName());
+        javaImport1.addClassImport(OriginsEnum.class.getName());
+        javaImport1.addClassImport(UsRegionsEnum.class.getName());
+        javaImport1.addClassImport(UsStatesEnum.class.getName());
+
         typeLibrary.addConfiguration(javaImport1);
 
         types.addConfiguredTypeLibrary(typeLibrary);

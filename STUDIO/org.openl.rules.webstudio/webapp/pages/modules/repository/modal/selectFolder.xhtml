@@ -14,9 +14,10 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="closeSelectFolderDialog();" alt="Close"/>
         </f:facet>
 
-        <h:form>
+        <h:form id="selectFolderForm">
             <div style="height: 30vh; width: 50vh;" class="scrollable">
                 <rich:tree id="folderTree" value="#{selectFolderBean.folderTree}" var="item" nodeType="#{item.type}"
+                           styleClass="bold-selection"
                            toggleType="client" selectionType="ajax"
                            render="buttons"
                            selectionChangeListener="#{selectFolderBean.processSelection}"

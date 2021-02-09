@@ -6,7 +6,7 @@
 
 package org.openl.conf;
 
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CategorizedMap;
@@ -37,7 +37,7 @@ public class LibraryFactoryConfiguration extends AConfigurationElement implement
     public IOpenField getVar(String namespace,
             String name,
             IConfigurableResourceContext cxt,
-            boolean strictMatch) throws AmbiguousVarException {
+            boolean strictMatch) throws AmbiguousFieldException {
         NameSpacedLibraryConfiguration lib = (NameSpacedLibraryConfiguration) map.get(namespace);
         return lib == null ? null : lib.getField(name, cxt, strictMatch);
     }

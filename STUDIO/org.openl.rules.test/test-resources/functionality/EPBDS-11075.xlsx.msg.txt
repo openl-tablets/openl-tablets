@@ -1,0 +1,11 @@
+ERROR: Smart table has unmatched title 'Min authority level'.
+ERROR: Smart table has unmatched title 'State'.
+ERROR: Parameter cell format: <type> <name>
+ERROR: Parameter cell format: <type> <name>
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.
+ERROR: Table structure is wrong. More than one cell with data found where only one cell is expected.

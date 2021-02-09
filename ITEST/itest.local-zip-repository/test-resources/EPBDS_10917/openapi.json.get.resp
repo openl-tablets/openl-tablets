@@ -4,11 +4,11 @@ Content-Type: application/json
 {
     "openapi": "3.0.1",
     "info": {
-        "title": "Tutorial1.zip_Tutorial1.zip",
+        "title": "Tutorial1_Tutorial1",
         "version": "1.0.0"
     },
     "servers": [{
-            "url": "/REST/Tutorial1.zip/Tutorial1.zip",
+            "url": "/REST/Tutorial1/Tutorial1",
             "variables": {}
         }
     ],

@@ -12,13 +12,11 @@
     <bean id="rulesDeployerService" class="org.openl.rules.ruleservice.deployer.RulesDeployerService">
         <constructor-arg name="repository" ref="repository"/>
         <constructor-arg name="deployPath" value="${production-repository.base.path}"/>
-        <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
     </bean>
 
     <bean id="deployClasspathJarsBean" class="org.openl.rules.ruleservice.loader.DeployClasspathJarsBean">
         <property name="rulesDeployerService" ref="rulesDeployerService"/>
-        <property name="supportDeployments" value="${ruleservice.datasource.filesystem.supportDeployments}"/>
-        <property name="enabled" value="${ruleservice.datasource.deploy.classpath.jars}"/>
+        <property name="enabled" value="#{${ruleservice.datasource.deploy.classpath.jars} and '${production-repository.factory}' ne 'repo-jar'}"/>
         <!-- Workaround to allow projects overrides in LocalRepository after application startup -->
         <property name="ignoreIfExists" value="#{'${production-repository.factory}' eq 'repo-file'}"/>
     </bean>

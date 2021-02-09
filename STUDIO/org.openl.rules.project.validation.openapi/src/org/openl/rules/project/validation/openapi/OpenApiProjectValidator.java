@@ -61,6 +61,7 @@ import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
 import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.ComposedSchema;
+import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.MediaType;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
@@ -439,52 +440,81 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             .resolve(actualOperation.getRequestBody(), RequestBody::get$ref);
         RequestBody expectedRequestBody = context.getExpectedOpenAPIResolver()
             .resolve(expectedOperation.getRequestBody(), RequestBody::get$ref);
-        if (expectedRequestBody != null && expectedRequestBody.getContent() != null) {
-            for (Map.Entry<String, MediaType> entry : expectedRequestBody.getContent().entrySet()) {
-                MediaType expectedMediaType = entry.getValue();
-                MediaType actualMediaType = actualRequestBody != null && actualRequestBody
-                    .getContent() != null ? actualRequestBody.getContent().get(entry.getKey()) : null;
-                if (expectedMediaType != null || actualMediaType != null) {
-                    if (expectedMediaType == null) {
+
+        if (actualRequestBody != null || expectedRequestBody != null) {
+            if (actualRequestBody == null) {
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                    String.format(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Expected request body is not found for operation '%s' and path '%s'.",
+                        context.getOperationType(),
+                        context.getActualPath()));
+            } else if (expectedRequestBody == null) {
+                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                    String.format(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected request body is found for operation '%s' and path '%s'.",
+                        context.getOperationType(),
+                        context.getActualPath()));
+            } else {
+                Content actualRequestBodyContent = actualRequestBody.getContent();
+                Content expectedRequestBodyContent = expectedRequestBody.getContent();
+                if (actualRequestBodyContent != null || expectedRequestBodyContent != null) {
+                    if (actualRequestBodyContent == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' with media type '%s' is found for path '%s'.",
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Expected request body content is not found for operation '%s' and path '%s'.",
                                 context.getOperationType(),
-                                entry.getKey(),
                                 context.getActualPath()));
-                    } else if (actualMediaType == null) {
+                    } else if (expectedRequestBodyContent == null) {
                         OpenApiProjectValidatorMessagesUtils.addMethodError(context,
                             String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' with media type '%s' is not found for path '%s'.",
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected request body content is found for operation '%s' and path '%s'.",
                                 context.getOperationType(),
-                                entry.getKey(),
                                 context.getActualPath()));
                     } else {
-                        try {
-                            context.setActualMediaType(actualMediaType);
-                            context.setExpectedMediaType(expectedMediaType);
-                            context.setMediaType(entry.getKey());
-                            validateRequestBodyInput(context);
-                        } finally {
-                            context.setActualMediaType(null);
-                            context.setExpectedMediaType(null);
-                            context.setMediaType(null);
+                        for (Map.Entry<String, MediaType> entry : expectedRequestBodyContent.entrySet()) {
+                            MediaType expectedMediaType = entry.getValue();
+                            MediaType actualMediaType = actualRequestBodyContent.get(entry.getKey());
+                            if (expectedMediaType != null || actualMediaType != null) {
+                                if (expectedMediaType == null) {
+                                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        String.format(
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' with media type '%s' is found for path '%s'.",
+                                            context.getOperationType(),
+                                            entry.getKey(),
+                                            context.getActualPath()));
+                                } else if (actualMediaType == null) {
+                                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                        String.format(
+                                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' with media type '%s' is not found for path '%s'.",
+                                            context.getOperationType(),
+                                            entry.getKey(),
+                                            context.getActualPath()));
+                                } else {
+                                    try {
+                                        context.setActualMediaType(actualMediaType);
+                                        context.setExpectedMediaType(expectedMediaType);
+                                        context.setMediaType(entry.getKey());
+                                        validateRequestBodyInput(context);
+                                    } finally {
+                                        context.setActualMediaType(null);
+                                        context.setExpectedMediaType(null);
+                                        context.setMediaType(null);
+                                    }
+                                }
+                            }
+                        }
+                        for (Map.Entry<String, MediaType> entry : actualRequestBodyContent.entrySet()) {
+                            MediaType expectedMediaType = expectedRequestBodyContent.get(entry.getKey());
+                            if (expectedMediaType == null) {
+                                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                                    String.format(
+                                        OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' with media type '%s' is found for path '%s'.",
+                                        context.getOperationType(),
+                                        entry.getKey(),
+                                        context.getActualPath()));
+                            }
                         }
                     }
-                }
-            }
-        }
-        if (actualRequestBody != null && actualRequestBody.getContent() != null) {
-            for (Map.Entry<String, MediaType> entry : actualRequestBody.getContent().entrySet()) {
-                MediaType expectedMediaType = expectedRequestBody != null && expectedRequestBody
-                    .getContent() != null ? expectedRequestBody.getContent().get(entry.getKey()) : null;
-                if (expectedMediaType == null) {
-                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                        String.format(
-                            OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' with media type '%s' is found for path '%s'.",
-                            context.getOperationType(),
-                            entry.getKey(),
-                            context.getActualPath()));
                 }
             }
         }
@@ -1343,7 +1373,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                         if (openField != null) {
                             BiPredicate<Schema, IOpenField> isIncompatibleTypesPredicate = (e1, f) -> {
                                 try {
-                                    if (expectedSchema.get$ref() != null) {
+                                    if (expectedSchema != null && expectedSchema.get$ref() != null) {
                                         KeyByFieldType key = new KeyByFieldType(openClass,
                                             openField.getType(),
                                             expectedSchema.get$ref());

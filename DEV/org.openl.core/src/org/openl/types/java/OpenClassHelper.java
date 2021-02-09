@@ -17,21 +17,11 @@ public final class OpenClassHelper {
     public static IOpenMethod findRulesMethod(IOpenClass openClass, String methodName, Class<?>... methodArgs) {
         Objects.requireNonNull(openClass, "openClass cannot be null");
         Objects.requireNonNull(methodName, "methodName cannot be null");
-        for (IOpenMethod m : openClass.getMethods()) {
-            if (methodName.equals(m.getName()) && methodArgs.length == m.getSignature().getNumberOfParameters()) {
-                boolean f = true;
-                for (int i = 0; i < m.getSignature().getNumberOfParameters(); i++) {
-                    if (!Objects.equals(methodArgs[i], m.getSignature().getParameterType(i).getInstanceClass())) {
-                        f = false;
-                        break;
-                    }
-                }
-                if (f) {
-                    return m;
-                }
-            }
+        IOpenClass[] args = new IOpenClass[methodArgs.length];
+        for (int i = 0; i < methodArgs.length; i++) {
+            args[i] = JavaOpenClass.getOpenClass(methodArgs[i]);
         }
-        return null;
+        return openClass.getMethod(methodName, args);
     }
 
     public static IOpenField findRulesField(IOpenClass openClass, String methodName) {

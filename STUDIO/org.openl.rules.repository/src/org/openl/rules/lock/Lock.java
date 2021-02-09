@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
-import java.nio.channels.ClosedByInterruptException;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
@@ -16,9 +15,8 @@ import java.nio.file.attribute.FileTime;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneOffset;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
 import java.util.Properties;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
 import org.openl.util.CollectionUtils;
@@ -49,31 +47,24 @@ public class Lock {
     }
 
     public boolean tryLock(String lockedBy) {
-        LockInfo info;
-        try {
-            info = getInfo();
-        } catch (ClosedByInterruptException e) {
-            LOG.info("Log retrieving is interrupted. Lock file is not created.", e);
-            return false;
-        } catch (IOException e) {
-            // Failed to retrieve lock info.
-            return false;
-        }
+        LockInfo info = getInfo();
         if (info.isLocked()) {
             // If lockedBy is empty, will return false. Can't lock second time with empty user.
             return !info.getLockedBy().isEmpty() && info.getLockedBy().equals(lockedBy);
         }
         boolean lockAcquired = false;
-        if (!Files.exists(lockPath)) {
-            Path prepareLock = null;
-            try {
-                prepareLock = createLockFile(lockedBy);
-                if (prepareLock != null) {
-                    lockAcquired = finishLockCreating(prepareLock);
-                }
-            } catch (Exception e) {
-                LOG.info("Failure to create a lock file '{}'.", lockPath);
+        Path prepareLock = null;
+        try {
+            prepareLock = createLockFile(lockedBy);
+            if (prepareLock != null) {
+                lockAcquired = finishLockCreating(prepareLock);
             }
+        } catch (Exception e) {
+            LOG.info("Failure to create a lock file '{}'. Because of {} : {}",
+                lockPath,
+                e.getClass().getName(),
+                e.getMessage());
+        } finally {
             if (!lockAcquired) {
                 // Delete because of it loos lock
                 deleteLockAndFolders(prepareLock);
@@ -86,9 +77,17 @@ public class Lock {
         long millisTimeout = unit.toMillis(time);
         long deadline = System.currentTimeMillis() + millisTimeout;
         boolean result = tryLock(lockedBy);
-        while (!result && deadline > System.currentTimeMillis()) {
+        while (!result && !Thread.currentThread().isInterrupted()) {
+            long restTime = deadline - System.currentTimeMillis();
+            if (restTime <= 0) {
+                // No time for waiting! Exit.
+                break;
+            }
+
+            // 1 is guaranty non zero sleep time
+            long sleepTime = Math.min(restTime / 10 + 1, ThreadLocalRandom.current().nextLong(20, 1000));
             try {
-                TimeUnit.MILLISECONDS.sleep(millisTimeout / 10);
+                TimeUnit.MILLISECONDS.sleep(sleepTime);
                 result = tryLock(lockedBy);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -99,52 +98,16 @@ public class Lock {
         return result;
     }
 
-    public void forceLock(String lockedBy, long timeToLive, TimeUnit unit) throws InterruptedException, IOException {
-        // Time to wait while it's unlocked by somebody
-        long timeToWait = timeToLive / 10;
-        boolean result = tryLock(lockedBy, timeToWait, unit);
-        Instant deadline = Instant.now().plus(timeToLive, toTemporalUnit(unit));
-        while (!result) {
-            if (Thread.currentThread().isInterrupted()) {
-                throw new InterruptedException();
-            }
-            LockInfo info;
-            try {
-                info = getInfo();
-            } catch (ClosedByInterruptException e) {
-                throw new InterruptedException("Log retrieving is interrupted. Lock file is not created.");
-            }
-            if (deadline.isBefore(Instant.now())) {
-                String message = "Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.\n" + "Lock path: {}\n" + "Locked at: {}\n" + "Locked by: {}\n" + "Time to live: {} {}";
-                LOG.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
-                forceUnlock();
-            }
-            result = tryLock(lockedBy, timeToWait, unit);
+    public boolean forceLock(String lockedBy, long timeToLive, TimeUnit unit) {
+        boolean result = tryLock(lockedBy, timeToLive, unit);
+        if (!result && !Thread.currentThread().isInterrupted()) {
+            LockInfo info = getInfo();
+            String message = "Too much time after the lock file has been created. Seems the lock file is never gonna be unlocked. Try to unlock it by ourselves.\n" + "Lock path: {}\n" + "Locked at: {}\n" + "Locked by: {}\n" + "Time to live: {} {}";
+            LOG.warn(message, lockPath, info.getLockedAt(), info.getLockedBy(), timeToLive, unit);
+            forceUnlock();
+            result = tryLock(lockedBy);
         }
-    }
-
-    /**
-     * TODO: replace this method with unit.toChronoUnit() when we stop supporting java 8
-     */
-    private TemporalUnit toTemporalUnit(TimeUnit unit) {
-        switch (unit) {
-            case NANOSECONDS:
-                return ChronoUnit.NANOS;
-            case MICROSECONDS:
-                return ChronoUnit.MICROS;
-            case MILLISECONDS:
-                return ChronoUnit.MILLIS;
-            case SECONDS:
-                return ChronoUnit.SECONDS;
-            case MINUTES:
-                return ChronoUnit.MINUTES;
-            case HOURS:
-                return ChronoUnit.HOURS;
-            case DAYS:
-                return ChronoUnit.DAYS;
-            default:
-                throw new IllegalArgumentException();
-        }
+        return result;
     }
 
     public void unlock() {
@@ -179,14 +142,10 @@ public class Lock {
     }
 
     public LockInfo info() {
-        try {
-            return getInfo();
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
+        return getInfo();
     }
 
-    private LockInfo getInfo() throws IOException {
+    private LockInfo getInfo() {
         Path lock = lockPath.resolve(READY_LOCK);
         if (!Files.isRegularFile(lock)) {
             return LockInfo.NO_LOCK;
@@ -213,10 +172,14 @@ public class Lock {
         } catch (NoSuchFileException e) {
             // Lock can be deleted in another thread
             return LockInfo.NO_LOCK;
+        } catch (IOException e) {
+            LOG.info("Impossible to read the lock file.", e);
+            // Lock file exists but failed to retrieve lock info.
+            return new LockInfo(Instant.now(), null);
         }
     }
 
-    Path createLockFile(String userName) throws IOException {
+    Path createLockFile(String userName) {
         String userNameHash = Integer.toString(userName.hashCode(), 24);
         try {
             Files.createDirectories(lockPath);

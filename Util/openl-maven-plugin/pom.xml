@@ -27,6 +27,9 @@
         <gen-spreadsheetresult.mavenOpts>${invoker.mavenOpts}</gen-spreadsheetresult.mavenOpts>
         <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
         <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
+        <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
+        <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
+        <gen-datatypes.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-datatypes.timeoutInSeconds>
     </properties>
     <dependencies>
         <dependency>
@@ -69,6 +72,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice</artifactId>
         </dependency>
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -189,7 +196,7 @@
             </activation>
             <properties>
                 <!-- Fine tuned settings to detects memory and performance issues -->
-                <invoker.mavenOpts>-Xms16m -Xmx40m</invoker.mavenOpts>
+                <invoker.mavenOpts>-Xms16m -Xmx48m</invoker.mavenOpts>
                 <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
                 <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
                 <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
@@ -199,6 +206,10 @@
                 <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
                 <!-- due double work of packaging: 30s * 2 -->
                 <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
+                <!-- Multimodule has 4 projects -->
+                <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
+                <!-- this module could be failed from time to time previously as well -->
+                <gen-datatypes.timeoutInSeconds>35</gen-datatypes.timeoutInSeconds>
             </properties>
         </profile>
     </profiles>

@@ -25,12 +25,12 @@ public class ParameterModelTest {
         assertNotEquals(nameParam.hashCode(), surnameParam.hashCode());
 
         ParameterModel integerParam = new ParameterModel(new TypeInfo(Integer.class), "name");
-        assertEquals("name", integerParam.getName());
+        assertEquals("name", integerParam.getFormattedName());
         assertEquals("Integer", integerParam.getType().getSimpleName());
         assertNotEquals(nameParam, integerParam);
         assertNotEquals(nameParam.hashCode(), integerParam.hashCode());
 
-        assertEquals("name", nameParam.getName());
+        assertEquals("name", nameParam.getFormattedName());
         assertEquals("String", nameParam.getType().getSimpleName());
     }
 }

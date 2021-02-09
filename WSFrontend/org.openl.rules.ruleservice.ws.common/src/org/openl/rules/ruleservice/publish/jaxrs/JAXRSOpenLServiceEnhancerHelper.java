@@ -11,7 +11,9 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -107,6 +109,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
         private final ObjectMapper swaggerObjectMapper;
         private final ObjectMapper openApiObjectMapper;
 
+        private final Map<String, List<Method>> originalClassMethodsByName;
+
         JAXRSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0,
                 Class<?> originalClass,
                 IOpenClass openClass,
@@ -120,7 +124,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 ObjectMapper openApiObjectMapper) {
             super(Opcodes.ASM5, arg0);
             this.serviceName = serviceName;
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.openClass = openClass;
             this.classLoader = classLoader;
             this.serviceExposedUrl = serviceExposedUrl;
@@ -129,6 +133,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
             this.provideVariations = provideVariations;
             this.swaggerObjectMapper = swaggerObjectMapper;
             this.openApiObjectMapper = openApiObjectMapper;
+
+            this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
         @Override
@@ -357,7 +363,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                 String descriptor,
                 final String signature,
                 final String[] exceptions) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, name, descriptor);
+            Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, name, descriptor);
             if (originalMethod == null) {
                 throw new IllegalStateException("Method is not found in the original class");
             }

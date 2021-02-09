@@ -1,15 +1,5 @@
 package org.openl.rules.ext.cassandra;
 
-/*-
- * #%L
- * OpenL - EXT - Cassandra
- * %%
- * Copyright (C) 2019 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import com.datastax.oss.driver.api.core.config.DriverConfigLoader;
 import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader;
 import com.typesafe.config.Config;

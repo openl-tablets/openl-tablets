@@ -158,7 +158,7 @@ public class DecisionTableLookupConvertor {
                 }
             }
         }
-        throw new OpenLCompilationException("Lookup table must have at least one RET or CRET column");
+        throw new OpenLCompilationException("RET or CRET column is mandatory for Lookup table.");
     }
 
     private void processHorizConditionsHeaders(IGridRegion displayRowRegion,
@@ -220,7 +220,7 @@ public class DecisionTableLookupConvertor {
             isMultiplier = w % retTableWidth == 0;
             if (!isMultiplier) {
                 String message = String.format(
-                    "The width of the lookup table(%d) is not a multiple of the RET width(%d)",
+                    "The width of the Lookup table(%d) is not a multiple of the RET width(%d).",
                     lookupTableWidth,
                     retTableWidth);
                 throw new OpenLCompilationException(message);
@@ -283,46 +283,46 @@ public class DecisionTableLookupConvertor {
                 }
             }
         }
-        throw new OpenLCompilationException("Lookup table must have at least one horizontal condition");
+        throw new OpenLCompilationException("Horizontal condition is mandatory for Lookup table.");
     }
 
     private void loadHorizConditionsAndReturnColumns(ILogicalTable rowHeader,
             int firstLookupColumn) throws OpenLCompilationException {
 
-        int ncol = rowHeader.getWidth();
+        int nCol = rowHeader.getWidth();
 
-        while (firstLookupColumn < ncol) {
+        while (firstLookupColumn < nCol) {
 
-            ILogicalTable htable = rowHeader.getColumn(firstLookupColumn);
-            String headerStr = htable.getSource().getCell(0, 0).getStringValue();
+            ILogicalTable hTable = rowHeader.getColumn(firstLookupColumn);
+            String headerStr = hTable.getSource().getCell(0, 0).getStringValue();
 
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
 
                 if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
-                    if (htable.getSource().getWidth() != 1) {
-                        throw new OpenLCompilationException("Column HC must have width=1");
+                    if (hTable.getSource().getWidth() != 1) {
+                        throw new OpenLCompilationException("Column HC must have width = 1.");
                     }
-                    hcHeaders.add(htable);
+                    hcHeaders.add(hTable);
                 } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
                     .isValidCRetHeader(headerStr)) {
                     if (retTable != null) {
-                        throw new OpenLCompilationException("Lookup Table can have only one RET column");
+                        throw new OpenLCompilationException("Only one RET column is allowed for Lookup table.");
                     }
-                    retTable = htable;
+                    retTable = hTable;
                 } else {
                     throw new OpenLCompilationException(
                         "Lookup Table allows only HC or RET or CRET columns after vertical conditions: " + headerStr);
                 }
             }
 
-            firstLookupColumn = firstLookupColumn + htable.getSource().getCell(0, 0).getWidth();
+            firstLookupColumn = firstLookupColumn + hTable.getSource().getCell(0, 0).getWidth();
         }
     }
 
     private void validateLookupSection() throws OpenLCompilationException {
         if (hcHeaders.isEmpty()) {
-            String message = String.format("Lookup Table must have at least one Horizontal Condition (%s1)",
+            String message = String.format("Horizontal Condition (%s1) is mandatory for Lookup table.",
                 DecisionTableColumnHeaders.HORIZONTAL_CONDITION.getHeaderKey());
             throw new OpenLCompilationException(message);
         }

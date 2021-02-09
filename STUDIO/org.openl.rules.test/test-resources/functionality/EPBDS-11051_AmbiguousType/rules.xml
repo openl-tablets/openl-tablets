@@ -1,0 +1,12 @@
+<project>
+  <name>EPBDS-11051_AmbiguousType</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+</project>

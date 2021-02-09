@@ -49,13 +49,14 @@ public class OpenAPIHelper {
         boolean fileExists = exitingRulesDeploy != null;
         RulesDeploy rd = fileExists ? exitingRulesDeploy : new RulesDeploy();
         if (generated.hasAnnotationTemplateClass()) {
-            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateClass().getJavaNameWithPackage());
+            rd.setAnnotationTemplateClassName(generated.getAnnotationTemplateGroovyFile().getNameWithPackage());
         } else {
             if (StringUtils.isNotBlank(rd.getAnnotationTemplateClassName())) {
                 rd.setAnnotationTemplateClassName(null);
             }
         }
         rd.setProvideRuntimeContext(projectModel.isRuntimeContextProvided());
+        rd.setProvideVariations(projectModel.areVariationsProvided());
         if (CollectionUtils.isEmpty(rd.getPublishers())) {
             rd.setPublishers(new RulesDeploy.PublisherType[] { RulesDeploy.PublisherType.RESTFUL });
         }

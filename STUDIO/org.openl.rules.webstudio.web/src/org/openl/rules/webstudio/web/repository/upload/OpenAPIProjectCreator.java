@@ -17,7 +17,7 @@ import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.data.DataModel;
 import org.openl.rules.model.scaffolding.environment.EnvironmentModel;
 import org.openl.rules.openapi.OpenAPIModelConverter;
-import org.openl.rules.openapi.impl.JavaClassFile;
+import org.openl.rules.openapi.impl.GroovyScriptFile;
 import org.openl.rules.openapi.impl.OpenAPIGeneratedClasses;
 import org.openl.rules.openapi.impl.OpenAPIJavaClassGenerator;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
@@ -37,6 +37,7 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
+import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.formatters.FileNameFormatter;
 import org.slf4j.Logger;
@@ -181,13 +182,14 @@ public class OpenAPIProjectCreator extends AProjectCreator {
             OpenAPIGeneratedClasses generated = new OpenAPIJavaClassGenerator(projectModel).generate();
             boolean hasAnnotationTemplateClass = generated.hasAnnotationTemplateClass();
             if (hasAnnotationTemplateClass) {
-                addJavaClassFile(projectBuilder, generated.getAnnotationTemplateClass());
+                addGroovyScriptFile(projectBuilder, generated.getAnnotationTemplateGroovyFile());
             }
-            for (JavaClassFile javaClassFile : generated.getCommonClasses()) {
-                addJavaClassFile(projectBuilder, javaClassFile);
+            for (GroovyScriptFile groovyScriptFile : generated.getGroovyCommonClasses()) {
+                addGroovyScriptFile(projectBuilder, groovyScriptFile);
             }
 
-            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass, projectModel.getIncludeMethodFilter());
+            InputStream rulesFile = generateRulesFile(hasAnnotationTemplateClass,
+                projectModel.getIncludeMethodFilter());
             addFile(projectBuilder,
                 rulesFile,
                 ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME,
@@ -205,14 +207,13 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectBuilder;
     }
 
-    private void addJavaClassFile(RulesProjectBuilder projectBuilder,
-            JavaClassFile javaClassFile) throws ProjectException {
-
-        String javaInterfacePath = openAPIHelper.makePathToTheGeneratedFile(javaClassFile.getPath());
+    private void addGroovyScriptFile(RulesProjectBuilder projectBuilder,
+            GroovyScriptFile groovyScriptFile) throws ProjectException {
+        String path = openAPIHelper.makePathToTheGeneratedFile(groovyScriptFile.getPath());
         addFile(projectBuilder,
-            javaClassFile.toInputStream(),
-            javaInterfacePath,
-            String.format("Error uploading of '%s' file.", javaClassFile));
+            IOUtils.toInputStream(groovyScriptFile.getScriptText()),
+            path,
+            String.format("Error uploading of '%s' file.", groovyScriptFile));
     }
 
     private void addFile(RulesProjectBuilder projectBuilder,
@@ -238,7 +239,8 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         return projectModel;
     }
 
-    private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException, ValidationException {
+    private InputStream generateRulesFile(boolean genJavaClasses, Set<String> algorithmsInclude) throws IOException,
+                                                                                                 ValidationException {
         ProjectDescriptor descriptor = defineDescriptor(genJavaClasses, algorithmsInclude);
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             projectDescriptorManager.writeDescriptor(descriptor, baos);

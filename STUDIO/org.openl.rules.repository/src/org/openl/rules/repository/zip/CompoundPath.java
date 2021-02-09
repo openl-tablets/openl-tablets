@@ -3,9 +3,12 @@ package org.openl.rules.repository.zip;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Date;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 class CompoundPath {
 
@@ -62,17 +65,21 @@ class CompoundPath {
         return getAttributes().size();
     }
 
-    String relativize() {
+    String relativize(Function<Path, String> alias) {
         String name;
         if (pathToArchive == null) {
-            name = root.relativize(resolvedPath)
-                    .toString();
+            name = Optional.of(resolvedPath)
+                    .map(alias)
+                    .orElseGet(() -> root.relativize(resolvedPath).toString());
         } else {
             String pathInArchive = resolvedPath.toString();
             if (pathInArchive.charAt(0) == PATH_SEPARATOR.charAt(0)) {
                 pathInArchive = pathInArchive.substring(1);
             }
-            name = root.relativize(pathToArchive)
+            name = Optional.of(pathToArchive)
+                    .map(alias)
+                    .map(Paths::get)
+                    .orElseGet(() -> root.relativize(pathToArchive))
                     .resolve(pathInArchive)
                     .toString();
         }

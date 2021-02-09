@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <surefire.argLine>-Xms128m -Xmx2048m</surefire.argLine>
+        <surefire.argLine>-Xms128m -Xmx2048m -Xss256k</surefire.argLine>
     </properties>
 
     <parent>
@@ -14,7 +14,7 @@
 
     <artifactId>itest.BigServiceDeploy</artifactId>
     <packaging>jar</packaging>
-    <name>ITEST - Big ervice Deploy</name>
+    <name>ITEST - Big Service Deploy</name>
     <url>https://openl-tablets.org</url>
 
     <dependencies>

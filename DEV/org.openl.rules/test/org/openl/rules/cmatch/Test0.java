@@ -18,7 +18,7 @@ public class Test0 {
 
     @Test
     public void test1() {
-        assertEx("test/rules/cmatch0/match0-1.xls", "Unsufficient rows. At least 4 are expected.");
+        assertEx("test/rules/cmatch0/match0-1.xls", "Insufficient rows. At least 4 are expected.");
     }
 
     @Test
@@ -59,7 +59,7 @@ public class Test0 {
 
     @Test
     public void test8() {
-        assertEx("test/rules/cmatch0/match0-8.xls", "Unsufficient rows.", "range=B3:L4");
+        assertEx("test/rules/cmatch0/match0-8.xls", "Insufficient rows.", "range=B3:L4");
     }
 
     @Test

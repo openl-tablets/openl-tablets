@@ -581,13 +581,17 @@ void Expression() :
 void ConditionalTernaryExpression() :
 {
   Token x;
+  int args;
 }
 {
   ConditionalImplExpression()
   [
-    x = < HOOK > ConditionalTernaryExpression() < COLON > ConditionalTernaryExpression()
+    x = < HOOK > ConditionalTernaryExpression() {args = 2;}
+    [
+     < COLON > ConditionalTernaryExpression() {args = 3;}
+    ]
     {
-      nop("op.ternary.qmark", pos(x), 3);
+      nop("op.ternary.qmark", pos(x), args);
     }
   ]
 }
@@ -1603,7 +1607,7 @@ void WhereVarExpalnation() :
 {
   Word("identifier.var.explanation") "-" Expression()
   {
-    bop("where.var.expalnation", null);
+    bop("where.var.explanation", null);
   }
 }
 

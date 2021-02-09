@@ -293,6 +293,101 @@ public class LocalGitRepositoryTest {
         assertEquals(2, historyForProject2.size());
     }
 
+    @Test
+    public void testIsMergedWhenNoValuableCommitsInOtherBranch() throws IOException {
+        final String mainBranch = repo.getBranch();
+        final String branch1 = "branch1";
+
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+
+        GitRepository repoBranch1 = repo.forBranch(branch1);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch1.
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #1");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Merge changes to main branch.
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch1 again. We have 1 extra merge commit in main branch.
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        // See PBDS-10808. In main branch there are no valuable changes. Only merge commits gotten from branch1. So we
+        // assume that there are no interesting commits.
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Merge changes to main branch
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // We modify it 3 times to ensure that it still works for 2 extra merge commits in main branch (to ensure that
+        // our algorithm works recursively).
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #3");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+    }
+
+    @Test
+    public void testIsMergedWhenValuableCommitInOtherBranchWasDiscarded() throws IOException {
+        final String mainBranch = repo.getBranch();
+        final String branch1 = "branch1";
+        final String branch2 = "branch2";
+
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
+
+        GitRepository repoBranch1 = repo.forBranch(branch1);
+        GitRepository repoBranch2 = repo.forBranch(branch2);
+
+        // Modify a file in branch1 and merge it to main branch.
+        final String textInBranch1 = "Modify 'file1' in the branch 'branch1'. #1";
+        modifyFile(repoBranch1, "rules/project1/file1", textInBranch1);
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch2 and merge it to main branch with conflict. Choose theirs.
+        final String textInBranch2 = "Modify 'file1' in the branch 'branch2'.";
+        modifyFile(repoBranch2, "rules/project1/file1", textInBranch2);
+        try {
+            repo.merge(branch2, "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            final String resolveMessage = "Resolve conflict (use theirs)";
+            Iterable<FileItem> resolvedFiles = Collections
+                .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
+
+            // Resolve conflict with choosing "theirs".
+            repo.merge(branch2, "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+            assertTrue(repo.isMergedInto(branch2, mainBranch));
+            // Because it was a conflict, project state in mainBranch differs from the state in branch2
+            assertFalse(repo.isMergedInto(mainBranch, branch2));
+
+            assertTrue(repo.isMergedInto(branch1, mainBranch));
+            // Our project (project1) was modified in branch2 and then their changes were discarded when merged into
+            // main. We should be able to retrieve their changes despite that they were discarded.
+            // So we expect that main branch isn't merged into branch1 (there are valuable changes in main branch).
+            assertFalse(repo.isMergedInto(mainBranch, branch1));
+
+            // Modify again in branch1.
+            modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
+            assertFalse(repo.isMergedInto(branch1, mainBranch));
+            assertFalse(repo.isMergedInto(mainBranch, branch1));
+        }
+    }
+
     private void modifyFile(GitRepository repository, String path, String text) throws IOException {
         String comment = "'" + path + "' in the branch '" + repository.getBranch() + "' was modified";
         writeSampleFile(repository, path, text, comment);

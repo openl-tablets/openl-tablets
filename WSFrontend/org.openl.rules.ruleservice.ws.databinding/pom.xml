@@ -11,40 +11,12 @@
     <name>OpenL - RuleService - Rule Services - Databinding</name>
     <description>OpenL Rules Webservice Databinding</description>
     <url>https://openl-tablets.org</url>
-    <properties>
-        <license.licenseName>openl_tablets_mit</license.licenseName>
-        <license.licenseResolver>${project.baseUri}/license</license.licenseResolver>
-        <license.organizationName>OpenL Tablets</license.organizationName>
-        <license.inceptionYear>2015</license.inceptionYear>
-    </properties>
     <build>
         <resources>
             <resource>
                 <directory>binding-conf/aegis</directory>
             </resource>
         </resources>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>license-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>first</id>
-                        <goals>
-                            <goal>update-file-header</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                    </execution>
-                    <execution>
-                        <id>second</id>
-                        <goals>
-                            <goal>update-project-license</goal>
-                        </goals>
-                        <phase>process-sources</phase>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
     </build>
     <dependencies>
         <dependency>

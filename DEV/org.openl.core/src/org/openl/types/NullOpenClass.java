@@ -23,6 +23,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public final class NullOpenClass implements IOpenClass {
 
+    private StaticOpenClass staticOpenClass = new StaticOpenClass(this);
+
     public static final NullOpenClass the = new NullOpenClass();
 
     private static final IAggregateInfo AGGREGATE_INFO = new IAggregateInfo() {
@@ -265,6 +267,31 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public boolean isInterface() {
+        return false;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name) {
+        return null;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        return null;
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        return null;
+    }
+
+    @Override
+    public IOpenClass toStaticClass() {
+        return staticOpenClass;
+    }
+
+    @Override
+    public boolean isStatic() {
         return false;
     }
 }

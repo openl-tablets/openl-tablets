@@ -44,7 +44,7 @@ public class TestForEach {
 
     @Test
     public void test7() {
-        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F7.xls", "Variable 'el' has already been defined");
+        TestUtils.assertEx("test/rules/tbasic1/FOR_EACH_F7.xls", "Variable 'el' is already defined.");
     }
 
     @Test

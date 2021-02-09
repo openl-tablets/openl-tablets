@@ -186,7 +186,7 @@
         mainBlock.addEventListener('click', function (event) {
             var button = event.target || event.srcElement;
             var serviceData = button.parentElement.dataset;
-            var serviceName = serviceData.serviceName;
+            var serviceName = encodeURIComponent(serviceData.serviceName);
             if (button.classList.contains("collapse")) {
                 // Expand the node
                 var childArray = button.parentElement.childNodes
@@ -363,7 +363,7 @@
             }
         });
         if (service.hasManifest) {
-            html += "<a href='admin/services/" + service.name + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+            html += "<a href='admin/services/" + encodeURIComponent(service.name) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
         }
         if (deployerEnabled) {
             html += "&nbsp";

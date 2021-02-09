@@ -7,6 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  *
@@ -39,7 +40,7 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         BindHelper.checkOnDeprecation(node, bindingContext, type);
-        return new TypeBoundNode(node, type);
+        return new TypeBoundNode(node, type.toStaticClass());
     }
 
     @Override
@@ -52,18 +53,27 @@ public class IdentifierBinder extends ANodeBinder {
             dims++;
             type = type.getComponentClass();
         }
+        IOpenField field;
+        if (target.isStaticTarget()) {
+            field = type.getStaticField(fieldName, false);
+        } else {
+            field = type.getField(fieldName, false);
+        }
 
-        IOpenField field = type.getField(fieldName, false);
         if (field == null) {
-            throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
+            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.", type.isStatic() ? "Static field" : "Field", fieldName, type));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
-                BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
+                if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
+                    BindHelper.processWarn(String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                            field.getName(), target.getType().getName()), node, bindingContext);
+                }
             } else {
-                return makeErrorNode("Accessing to non-static field from a static class.", node, bindingContext);
+                return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
+                        field.getName(), target.getType().getName()), node, bindingContext);
             }
         }
 

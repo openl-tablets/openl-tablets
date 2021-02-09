@@ -547,11 +547,18 @@ public class RulesProject extends UserWorkspaceProject {
         if (repository.supports().mappedFolders()) {
             if (isOpened()) {
                 ProjectState state = localRepository.getProjectState(getFolderPath());
+                FileMappingData mappingData = null;
                 if (state.getFileData() != null) {
-                    FileMappingData mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
-                    if (mappingData != null) {
-                        return mappingData.getInternalPath();
+                    mappingData = state.getFileData().getAdditionalData(FileMappingData.class);
+                }
+                if (mappingData == null) {
+                    final FileData fileData = getFileData();
+                    if (fileData != null) {
+                        mappingData = fileData.getAdditionalData(FileMappingData.class);
                     }
+                }
+                if (mappingData != null) {
+                    return mappingData.getInternalPath();
                 }
             }
             return ((FolderMapper) repository).getRealPath(folderPath);

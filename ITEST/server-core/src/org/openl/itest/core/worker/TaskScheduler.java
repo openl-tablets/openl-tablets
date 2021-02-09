@@ -1,8 +1,5 @@
 package org.openl.itest.core.worker;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -16,14 +13,13 @@ import java.util.concurrent.TimeUnit;
 public class TaskScheduler {
 
     private final ScheduledExecutorService scheduledExecutor;
-    private final List<Throwable> errors;
+    private volatile boolean error;
 
     /**
      * Initialize task scheduler with single thread executor
      */
     public TaskScheduler() {
         this.scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
-        this.errors = new ArrayList<>();
     }
 
     /**
@@ -41,13 +37,13 @@ public class TaskScheduler {
      * Shutdown thread executor to prevent of adding new commands and wait until all tasks are completed.<br/>
      * Interrupts all unfinished tasks after 10 seconds.
      *
-     * @return all errors which were caught while commands execution
+     * @return true if any errors occurs while commands execution
      */
-    public List<Throwable> await() {
+    public boolean await() {
         return await(10, TimeUnit.SECONDS);
     }
 
-    public List<Throwable> await(int timeout, TimeUnit unit) {
+    boolean await(int timeout, TimeUnit unit) {
         scheduledExecutor.shutdown();
 
         try {
@@ -57,9 +53,11 @@ public class TaskScheduler {
                 scheduledExecutor.awaitTermination(timeout, unit);
             }
         } catch (InterruptedException e) {
-            errors.add(e);
+            e.printStackTrace(); // For debug purposes
+            Thread.currentThread().interrupt();
+            return true;
         }
-        return Collections.unmodifiableList(errors);
+        return error;
     }
 
     /**
@@ -73,7 +71,8 @@ public class TaskScheduler {
             try {
                 command.run();
             } catch (Exception | AssertionError e) {
-                errors.add(e);
+                error = true;
+                e.printStackTrace(); // For debug purposes
             }
         };
     }

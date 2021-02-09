@@ -24,7 +24,6 @@ public class DeployClasspathJarsBean implements InitializingBean {
     private final Logger log = LoggerFactory.getLogger(DeployClasspathJarsBean.class);
 
     private boolean enabled = false;
-    private boolean supportDeployments = false;
     private boolean ignoreIfExists = false;
 
     private RulesDeployerService rulesDeployerService;
@@ -39,10 +38,6 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
     public void setRulesDeployerService(RulesDeployerService rulesDeployerService) {
         this.rulesDeployerService = rulesDeployerService;
-    }
-
-    public void setSupportDeployments(boolean supportDeployments) {
-        this.supportDeployments = supportDeployments;
     }
 
     public void setIgnoreIfExists(boolean ignoreIfExists) {
@@ -79,11 +74,8 @@ public class DeployClasspathJarsBean implements InitializingBean {
 
         PathMatchingResourcePatternResolver prpr = new PathMatchingResourcePatternResolver();
         processResources(prpr.getResources(createClasspathPattern(PROJECT_DESCRIPTOR_FILE_NAME)));
-
-        if (supportDeployments) {
-            processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.XML.getFileName())));
-            processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.YAML.getFileName())));
-        }
+        processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.XML.getFileName())));
+        processResources(prpr.getResources(createClasspathPattern(DeploymentDescriptor.YAML.getFileName())));
     }
 
     private static String createClasspathPattern(String fileName) {

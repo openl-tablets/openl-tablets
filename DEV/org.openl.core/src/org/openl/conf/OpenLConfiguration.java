@@ -9,7 +9,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -240,18 +240,23 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
 
         IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
-        if (type != null) {
-            namespaceCache.put(name, type);
-            return type;
-        }
-
         if (parent == null) {
-            namespaceCache.put(name, null);
-            return null;
-        } else {
-            type = parent.getType(namespace, name);
             namespaceCache.put(name, type);
             return type;
+        } else {
+            IOpenClass type1 = parent.getType(namespace, name);
+            if (type != null || type1 != null) {
+                if (type1 != null && type != null && !Objects.equals(type, type1)) {
+                    List<IOpenClass> foundTypes = new ArrayList<>();
+                    foundTypes.add(type);
+                    foundTypes.add(type1);
+                    throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
+                } else {
+                    namespaceCache.put(name, type != null ? type : type1);
+                    return type != null ? type : type1;
+                }
+            }
+            return null;
         }
     }
 
@@ -269,7 +274,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null
                                                  : methodFactory
                                                      .getVar(namespace, name, configurationContext, strictMatch);

@@ -5,9 +5,9 @@ Content-Type: application/json
     "swagger": "2.0",
     "info": {
         "version": "1.0.0",
-        "title": "Tutorial1.zip_Tutorial1.zip"
+        "title": "Tutorial1_Tutorial1"
     },
-    "basePath": "/REST/Tutorial1.zip/Tutorial1.zip",
+    "basePath": "/REST/Tutorial1/Tutorial1",
     "paths": {
         "/Greeting": {
             "post": {

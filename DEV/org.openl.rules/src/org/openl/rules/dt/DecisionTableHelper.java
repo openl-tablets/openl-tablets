@@ -1191,13 +1191,15 @@ public final class DecisionTableHelper {
         Map<DTHeader, IOpenClass> hConditionTypes = new HashMap<>();
         for (DTHeader condition : conditions) {
             int column = condition.getColumn();
-            if (column > originalTable.getSource().getWidth()) {
-                String message = "Wrong table structure: Columns count is less than parameters count";
-                throw new OpenLCompilationException(message);
-            }
-            if (column == originalTable.getSource().getWidth()) {
-                String message = "Wrong table structure: There is no column for return values";
-                throw new OpenLCompilationException(message);
+            if (!isLookup(tableSyntaxNode)) {
+                if (column > originalTable.getSource().getWidth()) {
+                    String message = "Wrong table structure: Columns count is less than parameters count";
+                    throw new OpenLCompilationException(message);
+                }
+                if (column > originalTable.getSource().getWidth()) {
+                    String message = "Wrong table structure: There is no column for return values";
+                    throw new OpenLCompilationException(message);
+                }
             }
             // write headers
             //
@@ -2481,7 +2483,7 @@ public final class DecisionTableHelper {
                         sb.append("/");
                         sb.append(StringUtils.SPACE);
                     }
-                    sb.append(originalTable.getCell(c0, i).getStringValue());
+                    sb.append(originalTable.getSource().getCell(c0, i).getStringValue());
                 }
                 message.append(StringUtils.SPACE);
                 message.append("There is no match for column '").append(sb.toString()).append("'.");
@@ -2526,7 +2528,7 @@ public final class DecisionTableHelper {
         return Collections.emptyList();
     }
 
-    private static int getFirstColumnForHCondition(ILogicalTable originalTable,
+    public static int getFirstColumnForHCondition(ILogicalTable originalTable,
             int numberOfHCondition,
             int firstColumnHeight) {
         int w = originalTable.getSource().getWidth();
@@ -2787,7 +2789,7 @@ public final class DecisionTableHelper {
         return sb.toString();
     }
 
-    private static int getNumberOfHConditions(ILogicalTable tableBody) {
+    public static int getNumberOfHConditions(ILogicalTable tableBody) {
         int w = tableBody.getSource().getWidth();
         int d = tableBody.getSource().getCell(0, 0).getHeight();
         int k = 0;
@@ -3520,7 +3522,7 @@ public final class DecisionTableHelper {
         }
     }
 
-    private static class NumberOfColumnsUnderTitleCounter {
+    public static class NumberOfColumnsUnderTitleCounter {
         final ILogicalTable logicalTable;
         final int firstColumnHeight;
         final Map<Integer, List<Integer>> numberOfColumnsMap = new HashMap<>();
@@ -3537,17 +3539,17 @@ public final class DecisionTableHelper {
             return w1;
         }
 
-        private int get(int column) {
+        public int get(int column) {
             List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
             return numberOfColumns.size();
         }
 
-        private int getWidth(int column, int num) {
+        public int getWidth(int column, int num) {
             List<Integer> numberOfColumns = numberOfColumnsMap.computeIfAbsent(column, e -> init(column));
             return numberOfColumns.get(num);
         }
 
-        private NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
+        public NumberOfColumnsUnderTitleCounter(ILogicalTable logicalTable, int firstColumnHeight) {
             this.logicalTable = logicalTable;
             this.firstColumnHeight = firstColumnHeight;
         }

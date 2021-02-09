@@ -1,6 +1,5 @@
 package org.openl.rules.project.validation;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -8,7 +7,7 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.project.IRulesDeploySerializer;
@@ -57,7 +56,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
             RULES_DEPLOY_XML);
         if (projectResource != null) {
             try {
-                return rulesDeploySerializer.deserialize(new FileInputStream(new File(projectResource.getFile())));
+                return rulesDeploySerializer.deserialize(new FileInputStream(projectResource.getFile()));
             } catch (FileNotFoundException e) {
                 LOG.debug("Ignored error: ", e);
                 return null;
@@ -78,10 +77,10 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
         if (classLoader == null) {
             ClassLoader moduleGeneratedClassesClassLoader = ((XlsModuleOpenClass) instantiationStrategy.compile()
                 .getOpenClassWithErrors()).getClassGenerationClassLoader();
-            OpenLBundleClassLoader openLBundleClassLoader = new OpenLBundleClassLoader(null);
-            openLBundleClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
-            openLBundleClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
-            classLoader = openLBundleClassLoader;
+            OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
+            openLClassLoader.addClassLoader(moduleGeneratedClassesClassLoader);
+            openLClassLoader.addClassLoader(instantiationStrategy.getClassLoader());
+            classLoader = openLClassLoader;
         }
         return classLoader;
     }
@@ -90,7 +89,7 @@ public abstract class AbstractServiceInterfaceProjectValidator implements Projec
             RulesInstantiationStrategy rulesInstantiationStrategy,
             ValidatedCompiledOpenClass validatedCompiledOpenClass) throws RulesInstantiationException {
         RulesDeploy rulesDeployValue = getRulesDeploy(projectDescriptor, validatedCompiledOpenClass);
-        if (rulesDeployValue != null && rulesDeployValue.getServiceName() != null) {
+        if (rulesDeployValue != null && rulesDeployValue.getServiceClass() != null) {
             final String serviceClassName = rulesDeployValue.getServiceClass().trim();
             if (!StringUtils.isEmpty(serviceClassName)) {
                 try {

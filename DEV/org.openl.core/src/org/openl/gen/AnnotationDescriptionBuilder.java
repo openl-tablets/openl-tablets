@@ -18,7 +18,7 @@ public class AnnotationDescriptionBuilder {
     private final List<AnnotationProperty> properties = new ArrayList<>();
 
     private AnnotationDescriptionBuilder(String annotationType) {
-        JavaInterfaceByteCodeBuilder.requireNonBlank(annotationType, "Annotation type is null or blank.");
+        InterfaceByteCodeBuilder.requireNonBlank(annotationType, "Annotation type is null or blank.");
         this.annotationType = annotationType;
     }
 

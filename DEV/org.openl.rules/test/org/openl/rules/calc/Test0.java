@@ -44,12 +44,12 @@ public class Test0 {
 
     @Test
     public void test5() {
-        TestUtils.assertEx("test/rules/calc0/calc0-5.xls", "'Col1' has already been defined", "cell=E4");
+        TestUtils.assertEx("test/rules/calc0/calc0-5.xls", "'Col1' is already defined.", "cell=E4");
     }
 
     @Test
     public void test6() {
-        TestUtils.assertEx("test/rules/calc0/calc0-6.xls", "'Row1' has already been defined", "cell=B7");
+        TestUtils.assertEx("test/rules/calc0/calc0-6.xls", "'Row1' is already defined.", "cell=B7");
     }
 
     public interface ITestCalc {

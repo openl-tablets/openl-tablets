@@ -2,6 +2,10 @@
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
     <url>simple</url>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+        <publisher>WEBSERVICE</publisher>
+    </publishers>
     <loggingStorages>
         <storage>CASSANDRA</storage>
     </loggingStorages>

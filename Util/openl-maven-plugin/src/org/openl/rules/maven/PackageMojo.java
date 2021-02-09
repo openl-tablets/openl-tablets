@@ -54,7 +54,7 @@ import org.yaml.snakeyaml.Yaml;
 public final class PackageMojo extends BaseOpenLMojo {
 
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
-    private static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    static final String DEPLOYMENT_CLASSIFIER = "deployment";
     private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
@@ -206,7 +206,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
             throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
-        boolean openLJarPackaging = packaging.equals("openl-jar");
+        final boolean openLJarPackaging = packaging.equals("openl-jar");
         if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
             dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
@@ -257,7 +257,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
         }
 
-        if (deploymentPackage) {
+        if (deploymentPackage && (openLJarPackaging || "openl".equals(packaging))) {
             File outputDeploymentDir = new File(outputDirectory, finalName + "-" + DEPLOYMENT_CLASSIFIER);
             if (outputDeploymentDir.isDirectory()) {
                 info("Cleaning up '", outputDeploymentDir, "' directory...");
@@ -275,14 +275,15 @@ public final class PackageMojo extends BaseOpenLMojo {
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
             generateDeploymentFile(outputDeploymentDir);
 
+            final String artifactType = getFormats()[0];
             File outputFile = getOutputFile(outputDirectory,
                 deploymentName,
                 DEPLOYMENT_CLASSIFIER,
-                OPENL_ARTIFACT_TYPE);
+                artifactType);
             ZipUtils.archive(outputDeploymentDir, outputFile);
 
             info("Attaching the deployment artifact '", outputFile, ",");
-            projectHelper.attachArtifact(project, OPENL_ARTIFACT_TYPE, DEPLOYMENT_CLASSIFIER, outputFile);
+            projectHelper.attachArtifact(project, artifactType, DEPLOYMENT_CLASSIFIER, outputFile);
         }
     }
 

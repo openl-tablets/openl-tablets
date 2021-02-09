@@ -5,8 +5,8 @@ name: Deploy Maven artifacts
 
 on:
   schedule:
-  # Every day at 00:30 UTC
-  - cron:  '30 0 * * *'
+  # Every day at 01:00 UTC+3
+  - cron:  '0 22 * * *'
   # Manual run from the GitHub action page
   workflow_dispatch:
     inputs:

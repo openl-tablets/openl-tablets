@@ -1,3 +1,4 @@
 ERROR: No input parameter found for horizontal condition.
 ERROR: Method 'someMyRule5(int, int, int)' is not found.
-ERROR: Cannot parse cell value '3'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '0'. Expected value of type 'MyObject2'.
+ERROR: Cannot parse cell value '1'. Expected value of type 'MyObject2'.

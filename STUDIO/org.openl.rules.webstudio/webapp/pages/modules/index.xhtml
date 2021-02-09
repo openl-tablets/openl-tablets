@@ -17,7 +17,7 @@
 
     <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/common.css?4" rel="stylesheet" />
+    <link href="#{contextPath}/css/common.css?5" rel="stylesheet" />
     <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
     <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
     <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
@@ -521,7 +521,7 @@
                     beforeSend: api.ui.showLoader,
                     // Handle jQuery AJAX errors
                     error: function(response, message, error) {
-                        handleError(response.status);
+                        handleError(response.status, response.responseText);
                     },
                     complete: api.ui.hideLoader
                 });
@@ -582,7 +582,6 @@
                         }
                         return;
                     }
-
                     handleError(data.responseCode);
                 });
 
@@ -731,12 +730,16 @@
 
             // Private API
 
-            var handleError = function(code) {
+            var handleError = function(code, error) {
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
                 } else if (code != 404 && code != 0) { // 0 - timeout/abort
                     // 404 error is handled in other place. Other errors are unexpected errors
-                    api.ui.info("#{msg['ws.common.error.500']}");
+                    if (error && code >= 400 && code < 500) {
+                        api.ui.info(error);
+                    } else {
+                        api.ui.info("#{msg['ws.common.error.500']}");
+                    }
                 }
             };
 

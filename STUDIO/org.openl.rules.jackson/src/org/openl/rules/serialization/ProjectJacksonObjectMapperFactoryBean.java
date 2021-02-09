@@ -1,15 +1,5 @@
 package org.openl.rules.serialization;
 
-/*-
- * #%L
- * OpenL - STUDIO - Jackson
- * %%
- * Copyright (C) 2016 - 2020 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.text.DateFormat;
 import java.util.HashSet;
 import java.util.Map;
@@ -383,29 +373,23 @@ public class ProjectJacksonObjectMapperFactoryBean implements JacksonObjectMappe
     }
 
     private Class<?> enhanceMixInClassForSprBeanClass(Class<?> originalMixInClass, ClassLoader classLoader) {
-        String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
-        try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
-            ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
-                className,
-                originalMixInClass);
-            return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
-        }
+        String className = originalMixInClass.getName() + "$EnhancedMixInClassForSprBeanClass$" + incrementer
+            .getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new SpreadsheetResultBeanClassMixInAnnotationsWriter(classWriter,
+            className,
+            originalMixInClass);
+        return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
     }
 
     private Class<?> enhanceMixInClassForDatatypeClass(Class<?> originalMixInClass, ClassLoader classLoader) {
-        String className = originalMixInClass.getName() + "$Enhanced$" + incrementer.getAndIncrement();
-        try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
-            ClassVisitor classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
-                className,
-                originalMixInClass);
-            return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
-        }
+        String className = originalMixInClass.getName() + "$EnhancedMixInClassForDatatypeClass$" + incrementer
+            .getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        ClassVisitor classVisitor = new DatatypeOpenClassMixInAnnotationsWriter(classWriter,
+            className,
+            originalMixInClass);
+        return defineAndLoadClass(originalMixInClass, classLoader, className, classWriter, classVisitor);
     }
 
     private Class<?> defineAndLoadClass(Class<?> originalMixInClass,

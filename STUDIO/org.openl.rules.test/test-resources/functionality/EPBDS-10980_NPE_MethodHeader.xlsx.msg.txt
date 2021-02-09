@@ -1,0 +1,6 @@
+ERROR: Encountered " "instanceof" "instanceof "" at line 1, column 3.
+ERROR: Invalid method header.
+ERROR: Encountered " "instanceof" "instanceof "" at line 1, column 3.
+ERROR: Invalid method header.
+ERROR: Encountered " "instanceof" "instanceof "" at line 1, column 3.
+ERROR: Invalid method header.

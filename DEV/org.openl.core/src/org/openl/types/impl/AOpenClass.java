@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
@@ -24,6 +24,7 @@ import org.openl.meta.IMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.StaticOpenClass;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,6 +33,9 @@ import org.slf4j.LoggerFactory;
  *
  */
 public abstract class AOpenClass implements IOpenClass {
+
+    private volatile StaticOpenClass staticOpenClass;
+
     private static final Logger LOG = LoggerFactory.getLogger(AOpenClass.class);
 
     protected static final Map<MethodKey, IOpenMethod> STUB = Collections.emptyMap();
@@ -110,14 +114,14 @@ public abstract class AOpenClass implements IOpenClass {
     public IOpenField getField(String fname) {
         try {
             return getField(fname, true);
-        } catch (AmbiguousVarException e) {
+        } catch (AmbiguousFieldException e) {
             LOG.debug("Ignored error: ", e);
             return null;
         }
     }
 
     @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
 
         IOpenField f;
         if (strictMatch) {
@@ -149,13 +153,13 @@ public abstract class AOpenClass implements IOpenClass {
         List<IOpenField> ff = nonUniqueLowerCaseFields.get(lfname);
 
         if (ff != null) {
-            throw new AmbiguousVarException(fname, ff);
+            throw new AmbiguousFieldException(fname, ff);
         }
 
         return searchFieldFromSuperClass(fname, strictMatch);
     }
 
-    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousVarException {
+    private IOpenField searchFieldFromSuperClass(String fname, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField f;
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClass : superClasses) {
@@ -217,7 +221,7 @@ public abstract class AOpenClass implements IOpenClass {
     }
 
     @Override
-    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
         return getField(name, strictMatch);
     }
 
@@ -499,6 +503,38 @@ public abstract class AOpenClass implements IOpenClass {
 
     @Override
     public boolean isInterface() {
+        return false;
+    }
+
+    @Override
+    public IOpenClass toStaticClass() {
+        if (staticOpenClass == null) {
+            synchronized (this) {
+                if (staticOpenClass == null) {
+                    staticOpenClass = new StaticOpenClass(this);
+                }
+            }
+        }
+        return staticOpenClass;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        return null;
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        return null;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        return null;
+    }
+
+    @Override
+    public boolean isStatic() {
         return false;
     }
 }

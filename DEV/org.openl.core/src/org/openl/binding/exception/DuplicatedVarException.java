@@ -34,7 +34,7 @@ public class DuplicatedVarException extends OpenlNotCheckedException {
             sb.append(super.getMessage());
         }
 
-        sb.append(String.format("Variable '%s' has already been defined.", variableName));
+        sb.append(String.format("Variable '%s' is already defined.", variableName));
         return sb.toString();
     }
 

@@ -18,7 +18,7 @@ import org.openl.IOpenBinder;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundCode;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.message.OpenLMessage;
@@ -161,7 +161,7 @@ public class OpenLCompileManager {
                 for (IDependency dependency : dependencies) {
                     try {
                         CompiledDependency loadedDependency = dependencyManager.loadDependency(dependency);
-                        OpenLBundleClassLoader currentClassLoader = (OpenLBundleClassLoader) Thread.currentThread()
+                        OpenLClassLoader currentClassLoader = (OpenLClassLoader) Thread.currentThread()
                             .getContextClassLoader();
                         if (loadedDependency.getClassLoader() != currentClassLoader) {
                             currentClassLoader.addClassLoader(loadedDependency.getClassLoader());

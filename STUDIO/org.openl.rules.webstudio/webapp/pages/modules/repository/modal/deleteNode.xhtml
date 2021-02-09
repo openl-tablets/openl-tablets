@@ -2,6 +2,7 @@
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -21,8 +22,11 @@
                     value="#{repositoryTreeController.selectedNode}" />
 
                 <h:outputText
-                    rendered="#{node.type eq 'project' || node.type eq 'deployment'}"
+                    rendered="#{node.type eq 'project'}"
                     value="Are you sure you want to delete the project '#{node.name}'?" />
+                <h:outputText
+                        rendered="#{node.type eq 'deployment'}"
+                        value="Are you sure you want to delete the deploy configuration '#{node.name}'?" />
                 <h:outputText rendered="#{node.type eq 'folder'}"
                     value="Are you sure you want to delete the folder '#{node.name}'?" />
                 <h:outputText rendered="#{node.type eq 'file'}"
@@ -65,11 +69,11 @@
             </h:panelGroup>
 
             <footer>
-                <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
-                  Now errors are shown after dialog is closed. -->
-                <h:commandButton value="Delete"
+                <a4j:commandButton value="Delete"
                     action="#{repositoryTreeController.deleteNode}"
-                    styleClass="button-primary" />
+                    styleClass="button-primary"
+                    render="projectTree nodeView @form"
+                    oncomplete="if(#{!facesContext.validationFailed}) #{rich:component('modalDeleteNode')}.hide();"/>
                 <input type="button" value="Cancel"
                     onclick="#{rich:component('modalDeleteNode')}.hide();" />
             </footer>

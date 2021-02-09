@@ -16,7 +16,6 @@ Content-Type: application/json
         "name": "yaml_project_project2",
         "servicePath": "deploy/yaml_project/project2",
         "urls": {
-            "WEBSERVICE": "yaml_project/project2",
             "RESTFUL": "REST/yaml_project/project2"
         },
         "hasManifest": false,

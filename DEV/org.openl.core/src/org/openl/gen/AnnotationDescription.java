@@ -23,11 +23,11 @@ public class AnnotationDescription {
      * @param properties annotation properties
      * @throws NullPointerException if {@code annotationType} is {@code null}
      */
-    AnnotationDescription(Class<?> annotationType, AnnotationProperty[] properties) {
+    public AnnotationDescription(Class<?> annotationType, AnnotationProperty[] properties) {
         this(annotationType.getName(), properties);
     }
 
-    AnnotationDescription(String annotationType, AnnotationProperty[] properties) {
+    public AnnotationDescription(String annotationType, AnnotationProperty[] properties) {
         Objects.requireNonNull(annotationType, "Annotation type is null.");
         this.annotationType = new TypeDescription(annotationType);
         this.properties = Optional.ofNullable(properties).orElse(EMPTY_PROPS);
@@ -70,12 +70,11 @@ public class AnnotationDescription {
          * @param value property value
          * @throws NullPointerException if any argument is {@code null}
          */
-        AnnotationProperty(String name, Object value) {
-            this(name, value, Optional.ofNullable(value)
-                    .map(Object::getClass)
-                    .map(Class::isArray)
-                    .orElse(false)
-                    , false);
+        public AnnotationProperty(String name, Object value) {
+            this(name,
+                value,
+                Optional.ofNullable(value).map(Object::getClass).map(Class::isArray).orElse(false),
+                false);
         }
 
         /**
@@ -85,7 +84,7 @@ public class AnnotationDescription {
          * @param typeDescription java type description (when we need to write {@code Object.class} as value)
          * @throws NullPointerException if any argument is {@code null}
          */
-        AnnotationProperty(String name, TypeDescription typeDescription) {
+        public AnnotationProperty(String name, TypeDescription typeDescription) {
             this(name, typeDescription.getTypeDescriptor(), false, true);
         }
 
@@ -98,7 +97,7 @@ public class AnnotationDescription {
          * @param type determines if this property is java class type or not
          * @throws NullPointerException if any argument is {@code null}
          */
-        AnnotationProperty(String name, Object value, boolean array, boolean type) {
+        public AnnotationProperty(String name, Object value, boolean array, boolean type) {
             this.name = Objects.requireNonNull(name, "Annotation property name is null.");
             this.value = Objects.requireNonNull(value, "Annotation property value is null.");
             this.array = array;

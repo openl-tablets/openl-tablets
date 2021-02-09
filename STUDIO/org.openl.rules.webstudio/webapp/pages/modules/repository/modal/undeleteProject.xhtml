@@ -18,11 +18,15 @@
 
         <h:form id="modalUndeleteProjectForm">
             <h:panelGroup id="modalUndeleteProjectData">
-                <h:outputText
-                    value="Are you sure you want to undelete the project?" />
-
                 <ui:param name="node"
-                    value="#{repositoryTreeController.selectedNode}" />
+                          value="#{repositoryTreeController.selectedNode}" />
+
+                <h:outputText rendered="#{node.type eq 'project'}"
+                              value="Are you sure you want to undelete the project?" />
+                <h:outputText rendered="#{node.type eq 'deployment'}"
+                              value="Are you sure you want to undelete the deploy configuration?" />
+
+
                 <ui:param name="useCustomComment"
                     value="#{node.type eq 'project' and repositoryTreeController.useCustomCommentForProject}" />
                 <h:panelGroup rendered="#{useCustomComment}">

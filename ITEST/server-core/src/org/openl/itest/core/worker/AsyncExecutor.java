@@ -1,7 +1,5 @@
 package org.openl.itest.core.worker;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -18,12 +16,20 @@ import java.util.stream.Stream;
  */
 public class AsyncExecutor {
 
-    public static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
-    public static final int STOP_TIMEOUT = 15;
+    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
 
     private final ExecutorService executor;
     private final List<Wrapper> workers;
     private final int threads;
+
+    /**
+     * Executes a task as many time as twice cpu available
+     *
+     * @param command task to execute
+     */
+    public AsyncExecutor(Runnable command) {
+        this(MAX_THREADS, command);
+    }
 
     /**
      * Executes a task as many time as thread number defined
@@ -31,9 +37,15 @@ public class AsyncExecutor {
      * @param threads threads number to execute target task
      * @param command task to execute
      */
-    public AsyncExecutor(int threads, Runnable command) {
+    AsyncExecutor(int threads, Runnable command) {
         this.threads = threads;
         this.workers = Stream.generate(() -> new Wrapper(command)).limit(this.threads).collect(Collectors.toList());
+        this.executor = Executors.newFixedThreadPool(this.threads);
+    }
+
+    private AsyncExecutor(Runnable... commands) {
+        this.threads = commands.length;
+        this.workers = Stream.of(commands).map(Wrapper::new).collect(Collectors.toList());
         this.executor = Executors.newFixedThreadPool(this.threads);
     }
 
@@ -42,12 +54,11 @@ public class AsyncExecutor {
      *
      * @param commands tasks to execute
      */
-    public AsyncExecutor(Runnable... commands) {
-        this.threads = commands.length;
-        this.workers = Stream.of(commands).map(Wrapper::new).collect(Collectors.toList());
-        this.executor = Executors.newFixedThreadPool(this.threads);
+    public static AsyncExecutor start(Runnable... commands) {
+        AsyncExecutor asyncExecutor = new AsyncExecutor(commands);
+        asyncExecutor.start();
+        return asyncExecutor;
     }
-
     /**
      * Start execution of all tasks
      */
@@ -59,33 +70,34 @@ public class AsyncExecutor {
     /**
      * Interrupt execution of all run tasks and gather all errors which were caught while commands execution
      *
-     * @return all errors which were caught while commands execution
+     * @return true if any errors occurs while commands execution
      */
-    public List<Throwable> stop() {
-        return stop(STOP_TIMEOUT, TimeUnit.SECONDS);
+    public boolean stop() {
+        return stop(15, TimeUnit.SECONDS);
     }
 
-    public List<Throwable> stop(int timeout, TimeUnit unit) {
+    public boolean stop(int timeout, TimeUnit unit) {
         workers.forEach(Wrapper::stop);
-        List<Throwable> errors = new ArrayList<>();
         executor.shutdownNow();
         try {
             executor.awaitTermination(timeout, unit);
         } catch (InterruptedException e) {
-            errors.add(e);
+            e.printStackTrace(); // For debug purposes
+            Thread.currentThread().interrupt();
+            return true;
         }
-        workers.stream().map(Wrapper::getErrors).forEach(errors::addAll);
 
-        return Collections.unmodifiableList(errors);
+        return workers.stream().anyMatch(Wrapper::hasError);
     }
 
     /**
      * Task wrapper to all running of it until it is interrupted and catches all occurred errors
+     * 
      * @author Vladyslav Pikus
      */
     private static final class Wrapper implements Runnable {
 
-        private final List<Throwable> errors = new ArrayList<>();
+        private volatile boolean error = false;
         private final Runnable delegate;
         private volatile boolean run = true;
 
@@ -94,22 +106,24 @@ public class AsyncExecutor {
         }
 
         void stop() {
-            this.run =  false;
+            this.run = false;
         }
 
         @Override
         public void run() {
-            while (run) {
+            while (run && !error && !Thread.currentThread().isInterrupted()) {
                 try {
                     delegate.run();
-                } catch (Exception | AssertionError error) {
-                    errors.add(error);
+                } catch (Exception | AssertionError ex) {
+                    error = true;
+                    run = false;
+                    ex.printStackTrace(); // For debug purposes
                 }
             }
         }
 
-        List<Throwable> getErrors() {
-            return Collections.unmodifiableList(errors);
+        boolean hasError() {
+            return error;
         }
     }
 

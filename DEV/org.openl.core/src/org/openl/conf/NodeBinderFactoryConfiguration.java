@@ -61,6 +61,9 @@ public class NodeBinderFactoryConfiguration extends AConfigurationElement {
      * @see org.openl.binding.INodeBinderFactory#getNodeBinder(org.openl.syntax.ISyntaxNode)
      */
     public INodeBinder getNodeBinder(ISyntaxNode node, IConfigurableResourceContext cxt) {
+        if (node == null) {
+            return null;
+        }
         SingleBinderFactory factory = (SingleBinderFactory) map.get(node.getType());
 
         return factory == null ? null : (INodeBinder) factory.getResource(cxt);

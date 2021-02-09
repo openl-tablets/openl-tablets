@@ -1,15 +1,5 @@
 package org.openl.rules.serialization;
 
-/*
- * #%L
- * OpenL - Rules - Serialization
- * %%
- * Copyright (C) 2016 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -67,6 +57,8 @@ import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.jaxb.JaxbAnnotationIntrospector;
 import com.fasterxml.jackson.module.paramnames.ParameterNamesModule;
+
+import groovy.lang.GroovyObject;
 
 public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactory {
 
@@ -128,31 +120,27 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
                 parentTypeClass = x;
             }
         }
-        String className = classFor.getName() + "$SubtypeMixIn$" + incrementer.getAndIncrement();
+        String className = classFor.getName() + "$EnhancedMixInClassWithSubTypes$" + incrementer.getAndIncrement();
+        ClassWriter classWriter = new ClassWriter(0);
+        String typingPropertyName = StringUtils.isNotBlank(
+            getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
+        if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
+            typingPropertyName = null;
+        }
+        ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
+            originalClass,
+            parentTypeClass,
+            subTypeClasses.toArray(new Class<?>[0]),
+            typingPropertyName,
+            isSimpleClassNameAsTypingPropertyValue());
+        InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
+        transformer.accept(classVisitor);
+        classWriter.visitEnd();
         try {
-            return classLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            ClassWriter classWriter = new ClassWriter(0);
-            String typingPropertyName = StringUtils.isNotBlank(
-                getTypingPropertyName()) ? getTypingPropertyName() : JsonTypeInfo.Id.CLASS.getDefaultPropertyName();
-            if (DefaultTypingMode.DISABLED.equals(getDefaultTypingMode())) {
-                typingPropertyName = null;
-            }
-            ClassVisitor classVisitor = new SubtypeMixInClassWriter(classWriter,
-                originalClass,
-                parentTypeClass,
-                subTypeClasses.toArray(new Class<?>[0]),
-                typingPropertyName,
-                isSimpleClassNameAsTypingPropertyValue());
-            InterfaceTransformer transformer = new InterfaceTransformer(originalClass, className);
-            transformer.accept(classVisitor);
-            classWriter.visitEnd();
-            try {
-                ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
-                return Class.forName(className, true, classLoader);
-            } catch (Exception e1) {
-                throw new IllegalStateException(e1);
-            }
+            ClassUtils.defineClass(className, classWriter.toByteArray(), classLoader);
+            return Class.forName(className, true, classLoader);
+        } catch (Exception e1) {
+            throw new IllegalStateException(e1);
         }
     }
 
@@ -241,6 +229,8 @@ public class JacksonObjectMapperFactoryBean implements JacksonObjectMapperFactor
         } else {
             mapper.deactivateDefaultTyping();
         }
+
+        mapper.addMixIn(GroovyObject.class, org.openl.rules.serialization.jackson.groovy.lang.GroovyObject.class);
 
         if (isSupportVariations()) {
             addMixIn(mapper, Variation.class, VariationType.class);

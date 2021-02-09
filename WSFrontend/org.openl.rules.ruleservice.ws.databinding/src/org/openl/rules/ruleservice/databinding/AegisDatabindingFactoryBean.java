@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding;
 
-/*-
- * #%L
- * OpenL - RuleService - Web Services - Databinding
- * %%
- * Copyright (C) 2015 - 2018 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.apache.cxf.aegis.type.basic.CharacterAsStringType;
 import org.apache.cxf.binding.corba.wsdl.W3CConstants;
