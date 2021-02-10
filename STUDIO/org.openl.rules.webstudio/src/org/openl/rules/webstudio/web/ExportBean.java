@@ -51,7 +51,7 @@ public class ExportBean {
     private static final Logger LOG = LoggerFactory.getLogger(ExportBean.class);
 
     private static final String VIEWING_VERSION = "Viewing";
-    private static final String IN_EDITING_VERSION = "In editing";
+    private static final String IN_EDITING_VERSION = "In Editing";
 
     private String repositoryId;
     private String currentProjectName;
