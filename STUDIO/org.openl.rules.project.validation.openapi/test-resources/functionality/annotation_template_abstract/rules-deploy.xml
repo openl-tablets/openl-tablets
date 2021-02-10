@@ -1,10 +1,8 @@
 <rules-deploy>
     <isProvideRuntimeContext>false</isProvideRuntimeContext>
     <isProvideVariations>false</isProvideVariations>
-    <serviceName>http-statuses-test</serviceName>
+    <annotationTemplateClassName>org.openl.rules.project.validation.openapi.test.AServiceAnnotationTemplate</annotationTemplateClassName>
     <publishers>
-        <publisher>WEBSERVICE</publisher>
         <publisher>RESTFUL</publisher>
     </publishers>
-    <url>http-statuses-test</url>
 </rules-deploy>

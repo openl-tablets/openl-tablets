@@ -7,7 +7,4 @@
         <publisher>RESTFUL</publisher>
     </publishers>
     <url>http-statuses-lazycompilation-test</url>
-    <!-- STATIC INTERFACE -->
-    <serviceClass>org.openl.itest.rules.TestLazyCompilationService</serviceClass>
-    <!-- //STATIC INTERFACE -->
 </rules-deploy>

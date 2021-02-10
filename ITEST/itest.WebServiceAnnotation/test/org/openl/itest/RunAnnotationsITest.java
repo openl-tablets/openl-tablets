@@ -306,4 +306,51 @@ public class RunAnnotationsITest {
         client.get("/v1/string/toNumber?wsdl", "/stringToNumber_wsdl.resp.xml");
         client.get("/REST/v1/string/toNumber?_wadl", "/stringToNumber_wadl.resp.xml");
     }
+
+    @Test
+    public void testAnnotationTemplateAbstractClass() {
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/excluded",
+                "/stringToNumber_exculded.req.txt", 404, "/404.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/notExcludedBecauseof_p_",
+                "/stringToNumber_notExculded.req.txt", "/stringToNumber_notExculded.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/process",
+                "/stringToNumber_process.req.json", "/stringToNumber_process.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/ping",
+                "/stringToNumber_ping.req.json", "/stringToNumber_ping.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/virtual2",
+                "/stringToNumber_virtual2.req.json", "/stringToNumber_virtual2.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/virtual",
+                "/stringToNumber_virtual_error.req.txt", 422,
+                "/stringToNumber_virtual_error.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/virtual",
+                "/stringToNumber_virtual.req.txt", "/stringToNumber_virtual.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
+                "/stringToNumber_parseX_throwBeforeCall-415.req.json", 415,
+                "/stringToNumber_parseX_throwBeforeCall-415.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
+                "/stringToNumber_parseX_throwBeforeCall.req.txt",
+                "/stringToNumber_parseX_throwBeforeCall.resp.xml");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
+                "/stringToNumber_parseX_error.req.txt", "/stringToNumber_parseX_error.resp.xml");
+        client.get("/REST/v1/annotation-template-abstract-class/string/toNumber/parseXPathParam/11",
+                "/stringToNumber_parseX.resp.xml");
+        client.get("/REST/v1/annotation-template-abstract-class/string/toNumber/parseXQueryParam?numParam=11",
+                "/stringToNumber_parseX.resp.xml");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parseX",
+                "/stringToNumber_parseX.req.txt", "/stringToNumber_parseX.resp.xml");
+        client.get("/REST/v1/annotation-template-abstract-class/string/toNumber/parse/111",
+                "/stringToNumber_parse.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parse2",
+                "/stringToNumber_parse2.req.txt", "/stringToNumber_parse2.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parse2",
+                "/stringToNumber_parse2_notValid.req.txt", 406,
+                "/stringToNumber_parse2_notValid.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parse11",
+                "/stringToNumber_parse11.req.txt", 404, "/404.resp.txt");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parse",
+                "/stringToNumber_parse1_error.req.txt", 422,
+                "/stringToNumber_parse1_error.resp.json");
+        client.post("/REST/v1/annotation-template-abstract-class/string/toNumber/parse",
+                "/stringToNumber_parse1.req.txt", "/stringToNumber_parse1.resp.txt");
+    }
 }

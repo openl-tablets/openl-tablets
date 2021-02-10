@@ -1,0 +1,18 @@
+ERROR: OpenAPI Reconciliation: Type of field 'field1' in type 'MyDatatype' must be compatible with OpenAPI type 'string' that incompatible with actual type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/addWrong1/{a1}/{b1}/{c1}'.
+ERROR: OpenAPI Reconciliation: Type 'Integer' of parameter 'a' in method 'addWrong' must be compatible with OpenAPI type 'string'.
+ERROR: OpenAPI Reconciliation: Unexpected parameter for request body schema property 'b' is found in method 'addWrong'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'b1' is not found in method 'addWrong'.
+ERROR: OpenAPI Reconciliation: Type 'Integer' of parameter 'a' in method 'addWrong2' must be compatible with OpenAPI type 'string'.
+ERROR: OpenAPI Reconciliation: Unexpected query parameter 'y' is found in method 'addWrong2'.
+ERROR: OpenAPI Reconciliation: Expected query parameter 'y1' is not found in method 'addWrong2'.
+ERROR: OpenAPI Reconciliation: Type 'Integer' of parameter 'a' in method 'method2' must be compatible with OpenAPI type 'string'.
+ERROR: OpenAPI Reconciliation: Unexpected method 'addWrong1' is found for path '/addWrong1/{x1}/{y1}'.
+ERROR: OpenAPI Reconciliation: Type 'String' of parameter 'a' in method 'addWrongHere' must be compatible with OpenAPI type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Unexpected parameter for request body schema property 'b1' is found in method 'addWrongHere'.
+ERROR: OpenAPI Reconciliation: Expected parameter for request body schema property 'b' is not found in method 'addWrongHere'.
+ERROR: OpenAPI Reconciliation: Type 'String' of parameter 'a' in method 'addWrongHere1' related to path '/addWrongHere1/{x1}/{y1}' must be compatible with OpenAPI type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Type 'String' of parameter 'b' in method 'addWrongHere1' related to path '/addWrongHere1/{x1}/{y1}' must be compatible with OpenAPI type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Type 'String' of parameter 'a' in method 'addWrongHere2' must be compatible with OpenAPI type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Unexpected query parameter 'b' is found in method 'addWrongHere2'.
+ERROR: OpenAPI Reconciliation: Expected query parameter 'y' is not found in method 'addWrongHere2'.

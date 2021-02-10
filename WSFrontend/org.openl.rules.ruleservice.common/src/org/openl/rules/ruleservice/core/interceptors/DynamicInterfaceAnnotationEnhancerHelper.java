@@ -3,6 +3,7 @@ package org.openl.rules.ruleservice.core.interceptors;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -224,8 +225,8 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
             Class<?> templateClass,
             IOpenClass openClass,
             ClassLoader classLoader) throws Exception {
-        if (!templateClass.isInterface()) {
-            throw new InstantiationException("Only interface is supported");
+        if (!templateClass.isInterface() && !Modifier.isAbstract(templateClass.getModifiers())) {
+            throw new InstantiationException("Only interfaces or abstract classes are supported");
         }
         final String enhancedClassName = originalClass
             .getName() + DynamicInterfaceAnnotationEnhancerClassVisitor.DECORATED_CLASS_NAME_SUFFIX;
@@ -250,8 +251,12 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
         final Logger log = LoggerFactory.getLogger(DynamicInterfaceAnnotationEnhancerHelper.class);
         if (log.isWarnEnabled()) {
             for (Method method : dynamicInterfaceAnnotationEnhancerClassVisitor.getMissedMethods()) {
-                log.warn("Method '{}' from annotation template interface is not found in the service class.",
-                    MethodUtil.printQualifiedMethodName(method));
+                if (method.getDeclaringClass() == Object.class) {
+                    continue;
+                }
+                log.warn("Method '{}' from annotation template {} is not found in the service class.",
+                    MethodUtil.printQualifiedMethodName(method),
+                        method.getDeclaringClass().isInterface() ? "interface" : "class");
             }
         }
     }
