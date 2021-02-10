@@ -627,4 +627,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-10996/openapi.json.get");
         client.send("EPBDS-10996/swagger.json.get");
     }
+
+    @Test
+    public void test_missed_annotation_template_class() {
+        client.send("missed_annotation_template_class/errors.get");
+    }
 }

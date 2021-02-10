@@ -1,0 +1,10 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>missed_annotation_template_class</serviceName>
+  <url>missed_annotation_template_class</url>
+  <annotationTemplateClassName>MustNotBeFoundInClassloader</annotationTemplateClassName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

@@ -12,7 +12,6 @@ import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.repository.api.FileData;
-import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -50,11 +49,6 @@ public class RulesProjectBuilder {
                 FileMappingData mappingData = new FileMappingData(designData.getName(), internalPath);
                 designData.addAdditionalData(mappingData);
                 localData.addAdditionalData(mappingData);
-                try {
-                    ((FolderMapper) designRepository).addFileData(designData);
-                } catch (IOException e) {
-                    throw new IllegalStateException("Failed to update mapping.");
-                }
             }
 
             try {

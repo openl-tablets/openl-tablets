@@ -50,7 +50,8 @@ import org.springframework.web.context.annotation.SessionScope;
 public class ExportBean {
     private static final Logger LOG = LoggerFactory.getLogger(ExportBean.class);
 
-    private static final String LOCAL_VERSION = "Local version";
+    private static final String VIEWING_VERSION = "Viewing";
+    private static final String IN_EDITING_VERSION = "In Editing";
 
     private String repositoryId;
     private String currentProjectName;
@@ -72,7 +73,7 @@ public class ExportBean {
             String fileName = null;
             UserWorkspace userWorkspace = getUserWorkspace();
             RulesProject selectedProject = userWorkspace.getProject(repositoryId, currentProjectName, false);
-            if (version == null || version.equals(LOCAL_VERSION)) {
+            if (version == null || version.equals(VIEWING_VERSION) || version.equals(IN_EDITING_VERSION)) {
                 selectedProject.refresh();
                 String userName = WebStudioUtils.getRulesUserSession().getUserName();
 
@@ -121,7 +122,11 @@ public class ExportBean {
             if (repositoryId != null && currentProjectName != null) {
                 RulesProject project = userWorkspace.getProject(repositoryId, currentProjectName, false);
                 if (project.isOpened()) {
-                    projectVersions.add(new SelectItem(LOCAL_VERSION, LOCAL_VERSION));
+                    if(project.isModified()){
+                        projectVersions.add(new SelectItem(IN_EDITING_VERSION, IN_EDITING_VERSION));
+                    }else{
+                        projectVersions.add(new SelectItem(VIEWING_VERSION, VIEWING_VERSION));
+                    }
                 }
                 List<ProjectVersion> versions = project.getVersions();
                 Collections.reverse(versions);
@@ -173,6 +178,7 @@ public class ExportBean {
 
     public void setInitProject(String currentProjectName) {
         this.currentProjectName = currentProjectName;
+        this.version = null;
     }
 
     public String getRepositoryId() {

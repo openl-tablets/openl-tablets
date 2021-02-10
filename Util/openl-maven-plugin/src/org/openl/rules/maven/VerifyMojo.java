@@ -10,11 +10,11 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.openl.rules.ruleservice.core.OpenLService;
+import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManagerImpl;
 import org.openl.rules.ruleservice.servlet.MethodDescriptor;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.context.annotation.ImportResource;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import org.springframework.core.env.MapPropertySource;
 import org.springframework.core.env.StandardEnvironment;
 
@@ -58,28 +58,38 @@ public class VerifyMojo extends BaseOpenLMojo {
         props.put("production-repository.archives", pathDeployment);
         environment.getPropertySources().addLast(new MapPropertySource("mavenIntegrationProperties", props));
 
-        try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
+        try (GenericXmlApplicationContext context = new GenericXmlApplicationContext()) {
             context.setEnvironment(environment);
-            context.register(Config.class);
+            context.load("classpath:openl-ruleservice-beans.xml");
             context.refresh();
 
             final RulesFrontend frontend = context.getBean(RulesFrontend.class);
 
             Collection<String> deployedServices = frontend.getServices().stream().map(OpenLService::getDeployPath).collect(Collectors.toList());
-            if (deployedServices.size() == 0) {
+            if (deployedServices.isEmpty()) {
                 throw new MojoFailureException(
-                    String.format("Failed to deploy '%s:%s'", project.getGroupId(), project.getArtifactId()));
+                    String.format("Failed to deploy '%s:%s'.", project.getGroupId(), project.getArtifactId()));
             }
             final ServiceManagerImpl serviceManager = context.getBean("serviceManager", ServiceManagerImpl.class);
+            boolean hasMethods = false;
             for (String deployedService : deployedServices) {
-                Collection<MethodDescriptor> methods = serviceManager.getServiceMethods(deployedService);
-                if (methods == null || methods.size() == 0) {
-                    throw new MojoFailureException(
-                        String.format("OpenL Project '%s' has no public methods!", deployedService));
+                OpenLService service = serviceManager.getServiceByDeploy(deployedService);
+                try {
+                    // trigger service class instantiation
+                    service.getServiceClass();
+                } catch (RuleServiceInstantiationException e) {
+                    throw new MojoFailureException(String.format("OpenL Project '%s' has errors!", deployedService), e);
                 }
                 if (!serviceManager.getServiceErrors(deployedService).isEmpty()) {
                     throw new MojoFailureException(String.format("OpenL Project '%s' has errors!", deployedService));
                 }
+                Collection<MethodDescriptor> methods = serviceManager.getServiceMethods(deployedService);
+                hasMethods |= methods != null && !methods.isEmpty();
+            }
+            if (!hasMethods) {
+                throw new MojoFailureException(String.format("The deployment '%s:%s' has no public methods.",
+                    project.getGroupId(),
+                    project.getArtifactId()));
             }
         }
         info(String
@@ -94,9 +104,5 @@ public class VerifyMojo extends BaseOpenLMojo {
     @Override
     String getHeader() {
         return "OPENL VERIFY";
-    }
-
-    @ImportResource(locations = { "classpath:openl-ruleservice-beans.xml" })
-    public static class Config {
     }
 }
