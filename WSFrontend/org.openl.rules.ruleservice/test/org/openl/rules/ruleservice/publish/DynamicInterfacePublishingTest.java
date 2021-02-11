@@ -41,7 +41,7 @@ public class DynamicInterfacePublishingTest {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("dynamic-interface-test1");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project1");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         String[] methods = {
@@ -70,7 +70,7 @@ public class DynamicInterfacePublishingTest {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("dynamic-interface-test2");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project2");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 
@@ -96,7 +96,7 @@ public class DynamicInterfacePublishingTest {
 
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = serviceManager.getServiceByName("dynamic-interface-test3");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 

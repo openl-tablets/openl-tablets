@@ -164,7 +164,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         serviceClassName), e);
             }
         }
-        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getName());
+        log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getDeployPath());
         Class<?> instanceClass = instantiationStrategy.getInstanceClass();
         Object serviceTarget = instantiationStrategy.instantiate();
         serviceClass = processGeneratedServiceClass(serviceDescription,
@@ -189,7 +189,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             }
         }
         if (serviceClass == null) {
-            log.info("Service class is undefined for service '{}'. Default RMI interface is used.", service.getName());
+            log.info("Service class is undefined for service '{}'. Default RMI interface is used.",
+                service.getDeployPath());
             service.setRmiServiceClassName(null); // RMI default will be used
         }
         service.setRmiServiceClass(serviceClass);
@@ -221,9 +222,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 if (annotationTemplateClass.isInterface() || Modifier.isAbstract(annotationTemplateClass.getModifiers())) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, openClass, classLoader);
-                    log.info("Annotation template class '{}' is used for service: {}.",
+                    log.info("Annotation template class '{}' is used for service {}.",
                         annotationTemplateClassName,
-                        serviceDescription.getName());
+                        serviceDescription.getDeployPath());
                     return decoratedClass;
                 }
                 throw new RuleServiceRuntimeException(String
@@ -245,13 +246,13 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
      */
     @Override
     public OpenLService createService(final ServiceDescription serviceDescription) {
-        log.debug("Resolving modules for service '{}'.", serviceDescription.getName());
+        log.debug("Resolving modules for service '{}'.", serviceDescription.getDeployPath());
         Collection<Module> modules = serviceDescription.getModules();
 
         OpenLService.OpenLServiceBuilder builder = new OpenLService.OpenLServiceBuilder();
         builder.setName(serviceDescription.getName())
             .setUrl(serviceDescription.getUrl())
-            .setServicePath(serviceDescription.getServicePath())
+            .setDeployPath(serviceDescription.getDeployPath())
             .setServiceClassName(serviceDescription.getServiceClassName())
             .setRmiServiceClassName(serviceDescription.getRmiServiceClassName())
             .setRmiName(serviceDescription.getRmiName())
@@ -272,7 +273,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                     throw e;
                 } catch (Exception e) {
                     throw new RuleServiceInstantiationException(
-                        String.format("Failed to initialize service '%s'.", openLService.getName()),
+                        String.format("Failed to initialize service '%s'.", openLService.getDeployPath()),
                         e);
                 }
             }

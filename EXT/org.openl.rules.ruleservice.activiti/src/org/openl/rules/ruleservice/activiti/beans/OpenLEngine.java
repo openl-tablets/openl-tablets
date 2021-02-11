@@ -25,7 +25,7 @@ public class OpenLEngine {
 
     public ResultValue execute(String serviceName, String methodName, Object... args)
             throws InvocationTargetException, IllegalAccessException, RuleServiceInstantiationException {
-        OpenLService openLService = serviceManager.getServiceByName(serviceName);
+        OpenLService openLService = serviceManager.getServiceByDeploy(serviceName);
         if (openLService == null) {
             throw new OpenLServiceNotFoundException(String.format("OpenL service '%s' is not found.", serviceName));
         } else {

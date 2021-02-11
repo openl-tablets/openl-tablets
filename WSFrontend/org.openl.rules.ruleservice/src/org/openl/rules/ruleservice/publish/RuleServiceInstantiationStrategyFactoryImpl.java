@@ -48,11 +48,10 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
         if (moduleSize == 0) {
             throw new IllegalStateException("There are no modules to instantiate.");
         }
-        String serviceName = serviceDescription.getName();
 
         if (isLazyCompilation()) {
             if (dependencyManager instanceof RuleServiceDependencyManager) {
-                log.debug("Lazy loading strategy is used for service: '{}'.", serviceName);
+                log.debug("Lazy loading strategy is used for service '{}'.", serviceDescription.getDeployPath());
                 return new LazyInstantiationStrategy(serviceDescription.getDeployment(),
                     modules,
                     (RuleServiceDependencyManager) dependencyManager);
@@ -62,11 +61,12 @@ public class RuleServiceInstantiationStrategyFactoryImpl implements RuleServiceI
             }
         }
         if (moduleSize == 1) {
-            log.debug("Single module loading strategy has been used for service: '{}'.", serviceName);
+            log.debug("Single module loading strategy has been used for service '{}'.",
+                serviceDescription.getDeployPath());
             Module module = modules.iterator().next();
             return RulesInstantiationStrategyFactory.getStrategy(module, true, dependencyManager);
         }
-        log.debug("Multi module loading strategy has been used for service: '{}'.", serviceName);
+        log.debug("Multi module loading strategy has been used for service '{}'.", serviceDescription.getDeployPath());
         return new SimpleMultiModuleInstantiationStrategy(modules, dependencyManager, true);
     }
 }

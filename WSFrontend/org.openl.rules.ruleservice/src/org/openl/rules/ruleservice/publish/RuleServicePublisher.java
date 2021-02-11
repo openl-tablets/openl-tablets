@@ -31,10 +31,10 @@ public interface RuleServicePublisher {
      * Searches for the service from currently running with the specified name or null if service with specified name
      * wasn't deployed.
      *
-     * @param name Name of the service to find.
+     * @param deployPath deploy path of the service to find.
      * @return Service with the specified name or null if service with specified name wasn't deployed.
      */
-    OpenLService getServiceByName(String name);
+    OpenLService getServiceByDeploy(String deployPath);
 
     /**
      * Returns a url for the given service, if it is published, otherwise returns null.

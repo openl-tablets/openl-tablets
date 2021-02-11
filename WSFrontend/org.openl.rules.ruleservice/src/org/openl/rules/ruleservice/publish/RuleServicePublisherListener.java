@@ -11,5 +11,5 @@ public interface RuleServicePublisherListener {
 
     void onDeploy(OpenLService service);
 
-    void onUndeploy(String serviceName);
+    void onUndeploy(String deployPath);
 }

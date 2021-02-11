@@ -59,6 +59,11 @@ public interface RulesFrontend {
     Collection<String> getServiceNames();
 
     /**
+     * Gets services.
+     */
+    Collection<OpenLService> getServices();
+
+    /**
      * Registers service to use it in calculations.
      *
      * @param service Service to register.
