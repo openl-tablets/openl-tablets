@@ -271,9 +271,11 @@
                         <archive>
                             <manifest>
                                 <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                                <addBuildEnvironmentEntries>true</addBuildEnvironmentEntries>
                             </manifest>
                             <manifestEntries>
                                 <Implementation-Build>${buildNumber}</Implementation-Build>
+                                <Built-By>${user.name}</Built-By>
                             </manifestEntries>
                         </archive>
                     </configuration>
