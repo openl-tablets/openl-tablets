@@ -5,7 +5,4 @@
             <rules-root path="*.xlsx"/>
         </module>
     </modules>
-    <classpath>
-        <entry path="lib/*.jar"/>
-    </classpath>
 </project>
