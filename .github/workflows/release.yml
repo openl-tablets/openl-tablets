@@ -70,6 +70,7 @@ jobs:
         echo checking out ${latestTag}
         git checkout ${latestTag}
         git log --decorate -n 20 --all --oneline --graph
+        echo "RELEASE_TAG=${latestTag}" >> $GITHUB_ENV
 
     - name: Build & Deploy to local staging repository
       run: >
@@ -112,3 +113,74 @@ jobs:
         git push --tags
       env:
         GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Create release on GitHub
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        release_name: OpenL Tablets ${{ env.RELEASE_TAG }} Released
+        body: |
+          **OpenL Tablets ${{ env.RELEASE_TAG }} is available.**
+          More detailed information you can find at [Release Notes ${{ env.RELEASE_TAG }}](//openl-tablets.org/release-notes?ver=${{ env.RELEASE_TAG }}).
+          All artifacts are ready for Downloads.
+          Enjoy!
+        draft: false
+        prerelease: false
+
+    - name: Attach DEMO
+      id: attach-demo
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/demo/openl-demo-app/${{ env.RELEASE_TAG }}/openl-demo-app-${{ env.RELEASE_TAG }}.zip
+        asset_name: openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
+        asset_content_type: application/zip
+
+    - name: Attach WebStudio
+      id: attach-webstudio
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.webstudio/${{ env.RELEASE_TAG }}/org.openl.rules.webstudio-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-webstudio-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Rule Services WS
+      id: attach-webservice
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-ws-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Rule Services WS (All)
+      id: attach-webservice-all
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws.all-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-ws-all-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Core
+      id: attach-core
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules/${{ env.RELEASE_TAG }}/org.openl.rules-${{ env.RELEASE_TAG }}.zip
+        asset_name: org.openl.rules-${{ env.RELEASE_TAG }}.zip
+        asset_content_type: application/zip
