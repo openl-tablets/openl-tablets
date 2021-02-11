@@ -182,5 +182,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./mvn-staging/org/openl/rules/org.openl.rules/${{ env.RELEASE_TAG }}/org.openl.rules-${{ env.RELEASE_TAG }}.zip
-        asset_name: org.openl.rules-${{ env.RELEASE_TAG }}.zip
+        asset_name: openl-tablets-core-${{ env.RELEASE_TAG }}.zip
         asset_content_type: application/zip
