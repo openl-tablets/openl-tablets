@@ -315,7 +315,7 @@ public final class PackageMojo extends BaseOpenLMojo {
                 debug("SKIP : ", artifact, " (by dependency depth)");
                 continue; // skip, unexpected size of dependencies
             }
-            if (skipTransitiveDependency(dependencyTrail)) {
+            if (skipOpenLCoreDependency(dependencyTrail)) {
                 debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
                 continue;
             }
@@ -347,23 +347,11 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private boolean skipToProcess(String groupId, String type, String scope) {
-        return !isRuntimeScope(scope) || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
-            .equals("org.slf4j");
+        return !isRuntimeScope(scope) || isOpenLCoreDependency(groupId);
     }
 
     private boolean isRuntimeScope(String scope) {
         return Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
-    }
-
-    private boolean skipTransitiveDependency(List<String> dependencyTrail) {
-        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
-            String dependency = dependencyTrail.get(i);
-            if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
-                .startsWith("org.slf4j:")) {
-                return true;
-            }
-        }
-        return false;
     }
 
     @Override

@@ -347,7 +347,7 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 isLazyCompilation = ((RuleServiceInstantiationStrategyFactoryImpl) instantiationStrategyFactory)
                     .isLazyCompilation();
             }
-            ClassLoader rootClassLoader = RuleServiceOpenLServiceInstantiationFactoryImpl.class.getClassLoader();
+            ClassLoader rootClassLoader = Thread.currentThread().getContextClassLoader();
             dependencyManager = new RuleServiceDependencyManager(deployment,
                 ruleServiceLoader,
                 rootClassLoader,

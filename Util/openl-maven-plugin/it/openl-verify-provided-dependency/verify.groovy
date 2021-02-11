@@ -2,7 +2,7 @@ try {
     File folder = basedir
 
     def lines = new File(folder, 'build.log').readLines('UTF-8')
-    assert lines.any { it.contains('OpenL Project \'openl-deployment-0.0.0\' has errors!') }
+    assert lines.any { it.contains('Verification is passed for \'org.openl.internal.verify:openl-deployment\' artifact.') }
 
     return true
 } catch(Throwable e) {

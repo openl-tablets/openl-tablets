@@ -3,11 +3,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.openl.internal</groupId>
-    <artifactId>openl-verify-negative-parent</artifactId>
+    <artifactId>openl-verify-provided-dependency</artifactId>
     <version>0.0.0</version>
 
     <packaging>pom</packaging>
-    <name>OpenL Plugin: OpenL Verify Negative</name>
+    <name>OpenL Plugin: OpenL Verify with Provided Dependencies</name>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -23,7 +23,7 @@
                     <version>${org.openl.version}</version>
                     <extensions>true</extensions>
                     <configuration>
-                        <dependenciesThreshold>1</dependenciesThreshold>
+                        <dependenciesThreshold>0</dependenciesThreshold>
                         <sourceDirectory>./</sourceDirectory>
                     </configuration>
                 </plugin>
