@@ -345,4 +345,9 @@ public class RunWebservicesITest {
         client.send("EPBDS-10996/openapi.json.get");
         client.send("EPBDS-10996/swagger.json.get");
     }
+
+    @Test
+    public void EPBDS_11123() {
+        client.get("/EPBDS-11123/Project1/mySpr/3", "/EPBDS-11123/EPBDS-11123_mySpr.resp.json");
+    }
 }

@@ -1,0 +1,16 @@
+<project>
+  <name>Project1</name>
+  <comment>firstproejct</comment>
+  <modules>
+    <module>
+      <name>Project1</name>
+      <rules-root path="Project1.xlsx"/>
+    </module>
+  </modules>
+  <dependencies>
+    <dependency>
+      <name>Project2</name>
+      <autoIncluded>true</autoIncluded>
+    </dependency>
+  </dependencies>
+</project>

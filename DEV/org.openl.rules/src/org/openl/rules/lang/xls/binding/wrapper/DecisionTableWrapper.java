@@ -3,7 +3,6 @@ package org.openl.rules.lang.xls.binding.wrapper;
 import java.util.Objects;
 
 import org.openl.rules.dt.DecisionTable;
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractDecisionTableWrapper;
 import org.openl.types.IMethodSignature;
@@ -26,12 +25,7 @@ public final class DecisionTableWrapper extends AbstractDecisionTableWrapper imp
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
-        if (delegate.getType() instanceof ModuleSpecificType) {
-            IOpenClass type = xlsModuleOpenClass.findType(delegate.getType().getName());
-            this.type = type != null ? type : delegate.getType();
-        } else {
-            this.type = delegate.getType();
-        }
+        this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
