@@ -19,7 +19,6 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
     @Override
     public void writeSpace(int index) {
         storage.setSpace(index);
-
     }
 
     @Override
@@ -64,15 +63,20 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
         for (int i = 0; i < size; i++) {
             if (storage.isElse(i)) {
                 map[i] = elseIndex;
-                uniqueValues[elseIndex] = IStorage.StorageType.ELSE;
+                if (elseIndex < uniqueValues.length) {
+                    uniqueValues[elseIndex] = IStorage.StorageType.ELSE;
+                }
             } else if (storage.isSpace(i)) {
                 map[i] = spaceIndex;
-                uniqueValues[spaceIndex] = null;
+                if (spaceIndex < uniqueValues.length) {
+                    uniqueValues[spaceIndex] = null;
+                }
             } else if (storage.isFormula(i)) {
                 map[i] = firstFormulaIndex + formulaCnt++;
-                uniqueValues[map[i]] = storage.getValue(i);
-            } else // value
-            {
+                if (map[i] < uniqueValues.length) {
+                    uniqueValues[map[i]] = storage.getValue(i);
+                }
+            } else {
                 Object value = storage.getValue(i);
                 map[i] = info.getUniqueIndex().get(value);
             }
@@ -108,7 +112,7 @@ public class ObjectStorageBuilder extends StorageBuilder<Object> {
 
         double uniqueValues = info.getTotalNumberOfUniqueValues();
 
-        return uniqueValues / size() < 0.7;
+        return uniqueValues / size() < 0.7 && uniqueValues > 0;
     }
 
     @Override

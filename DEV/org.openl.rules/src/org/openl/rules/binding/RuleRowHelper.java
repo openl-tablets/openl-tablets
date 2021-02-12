@@ -160,7 +160,7 @@ public final class RuleRowHelper {
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
         if (type == null) {
             BindHelper.processError(MessageUtils.getTypeNotFoundMessage(typeCode), node, bindingContext);
-            type = NullOpenClass.the;
+            return NullOpenClass.the;
         }
         return type;
     }
@@ -257,14 +257,14 @@ public final class RuleRowHelper {
 
                 BindHelper.processError(message,
                     t,
-                    new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()), openlAdapter.getBindingContext());
+                    new GridCellSourceCodeModule(table.getSource(), openlAdapter.getBindingContext()),
+                    openlAdapter.getBindingContext());
             }
         }
         return null;
     }
 
-    private static void validateSimpleParam(ILogicalTable table,
-            IBindingContext bindingContext) {
+    private static void validateSimpleParam(ILogicalTable table, IBindingContext bindingContext) {
         ICell theCell = table.getSource().getCell(0, 0);
         if (table.getWidth() > 1 || table.getHeight() > 1) {
             for (int i = 0; i < table.getHeight(); i++) {
@@ -277,7 +277,8 @@ public final class RuleRowHelper {
                             if (!cell.getStringValue().startsWith(COMMENTARY)) {
                                 BindHelper.processError(
                                     "Table structure is wrong. More than one cell with data found where only one cell is expected.",
-                                    new GridCellSourceCodeModule(table.getSource(), bindingContext), bindingContext);
+                                    new GridCellSourceCodeModule(table.getSource(), bindingContext),
+                                    bindingContext);
                                 return;
                             }
                         }
@@ -338,7 +339,11 @@ public final class RuleRowHelper {
     public static SimpleNodeUsage createConstantNodeUsage(ConstantOpenField constantOpenField, int start, int end) {
         String description = MethodUtil.printType(constantOpenField.getType()) + " " + constantOpenField
             .getName() + " = " + constantOpenField.getValueAsString();
-        return new SimpleNodeUsage(start, end, description, constantOpenField.getMemberMetaInfo().getSourceUrl(), NodeType.OTHER);
+        return new SimpleNodeUsage(start,
+            end,
+            description,
+            constantOpenField.getMemberMetaInfo().getSourceUrl(),
+            NodeType.OTHER);
     }
 
     private static XlsModuleOpenClass getComponentOpenClass(IBindingContext bindingContext) {
@@ -403,8 +408,7 @@ public final class RuleRowHelper {
                 openlAdaptor.setHeader(newHeader);
 
                 if (source.startsWith("{") && source.endsWith("}")) {
-                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(),
-                            bindingContext);
+                    GridCellSourceCodeModule srcCode = new GridCellSourceCodeModule(cell.getSource(), bindingContext);
 
                     return openlAdaptor.makeMethod(srcCode);
                 }
@@ -413,7 +417,7 @@ public final class RuleRowHelper {
                     .isLetterOrDigit(source.charAt(1)))) {
 
                     GridCellSourceCodeModule gridSource = new GridCellSourceCodeModule(cell.getSource(),
-                            bindingContext);
+                        bindingContext);
                     IOpenSourceCodeModule code = new SubTextSourceCodeModule(gridSource, 1);
 
                     return openlAdaptor.makeMethod(code);
@@ -423,10 +427,10 @@ public final class RuleRowHelper {
             Class<?> expectedType = paramType.getInstanceClass();
             if (expectedType == null) {
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
-                BindHelper.processError(
-                    String.format("Cannot parse cell value '%s'. Undefined cell type.", source),
-                    cellSourceCodeModule, bindingContext);
+                    bindingContext);
+                BindHelper.processError(String.format("Cannot parse cell value '%s'. Undefined cell type.", source),
+                    cellSourceCodeModule,
+                    bindingContext);
                 return null;
             }
 
@@ -468,7 +472,7 @@ public final class RuleRowHelper {
                     source,
                     expectedType.getSimpleName());
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
+                    bindingContext);
                 BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
             }
 
@@ -481,7 +485,7 @@ public final class RuleRowHelper {
             } catch (Exception e) {
                 String message = String.format("Invalid cell value '%s'", source);
                 IOpenSourceCodeModule cellSourceCodeModule = new GridCellSourceCodeModule(cell.getSource(),
-                        bindingContext);
+                    bindingContext);
 
                 BindHelper.processError(message, e, cellSourceCodeModule, bindingContext);
             }
