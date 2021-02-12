@@ -2,12 +2,12 @@
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:ui="http://java.sun.com/jsf/facelets"
+    xmlns:a4j="http://richfaces.org/a4j">
 
-    <f:view transient="true">
     <rich:popupPanel id="exportModule" minWidth="530" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Export module" />
+            <h:outputText value="Export file" />
         </f:facet>
 
         <f:facet name="controls">
@@ -15,24 +15,69 @@
         </f:facet>
 
         <h:form id="exportModuleForm">
-            <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportModuleData">
-                <h:outputText value="Module Name:" />
-                <h:outputLabel id="exportingModuleName" value="#{studio.currentModule.name}" />
-            </h:panelGrid>
+            <h:panelGroup id="exportFileData">
+               <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," id="exportModuleData">
+                   <h:outputLabel value="File Name:" />
+                   <h:outputText value="#{exportBean.fileName}" />
+                   <h:outputLabel for="fileFileToExport" styleClass="required" value="File Revision:" />
+                   <h:selectOneMenu id="fileFileToExport" value="#{exportBean.version}" required="true" >
+                       <f:ajax event="change" execute="projectVersionToExport" />
+                       <f:ajax event="focus" execute="projectVersionToExport" />
+                       <f:selectItems value="#{exportBean.selectedProjectVersions}" />
+                   </h:selectOneMenu>
+               </h:panelGrid>
+            </h:panelGroup>
 
             <footer>
-                <h:commandButton value="Export" action="#{studio.exportModule}"
-                    onclick="RichFaces.$('exportModule').hide();ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
-                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();;" />
+                <h:commandButton value="Export" action="#{exportBean.exportFileVersion}"
+                    onclick="ws.changes.addAfterUnloadAction(ws.changes.restoreChangedState);" immediate="true" styleClass="button-primary" />
+                <input class="restore-changed-state" type="button" value="Cancel" onclick="RichFaces.$('exportModule').hide();" />
             </footer>
+            <a4j:jsFunction name="renderExportFileForm" render="exportFileData" oncomplete="showExportFileDialog()">
+                <a4j:param name="repositoryId" assignTo="#{exportBean.repositoryId}"/>
+                <a4j:param name="projectName" assignTo="#{exportBean.initProject}"/>
+                <a4j:param name="fileName" assignTo="#{exportBean.fileName}"/>
+            </a4j:jsFunction>
+
         </h:form>
 
     </rich:popupPanel>
-    </f:view>
 
     <script>
-        function openExportModuleDialog() {
-            RichFaces.$('exportModule').show();
+        //<![CDATA[
+
+        function openExportModuleDialog(repositoryId, projectName, moduleName) {
+            renderExportFileForm(repositoryId, projectName, moduleName);
         }
+
+        function showExportFileDialog() {
+            RichFaces.$('exportModule').show();
+            focusElement('exportModuleForm:fileFileToExport');
+        }
+
+        $j(function () {
+            var options = {
+                timeout: 1200,
+                interval: 100,
+                onRequest: function(token){
+                    ws.ui.showLoader();
+                },
+                onResponse: function(status){
+                    ws.ui.hideLoader();
+                    if (status === "success") {
+                        RichFaces.$('exportModule').hide();
+                    } else {
+                        ws.ui.info(status);
+                    }
+                },
+                onTimeout: function(){
+                    ws.ui.hideLoader();
+                    RichFaces.$('exportModule').hide();
+                    ws.ui.info('File generation is too long');
+                }
+            };
+            ResponseMonitor.register($j('#exportModuleForm').get(), options);
+        });
+        //]]>
     </script>
 </ui:composition>

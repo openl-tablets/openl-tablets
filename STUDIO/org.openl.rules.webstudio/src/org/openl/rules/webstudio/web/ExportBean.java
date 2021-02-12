@@ -2,15 +2,14 @@ package org.openl.rules.webstudio.web;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.Cookie;
@@ -21,12 +20,12 @@ import org.apache.commons.io.FileUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectResource;
 import org.openl.rules.project.abstraction.RulesProject;
-import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.util.Dates;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
@@ -37,6 +36,7 @@ import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -56,6 +56,7 @@ public class ExportBean {
     private String repositoryId;
     private String currentProjectName;
     private String version;
+    private String fileName;
 
     @Autowired
     private Utils utils;
@@ -111,6 +112,46 @@ public class ExportBean {
             addCookie(cookieName, message, -1);
         } finally {
             FileUtils.deleteQuietly(file);
+        }
+    }
+
+    public void exportFileVersion() {
+        File file = null;
+        InputStream is = null;
+        OutputStream os = null;
+        String cookePrefix = Constants.RESPONSE_MONITOR_COOKIE;
+        String cookieName = cookePrefix + "_" + WebStudioUtils.getRequestParameter(cookePrefix);
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            RulesProject selectedProject = userWorkspace.getProject(repositoryId, currentProjectName, false);
+
+            if (version == null || version.equals(VIEWING_VERSION) || version.equals(IN_EDITING_VERSION)) {
+                AProjectArtefact artefact = selectedProject.getArtefact(fileName);
+                is = ((AProjectResource) artefact).getContent();
+            } else {
+                Repository repository = selectedProject.getDesignRepository();
+                String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
+                AProject forExport = userWorkspace.getDesignTimeRepository()
+                        .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
+                is = ((AProjectResource) forExport.getArtefact(fileName)).getContent();
+            }
+
+            file = File.createTempFile("export-", "-file");
+            os = new FileOutputStream(file);
+            IOUtils.copy(is, os);
+            addCookie(cookieName, "success", -1);
+            final FacesContext facesContext = FacesContext.getCurrentInstance();
+            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
+            ExportFile.writeOutContent(response, file, fileName);
+            facesContext.responseComplete();
+        } catch (Exception e) {
+            String msg = "Failed to export file version. ";
+            LOG.error(msg, e);
+            addCookie(cookieName, msg + e.getMessage(), -1);
+        } finally {
+            IOUtils.closeQuietly(os);
+            IOUtils.closeQuietly(is);
+            org.openl.util.FileUtils.deleteQuietly(file);
         }
     }
 
@@ -203,5 +244,13 @@ public class ExportBean {
 
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
     }
 }
