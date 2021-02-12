@@ -1,0 +1,1 @@
+ERROR: Type 'CustomDatatype' is not found.
