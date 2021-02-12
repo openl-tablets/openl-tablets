@@ -81,8 +81,8 @@ public class RunWebservicesLazyITest {
     @Test
     public void EPBDS_9678() {
         client.post("/REST/EPBDS-9678/EPBDS-9678/someRule", "/EPBDS-9678/EPBDS-9678_someRule.req.json", 404);
-        client.get("/admin/services/EPBDS-9678_EPBDS-9678/errors", "/EPBDS-9678/EPBDS-9678_compilation_errors.json");
-        client.get("/admin/services/EPBDS-9678-project1/errors",
+        client.get("/admin/services/EPBDS-9678/EPBDS-9678/errors", "/EPBDS-9678/EPBDS-9678_compilation_errors.json");
+        client.get("/admin/services/EPBDS-9678_MultiProject/EPBDS-9678-project1/errors",
             "/EPBDS-9678/multi/EPBDS-9678-project1_compilation_validation_errors.json");
         client.post("/EPBDS-9678-project2/someRule",
             "/EPBDS-9678/multi/EPBDS-9678-project2_someRule.req.json",
@@ -94,7 +94,7 @@ public class RunWebservicesLazyITest {
 
     @Test
     public void EPBDS_10699() {
-        client.get("/admin/services/EPBDS-10699_EPBDS-10699/errors", "/EPBDS-10699/EPBDS-10699_error.resp.json");
+        client.get("/admin/services/EPBDS-10699/EPBDS-10699/errors", "/EPBDS-10699/EPBDS-10699_error.resp.json");
         client.get("/REST/EPBDS-10699/EPBDS-10699/openapi.json", "/EPBDS-10699/EPBDS-10699_openapi.resp.json");
         client.post("/REST/EPBDS-10699/EPBDS-10699/m",
             "/EPBDS-10699/EPBDS-10699_call.req.json",

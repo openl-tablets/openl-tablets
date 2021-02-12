@@ -30,6 +30,9 @@
                 <artifactId>openl-maven-plugin</artifactId>
                 <version>${org.openl.version}</version>
                 <extensions>true</extensions>
+                <configuration>
+                    <deploymentPackage>true</deploymentPackage>
+                </configuration>
             </plugin>
         </plugins>
     </build>

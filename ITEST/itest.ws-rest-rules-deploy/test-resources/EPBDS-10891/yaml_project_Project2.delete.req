@@ -1,2 +1,2 @@
-DELETE /admin/deploy/yaml_project_Project2 HTTP/1.1
+DELETE /admin/deploy/deploy/yaml_project/Project2 HTTP/1.1
 

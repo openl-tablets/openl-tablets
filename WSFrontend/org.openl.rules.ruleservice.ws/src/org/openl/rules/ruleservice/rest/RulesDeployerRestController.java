@@ -61,12 +61,12 @@ public class RulesDeployerRestController {
      * Redeploys target zip input stream
      */
     @POST
-    @Path("/{serviceName}")
+    @Path("/{deployPath:.+}")
     @Consumes("application/zip")
-    public Response deploy(@PathParam("serviceName") final String serviceName,
+    public Response deploy(@PathParam("deployPath") final String deployPath,
             @Context HttpServletRequest request) throws Exception {
         try {
-            rulesDeployerService.deploy(serviceName, request.getInputStream(), true);
+            rulesDeployerService.deploy(deployPath, request.getInputStream(), true);
             return Response.status(Status.CREATED).build();
         } catch (RulesDeployInputException e) {
             return Response.status(Status.BAD_REQUEST).entity(e.getMessage()).build();
@@ -80,32 +80,32 @@ public class RulesDeployerRestController {
      * @throws IOException if not possible to read the file.
      */
     @GET
-    @Path("/{serviceName}")
+    @Path("/{deployPath:.+}")
     @Produces("application/zip")
-    public Response read(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = serviceManager.getServiceByName(serviceName);
+    public Response read(@PathParam("deployPath") final String deployPath) throws Exception {
+        OpenLService service = serviceManager.getServiceByDeploy(deployPath);
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        InputStream read = rulesDeployerService.read(service.getServicePath());
+        InputStream read = rulesDeployerService.read(service.getDeployPath());
         return Response.ok(read)
-            .header("Content-Disposition", "attachment;filename='" + serviceName + ".zip'")
+            .header("Content-Disposition", "attachment;filename='" + deployPath + ".zip'")
             .build();
     }
 
     /**
      * Delete a service.
      *
-     * @param serviceName the name of the service to delete.
+     * @param deployPath the name of the service to delete.
      */
     @DELETE
-    @Path("/{serviceName}")
-    public Response delete(@PathParam("serviceName") final String serviceName) throws Exception {
-        OpenLService service = serviceManager.getServiceByName(serviceName);
+    @Path("/{deployPath:.+}")
+    public Response delete(@PathParam("deployPath") final String deployPath) throws Exception {
+        OpenLService service = serviceManager.getServiceByDeploy(deployPath);
         if (service == null) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        boolean deleted = rulesDeployerService.delete(service.getServicePath());
+        boolean deleted = rulesDeployerService.delete(service.getDeployPath());
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }
 }

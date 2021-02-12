@@ -24,7 +24,7 @@ public class CompilationErrorsExecutionModeTest {
 
     @Test
     public void testEPBDS_9518_CompilationErrors() {
-        client.get("/admin/services/EPBDS-9518/errors", "/EPBDS-9518_compilation_errors.resp.json");
+        client.get("/admin/services/deployment1/EPBDS-9518/errors", "/EPBDS-9518_compilation_errors.resp.json");
     }
 
 }

@@ -237,7 +237,7 @@ public final class KafkaService implements Runnable {
                                                     log.error(String.format(
                                                         "Failed to send a result message for method '%s' in service '%s' to output topic '%s'.",
                                                         requestMessage.getMethod(),
-                                                        getService().getName(),
+                                                        getService().getDeployPath(),
                                                         getOutTopic(consumerRecord)), exception);
                                                 }
                                             } catch (Exception e) {

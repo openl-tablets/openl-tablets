@@ -1,2 +1,2 @@
-DELETE /admin/deploy/EPBDS-8758 HTTP/1.1
+DELETE /admin/deploy/deploy/EPBDS-8758/EPBDS-8758 HTTP/1.1
 

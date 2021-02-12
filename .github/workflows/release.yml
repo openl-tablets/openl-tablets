@@ -1,0 +1,186 @@
+# This workflow will release OpenL artifacts to the Central Maven repository.
+
+name: Release OpenL Tablets
+
+on:
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: false
+      release:
+        description: 'Release version'
+        required: false
+      snapshot:
+        description: 'Snapshot version'
+        required: false
+
+jobs:
+  release:
+
+    name: Release
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Configure GIT
+      run: |
+        git config --global user.name "OpenL Tablets"
+        git config --global user.email openltablets@gmail.com
+        git config --global core.autocrlf false
+
+    - name: Checkout ${{ github.event.inputs.branch }}
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
+        path: release
+
+    - name: Setup Java & Maven settings
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+        server-id: ossrh
+        server-username: MAVEN_USERNAME
+        server-password: MAVEN_PASSWORD
+
+    - name: Prepare release
+      working-directory: ./release
+      run: >
+        mvn -B release:prepare
+        -DdevelopmentVersion=${{ github.event.inputs.snapshot }}
+        -DreleaseVersion=${{ github.event.inputs.release }}
+        -DautoVersionSubmodules=true
+        -DtagNameFormat=@{project.version}
+        -DpreparationGoals="clean"
+        -DpushChanges=false
+
+    - name: Show commits
+      working-directory: ./release
+      run:  git log --decorate -n 5
+
+    - name: Stage GIT repository
+      run: git clone -n --no-hardlinks ./release ./build
+
+    - name: Checkout the latest tag
+      working-directory: ./build
+      run: |
+        latestTag=$(git describe --tags `git rev-list --tags --max-count=1`)
+        echo checking out ${latestTag}
+        git checkout ${latestTag}
+        git log --decorate -n 20 --all --oneline --graph
+        echo "RELEASE_TAG=${latestTag}" >> $GITHUB_ENV
+
+    - name: Build & Deploy to local staging repository
+      run: >
+        mvn -B -f ./build/pom.xml
+        deploy
+        -Psources,gpg-sign
+        -DnoPerf
+        -DaltDeploymentRepository=local-staging::default::file:./mvn-staging
+        -Duser.name=${{ github.actor }}
+      env:
+        SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+        SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}
+
+    - name: Show all files to release
+      working-directory: ./mvn-staging
+      run: ls -Rl
+
+    - name: Deploy to https://oss.sonatype.org/
+      run: >
+        mvn -B
+        org.sonatype.plugins:nexus-staging-maven-plugin:deploy-staged-repository
+        -DrepositoryDirectory=mvn-staging
+        -DnexusUrl=https://oss.sonatype.org/
+        -DserverId=ossrh
+        -DstagingProfileId=${{ secrets.OSSRH_STAGING_PROFILE_ID }}
+        -DstagingDescription="Release by ${{ github.actor }} #${{ github.run_number }}"
+        -DautoReleaseAfterClose=false
+        -DautoDropAfterRelease=true
+        -DkeepStagingRepositoryOnFailure=false
+        -DkeepStagingRepositoryOnCloseRuleFailure=false
+        -DskipStagingRepositoryClose=false
+      env:
+        MAVEN_USERNAME: ${{ secrets.OSSRH_USERNAME }}
+        MAVEN_PASSWORD: ${{ secrets.OSSRH_TOKEN }}
+
+    - name: Push commits
+      working-directory: ./release
+      run: |
+        git push
+        git push --tags
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+
+    - name: Create release on GitHub
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.RELEASE_TAG }}
+        release_name: OpenL Tablets ${{ env.RELEASE_TAG }} Released
+        body: |
+          **OpenL Tablets ${{ env.RELEASE_TAG }} is available.**
+          More detailed information you can find at [Release Notes ${{ env.RELEASE_TAG }}](//openl-tablets.org/release-notes?ver=${{ env.RELEASE_TAG }}).
+          All artifacts are ready for Downloads.
+          Enjoy!
+        draft: false
+        prerelease: false
+
+    - name: Attach DEMO
+      id: attach-demo
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/demo/openl-demo-app/${{ env.RELEASE_TAG }}/openl-demo-app-${{ env.RELEASE_TAG }}.zip
+        asset_name: openl-tablets-demo-${{ env.RELEASE_TAG }}.zip
+        asset_content_type: application/zip
+
+    - name: Attach WebStudio
+      id: attach-webstudio
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.webstudio/${{ env.RELEASE_TAG }}/org.openl.rules.webstudio-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-webstudio-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Rule Services WS
+      id: attach-webservice
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-ws-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Rule Services WS (All)
+      id: attach-webservice-all
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules.ruleservice.ws.all/${{ env.RELEASE_TAG }}/org.openl.rules.ruleservice.ws.all-${{ env.RELEASE_TAG }}.war
+        asset_name: openl-tablets-ws-all-${{ env.RELEASE_TAG }}.war
+        asset_content_type: application/zip
+
+    - name: Attach Core
+      id: attach-core
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./mvn-staging/org/openl/rules/org.openl.rules/${{ env.RELEASE_TAG }}/org.openl.rules-${{ env.RELEASE_TAG }}.zip
+        asset_name: openl-tablets-core-${{ env.RELEASE_TAG }}.zip
+        asset_content_type: application/zip

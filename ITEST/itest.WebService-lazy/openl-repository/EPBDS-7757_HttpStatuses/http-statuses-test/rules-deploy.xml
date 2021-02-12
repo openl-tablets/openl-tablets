@@ -7,7 +7,4 @@
         <publisher>RESTFUL</publisher>
     </publishers>
     <url>http-statuses-test</url>
-    <!-- STATIC INTERFACE -->
-    <serviceClass>org.openl.itest.rules.TestHttpStatusService</serviceClass>
-    <!-- //STATIC INTERFACE -->
 </rules-deploy>

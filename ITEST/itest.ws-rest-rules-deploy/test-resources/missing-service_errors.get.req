@@ -1,2 +1,2 @@
-GET /admin/services/missing-name/errors HTTP/1.1
+GET /admin/services/deploy/rules-to-deploy/rules-to-deploy/errors HTTP/1.1
 

@@ -172,4 +172,19 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         return dependencies;
     }
 
+    static boolean skipOpenLCoreDependency(List<String> dependencyTrail) {
+        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
+            String dependency = dependencyTrail.get(i);
+            if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
+                    .startsWith("org.slf4j:")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isOpenLCoreDependency(String group) {
+        return "org.openl.rules".equals(group) || "org.openl".equals(group) || "org.slf4j".equals(group);
+    }
+
 }

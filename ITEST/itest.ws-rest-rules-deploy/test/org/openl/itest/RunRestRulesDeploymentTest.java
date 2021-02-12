@@ -37,7 +37,7 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
         client.send("deployed-rules_services.get");
         client.send("deployed-rules_methods.get");
-        client.get("/admin/deploy/deployed-rules", "/rules-to-deploy.zip");
+        client.get("/admin/deploy/deploy/rules-to-deploy/rules-to-deploy", "/rules-to-deploy.zip");
         client.send("deployed-rules_hello.post");
 
         // should be always redeployed
@@ -184,6 +184,20 @@ public class RunRestRulesDeploymentTest {
         client.send("EPBDS-10891/services.get");
         client.send("EPBDS-10891/yaml_project_Project1.delete");
         client.send("EPBDS-10891/yaml_project_Project2.delete");
+        client.send("admin_services_no_services.json.get");
+    }
+
+    @Test
+    public void EPBDS_9876() {
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_name1_name1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_samename_name1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_url1_url1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-9876/deploy_url2_url2.zip", 201);
+        client.send("EPBDS-9876/deployed-rules_services.get");
+        client.send("EPBDS-9876/deployed-rules.delete");
+        client.send("EPBDS-9876/deployed-rules.delete2");
+        client.send("EPBDS-9876/deployed-rules.delete3");
+        client.send("EPBDS-9876/deployed-rules.delete4");
         client.send("admin_services_no_services.json.get");
     }
 }

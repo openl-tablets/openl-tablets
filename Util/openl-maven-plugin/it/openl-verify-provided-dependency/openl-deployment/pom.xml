@@ -5,7 +5,7 @@
 
     <parent>
         <groupId>org.openl.internal</groupId>
-        <artifactId>openl-verify-negative-parent</artifactId>
+        <artifactId>openl-verify-provided-dependency</artifactId>
         <version>0.0.0</version>
     </parent>
 

@@ -1,2 +1,2 @@
-GET /admin/services/project1/methods HTTP/1.1
+GET /admin/services/deploy/yaml_project/project1/methods HTTP/1.1
 

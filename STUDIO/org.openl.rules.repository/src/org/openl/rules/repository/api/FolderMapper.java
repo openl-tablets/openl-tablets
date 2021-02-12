@@ -16,6 +16,4 @@ public interface FolderMapper {
     String getMappedName(String businessName, String path);
 
     String findMappedName(String internalPath);
-
-    void addFileData(FileData fileData) throws IOException;
 }

@@ -1,0 +1,12 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>annotation-template-abstract-class / String Parser</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+        <publisher>WEBSERVICE</publisher>
+    </publishers>
+    <annotationTemplateClassName>MyService</annotationTemplateClassName>
+    <url>annotation-template-abstract-class/string/toNumber</url>
+    <version>v1</version>
+</rules-deploy>

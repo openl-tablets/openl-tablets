@@ -8,17 +8,17 @@ public interface ServiceInfoProvider {
     /**
      * Returns a list of errors for the unsuccessfully deployed service.
      */
-    Collection<String> getServiceErrors(String serviceName);
+    Collection<String> getServiceErrors(String deployPath);
 
     /**
      * Returns MANIFEST.MF description for the given service.
      */
-    Manifest getManifest(String serviceName);
+    Manifest getManifest(String deployPath);
 
     /**
      * Returns a list of available methods for the successfully deployed service.
      */
-    Collection<MethodDescriptor> getServiceMethods(String serviceName);
+    Collection<MethodDescriptor> getServiceMethods(String deployPath);
 
     /**
      * Returns a list of deployed services.

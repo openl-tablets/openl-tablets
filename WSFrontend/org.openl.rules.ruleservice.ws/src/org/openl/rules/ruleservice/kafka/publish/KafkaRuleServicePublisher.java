@@ -181,13 +181,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 log.warn("{} '{}' property is overridden in service '{}' for method '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
-                    service.getName(),
+                    service.getDeployPath(),
                     kafkaMethodConfig.getMethodName());
             } else {
                 log.warn("{} '{}' property is overridden in service '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
-                    service.getName());
+                    service.getDeployPath());
             }
         } else {
             configs.setProperty(BOOTSTRAP_SERVERS, getDefaultBootstrapServers());
@@ -552,14 +552,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
             if (!kafkaServices.isEmpty()) {
                 runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
-                log.info("Service '{}' has been successfully deployed.", service.getName());
+                log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
                 throw new KafkaServiceConfigurationException(String.format(
                     "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
-                    service.getName()));
+                    service.getDeployPath()));
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
+            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -639,7 +639,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                     if (t == 1 && log.isWarnEnabled()) {
                         log.warn(
                             "Service '{}' uses the input topic name '{}' and group id '{}' for different methods {}.",
-                            service.getName(),
+                            service.getDeployPath(),
                             p.getLeft(),
                             p.getRight(),
                             w1.get(p).stream().collect(Collectors.joining(",", "[", "]")));
@@ -657,17 +657,17 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", service.getName()));
+                String.format("There is no running service with name '%s'", service.getDeployPath()));
         }
         try {
             if (stopAndClose(triple)) {
-                log.info("Service '{}' has been undeployed successfully.", service.getName());
+                log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
             } else {
-                log.info("Service '{}' has been undeployed with errors.", service.getName());
+                log.info("Service '{}' has been undeployed with errors.", service.getDeployPath());
             }
             runningServices.remove(service);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
     }
@@ -676,10 +676,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
      * {@inheritDoc}
      */
     @Override
-    public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot null.");
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot null.");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (service.getDeployPath().equals(deployPath)) {
                 return service;
             }
         }

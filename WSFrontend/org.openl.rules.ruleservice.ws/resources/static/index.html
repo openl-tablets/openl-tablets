@@ -220,7 +220,7 @@
             } else if (button.className === "download-button") {
                 downloadProject(serviceName);
             } else if (button.className === "delete-button") {
-                deleteProject(serviceName);
+                deleteProject(serviceData.servicePath);
             }
         })
     }
@@ -245,7 +245,7 @@
             services.forEach(function (service) {
                 var html = createServiceHtml(service, isNoWadlService(noWadlServices, service), deployerEnabled);
                 var el = document.createElement("DIV");
-                el.dataset.serviceName = service.name;
+                el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
                 el.innerHTML = html;
@@ -276,14 +276,14 @@
         footerBlock.style.display = "";
     }
 
-    function deleteProject(serviceName) {
+    function deleteProject(servicePath) {
         if (confirm("Are you sure you want to delete this project?")) {
             var xhr = new XMLHttpRequest();
             xhr.onload = function () {
                 xmlhttp.open("GET", url, true);
                 xmlhttp.send();
             }
-            xhr.open("DELETE", "admin/deploy/" + serviceName, true);
+            xhr.open("DELETE", "admin/deploy/" + servicePath, true);
             xhr.send();
         }
     }
@@ -336,7 +336,7 @@
     function createServiceHtml(service, noWadl, deployerEnabled) {
         var html = "";
         // Name
-        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.name + "</h3>";
+        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.servicePath + "</h3>";
 
         // Some useful info
         html += "<ul class='info'></ul>";

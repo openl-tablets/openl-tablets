@@ -239,7 +239,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 throw new RulesInstantiationException(String.format(
                     "Failed to find corresponding method in original class for method '%s' in service '%s'.",
                     MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
-                    service.getName()));
+                    service.getDeployPath()));
             }
         }
         return ASMProxyFactory.newProxyInstance(service.getClassLoader(),

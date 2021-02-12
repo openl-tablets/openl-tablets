@@ -367,24 +367,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return null;
     }
 
-    public String exportModule() {
-        try {
-            File file = currentModule.getRulesPath().toFile();
-            if (file.isDirectory() || !file.exists()) {
-                throw new ProjectException("Exporting module was failed");
-            }
-
-            final FacesContext facesContext = FacesContext.getCurrentInstance();
-            HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
-            ExportFile.writeOutContent(response, file);
-            facesContext.responseComplete();
-        } catch (ProjectException e) {
-            log.error("Failed to export module", e);
-        }
-        return null;
-    }
-
-
     public ProjectDescriptor getCurrentProjectDescriptor() {
         return currentProject;
     }
@@ -1390,6 +1372,10 @@ public class WebStudio implements DesignTimeRepositoryListener {
         List<ProjectVersion> versions = project.getVersions();
         Collections.reverse(versions);
         return versions;
+    }
+
+    public String getCurrentModulePath() {
+        return currentModule.getRulesPath().getFileName().toString();
     }
 
     public void freezeProject(String name) {

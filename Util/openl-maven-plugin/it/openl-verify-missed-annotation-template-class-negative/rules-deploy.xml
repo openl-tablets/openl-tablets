@@ -1,0 +1,7 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <annotationTemplateClassName>MustNotBeFoundInClassloader</annotationTemplateClassName>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

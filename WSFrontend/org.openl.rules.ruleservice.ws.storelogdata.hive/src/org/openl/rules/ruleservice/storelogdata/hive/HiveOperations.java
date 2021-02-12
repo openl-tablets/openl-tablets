@@ -79,7 +79,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
     }
 
     @Override
-    public void onUndeploy(String serviceName) {
+    public void onUndeploy(String deployPath) {
         if (isEnabled()) {
             entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
             entitySavers.set(Collections.emptyMap());

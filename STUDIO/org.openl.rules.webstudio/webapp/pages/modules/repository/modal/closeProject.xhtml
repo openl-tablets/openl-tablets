@@ -2,6 +2,7 @@
   xmlns:f="http://java.sun.com/jsf/core"
   xmlns:h="http://java.sun.com/jsf/html"
   xmlns:fn="http://java.sun.com/jsp/jstl/functions"
+  xmlns:a4j="http://richfaces.org/a4j"
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
@@ -42,10 +43,24 @@
 
       <footer>
         <h:commandButton value="Close Project" action="#{repositoryTreeController.closeProject}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalCloseProject')}.hide();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalCloseProject').hide();" />
       </footer>
+
+        <a4j:jsFunction name="initCloseProjectDialog" render="@form" oncomplete="showCloseProjectDialog();" />
+
     </h:form>
 
   </rich:popupPanel>
+
+    <script>
+        function openCloseProjectDialog() {
+            initCloseProjectDialog();
+        }
+
+        function showCloseProjectDialog() {
+            RichFaces.$("modalCloseProject").show();
+        }
+
+    </script>
 
 </ui:composition>

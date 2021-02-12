@@ -140,7 +140,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     @Override
-    public void onUndeploy(String serviceName) {
+    public void onUndeploy(String deployPath) {
         if (isEnabled()) {
             entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
             entitySavers.set(Collections.emptyMap());

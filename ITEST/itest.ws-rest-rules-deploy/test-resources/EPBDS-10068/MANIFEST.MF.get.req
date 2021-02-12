@@ -1,2 +1,2 @@
-GET /admin/services/EPBDS-10068/MANIFEST.MF HTTP/1.1
+GET /admin/services/deploy/Sample%20Project/Sample%20Project/MANIFEST.MF HTTP/1.1
 

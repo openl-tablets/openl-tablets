@@ -1,2 +1,2 @@
-DELETE /admin/deploy/EPBDS-10068 HTTP/1.1
+DELETE /admin/deploy/deploy/Sample%20Project/Sample%20Project HTTP/1.1
 

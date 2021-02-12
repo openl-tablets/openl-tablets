@@ -13,7 +13,7 @@ public class RuleServicePublisherListenerTestListener implements RuleServicePubl
     }
 
     @Override
-    public synchronized void onUndeploy(String serviceName) {
+    public synchronized void onUndeploy(String deployPath) {
         onUndeployCount++;
     }
 }

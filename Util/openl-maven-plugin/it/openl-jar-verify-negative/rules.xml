@@ -1,0 +1,16 @@
+<project>
+    <name>OpenL Jar Deployment</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+ ThisMethodDoesNotExist\(.+\)</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

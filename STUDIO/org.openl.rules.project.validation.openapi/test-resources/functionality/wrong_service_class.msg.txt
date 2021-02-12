@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Failed to build an interface for the project. Interface is expected for service class 'org.openl.rules.project.validation.openapi.test.AServiceAnnotationTemplate', but class is found.

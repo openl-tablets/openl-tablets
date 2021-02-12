@@ -44,7 +44,6 @@ public class LastVersionProjectsServiceConfigurerTest {
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }
-        assertEquals(serviceNames.size(), servicesToBeDeployed.size());
         assertTrue(serviceNames.contains(PROJECT_NAME));
     }
 
@@ -58,7 +57,6 @@ public class LastVersionProjectsServiceConfigurerTest {
         for (ServiceDescription description : servicesToBeDeployed) {
             serviceNames.add(description.getName());
         }
-        assertEquals(serviceNames.size(), servicesToBeDeployed.size());
         assertTrue(serviceNames.contains(PROJECT_NAME));
     }
 
