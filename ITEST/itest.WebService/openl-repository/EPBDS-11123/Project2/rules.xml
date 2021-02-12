@@ -1,0 +1,10 @@
+<project>
+  <name>Project2</name>
+  <comment>testProject2</comment>
+  <modules>
+    <module>
+      <name>Project2</name>
+      <rules-root path="Project2.xlsx"/>
+    </module>
+  </modules>
+</project>

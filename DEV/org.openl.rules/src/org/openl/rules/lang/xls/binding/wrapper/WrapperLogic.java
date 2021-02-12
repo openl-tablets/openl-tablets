@@ -1,6 +1,8 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.lang.xls.binding.ModuleSpecificType;
@@ -71,14 +73,32 @@ public final class WrapperLogic {
         return method;
     }
 
+    public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
+        if (openMethod.getType() instanceof ModuleSpecificType) {
+            IOpenClass type = xlsModuleOpenClass.findType(openMethod.getType().getName());
+            return type != null ? type : openMethod.getType();
+        } else if (openMethod.getType() instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
+            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
+                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams())) {
+            return xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+        } else {
+            return openMethod.getType();
+        }
+    }
+
     public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
         IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
         IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
+        final boolean isCustomSpreadsheetTypesSupported = xlsModuleOpenClass
+            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
+                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams());
         for (int i = 0; i < parameterTypes.length; i++) {
             IOpenClass t;
             if (parameterTypes[i] instanceof ModuleSpecificType) {
                 t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
                 t = t != null ? t : parameterTypes[i];
+            } else if (isCustomSpreadsheetTypesSupported && parameterTypes[i] instanceof SpreadsheetResultOpenClass) {
+                t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
             } else {
                 t = parameterTypes[i];
             }

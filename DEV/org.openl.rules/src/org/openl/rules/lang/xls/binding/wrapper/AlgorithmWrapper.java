@@ -2,7 +2,6 @@ package org.openl.rules.lang.xls.binding.wrapper;
 
 import java.util.Objects;
 
-import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.binding.wrapper.base.AbstractAlgorithmWrapper;
 import org.openl.rules.tbasic.Algorithm;
@@ -26,12 +25,7 @@ public final class AlgorithmWrapper extends AbstractAlgorithmWrapper implements 
         super(delegate);
         this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
-        if (delegate.getType() instanceof ModuleSpecificType) {
-            IOpenClass openClassType = xlsModuleOpenClass.findType(delegate.getType().getName());
-            this.type = openClassType != null ? openClassType : delegate.getType();
-        } else {
-            this.type = delegate.getType();
-        }
+        this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
         this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
     }
 
