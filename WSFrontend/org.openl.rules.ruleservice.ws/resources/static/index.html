@@ -227,7 +227,7 @@
 
     function isNoWadlService(noWadlServices, service) {
         for (var i = 0; i < noWadlServices.length; i++) {
-            if (noWadlServices[i] === service.name) {
+            if (noWadlServices[i] === service.servicePath) {
                 return true;
             }
         }
@@ -363,7 +363,7 @@
             }
         });
         if (service.hasManifest) {
-            html += "<a href='admin/services/" + encodeURIComponent(service.name) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+            html += "<a href='admin/services/" + service.servicePath + "/MANIFEST.MF'\>MANIFEST.MF</a>";
         }
         if (deployerEnabled) {
             html += "&nbsp";
