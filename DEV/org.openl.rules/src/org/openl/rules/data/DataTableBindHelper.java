@@ -35,6 +35,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.CollectionType;
@@ -861,8 +862,9 @@ public class DataTableBindHelper {
             } else {
                 fieldInChain = getWritableField(bindingContext, fieldNameNode, table, loadedFieldType);
 
-                if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && (fieldInChain.getType()
-                    .isArray() || ClassUtils.isAssignable(fieldInChain.getType().getInstanceClass(), List.class))) {
+                if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && fieldInChain
+                    .getType() != NullOpenClass.the && (fieldInChain.getType()
+                        .isArray() || ClassUtils.isAssignable(fieldInChain.getType().getInstanceClass(), List.class))) {
                     fieldInChain = getWritableCollectionElement(bindingContext,
                         fieldNameNode,
                         table,
@@ -1086,7 +1088,7 @@ public class DataTableBindHelper {
                 }
             }
         } else {
-            if (Map.class.isAssignableFrom(field.getType().getInstanceClass())) {
+            if (ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class)) {
                 Object mapKey;
                 try {
                     mapKey = getCollectionKey(currentFieldNameNode,
