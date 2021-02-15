@@ -1,0 +1,15 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+  {
+    "startedTime": "*",
+    "name": "EPBDS-10916%20+Whitespaces in Name_EPBDS-10916%20+Whitespaces in Name",
+    "servicePath": "deploy/EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name",
+    "urls": {
+      "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name/EPBDS-10916%2520%2BWhitespaces%20in%20Name"
+    },
+    "hasManifest": false,
+    "status": "DEPLOYED"
+  }
+]

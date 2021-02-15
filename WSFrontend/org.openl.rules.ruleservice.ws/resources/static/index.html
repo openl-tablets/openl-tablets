@@ -186,6 +186,8 @@
         mainBlock.addEventListener('click', function (event) {
             var button = event.target || event.srcElement;
             var serviceData = button.parentElement.dataset;
+            //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
+            //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
             var serviceName = encodeURI(serviceData.serviceName);
             if (button.classList.contains("collapse")) {
                 // Expand the node

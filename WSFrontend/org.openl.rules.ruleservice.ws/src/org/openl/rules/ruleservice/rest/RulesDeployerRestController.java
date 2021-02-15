@@ -20,6 +20,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.management.ServiceManager;
+import org.openl.util.StringTool;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
@@ -88,8 +89,10 @@ public class RulesDeployerRestController {
             return Response.status(Status.NOT_FOUND).build();
         }
         InputStream read = rulesDeployerService.read(service.getDeployPath());
+        final String encodedFileName = StringTool.encodeURL(deployPath + ".zip");
         return Response.ok(read)
-            .header("Content-Disposition", "attachment;filename='" + deployPath + ".zip'")
+            .header("Content-Disposition",
+                "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
             .build();
     }
 
