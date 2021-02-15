@@ -363,7 +363,7 @@
             }
         });
         if (service.hasManifest) {
-            html += "<a href='admin/services/" + service.servicePath + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+            html += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
         }
         if (deployerEnabled) {
             html += "&nbsp";
