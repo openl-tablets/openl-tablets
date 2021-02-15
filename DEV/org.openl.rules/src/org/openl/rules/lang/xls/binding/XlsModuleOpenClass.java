@@ -292,8 +292,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                     }
                 } catch (OpenlNotCheckedException e) {
                     LOG.debug(String.format("An exception occurred during adding the method '%s'.",
-                        MethodUtil.printMethod(dependencyMethod.getName(),
-                            dependencyMethod.getSignature().getParameterTypes())),
+                        MethodUtil.printMethod(depMethod.getName(),
+                                depMethod.getSignature().getParameterTypes())),
                         e);
                     addError(e);
                 }
