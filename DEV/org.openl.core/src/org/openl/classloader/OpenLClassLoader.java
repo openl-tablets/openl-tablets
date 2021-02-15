@@ -16,7 +16,7 @@ import groovy.lang.GroovyClassLoader;
  * ClassLoader that have bundle classLoaders. When loading any class, at first tries to find it in bundle classLoaders
  * if can`t tries to find it in his parent.
  */
-public class OpenLClassLoader extends URLClassLoader {
+public class OpenLClassLoader extends GroovyClassLoader {
 
     private final Set<ClassLoader> bundleClassLoaders = new LinkedHashSet<>();
 
@@ -29,14 +29,16 @@ public class OpenLClassLoader extends URLClassLoader {
     }
 
     public OpenLClassLoader(URL[] urls, ClassLoader parent) {
-        super(urls, applyGroovySupport(parent, urls));
-        if (getParent() instanceof GroovyClassLoader) {
-            groovyClassLoaders.add((GroovyClassLoader) getParent());
+        super(parent);
+        if (urls != null) {
+            for (URL url : urls) {
+                addURL(url);
+            }
         }
     }
 
     private static ClassLoader applyGroovySupport(ClassLoader classLoader, URL[] urls) {
-        if (classLoader instanceof OpenLClassLoader || classLoader instanceof GroovyClassLoader) {
+        if (classLoader instanceof GroovyClassLoader) {
             return classLoader;
         } else {
             GroovyClassLoader groovyClassLoader = new GroovyClassLoader(classLoader);
@@ -57,8 +59,7 @@ public class OpenLClassLoader extends URLClassLoader {
             throw new IllegalArgumentException("Bundle class loader cannot register himself");
         }
 
-        if (classLoader instanceof OpenLClassLoader && ((OpenLClassLoader) classLoader)
-            .containsClassLoader(this)) {
+        if (classLoader instanceof OpenLClassLoader && ((OpenLClassLoader) classLoader).containsClassLoader(this)) {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
         ClassLoader classLoader1 = applyGroovySupport(classLoader, new URL[0]);

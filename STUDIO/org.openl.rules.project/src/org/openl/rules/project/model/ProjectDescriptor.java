@@ -267,4 +267,9 @@ public class ProjectDescriptor {
             throw RuntimeExceptionWrapper.wrap(e);
         }
     }
+
+    @Override
+    public String toString() {
+        return "ProjectDescriptor{" + "name='" + name + '\'' + '}';
+    }
 }
