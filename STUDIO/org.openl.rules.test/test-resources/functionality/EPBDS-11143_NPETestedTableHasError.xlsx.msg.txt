@@ -1,0 +1,4 @@
+ERROR: Type 'CPIVersion' is not found.
+ERROR: Type 'CPIVersion' is not found.
+ERROR: Field 'field1' is not found in type 'null-Class'.
+ERROR: Field 'field2' is not found in type 'null-Class'.
