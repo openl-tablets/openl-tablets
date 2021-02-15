@@ -141,7 +141,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         if (dependencyLoaders == null || dependencyLoaders.isEmpty()) {
             throw new OpenLCompilationException(String.format("Dependency '%s' is not found.", dependencyName),
                 null,
-                dependency.getNode().getSourceLocation());
+                dependency.getNode().getSourceLocation(),
+                dependency.getNode().getModule());
         }
         if (dependencyLoaders.size() > 1) {
             throw new OpenLCompilationException(
