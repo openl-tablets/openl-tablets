@@ -1,0 +1,29 @@
+# use global syntax for excludes
+syntax: glob
+
+#exclude intelliJ files
+.idea
+.vagrant
+.node
+*.iml
+*.iws
+*.ipr
+
+#exclude eclipse files
+.settings
+.metadata
+.workspace
+*.project
+*.classpath
+*.springBeans
+*.springWebflow
+maven-eclipse.xml
+
+#common tools files
+target
+**/bin/**
+.toDelete
+
+# Logs
+logs
+*.log
