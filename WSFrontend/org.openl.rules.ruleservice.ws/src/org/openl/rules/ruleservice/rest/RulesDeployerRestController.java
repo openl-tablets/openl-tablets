@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -20,7 +22,6 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
 import org.openl.rules.ruleservice.management.ServiceManager;
-import org.openl.util.StringTool;
 
 /**
  * REST endpoint to deploy OpenL rules to the Web Service
@@ -89,7 +90,7 @@ public class RulesDeployerRestController {
             return Response.status(Status.NOT_FOUND).build();
         }
         InputStream read = rulesDeployerService.read(service.getDeployPath());
-        final String encodedFileName = StringTool.encodeURL(deployPath + ".zip");
+        final String encodedFileName = URLEncoder.encode(deployPath + ".zip", StandardCharsets.UTF_8.name());
         return Response.ok(read)
             .header("Content-Disposition",
                 "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)

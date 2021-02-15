@@ -305,8 +305,7 @@
                     xmlhttp.open("GET", url, true);
                     xmlhttp.send();
                 }
-                xhr.on
-                xhr.open("POST", "admin/deploy/" + fileNameParts.pop(), true);
+                xhr.open("POST", "admin/deploy/" + encodeURI(fileNameParts.pop()), true);
                 xhr.setRequestHeader("Content-type", "application/zip")
                 xhr.send(fileToUpload);
             } else {
@@ -325,7 +324,7 @@
             var blob = new Blob([xhr.response], {type: "octet/stream"});
             var url = window.URL.createObjectURL(blob);
             a.href = url;
-            a.download = serviceName + ".zip";
+            a.download = decodeURI(serviceName) + ".zip";
             a.click();
             window.URL.revokeObjectURL(url);
         };
