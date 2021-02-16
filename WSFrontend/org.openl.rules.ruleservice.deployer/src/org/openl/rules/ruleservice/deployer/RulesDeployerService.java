@@ -164,12 +164,16 @@ public class RulesDeployerService implements Closeable {
 
     private void deployInternal(String originalName, InputStream in, boolean ignoreIfExists) throws IOException,
                                                                                           RulesDeployInputException {
+        if (originalName != null) {
+            //For some reason Java doesn't allow trailing whitespace in folder names
+            originalName = originalName.trim();
+        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         IOUtils.copyAndClose(in, baos);
 
         Map<String, byte[]> zipEntries = DeploymentUtils.unzip(new ByteArrayInputStream(baos.toByteArray()));
 
-        if (baos.size() == 0 || zipEntries.size() == 0) {
+        if (baos.size() == 0 || zipEntries.isEmpty()) {
             throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
         }
 

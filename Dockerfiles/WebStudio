@@ -1,0 +1,75 @@
+ARG TOMCAT=9-jdk11-openjdk-slim-buster
+
+FROM tomcat:$TOMCAT
+
+ARG VERSION="latest"
+ARG SERVER="https://repo.maven.apache.org/maven2"
+
+RUN set -eux ; \
+    \
+# Prepare environment. Install required utils for Docker image building.
+    savedAptMark="$(apt-mark showmanual)"; \
+    \
+    apt-get update ; \
+    apt-get install -y --no-install-recommends \
+    wget \
+    unzip \
+    gnupg \
+    libxml2-utils \
+    xmlstarlet \
+    ; \
+    \
+# Clean up temporaries
+    rm -rf /var/lib/apt/lists/* ; \
+    \
+# Update server.xml If app is used under load balancer or reverse proxy with ssl certificate,
+# but from Tomcat's image perspective it's running an http server. So feature of this valve is
+# to replace the apparent scheme (http/https) and server port with the scheme presented by a proxy
+# or a load balancer. If the proxy passes some header variables, Tomcat will start to think that
+# it is running https.
+# <Valve className="org.apache.catalina.valves.RemoteIpValve" internalProxies=".*" protocolHeader="X-Forwarded-Proto"/>
+    xmlstarlet ed -P -S \
+        -s /Server/Service/Engine/Host -t elem -n Valve -v "" \
+        -i //Valve -t attr -n "className" -v "org.apache.catalina.valves.RemoteIpValve" \
+        -i //Valve -t attr -n "internalProxies" -v ".*" \
+        -i //Valve -t attr -n "protocolHeader" -v "X-Forwarded-Proto" \
+        conf/server.xml ; \
+    \
+# Download artifact.
+    artifactUrl="$SERVER/org/openl/rules/org.openl.rules.webstudio" ; \
+    if [ "$VERSION" = "latest" ] ; then \
+      version="$(wget -qO - $artifactUrl/maven-metadata.xml \
+               | xmllint --xpath /metadata/versioning/$VERSION/text\(\) - )" ; \
+    else \
+      version=$VERSION ; \
+    fi ; \
+    downloadUrl="$artifactUrl/$version/org.openl.rules.webstudio-$version.war" ; \
+    \
+    wget --progress=dot:giga -O app.war "$downloadUrl" ; \
+    wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc" ; \
+    \
+# GPG verification
+    export GNUPGHOME="$(mktemp -d)" ; \
+    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC ; \
+    gpg --batch --verify app.war.asc app.war ; \
+    gpgconf --kill all ; \
+    rm -rf "$GNUPGHOME" ; \
+    rm app.war.asc ; \
+    \
+# Unpack demo files
+    unzip -q app.war -d webapps/ROOT ; \
+    rm app.war ; \
+    \
+# Cleanup apt-get installations
+    apt-mark auto '.*' > /dev/null ; \
+    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false ; \
+    \
+# Install fonts required for Apache POI (export into Excel with autowidth of columns)
+    apt-get update ; \
+    apt-get install -y --no-install-recommends \
+    fontconfig ; \
+    rm -rf /var/lib/apt/lists/*
+
+
+ENV JAVA_OPTS="-Xms128m -XX:MaxRAMPercentage=90.0"

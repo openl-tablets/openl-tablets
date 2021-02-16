@@ -200,4 +200,14 @@ public class RunRestRulesDeploymentTest {
         client.send("EPBDS-9876/deployed-rules.delete4");
         client.send("admin_services_no_services.json.get");
     }
+
+    @Test
+    public void EPBDS_11144() {
+        client.send("admin_services_no_services.json.get");
+        client.post("/admin/deploy/EPBDS-10916%20+Whitespaces in Name #", "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip", 201);
+        client.send("EPBDS-11144/deployed-rules_services.get");
+        client.get("/admin/deploy/deploy/EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name", 200,"/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
+        client.send("EPBDS-11144/delete.delete");
+        client.send("admin_services_no_services.json.get");
+    }
 }

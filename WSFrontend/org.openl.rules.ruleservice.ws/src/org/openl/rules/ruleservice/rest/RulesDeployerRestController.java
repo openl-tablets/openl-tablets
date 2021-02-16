@@ -2,6 +2,8 @@ package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -88,8 +90,10 @@ public class RulesDeployerRestController {
             return Response.status(Status.NOT_FOUND).build();
         }
         InputStream read = rulesDeployerService.read(service.getDeployPath());
+        final String encodedFileName = URLEncoder.encode(deployPath + ".zip", StandardCharsets.UTF_8.name());
         return Response.ok(read)
-            .header("Content-Disposition", "attachment;filename='" + deployPath + ".zip'")
+            .header("Content-Disposition",
+                "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
             .build();
     }
 

@@ -1,0 +1,55 @@
+ARG TOMCAT=9-jdk11-openjdk-slim-buster
+
+FROM tomcat:$TOMCAT
+
+ARG VERSION="latest"
+ARG SERVER="https://repo.maven.apache.org/maven2"
+
+RUN set -eux ; \
+    \
+# Prepare environment. Install required utils for Docker image building.
+    savedAptMark="$(apt-mark showmanual)"; \
+    \
+    apt-get update ; \
+    apt-get install -y --no-install-recommends \
+    wget \
+    unzip \
+    gnupg \
+    libxml2-utils \
+    ; \
+    \
+# Clean up temporaries
+    rm -rf /var/lib/apt/lists/* ; \
+    \
+# Download artifact.
+    artifactUrl="$SERVER/org/openl/rules/org.openl.rules.ruleservice.ws" ; \
+    if [ "$VERSION" = "latest" ] ; then \
+      version="$(wget -qO - $artifactUrl/maven-metadata.xml \
+               | xmllint --xpath /metadata/versioning/$VERSION/text\(\) - )" ; \
+    else \
+      version=$VERSION ; \
+    fi ; \
+    downloadUrl="$artifactUrl/$version/org.openl.rules.ruleservice.ws-$version.war" ; \
+    \
+    wget --progress=dot:giga -O app.war "$downloadUrl" ; \
+    wget --progress=dot:giga -O app.war.asc "$downloadUrl.asc" ; \
+    \
+# GPG verification
+    export GNUPGHOME="$(mktemp -d)" ; \
+    gpg --batch --keyserver ha.pool.sks-keyservers.net --recv-keys 902B17732F38021331F3019F82521DFA3BF8F6FC ; \
+    gpg --batch --verify app.war.asc app.war ; \
+    gpgconf --kill all ; \
+    rm -rf "$GNUPGHOME" ; \
+    rm app.war.asc ; \
+    \
+# Unpack demo files
+    unzip -q app.war -d webapps/ROOT ; \
+    rm app.war ; \
+    \
+# Cleanup apt-get installations
+    apt-mark auto '.*' > /dev/null ; \
+    [ -z "$savedAptMark" ] || apt-mark manual $savedAptMark > /dev/null ; \
+    apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false
+
+
+ENV JAVA_OPTS="-Xms32m -XX:MaxRAMPercentage=90.0"
