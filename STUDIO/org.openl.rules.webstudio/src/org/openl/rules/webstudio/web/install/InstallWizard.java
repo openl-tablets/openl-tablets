@@ -10,7 +10,6 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -36,13 +35,8 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.security.Privileges;
-import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.security.KeyStoreUtils;
-import org.openl.rules.webstudio.service.GroupManagementService;
-import org.openl.rules.webstudio.service.GroupManagementServiceWrapper;
-import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.util.WebStudioValidationUtils;
 import org.openl.rules.webstudio.web.admin.ConnectionProductionRepoController;
 import org.openl.rules.webstudio.web.admin.FolderStructureSettings;
@@ -62,7 +56,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.util.ResourceUtils;
-import org.springframework.web.context.support.XmlWebApplicationContext;
+import org.springframework.web.context.annotation.SessionScope;
 
 @ManagedBean
 @SessionScoped
@@ -74,7 +68,6 @@ public class InstallWizard {
     private static final String SAML_USER_MODE = "saml";
     private static final String USER_MODE_DEMO = "demo";
     private static final String VIEWERS_GROUP = "Authenticated";
-    private static final String ADMINISTRATORS_GROUP = "Administrators";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
 
@@ -116,9 +109,6 @@ public class InstallWizard {
     // Reuse existing controllers
     private ConnectionProductionRepoController connectionProductionRepoController;
 
-    @ManagedProperty(value = "#{groupManagementService}")
-    private GroupManagementService groupManagementService;
-    private XmlWebApplicationContext dbContext;
     private String defaultGroup;
     private String externalAdmins;
 
@@ -214,17 +204,7 @@ public class InstallWizard {
                 }
 
                 defaultGroup = propertyResolver.getProperty("security.default-group");
-
-            } else if (step == 4) {
-                initializeDbContext();
-
-                if (groupManagementService instanceof GroupManagementServiceWrapper) {
-                    // GroupManagementService delegate is transactional and properly initialized
-                    GroupManagementService delegate = (GroupManagementService) dbContext
-                        .getBean("groupManagementService");
-                    // Initialize groupManagementService before first usage in GroupsBean
-                    ((GroupManagementServiceWrapper) groupManagementService).setDelegate(delegate);
-                }
+                externalAdmins = propertyResolver.getProperty("security.administrators");
 
             }
             return PAGE_PREFIX + step + PAGE_POSTFIX;
@@ -238,22 +218,6 @@ public class InstallWizard {
             step--;
             return null;
         }
-    }
-
-    private void initializeDbContext() {
-        destroyDbContext();
-
-        setProductionDbProperties();
-
-        migrateDatabase();
-
-        // Load groupDao and initialize groupManagementService
-        dbContext = new XmlWebApplicationContext();
-        dbContext.setServletContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
-        dbContext.setConfigLocations("/WEB-INF/spring/security/db-services.xml");
-        dbContext.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
-            new DelegatedPropertySourceLoader(properties)));
-        dbContext.refresh();
     }
 
     private void readDbProperties() {
@@ -306,18 +270,14 @@ public class InstallWizard {
         try {
             if (MULTI_USER_MODE.equals(userMode)) {
                 setProductionDbProperties();
-                migrateDatabase();
             } else {
                 if (AD_USER_MODE.equals(userMode)) {
-                    fillDbForUserManagement();
 
                     properties.setProperty("security.ad.domain", adDomain);
                     properties.setProperty("security.ad.server-url", adUrl);
                     properties.setProperty("security.ad.search-filter", ldapFilter);
                     properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
                 } else if (CAS_USER_MODE.equals(userMode)) {
-                    fillDbForUserManagement();
-
                     properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
                     properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
                     properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
@@ -328,7 +288,6 @@ public class InstallWizard {
                     if (StringUtils.isNotBlank(serverCertificate)) {
                         importCertificateToKeystore(serverCertificate);
                     }
-                    fillDbForUserManagement();
 
                     properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
                     properties.setProperty("security.saml.saml-server-metadata-url",
@@ -365,6 +324,7 @@ public class InstallWizard {
 
             properties.setProperty("user.mode", userMode);
             properties.setProperty("security.default-group", defaultGroup);
+            properties.setProperty("security.administrators", externalAdmins);
 
 
             designRepositoryConfiguration.commit();
@@ -375,7 +335,6 @@ public class InstallWizard {
             DynamicPropertySource.get().save(properties.getConfig());
 
             destroyRepositoryObjects();
-            destroyDbContext();
 
             ReloadableDelegatingFilter
                 .reloadApplicationContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
@@ -422,39 +381,6 @@ public class InstallWizard {
             throw new IllegalStateException("The keystore of the application can't be saved", e);
         }
 
-    }
-
-    private void fillDbForUserManagement() {
-        if (groupsAreManagedInStudio) {
-            initializeDbContext();
-            GroupManagementService groupManagementService = (GroupManagementService) dbContext
-                .getBean("groupManagementService");
-            UserManagementService userManagementService = (UserManagementService) dbContext
-                .getBean("userManagementService");
-
-            if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
-                groupManagementService.addGroup(ADMINISTRATORS_GROUP, null);
-                groupManagementService.updateGroup(ADMINISTRATORS_GROUP, Collections.emptySet(), Collections.singleton(Privileges.ADMIN.getName()));
-            }
-
-            // Delete example users
-            for (User user : userManagementService.getAllUsers()) {
-                userManagementService.deleteUser(user.getUsername());
-            }
-
-            // Create admin users
-            for (String username : StringUtils.split(externalAdmins, ',')) {
-                if (!username.isEmpty()) {
-                    userManagementService.addUser(username, null,null,null);
-                    userManagementService.updateAuthorities(username, Collections.singleton(ADMINISTRATORS_GROUP));
-                }
-            }
-
-            setProductionDbProperties();
-            migrateDatabase();
-        } else {
-            setProductionDbProperties();
-        }
     }
 
     private void setProductionDbProperties() {
@@ -904,18 +830,6 @@ public class InstallWizard {
     @PreDestroy
     public void destroy() {
         destroyRepositoryObjects();
-        destroyDbContext();
-    }
-
-    private void migrateDatabase() {
-        try (XmlWebApplicationContext ctx = new XmlWebApplicationContext()) {
-            ctx.setServletContext((ServletContext) WebStudioUtils.getExternalContext().getContext());
-            ctx.setConfigLocations("classpath:META-INF/standalone/spring/security-hibernate-beans.xml");
-            ctx.addBeanFactoryPostProcessor(beanFactory -> beanFactory.registerSingleton("propertyLoader",
-                new DelegatedPropertySourceLoader(properties)));
-            ctx.refresh();
-            ctx.getBean("dbMigration");
-        }
     }
 
     private void initProductionRepositoryEditor() {
@@ -941,20 +855,6 @@ public class InstallWizard {
             }
             productionRepositoryFactoryProxy = null;
         }
-    }
-
-    private void destroyDbContext() {
-        if (dbContext != null) {
-            if (groupManagementService instanceof GroupManagementServiceWrapper) {
-                ((GroupManagementServiceWrapper) groupManagementService).setDelegate(null);
-            }
-            dbContext.close();
-            dbContext = null;
-        }
-    }
-
-    public void setGroupManagementService(GroupManagementService groupManagementService) {
-        this.groupManagementService = groupManagementService;
     }
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
