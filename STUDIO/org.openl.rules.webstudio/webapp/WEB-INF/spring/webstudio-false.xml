@@ -32,10 +32,6 @@
         </security:filter-chain-map>
     </bean>
 
-    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceWrapper">
-        <!-- It's delegate will be initialized in InstallWizard before the first usage of groupManagementService -->
-    </bean>
-
     <bean class="org.apache.cxf.jaxrs.JAXRSServerFactoryBean" init-method="create">
         <property name="address" value=""/>
         <property name="serviceBeans">

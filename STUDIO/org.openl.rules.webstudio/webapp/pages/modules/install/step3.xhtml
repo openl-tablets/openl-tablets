@@ -412,7 +412,7 @@
                     <div class="wizard-block" id="internalGroupsBlock">
                         <h3>Configure initial users:
                             <div class="field-description">
-                                <p>Add comma-separated users with administrator's privileges and decide whether new users must be granted view access to WebStudio.</p>
+                                <p>Add comma-separated users or groups with administrator's privileges and decide whether new users must be granted view access to WebStudio.</p>
                             </div>
                         </h3>
                         <div>
@@ -505,12 +505,6 @@
                                          onclick="showLoader()"/>
                         <span style="color:#7b1">Click 'Finish' to complete the installation process</span>
                     </div>
-                    <div class="wizard-buttons" id="next-buttons">
-                        <h:commandButton id="prevButtonAd" value="Prev" action="#{installWizard.prev}"
-                                         onclick="showLoader()" immediate="true"/>
-                        <h:commandButton value="Next" action="#{installWizard.next}" class="button-primary"
-                                         onclick="showLoader()"/>
-                    </div>
                 </h:form>
             </div>
         </div>
@@ -539,11 +533,8 @@
                     toggleBlock("#casBlock", userMode === "cas");
                     toggleBlock("#samlBlock", userMode === "saml");
 
-                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml") && groupsInStudio);
+                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml"));
                     toggleBlock("#cas-group-field,#saml-group-field", !groupsInStudio);
-
-                    toggleBlock("#finish-buttons", userMode !== "ad" && userMode !== "cas" && userMode !== "saml" || groupsInStudio);
-                    toggleBlock("#next-buttons", (userMode === "ad" || userMode === "cas" || userMode === "saml") && !groupsInStudio);
 
                     $j(".block-with-description .field-description > p").hide();
                     $j(".block-with-description p.user-mode-" + userMode).show();
