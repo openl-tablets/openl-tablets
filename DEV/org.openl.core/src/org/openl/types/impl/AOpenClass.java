@@ -42,28 +42,32 @@ public abstract class AOpenClass implements IOpenClass {
     private IOpenField indexField;
 
     protected IMetaInfo xlsMetaInfo;
-    protected Map<String, IOpenField> uniqueLowerCaseFieldMap;
+    protected volatile Map<String, IOpenField> uniqueLowerCaseFieldMap;
 
-    protected Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap;
+    protected volatile Map<String, List<IOpenField>> nonUniqueLowerCaseFieldMap;
 
-    protected synchronized void addFieldToLowerCaseMap(IOpenField f) {
-        if (uniqueLowerCaseFieldMap == null) {
+    private void addFieldToLowerCaseMaps(IOpenField f,
+            Map<String, IOpenField> uniqueLCaseFieldMap,
+            Map<String, List<IOpenField>> nonUniqueLCaseFieldMap) {
+        String lname = f.getName().toLowerCase().replace(" ", "");
+        if (uniqueLCaseFieldMap.containsKey(lname)) {
+            List<IOpenField> ff = new ArrayList<>(2);
+            ff.add(uniqueLCaseFieldMap.get(lname));
+            ff.add(f);
+            nonUniqueLCaseFieldMap.put(lname, ff);
+            uniqueLCaseFieldMap.remove(lname);
+        } else if (nonUniqueLCaseFieldMap.containsKey(lname)) {
+            nonUniqueLCaseFieldMap.get(lname).add(f);
+        } else {
+            uniqueLCaseFieldMap.put(lname, f);
+        }
+    }
+
+    protected void addFieldToLowerCaseMap(IOpenField f) {
+        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
             return;
         }
-        String lname = f.getName().toLowerCase().replace(" ", "");
-
-        if (uniqueLowerCaseFieldMap.containsKey(lname)) {
-            initNonUniqueMap();
-            List<IOpenField> ff = new ArrayList<>(2);
-            ff.add(uniqueLowerCaseFieldMap.get(lname));
-            ff.add(f);
-            nonUniqueLowerCaseFieldMap.put(lname, ff);
-            uniqueLowerCaseFieldMap.remove(lname);
-        } else if (nonUniqueLowerCaseFieldMap != null && nonUniqueLowerCaseFieldMap.containsKey(lname)) {
-            nonUniqueLowerCaseFieldMap.get(lname).add(f);
-        } else {
-            uniqueLowerCaseFieldMap.put(lname, f);
-        }
+        addFieldToLowerCaseMaps(f, getUniqueLowerCaseFieldMap(), getNonUniqueLowerCaseFieldMap());
     }
 
     protected abstract Map<String, IOpenField> fieldMap();
@@ -129,7 +133,6 @@ public abstract class AOpenClass implements IOpenClass {
             Map<String, IOpenField> m = fieldMap();
 
             f = m == null ? null : m.get(fname);
-
             if (f != null) {
                 return f;
             } else {
@@ -139,18 +142,12 @@ public abstract class AOpenClass implements IOpenClass {
 
         String lfname = fname.toLowerCase();
 
-        Map<String, IOpenField> uniqueLowerCaseFields = getUniqueLowerCaseFieldMap();
-
-        if (uniqueLowerCaseFields != null) {
-            f = uniqueLowerCaseFields.get(lfname);
-            if (f != null) {
-                return f;
-            }
+        f = getUniqueLowerCaseFieldMap().get(lfname);
+        if (f != null) {
+            return f;
         }
 
-        Map<String, List<IOpenField>> nonUniqueLowerCaseFields = getNonUniqueLowerCaseFieldMap();
-
-        List<IOpenField> ff = nonUniqueLowerCaseFields.get(lfname);
+        List<IOpenField> ff = getNonUniqueLowerCaseFieldMap().get(lfname);
 
         if (ff != null) {
             throw new AmbiguousFieldException(fname, ff);
@@ -206,15 +203,15 @@ public abstract class AOpenClass implements IOpenClass {
         return method;
     }
 
-    private synchronized Map<String, List<IOpenField>> getNonUniqueLowerCaseFieldMap() {
-        if (nonUniqueLowerCaseFieldMap == null) {
+    private Map<String, List<IOpenField>> getNonUniqueLowerCaseFieldMap() {
+        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
             makeLowerCaseMaps();
         }
         return nonUniqueLowerCaseFieldMap;
     }
 
-    private synchronized Map<String, IOpenField> getUniqueLowerCaseFieldMap() {
-        if (uniqueLowerCaseFieldMap == null) {
+    private Map<String, IOpenField> getUniqueLowerCaseFieldMap() {
+        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
             makeLowerCaseMaps();
         }
         return uniqueLowerCaseFieldMap;
@@ -223,12 +220,6 @@ public abstract class AOpenClass implements IOpenClass {
     @Override
     public IOpenField getVar(String name, boolean strictMatch) throws AmbiguousFieldException {
         return getField(name, strictMatch);
-    }
-
-    private void initNonUniqueMap() {
-        if (nonUniqueLowerCaseFieldMap == null) {
-            nonUniqueLowerCaseFieldMap = new HashMap<>();
-        }
     }
 
     @Override
@@ -265,17 +256,16 @@ public abstract class AOpenClass implements IOpenClass {
         return null;
     }
 
-    private void makeLowerCaseMaps() {
-        uniqueLowerCaseFieldMap = new HashMap<>();
-
-        for (IOpenField field : getFields()) {
-            addFieldToLowerCaseMap(field);
+    private synchronized void makeLowerCaseMaps() {
+        if (uniqueLowerCaseFieldMap == null || nonUniqueLowerCaseFieldMap == null) {
+            Map<String, IOpenField> uniqueLCaseFieldMap = new HashMap<>();
+            Map<String, List<IOpenField>> nonUniqueLCaseFieldMap = new HashMap<>();
+            for (IOpenField field : getFields()) {
+                addFieldToLowerCaseMaps(field, uniqueLCaseFieldMap, nonUniqueLCaseFieldMap);
+            }
+            this.uniqueLowerCaseFieldMap = uniqueLCaseFieldMap;
+            this.nonUniqueLowerCaseFieldMap = nonUniqueLCaseFieldMap;
         }
-
-        if (nonUniqueLowerCaseFieldMap == null) {
-            nonUniqueLowerCaseFieldMap = new HashMap<>();
-        }
-
     }
 
     private volatile Map<MethodKey, IOpenMethod> methodMap;

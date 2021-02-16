@@ -27,7 +27,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     private final String name;
 
-    protected Map<String, IOpenField> fieldMap;
+    protected volatile Map<String, IOpenField> fieldMap;
 
     protected Class<?> instanceClass;
 
@@ -49,7 +49,6 @@ public abstract class ADynamicClass extends AOpenClass {
         }
 
         fieldMap().put(field.getName(), field);
-
         addFieldToLowerCaseMap(field);
     }
 
@@ -124,7 +123,11 @@ public abstract class ADynamicClass extends AOpenClass {
     @Override
     protected Map<String, IOpenField> fieldMap() {
         if (fieldMap == null) {
-            fieldMap = new HashMap<>();
+            synchronized (this) {
+                if (fieldMap == null) {
+                    fieldMap = new HashMap<>();
+                }
+            }
         }
         return fieldMap;
     }

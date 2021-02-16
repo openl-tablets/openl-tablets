@@ -88,7 +88,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
         return false;
     }
 
-
     /**
      * Overriden to add the possibility for overriding fields from dependent modules.<br>
      * At first tries to get the field from current module, if can`t search in dependencies.
@@ -189,7 +188,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
             throw new DuplicatedTypeException(null, type.getName());
         }
     }
-
 
     @Override
     public IOpenClass findType(String name) {
