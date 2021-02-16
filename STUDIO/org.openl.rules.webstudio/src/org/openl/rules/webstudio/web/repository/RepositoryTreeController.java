@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -690,6 +692,16 @@ public class RepositoryTreeController {
                     String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
                     if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
                         return "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.";
+                    }
+                    final Path currentPath = Paths.get(projectPath);
+                    if (userWorkspace.getDesignTimeRepository()
+                        .getProjects()
+                        .stream()
+                        .filter(proj -> proj.getRepository().getId().equals(repositoryId))
+                        .map(AProjectFolder::getRealPath)
+                        .map(Paths::get)
+                        .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+                        return "Cannot create the project because a path conflicts with an existed project.";
                     }
                 }
             }
