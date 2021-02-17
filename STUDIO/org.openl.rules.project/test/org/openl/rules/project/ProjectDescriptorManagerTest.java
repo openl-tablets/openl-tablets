@@ -119,16 +119,20 @@ public class ProjectDescriptorManagerTest {
         }
     }
 
-    @Test(expected = ValidationException.class)
+    @Test()
     public void testReadDescriptor3() throws IOException, ValidationException {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        manager.readDescriptor("test-resources/descriptor/rules3.xml");
+        ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
+        List<Module> modules = projectDescriptor.getModules();
+        assertTrue(modules.isEmpty());
     }
 
-    @Test(expected = ValidationException.class)
+    @Test()
     public void zipArchive_testReadDescriptor3() throws IOException, ValidationException {
         try (FileSystem fs = openZipFile(DESCRIPTOR_PATH)) {
-            new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
+            ProjectDescriptor projectDescriptor = new ProjectDescriptorManager().readDescriptor(fs.getPath("/rules3.xml"));
+            List<Module> modules = projectDescriptor.getModules();
+            assertTrue(modules.isEmpty());
         }
     }
 
@@ -212,7 +216,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(expected, dest.toString());
     }
 
-    @Test(expected = ValidationException.class)
+    @Test()
     public void testWriteDescriptor2() throws IOException, ValidationException {
         ProjectDescriptor descriptor = new ProjectDescriptor();
         descriptor.setName("name1");
@@ -220,6 +224,8 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
+        List<Module> modules = descriptor.getModules();
+        assertTrue(modules.isEmpty());
     }
 
     @Test
