@@ -165,7 +165,6 @@ public class GroupsBean {
             .getParameterValues("privilege");
         List<String> privileges = new ArrayList<>(
             Arrays.asList(privilegesParam == null ? new String[0] : privilegesParam));
-        privileges.add(0, Privileges.VIEW_PROJECTS.name());
 
         // Admin
         Map<String, Group> groups = new java.util.HashMap<>();

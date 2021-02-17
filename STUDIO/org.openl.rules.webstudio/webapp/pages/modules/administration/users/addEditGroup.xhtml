@@ -84,7 +84,7 @@
                         </h:panelGroup>
                         <h:panelGroup rendered="#{privilege.name == 'VIEW_PROJECTS'}">
                             <input type="checkbox" name="privilege" value="#{privilege.name}"
-                                checked="checked" disabled="disabled" />#{privilege.displayName}
+                                checked="checked"/>#{privilege.displayName}
                         </h:panelGroup>
                     </td>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
