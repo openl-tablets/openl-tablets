@@ -77,11 +77,13 @@ public class ProjectDescriptorManagerTest {
         manager.readDescriptor("test-resources/descriptor/rules2.xml");
     }
 
-    @Test(expected = ValidationException.class)
+    @Test()
     public void testReadDescriptor3() throws IOException, ValidationException {
 
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
-        manager.readDescriptor("test-resources/descriptor/rules3.xml");
+        ProjectDescriptor projectDescriptor = manager.readDescriptor("test-resources/descriptor/rules3.xml");
+        List<Module> modules = projectDescriptor.getModules();
+        assertTrue(modules.isEmpty());
     }
 
     @Test
@@ -150,7 +152,7 @@ public class ProjectDescriptorManagerTest {
         assertEquals(expected, dest.toString());
     }
 
-    @Test(expected = ValidationException.class)
+    @Test()
     public void testWriteDescriptor2() throws IOException, ValidationException {
 
         ProjectDescriptor descriptor = new ProjectDescriptor();
@@ -159,6 +161,8 @@ public class ProjectDescriptorManagerTest {
         ProjectDescriptorManager manager = new ProjectDescriptorManager();
         ByteArrayOutputStream dest = new ByteArrayOutputStream();
         manager.writeDescriptor(descriptor, dest);
+        List<Module> modules = descriptor.getModules();
+        assertTrue(modules.isEmpty());
     }
 
     @Test
