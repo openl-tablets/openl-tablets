@@ -33,6 +33,7 @@ import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
+import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.data.ITable;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -294,7 +295,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
 
     @Override
     protected boolean isDependencyFieldInheritable(IOpenField openField) {
-        if (openField instanceof ConstantOpenField) {
+        if (openField instanceof ConstantOpenField || openField instanceof DataOpenField && XlsNodeTypes.XLS_DATA
+            .equals(((DataOpenField) openField).getNodeType())) {
             return true;
         }
         return super.isDependencyFieldInheritable(openField);
@@ -357,8 +359,13 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     @Override
     public void addField(IOpenField openField) {
         Map<String, IOpenField> fields = fieldMap();
-        if (fields.containsKey(openField.getName())) {
-            IOpenField existedField = fields.get(openField.getName());
+        IOpenField existedField = fields.get(openField.getName());
+        if (existedField != null) {
+            if (openField instanceof DataOpenField && existedField instanceof DataOpenField && XlsNodeTypes.XLS_DATA
+                .equals(((DataOpenField) openField).getNodeType()) && XlsNodeTypes.XLS_DATA
+                    .equals(((DataOpenField) openField).getNodeType())) {
+                return;
+            }
             if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
                 // Ignore constants with the same values
                 if (Objects.equals(((ConstantOpenField) openField).getValue(),

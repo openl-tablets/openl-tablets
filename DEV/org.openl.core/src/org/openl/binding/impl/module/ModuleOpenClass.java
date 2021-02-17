@@ -6,7 +6,6 @@
 
 package org.openl.binding.impl.module;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -15,7 +14,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
-import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -51,8 +49,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
      */
     private Set<CompiledDependency> usingModules = new LinkedHashSet<>();
 
-    private volatile Collection<IOpenField> dependencyFields = null;
-
     // This field is used to refer to correct module name that is used in the system, the name of XlsModuleOpenClass can
     // be different if the module name is not matched to the java naming restrictions.
     private final String moduleName;
@@ -86,59 +82,6 @@ public class ModuleOpenClass extends ComponentOpenClass {
 
     protected boolean isDependencyFieldInheritable(IOpenField openField) {
         return false;
-    }
-
-    /**
-     * Overriden to add the possibility for overriding fields from dependent modules.<br>
-     * At first tries to get the field from current module, if can`t search in dependencies.
-     */
-    @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
-        // try to get field from own field map
-        //
-        IOpenField field = super.getField(fname, strictMatch);
-        if (field != null) {
-            return field;
-        } else {
-            // if can`t find, search in dependencies.
-            //
-            for (CompiledDependency dependency : usingModules) {
-                CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-                field = compiledOpenClass.getOpenClassWithErrors().getField(fname, strictMatch);
-                if (field != null) {
-                    return field;
-                }
-            }
-        }
-        return null;
-    }
-
-    private Collection<IOpenField> createDependencyFields() {
-        Collection<IOpenField> fields = new ArrayList<>();
-        for (CompiledDependency dependency : usingModules) {
-            CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-            fields.addAll(compiledOpenClass.getOpenClassWithErrors().getFields());
-        }
-        return fields;
-    }
-
-    @Override
-    public Collection<IOpenField> getFields() {
-        Collection<IOpenField> fields = new ArrayList<>();
-        // get fields from dependencies
-        //
-        if (this.dependencyFields == null) {
-            synchronized (this) {
-                this.dependencyFields = createDependencyFields();
-            }
-        }
-        fields.addAll(dependencyFields);
-
-        // get own fields. if current module has duplicated fields they will
-        // override the same from dependencies.
-        //
-        fields.addAll(super.getFields());
-        return fields;
     }
 
     /**
