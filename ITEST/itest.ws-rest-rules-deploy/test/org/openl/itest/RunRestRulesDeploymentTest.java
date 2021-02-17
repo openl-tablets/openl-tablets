@@ -80,11 +80,13 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void testMissingServiceMethods() {
+        client.send("admin_services_no_services.json.get");
         client.send("missing-service_methods.get");
         client.send("missing-service.delete");
         client.send("missing-service.get");
         client.send("missing-service_errors.get");
         client.send("missing-service_manifest.get");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
@@ -146,9 +148,11 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void test_EPBDS_10068_MANIFEST() {
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy", "/EPBDS-10068/EPBDS-10068.zip", 201);
         client.send("EPBDS-10068/MANIFEST.MF.get");
         client.send("EPBDS-10068/EPBDS-10068.delete");
+        client.send("admin_services_no_services.json.get");
     }
 
     @Test
@@ -189,6 +193,7 @@ public class RunRestRulesDeploymentTest {
 
     @Test
     public void EPBDS_9876() {
+        client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy", "/EPBDS-9876/deploy_name1_name1.zip", 201);
         client.post("/admin/deploy", "/EPBDS-9876/deploy_samename_name1.zip", 201);
         client.post("/admin/deploy", "/EPBDS-9876/deploy_url1_url1.zip", 201);
