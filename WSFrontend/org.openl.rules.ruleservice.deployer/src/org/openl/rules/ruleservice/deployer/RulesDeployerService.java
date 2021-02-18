@@ -53,15 +53,15 @@ public class RulesDeployerService implements Closeable {
     static final String DEFAULT_AUTHOR_NAME = "OpenL_Deployer";
 
     private final Repository deployRepo;
-    private final String deployPath;
+    private final String baseDeployPath;
 
-    public RulesDeployerService(Repository repository, String deployPath) {
+    public RulesDeployerService(Repository repository, String baseDeployPath) {
         this.deployRepo = repository;
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
-            this.deployPath = "";
+            this.baseDeployPath = "";
         } else {
-            this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+            this.baseDeployPath = baseDeployPath.isEmpty() || baseDeployPath.endsWith("/") ? baseDeployPath : baseDeployPath + "/";
         }
     }
 
@@ -74,10 +74,10 @@ public class RulesDeployerService implements Closeable {
         this.deployRepo = RepositoryInstatiator.newRepository("production-repository", properties::getProperty);
         if (deployRepo.supports().isLocal()) {
             // NOTE deployment path isn't required for LocalRepository. It must be specified within URI
-            this.deployPath = "";
+            this.baseDeployPath = "";
         } else {
             String deployPath = properties.getProperty("production-repository.base.path");
-            this.deployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
+            this.baseDeployPath = deployPath.isEmpty() || deployPath.endsWith("/") ? deployPath : deployPath + "/";
         }
     }
 
@@ -105,8 +105,9 @@ public class RulesDeployerService implements Closeable {
      * @throws IOException if not possible to read the file.
      */
     public InputStream read(String deployPath) throws IOException {
+        final String fullDeployPath = baseDeployPath + deployPath;
         if (deployRepo.supports().folders()) {
-            deployPath = deployPath + "/";
+            deployPath = fullDeployPath + "/";
             List<FileData> files = deployRepo.list(deployPath);
             ByteArrayOutputStream fos = new ByteArrayOutputStream();
             ZipOutputStream zipOut = new ZipOutputStream(fos);
@@ -126,7 +127,7 @@ public class RulesDeployerService implements Closeable {
             fos.close();
             return new ByteArrayInputStream(fos.toByteArray());
         } else {
-            return deployRepo.read(deployPath).getStream();
+            return deployRepo.read(fullDeployPath).getStream();
         }
     }
 
@@ -137,9 +138,10 @@ public class RulesDeployerService implements Closeable {
      * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
      */
     public boolean delete(String deployPath) throws IOException {
-        FileData fileDate = deployRepo.check(deployPath);
+        final String fullDeployPath = baseDeployPath + deployPath;
+        FileData fileDate = deployRepo.check(fullDeployPath);
         if (deployRepo.delete(fileDate)) {
-            deleteDeploymentDescriptors(deployPath);
+            deleteDeploymentDescriptors(fullDeployPath);
             return true;
         }
         return false;
@@ -201,7 +203,7 @@ public class RulesDeployerService implements Closeable {
                     return;
                 }
                 FileData dest = new FileData();
-                dest.setName(deployPath + deploymentName);
+                dest.setName(baseDeployPath + deploymentName);
                 dest.setAuthor(DEFAULT_AUTHOR_NAME);
                 dest.setSize(baos.size());
                 FileChangesFromZip changes = new FileChangesFromZip(new ZipInputStream(new ByteArrayInputStream(baos.toByteArray())), dest.getName());
@@ -307,7 +309,7 @@ public class RulesDeployerService implements Closeable {
             return null;
         }
         FileData dest = new FileData();
-        String name = deployPath + deploymentName;
+        String name = baseDeployPath + deploymentName;
         dest.setName(name + '/' + projectName);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
         return dest;
@@ -325,7 +327,7 @@ public class RulesDeployerService implements Closeable {
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {
-        List<FileData> deployments = deployRepo.list(deployPath + deploymentName + "/");
+        List<FileData> deployments = deployRepo.list(baseDeployPath + deploymentName + "/");
         return !deployments.isEmpty();
     }
 

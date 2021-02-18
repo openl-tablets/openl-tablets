@@ -37,7 +37,7 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
         client.send("deployed-rules_services.get");
         client.send("deployed-rules_methods.get");
-        client.get("/admin/deploy/deploy/rules-to-deploy/rules-to-deploy", "/rules-to-deploy.zip");
+        client.get("/admin/deploy/rules-to-deploy/rules-to-deploy", "/rules-to-deploy.zip");
         client.send("deployed-rules_hello.post");
 
         // should be always redeployed
@@ -211,7 +211,7 @@ public class RunRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy/EPBDS-10916%20+Whitespaces in Name #", "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip", 201);
         client.send("EPBDS-11144/deployed-rules_services.get");
-        client.get("/admin/deploy/deploy/EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name", 200,"/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
+        client.get("/admin/deploy/EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name", 200,"/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
         client.send("EPBDS-11144/delete.delete");
         client.send("admin_services_no_services.json.get");
     }

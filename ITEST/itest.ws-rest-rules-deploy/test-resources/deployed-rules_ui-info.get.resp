@@ -10,7 +10,7 @@ Content-Type: application/json
     "services": [{
             "startedTime": "#####",
             "name": "deployed-rules",
-            "servicePath": "deploy/rules-to-deploy/rules-to-deploy",
+            "servicePath": "rules-to-deploy/rules-to-deploy",
             "urls": {
                 "WEBSERVICE": "deployed-rules",
                 "RESTFUL": "REST/deployed-rules"

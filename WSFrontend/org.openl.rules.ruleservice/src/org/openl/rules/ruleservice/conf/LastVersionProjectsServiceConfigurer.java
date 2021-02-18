@@ -140,7 +140,7 @@ public class LastVersionProjectsServiceConfigurer implements ServiceConfigurer {
                         serviceDescriptionBuilder.setManifest(readManifestFile(project));
                         serviceDescriptionBuilder.setName(buildServiceName(deployment, projectName, rulesDeploy));
                         serviceDescriptionBuilder.setUrl(buildServiceUrl(deployment, projectName, rulesDeploy));
-                        serviceDescriptionBuilder.setServicePath(project.getFolderPath());
+                        serviceDescriptionBuilder.setServicePath(ruleServiceLoader.getLogicalProjectFolder(project.getFolderPath()));
                         ServiceDescription serviceDescription = serviceDescriptionBuilder.build();
 
                         if (!serviceDescriptions.contains(serviceDescription) && serviceGroupSupported(rulesDeploy)) {
