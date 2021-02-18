@@ -31,7 +31,6 @@ public class UserProfileBean extends UsersBean {
     private User user;
     private String newPassword;
     private String confirmPassword;
-    private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
     private String currentPassword;
     private String userPassword;
@@ -111,12 +110,7 @@ public class UserProfileBean extends UsersBean {
             userLastName = getLastName();
         }
 
-        simpleUser = new SimpleUser(getUserFirstName(),
-            getUserLastName(),
-            getUsername(),
-            currentPassword,
-            getPriveleges());
-        userManagementService.updateUser(simpleUser);
+        userManagementService.updateUserData(getUsername(), userFirstName, userLastName, currentPassword, isPasswordValid);
 
         Authentication authentication = currentUserInfo.getAuthentication();
         SimpleUser user = null;
@@ -185,14 +179,6 @@ public class UserProfileBean extends UsersBean {
 
     public void setConfirmPassword(String confirmPassword) {
         this.confirmPassword = confirmPassword;
-    }
-
-    public org.openl.rules.security.User getSimpleUser() {
-        return simpleUser;
-    }
-
-    public void setSimpleUser(org.openl.rules.security.User simpleUser) {
-        this.simpleUser = simpleUser;
     }
 
     public String getCurrentPassword() {

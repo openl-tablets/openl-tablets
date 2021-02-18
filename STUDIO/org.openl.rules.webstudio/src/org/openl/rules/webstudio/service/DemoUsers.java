@@ -1,10 +1,8 @@
 package org.openl.rules.webstudio.service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
+import java.util.HashSet;
 
-import org.openl.rules.security.Privilege;
-import org.openl.rules.security.SimpleUser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -26,17 +24,10 @@ public class DemoUsers {
     private UserManagementService userManagementService;
 
     @Autowired
-    private GroupManagementService groupManagementService;
-
-    @Autowired
     private PasswordEncoder passwordEncoder;
 
     public void setUserManagementService(UserManagementService userManagementService) {
         this.userManagementService = userManagementService;
-    }
-
-    public void setGroupManagementService(GroupManagementService groupManagementService) {
-        this.groupManagementService = groupManagementService;
     }
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
@@ -49,23 +40,21 @@ public class DemoUsers {
             return;
         }
 
-        userManagementService.addUser(getUser("a1", "Administrators"));
-        userManagementService.addUser(getUser("u0", "Testers"));
-        userManagementService.addUser(getUser("u1", "Developers", "Analysts"));
-        userManagementService.addUser(getUser("u2", "Viewers"));
-        userManagementService.addUser(getUser("u3", "Viewers"));
-        userManagementService.addUser(getUser("u4", "Deployers"));
-        userManagementService.addUser(getUser("user", "Viewers"));
+        initUser("a1", "Administrators");
+        initUser("u0", "Testers");
+        initUser("u1", "Developers", "Analysts");
+        initUser("u2", "Viewers");
+        initUser("u3", "Viewers");
+        initUser("u4", "Deployers");
+        initUser("user", "Viewers");
 
         initialized = true;
     }
 
-    private SimpleUser getUser(String user, String... groups) {
+    private void initUser(String user, String... groups) {
         String password = passwordEncoder.encode(user);
-        List<Privilege> privileges = new ArrayList<>(groups.length);
-        for (String group : groups) {
-            privileges.add(groupManagementService.getGroupByName(group));
-        }
-        return new SimpleUser(null, null, user, password, privileges);
+        userManagementService.addUser(user, null, null, password);
+        userManagementService.updateAuthorities(user, new HashSet<>(Arrays.asList(groups)));
+
     }
 }

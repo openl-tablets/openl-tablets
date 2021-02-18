@@ -38,10 +38,8 @@ import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
 import org.openl.rules.security.Group;
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleGroup;
-import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.security.KeyStoreUtils;
@@ -462,8 +460,6 @@ public class InstallWizard {
                     new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
                 groupManagementService.addGroup(group);
             }
-            Group administrator = groupManagementService.getGroupByName(ADMINISTRATORS_GROUP);
-            List<Privilege> adminGroups = new ArrayList<>(Collections.singleton(administrator));
 
             // Delete example users
             for (User user : userManagementService.getAllUsers()) {
@@ -473,7 +469,8 @@ public class InstallWizard {
             // Create admin users
             for (String username : StringUtils.split(externalAdmins, ',')) {
                 if (!username.isEmpty()) {
-                    userManagementService.addUser(new SimpleUser(null, null, username, null, adminGroups));
+                    userManagementService.addUser(username, null,null,null);
+                    userManagementService.updateAuthorities(username, Collections.singleton(ADMINISTRATORS_GROUP));
                 }
             }
             setProductionDbProperties();
