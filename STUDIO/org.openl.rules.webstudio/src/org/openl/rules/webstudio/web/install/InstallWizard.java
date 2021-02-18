@@ -10,7 +10,6 @@ import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -37,9 +36,7 @@ import org.hibernate.validator.constraints.NotBlank;
 import org.openl.config.ConfigNames;
 import org.openl.config.InMemoryProperties;
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.security.Group;
 import org.openl.rules.security.Privileges;
-import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.filter.ReloadableDelegatingFilter;
 import org.openl.rules.webstudio.security.KeyStoreUtils;
@@ -447,18 +444,14 @@ public class InstallWizard {
 
             if (allowAccessToNewUsers) {
                 if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
-                    Group group = new SimpleGroup(VIEWERS_GROUP,
-                        null,
-                        new ArrayList<>(Collections.singletonList(Privileges.VIEW_PROJECTS)));
-                    groupManagementService.addGroup(group);
+                    groupManagementService.addGroup(VIEWERS_GROUP, null);
+                    groupManagementService.updateGroup(VIEWERS_GROUP, Collections.emptySet(), Collections.singleton(Privileges.VIEW_PROJECTS.getName()));
                 }
             }
 
             if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
-                Group group = new SimpleGroup(ADMINISTRATORS_GROUP,
-                    null,
-                    new ArrayList<>(Collections.singletonList(Privileges.ADMIN)));
-                groupManagementService.addGroup(group);
+                groupManagementService.addGroup(ADMINISTRATORS_GROUP, null);
+                groupManagementService.updateGroup(ADMINISTRATORS_GROUP, Collections.emptySet(), Collections.singleton(Privileges.ADMIN.getName()));
             }
 
             // Delete example users
