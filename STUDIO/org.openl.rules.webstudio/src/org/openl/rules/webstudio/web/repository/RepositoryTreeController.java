@@ -23,8 +23,11 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -651,23 +654,14 @@ public class RepositoryTreeController {
     }
 
     private String validateCreateProjectParams(String comment) {
-        String msg = validateProjectName();
-        if (msg != null) {
-            return msg;
-        }
-
-        msg = validateRepositoryId();
-        if (msg != null) {
-            return msg;
-        }
-
-        msg = validateProjectFolder();
-        if (msg != null) {
-            return msg;
-        }
-
-        msg = validateCreateProjectComment(comment);
-        return msg;
+        return Stream.<Supplier<String>> of(this::validateRepositoryId,
+                this::validateProjectName,
+                this::validateProjectFolder,
+                () -> validateCreateProjectComment(comment))
+            .map(Supplier::get)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
     }
 
     private String validateRepositoryId() {
@@ -692,6 +686,10 @@ public class RepositoryTreeController {
                     String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
                     if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
                         return "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.";
+                    }
+                    msg = validateProjectFolder();
+                    if (msg != null) {
+                        return msg;
                     }
                     final Path currentPath = Paths.get(projectPath);
                     if (userWorkspace.getDesignTimeRepository()

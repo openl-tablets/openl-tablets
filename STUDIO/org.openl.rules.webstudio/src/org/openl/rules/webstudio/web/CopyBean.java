@@ -27,6 +27,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -380,6 +381,7 @@ public class CopyBean {
         final String projPath = prepareProjectFolder((String) value);
         final String projName = StringUtils
             .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
+        FolderStructureValidators.validatePathInRepository(projPath);
         final Path currentPath = Paths.get(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
         try {
             UserWorkspace userWorkspace = getUserWorkspace();
