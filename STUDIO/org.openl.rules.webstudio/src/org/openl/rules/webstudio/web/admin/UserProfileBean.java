@@ -19,7 +19,6 @@ import javax.validation.constraints.Size;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
-import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,8 +35,6 @@ public class UserProfileBean extends UsersBean {
     private User user;
     private String newPassword;
     private String confirmPassword;
-    @ManagedProperty(value = "#{currentUserInfo}")
-    private CurrentUserInfo currentUserInfo;
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
     private String currentPassword;
@@ -234,9 +231,5 @@ public class UserProfileBean extends UsersBean {
 
     public void setUserLastName(String userLastName) {
         this.userLastName = userLastName;
-    }
-
-    public void setCurrentUserInfo(CurrentUserInfo currentUserInfo) {
-        this.currentUserInfo = currentUserInfo;
     }
 }

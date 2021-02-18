@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
@@ -31,22 +30,6 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
                 user.getPasswordHash(),
                 PrivilegesEvaluator.createPrivileges(user));
             resultUsers.add(resultUser);
-        }
-        return resultUsers;
-    }
-
-    public List<org.openl.rules.security.User> getUsersByPrivilege(String privilege) {
-        List<User> users = userDao.getAllUsers();
-        List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
-        for (User user : users) {
-            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(),
-                user.getSurname(),
-                user.getLoginName(),
-                user.getPasswordHash(),
-                PrivilegesEvaluator.createPrivileges(user));
-            if (resultUser.hasPrivilege(Privileges.ADMIN.name()) || resultUser.hasPrivilege(privilege)) {
-                resultUsers.add(resultUser);
-            }
         }
         return resultUsers;
     }

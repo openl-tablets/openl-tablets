@@ -27,6 +27,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -91,6 +92,8 @@ public class UsersBean {
     @ManagedProperty(value = "#{canCreateExternalUsers}")
     protected boolean canCreateExternalUsers;
 
+    @ManagedProperty(value = "#{currentUserInfo}")
+    protected CurrentUserInfo currentUserInfo;
     /**
      * Validation for existed user
      */
@@ -196,8 +199,9 @@ public class UsersBean {
 
     public boolean isOnlyAdmin(Object objUser) {
         String adminPrivilege = Privileges.ADMIN.name();
-        return ((User) objUser)
-            .hasPrivilege(adminPrivilege) && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
+        User user = (User) objUser;
+        boolean isAdmin = user.hasPrivilege(adminPrivilege);
+        return isAdmin && currentUserInfo.getUserName().equals(user.getUsername());
     }
 
     public void deleteUser(String username) {
@@ -279,6 +283,10 @@ public class UsersBean {
 
     public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
         this.passwordEncoder = passwordEncoder;
+    }
+
+    public void setCurrentUserInfo(CurrentUserInfo currentUserInfo) {
+        this.currentUserInfo = currentUserInfo;
     }
 
     public void setCanCreateExternalUsers(boolean canCreateExternalUsers) {
