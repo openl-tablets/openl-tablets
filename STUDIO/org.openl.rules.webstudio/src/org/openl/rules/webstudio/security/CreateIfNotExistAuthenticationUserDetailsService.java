@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
@@ -59,9 +60,9 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                         privileges.add(group);
                     }
 
-                    SimpleUser userToUpdate = new SimpleUser(user
-                        .getFirstName(), user.getLastName(), user.getUsername(), null, privileges);
-                    userManagementService.updateUser(userToUpdate);
+                    String username = user.getUsername();
+                    SimpleUser userToUpdate = new SimpleUser(firstName, lastName, username, null, privileges);
+                    userManagementService.updateUserData(username, firstName, lastName, null, false);
                     userDetails = userToUpdate;
                 }
             }
@@ -87,7 +88,9 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                 lastName = preAuthenticatedUser.getLastName();
             }
             SimpleUser user = new SimpleUser(firstName, lastName, delegatedAuth.getName(), null, groups);
-            userManagementService.addUser(user);
+            userManagementService.addUser(delegatedAuth.getName(), firstName, lastName, null);
+            userManagementService.updateAuthorities(delegatedAuth.getName(),
+                groups.stream().map(Privilege::getName).collect(Collectors.toSet()));
             userDetails = user;
         }
         return userDetails;

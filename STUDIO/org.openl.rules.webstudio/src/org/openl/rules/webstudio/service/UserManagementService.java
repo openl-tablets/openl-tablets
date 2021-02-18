@@ -13,7 +13,6 @@ import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Andrei Astrouski
@@ -58,36 +57,40 @@ public class UserManagementService {
         return resultUsers;
     }
 
-    public void addUser(org.openl.rules.security.User user) {
+    public void addUser(String user,
+                        String firstName,
+                        String lastName,
+                        String passwordHash) {
         User persistUser = new User();
-        persistUser.setLoginName(user.getUsername());
-        persistUser.setPasswordHash(user.getPassword());
-        persistUser.setFirstName(user.getFirstName());
-        persistUser.setSurname(user.getLastName());
-
-        Set<Group> groups = new HashSet<>();
-        for (GrantedAuthority auth : user.getAuthorities()) {
-            groups.add(groupDao.getGroupByName(auth.getAuthority()));
-        }
-        persistUser.setGroups(groups);
+        persistUser.setLoginName(user);
+        persistUser.setPasswordHash(passwordHash);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
 
         userDao.save(persistUser);
     }
 
-    public void updateUser(org.openl.rules.security.User user) {
-        User persistUser = userDao.getUserByName(user.getUsername());
+    public void updateUserData(String user,
+            String firstName,
+            String lastName,
+            String passwordHash,
+            boolean updatePassword) {
+        User persistUser = userDao.getUserByName(user);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
+        if (updatePassword) {
+            persistUser.setPasswordHash(passwordHash);
+        }
+        userDao.update(persistUser);
+    }
 
-        persistUser.setFirstName(user.getFirstName());
-        persistUser.setSurname(user.getLastName());
-
+    public void updateAuthorities(String user, Set<String> authorities) {
+        User persistUser = userDao.getUserByName(user);
         Set<Group> groups = new HashSet<>();
-        for (GrantedAuthority auth : user.getAuthorities()) {
-            groups.add(groupDao.getGroupByName(auth.getAuthority()));
+        for (String auth : authorities) {
+            groups.add(groupDao.getGroupByName(auth));
         }
         persistUser.setGroups(groups);
-        if (user.getPassword() != null) {
-            persistUser.setPasswordHash(user.getPassword());
-        }
 
         userDao.update(persistUser);
     }
