@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
@@ -44,54 +43,29 @@ public class GroupManagementService {
         return groupDao.getGroupByName(name) != null;
     }
 
-    public void addGroup(org.openl.rules.security.Group group) {
+    public void addGroup(String name, String description) {
         Group persistGroup = new Group();
-        persistGroup.setName(group.getName());
-        persistGroup.setDescription(group.getDescription());
-
-        Set<Group> includedGroups = new HashSet<>();
-        Set<String> privileges = new HashSet<>();
-        for (Privilege privilege : group.getPrivileges()) {
-            String privilegeName = privilege.getName();
-            if (privilege instanceof org.openl.rules.security.Group) {
-                includedGroups.add(groupDao.getGroupByName(privilegeName));
-            } else {
-                privileges.add(privilegeName);
-            }
-        }
-        if (!includedGroups.isEmpty()) {
-            persistGroup.setIncludedGroups(includedGroups);
-        }
-        if (!privileges.isEmpty()) {
-            persistGroup.setPrivileges(privileges);
-        }
-
+        persistGroup.setName(name);
+        persistGroup.setDescription(description);
         groupDao.save(persistGroup);
     }
 
-    public void updateGroup(String name, org.openl.rules.security.Group group) {
+    public void updateGroup(String name, String newName, String description) {
         Group persistGroup = groupDao.getGroupByName(name);
-        persistGroup.setName(group.getName());
-        persistGroup.setDescription(group.getDescription());
+        persistGroup.setName(newName);
+        persistGroup.setDescription(description);
+        groupDao.update(persistGroup);
+    }
+
+    public void updateGroup(String name, Set<String> groups, Set<String> privileges) {
+        Group persistGroup = groupDao.getGroupByName(name);
 
         Set<Group> includedGroups = new HashSet<>();
-        Set<String> privileges = new HashSet<>();
-        for (Privilege privilege : group.getPrivileges()) {
-            String privilegeName = privilege.getName();
-            if (privilege instanceof org.openl.rules.security.Group) {
-                Group includedGroup = groupDao.getGroupByName(privilegeName);
-                if (!persistGroup.equals(includedGroup)) {
-                    // Persisting group should not include itself
-                    includedGroups.add(includedGroup);
-                } else {
-                    // Save all privileges of itself persisting group
-                    Set<String> includedPrivileges = includedGroup.getPrivileges();
-                    if (includedPrivileges != null) {
-                        privileges.addAll(includedPrivileges);
-                    }
-                }
-            } else {
-                privileges.add(privilegeName);
+        for (String group : groups) {
+            Group includedGroup = groupDao.getGroupByName(group);
+            if (!persistGroup.equals(includedGroup)) {
+                // Persisting group should not include itself
+                includedGroups.add(includedGroup);
             }
         }
 

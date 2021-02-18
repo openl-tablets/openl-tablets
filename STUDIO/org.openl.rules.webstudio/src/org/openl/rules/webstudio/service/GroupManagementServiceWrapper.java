@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.service;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.rules.security.Group;
 
@@ -39,19 +40,27 @@ public class GroupManagementServiceWrapper extends GroupManagementService {
     }
 
     @Override
-    public void addGroup(Group group) {
+    public void addGroup(String name, String description) {
         if (delegate == null) {
             return;
         }
-        delegate.addGroup(group);
+        delegate.addGroup(name, description);
     }
 
     @Override
-    public void updateGroup(String name, Group group) {
+    public void updateGroup(String name, String newName, String description) {
         if (delegate == null) {
             return;
         }
-        delegate.updateGroup(name, group);
+        delegate.updateGroup(name, newName, description);
+    }
+
+    @Override
+    public void updateGroup(String name, Set<String> groups, Set<String> privileges) {
+        if (delegate == null) {
+            return;
+        }
+        delegate.updateGroup(name, groups, privileges);
     }
 
     @Override
