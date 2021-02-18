@@ -53,9 +53,11 @@
                     <h:outputLabel id="projectFolderLabel" for="projectFolder" value="Path:" rendered="#{copyBean.supportsMappedFolders}"/>
                     <h:panelGroup rendered="#{copyBean.supportsMappedFolders}" style="display: inline-block; white-space: nowrap;">
                         <h:inputText id="projectFolder" value="#{copyBean.projectFolder}"
+                                     validator="#{copyBean.projectPathValidator}"
                                      styleClass="with-button-select"/>
                         <input type="button" value="..." class="button-select"
                                onclick="openSelectFolderDialog('#{copyBean.toRepositoryId}', 'copyProjectForm:projectFolder')"/>
+                        <h:message for="projectFolder" styleClass="error" style="display: block; white-space: break-spaces;"/>
                     </h:panelGroup>
 
                     <h:outputText value="Comment:"/>

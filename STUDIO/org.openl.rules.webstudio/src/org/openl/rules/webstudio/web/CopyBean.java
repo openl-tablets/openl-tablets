@@ -1,6 +1,11 @@
 package org.openl.rules.webstudio.web;
 
+import static org.openl.rules.security.AccessManager.isGranted;
+import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
+
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -11,6 +16,7 @@ import javax.faces.context.FacesContext;
 
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.ProjectStatus;
 import org.openl.rules.project.abstraction.RulesProject;
@@ -21,6 +27,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
 import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -40,9 +47,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 import org.springframework.web.jsf.FacesContextUtils;
 
-import static org.openl.rules.security.AccessManager.isGranted;
-import static org.openl.rules.security.Privileges.CREATE_PROJECTS;
-
 /**
  * FIXME: Replace SessionScoped with RequestScoped when validation issues in inputNumberSpinner in Repository and Editor
  * tabs will be fixed.
@@ -57,7 +61,7 @@ public class CopyBean {
     private final RepositoryTreeState repositoryTreeState;
 
     private final ApplicationContext applicationContext = FacesContextUtils
-            .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
+        .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
 
     private String repositoryId;
     private String toRepositoryId;
@@ -122,6 +126,10 @@ public class CopyBean {
     }
 
     public void setProjectFolder(String projectFolder) {
+        this.projectFolder = prepareProjectFolder(projectFolder);
+    }
+
+    private static String prepareProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
         if (folder.startsWith("/")) {
             folder = folder.substring(1);
@@ -129,7 +137,7 @@ public class CopyBean {
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
-        this.projectFolder = folder;
+        return folder;
     }
 
     public boolean isSeparateProject() {
@@ -244,11 +252,11 @@ public class CopyBean {
                 designProject.setResourceTransformer(null);
 
                 RulesProject copiedProject = new RulesProject(userWorkspace.getUser(),
-                        userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
-                        null,
-                        designRepository,
-                        designProject.getFileData(),
-                        userWorkspace.getProjectsLockEngine());
+                    userWorkspace.getLocalWorkspace().getRepository(toRepositoryId),
+                    null,
+                    designRepository,
+                    designProject.getFileData(),
+                    userWorkspace.getProjectsLockEngine());
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
@@ -276,7 +284,7 @@ public class CopyBean {
                 return;
             }
             TreeProject node = repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getRepository().getId(),
-                    selectedProject.getName());
+                selectedProject.getName());
             selectedProject = repositoryTreeState.getProject(node);
             WebStudio studio = WebStudioUtils.getWebStudio();
 
@@ -308,8 +316,8 @@ public class CopyBean {
         try {
             UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
             String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
-                    .getSubmittedValue()
-                    .toString();
+                .getSubmittedValue()
+                .toString();
             boolean projectExist = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
             WebStudioUtils.validate(!projectExist, "Project with such name already exists.");
         } catch (WorkspaceException e) {
@@ -366,6 +374,29 @@ public class CopyBean {
         RulesProject project = getCurrentProject();
         if (project != null && toRepositoryId != null) {
             CommentValidator.forRepo(toRepositoryId).validate(comment);
+        }
+    }
+
+    public void projectPathValidator(FacesContext context, UIComponent toValidate, Object value) {
+        final String projPath = prepareProjectFolder((String) value);
+        final String projName = StringUtils
+            .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
+        FolderStructureValidators.validatePathInRepository(projPath);
+        final Path currentPath = Paths.get(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
+        try {
+            UserWorkspace userWorkspace = getUserWorkspace();
+            if (userWorkspace.getDesignTimeRepository()
+                .getProjects()
+                .stream()
+                .filter(proj -> proj.getRepository().getId().equals(repositoryId))
+                .map(AProjectFolder::getRealPath)
+                .map(Paths::get)
+                .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+                WebStudioUtils.throwValidationError("Path conflicts with an existed project.");
+            }
+        } catch (WorkspaceException e) {
+            LOG.debug(e.getMessage(), e);
+            WebStudioUtils.throwValidationError("Error during validation.");
         }
     }
 

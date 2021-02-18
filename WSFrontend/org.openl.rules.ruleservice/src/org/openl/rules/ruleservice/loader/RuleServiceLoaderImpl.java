@@ -42,6 +42,7 @@ import org.openl.rules.repository.zip.ZippedLocalRepository;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.RuntimeExceptionWrapper;
+import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -321,5 +322,17 @@ public class RuleServiceLoaderImpl implements RuleServiceLoader {
             return "";
         }
         return deployPath;
+    }
+
+    @Override
+    public String getLogicalProjectFolder(String realFolderPath) {
+        if (StringUtils.isBlank(realFolderPath) || repository.supports().isLocal()) {
+            return realFolderPath;
+        }
+        final String baseDeployFolder = getDeployPath();
+        if (!realFolderPath.startsWith(baseDeployFolder)) {
+            return realFolderPath;
+        }
+        return realFolderPath.substring(baseDeployFolder.length());
     }
 }

@@ -112,7 +112,7 @@ public class ProjectDescriptor {
     }
 
     public List<Module> getModules() {
-        return modules;
+        return modules != null ? modules : new ArrayList<>();
     }
 
     public void setModules(List<Module> modules) {

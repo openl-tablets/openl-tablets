@@ -15,10 +15,6 @@ public class ProjectDescriptorValidator {
             throw new ValidationException("Project name are not defined.");
         }
 
-        if (descriptor.getModules() == null || descriptor.getModules().isEmpty()) {
-            throw new ValidationException("Project modules are not defined.");
-        }
-
         for (Module module : descriptor.getModules()) {
             validateModule(module);
         }

@@ -4,7 +4,7 @@ Content-Type: application/json
 [{
         "startedTime": "#####",
         "name": "yaml_project_Project1",
-        "servicePath": "deploy/yaml_project/Project1",
+        "servicePath": "yaml_project/Project1",
         "urls": {
             "RESTFUL": "REST/yaml_project/Project1"
         },
@@ -13,7 +13,7 @@ Content-Type: application/json
     }, {
         "startedTime": "#####",
         "name": "yaml_project_Project2",
-        "servicePath": "deploy/yaml_project/Project2",
+        "servicePath": "yaml_project/Project2",
         "urls": {
             "RESTFUL": "REST/yaml_project/Project2"
         },

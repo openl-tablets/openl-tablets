@@ -46,4 +46,12 @@ public interface RuleServiceLoader {
      * @return deployment
      */
     IDeployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
+
+    /**
+     * Removes deploy path from folder path
+     *
+     * @param realFolderPath real path to folder
+     * @return cleared folder path
+     */
+    String getLogicalProjectFolder(String realFolderPath);
 }
