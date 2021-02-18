@@ -30,16 +30,14 @@ public class StringTool {
 
     // TODO Move to URLUtils class
     public static String decodeURL(String url) {
-        String decodedUrl = null;
         if (StringUtils.isBlank(url)) {
             return url;
         }
         try {
-            decodedUrl = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            return URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException ignored) {
         }
-        return decodedUrl;
+        return null;
     }
 
     public static String[] tokenize(String src, String delim) {
