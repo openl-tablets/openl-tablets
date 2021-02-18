@@ -36,8 +36,6 @@ public class UserProfileBean extends UsersBean {
     private User user;
     private String newPassword;
     private String confirmPassword;
-    @Autowired
-    private CurrentUserInfo currentUserInfo;
     private org.openl.rules.security.User simpleUser;
     private boolean isPasswordValid = false;
     private String currentPassword;
