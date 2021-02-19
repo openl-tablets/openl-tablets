@@ -60,7 +60,9 @@ public class WebServicesExposingTest implements ApplicationContextAware {
             serviceDescriptionInProcessField.set(serviceManager, serviceDescription);
 
             OpenLServiceBuilder openLServiceBuilder = new OpenLService.OpenLServiceBuilder();
-            openLServiceBuilder.setName("mock");
+            openLServiceBuilder.setName("mock")
+                    .setDeployPath("mock")
+                    .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl("0")));
             OpenLService openLService = openLServiceBuilder.build(openLService1 -> {
             });
             openLServiceInProcessField.set(serviceManager, openLService);

@@ -63,4 +63,10 @@ public class RunLocalZippedRepositoryTest {
         client.send("EPBDS_10916/Greeting.json.post");
     }
 
+    @Test
+    public void testZipArchivesDownload() {
+        client.get("/admin/deploy/rules-to-deploy","/rules-to-deploy.zip");
+        client.get("/admin/deploy/multiproject","/multiproject.zip");
+    }
+
 }

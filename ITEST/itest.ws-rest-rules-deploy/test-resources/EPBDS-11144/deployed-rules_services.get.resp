@@ -10,6 +10,7 @@ Content-Type: application/json
       "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name/EPBDS-10916%2520%2BWhitespaces%20in%20Name"
     },
     "hasManifest": false,
+    "deploymentName": "EPBDS-10916%20+Whitespaces in Name",
     "status": "DEPLOYED"
   }
 ]

@@ -220,9 +220,9 @@
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
             } else if (button.className === "download-button") {
-                downloadProject(serviceName);
+                downloadProject(serviceData.deploymentName);
             } else if (button.className === "delete-button") {
-                deleteProject(serviceData.servicePath);
+                deleteProject(serviceData.deploymentName);
             }
         })
     }
@@ -250,6 +250,7 @@
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
+                el.dataset.deploymentName = encodeURI(service.deploymentName);
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
             });

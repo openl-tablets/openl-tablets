@@ -14,6 +14,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
@@ -24,6 +26,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import java.util.zip.ZipOutputStream;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +39,7 @@ import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
+import org.openl.util.IOUtils;
 
 public class RulesDeployerServiceTest {
 
@@ -47,11 +51,13 @@ public class RulesDeployerServiceTest {
     private Repository mockedDeployRepo;
     private RulesDeployerService deployer;
     private ArgumentCaptor<FileData> fileDataCaptor;
+    private ArgumentCaptor<InputStream> streamCaptor;
     private ArgumentCaptor<FileChangesFromZip> fileChangesFromZipCaptor;
 
     @Before
     public void setUp() throws IOException {
         fileDataCaptor = ArgumentCaptor.forClass(FileData.class);
+        streamCaptor = ArgumentCaptor.forClass(InputStream.class);
         fileChangesFromZipCaptor = ArgumentCaptor.forClass(FileChangesFromZip.class);
     }
 
@@ -69,6 +75,15 @@ public class RulesDeployerServiceTest {
             deployer.deploy(is, true);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
+        InputStream stream = streamCaptor.getValue();
+        final byte[] expectedBytes = toByteArray(stream);
+        stream.reset();
+        when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2")).thenReturn(new FileItem(fileDataCaptor.getValue(), stream));
+        final byte[] actualBytes = toByteArray(deployer.read("project2", toSet("project2/project2")));
+        assertEquals(expectedBytes.length, actualBytes.length);
+        for (int i = 0; i < expectedBytes.length; i++) {
+            assertEquals(expectedBytes[i], actualBytes[i]);
+        }
     }
 
     @Test
@@ -97,7 +112,7 @@ public class RulesDeployerServiceTest {
     public void test_deploy_without_description() throws Exception {
         init(Repository.class, false);
         try (InputStream is = getResourceAsStream(NO_NAME_DEPLOYMENT)) {
-            deployer.deploy("customName",is, true);
+            deployer.deploy("customName", is, true);
         }
         verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), any(InputStream.class));
         final FileData actualFileData = fileDataCaptor.getValue();
@@ -113,10 +128,10 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-                actualFileItems);
+            actualFileItems);
 
         for (FileItem actualFileItem : actualFileItems) {
-            Map<String, byte[]> entries =  DeploymentUtils.unzip(actualFileItem.getStream());
+            Map<String, byte[]> entries = DeploymentUtils.unzip(actualFileItem.getStream());
             if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
                 assertEquals(3, entries.size());
                 assertNotNull(entries.get("rules.xml"));
@@ -161,7 +176,7 @@ public class RulesDeployerServiceTest {
     }
 
     private void assertSingleDeployment(String expectedName) throws IOException {
-        verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), any(InputStream.class));
+        verify(mockedDeployRepo, times(1)).save(fileDataCaptor.capture(), streamCaptor.capture());
         final FileData actualFileData = fileDataCaptor.getValue();
         assertNotNull(actualFileData);
         assertEquals(RulesDeployerService.DEFAULT_AUTHOR_NAME, actualFileData.getAuthor());
@@ -178,10 +193,12 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-                actualFileItems);
+            actualFileItems);
 
         for (FileItem actualFileItem : actualFileItems) {
-            Map<String, byte[]> entries =  DeploymentUtils.unzip(actualFileItem.getStream());
+            InputStream stream = actualFileItem.getStream();
+            Map<String, byte[]> entries = DeploymentUtils.unzip(stream);
+            stream.reset();
             if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
                 assertEquals(3, entries.size());
                 assertNotNull(entries.get("rules.xml"));
@@ -194,6 +211,23 @@ public class RulesDeployerServiceTest {
                 assertNotNull(entries.get("rules-deploy.xml"));
             }
         }
+        //test read multideployment
+        Map<String, FileItem> fileItemMap = actualFileItems.stream()
+            .collect(Collectors.toMap(it -> it.getData().getName(), it -> it));
+        when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
+            .thenReturn(fileItemMap.get(baseDeploymentPath + "project1"));
+        when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
+                .thenReturn(fileItemMap.get(baseDeploymentPath + "project2"));
+        InputStream archive = deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"));
+        Map<String, byte[]> entries = DeploymentUtils.unzip(archive);
+        assertEquals(7, entries.size());
+        assertNotNull(entries.get(DeploymentDescriptor.YAML.getFileName()));
+        assertNotNull(entries.get("project1/rules.xml"));
+        assertNotNull(entries.get("project1/Project1-Main.xlsx"));
+        assertNotNull(entries.get("project1/rules-deploy.xml"));
+        assertNotNull(entries.get("project2/rules.xml"));
+        assertNotNull(entries.get("project2/rules/Project2-Main.xlsx"));
+        assertNotNull(entries.get("project2/rules-deploy.xml"));
     }
 
     @Test
@@ -215,7 +249,8 @@ public class RulesDeployerServiceTest {
     }
 
     @Test
-    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws IOException, RulesDeployInputException {
+    public void testMultiDeploymentFolderSupport_CustomName_mustNotApplied() throws IOException,
+                                                                             RulesDeployInputException {
         init(FolderRepository.class, true);
         try (InputStream is = getResourceAsStream("EPBDS-10894.zip")) {
             deployer.deploy("EPBDS-10894.zip", is, true);
@@ -224,14 +259,13 @@ public class RulesDeployerServiceTest {
         final String baseDeploymentPath = "EPBDS-10894_yaml_project/";
         assertEquals(1, actualFileItems.size());
         FolderItem folderItem = actualFileItems.get(0);
-        final Set<String> actualList = StreamSupport
-                .stream(folderItem.getFiles().spliterator(), false)
-                .map(it -> it.getData().getName())
-                .collect(Collectors.toSet());
+        final Set<String> actualList = StreamSupport.stream(folderItem.getFiles().spliterator(), false)
+            .map(it -> it.getData().getName())
+            .collect(Collectors.toSet());
         final Set<String> expectedFiles = toSet(baseDeploymentPath + "project1/rules.xml",
-                baseDeploymentPath + "project1/Project1.xlsx",
-                baseDeploymentPath + "project2/Project2.xlsx",
-                baseDeploymentPath + "deployment.yaml");
+            baseDeploymentPath + "project1/Project1.xlsx",
+            baseDeploymentPath + "project2/Project2.xlsx",
+            baseDeploymentPath + "deployment.yaml");
         assertSetEquals(expectedFiles, actualList);
     }
 
@@ -245,18 +279,36 @@ public class RulesDeployerServiceTest {
         final String baseDeploymentPath = "customName-deployment/";
         assertEquals(1, actualFileItems.size());
         FolderItem folderItem = actualFileItems.get(0);
-        final Set<String> actualList = StreamSupport
-                .stream(folderItem.getFiles().spliterator(), false)
-                .map(it -> it.getData().getName())
-                .collect(Collectors.toSet());
+        final Set<String> actualList = StreamSupport.stream(folderItem.getFiles().spliterator(), false)
+            .map(it -> it.getData().getName())
+            .collect(Collectors.toSet());
         final Set<String> expectedFiles = toSet(baseDeploymentPath + "deployment.yaml",
-                baseDeploymentPath + "project1/rules.xml",
-                baseDeploymentPath + "project1/rules-deploy.xml",
-                baseDeploymentPath + "project1/Project1-Main.xlsx",
-                baseDeploymentPath + "project2/rules/Project2-Main.xlsx",
-                baseDeploymentPath + "project2/rules-deploy.xml",
-                baseDeploymentPath + "project2/rules.xml");
+            baseDeploymentPath + "project1/rules.xml",
+            baseDeploymentPath + "project1/rules-deploy.xml",
+            baseDeploymentPath + "project1/Project1-Main.xlsx",
+            baseDeploymentPath + "project2/rules/Project2-Main.xlsx",
+            baseDeploymentPath + "project2/rules-deploy.xml",
+            baseDeploymentPath + "project2/rules.xml");
         assertSetEquals(expectedFiles, actualList);
+    }
+
+    @Test
+    public void testWrongFile() throws IOException {
+        init(FolderRepository.class, true);
+        try {
+            deployer.deploy("customName-deployment", new ByteArrayInputStream("foo".getBytes()), true);
+            fail("Everything went different before...");
+        } catch (RulesDeployInputException e) {
+            assertEquals("Provided file is not an archive!", e.getMessage());
+        }
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            IOUtils.closeQuietly(new ZipOutputStream(baos)); //make it empty
+            deployer.deploy("customName-deployment", new ByteArrayInputStream(baos.toByteArray()), true);
+            fail("Everything went different before...");
+        } catch (RulesDeployInputException e) {
+            assertEquals("Cannot create a project from the given file. Zip file is empty.", e.getMessage());
+        }
     }
 
     private static void assertSetEquals(Set<String> expected, Set<String> actual) {
@@ -277,10 +329,10 @@ public class RulesDeployerServiceTest {
         List<FileItem> actualFileItems = catchDeployFileItems();
         final String baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
-                actualFileItems);
+            actualFileItems);
 
         for (FileItem actualFileItem : actualFileItems) {
-            Map<String, byte[]> entries =  DeploymentUtils.unzip(actualFileItem.getStream());
+            Map<String, byte[]> entries = DeploymentUtils.unzip(actualFileItem.getStream());
             if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
                 assertEquals(2, entries.size());
                 assertNotNull(entries.get("rules.xml"));
@@ -336,7 +388,11 @@ public class RulesDeployerServiceTest {
     }
 
     private Set<String> toSet(String... args) {
-        return Stream.of(args)
-                .collect(Collectors.toSet());
+        return Stream.of(args).collect(Collectors.toSet());
+    }
+    private static byte[] toByteArray(InputStream source) throws IOException {
+        ByteArrayOutputStream target = new ByteArrayOutputStream();
+        IOUtils.copyAndClose(source, target);
+        return target.toByteArray();
     }
 }

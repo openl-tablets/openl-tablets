@@ -37,7 +37,7 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/rules-to-deploy.zip", 201);
         client.send("deployed-rules_services.get");
         client.send("deployed-rules_methods.get");
-        client.get("/admin/deploy/rules-to-deploy/rules-to-deploy", "/rules-to-deploy.zip");
+        client.get("/admin/deploy/rules-to-deploy", "/rules-to-deploy.zip");
         client.send("deployed-rules_hello.post");
 
         // should be always redeployed
@@ -73,8 +73,7 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/multiple-deployment_v2.zip", 201);
         client.send("project1_sayHello_2.post");
 
-        client.send("project1.delete");
-        client.send("yaml_project_project2.delete");
+        client.send("yaml_project_all.delete");
         client.send("admin_services_no_services.json.get");
     }
 
@@ -180,14 +179,12 @@ public class RunRestRulesDeploymentTest {
 
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
         client.send("EPBDS-10891/services.get");
-        client.send("EPBDS-10891/yaml_project_Project1.delete");
-        client.send("EPBDS-10891/yaml_project_Project2.delete");
+        client.send("EPBDS-10891/yaml_project_all.delete");
         client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/EPBDS-10891/EPBDS-10891.zip", 201);
         client.send("EPBDS-10891/services.get");
-        client.send("EPBDS-10891/yaml_project_Project1.delete");
-        client.send("EPBDS-10891/yaml_project_Project2.delete");
+        client.send("EPBDS-10891/yaml_project_all.delete");
         client.send("admin_services_no_services.json.get");
     }
 
@@ -211,7 +208,7 @@ public class RunRestRulesDeploymentTest {
         client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy/EPBDS-10916%20+Whitespaces in Name #", "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip", 201);
         client.send("EPBDS-11144/deployed-rules_services.get");
-        client.get("/admin/deploy/EPBDS-10916%20+Whitespaces in Name/EPBDS-10916%20+Whitespaces in Name", 200,"/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
+        client.get("/admin/deploy/EPBDS-10916%20+Whitespaces in Name","/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
         client.send("EPBDS-11144/delete.delete");
         client.send("admin_services_no_services.json.get");
     }

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -76,21 +78,22 @@ public class RulesDeployerRestController {
     }
 
     /**
-     * Read a file by the given path name.
+     * Read a file by the given deployment name.
      *
      * @return the file descriptor.
      * @throws IOException if not possible to read the file.
      */
     @GET
-    @Path("/{deployPath:.+}")
+    @Path("/{deploymentName}")
     @Produces("application/zip")
-    public Response read(@PathParam("deployPath") final String deployPath) throws Exception {
-        OpenLService service = serviceManager.getServiceByDeploy(deployPath);
-        if (service == null) {
+    public Response read(@PathParam("deploymentName") final String deploymentName) throws Exception {
+        Collection<OpenLService> services = serviceManager.getServicesByDeployment(deploymentName);
+        if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        InputStream read = rulesDeployerService.read(service.getDeployPath());
-        final String encodedFileName = URLEncoder.encode(deployPath + ".zip", StandardCharsets.UTF_8.name());
+        InputStream read = rulesDeployerService.read(deploymentName,
+            services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
+        final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name());
         return Response.ok(read)
             .header("Content-Disposition",
                 "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
@@ -100,16 +103,19 @@ public class RulesDeployerRestController {
     /**
      * Delete a service.
      *
-     * @param deployPath the name of the service to delete.
+     * @param deploymentName the name of the service to delete.
      */
     @DELETE
-    @Path("/{deployPath:.+}")
-    public Response delete(@PathParam("deployPath") final String deployPath) throws Exception {
-        OpenLService service = serviceManager.getServiceByDeploy(deployPath);
-        if (service == null) {
+    @Path("/{deploymentName}")
+    public Response delete(@PathParam("deploymentName") final String deploymentName) throws Exception {
+        Collection<OpenLService> services = serviceManager.getServicesByDeployment(deploymentName);
+        if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        boolean deleted = rulesDeployerService.delete(service.getDeployPath());
+        boolean deleted = false;
+        for (OpenLService service : services) {
+            deleted |= rulesDeployerService.delete(service.getDeployPath());
+        }
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }
 }

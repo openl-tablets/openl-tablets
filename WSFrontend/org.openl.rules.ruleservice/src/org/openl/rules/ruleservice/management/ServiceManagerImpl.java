@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.concurrent.locks.Lock;
 import java.util.jar.Manifest;
@@ -335,10 +336,13 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<ServiceInfo> getServicesInfo() {
         return services.values().stream().map(s -> {
-            OpenLService serviceByName = getServiceByDeploy(s.getDeployPath());
-            Map<String, String> urls = serviceByName != null ? serviceByName.getUrls() : Collections.emptyMap();
-            return new ServiceInfo(startDates
-                .get(s.getDeployPath()), s.getName(), urls, s.getDeployPath(), s.getManifest() != null);
+            Optional<OpenLService> serviceByName = Optional.ofNullable(getServiceByDeploy(s.getDeployPath()));
+            return new ServiceInfo(startDates.get(s.getDeployPath()),
+                s.getName(),
+                serviceByName.map(OpenLService::getUrls).orElseGet(Collections::emptyMap),
+                s.getDeployPath(),
+                s.getManifest() != null,
+                serviceByName.map(OpenLService::getDeployment).map(DeploymentDescription::getName).orElse(null));
         })
             .sorted(Comparator.comparing(ServiceInfo::getName, String.CASE_INSENSITIVE_ORDER))
             .collect(Collectors.toList());
@@ -427,6 +431,14 @@ public class ServiceManagerImpl implements ServiceManager, DataSourceListener, S
     @Override
     public Collection<OpenLService> getServices() {
         return Collections.unmodifiableCollection(services2.values());
+    }
+
+    @Override
+    public Collection<OpenLService> getServicesByDeployment(String deploymentName) {
+        return services2.values()
+            .stream()
+            .filter(service -> service.getDeployment().getName().equals(deploymentName))
+            .collect(Collectors.toList());
     }
 
     @Override

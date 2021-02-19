@@ -154,6 +154,7 @@ public class ServiceInterfaceMethodInterceptingTest {
                 .setProvideVariations(false)
                 .setDeployment(deploymentDescription)
                 .setModules(modules)
+                .setServicePath("service/service")
                 .setResourceLoader(location -> null);
     }
 

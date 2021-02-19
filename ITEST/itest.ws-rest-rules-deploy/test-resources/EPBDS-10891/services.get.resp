@@ -9,6 +9,7 @@ Content-Type: application/json
             "RESTFUL": "REST/yaml_project/Project1"
         },
         "hasManifest": false,
+        "deploymentName": "yaml_project",
         "status": "DEPLOYED"
     }, {
         "startedTime": "#####",
@@ -18,6 +19,7 @@ Content-Type: application/json
             "RESTFUL": "REST/yaml_project/Project2"
         },
         "hasManifest": false,
+        "deploymentName": "yaml_project",
         "status": "DEPLOYED"
     }
 ]

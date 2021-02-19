@@ -29,7 +29,7 @@ public class SpringBootWebAppTest {
     @Test
     public void adminInfo() {
         String response = restTemplate.getForObject("/admin/ui/info", String.class);
-        assertThat(response).contains("\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"status\":\"DEPLOYED\"");
+        assertThat(response).contains("\"urls\":{\"RESTFUL\":\"openl-rules-rs\"},\"hasManifest\":true,\"deploymentName\":\"itest.spring-boot.openl-rules");
     }
 
     @Test

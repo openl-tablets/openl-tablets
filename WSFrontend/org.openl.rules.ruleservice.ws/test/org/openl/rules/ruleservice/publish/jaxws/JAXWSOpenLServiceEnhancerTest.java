@@ -9,7 +9,9 @@ import javax.ws.rs.PathParam;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.core.AbstractOpenLServiceInitializer;
+import org.openl.rules.ruleservice.core.DeploymentDescription;
 import org.openl.rules.ruleservice.core.OpenLService;
 
 public class JAXWSOpenLServiceEnhancerTest {
@@ -48,6 +50,8 @@ public class JAXWSOpenLServiceEnhancerTest {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
+            .setDeployPath("test")
+            .setDeployment(new DeploymentDescription("test", new CommonVersionImpl("0")))
             .setServiceClass(TestInterface.class)
             .build(new AbstractOpenLServiceInitializer() {
                 @Override
@@ -77,6 +81,8 @@ public class JAXWSOpenLServiceEnhancerTest {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
+            .setDeployPath("test")
+            .setDeployment(new DeploymentDescription("test", new CommonVersionImpl("0")))
             .setServiceClass(TestAnnotatedInterface.class)
             .build(new AbstractOpenLServiceInitializer() {
                 @Override
@@ -110,6 +116,8 @@ public class JAXWSOpenLServiceEnhancerTest {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
+            .setDeployPath("test")
+            .setDeployment(new DeploymentDescription("test", new CommonVersionImpl("0")))
             .setServiceClass(TestMethodNamesAndOperationNames.class)
             .build(new AbstractOpenLServiceInitializer() {
                 @Override
