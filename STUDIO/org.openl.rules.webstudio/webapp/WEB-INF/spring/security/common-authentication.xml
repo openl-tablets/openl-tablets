@@ -66,19 +66,6 @@
         <constructor-arg ref="groupDao"/>
     </bean>
 
-
-    <!-- ======================== RememberMe ========================== -->
-
-    <bean id="rememberMeAuthenticationFilter" class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
-        <constructor-arg name="rememberMeServices" ref="rememberMeServices" />
-        <constructor-arg name="authenticationManager" ref="authenticationManager" />
-    </bean>
-
-    <bean id="rememberMeAuthenticationProvider"
-          class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
-        <constructor-arg name="key" value="WebStudio_rememberme" />
-    </bean>
-
     <!-- ======================== Logout ========================== -->
 
     <bean id="logoutUrlProvider" class="org.openl.rules.webstudio.security.LogoutUrlProvider">

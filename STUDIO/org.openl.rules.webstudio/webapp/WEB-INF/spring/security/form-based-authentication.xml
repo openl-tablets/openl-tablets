@@ -26,7 +26,7 @@
             <security:filter-chain pattern="/web/public/**" filters="none" />
             <security:filter-chain pattern="/rest/**" filters="restBasicAuthenticationFilter,restExceptionTranslationFilter,filterSecurityInterceptor" />
             <security:filter-chain pattern="/**"
-                                   filters="securityContextPersistenceFilter,logoutFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,rememberMeAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
+                                   filters="securityContextPersistenceFilter,logoutFilter,usernamePasswordAuthenticationFilter,basicAuthenticationFilter,exceptionTranslationFilter,filterSecurityInterceptor" />
         </security:filter-chain-map>
     </bean>
 
@@ -58,7 +58,6 @@
             </bean>
         </property>
         <property name="filterProcessesUrl" ref="loginCheckUrl" />
-        <property name="rememberMeServices" ref="rememberMeServices" />
     </bean>
 
     <bean id="authenticationEntryPoint" class="org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint">

@@ -53,8 +53,6 @@
     </bean>
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
-    <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
-
     <util:list id="authenticationProviders">
         <ref bean="authenticationProviderWrapper"/>
     </util:list>
