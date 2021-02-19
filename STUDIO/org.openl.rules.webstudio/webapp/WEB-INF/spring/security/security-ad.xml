@@ -13,12 +13,11 @@
     <import resource="db-services.xml"/>
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
-    <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
-
     <util:list id="authenticationProviders">
-        <!-- First try to authenticate using internal users DB, then using AD-->
-        <ref bean="daoAuthenticationProvider"/>
+        <!-- Check AD before as the main authentification provider -->
         <ref bean="authenticationProviderWrapper"/>
+        <!-- Database is used to support backward compatibility, when users are managed in both, AD and Database -->
+        <ref bean="daoAuthenticationProvider"/>
     </util:list>
 
     <util:list id="logoutHandlers">
