@@ -6,6 +6,7 @@ import java.io.Closeable;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -108,16 +109,17 @@ public class RulesDeployerService implements Closeable {
      * @return the InputStream containing project archive.
      * @throws IOException if not possible to read the file.
      */
-    public InputStream read(String deployPath, Set<String> projectsPath) throws IOException {
+    public void read(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
         if (deployRepo.supports().folders()) {
             final String fullDeployPath = baseDeployPath + deployPath;
             try {
                 FileItem archive = deployRepo.read(fullDeployPath);
                 if (archive != null) {
-                    return archive.getStream();
+                    IOUtils.copyAndClose(archive.getStream(), output);
+                    return;
                 }
             } catch (IOException ignored) {
-                //OK
+                // OK
             }
             final boolean isDeployment = hasDeploymentDescriptor(fullDeployPath);
             final boolean isMultiProject = isDeployment || ((FolderRepository) deployRepo).listFolders(fullDeployPath)
@@ -125,8 +127,7 @@ public class RulesDeployerService implements Closeable {
 
             final String basePath = isMultiProject ? fullDeployPath : baseDeployPath + projectsPath.iterator().next();
             List<FileData> files = deployRepo.list(basePath);
-            ByteArrayOutputStream fos = new ByteArrayOutputStream();
-            try (ZipOutputStream target = new ZipOutputStream(fos)) {
+            try (ZipOutputStream target = new ZipOutputStream(output)) {
                 if (isMultiProject && !isDeployment) {
                     target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
                 }
@@ -139,13 +140,13 @@ public class RulesDeployerService implements Closeable {
                     }
                 }
             }
-            return new ByteArrayInputStream(fos.toByteArray());
         } else {
             if (projectsPath.size() == 1) {
-                return deployRepo.read(baseDeployPath + projectsPath.iterator().next()).getStream();
+                IOUtils.copyAndClose(deployRepo.read(baseDeployPath + projectsPath.iterator().next()).getStream(),
+                    output);
+                return;
             }
-            ByteArrayOutputStream fos = new ByteArrayOutputStream();
-            try (ZipOutputStream target = new ZipOutputStream(fos)) {
+            try (ZipOutputStream target = new ZipOutputStream(output)) {
                 target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
                 for (String projectPath : projectsPath) {
                     final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
@@ -162,7 +163,6 @@ public class RulesDeployerService implements Closeable {
                     }
                 }
             }
-            return new ByteArrayInputStream(fos.toByteArray());
         }
     }
 

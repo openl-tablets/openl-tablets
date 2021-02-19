@@ -79,7 +79,9 @@ public class RulesDeployerServiceTest {
         final byte[] expectedBytes = toByteArray(stream);
         stream.reset();
         when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2")).thenReturn(new FileItem(fileDataCaptor.getValue(), stream));
-        final byte[] actualBytes = toByteArray(deployer.read("project2", toSet("project2/project2")));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        deployer.read("project2", toSet("project2/project2"), output);
+        final byte[] actualBytes = output.toByteArray();
         assertEquals(expectedBytes.length, actualBytes.length);
         for (int i = 0; i < expectedBytes.length; i++) {
             assertEquals(expectedBytes[i], actualBytes[i]);
@@ -218,8 +220,9 @@ public class RulesDeployerServiceTest {
             .thenReturn(fileItemMap.get(baseDeploymentPath + "project1"));
         when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
                 .thenReturn(fileItemMap.get(baseDeploymentPath + "project2"));
-        InputStream archive = deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"));
-        Map<String, byte[]> entries = DeploymentUtils.unzip(archive);
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"), output);
+        Map<String, byte[]> entries = DeploymentUtils.unzip(new ByteArrayInputStream(output.toByteArray()));
         assertEquals(7, entries.size());
         assertNotNull(entries.get(DeploymentDescriptor.YAML.getFileName()));
         assertNotNull(entries.get("project1/rules.xml"));

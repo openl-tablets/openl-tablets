@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.rest;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Collection;
@@ -19,6 +18,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.deployer.RulesDeployInputException;
@@ -84,17 +84,18 @@ public class RulesDeployerRestController {
      * @throws IOException if not possible to read the file.
      */
     @GET
-    @Path("/{deploymentName}")
+    @Path("/{deploymentName}.zip")
     @Produces("application/zip")
     public Response read(@PathParam("deploymentName") final String deploymentName) throws Exception {
         Collection<OpenLService> services = serviceManager.getServicesByDeployment(deploymentName);
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        InputStream read = rulesDeployerService.read(deploymentName,
-            services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
         final String encodedFileName = URLEncoder.encode(deploymentName + ".zip", StandardCharsets.UTF_8.name());
-        return Response.ok(read)
+        return Response
+            .ok((StreamingOutput) outputStream -> rulesDeployerService.read(deploymentName,
+                services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()),
+                outputStream))
             .header("Content-Disposition",
                 "attachment; filename='" + encodedFileName + "'; filename*=UTF-8''" + encodedFileName)
             .build();

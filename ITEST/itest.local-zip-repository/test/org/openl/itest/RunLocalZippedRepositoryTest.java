@@ -65,8 +65,8 @@ public class RunLocalZippedRepositoryTest {
 
     @Test
     public void testZipArchivesDownload() {
-        client.get("/admin/deploy/rules-to-deploy","/rules-to-deploy.zip");
-        client.get("/admin/deploy/multiproject","/multiproject.zip");
+        client.get("/admin/deploy/rules-to-deploy.zip","/rules-to-deploy.zip");
+        client.get("/admin/deploy/multiproject.zip","/multiproject.zip");
     }
 
 }
