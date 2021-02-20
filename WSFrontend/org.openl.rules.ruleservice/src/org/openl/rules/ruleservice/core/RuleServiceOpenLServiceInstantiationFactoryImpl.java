@@ -148,20 +148,21 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                 serviceClass = service.getClassLoader().loadClass(serviceClassName.trim());
                 if (serviceClass.isInterface()) {
                     Class<?> interfaceForInstantiationStrategy = RuleServiceInstantiationFactoryHelper
-                            .buildInterfaceForInstantiationStrategy(serviceClass,
-                                    instantiationStrategy.getClassLoader(),
-                                    serviceDescription.isProvideRuntimeContext(),
-                                    serviceDescription.isProvideVariations());
+                        .buildInterfaceForInstantiationStrategy(serviceClass,
+                            instantiationStrategy.getClassLoader(),
+                            serviceDescription.isProvideRuntimeContext(),
+                            serviceDescription.isProvideVariations());
                     instantiationStrategy.setServiceClass(interfaceForInstantiationStrategy);
                     service.setServiceClass(serviceClass);
                     return instantiationStrategy.instantiate();
                 }
-                throw new RuleServiceRuntimeException(String
-                        .format("Failed to apply service class '%s'. Interface is expected, but class is found.",
-                                serviceClass));
+                throw new RuleServiceRuntimeException(
+                    String.format("Failed to apply service class '%s'. Interface is expected, but class is found.",
+                        serviceClass));
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                throw new RuleServiceRuntimeException(String.format("Failed to load a service class '%s'.",
-                        serviceClassName), e);
+                throw new RuleServiceRuntimeException(
+                    String.format("Failed to load a service class '%s'.", serviceClassName),
+                    e);
             }
         }
         log.info("Service class is undefined for service '{}'. Generated interface is used.", service.getDeployPath());
@@ -184,8 +185,9 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             try {
                 serviceClass = serviceClassLoader.loadClass(rmiServiceClassName.trim());
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                throw new RuleServiceRuntimeException(String.format("Failed to load RMI service class '%s'.",
-                        rmiServiceClassName), e);
+                throw new RuleServiceRuntimeException(
+                    String.format("Failed to load RMI service class '%s'.", rmiServiceClassName),
+                    e);
             }
         }
         if (serviceClass == null) {
@@ -219,7 +221,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
         if (annotationTemplateClassName != null) {
             try {
                 Class<?> annotationTemplateClass = classLoader.loadClass(annotationTemplateClassName.trim());
-                if (annotationTemplateClass.isInterface() || Modifier.isAbstract(annotationTemplateClass.getModifiers())) {
+                if (annotationTemplateClass.isInterface() || Modifier
+                    .isAbstract(annotationTemplateClass.getModifiers())) {
                     Class<?> decoratedClass = DynamicInterfaceAnnotationEnhancerHelper
                         .decorate(serviceClass, annotationTemplateClass, openClass, classLoader);
                     log.info("Annotation template class '{}' is used for service {}.",
@@ -227,15 +230,16 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
                         serviceDescription.getDeployPath());
                     return decoratedClass;
                 }
-                throw new RuleServiceRuntimeException(String
-                        .format("Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.",
-                                annotationTemplateClassName));
+                throw new RuleServiceRuntimeException(String.format(
+                    "Failed to apply annotation template class '%s'. Interface or abstract class is expected, but class is found.",
+                    annotationTemplateClassName));
             } catch (RuleServiceRuntimeException e) {
                 throw e;
             } catch (Exception | NoClassDefFoundError e) {
-                throw new RuleServiceRuntimeException(String
-                        .format("Failed to load or apply annotation template class '%s'.", annotationTemplateClassName),
-                        e);
+                throw new RuleServiceRuntimeException(
+                    String.format("Failed to load or apply annotation template class '%s'.",
+                        annotationTemplateClassName),
+                    e);
             }
         }
         return serviceClass;
@@ -258,7 +262,8 @@ public class RuleServiceOpenLServiceInstantiationFactoryImpl implements RuleServ
             .setRmiName(serviceDescription.getRmiName())
             .setProvideRuntimeContext(serviceDescription.isProvideRuntimeContext())
             .setProvideVariations(serviceDescription.isProvideVariations())
-            .addModules(modules);
+            .addModules(modules)
+            .setDeployment(serviceDescription.getDeployment());
 
         for (String publisher : serviceDescription.getPublishers()) {
             builder.addPublisher(publisher);

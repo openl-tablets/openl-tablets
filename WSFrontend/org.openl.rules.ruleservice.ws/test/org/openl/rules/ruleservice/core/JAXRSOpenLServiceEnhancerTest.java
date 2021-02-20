@@ -14,6 +14,7 @@ import javax.ws.rs.core.MediaType;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.ruleservice.publish.jaxrs.JAXRSOpenLServiceEnhancer;
 
 public class JAXRSOpenLServiceEnhancerTest {
@@ -351,7 +352,8 @@ public class JAXRSOpenLServiceEnhancerTest {
         };
         OpenLService service = new OpenLService.OpenLServiceBuilder().setClassLoader(classLoader)
             .setName("test")
-                .setDeployPath("testPath")
+            .setDeployPath("testPath")
+            .setDeployment(new DeploymentDescription("testPath", new CommonVersionImpl("0")))
             .setServiceClass(clazz)
             .build(new AbstractOpenLServiceInitializer() {
                 @Override

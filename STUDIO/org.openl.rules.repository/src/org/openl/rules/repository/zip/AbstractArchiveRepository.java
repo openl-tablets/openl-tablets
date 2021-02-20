@@ -12,6 +12,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collection;
@@ -34,6 +35,8 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
+import org.openl.util.FileSignatureHelper;
+import org.openl.util.FileTypeHelper;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.ZipUtils;
@@ -50,9 +53,6 @@ import org.openl.util.ZipUtils;
  */
 abstract class AbstractArchiveRepository implements FolderRepository, Closeable {
 
-    private static final int REGULAR_ARCHIVE_FILE_SIGN = 0x504B0304;
-    private static final int EMPTY_ARCHIVE_FILE_SIGN = 0x504B0506;
-
     private final Map<Path, FileSystem> openedFileSystems = new HashMap<>();
 
     /**
@@ -67,9 +67,11 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
         if (!Files.isRegularFile(path)) {
             return false;
         }
+        if (FileTypeHelper.isExcelFile(path.getFileName().toString())) {
+            return false;
+        }
         try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
-            int sign = raf.readInt();
-            return sign == REGULAR_ARCHIVE_FILE_SIGN || sign == EMPTY_ARCHIVE_FILE_SIGN;
+            return FileSignatureHelper.isArchiveSign(raf.readInt());
         } catch (Exception ignored) {
             return false;
         }
@@ -246,9 +248,10 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
         Path resolvedPath = root;
         Path archivePath = null;
         Path localRoot = null;
-        String[] folderNames = p.split(CompoundPath.PATH_SEPARATOR);
+        Path path = Paths.get(p);
         int i = 0;
-        for (String folderName : folderNames) {
+        for (Path f : path) {
+            final String folderName = f.toString();
             if (StringUtils.isEmpty(folderName)) {
                 continue;
             }
@@ -262,7 +265,7 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
                 throw new IOException(String.format("Unable to resolve the path [%s].", p));
             }
             // don't enter an archive if it's the last token in the path
-            if (i < folderNames.length - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
+            if (i < path.getNameCount() - 1 && archivePath == null && zipArchiveFilter(resolvedPath)) {
                 try {
                     Path tmp = resolvedPath;
                     resolvedPath = enterZipArchive(resolvedPath);

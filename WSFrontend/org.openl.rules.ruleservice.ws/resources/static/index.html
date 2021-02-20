@@ -219,10 +219,8 @@
             } else if (button.classList.contains("expand")) {
                 button.classList.replace("expand", "collapse");
                 // Collapse the node
-            } else if (button.className === "download-button") {
-                downloadProject(serviceName);
             } else if (button.className === "delete-button") {
-                deleteProject(serviceData.servicePath);
+                deleteProject(serviceData.deploymentName);
             }
         })
     }
@@ -250,6 +248,7 @@
                 el.dataset.serviceName = service.servicePath;
                 el.dataset.serviceStatus = service.status;
                 el.dataset.servicePath = service.servicePath;
+                el.dataset.deploymentName = encodeURI(service.deploymentName);
                 el.innerHTML = html;
                 mainBlock.appendChild(el);
             });
@@ -315,24 +314,6 @@
         document.getElementById('file-input').click();
     }
 
-    function downloadProject(serviceName) {
-        var xhr = new XMLHttpRequest();
-        xhr.onload = function () {
-            var a = document.createElement("a");
-            document.body.appendChild(a);
-            a.style = "display: none";
-            var blob = new Blob([xhr.response], {type: "octet/stream"});
-            var url = window.URL.createObjectURL(blob);
-            a.href = url;
-            a.download = decodeURI(serviceName) + ".zip";
-            a.click();
-            window.URL.revokeObjectURL(url);
-        };
-        xhr.responseType = 'arraybuffer';
-        xhr.open("GET", "admin/deploy/" + serviceName, true);
-        xhr.send();
-    }
-
     // Creating innerHTML of one service
     function createServiceHtml(service, noWadl, deployerEnabled) {
         var html = "";
@@ -369,7 +350,7 @@
         if (deployerEnabled) {
             html += "&nbsp";
             html += "<button type='button' class='delete-button'>Delete</button>";
-            html += "<button type='button' class='download-button'>Download</button>";
+            html += "<a href='admin/deploy/" + encodeURI(service.deploymentName) + ".zip' class='download-button'\>Download</a>";
         }
 
         return html;

@@ -10,6 +10,7 @@ Content-Type: application/json
             "RESTFUL": "REST/deployed-rules"
         },
         "hasManifest": false,
+        "deploymentName": "rules-to-deploy",
         "status": "DEPLOYED"
     }
 ]

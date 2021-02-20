@@ -55,7 +55,6 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
         rootDn = this.domain == null ? null : rootDnFromDomain(this.domain);
     }
 
-    
     @Override
     public UserDetails mapUserFromContext(DirContextOperations ctx,
             String username,
@@ -77,7 +76,28 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
                 privileges.add(new SimplePrivilege(authority.getAuthority(), authority.getAuthority()));
             }
         }
-        return new SimpleUser(firstName, lastName, userDetails.getUsername(), null, privileges);
+        String fixedUsername = fixCaseMatching(ctx, username);
+        return new SimpleUser(firstName, lastName, fixedUsername, null, privileges);
+    }
+
+    private String fixCaseMatching(DirContextOperations ctx, String username) {
+        String userPrincipalName = ctx.getStringAttribute("userPrincipalName");
+        if (username.equalsIgnoreCase(userPrincipalName)) {
+            return userPrincipalName;
+        }
+        String sAMAccountName = ctx.getStringAttribute("sAMAccountName");
+        if (username.equalsIgnoreCase(sAMAccountName)) {
+            return sAMAccountName;
+        }
+        String uid = ctx.getStringAttribute("uid");
+        if (username.equalsIgnoreCase(uid)) {
+            return uid;
+        }
+        String krbPrincipalName = ctx.getStringAttribute("krbPrincipalName");
+        if (username.equalsIgnoreCase(krbPrincipalName)) {
+            return krbPrincipalName;
+        }
+        return username.toLowerCase();
     }
 
     @Override
@@ -134,8 +154,10 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             userSearch.close();
 
             // Find all groups
-            NamingEnumeration<SearchResult> groupsSearch = context
-                    .search(searchBaseDn, groupFilter, new Object[] { bindPrincipal, username, userData.getDn() }, searchControls);
+            NamingEnumeration<SearchResult> groupsSearch = context.search(searchBaseDn,
+                groupFilter,
+                new Object[] { bindPrincipal, username, userData.getDn() },
+                searchControls);
 
             // Fill authorities using search result
             ArrayList<GrantedAuthority> authorities = new ArrayList<>();

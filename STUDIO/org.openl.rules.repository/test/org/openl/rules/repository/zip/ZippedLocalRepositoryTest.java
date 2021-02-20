@@ -170,6 +170,13 @@ public class ZippedLocalRepositoryTest {
         assertMultiDeployment("/multiDeployment/project1/rules/Algorithm1.xlsx", "project1/rules/Algorithm1.xlsx");
         assertMultiDeployment("/multiDeployment/project2/rules.xml", "project2/rules.xml");
         assertMultiDeployment("/multiDeployment/project2/Algorithm2.xlsx", "project2/Algorithm2.xlsx");
+        //An archive must be returned as stream
+        FileItem zipArchive = repository.read("/multiDeployment");
+        assertNotNull(zipArchive);
+        read(zipArchive.getStream());
+        zipArchive = repository.read("multiDeployment");
+        assertNotNull(zipArchive);
+        read(zipArchive.getStream());
     }
 
     @Test

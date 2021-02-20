@@ -41,6 +41,7 @@ public final class OpenLService {
     private OpenLServiceInitializer initializer;
     private Throwable exception;
     private Map<String, String> urls = Collections.emptyMap();
+    private final DeploymentDescription deployment;
 
     /**
      * Returns service classloader
@@ -73,7 +74,8 @@ public final class OpenLService {
             Set<String> publishers,
             Collection<Module> modules,
             ClassLoader classLoader,
-            Class<?> serviceClass) {
+            Class<?> serviceClass,
+            DeploymentDescription deployment) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
         this.deployPath = deployPath;
@@ -95,6 +97,7 @@ public final class OpenLService {
 
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
+        this.deployment = deployment;
     }
 
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
@@ -109,7 +112,8 @@ public final class OpenLService {
             builder.publishers,
             builder.modules,
             builder.classLoader,
-            builder.serviceClass);
+            builder.serviceClass,
+            builder.deployment);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 
@@ -296,6 +300,10 @@ public final class OpenLService {
         this.urls = urls;
     }
 
+    public DeploymentDescription getDeployment() {
+        return deployment;
+    }
+
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
@@ -347,6 +355,7 @@ public final class OpenLService {
         private Collection<Module> modules;
         private Set<String> publishers;
         private ClassLoader classLoader;
+        private DeploymentDescription deployment;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
@@ -520,6 +529,11 @@ public final class OpenLService {
             return this;
         }
 
+        public OpenLServiceBuilder setDeployment(DeploymentDescription deployment) {
+            this.deployment = deployment;
+            return this;
+        }
+
         /**
          * Builds OpenLService.
          *
@@ -528,6 +542,12 @@ public final class OpenLService {
         public OpenLService build(OpenLServiceInitializer initializer) {
             if (name == null) {
                 throw new IllegalStateException("Field 'name' is required for building ServiceDescription.");
+            }
+            if (deployPath == null) {
+                throw new IllegalStateException("Field 'deployPath' is required for building ServiceDescription.");
+            }
+            if (deployment == null) {
+                throw new IllegalStateException("Field 'deployment' is required for building ServiceDescription.");
             }
             return new OpenLService(this, initializer);
         }
