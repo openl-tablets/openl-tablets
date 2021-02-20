@@ -2,7 +2,7 @@ package org.openl.rules.calc;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,7 +20,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
 
     private List<Pair<IOpenClass, IOpenCast>> casts;
     private IOpenClass type;
-    private final Collection<IOpenField> fields;
+    private final Set<IOpenClass> fieldTypes;
     private final IOpenClass[] declaringClasses;
 
     public CastingCustomSpreadsheetResultField(CustomSpreadsheetResultOpenClass declaringClass,
@@ -30,8 +30,8 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         super(declaringClass, name, null);
         Objects.requireNonNull(field1, "field1 cannot be null");
         Objects.requireNonNull(field2, "field2 cannot be null");
-        this.fields = new ArrayList<>(extractFields(field1));
-        this.fields.addAll(extractFields(field2));
+        this.fieldTypes = new HashSet<>(extractFieldTypes(field1));
+        this.fieldTypes.addAll(extractFieldTypes(field2));
 
         List<IOpenClass> declaringClasses = new ArrayList<>();
         extractFieldDeclaringClasses(field1, declaringClasses);
@@ -39,15 +39,13 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
         this.declaringClasses = declaringClasses.toArray(IOpenClass.EMPTY);
     }
 
-    private Collection<IOpenField> extractFields(IOpenField field) {
-        Collection<IOpenField> ret = new ArrayList<>();
+    private Set<IOpenClass> extractFieldTypes(IOpenField field) {
         if (field instanceof CastingCustomSpreadsheetResultField) {
             CastingCustomSpreadsheetResultField castingCustomSpreadsheetResultField = (CastingCustomSpreadsheetResultField) field;
-            ret.addAll(castingCustomSpreadsheetResultField.fields);
+            return castingCustomSpreadsheetResultField.fieldTypes;
         } else {
-            ret.add(field);
+            return Collections.singleton(field.getType());
         }
-        return ret;
     }
 
     @Override
@@ -81,15 +79,11 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
             if (getDeclaringClass().getModule().getRulesModuleBindingContext() == null) {
                 throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
             }
-            Set<IOpenClass> types = new HashSet<>();
-            for (IOpenField f : fields) {
-                types.add(f.getType());
-            }
-            if (types.size() == 1) {
-                this.type = types.iterator().next();
+            if (fieldTypes.size() == 1) {
+                this.type = fieldTypes.iterator().next();
                 this.casts = null;
             } else {
-                Iterator<IOpenClass> itr = types.iterator();
+                Iterator<IOpenClass> itr = fieldTypes.iterator();
                 IOpenClass t = itr.next();
                 while (itr.hasNext()) {
                     IOpenClass t1 = itr.next();
@@ -99,7 +93,7 @@ public class CastingCustomSpreadsheetResultField extends CustomSpreadsheetResult
                 }
                 this.casts = new ArrayList<>();
                 this.type = t;
-                for (IOpenClass type : types) {
+                for (IOpenClass type : fieldTypes) {
                     IOpenCast cast = getDeclaringClass().getModule()
                         .getRulesModuleBindingContext()
                         .getCast(type, this.type);
