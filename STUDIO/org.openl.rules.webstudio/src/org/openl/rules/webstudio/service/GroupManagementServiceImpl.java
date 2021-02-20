@@ -33,7 +33,10 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
     @Override
     public org.openl.rules.security.Group getGroupByName(String name) {
         Group group = groupDao.getGroupByName(name);
-        return PrivilegesEvaluator.wrap(group);
+        if (group != null) {
+            return PrivilegesEvaluator.wrap(group);
+        }
+        return null;
     }
 
     @Override
