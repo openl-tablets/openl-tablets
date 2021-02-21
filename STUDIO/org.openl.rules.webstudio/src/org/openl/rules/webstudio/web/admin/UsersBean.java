@@ -31,7 +31,6 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -98,11 +97,7 @@ public class UsersBean {
      * Validation for existed user
      */
     public void validateUsername(FacesContext context, UIComponent toValidate, Object value) {
-        User user = null;
-        try {
-            user = userManagementService.loadUserByUsername((String) value);
-        } catch (UsernameNotFoundException ignored) {
-        }
+        User user = userManagementService.loadUserByUsername((String) value);
 
         if (user != null) {
             throw new ValidatorException(new FacesMessage("User with such name already exists"));

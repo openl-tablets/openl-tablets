@@ -9,14 +9,17 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
-import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
 
 /**
  * @author Andrei Astrouski
  */
-public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl implements GroupManagementService {
+public class GroupManagementServiceImpl implements GroupManagementService {
 
-    private GroupDao groupDao;
+    private final GroupDao groupDao;
+
+    public GroupManagementServiceImpl(GroupDao groupDao) {
+        this.groupDao = groupDao;
+    }
 
     @Override
     public List<org.openl.rules.security.Group> getGroups() {
@@ -107,9 +110,4 @@ public class GroupManagementServiceImpl extends UserInfoUserDetailsServiceImpl i
     public void deleteGroup(String name) {
         groupDao.deleteGroupByName(name);
     }
-
-    public void setGroupDao(GroupDao groupDao) {
-        this.groupDao = groupDao;
-    }
-
 }

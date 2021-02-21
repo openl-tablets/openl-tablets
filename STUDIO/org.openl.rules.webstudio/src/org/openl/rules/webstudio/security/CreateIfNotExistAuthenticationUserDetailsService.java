@@ -17,7 +17,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class CreateIfNotExistAuthenticationUserDetailsService implements AuthenticationUserDetailsService {
     private final UserManagementService userManagementService;
@@ -36,8 +35,8 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
     @Override
     public UserDetails loadUserDetails(Authentication delegatedAuth) {
         UserDetails userDetails;
-        try {
-            User dbUser = userManagementService.loadUserByUsername(delegatedAuth.getName());
+        User dbUser = userManagementService.loadUserByUsername(delegatedAuth.getName());
+        if (dbUser != null) {
             userDetails = dbUser;
 
             // Check if First Name or Last Name were changed since last login
@@ -66,7 +65,7 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                     userDetails = userToUpdate;
                 }
             }
-        } catch (UsernameNotFoundException e) {
+        } else {
             // Create new user
             List<Privilege> groups;
             if (!StringUtils.isBlank(defaultGroup) && groupManagementService.isGroupExist(defaultGroup)) {
