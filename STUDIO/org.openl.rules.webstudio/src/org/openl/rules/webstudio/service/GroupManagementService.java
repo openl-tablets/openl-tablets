@@ -13,15 +13,14 @@ import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 /**
  * @author Andrei Astrouski
  */
-public class GroupManagementServiceImpl implements GroupManagementService {
+public class GroupManagementService {
 
     private final GroupDao groupDao;
 
-    public GroupManagementServiceImpl(GroupDao groupDao) {
+    public GroupManagementService(GroupDao groupDao) {
         this.groupDao = groupDao;
     }
 
-    @Override
     public List<org.openl.rules.security.Group> getGroups() {
         List<Group> groups = groupDao.getAllGroups();
         List<org.openl.rules.security.Group> resultGroups = new ArrayList<>();
@@ -33,7 +32,6 @@ public class GroupManagementServiceImpl implements GroupManagementService {
         return resultGroups;
     }
 
-    @Override
     public org.openl.rules.security.Group getGroupByName(String name) {
         Group group = groupDao.getGroupByName(name);
         if (group != null) {
@@ -42,12 +40,10 @@ public class GroupManagementServiceImpl implements GroupManagementService {
         return null;
     }
 
-    @Override
     public boolean isGroupExist(String name) {
         return groupDao.getGroupByName(name) != null;
     }
 
-    @Override
     public void addGroup(org.openl.rules.security.Group group) {
         Group persistGroup = new Group();
         persistGroup.setName(group.getName());
@@ -73,7 +69,6 @@ public class GroupManagementServiceImpl implements GroupManagementService {
         groupDao.save(persistGroup);
     }
 
-    @Override
     public void updateGroup(String name, org.openl.rules.security.Group group) {
         Group persistGroup = groupDao.getGroupByName(name);
         persistGroup.setName(group.getName());
@@ -106,7 +101,6 @@ public class GroupManagementServiceImpl implements GroupManagementService {
         groupDao.update(persistGroup);
     }
 
-    @Override
     public void deleteGroup(String name) {
         groupDao.deleteGroupByName(name);
     }

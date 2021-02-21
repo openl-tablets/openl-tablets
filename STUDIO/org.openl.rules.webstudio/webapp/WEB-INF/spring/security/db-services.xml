@@ -13,7 +13,7 @@
         <constructor-arg name="groupDao" ref="groupDao" />
     </bean>
 
-    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
+    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
         <constructor-arg name="groupDao" ref="groupDao" />
     </bean>
 
