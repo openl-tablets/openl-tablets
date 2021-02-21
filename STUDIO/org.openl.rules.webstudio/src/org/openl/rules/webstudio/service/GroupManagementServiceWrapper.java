@@ -5,8 +5,12 @@ import java.util.List;
 
 import org.openl.rules.security.Group;
 
-public class GroupManagementServiceWrapper implements GroupManagementService {
+public class GroupManagementServiceWrapper extends GroupManagementService {
     private GroupManagementService delegate;
+
+    public GroupManagementServiceWrapper() {
+        super(null);
+    }
 
     public void setDelegate(GroupManagementService delegate) {
         this.delegate = delegate;
