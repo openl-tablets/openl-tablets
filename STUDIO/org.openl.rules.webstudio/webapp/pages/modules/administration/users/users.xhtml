@@ -46,7 +46,7 @@
             </h:column>
 
         <h:column>
-            <a href="javascript:void(0)"
+            <a href="javascript:void(0)" style="#{usersBean.canCreateUsers ? '' : 'display: none'}"
                 onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups(user)})"
                 title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
             <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isOnlyAdmin(user)}"
@@ -62,7 +62,7 @@
     <br />
     <br />
 
-    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()">Add New User</a>
+    <a href="javascript:void(0)" onclick="RichFaces.$('modalAddUser').show()" style="#{usersBean.canCreateUsers ? '' : 'display: none'}">Add New User</a>
 
     <ui:include src="/pages/modules/administration/users/addUser.xhtml" />
     <ui:include src="/pages/modules/administration/users/editUser.xhtml" />

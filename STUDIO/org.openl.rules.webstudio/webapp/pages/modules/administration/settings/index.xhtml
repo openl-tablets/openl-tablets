@@ -676,12 +676,10 @@
                             </div>
                         </h:form>
 
-                        <c:if test="#{usersBean.canCreateUsers}">
+                        <c:if test="#{isNotSingleMode}">
                             <div id="users" class="fields">
                                 <ui:include src="/pages/modules/administration/users/users.xhtml"/>
                             </div>
-                        </c:if>
-                        <c:if test="#{isNotSingleMode}">
                             <div id="groups" class="fields">
                                 <ui:include src="/pages/modules/administration/users/groups.xhtml"/>
                             </div>

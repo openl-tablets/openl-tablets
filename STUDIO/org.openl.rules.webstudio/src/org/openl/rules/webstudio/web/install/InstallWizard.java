@@ -73,7 +73,7 @@ public class InstallWizard {
     private static final String CAS_USER_MODE = "cas";
     private static final String SAML_USER_MODE = "saml";
     private static final String USER_MODE_DEMO = "demo";
-    private static final String VIEWERS_GROUP = "Viewers";
+    private static final String VIEWERS_GROUP = "Authenticated";
     private static final String ADMINISTRATORS_GROUP = "Administrators";
 
     private final Logger log = LoggerFactory.getLogger(InstallWizard.class);
@@ -119,7 +119,7 @@ public class InstallWizard {
     @ManagedProperty(value = "#{groupManagementService}")
     private GroupManagementService groupManagementService;
     private XmlWebApplicationContext dbContext;
-    private Boolean allowAccessToNewUsers;
+    private String defaultGroup;
     private String externalAdmins;
 
     @ManagedProperty(value = "#{environment}")
@@ -202,22 +202,19 @@ public class InstallWizard {
                     case AD_USER_MODE:
                         groupsAreManagedInStudio = propertyResolver
                             .getRequiredProperty("security.ad.groups-are-managed-in-studio", Boolean.class);
-                        allowAccessToNewUsers = !StringUtils
-                            .isBlank(propertyResolver.getProperty("security.ad.default-group"));
                         break;
                     case CAS_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
                             .isBlank(propertyResolver.getProperty("security.cas.attribute.groups"));
-                        allowAccessToNewUsers = !StringUtils
-                            .isBlank(propertyResolver.getProperty("security.cas.default-group"));
                         break;
                     case SAML_USER_MODE:
                         groupsAreManagedInStudio = StringUtils
                             .isBlank(propertyResolver.getProperty("security.saml.attribute.groups"));
-                        allowAccessToNewUsers = !StringUtils
-                            .isBlank(propertyResolver.getProperty("security.saml.default-group"));
                         break;
                 }
+
+                defaultGroup = propertyResolver.getProperty("security.default-group");
+
             } else if (step == 4) {
                 initializeDbContext();
 
@@ -274,7 +271,6 @@ public class InstallWizard {
     private void readCasProperties() {
         casSettings = new CASSettings(propertyResolver.getProperty("security.cas.app-url"),
             propertyResolver.getProperty("security.cas.cas-server-url-prefix"),
-            propertyResolver.getProperty("security.cas.default-group"),
             propertyResolver.getProperty("security.cas.attribute.first-name"),
             propertyResolver.getProperty("security.cas.attribute.last-name"),
             propertyResolver.getProperty("security.cas.attribute.groups"));
@@ -288,7 +284,6 @@ public class InstallWizard {
             propertyResolver.getProperty("security.saml.keystore-password"),
             propertyResolver.getProperty("security.saml.keystore-sp-alias"),
             propertyResolver.getProperty("security.saml.keystore-sp-password"),
-            propertyResolver.getProperty("security.saml.default-group"),
             propertyResolver.getProperty("security.saml.attribute.username"),
             propertyResolver.getProperty("security.saml.attribute.first-name"),
             propertyResolver.getProperty("security.saml.attribute.last-name"),
@@ -320,15 +315,11 @@ public class InstallWizard {
                     properties.setProperty("security.ad.server-url", adUrl);
                     properties.setProperty("security.ad.search-filter", ldapFilter);
                     properties.setProperty("security.ad.groups-are-managed-in-studio", groupsAreManagedInStudio);
-                    properties.setProperty("security.ad.default-group", allowAccessToNewUsers ? VIEWERS_GROUP : "");
                 } else if (CAS_USER_MODE.equals(userMode)) {
                     fillDbForUserManagement();
 
-                    casSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
-
                     properties.setProperty("security.cas.app-url", casSettings.getWebStudioUrl());
                     properties.setProperty("security.cas.cas-server-url-prefix", casSettings.getCasServerUrl());
-                    properties.setProperty("security.cas.default-group", casSettings.getDefaultGroup());
                     properties.setProperty("security.cas.attribute.first-name", casSettings.getFirstNameAttribute());
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
@@ -339,8 +330,6 @@ public class InstallWizard {
                     }
                     fillDbForUserManagement();
 
-                    samlSettings.setDefaultGroup(allowAccessToNewUsers ? VIEWERS_GROUP : "");
-
                     properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
@@ -349,7 +338,6 @@ public class InstallWizard {
                     properties.setProperty("security.saml.keystore-password", samlSettings.getKeystorePassword());
                     properties.setProperty("security.saml.keystore-sp-alias", samlSettings.getKeystoreSpAlias());
                     properties.setProperty("security.saml.keystore-sp-password", samlSettings.getKeystoreSpPassword());
-                    properties.setProperty("security.saml.default-group", samlSettings.getDefaultGroup());
                     properties.setProperty("security.saml.attribute.username", samlSettings.getUsernameAttribute());
                     properties.setProperty("security.saml.attribute.first-name", samlSettings.getFirstNameAttribute());
                     properties.setProperty("security.saml.attribute.last-name", samlSettings.getSecondNameAttribute());
@@ -376,6 +364,8 @@ public class InstallWizard {
             productionRepositoryEditor.save();
 
             properties.setProperty("user.mode", userMode);
+            properties.setProperty("security.default-group", defaultGroup);
+
 
             designRepositoryConfiguration.commit();
             if (!isUseDesignRepo()) {
@@ -442,13 +432,6 @@ public class InstallWizard {
             UserManagementService userManagementService = (UserManagementService) dbContext
                 .getBean("userManagementService");
 
-            if (allowAccessToNewUsers) {
-                if (!groupManagementService.isGroupExist(VIEWERS_GROUP)) {
-                    groupManagementService.addGroup(VIEWERS_GROUP, null);
-                    groupManagementService.updateGroup(VIEWERS_GROUP, Collections.emptySet(), Collections.singleton(Privileges.VIEW_PROJECTS.getName()));
-                }
-            }
-
             if (!groupManagementService.isGroupExist(ADMINISTRATORS_GROUP)) {
                 groupManagementService.addGroup(ADMINISTRATORS_GROUP, null);
                 groupManagementService.updateGroup(ADMINISTRATORS_GROUP, Collections.emptySet(), Collections.singleton(Privileges.ADMIN.getName()));
@@ -466,6 +449,7 @@ public class InstallWizard {
                     userManagementService.updateAuthorities(username, Collections.singleton(ADMINISTRATORS_GROUP));
                 }
             }
+
             setProductionDbProperties();
             migrateDatabase();
         } else {
@@ -768,11 +752,11 @@ public class InstallWizard {
     }
 
     public void setAllowAccessToNewUsers(Boolean allowAccessToNewUsers) {
-        this.allowAccessToNewUsers = allowAccessToNewUsers;
+        defaultGroup = Boolean.TRUE.equals(allowAccessToNewUsers) ? VIEWERS_GROUP : "";
     }
 
     public Boolean getAllowAccessToNewUsers() {
-        return allowAccessToNewUsers;
+        return StringUtils.isNotBlank(defaultGroup);
     }
 
     public void setExternalAdmins(String externalAdmins) {

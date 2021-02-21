@@ -2,6 +2,7 @@ package org.openl.security.cas;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 
 import org.jasig.cas.client.validation.Assertion;
 import org.openl.rules.security.Privilege;
@@ -16,11 +17,14 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
     private final String firstNameAttribute;
     private final String lastNameAttribute;
     private final String groupsAttribute;
+    private final Function<SimpleUser, SimpleUser> authoritiesMapper;
 
-    public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver) {
+    public CASAttributesToOpenLUserDetailsService(PropertyResolver propertyResolver,
+            Function<SimpleUser, SimpleUser> authoritiesMapper) {
         this.firstNameAttribute = propertyResolver.getProperty("security.cas.attribute.first-name");
         this.lastNameAttribute = propertyResolver.getProperty("security.cas.attribute.last-name");
         this.groupsAttribute = propertyResolver.getProperty("security.cas.attribute.groups");
+        this.authoritiesMapper = authoritiesMapper;
     }
 
     @Override
@@ -61,7 +65,13 @@ public class CASAttributesToOpenLUserDetailsService extends AbstractCasAssertion
             }
         }
 
-        return new SimpleUser(firstName, lastName, assertion.getPrincipal().getName(), null, grantedAuthorities);
+        SimpleUser simpleUser = new SimpleUser(firstName,
+            lastName,
+            assertion.getPrincipal().getName(),
+            null,
+            grantedAuthorities);
+
+        return authoritiesMapper.apply(simpleUser);
     }
 
 }

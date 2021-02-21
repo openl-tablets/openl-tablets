@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.security;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Hashtable;
+import java.util.function.Function;
 
 import javax.naming.CompositeName;
 import javax.naming.ConfigurationException;
@@ -35,6 +36,7 @@ import org.springframework.security.ldap.userdetails.UserDetailsContextMapper;
 public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final Logger log = LoggerFactory.getLogger(LdapToOpenLUserDetailsMapper.class);
     private final UserDetailsContextMapper delegate;
+    private final Function<SimpleUser, SimpleUser> authoritiesMapper;
 
     private final String groupFilter;
 
@@ -44,8 +46,11 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
     private final String rootDn;
     private final String searchFilter;
 
-    public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate, PropertyResolver propertyResolver) {
+    public LdapToOpenLUserDetailsMapper(UserDetailsContextMapper delegate,
+            PropertyResolver propertyResolver,
+            Function<SimpleUser, SimpleUser> authoritiesMapper) {
         this.delegate = delegate;
+        this.authoritiesMapper = authoritiesMapper;
         String domainProperty = propertyResolver.getProperty("security.ad.domain");
         this.domain = StringUtils.isNotBlank(domainProperty) ? domainProperty.toLowerCase() : null;
         this.url = propertyResolver.getProperty("security.ad.server-url");
@@ -77,7 +82,8 @@ public class LdapToOpenLUserDetailsMapper implements UserDetailsContextMapper {
             }
         }
         String fixedUsername = fixCaseMatching(ctx, username);
-        return new SimpleUser(firstName, lastName, fixedUsername, null, privileges);
+        SimpleUser simpleUser = new SimpleUser(firstName, lastName, fixedUsername, null, privileges);
+        return authoritiesMapper.apply(simpleUser);
     }
 
     private String fixCaseMatching(DirContextOperations ctx, String username) {
