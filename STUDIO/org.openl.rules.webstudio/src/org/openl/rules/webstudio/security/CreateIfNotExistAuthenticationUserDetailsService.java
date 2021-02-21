@@ -12,17 +12,13 @@ import org.openl.rules.security.User;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.AuthenticationUserDetailsService;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 public class CreateIfNotExistAuthenticationUserDetailsService implements AuthenticationUserDetailsService {
-    private static final Logger LOG = LoggerFactory.getLogger(CreateIfNotExistAuthenticationUserDetailsService.class);
     private final UserManagementService userManagementService;
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
@@ -39,8 +35,8 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
     @Override
     public UserDetails loadUserDetails(Authentication delegatedAuth) {
         UserDetails userDetails;
-        try {
-            User dbUser = userManagementService.loadUserByUsername(delegatedAuth.getName());
+        User dbUser = userManagementService.loadUserByUsername(delegatedAuth.getName());
+        if (dbUser != null) {
             userDetails = dbUser;
 
             // Check if First Name or Last Name were changed since last login
@@ -69,7 +65,7 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
                     userDetails = userToUpdate;
                 }
             }
-        } catch (UsernameNotFoundException e) {
+        } else {
             // Create new user
             List<Privilege> groups;
             if (!StringUtils.isBlank(defaultGroup) && groupManagementService.isGroupExist(defaultGroup)) {
@@ -93,7 +89,6 @@ public class CreateIfNotExistAuthenticationUserDetailsService implements Authent
             SimpleUser user = new SimpleUser(firstName, lastName, delegatedAuth.getName(), null, groups);
             userManagementService.addUser(user);
             userDetails = user;
-            LOG.debug("Error occurred: ", e);
         }
         return userDetails;
     }
