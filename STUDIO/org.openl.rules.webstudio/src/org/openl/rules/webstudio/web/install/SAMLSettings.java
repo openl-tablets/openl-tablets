@@ -8,7 +8,6 @@ public class SAMLSettings {
     private final String keystorePassword;
     private final String keystoreSpAlias;
     private final String keystoreSpPassword;
-    private String defaultGroup;
     private String usernameAttribute;
     private String firstNameAttribute;
     private String secondNameAttribute;
@@ -33,7 +32,6 @@ public class SAMLSettings {
             String keystorePassword,
             String keystoreSpAlias,
             String keystoreSpPassword,
-            String defaultGroup,
             String usernameAttribute,
             String firstNameAttribute,
             String secondNameAttribute,
@@ -57,7 +55,6 @@ public class SAMLSettings {
         this.keystoreSpAlias = keystoreSpAlias;
         this.keystorePassword = keystorePassword;
         this.keystoreSpPassword = keystoreSpPassword;
-        this.defaultGroup = defaultGroup;
         this.usernameAttribute = usernameAttribute;
         this.firstNameAttribute = firstNameAttribute;
         this.secondNameAttribute = secondNameAttribute;
@@ -114,14 +111,6 @@ public class SAMLSettings {
 
     public String getKeystoreSpPassword() {
         return keystoreSpPassword;
-    }
-
-    public String getDefaultGroup() {
-        return defaultGroup;
-    }
-
-    public void setDefaultGroup(String defaultGroup) {
-        this.defaultGroup = defaultGroup;
     }
 
     public String getUsernameAttribute() {

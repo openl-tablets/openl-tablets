@@ -36,7 +36,6 @@
         <constructor-arg name="domain" value="#{environment.getProperty('security.ad.domain')}"/>
         <constructor-arg name="url" value="#{environment.getProperty('security.ad.server-url')}"/>
         <property name="searchFilter" value="#{environment.getProperty('security.ad.search-filter')}"/>
-        <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="userDetailsContextMapper" ref="userDetailsContextMapper"/>
     </bean>
 
@@ -45,6 +44,13 @@
             <bean class="org.springframework.security.ldap.userdetails.LdapUserDetailsMapper"/>
         </constructor-arg>
         <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="authoritiesMapper">
+            <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                <constructor-arg name="userManagementService" ref="userManagementService"/>
+                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
+            </bean>
+        </constructor-arg>
     </bean>
 
     <bean id="groupsAreManagedInStudio" class="java.lang.Boolean">
@@ -54,15 +60,6 @@
     <bean id="authenticationProviderWrapper"
           class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="adAuthenticationProvider"/>
-        <constructor-arg name="authenticationUserDetailsService">
-            <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
-                <constructor-arg name="userManagementService" ref="userManagementService"/>
-                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="prefix" value="ad"/>
-            </bean>
-        </constructor-arg>
-        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
 
 </beans>

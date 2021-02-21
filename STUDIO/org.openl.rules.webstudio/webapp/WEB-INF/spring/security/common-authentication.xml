@@ -58,11 +58,6 @@
         </property>
     </bean>
 
-    <!-- =================== Map string authorities to OpenL Privileges ============================ -->
-    <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.OpenLGroupsAuthoritiesMapper">
-        <constructor-arg ref="groupDao"/>
-    </bean>
-
     <!-- ======================== Logout ========================== -->
 
     <bean id="logoutUrlProvider" class="org.openl.rules.webstudio.security.LogoutUrlProvider">

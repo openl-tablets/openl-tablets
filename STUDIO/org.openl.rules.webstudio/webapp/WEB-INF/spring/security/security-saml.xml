@@ -199,7 +199,13 @@
         <property name="userDetails">
             <bean class="org.openl.security.saml.SAMLAttributesToOpenLUserDetailsService">
                 <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="authoritiesMapper" ref="authoritiesMapper"/>
+                <constructor-arg name="authoritiesMapper">
+                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                        <constructor-arg name="userManagementService" ref="userManagementService"/>
+                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                        <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
+                    </bean>
+                </constructor-arg>
             </bean>
         </property>
         <property name="forcePrincipalAsString" value="false"/>
@@ -212,15 +218,6 @@
     <bean id="authenticationProviderWrapper"
           class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="samlAuthenticationProvider"/>
-        <constructor-arg name="authenticationUserDetailsService">
-            <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
-                <constructor-arg name="userManagementService" ref="userManagementService"/>
-                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="prefix" value="saml"/>
-            </bean>
-        </constructor-arg>
-        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
     <!-- Provider of default SAML Context -->
     <import resource="security-saml-loadbalancer-${security.saml.is-app-after-balancer}.xml"/>
