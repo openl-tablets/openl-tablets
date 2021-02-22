@@ -1,6 +1,7 @@
 package org.openl.validation;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
@@ -13,7 +14,7 @@ import org.openl.types.IOpenClass;
 
 public class ValidatedCompiledOpenClass extends CompiledOpenClass {
     private final CompiledOpenClass delegate;
-    private final Collection<OpenLMessage> additionalMessages = new LinkedHashSet<>();
+    private final Collection<OpenLMessage> validationMessages = new LinkedHashSet<>();
     boolean hasErrors;
 
     public ValidatedCompiledOpenClass(CompiledOpenClass compiledOpenClass) {
@@ -49,12 +50,16 @@ public class ValidatedCompiledOpenClass extends CompiledOpenClass {
     @Override
     public Collection<OpenLMessage> getMessages() {
         Collection<OpenLMessage> messages = new LinkedHashSet<>(delegate.getMessages());
-        messages.addAll(additionalMessages);
+        messages.addAll(validationMessages);
         return messages;
     }
 
+    public Collection<OpenLMessage> getValidationMessages() {
+        return Collections.unmodifiableCollection(validationMessages);
+    }
+
     public void addMessage(OpenLMessage message) {
-        this.additionalMessages.add(message);
+        this.validationMessages.add(message);
         if (message.getSeverity() == Severity.ERROR) {
             hasErrors = true;
         }

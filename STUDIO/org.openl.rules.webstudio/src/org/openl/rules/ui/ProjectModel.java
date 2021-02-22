@@ -32,6 +32,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
+import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
@@ -43,6 +44,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
@@ -968,10 +970,6 @@ public class ProjectModel {
 
         prepareWorkspaceDependencyManager();
 
-        // Create instantiation strategy for opened module
-
-        List<Module> modules = this.moduleInfo.getProject().getModules();
-
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
         boolean canUnload = studio.isAutoCompile();
@@ -1016,14 +1014,22 @@ public class ProjectModel {
                             SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
                             null)),
                     (e) -> {
-                        this.compiledOpenClass = e.getCompiledOpenClass();
+                        List<Module> modules = this.moduleInfo.getProject().getModules();
+                        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
+                            modules,
+                            webStudioWorkspaceDependencyManager,
+                            false);
+                        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
+                            .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                        instantiationStrategy.setExternalParameters(externalParameters);
                         try {
-                            this.compiledOpenClass = this.validate(new SimpleMultiModuleInstantiationStrategy(modules,
-                                webStudioWorkspaceDependencyManager,
-                                false));
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+                            this.compiledOpenClass = this.validate(instantiationStrategy);
+                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                                .getMetaInfo();
                             allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
                         } catch (RulesInstantiationException ignored) {
+                        } finally {
+                            addAllSyntaxNodes();
                         }
                     });
         } catch (Throwable t) {

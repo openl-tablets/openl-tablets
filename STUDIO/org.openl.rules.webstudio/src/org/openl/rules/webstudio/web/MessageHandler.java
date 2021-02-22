@@ -33,7 +33,7 @@ public class MessageHandler {
      * Gets the url for messages that don`t have any sources.
      */
     public String getUrlForEmptySource(OpenLMessage message) {
-        return WebStudioUtils.getWebStudio()
+        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
             .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
@@ -77,7 +77,7 @@ public class MessageHandler {
     }
 
     private String getUrlToDependentModule(String uri, String id) {
-        String url = WebStudioUtils.getWebStudio().url("table", uri);
+        String url = WebStudioUtils.getWebStudio(WebStudioUtils.getSession()).url("table", uri);
         if (url != null && url.endsWith("table")) {
             url += "?" + Constants.REQUEST_PARAM_ID + "=" + id;
         }
@@ -90,11 +90,11 @@ public class MessageHandler {
         if (StringUtils.isNotBlank(uriParser.getCell())) {
             url += "&errorCell=" + uriParser.getCell();
         }
-        return WebStudioUtils.getWebStudio().url(url);
+        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession()).url(url);
     }
 
     private String getErrorUrlForDependency(OpenLMessage message) {
-        return WebStudioUtils.getWebStudio()
+        return WebStudioUtils.getWebStudio(WebStudioUtils.getSession())
             .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
