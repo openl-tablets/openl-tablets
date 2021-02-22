@@ -402,7 +402,7 @@ public class TableBean {
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
-            throw e.getCause();
+            throw e.getCause() == null ? e : e.getCause();
         }
         return null;
     }
