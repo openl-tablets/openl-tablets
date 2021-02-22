@@ -77,15 +77,9 @@
                 </thead>
                 <tbody>
                 <ui:repeat value="#{groupsBean.defaultPrivileges}" var="privilege">
-                <tr class="#{privilege.name == 'VIEW_PROJECTS' ? 'selectedRow' : ''}">
+                <tr>
                     <td>
-                        <h:panelGroup rendered="#{privilege.name != 'VIEW_PROJECTS'}">
-                            <input type="checkbox" name="privilege" value="#{privilege.name}" />#{privilege.displayName}
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{privilege.name == 'VIEW_PROJECTS'}">
-                            <input type="checkbox" name="privilege" value="#{privilege.name}"
-                                checked="checked"/>#{privilege.displayName}
-                        </h:panelGroup>
+                        <input type="checkbox" name="privilege" value="#{privilege.name}" />#{privilege.displayName}
                     </td>
                     <ui:repeat value="#{groupsBean.groups}" var="group">
                     <td style="text-align: center">
