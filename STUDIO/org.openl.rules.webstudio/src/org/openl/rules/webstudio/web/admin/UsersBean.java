@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
@@ -18,7 +19,6 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
 import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
@@ -110,25 +110,12 @@ public class UsersBean {
         return joiner.toString();
     }
 
-    public String getOnlyAdminGroups(Object objUser) {
-        if (!isOnlyAdmin(objUser)) {
-            return "[]";
-        }
-
-        String adminPrivilege = Privileges.ADMIN.name();
-
-        @SuppressWarnings("unchecked")
-        Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
-        StringJoiner joiner = new StringJoiner(",", "[", "]");
-        for (Privilege authority : authorities) {
-            if (authority instanceof Group) {
-                Group group = (Group) authority;
-                if (group.hasPrivilege(adminPrivilege)) {
-                    joiner.add("\"" + group.getAuthority() + "\"");
-                }
-            }
-        }
-        return joiner.toString();
+    public String getOnlyAdminGroups() {
+        return groupManagementService.getGroups()
+            .stream()
+            .filter(x -> x.hasPrivilege(Privileges.ADMIN.getAuthority()))
+            .map(x -> "\"" + x.getAuthority() + "\"")
+            .collect(Collectors.joining(",", "[", "]"));
     }
 
     public void addUser() {
