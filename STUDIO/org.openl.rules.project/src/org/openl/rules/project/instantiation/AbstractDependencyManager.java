@@ -101,6 +101,11 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         this.externalParameters = Collections.unmodifiableMap(this.externalParameters);
     }
 
+    public Collection<IDependencyLoader> getAllDependencyLoaders() {
+        return Collections.unmodifiableCollection(
+            getDependencyLoaders().values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
+    }
+
     public final Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
         if (dependencyLoaders == null) {
             synchronized (this) {

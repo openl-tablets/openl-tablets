@@ -69,7 +69,7 @@ public class OpenLCompileManager {
             IDependencyManager dependencyManager) {
         ProcessedCode processedCode = getProcessedCode(source, executionMode, dependencyManager);
         IOpenClass openClass = processedCode.getBoundCode().getTopNode().getType();
-        return new CompiledOpenClass(openClass, processedCode.getMessages());
+        return new CompiledOpenClass(openClass, processedCode.getMessages(), processedCode.getCurrentMessages());
     }
 
     private ProcessedCode getProcessedCode(IOpenSourceCodeModule source,
@@ -142,6 +142,7 @@ public class OpenLCompileManager {
         IParsedCode parsedCode = openl.getParser().parseAsModule(source);
 
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
+        Collection<OpenLMessage> currentMessages = new LinkedHashSet<>();
 
         // compile source dependencies
 
@@ -201,14 +202,14 @@ public class OpenLCompileManager {
                 @SuppressWarnings("unchecked")
                 Set<String> warnMessages = (Set<String>) externalParams.get(ADDITIONAL_WARN_MESSAGES_KEY);
                 for (String message : warnMessages) {
-                    messages.add(OpenLMessagesUtils.newWarnMessage(message));
+                    currentMessages.add(OpenLMessagesUtils.newWarnMessage(message));
                 }
             }
             if (externalParams.containsKey(ADDITIONAL_ERROR_MESSAGES_KEY)) {
                 @SuppressWarnings("unchecked")
                 Set<String> errorMessage = (Set<String>) externalParams.get(ADDITIONAL_ERROR_MESSAGES_KEY);
                 for (String message : errorMessage) {
-                    messages.add(OpenLMessagesUtils.newErrorMessage(message));
+                    currentMessages.add(OpenLMessagesUtils.newErrorMessage(message));
                 }
             }
         }
@@ -217,6 +218,7 @@ public class OpenLCompileManager {
         // packages.
         FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
+        //TODO check
         IOpenBinder binder = openl.getBinder();
         IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
         messages.addAll(bindingContext != null && bindingContext.isExecutionMode()
@@ -226,12 +228,14 @@ public class OpenLCompileManager {
 
         SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
-        messages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
+        currentMessages.addAll(OpenLMessagesUtils.newErrorMessages(bindingErrors));
+        messages.addAll(currentMessages);
 
         ProcessedCode processedCode = new ProcessedCode();
         processedCode.setParsedCode(parsedCode);
         processedCode.setBoundCode(boundCode);
         processedCode.setMessages(messages);
+        processedCode.setCurrentMessages(currentMessages);
 
         return processedCode;
     }
