@@ -35,7 +35,7 @@ public class AdminUsers {
     @Value("${security.administrators}")
     private String[] administrators;
 
-    @Value("#{canCreateExternalUsers}")
+    @Value("#{canCreateExternalUsers || environment.getProperty('user.mode') == 'multi'}")
     private boolean isUsers;
 
     private static final String ADMIN = Privileges.ADMIN.name();
