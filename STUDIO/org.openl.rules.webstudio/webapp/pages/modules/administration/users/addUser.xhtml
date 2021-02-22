@@ -48,13 +48,10 @@
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label class="required">Groups:</label>
+                <label>Groups:</label>
                 <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
-                <a4j:outputPanel ajaxRendered="true" id="groupsError">
-                    <h:message for="addUserGroups" styleClass="error" />
-                </a4j:outputPanel>
             </h:panelGrid>
             </div>
 

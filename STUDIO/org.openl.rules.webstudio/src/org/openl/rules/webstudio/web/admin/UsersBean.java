@@ -43,8 +43,6 @@ public class UsersBean {
     public static final String VALIDATION_USERNAME_BEGIN_END = "The name should not end or begin with '.' or a whitespace.";
     public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.'.";
 
-    public static final String VALIDATION_GROUPS = "Please select at least one group";
-
     @Size(max = 25, message = VALIDATION_MAX)
     private String firstName;
 
@@ -65,7 +63,6 @@ public class UsersBean {
     @Size(max = 25, message = VALIDATION_MAX)
     private String changedPassword;
 
-    @NotEmpty(message = VALIDATION_GROUPS)
     private Set<String> groups;
 
     private boolean internalUser = false;
