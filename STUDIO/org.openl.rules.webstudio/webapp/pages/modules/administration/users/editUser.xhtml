@@ -71,16 +71,7 @@
                 var checked = $j.inArray(group, groups) != -1;
                 box.attr("checked", checked);
                 var isAdminGroup = $j.inArray(group, onlyAdminGroups) != -1;
-                if (isAdminGroup) {
-                    box.attr("disabled", true);
-                    // Disabled fields will not be submitted. Let's create a hidden input for them
-                    $j('<input>').attr({
-                        type: 'hidden',
-                        id: box.attr('id') + "_hidden_admin",
-                        name: box.attr('name'),
-                        value: box.val()
-                    }).appendTo("#editUserForm");
-                }
+                box.parent().css("color", isAdminGroup ? "red" : "");
             });
 
             $j(".external-user").remove();
