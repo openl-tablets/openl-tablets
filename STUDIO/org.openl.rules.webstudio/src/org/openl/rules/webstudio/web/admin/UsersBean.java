@@ -149,10 +149,8 @@ public class UsersBean {
     }
 
     public boolean isOnlyAdmin(Object objUser) {
-        String adminPrivilege = Privileges.ADMIN.name();
         User user = (User) objUser;
-        boolean isAdmin = user.hasPrivilege(adminPrivilege);
-        return isAdmin && currentUserInfo.getUserName().equals(user.getUsername());
+        return currentUserInfo.getUserName().equals(user.getUsername());
     }
 
     public void deleteUser(String username) {
