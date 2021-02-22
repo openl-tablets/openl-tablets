@@ -383,6 +383,12 @@ public class FileSystemRepository implements FolderRepository, Closeable {
                 }
                 if (file.isDirectory()) {
                     removeAbsentFiles(file, toSave);
+                    File[] files = file.listFiles();
+                    if (files == null || files.length == 0) {
+                        if (!file.delete()) {
+                            LOG.warn("Failed to delete an empty directory: '{}'", file);
+                        }
+                    }
                 } else {
                     if (!toSave.contains(file)) {
                         FileUtils.deleteQuietly(file);
