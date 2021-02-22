@@ -113,10 +113,8 @@ public class RulesDeployerRestController {
         if (services.isEmpty()) {
             return Response.status(Status.NOT_FOUND).build();
         }
-        boolean deleted = false;
-        for (OpenLService service : services) {
-            deleted |= rulesDeployerService.delete(service.getDeployPath());
-        }
+        boolean deleted = rulesDeployerService.delete(deploymentName,
+            services.stream().map(OpenLService::getDeployPath).collect(Collectors.toSet()));
         return Response.status(deleted ? Response.Status.OK : Status.NOT_FOUND).build();
     }
 }

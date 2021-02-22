@@ -177,30 +177,19 @@ public class RulesDeployerService implements Closeable {
      * @param deployPath deployPath of the file to delete.
      * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
      */
-    public boolean delete(String deployPath) throws IOException {
+    public boolean delete(String deployPath, Set<String> projectsPath) throws IOException {
         final String fullDeployPath = baseDeployPath + deployPath;
-        FileData fileDate = deployRepo.check(fullDeployPath);
-        if (deployRepo.delete(fileDate)) {
-            deleteDeploymentDescriptors(fullDeployPath);
-            return true;
-        }
-        return false;
-    }
-
-    private void deleteDeploymentDescriptors(String deployPath) throws IOException {
         if (deployRepo.supports().folders()) {
-            if (deployPath.charAt(0) == '/') {
-                deployPath = deployPath.substring(1);
+            FileData fd = deployRepo.check(fullDeployPath);
+            return deployRepo.delete(fd);
+        } else {
+            boolean deleted = false;
+            for (String projectPath : projectsPath) {
+                final String fullProjectPath = baseDeployPath + projectPath;
+                FileData fd = deployRepo.check(fullProjectPath);
+                deleted |= deployRepo.delete(fd);
             }
-            final String deploymentName = deployPath.split("/")[0];
-            if (((FolderRepository) deployRepo).listFolders(deploymentName).isEmpty()) {
-                for (String deployDescriptorFile : DEPLOY_DESCRIPTOR_FILES) {
-                    FileData fd = deployRepo.check(deploymentName + "/" + deployDescriptorFile);
-                    if (fd != null) {
-                        deployRepo.delete(fd);
-                    }
-                }
-            }
+            return deleted;
         }
     }
 
