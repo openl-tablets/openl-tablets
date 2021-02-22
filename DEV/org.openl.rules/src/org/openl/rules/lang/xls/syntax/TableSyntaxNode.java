@@ -46,8 +46,6 @@ public class TableSyntaxNode extends NaryNode {
 
     private MetaInfoReader metaInfoReader = EmptyMetaInfoReader.getInstance();
 
-    private volatile String tableId;
-
     public TableSyntaxNode(String type,
             GridLocation pos,
             XlsSheetSourceCodeModule module,
@@ -132,14 +130,7 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public String getId() {
-        if (tableId == null) {
-            synchronized (this) {
-                if (tableId == null) {
-                    tableId = TableUtils.makeTableId(getUri());
-                }
-            }
-        }
-        return tableId;
+        return TableUtils.makeTableId(getUri());
     }
 
     public Object getValidationResult() {

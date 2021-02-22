@@ -44,10 +44,7 @@ public class XlsUrlParser {
                     map.put(pair, "");
                 } else {
                     String key = pair.substring(0, idx);
-                    String value = pair.substring(idx + 1);
-                    if ("sheet".equals(key)) {
-                        value = StringTool.decodeURL(value);
-                    }
+                    String value = StringTool.decodeURL(pair.substring(idx + 1));
                     map.put(key, value);
                 }
             }
@@ -73,11 +70,11 @@ public class XlsUrlParser {
 
         if ("null".equals(file)) {
             // there is no file representation
-            // FIXME temporary hack to support generated dispatch tables
+            // FIXME tempory hack to support generated dispatch tables
             wbPath = "/unexistingPath/";
             wbName = "unexistingSourceFile.xls";
         } else {
-            if (file != null && file.startsWith("file:/")) {
+            if (file.startsWith("file:/")) {
                 // In current OpenL implementation in Linux the path will be like this: file:/opt/smth.
                 // In Windows like this: file:/C:/smth.
                 int prefixSize = file.length() > 7 && file.charAt(7) == ':' ? 6 : 5;
