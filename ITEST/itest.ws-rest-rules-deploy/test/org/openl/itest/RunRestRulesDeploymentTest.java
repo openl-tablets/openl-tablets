@@ -212,4 +212,28 @@ public class RunRestRulesDeploymentTest {
         client.send("EPBDS-11144/delete.delete");
         client.send("admin_services_no_services.json.get");
     }
+
+    @Test
+    public void EPBDS_8987() {
+        client.send("admin_services_no_services.json.get");
+        client.post("/admin/deploy/someDeployment", "/EPBDS-8987/someDeployment.zip", 201);
+        client.send("EPBDS-8987/deployed-rules_services_1.get");
+        client.post("/admin/deploy/multiple-deployment_v1", "/EPBDS-8987/multiple-deployment_v1.zip", 201);
+        // 3 projects are exposed but should one. Currently it's not possible to fix for DB because of restrictions in repository design
+        // it works in different way for Folder Repositories
+        client.send("EPBDS-8987/deployed-rules_services_2.get");
+        client.send("EPBDS-8987/delete_all_1.delete");
+        client.send("admin_services_no_services.json.get");
+        client.post("/admin/deploy/deployment1", "/EPBDS-8987/deployment1.zip", 201);
+        client.send("EPBDS-8987/deployed-rules_services_3.get");
+        client.post("/admin/deploy/deployment2", "/EPBDS-8987/deployment2.zip", 201);
+        // 2 projects are exposed but should one. Checkout the prev comment
+        client.send("EPBDS-8987/deployed-rules_services_4.get");
+        client.send("EPBDS-8987/delete_all_2.delete");
+        client.send("admin_services_no_services.json.get");
+        client.post("/admin/deploy/deployment1", "/EPBDS-8987/deployment1.zip", 201);
+        client.send("EPBDS-8987/deployed-rules_services_3.get");
+        client.send("EPBDS-8987/delete_all_2.delete");
+        client.send("admin_services_no_services.json.get");
+    }
 }

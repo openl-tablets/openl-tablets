@@ -1,0 +1,17 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+    {
+        "startedTime": "###",
+        "name": "Hello_Rule",
+        "servicePath": "yaml_project/Hello_Rule",
+        "urls": {
+            "WEBSERVICE": "yaml_project/Hello_Rule",
+            "RESTFUL": "REST/yaml_project/Hello_Rule"
+        },
+        "hasManifest": false,
+        "deploymentName": "yaml_project",
+        "status": "DEPLOYED"
+    }
+]
