@@ -112,11 +112,13 @@ public class UsersBean {
     }
 
     public String getOnlyAdminGroups() {
-        return groupManagementService.getGroups()
-            .stream()
-            .filter(x -> x.hasPrivilege(Privileges.ADMIN.getAuthority()))
-            .map(x -> "\"" + x.getAuthority() + "\"")
-            .collect(Collectors.joining(",", "[", "]"));
+        StringJoiner joiner = new StringJoiner(",", "[", "]");
+        for (Group x : groupManagementService.getGroups()) {
+            if (x.hasPrivilege(Privileges.ADMIN.getAuthority())) {
+                joiner.add("\"" + x.getAuthority() + "\"");
+            }
+        }
+        return joiner.toString();
     }
 
     public void addUser() {
