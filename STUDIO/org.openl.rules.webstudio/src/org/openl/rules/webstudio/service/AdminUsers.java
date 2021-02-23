@@ -8,8 +8,9 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
+import org.openl.rules.webstudio.web.Props;
+import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -32,22 +33,13 @@ public class AdminUsers {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Value("${security.administrators}")
-    private String[] administrators;
-
-    @Value("#{canCreateExternalUsers || environment.getProperty('user.mode') == 'multi'}")
-    private boolean isUsers;
-
     private static final String ADMIN = Privileges.ADMIN.name();
     private static final String ADMIN_GROUP = "Administrators";
 
     public void init() {
+        String[] administrators = StringUtils.split(Props.text("security.administrators"), ',');
         for (String user : administrators) {
-            if (isUsers) {
-                createUserAndAssignGroup(user);
-            } else {
-                setAdminPrivelegyforGroup(user);
-            }
+            createUserAndAssignGroup(user);
         }
     }
 
@@ -78,18 +70,16 @@ public class AdminUsers {
             }
         }
         if (!groupService.isGroupExist(ADMIN_GROUP)) {
-            setAdminPrivelegyforGroup(ADMIN_GROUP);
+            groupService.addGroup(ADMIN_GROUP, "A group with ADMIN privileges (restored)");
+            groupService.updateGroup(ADMIN_GROUP, Collections.emptySet(), Collections.singleton(ADMIN));
             return ADMIN_GROUP;
         }
         String group = (user + "_Group");
-        setAdminPrivelegyforGroup(group);
+        if (!groupService.isGroupExist(group)) {
+            groupService.addGroup(group, "A group for restoring ADMIN privileges");
+        }
+        groupService.updateGroup(group, Collections.emptySet(), Collections.singleton(ADMIN));
         return group;
     }
 
-    private void setAdminPrivelegyforGroup(String user) {
-        if (!groupService.isGroupExist(user)) {
-            groupService.addGroup(user, null);
-        }
-        groupService.updateGroup(user, Collections.emptySet(), Collections.singleton(ADMIN));
-    }
 }

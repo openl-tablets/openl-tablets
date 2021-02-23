@@ -45,11 +45,12 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
 
-        User userFromDB = getUserFromDB(username, firstName, lastName);
         if (!groupsAreManagedInStudio) {
             // Map external authorities to OpenL privileges
             mapAuthorities(user.getAuthorities(), privileges);
-        } else if (userFromDB != null) {
+        }
+        User userFromDB = getUserFromDB(username, firstName, lastName);
+        if (userFromDB != null) {
             // Add authorities from the DB
             privileges.addAll((Collection<? extends Privilege>) userFromDB.getAuthorities());
         }
