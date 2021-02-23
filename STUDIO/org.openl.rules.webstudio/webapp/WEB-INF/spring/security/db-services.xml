@@ -22,4 +22,22 @@
         <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
+    <bean id="adminUsersInitializer" class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
+
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+        <constructor-arg value="${webstudio.bcrypt.strength}"/>
+    </bean>
+
+    <!-- ========================== Internal users authentication =============================== -->
+    <bean id="daoAuthenticationProvider"
+          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <property name="passwordEncoder" ref="passwordEncoder"/>
+        <property name="userDetailsService">
+            <bean class="org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl">
+                <constructor-arg name="userDao" ref="openlUserDao"/>
+                <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+            </bean>
+        </property>
+        <property name="hideUserNotFoundExceptions" value="false"/>
+    </bean>
 </beans>

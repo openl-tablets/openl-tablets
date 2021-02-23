@@ -7,7 +7,6 @@ import java.util.Set;
 
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.persistence.Group;
-import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
 
 /**
  * @author Andrei Astrouski

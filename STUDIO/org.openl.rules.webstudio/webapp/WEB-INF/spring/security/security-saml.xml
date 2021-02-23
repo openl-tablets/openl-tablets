@@ -203,6 +203,7 @@
                         <constructor-arg name="userManagementService" ref="userManagementService"/>
                         <constructor-arg name="groupManagementService" ref="groupManagementService"/>
                         <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
+                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
                     </bean>
                 </constructor-arg>
             </bean>

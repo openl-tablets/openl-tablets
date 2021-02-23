@@ -11,6 +11,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
+import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.rules.webstudio.web.Props;
@@ -21,13 +22,16 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     private final GroupManagementService groupManagementService;
     private final String defaultGroup;
     private final boolean groupsAreManagedInStudio;
+    private final AdminUsers adminUsersInitializer;
 
     public OpenLUserDetailsService(UserManagementService userManagementService,
             GroupManagementService groupManagementService,
-            boolean groupsAreManagedInStudio) {
+            boolean groupsAreManagedInStudio,
+            AdminUsers adminUsersInitializer) {
         this.userManagementService = userManagementService;
         this.groupManagementService = groupManagementService;
         this.groupsAreManagedInStudio = groupsAreManagedInStudio;
+        this.adminUsersInitializer = adminUsersInitializer;
         this.defaultGroup = Props.text("security.default-group");
     }
 
@@ -59,6 +63,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     }
 
     private User getUserFromDB(String username, String firstName, String lastName) {
+        adminUsersInitializer.initIfAdminUser(username);
         User userDetails = userManagementService.loadUserByUsername(username);
         if (userDetails == null) {
             // Create a new user

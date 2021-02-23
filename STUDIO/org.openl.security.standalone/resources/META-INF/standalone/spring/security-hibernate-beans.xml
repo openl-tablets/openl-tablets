@@ -59,20 +59,4 @@
     <bean id="dbMigration" class="org.openl.rules.security.standalone.DBMigrationBean" init-method="init">
         <property name="dataSource" ref="openlDataSource"/>
     </bean>
-
-    <!-- ========================== Internal users authentication =============================== -->
-    <bean id="daoAuthenticationProvider"
-          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
-        <property name="passwordEncoder" ref="passwordEncoder"/>
-        <property name="userDetailsService" ref="userDetailsService"/>
-        <property name="hideUserNotFoundExceptions" value="false"/>
-    </bean>
-
-    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
-        <constructor-arg value="${webstudio.bcrypt.strength}"/>
-    </bean>
-
-    <bean id="userDetailsService" class="org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl">
-        <property name="userDao" ref="openlUserDao"/>
-    </bean>
 </beans>

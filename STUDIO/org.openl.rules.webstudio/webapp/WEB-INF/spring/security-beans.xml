@@ -8,8 +8,6 @@
 
     <import resource="security/security-${user.mode}.xml" />
 
-    <bean class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
-
     <bean id="initAccessManager" class="org.openl.rules.security.AccessManager">
         <property name="staticAccessDecisionManager" ref="accessDecisionManager" />
     </bean>
