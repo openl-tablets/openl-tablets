@@ -3,7 +3,6 @@ package org.openl.rules.ruleservice.loader;
 import static org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy.PROJECT_DESCRIPTOR_FILE_NAME;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -11,7 +10,6 @@ import java.net.URL;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.deployer.DeploymentDescriptor;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -59,7 +57,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
             File dir = contentsFile.getParentFile();
             File physicalFile = new File(dir, jarName);
 
-            rulesDeployerService.deploy(FileUtils.getBaseName(jarName), new FileInputStream(physicalFile), ignoreIfExists);
+            rulesDeployerService.deploy(physicalFile, ignoreIfExists);
         } else {
             throw new RuleServiceRuntimeException(
                 "Protocol VFS supports only for JBoss VFS. URL content must be org.jboss.vfs.VirtualFile.");
@@ -106,7 +104,7 @@ public class DeployClasspathJarsBean implements InitializingBean {
                 throw new IOException("File is not found. File: " + file.getAbsolutePath());
             }
 
-            rulesDeployerService.deploy(FileUtils.getBaseName(file.getName()), new FileInputStream(file), ignoreIfExists);
+            rulesDeployerService.deploy(file, ignoreIfExists);
         }
     }
 }

@@ -1,7 +1,6 @@
 package org.openl.rules.maven;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.util.Properties;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -11,7 +10,6 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
@@ -68,7 +66,7 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.base.path", "deploy/");
 
         try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
-            deployerService.deploy(FileUtils.getBaseName(zipFile.getName()), new FileInputStream(zipFile), false);
+            deployerService.deploy(zipFile, false);
         }
     }
 

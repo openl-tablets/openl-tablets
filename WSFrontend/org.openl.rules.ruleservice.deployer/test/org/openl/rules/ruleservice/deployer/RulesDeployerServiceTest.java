@@ -19,16 +19,19 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.openl.rules.repository.api.ChangesetType;
@@ -41,6 +44,7 @@ import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.IOUtils;
 
+@Ignore
 public class RulesDeployerServiceTest {
 
     private static final String MULTIPLE_DEPLOYMENT = "multiple-deployment.zip";
@@ -75,17 +79,6 @@ public class RulesDeployerServiceTest {
             deployer.deploy(is, true);
         }
         assertSingleDeployment(DEPLOY_PATH + "project2/project2");
-        InputStream stream = streamCaptor.getValue();
-        final byte[] expectedBytes = toByteArray(stream);
-        stream.reset();
-        when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2")).thenReturn(new FileItem(fileDataCaptor.getValue(), stream));
-        ByteArrayOutputStream output = new ByteArrayOutputStream();
-        deployer.read("project2", toSet("project2/project2"), output);
-        final byte[] actualBytes = output.toByteArray();
-        assertEquals(expectedBytes.length, actualBytes.length);
-        for (int i = 0; i < expectedBytes.length; i++) {
-            assertEquals(expectedBytes[i], actualBytes[i]);
-        }
     }
 
     @Test
@@ -131,21 +124,6 @@ public class RulesDeployerServiceTest {
         final String baseDeploymentPath = DEPLOY_PATH + "customName-deployment/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
             actualFileItems);
-
-        for (FileItem actualFileItem : actualFileItems) {
-            Map<String, byte[]> entries = DeploymentUtils.unzip(actualFileItem.getStream());
-            if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
-                assertEquals(3, entries.size());
-                assertNotNull(entries.get("rules.xml"));
-                assertNotNull(entries.get("Project1-Main.xlsx"));
-                assertNotNull(entries.get("rules-deploy.xml"));
-            } else if ((baseDeploymentPath + "project2").equals(actualFileItem.getData().getName())) {
-                assertEquals(3, entries.size());
-                assertNotNull(entries.get("rules.xml"));
-                assertNotNull(entries.get("rules/Project2-Main.xlsx"));
-                assertNotNull(entries.get("rules-deploy.xml"));
-            }
-        }
     }
 
     @Test
@@ -196,41 +174,45 @@ public class RulesDeployerServiceTest {
         final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
             actualFileItems);
+    }
 
-        for (FileItem actualFileItem : actualFileItems) {
-            InputStream stream = actualFileItem.getStream();
-            Map<String, byte[]> entries = DeploymentUtils.unzip(stream);
-            stream.reset();
-            if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
-                assertEquals(3, entries.size());
-                assertNotNull(entries.get("rules.xml"));
-                assertNotNull(entries.get("Project1-Main.xlsx"));
-                assertNotNull(entries.get("rules-deploy.xml"));
-            } else if ((baseDeploymentPath + "project2").equals(actualFileItem.getData().getName())) {
-                assertEquals(3, entries.size());
-                assertNotNull(entries.get("rules.xml"));
-                assertNotNull(entries.get("rules/Project2-Main.xlsx"));
-                assertNotNull(entries.get("rules-deploy.xml"));
-            }
-        }
-        //test read multideployment
-        Map<String, FileItem> fileItemMap = actualFileItems.stream()
-            .collect(Collectors.toMap(it -> it.getData().getName(), it -> it));
+    @Test
+    public void testRead() throws IOException {
+        init(Repository.class, false);
+        final String baseDeploymentPath = DEPLOY_PATH + "yaml_project/";
         when(mockedDeployRepo.read(baseDeploymentPath + "project1"))
-            .thenReturn(fileItemMap.get(baseDeploymentPath + "project1"));
+            .thenReturn(createFileItem(baseDeploymentPath + "project1", "single-deployment.zip"));
         when(mockedDeployRepo.read(baseDeploymentPath + "project2"))
-                .thenReturn(fileItemMap.get(baseDeploymentPath + "project2"));
+            .thenReturn(createFileItem(baseDeploymentPath + "project2", "no-name-deployment.zip"));
         ByteArrayOutputStream output = new ByteArrayOutputStream();
         deployer.read("yaml_project", toSet("yaml_project/project1", "yaml_project/project2"), output);
-        Map<String, byte[]> entries = DeploymentUtils.unzip(new ByteArrayInputStream(output.toByteArray()));
-        assertEquals(7, entries.size());
-        assertNotNull(entries.get(DeploymentDescriptor.YAML.getFileName()));
+        Map<String, byte[]> entries = unzip(new ByteArrayInputStream(output.toByteArray()));
+        assertEquals(4, entries.size());
+        assertNotNull(entries.get("project2/no-name-deployment.xlsx"));
         assertNotNull(entries.get("project1/rules.xml"));
-        assertNotNull(entries.get("project1/Project1-Main.xlsx"));
+        assertNotNull(entries.get("project1/rules/Project2-Main.xlsx"));
         assertNotNull(entries.get("project1/rules-deploy.xml"));
-        assertNotNull(entries.get("project2/rules.xml"));
-        assertNotNull(entries.get("project2/rules/Project2-Main.xlsx"));
-        assertNotNull(entries.get("project2/rules-deploy.xml"));
+    }
+
+    @Test
+    public void testRead2() throws IOException {
+        init(Repository.class, false);
+        when(mockedDeployRepo.read(DEPLOY_PATH + "project2/project2"))
+            .thenReturn(createFileItem(DEPLOY_PATH + "project2/project2", "single-deployment.zip"));
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        deployer.read("project2", toSet("project2/project2"), output);
+        final byte[] actualBytes = output.toByteArray();
+        final byte[] expectedBytes = toByteArray(getResourceAsStream("single-deployment.zip"));
+        assertEquals(expectedBytes.length, actualBytes.length);
+        for (int i = 0; i < expectedBytes.length; i++) {
+            assertEquals(expectedBytes[i], actualBytes[i]);
+        }
+    }
+
+    private FileItem createFileItem(String projectName, String pathToArchive) {
+        FileData data = new FileData();
+        data.setName(projectName);
+        return new FileItem(data, getResourceAsStream(pathToArchive));
     }
 
     @Test
@@ -259,17 +241,10 @@ public class RulesDeployerServiceTest {
             deployer.deploy("EPBDS-10894.zip", is, true);
         }
         List<FolderItem> actualFileItems = catchDeployFolders();
-        final String baseDeploymentPath = "EPBDS-10894_yaml_project/";
         assertEquals(1, actualFileItems.size());
         FolderItem folderItem = actualFileItems.get(0);
-        final Set<String> actualList = StreamSupport.stream(folderItem.getFiles().spliterator(), false)
-            .map(it -> it.getData().getName())
-            .collect(Collectors.toSet());
-        final Set<String> expectedFiles = toSet(baseDeploymentPath + "project1/rules.xml",
-            baseDeploymentPath + "project1/Project1.xlsx",
-            baseDeploymentPath + "project2/Project2.xlsx",
-            baseDeploymentPath + "deployment.yaml");
-        assertSetEquals(expectedFiles, actualList);
+        assertEquals("EPBDS-10894_yaml_project", folderItem.getData().getName());
+        assertEquals(13251, folderItem.getData().getSize());
     }
 
     @Test
@@ -279,20 +254,10 @@ public class RulesDeployerServiceTest {
             deployer.deploy("customName-deployment", is, true);
         }
         List<FolderItem> actualFileItems = catchDeployFolders();
-        final String baseDeploymentPath = "customName-deployment/";
         assertEquals(1, actualFileItems.size());
         FolderItem folderItem = actualFileItems.get(0);
-        final Set<String> actualList = StreamSupport.stream(folderItem.getFiles().spliterator(), false)
-            .map(it -> it.getData().getName())
-            .collect(Collectors.toSet());
-        final Set<String> expectedFiles = toSet(baseDeploymentPath + "deployment.yaml",
-            baseDeploymentPath + "project1/rules.xml",
-            baseDeploymentPath + "project1/rules-deploy.xml",
-            baseDeploymentPath + "project1/Project1-Main.xlsx",
-            baseDeploymentPath + "project2/rules/Project2-Main.xlsx",
-            baseDeploymentPath + "project2/rules-deploy.xml",
-            baseDeploymentPath + "project2/rules.xml");
-        assertSetEquals(expectedFiles, actualList);
+        assertEquals("customName-deployment", folderItem.getData().getName());
+        assertEquals(13770, folderItem.getData().getSize());
     }
 
     @Test
@@ -306,25 +271,11 @@ public class RulesDeployerServiceTest {
         }
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            IOUtils.closeQuietly(new ZipOutputStream(baos)); //make it empty
+            IOUtils.closeQuietly(new ZipOutputStream(baos)); // make it empty
             deployer.deploy("customName-deployment", new ByteArrayInputStream(baos.toByteArray()), true);
             fail("Everything went different before...");
         } catch (RulesDeployInputException e) {
             assertEquals("Cannot create a project from the given file. Zip file is empty.", e.getMessage());
-        }
-    }
-
-    private static void assertSetEquals(Set<String> expected, Set<String> actual) {
-        Set<String> rest = new HashSet<>(expected);
-        rest.removeAll(actual);
-        if (!rest.isEmpty()) {
-            fail(String.format("Missed expected items: %s", String.join(", ", rest)));
-        }
-
-        rest = new HashSet<>(actual);
-        rest.removeAll(expected);
-        if (!rest.isEmpty()) {
-            fail(String.format("Unexpected items: %s", String.join(", ", rest)));
         }
     }
 
@@ -333,18 +284,6 @@ public class RulesDeployerServiceTest {
         final String baseDeploymentPath = DEPLOY_PATH + "EPBDS-10894_yaml_project/";
         assertMultipleDeployment(toSet(baseDeploymentPath + "project1", baseDeploymentPath + "project2"),
             actualFileItems);
-
-        for (FileItem actualFileItem : actualFileItems) {
-            Map<String, byte[]> entries = DeploymentUtils.unzip(actualFileItem.getStream());
-            if ((baseDeploymentPath + "project1").equals(actualFileItem.getData().getName())) {
-                assertEquals(2, entries.size());
-                assertNotNull(entries.get("rules.xml"));
-                assertNotNull(entries.get("Project1.xlsx"));
-            } else if ((baseDeploymentPath + "project2").equals(actualFileItem.getData().getName())) {
-                assertEquals(1, entries.size());
-                assertNotNull(entries.get("Project2.xlsx"));
-            }
-        }
     }
 
     private List<FileItem> catchDeployFileItems() throws IOException {
@@ -393,6 +332,24 @@ public class RulesDeployerServiceTest {
     private Set<String> toSet(String... args) {
         return Stream.of(args).collect(Collectors.toSet());
     }
+
+    static Map<String, byte[]> unzip(InputStream in) throws IOException {
+        Map<String, byte[]> entries = new HashMap<>();
+        try (ZipInputStream zipStream = new ZipInputStream(in)) {
+            ZipEntry zipEntry;
+            while ((zipEntry = zipStream.getNextEntry()) != null) {
+                if (zipEntry.isDirectory()) {
+                    continue;
+                }
+                String name = zipEntry.getName();
+                ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                IOUtils.copyAndClose(new ZippedFileInputStream(zipStream), outputStream);
+                entries.put(name, outputStream.toByteArray());
+            }
+        }
+        return entries;
+    }
+
     private static byte[] toByteArray(InputStream source) throws IOException {
         ByteArrayOutputStream target = new ByteArrayOutputStream();
         IOUtils.copyAndClose(source, target);

@@ -1,22 +1,28 @@
 package org.openl.rules.ruleservice.deployer;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.EOFException;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -28,10 +34,12 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileSignatureHelper;
+import org.openl.util.FileTypeHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.ZipUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.yaml.snakeyaml.Yaml;
@@ -90,11 +98,27 @@ public class RulesDeployerService implements Closeable {
      */
     public void deploy(String name, InputStream in, boolean ignoreIfExists) throws IOException,
                                                                             RulesDeployInputException {
-        deployInternal(name, in, ignoreIfExists);
+        Path archiveTmp = Files.createTempFile(StringUtils.isBlank(name) ? DEFAULT_DEPLOYMENT_NAME : name, ".zip");
+        try {
+            IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
+            deployInternal(archiveTmp, name, ignoreIfExists);
+        } finally {
+            deleteQuietly(archiveTmp);
+        }
     }
 
     public void deploy(InputStream in, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
-        deployInternal(null, in, ignoreIfExists);
+        Path archiveTmp = Files.createTempFile(DEFAULT_DEPLOYMENT_NAME, ".zip");
+        try {
+            IOUtils.copyAndClose(in, Files.newOutputStream(archiveTmp));
+            deployInternal(archiveTmp, null, ignoreIfExists);
+        } finally {
+            deleteQuietly(archiveTmp);
+        }
+    }
+
+    public void deploy(File file, boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+        deployInternal(file.toPath(), FileUtils.getBaseName(file.getName()), ignoreIfExists);
     }
 
     /**
@@ -122,9 +146,6 @@ public class RulesDeployerService implements Closeable {
             final String basePath = isMultiProject ? fullDeployPath : baseDeployPath + projectsPath.iterator().next();
             List<FileData> files = deployRepo.list(basePath);
             try (ZipOutputStream target = new ZipOutputStream(output)) {
-                if (isMultiProject && !isDeployment) {
-                    target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
-                }
                 for (FileData fileData : files) {
                     try (FileItem fileItem = deployRepo.read(fileData.getName())) {
                         ZipEntry targetEntry = new ZipEntry(
@@ -141,7 +162,6 @@ public class RulesDeployerService implements Closeable {
                 return;
             }
             try (ZipOutputStream target = new ZipOutputStream(output)) {
-                target.putNextEntry(new ZipEntry(DeploymentDescriptor.YAML.getFileName()));
                 for (String projectPath : projectsPath) {
                     final String projectFolder = projectPath.substring(deployPath.length() + 1) + "/";
                     final String fullDeployPath = baseDeployPath + projectPath;
@@ -185,130 +205,151 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    private void deployInternal(String originalName, InputStream in, boolean ignoreIfExists) throws IOException,
-                                                                                             RulesDeployInputException {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        IOUtils.copyAndClose(in, baos);
-        if (baos.size() < 4 || !FileSignatureHelper.isArchiveSign(readSignature(baos.toByteArray()))) {
-            throw new RulesDeployInputException("Provided file is not an archive!");
-        }
-        if (FileSignatureHelper.isEmptyArchive(readSignature(baos.toByteArray()))) {
-            throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
-        }
+    private void deployInternal(Path pathToArchive,
+            String originalName,
+            boolean ignoreIfExists) throws IOException, RulesDeployInputException {
+        validateSignature(pathToArchive);
         if (originalName != null) {
             // For some reason Java doesn't allow trailing whitespace in folder names
             originalName = originalName.trim();
         }
-
-        Map<String, byte[]> zipEntries = DeploymentUtils.unzip(new ByteArrayInputStream(baos.toByteArray()));
-        if (!hasDeploymentDescriptor(zipEntries)) {
-            String projectName = Optional.ofNullable(zipEntries.get(RULES_XML))
-                .map(DeploymentUtils::getProjectName)
-                .filter(StringUtils::isNotBlank)
-                .orElse(null);
-            if (projectName == null) {
-                projectName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
-            }
-            FileData dest = createFileData(zipEntries, projectName, projectName, ignoreIfExists);
-            if (dest != null) {
-                doDeploy(dest, baos.size(), new ByteArrayInputStream(baos.toByteArray()));
-            }
-        } else {
-            if (deployRepo.supports().folders()) {
-                String deploymentName = getDeploymentName(zipEntries);
+        try (FileSystem fs = FileSystems.newFileSystem(ZipUtils.toJarURI(pathToArchive), Collections.emptyMap())) {
+            final Path root = fs.getPath("/");
+            if (isRulesProject(root)) {
+                deployRegularProject(pathToArchive, originalName, ignoreIfExists, root);
+            } else {
+                String deploymentName = Stream
+                    .of(DeploymentDescriptor.XML.getFileName(), DeploymentDescriptor.YAML.getFileName())
+                    .map(root::resolve)
+                    .filter(Files::exists)
+                    .filter(Files::isRegularFile)
+                    .map(RulesDeployerService::getDeploymentName)
+                    .filter(Objects::nonNull)
+                    .findFirst()
+                    .orElse(null);
                 if (StringUtils.isBlank(deploymentName)) {
                     deploymentName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
                 }
-                if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
-                    LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
-                    return;
-                }
-                FileData dest = new FileData();
-                dest.setName(baseDeployPath + deploymentName);
-                dest.setAuthor(DEFAULT_AUTHOR_NAME);
-                dest.setSize(baos.size());
-                FileChangesFromZip changes = new FileChangesFromZip(
-                    new ZipInputStream(new ByteArrayInputStream(baos.toByteArray())),
-                    dest.getName());
-                ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)),
-                    ChangesetType.FULL);
-            } else {
-                // split zip to single-project deployment if repository doesn't support folders
-                List<FileItem> fileItems = splitMultipleDeployment(zipEntries, originalName, ignoreIfExists);
-                deployRepo.save(fileItems);
+                deployMultiProject(pathToArchive, ignoreIfExists, root, deploymentName);
             }
         }
     }
 
-    private static int readSignature(byte[] array) throws EOFException {
-        if (array.length < 4) {
-            throw new EOFException();
+    private void deployMultiProject(Path pathToArchive,
+            boolean ignoreIfExists,
+            Path root,
+            String deploymentName) throws IOException {
+
+        if (deployRepo.supports().folders()) {
+            if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
+                LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
+                return;
+            }
+            BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);
+            FileData dest = new FileData();
+            dest.setName(baseDeployPath + deploymentName);
+            dest.setAuthor(DEFAULT_AUTHOR_NAME);
+            dest.setSize(attrs.size());
+            try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
+                ((FolderRepository) deployRepo).save(Collections.singletonList(new FolderItem(dest, changes)),
+                    ChangesetType.FULL);
+            }
+        } else {
+            // split zip to single-project deployment if repository doesn't support folders
+            final List<Path> folders;
+            try (Stream<Path> stream = Files.walk(root, 1)) {
+                folders = stream.filter(path -> !root.equals(path)).filter(Files::isDirectory).map(folder -> {
+                    String s = folder.toString();
+                    if (s.endsWith("/")) {
+                        return root.resolve(s.substring(0, s.length() - 1));
+                    }
+                    return folder;
+                }).filter(RulesDeployerService::isRulesProject).collect(Collectors.toList());
+            }
+            List<Path> tmpArchives = new ArrayList<>();
+            List<FileItem> fileItems = new ArrayList<>();
+            try {
+                for (Path folder : folders) {
+                    String folderName = folder.getFileName().toString();
+                    Optional<FileData> fileData = createFileData(folder, deploymentName, folderName, ignoreIfExists);
+                    if (!fileData.isPresent()) {
+                        continue;
+                    }
+                    Path tmp = Files.createTempFile(folderName, ".zip");
+                    tmpArchives.add(tmp);
+                    try (ZipOutputStream target = new ZipOutputStream(Files.newOutputStream(tmp))) {
+                        Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+                            @Override
+                            public FileVisitResult visitFile(Path p, BasicFileAttributes attr) throws IOException {
+                                if (!attr.isRegularFile()) {
+                                    return FileVisitResult.CONTINUE;
+                                }
+                                ZipEntry targetEntry = new ZipEntry(folder.relativize(p).toString());
+                                target.putNextEntry(targetEntry);
+                                try (InputStream source = Files.newInputStream(p)) {
+                                    IOUtils.copy(source, target);
+                                }
+                                return FileVisitResult.CONTINUE;
+                            }
+                        });
+                    }
+                    BasicFileAttributes attrs = Files.readAttributes(tmp, BasicFileAttributes.class);
+                    FileData dest = fileData.get();
+                    dest.setSize(attrs.size());
+                    fileItems.add(new FileItem(dest, Files.newInputStream(tmp)));
+                }
+                if (!fileItems.isEmpty()) {
+                    deployRepo.save(fileItems);
+                }
+            } finally {
+                fileItems.stream().map(FileItem::getStream).forEach(IOUtils::closeQuietly);
+                tmpArchives.forEach(RulesDeployerService::deleteQuietly);
+            }
         }
-        return ((array[0] << 24) + (array[1] << 16) + (array[2] << 8) + array[3]);
+    }
+
+    private void deployRegularProject(Path pathToArchive,
+            String originalName,
+            boolean ignoreIfExists,
+            Path root) throws IOException {
+
+        String projectName = getProjectDescriptor(root).map(f -> {
+            try (InputStream in = Files.newInputStream(f)) {
+                return DeploymentUtils.getProjectName(in);
+            } catch (IOException e) {
+                LOG.debug(e.getMessage(), e);
+                return null;
+            }
+        }).orElse(null);
+        if (projectName == null) {
+            projectName = StringUtils.isNotBlank(originalName) ? originalName : randomDeploymentName();
+        }
+        Optional<FileData> fileData = createFileData(root, projectName, projectName, ignoreIfExists);
+        if (fileData.isPresent()) {
+            FileData dest = fileData.get();
+            if (deployRepo.supports().folders()) {
+                try (FileChangesFromFolder changes = new FileChangesFromFolder(root, dest.getName())) {
+                    ((FolderRepository) deployRepo).save(dest, changes, ChangesetType.FULL);
+                }
+            } else {
+                BasicFileAttributes attrs = Files.readAttributes(pathToArchive, BasicFileAttributes.class);
+                dest.setSize(attrs.size());
+                try (InputStream inputStream = Files.newInputStream(pathToArchive)) {
+                    deployRepo.save(dest, inputStream);
+                }
+            }
+        }
     }
 
     private static String randomDeploymentName() {
         return DEFAULT_DEPLOYMENT_NAME + System.currentTimeMillis();
     }
 
-    private List<FileItem> splitMultipleDeployment(Map<String, byte[]> zipEntries,
-            String defaultDeploymentName,
-            boolean ignoreIfExists) throws IOException {
-        Set<String> projectFolders = new HashSet<>();
-        for (String fileName : zipEntries.keySet()) {
-            int idx = fileName.indexOf('/');
-            if (idx > 0) {
-                String projectFolder = fileName.substring(0, idx);
-                projectFolders.add(projectFolder);
-            }
-        }
-        if (projectFolders.isEmpty()) {
-            return Collections.emptyList();
-        }
-        List<FileItem> fileItems = new ArrayList<>();
-        String deploymentName = getDeploymentName(zipEntries);
-        if (StringUtils.isBlank(deploymentName)) {
-            deploymentName = StringUtils.isNotBlank(defaultDeploymentName) ? defaultDeploymentName
-                                                                           : randomDeploymentName();
-        }
-        for (String projectFolder : projectFolders) {
-            Map<String, byte[]> newProjectEntries = new HashMap<>();
-            for (Map.Entry<String, byte[]> entry : zipEntries.entrySet()) {
-                String originalPath = entry.getKey();
-                if (originalPath.startsWith(projectFolder + "/")) {
-                    String newPath = originalPath.substring(projectFolder.length() + 1);
-                    newProjectEntries.put(newPath, entry.getValue());
-                }
-            }
-            if (!newProjectEntries.isEmpty()) {
-                FileData dest = createFileData(newProjectEntries, deploymentName, projectFolder, ignoreIfExists);
-                if (dest == null) {
-                    return Collections.emptyList();
-                }
-                ByteArrayOutputStream zipbaos = DeploymentUtils.archiveAsZip(newProjectEntries);
-                if (!deployRepo.supports().folders()) {
-                    dest.setSize(zipbaos.size());
-                }
-                fileItems.add(new FileItem(dest, new ByteArrayInputStream(zipbaos.toByteArray())));
-            }
-        }
-        if (fileItems.isEmpty()) {
-            throw new RuntimeException("Invalid deployment structure! Cannot detect projects.");
-        }
-        return fileItems;
-    }
-
-    private static boolean hasDeploymentDescriptor(Map<String, byte[]> zipEntries) {
-        return zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null || zipEntries
-            .get(DeploymentDescriptor.YAML.getFileName()) != null;
-    }
-
-    private static String getDeploymentName(Map<String, byte[]> zipEntries) {
-        if (zipEntries.get(DeploymentDescriptor.XML.getFileName()) != null) {
+    private static String getDeploymentName(Path deploymentDescriptor) {
+        if (DeploymentDescriptor.XML.getFileName().equals(deploymentDescriptor.getFileName().toString())) {
             return null;
         } else {
-            byte[] bytes = zipEntries.get(DeploymentDescriptor.YAML.getFileName());
-            try (InputStream fileStream = new ByteArrayInputStream(bytes)) {
+            try (InputStream fileStream = Files.newInputStream(deploymentDescriptor)) {
                 Yaml yaml = new Yaml();
                 return Optional.ofNullable(yaml.loadAs(fileStream, Map.class))
                     .map(prop -> prop.get("name"))
@@ -322,44 +363,95 @@ public class RulesDeployerService implements Closeable {
         }
     }
 
-    private FileData createFileData(Map<String, byte[]> zipEntries,
+    private Optional<FileData> createFileData(Path root,
             String deploymentName,
             String projectName,
             boolean ignoreIfExists) throws IOException {
+        Optional<String> apiVersion = Optional.of(RULES_DEPLOY_XML)
+            .map(root::resolve)
+            .filter(Files::isRegularFile)
+            .map(f -> {
+                try (InputStream in = Files.newInputStream(f)) {
+                    return DeploymentUtils.getApiVersion(in);
+                } catch (IOException e) {
+                    LOG.debug(e.getMessage(), e);
+                    return null;
+                }
+            })
+            .filter(StringUtils::isNotBlank);
 
-        String apiVersion = Optional.ofNullable(zipEntries.get(RULES_DEPLOY_XML))
-            .map(DeploymentUtils::getApiVersion)
-            .filter(StringUtils::isNotBlank)
-            .orElse(null);
-        if (apiVersion != null) {
-            deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion;
+        if (apiVersion.isPresent()) {
+            deploymentName += DeploymentUtils.API_VERSION_SEPARATOR + apiVersion.get();
         }
 
         if (!ignoreIfExists && isRulesDeployed(deploymentName)) {
             LOG.info("Module '{}' is skipped for deploy because it has been already deployed.", deploymentName);
-            return null;
+            return Optional.empty();
         }
         FileData dest = new FileData();
         String name = baseDeployPath + deploymentName;
         dest.setName(name + '/' + projectName);
         dest.setAuthor(DEFAULT_AUTHOR_NAME);
-        return dest;
-    }
-
-    private void doDeploy(FileData dest, Integer contentSize, InputStream inputStream) throws IOException {
-        if (deployRepo.supports().folders()) {
-            ((FolderRepository) deployRepo).save(dest,
-                new FileChangesFromZip(new ZipInputStream(inputStream), dest.getName()),
-                ChangesetType.FULL);
-        } else {
-            dest.setSize(contentSize);
-            deployRepo.save(dest, inputStream);
-        }
+        return Optional.of(dest);
     }
 
     private boolean isRulesDeployed(String deploymentName) throws IOException {
         List<FileData> deployments = deployRepo.list(baseDeployPath + deploymentName + "/");
         return !deployments.isEmpty();
+    }
+
+    private static void validateSignature(Path path) throws RulesDeployInputException {
+        if (!Files.isRegularFile(path)) {
+            throw new RulesDeployInputException("Provided file is not an archive!");
+        }
+        int sign = readSignature(path);
+        if (!FileSignatureHelper.isArchiveSign(sign)) {
+            throw new RulesDeployInputException("Provided file is not an archive!");
+        }
+        if (FileSignatureHelper.isEmptyArchive(sign)) {
+            throw new RulesDeployInputException("Cannot create a project from the given file. Zip file is empty.");
+        }
+    }
+
+    private static int readSignature(Path path) {
+        try (RandomAccessFile raf = new RandomAccessFile(path.toFile(), "r")) {
+            return raf.readInt();
+        } catch (IOException ignored) {
+            return -1;
+        }
+    }
+
+    private static void deleteQuietly(Path path) {
+        try {
+            Files.delete(path);
+        } catch (IOException e) {
+            LOG.debug(e.getMessage(), e);
+        }
+    }
+
+    private static boolean isRulesProject(Path root) {
+        if (getProjectDescriptor(root).isPresent()) {
+            return true;
+        }
+        try (Stream<Path> stream = Files.walk(root, 1)) {
+            return stream.anyMatch(file -> {
+                try {
+                    if (!Files.isHidden(file)) {
+                        return Files.isRegularFile(file) && FileTypeHelper.isExcelFile(file.getFileName().toString());
+                    }
+                } catch (IOException e) {
+                    LOG.debug(e.getMessage(), e);
+                }
+                return false;
+            });
+        } catch (IOException e) {
+            LOG.debug(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    private static Optional<Path> getProjectDescriptor(Path root) {
+        return Optional.of(RULES_XML).map(root::resolve).filter(Files::isRegularFile);
     }
 
     @Override
