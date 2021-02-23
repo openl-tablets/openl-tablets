@@ -101,6 +101,15 @@ public interface Repository extends AutoCloseable {
     boolean delete(FileData data) throws IOException;
 
     /**
+     * Delete multiple files or mark it as deleted in one transaction.
+     *
+     * @param data list of files to delete
+     * @return true if at least one file is deleted
+     * @throws IOException if not possible to delete the file
+     */
+    boolean delete(List<FileData> data) throws  IOException;
+
+    /**
      * Set a listener to monitor changes in the repository.
      *
      * @param callback the listener.

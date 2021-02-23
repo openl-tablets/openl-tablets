@@ -293,6 +293,23 @@ public class S3Repository implements Repository, Closeable {
     }
 
     @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        if (data.isEmpty()) {
+            return false;
+        }
+        for (FileData f : data) {
+            try {
+                s3.deleteObject(bucketName, f.getName());
+            } catch (SdkClientException e) {
+                log.error(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            }
+        }
+        onModified();
+        return true;
+    }
+
+    @Override
     public void setListener(final Listener callback) {
         if (monitor != null) {
             monitor.setListener(callback);

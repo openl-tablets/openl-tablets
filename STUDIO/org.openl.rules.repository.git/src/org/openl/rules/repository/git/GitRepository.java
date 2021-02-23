@@ -314,6 +314,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
     @Override
     public boolean delete(FileData data) throws IOException {
+        if (deleteInternal(data)) {
+            monitor.fireOnChange();
+            return true;
+        }
+        return false;
+    }
+
+    private boolean deleteInternal(FileData data) throws IOException {
         String commitId = null;
 
         Lock writeLock = repositoryLock.writeLock();
@@ -379,8 +387,19 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             log.debug("delete(): unlock");
         }
 
-        monitor.fireOnChange();
         return true;
+    }
+
+    @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        boolean deleted = false;
+        for (FileData f : data) {
+            deleted |= deleteInternal(f);
+        }
+        if (deleted) {
+            monitor.fireOnChange();
+        }
+        return deleted;
     }
 
     @SuppressWarnings("squid:S2095") // resources are closed by IOUtils

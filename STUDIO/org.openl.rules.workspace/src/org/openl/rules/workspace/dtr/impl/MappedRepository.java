@@ -220,6 +220,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setListener(final Listener callback) {
         delegate.setListener(() -> {
             try {

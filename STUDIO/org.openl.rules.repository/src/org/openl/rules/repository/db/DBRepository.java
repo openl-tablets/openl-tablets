@@ -126,7 +126,9 @@ abstract class DBRepository implements Repository, Closeable {
 
     @Override
     public FileData save(FileData data, InputStream stream) throws IOException {
-        return insertFile(data, stream);
+        FileData result = insertFile(data, stream);
+        invokeListener();
+        return result;
     }
 
     @Override
@@ -168,6 +170,35 @@ abstract class DBRepository implements Repository, Closeable {
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        if (data.isEmpty()) {
+            return false;
+        }
+        boolean deleted = false;
+        try (Connection connection = getConnection()) {
+            connection.setAutoCommit(false);
+            for (FileData f : data) {
+                FileData lastVersion = getLatestVersionFileData(connection, f.getName());
+                if (lastVersion != null) {
+                    try (PreparedStatement statement = createInsertFileStatement(connection, lastVersion, null)) {
+                        statement.executeUpdate();
+                        deleted = true;
+                    } catch (SQLException e) {
+                        throw new IOException(e);
+                    }
+                }
+            }
+            connection.commit();
+        } catch (SQLException e) {
+            throw new IOException(e);
+        }
+        if (deleted) {
+            invokeListener();
+        }
+        return deleted;
     }
 
     private FileData copy(String srcName, FileData destData) throws IOException {
@@ -350,10 +381,20 @@ abstract class DBRepository implements Repository, Closeable {
 
     private FileData getLatestVersionFileData(String name) throws IOException {
         Connection connection = null;
+        try {
+            connection = getConnection();
+            return getLatestVersionFileData(connection, name);
+        } catch (SQLException e) {
+            throw new IOException(e);
+        } finally {
+            SqlDBUtils.safeClose(connection);
+        }
+    }
+
+    private FileData getLatestVersionFileData(Connection connection, String name) throws IOException {
         PreparedStatement statement = null;
         ResultSet rs = null;
         try {
-            connection = getConnection();
             statement = connection.prepareStatement(settings.readActualFileMetaInfo);
             statement.setString(1, name);
             rs = statement.executeQuery();
@@ -362,17 +403,12 @@ abstract class DBRepository implements Repository, Closeable {
             if (rs.next()) {
                 fileData = createFileData(rs);
             }
-
-            rs.close();
-            statement.close();
-
             return fileData;
         } catch (SQLException e) {
             throw new IOException(e);
         } finally {
             SqlDBUtils.safeClose(rs);
             SqlDBUtils.safeClose(statement);
-            SqlDBUtils.safeClose(connection);
         }
     }
 
@@ -465,7 +501,6 @@ abstract class DBRepository implements Repository, Closeable {
             SqlDBUtils.safeClose(statement);
             SqlDBUtils.safeClose(connection);
         }
-        invokeListener();
         return data;
     }
 

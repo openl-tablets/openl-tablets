@@ -388,6 +388,11 @@ abstract class AbstractArchiveRepository implements FolderRepository, Closeable 
     }
 
     @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setListener(Listener callback) {
 
     }

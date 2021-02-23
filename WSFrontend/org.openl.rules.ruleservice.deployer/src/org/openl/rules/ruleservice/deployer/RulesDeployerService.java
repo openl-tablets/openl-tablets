@@ -17,7 +17,6 @@ import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
@@ -45,10 +44,6 @@ import org.yaml.snakeyaml.Yaml;
 public class RulesDeployerService implements Closeable {
 
     private static final Logger LOG = LoggerFactory.getLogger(RulesDeployerService.class);
-
-    private static final Set<String> DEPLOY_DESCRIPTOR_FILES = Stream.of(DeploymentDescriptor.values())
-        .map(DeploymentDescriptor::getFileName)
-        .collect(Collectors.toSet());
 
     private static final String RULES_XML = "rules.xml";
     private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
@@ -106,7 +101,6 @@ public class RulesDeployerService implements Closeable {
      * Read a service by the given path name.
      *
      * @param deployPath deployPath of the service to read.
-     * @return the InputStream containing project archive.
      * @throws IOException if not possible to read the file.
      */
     public void read(String deployPath, Set<String> projectsPath, OutputStream output) throws IOException {
@@ -178,18 +172,16 @@ public class RulesDeployerService implements Closeable {
      * @return true if file has been deleted successfully or false if the file is absent or cannot be deleted.
      */
     public boolean delete(String deployPath, Set<String> projectsPath) throws IOException {
-        final String fullDeployPath = baseDeployPath + deployPath;
         if (deployRepo.supports().folders()) {
-            FileData fd = deployRepo.check(fullDeployPath);
+            FileData fd = deployRepo.check(baseDeployPath + deployPath);
             return deployRepo.delete(fd);
         } else {
-            boolean deleted = false;
-            for (String projectPath : projectsPath) {
-                final String fullProjectPath = baseDeployPath + projectPath;
-                FileData fd = deployRepo.check(fullProjectPath);
-                deleted |= deployRepo.delete(fd);
-            }
-            return deleted;
+            List<FileData> toDelete = projectsPath.stream().map(name -> baseDeployPath + name).map(name -> {
+                FileData data = new FileData();
+                data.setName(name);
+                return data;
+            }).collect(Collectors.toList());
+            return deployRepo.delete(toDelete);
         }
     }
 

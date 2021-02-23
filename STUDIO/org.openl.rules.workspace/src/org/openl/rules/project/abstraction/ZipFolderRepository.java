@@ -91,6 +91,11 @@ class ZipFolderRepository implements Repository {
     }
 
     @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public void setListener(Listener callback) {
         throw new UnsupportedOperationException();
     }
