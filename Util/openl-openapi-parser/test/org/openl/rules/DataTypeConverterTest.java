@@ -204,7 +204,7 @@ public class DataTypeConverterTest {
         List<FieldModel> fields = datatypeModel.getFields();
         FieldModel aField = findField(fields, "A");
         assertEquals("A", aField.getName());
-        assertEquals("BigDecimal", aField.getType());
+        assertEquals("Double", aField.getType());
         assertEquals("0", aField.getDefaultValue());
         FieldModel bField = findField(fields, "B");
         assertEquals("B", bField.getName());
@@ -216,7 +216,7 @@ public class DataTypeConverterTest {
         assertEquals(BigInteger.ZERO, cField.getDefaultValue());
         FieldModel dField = findField(fields, "D");
         assertEquals("D", dField.getName());
-        assertEquals("BigDecimal", dField.getType());
+        assertEquals("Double", dField.getType());
         assertEquals("2975671681509007947508815", dField.getDefaultValue());
         FieldModel eField = findField(fields, "E");
         assertEquals("E", eField.getName());
@@ -248,8 +248,8 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(cdTCodeToBeProcessedStep.isPresent());
         StepModel cdTCodeToBeProcessedStepModel = cdTCodeToBeProcessedStep.get();
-        assertEquals("BigDecimal", cdTCodeToBeProcessedStepModel.getType());
-        assertEquals("= java.math.BigDecimal.ZERO", cdTCodeToBeProcessedStepModel.getValue());
+        assertEquals("Double", cdTCodeToBeProcessedStepModel.getType());
+        assertEquals("= 0.0", cdTCodeToBeProcessedStepModel.getValue());
     }
 
     @Test

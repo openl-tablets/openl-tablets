@@ -449,12 +449,12 @@ public class OpenAPIConverterTest {
 
         SpreadsheetModel caseWithPrimitiveParamsAndWrappedResult = findSpreadsheetByName(spreadsheetResultModels,
             "Case14");
-        assertEquals("BigDecimal", caseWithPrimitiveParamsAndWrappedResult.getType());
+        assertEquals("Double", caseWithPrimitiveParamsAndWrappedResult.getType());
         PathInfo wrappedReturnPathInfo = caseWithPrimitiveParamsAndWrappedResult.getPathInfo();
         TypeInfo wrappedReturnType = wrappedReturnPathInfo.getReturnType();
-        validateTypeInfo("java.math.BigDecimal",
+        validateTypeInfo("java.lang.Double",
             wrappedReturnType.getJavaName(),
-            "BigDecimal",
+            "Double",
             wrappedReturnType.getSimpleName());
         List<InputParameter> primitiveParamsForWrappedReturn = caseWithPrimitiveParamsAndWrappedResult.getParameters();
         validateParameter(primitiveParamsForWrappedReturn, "a", "int", "int");
@@ -476,11 +476,11 @@ public class OpenAPIConverterTest {
         SpreadsheetModel spreadsheetWithExpandedRequestAndWrappedReturnType = findSpreadsheetByName(
             spreadsheetResultModels,
             "Case24");
-        assertEquals("BigDecimal", spreadsheetWithExpandedRequestAndWrappedReturnType.getType());
+        assertEquals("Double", spreadsheetWithExpandedRequestAndWrappedReturnType.getType());
         PathInfo pathInfo = spreadsheetWithExpandedRequestAndWrappedReturnType.getPathInfo();
         TypeInfo returnType = pathInfo.getReturnType();
-        assertEquals("java.math.BigDecimal", returnType.getJavaName());
-        assertEquals("BigDecimal", returnType.getSimpleName());
+        assertEquals("java.lang.Double", returnType.getJavaName());
+        assertEquals("Double", returnType.getSimpleName());
         List<InputParameter> parameters = spreadsheetWithExpandedRequestAndWrappedReturnType.getParameters();
         validateParameter(parameters, "a", "java.lang.Integer", "Integer");
         validateParameter(parameters, "b", "java.lang.Double", "Double");
@@ -526,12 +526,12 @@ public class OpenAPIConverterTest {
         validateParameter(primitiveParametersWithRC, "c", "java.lang.Boolean", "Boolean");
 
         SpreadsheetModel wrappedWithRC = findSpreadsheetByName(spreadsheetsWithRuntimeContext, "Case14");
-        assertEquals("BigDecimal", wrappedWithRC.getType());
+        assertEquals("Double", wrappedWithRC.getType());
         PathInfo wrappedWithRCPathInfo = wrappedWithRC.getPathInfo();
         TypeInfo wrappedRCReturnType = wrappedWithRCPathInfo.getReturnType();
-        validateTypeInfo("java.math.BigDecimal",
+        validateTypeInfo("java.lang.Double",
             wrappedRCReturnType.getJavaName(),
-            "BigDecimal",
+            "Double",
             wrappedRCReturnType.getSimpleName());
         List<InputParameter> wrappedWithRCParameters = wrappedWithRC.getParameters();
         validateParameter(wrappedWithRCParameters, "a", "java.lang.Integer", "Integer");

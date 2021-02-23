@@ -3,7 +3,6 @@ package org.openl.rules.openapi.impl;
 import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT;
 import static org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter.SPREADSHEET_RESULT_CLASS_NAME;
 
-import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -52,7 +51,6 @@ public class OpenAPITypeUtils {
     public static final String LONG = "Long";
     public static final String FLOAT = "Float";
     public static final String DOUBLE = "Double";
-    public static final String BIG_DECIMAL = "BigDecimal";
     public static final String BIG_INTEGER = "BigInteger";
 
     public static final String DOUBLE_PRIMITIVE = "double";
@@ -87,7 +85,6 @@ public class OpenAPITypeUtils {
         wrapperMap.put(boolean.class.getSimpleName(), new TypeInfo(Boolean.class));
         wrapperMap.put(Object.class.getSimpleName(), new TypeInfo(Object.class));
         wrapperMap.put("bigInt", new TypeInfo(BigInteger.class));
-        wrapperMap.put("bigDecimal", new TypeInfo(BigDecimal.class));
         return Collections.unmodifiableMap(wrapperMap);
     }
 
@@ -122,7 +119,7 @@ public class OpenAPITypeUtils {
             if (FLOAT_PRIMITIVE.equals(format) || DOUBLE_PRIMITIVE.equals(format)) {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(format) : WRAPPER_CLASSES.get(format);
             } else {
-                result = WRAPPER_CLASSES.get("bigDecimal");
+                result = WRAPPER_CLASSES.get(DOUBLE_PRIMITIVE);
             }
         } else if ("integer".equals(schemaType)) {
             if ("int64".equals(format)) {
@@ -200,8 +197,8 @@ public class OpenAPITypeUtils {
 
     public static boolean isSimpleType(String type) {
         return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
-            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT
-                .equals(type) || BIG_INTEGER.equals(type) || BIG_DECIMAL.equals(type) || isPrimitiveType(type);
+            .equals(type) || BOOLEAN.equals(
+                type) || DATE.equals(type) || OBJECT.equals(type) || BIG_INTEGER.equals(type) || isPrimitiveType(type);
     }
 
     public static boolean isPrimitiveType(String type) {
@@ -225,8 +222,6 @@ public class OpenAPITypeUtils {
             case FLOAT:
             case FLOAT_PRIMITIVE:
                 return "= 0.0f";
-            case BIG_DECIMAL:
-                return "= java.math.BigDecimal.ZERO";
             case STRING:
                 return "= \"\"";
             case DATE:
@@ -259,8 +254,6 @@ public class OpenAPITypeUtils {
     public static String getParentName(ComposedSchema composedSchema, OpenAPI openAPI) {
         Map<String, Schema> allSchemas = OpenLOpenAPIUtils.getSchemas(openAPI);
         List<Schema> interfaces = OpenLOpenAPIUtils.getInterfaces(composedSchema);
-        int nullSchemaChildrenCount = 0;
-        boolean hasAmbiguousParents = false;
         List<String> refedWithoutDiscriminator = new ArrayList<>();
 
         if (CollectionUtils.isNotEmpty(interfaces)) {
@@ -277,24 +270,9 @@ public class OpenAPITypeUtils {
                         return parentName;
                     } else {
                         // not a parent since discriminator.propertyName is not set
-                        hasAmbiguousParents = true;
                         refedWithoutDiscriminator.add(parentName);
                     }
-                } else {
-                    // not a ref, doing nothing, except counting the number of times the 'null' type
-                    // is listed as composed element.
-                    if (isNullType(schema)) {
-                        // If there are two interfaces, and one of them is the 'null' type,
-                        // then the parent is obvious and there is no need to warn about specifying
-                        // a determinator.
-                        nullSchemaChildrenCount++;
-                    }
                 }
-            }
-            if (refedWithoutDiscriminator.size() == 1 && nullSchemaChildrenCount == 1) {
-                // One schema is a $ref, and the other is the 'null' type, so the parent is obvious.
-                // In this particular case there is no need to specify a discriminator.
-                hasAmbiguousParents = false;
             }
         }
 
