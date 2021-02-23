@@ -51,7 +51,6 @@ public class OpenAPITypeUtils {
     public static final String LONG = "Long";
     public static final String FLOAT = "Float";
     public static final String DOUBLE = "Double";
-    public static final String BIG_INTEGER = "BigInteger";
 
     public static final String DOUBLE_PRIMITIVE = "double";
     public static final String FLOAT_PRIMITIVE = "float";
@@ -129,7 +128,7 @@ public class OpenAPITypeUtils {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
                                              : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             } else {
-                result = WRAPPER_CLASSES.get("bigInt");
+                result = WRAPPER_CLASSES.get(LONG_PRIMITIVE);
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);
@@ -197,8 +196,7 @@ public class OpenAPITypeUtils {
 
     public static boolean isSimpleType(String type) {
         return STRING.equals(type) || FLOAT.equals(type) || DOUBLE.equals(type) || INTEGER.equals(type) || LONG
-            .equals(type) || BOOLEAN.equals(
-                type) || DATE.equals(type) || OBJECT.equals(type) || BIG_INTEGER.equals(type) || isPrimitiveType(type);
+            .equals(type) || BOOLEAN.equals(type) || DATE.equals(type) || OBJECT.equals(type) || isPrimitiveType(type);
     }
 
     public static boolean isPrimitiveType(String type) {
@@ -211,8 +209,6 @@ public class OpenAPITypeUtils {
             case INTEGER:
             case INTEGER_PRIMITIVE:
                 return "= 0";
-            case BIG_INTEGER:
-                return "= java.math.BigInteger.ZERO";
             case LONG:
             case LONG_PRIMITIVE:
                 return "= 0L";

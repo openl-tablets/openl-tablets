@@ -7,7 +7,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
-import java.math.BigInteger;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -159,7 +158,9 @@ public class DataTypeConverterTest {
         List<InputParameter> parameters = spreadsheetModel.getParameters();
         assertEquals(4, parameters.size());
 
-        Optional<InputParameter> numDui = parameters.stream().filter(x -> x.getFormattedName().equals("numDUI")).findFirst();
+        Optional<InputParameter> numDui = parameters.stream()
+            .filter(x -> x.getFormattedName().equals("numDUI"))
+            .findFirst();
         assertTrue(numDui.isPresent());
 
         Optional<InputParameter> numAccidents = parameters.stream()
@@ -167,7 +168,9 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(numAccidents.isPresent());
 
-        Optional<InputParameter> category = parameters.stream().filter(x -> x.getFormattedName().equals("category")).findFirst();
+        Optional<InputParameter> category = parameters.stream()
+            .filter(x -> x.getFormattedName().equals("category"))
+            .findFirst();
         assertTrue(category.isPresent());
 
         Optional<InputParameter> numMovingViolations = parameters.stream()
@@ -208,24 +211,24 @@ public class DataTypeConverterTest {
         assertEquals("0", aField.getDefaultValue());
         FieldModel bField = findField(fields, "B");
         assertEquals("B", bField.getName());
-        assertEquals("BigInteger", bField.getType());
+        assertEquals("Long", bField.getType());
         assertEquals(0, bField.getDefaultValue());
         FieldModel cField = findField(fields, "C");
         assertEquals("C", cField.getName());
-        assertEquals("BigInteger", cField.getType());
-        assertEquals(BigInteger.ZERO, cField.getDefaultValue());
+        assertEquals("Long", cField.getType());
+        assertEquals(0L, cField.getDefaultValue());
         FieldModel dField = findField(fields, "D");
         assertEquals("D", dField.getName());
         assertEquals("Double", dField.getType());
         assertEquals("2975671681509007947508815", dField.getDefaultValue());
         FieldModel eField = findField(fields, "E");
         assertEquals("E", eField.getName());
-        assertEquals("BigInteger", eField.getType());
+        assertEquals("Long", eField.getType());
         assertEquals(2147483647, eField.getDefaultValue());
         FieldModel fField = findField(fields, "F");
         assertEquals("F", fField.getName());
-        assertEquals("BigInteger", fField.getType());
-        assertEquals(BigInteger.ZERO, fField.getDefaultValue());
+        assertEquals("Long", fField.getType());
+        assertEquals(0L, fField.getDefaultValue());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()
@@ -239,8 +242,8 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(cdTcodeValidationResultStep.isPresent());
         StepModel stepModel = cdTcodeValidationResultStep.get();
-        assertEquals("BigInteger", stepModel.getType());
-        assertEquals("= java.math.BigInteger.ZERO", stepModel.getValue());
+        assertEquals("Long", stepModel.getType());
+        assertEquals("= 0L", stepModel.getValue());
 
         Optional<StepModel> cdTCodeToBeProcessedStep = sm.getSteps()
             .stream()

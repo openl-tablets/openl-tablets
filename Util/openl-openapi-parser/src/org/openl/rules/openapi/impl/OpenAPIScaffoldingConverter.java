@@ -7,7 +7,7 @@ import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.TEXT_PLAIN;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
 
-import java.math.BigInteger;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1061,7 +1061,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Object defaultValue;
         if ((valueSchema instanceof IntegerSchema) && valueSchema.getFormat() == null) {
             if (valueSchema.getDefault() == null) {
-                defaultValue = BigInteger.ZERO;
+                defaultValue = 0L;
             } else {
                 defaultValue = valueSchema.getDefault();
             }
