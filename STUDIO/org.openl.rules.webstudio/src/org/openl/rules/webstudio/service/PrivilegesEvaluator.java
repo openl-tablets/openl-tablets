@@ -1,4 +1,4 @@
-package org.openl.rules.security.standalone.service;
+package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
 import java.util.Collection;

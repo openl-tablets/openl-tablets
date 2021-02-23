@@ -1,5 +1,6 @@
 package org.openl.rules.webstudio.service;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,9 +9,9 @@ import org.openl.rules.security.Group;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.SimpleUser;
-import org.openl.rules.webstudio.web.Props;
 import org.openl.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
@@ -33,17 +34,23 @@ public class AdminUsers {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
+    @Autowired
+    private Environment environment;
+
+    private Set<String> administrators;
+
     private static final String ADMIN = Privileges.ADMIN.name();
     private static final String ADMIN_GROUP = "Administrators";
 
     public void init() {
-        String[] administrators = StringUtils.split(Props.text("security.administrators"), ',');
-        for (String user : administrators) {
-            createUserAndAssignGroup(user);
-        }
+        String[] administrators = StringUtils.split(environment.getProperty("security.administrators"), ',');
+        this.administrators = new HashSet<>(Arrays.asList(administrators));
     }
 
-    private void createUserAndAssignGroup(String userToAdd) {
+    public void initIfAdminUser(String userToAdd) {
+        if (!administrators.contains(userToAdd)) {
+            return;
+        }
         SimpleUser user = (SimpleUser) userService.loadUserByUsername(userToAdd);
         String adminGroup = assignPrivileges(userToAdd);
         if (user == null) {
