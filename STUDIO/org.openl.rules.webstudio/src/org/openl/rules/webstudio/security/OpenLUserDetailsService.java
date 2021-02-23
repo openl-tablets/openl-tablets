@@ -46,6 +46,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
         }
 
         String username = user.getUsername();
+        String password = user.getPassword();
         String firstName = user.getFirstName();
         String lastName = user.getLastName();
 
@@ -53,24 +54,24 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
             // Map external authorities to OpenL privileges
             mapAuthorities(user.getAuthorities(), privileges);
         }
-        User userFromDB = getUserFromDB(username, firstName, lastName);
+        User userFromDB = getUserFromDB(username, password, firstName, lastName);
         if (userFromDB != null) {
             // Add authorities from the DB
             privileges.addAll((Collection<? extends Privilege>) userFromDB.getAuthorities());
         }
 
-        return new SimpleUser(firstName, lastName, username, user.getPassword(), privileges);
+        return new SimpleUser(firstName, lastName, username, password, privileges);
     }
 
-    private User getUserFromDB(String username, String firstName, String lastName) {
+    private User getUserFromDB(String username, String password, String firstName, String lastName) {
         adminUsersInitializer.initIfAdminUser(username);
         User userDetails = userManagementService.loadUserByUsername(username);
         if (userDetails == null) {
             // Create a new user
-            userManagementService.addUser(username, firstName, lastName, null);
+            userManagementService.addUser(username, firstName, lastName, password);
         } else {
             // Update exists
-            userManagementService.updateUserData(username, firstName, lastName, null, true);
+            userManagementService.updateUserData(username, firstName, lastName, password, true);
         }
         return userDetails;
     }
