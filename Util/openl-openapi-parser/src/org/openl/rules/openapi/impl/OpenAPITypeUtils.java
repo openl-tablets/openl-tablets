@@ -128,7 +128,7 @@ public class OpenAPITypeUtils {
                 result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(INTEGER_PRIMITIVE)
                                              : WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             } else {
-                result = WRAPPER_CLASSES.get(LONG_PRIMITIVE);
+                result = WRAPPER_CLASSES.get(INTEGER_PRIMITIVE);
             }
         } else if (BOOLEAN_PRIMITIVE.equals(schemaType)) {
             result = allowPrimitiveTypes ? PRIMITIVE_CLASSES.get(schemaType) : WRAPPER_CLASSES.get(schemaType);

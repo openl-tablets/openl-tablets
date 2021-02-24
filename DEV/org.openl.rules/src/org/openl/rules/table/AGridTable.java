@@ -9,7 +9,8 @@ import org.openl.rules.table.xls.XlsUrlParser;
  */
 public abstract class AGridTable implements IGridTable {
 
-    private XlsUrlParser cacheUrlParser;
+    private volatile XlsUrlParser urlParser;
+    private volatile String uri;
 
     @Override
     public IGridRegion getRegion() {
@@ -32,18 +33,29 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String getUri() {
-        int w = getWidth();
-        int h = getHeight();
-        return getGrid()
-            .getRangeUri(getGridColumn(0, 0), getGridRow(0, 0), getGridColumn(w - 1, h - 1), getGridRow(w - 1, h - 1));
+        if (uri == null) {
+            synchronized (this) {
+                int w = getWidth();
+                int h = getHeight();
+                uri = getGrid().getRangeUri(getGridColumn(0, 0),
+                        getGridRow(0, 0),
+                        getGridColumn(w - 1, h - 1),
+                        getGridRow(w - 1, h - 1));
+            }
+        }
+        return uri;
     }
 
     @Override
     public XlsUrlParser getUriParser() {
-        if (cacheUrlParser == null) {
-            cacheUrlParser = new XlsUrlParser(getUri());
+        if (urlParser == null) {
+            synchronized (this) {
+                if (urlParser == null) {
+                    urlParser = new XlsUrlParser(getUri());
+                }
+            }
         }
-        return cacheUrlParser;
+        return urlParser;
     }
 
     @Override

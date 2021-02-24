@@ -164,8 +164,8 @@ public class SpreadsheetsConverterTest {
         assertEquals("= 0.0f", floatStep.getValue());
 
         StepModel integerStep = findStep(steps, "numAccidentsFour");
-        assertEquals("Long", integerStep.getType());
-        assertEquals("= 0L", integerStep.getValue());
+        assertEquals("Integer", integerStep.getType());
+        assertEquals("= 0", integerStep.getValue());
 
         StepModel objectStep = findStep(steps, "numAccidentsFive");
         assertEquals("Object", objectStep.getType());

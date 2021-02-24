@@ -7,21 +7,11 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
-import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
 import org.openl.base.INamedThing;
@@ -56,6 +46,7 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
@@ -120,14 +111,6 @@ public class ProjectModel {
 
     private TreeNode projectRoot = null;
 
-    // TODO Fix performance
-    private final Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
-    private final Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
-    private final Map<String, List<OpenLMessage>> warnTableCache = new HashMap<>();
-    private final Map<String, List<OpenLMessage>> errorTableCache = new HashMap<>();
-    private final Map<OpenLMessage, String> messageNodeIds = new HashMap<>();
-    private int errorNodesNumber = 0;
-
     private DependencyRulesGraph dependencyGraph;
     private String historyStoragePath;
 
@@ -148,11 +131,11 @@ public class ProjectModel {
         this.testSuiteExecutor = testSuiteExecutor;
     }
 
-    public RulesProject getProject() {
+    public synchronized RulesProject getProject() {
         return studio.getCurrentProject();
     }
 
-    public TableSyntaxNode findNode(String url) {
+    public synchronized TableSyntaxNode findNode(String url) {
         XlsUrlParser parsedUrl = new XlsUrlParser(url);
 
         return findNode(parsedUrl);
@@ -174,8 +157,7 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-        TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
-
+        Collection<TableSyntaxNode> nodes = getAllTableSyntaxNodes();
         for (TableSyntaxNode node : nodes) {
             if (p1.intersects(node.getGridTable().getUriParser())) {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
@@ -196,31 +178,83 @@ public class ProjectModel {
         return null;
     }
 
-    public int getErrorNodesNumber() {
-        return errorNodesNumber;
+    public synchronized int getErrorNodesNumber() {
+        int count = 0;
+        Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
+            .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
+            .collect(Collectors.toList());
+        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
+            for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
+                if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
+                    if (pair.getRight().intersects(tsn.getUriParser())) {
+                        count++;
+                        break;
+                    }
+                }
+            }
+        }
+        return count;
     }
 
-    public TableSyntaxNode getTableByUri(String uri) {
-        return uriTableCache.get(uri);
+    public synchronized TableSyntaxNode getTableByUri(String uri) {
+        for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
+            if (Objects.equals(uri, tableSyntaxNode.getUri())) {
+                return tableSyntaxNode;
+            }
+        }
+        for (TableSyntaxNode tableSyntaxNode : getAllTableSyntaxNodes()) {
+            if (Objects.equals(uri, tableSyntaxNode.getUri())) {
+                return tableSyntaxNode;
+            }
+        }
+        return null;
     }
 
-    public TableSyntaxNode getNodeById(String id) {
-        return idTableCache.get(id);
+    public synchronized TableSyntaxNode getNodeById(String id) {
+        for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
+            if (Objects.equals(id, tableSyntaxNode.getId())) {
+                return tableSyntaxNode;
+            }
+        }
+        for (TableSyntaxNode tableSyntaxNode : getAllTableSyntaxNodes()) {
+            if (Objects.equals(id, tableSyntaxNode.getId())) {
+                return tableSyntaxNode;
+            }
+        }
+        return null;
     }
 
-    public List<OpenLMessage> getWarnsByUri(String uri) {
-        return Collections.unmodifiableList(warnTableCache.getOrDefault(uri, Collections.emptyList()));
+    public synchronized List<OpenLMessage> getWarnsByUri(String uri) {
+        return getMessagesByTsn(uri, Severity.WARN);
     }
 
-    public List<OpenLMessage> getErrorsByUri(String uri) {
-        return Collections.unmodifiableList(errorTableCache.getOrDefault(uri, Collections.emptyList()));
+    private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode, Severity severity) {
+        List<OpenLMessage> messages = new ArrayList<>();
+        for (OpenLMessage openLMessage : getModuleMessages()) {
+            if (openLMessage.getSourceLocation() != null && openLMessage.getSeverity() == severity) {
+                XlsUrlParser xlsUrlParser = new XlsUrlParser(openLMessage.getSourceLocation());
+                if (tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
+                    messages.add(openLMessage);
+                }
+            }
+        }
+        return messages;
     }
 
-    public ColorFilterHolder getFilterHolder() {
+    private List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
+        TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
+        return getMessagesByTsn(tableSyntaxNode, severity);
+    }
+
+    public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
+        return getMessagesByTsn(uri, Severity.ERROR);
+    }
+
+    public synchronized ColorFilterHolder getFilterHolder() {
         return filterHolder;
     }
 
-    public IOpenMethod getMethod(String tableUri) {
+    public synchronized IOpenMethod getMethod(String tableUri) {
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
@@ -305,7 +339,7 @@ public class ProjectModel {
         return metaInfo != null && uri.equals(metaInfo.getSourceUrl());
     }
 
-    public TableSyntaxNode getNode(String tableUri) {
+    public synchronized TableSyntaxNode getNode(String tableUri) {
         TableSyntaxNode tsn = null;
         if (tableUri != null) {
             tsn = getTableByUri(tableUri);
@@ -323,12 +357,11 @@ public class ProjectModel {
         return projectRoot;
     }
 
-    public IOpenLTable getTable(String tableUri) {
+    public synchronized IOpenLTable getTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
-        updateCacheTree();
         tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -337,7 +370,7 @@ public class ProjectModel {
 
     }
 
-    public IOpenLTable getTableById(String id) {
+    public synchronized IOpenLTable getTableById(String id) {
         if (projectRoot == null) {
             buildProjectTree();
         }
@@ -345,7 +378,6 @@ public class ProjectModel {
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
-        updateCacheTree();
         tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -758,7 +790,7 @@ public class ProjectModel {
         return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
-    public TableSyntaxNode[] getTableSyntaxNodes() {
+    public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
@@ -767,21 +799,19 @@ public class ProjectModel {
         return TableSyntaxNode.EMPTY_ARRAY;
     }
 
-    public TableSyntaxNode[] getAllTableSyntaxNodes() {
-        List<TableSyntaxNode> nodes = new ArrayList<>();
-
+    public synchronized Collection<TableSyntaxNode> getAllTableSyntaxNodes() {
+        List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<>();
         if (isProjectCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
                 if (node != null) {
-                    nodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
+                    tableSyntaxNodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
                 }
             }
         }
-
-        return nodes.toArray(TableSyntaxNode.EMPTY_ARRAY);
+        return tableSyntaxNodes;
     }
 
-    public int getNumberOfTables() {
+    public synchronized int getNumberOfTables() {
         int count = 0;
         TableSyntaxNode[] tables = getTableSyntaxNodes();
 
@@ -791,20 +821,6 @@ public class ProjectModel {
             }
         }
         return count;
-    }
-
-    private void updateCacheTree() {
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (tsn.getType().startsWith(XlsNodeTypes.XLS_DT.toString())) {
-                if (!uriTableCache.containsKey(tsn.getUri())) {
-                    uriTableCache.put(tsn.getUri(), tsn);
-                }
-                if (!idTableCache.containsKey(tsn.getId())) {
-                    idTableCache.put(tsn.getId(), tsn);
-                }
-            }
-        }
     }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
@@ -836,7 +852,7 @@ public class ProjectModel {
         return executableNodes;
     }
 
-    public void redraw() {
+    public synchronized void redraw() {
         projectRoot = null;
     }
 
@@ -844,7 +860,7 @@ public class ProjectModel {
         reset(reloadType, moduleInfo);
     }
 
-    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
+    public synchronized void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
                 moduleToOpen = studio.getCurrentModule();
@@ -865,7 +881,7 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public TestUnitsResults runTest(TestSuite test) {
+    public synchronized TestUnitsResults runTest(TestSuite test) {
         Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
         boolean isParallel = threads != null && threads > 1;
         return runTest(test, isParallel);
@@ -886,7 +902,7 @@ public class ProjectModel {
         }
     }
 
-    public List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors) {
+    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors) {
         XlsModuleSyntaxNode xsn = getXlsModuleNode();
         List<IOpenLTable> searchResults = new ArrayList<>();
 
@@ -903,7 +919,7 @@ public class ProjectModel {
         return searchResults;
     }
 
-    public void clearModuleInfo() {
+    public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
 
         clearModuleResources(); // prevent memory leak
@@ -917,14 +933,8 @@ public class ProjectModel {
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
-        messageNodeIds.clear();
-        idTableCache.clear();
-        uriTableCache.clear();
-        warnTableCache.clear();
-        errorTableCache.clear();
         projectRoot = null;
         workbookSyntaxNodes = null;
-        errorNodesNumber = 0;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -955,11 +965,6 @@ public class ProjectModel {
         }
 
         Module previousModuleInfo = this.moduleInfo;
-
-        if (reloadType != ReloadType.NO) {
-            uriTableCache.clear();
-            idTableCache.clear();
-        }
 
         File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
         if (reloadType == ReloadType.FORCED) {
@@ -1029,7 +1034,6 @@ public class ProjectModel {
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
-
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
                 List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
@@ -1048,7 +1052,6 @@ public class ProjectModel {
             } else {
                 workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
-            fillCaches();
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
             log.error("Failed to load.", t);
@@ -1108,53 +1111,6 @@ public class ProjectModel {
         }
     }
 
-    private void fillCaches() {
-        messageNodeIds.clear();
-        idTableCache.clear();
-        uriTableCache.clear();
-        warnTableCache.clear();
-        errorTableCache.clear();
-
-        LinkedList<OpenLMessage> moduleMessages = new LinkedList<>(getModuleMessages());
-        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
-            // Cache tables
-            String tableUri = tsn.getUri();
-            String tableId = tsn.getId();
-            XlsUrlParser uriParser = tsn.getUriParser();
-            uriTableCache.put(tableUri, tsn);
-            idTableCache.put(tableId, tsn);
-
-            Iterator<OpenLMessage> iterator = moduleMessages.iterator();
-            while (iterator.hasNext()) {
-                OpenLMessage msg = iterator.next();
-                String msgUrl = msg.getSourceLocation();
-                if (msgUrl != null && new XlsUrlParser(msgUrl).intersects(uriParser)) {
-                    iterator.remove();
-                    messageNodeIds.put(msg, tableId);
-                    switch (msg.getSeverity()) {
-                        case ERROR:
-                            errorTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
-                            break;
-                        case WARN:
-                            warnTableCache.computeIfAbsent(tableUri, s -> new ArrayList<>()).add(msg);
-                            break;
-                        default:
-                            // skip
-                            break;
-                    }
-                }
-            }
-        }
-        int count = 0;
-        TableSyntaxNode[] nodes = getTableSyntaxNodes(); // For the current module
-        for (TableSyntaxNode tsn : nodes) {
-            if (errorTableCache.containsKey(tsn.getUri())) {
-                count++;
-            }
-        }
-        errorNodesNumber = count;
-    }
-
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
@@ -1188,7 +1144,7 @@ public class ProjectModel {
         }
     }
 
-    public void traceElement(TestSuite testSuite) {
+    public synchronized void traceElement(TestSuite testSuite) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
@@ -1200,22 +1156,22 @@ public class ProjectModel {
         }
     }
 
-    public TableEditorModel getTableEditorModel(String tableUri) {
+    public synchronized TableEditorModel getTableEditorModel(String tableUri) {
         IOpenLTable table = getTable(tableUri);
         return getTableEditorModel(table);
     }
 
-    public TableEditorModel getTableEditorModel(IOpenLTable table) {
+    public synchronized TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = studio.getTableView();
         return new TableEditorModel(table, tableView, false);
     }
 
-    public boolean isProjectCompiledSuccessfully() {
+    public synchronized boolean isProjectCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
             .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
-    public DependencyRulesGraph getDependencyGraph() {
+    public synchronized DependencyRulesGraph getDependencyGraph() {
         if (dependencyGraph == null) {
             Collection<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
             dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
@@ -1223,7 +1179,7 @@ public class ProjectModel {
         return dependencyGraph;
     }
 
-    public List<File> getSources() {
+    public synchronized List<File> getSources() {
         List<File> sourceFiles = new ArrayList<>();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
@@ -1240,7 +1196,7 @@ public class ProjectModel {
         return sourceFiles;
     }
 
-    public String[] getModuleSourceNames() {
+    public synchronized String[] getModuleSourceNames() {
         List<File> moduleSources = getSources();
         String[] moduleSourceNames = new String[moduleSources.size()];
         int i = 0;
@@ -1251,7 +1207,7 @@ public class ProjectModel {
         return moduleSourceNames;
     }
 
-    public File getSourceByName(String fileName) {
+    public synchronized File getSourceByName(String fileName) {
         List<File> sourceFiles = getSources();
 
         for (File file : sourceFiles) {
@@ -1263,7 +1219,7 @@ public class ProjectModel {
         return null;
     }
 
-    public String getHistoryStoragePath() {
+    public synchronized String getHistoryStoragePath() {
         if (historyStoragePath == null) {
             File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
                 .getLocalWorkspace()
@@ -1274,11 +1230,11 @@ public class ProjectModel {
         return historyStoragePath;
     }
 
-    public RecentlyVisitedTables getRecentlyVisitedTables() {
+    public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {
         return recentlyVisitedTables;
     }
 
-    public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
+    public synchronized XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
         PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
@@ -1297,20 +1253,20 @@ public class ProjectModel {
         return null;
     }
 
-    public boolean isSingleModuleMode() {
+    public synchronized boolean isSingleModuleMode() {
         if (!isProjectCompiledSuccessfully()) {
             return shouldOpenInSingleMode(moduleInfo);
         }
         return !isVirtualWorkbook();
     }
 
-    public void useSingleModuleMode() throws Exception {
+    public synchronized void useSingleModuleMode() throws Exception {
         if (studio.isChangeableModuleMode()) {
             setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
         }
     }
 
-    public void useMultiModuleMode() throws Exception {
+    public synchronized void useMultiModuleMode() throws Exception {
         if (studio.isChangeableModuleMode()) {
             setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
         }
@@ -1321,7 +1277,7 @@ public class ProjectModel {
      *
      * Otherwise return false
      */
-    public boolean isConfirmOverwriteNewerRevision() {
+    public synchronized boolean isConfirmOverwriteNewerRevision() {
         RulesProject project = getProject();
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
     }
@@ -1355,7 +1311,7 @@ public class ProjectModel {
         }
     }
 
-    public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
+    public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
         return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
 
@@ -1381,8 +1337,15 @@ public class ProjectModel {
         return studio.isSingleModuleModeByDefault();
     }
 
-    public String getMessageNodeId(OpenLMessage message) {
-        return messageNodeIds.get(message);
+    public synchronized String getMessageNodeId(OpenLMessage message) {
+        XlsUrlParser xlsUrlParser = message.getSourceLocation() != null ? new XlsUrlParser(message.getSourceLocation())
+                                                                        : null;
+        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
+            if (xlsUrlParser != null && xlsUrlParser.intersects(tsn.getUriParser())) {
+                return tsn.getId();
+            }
+        }
+        return null;
     }
 
     private class XlsModificationListener implements XlsWorkbookListener {

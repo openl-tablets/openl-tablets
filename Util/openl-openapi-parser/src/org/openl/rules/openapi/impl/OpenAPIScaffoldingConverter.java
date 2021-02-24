@@ -1061,7 +1061,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Object defaultValue;
         if ((valueSchema instanceof IntegerSchema) && valueSchema.getFormat() == null) {
             if (valueSchema.getDefault() == null) {
-                defaultValue = 0L;
+                defaultValue = 0;
             } else {
                 defaultValue = valueSchema.getDefault();
             }
