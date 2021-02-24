@@ -21,6 +21,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -83,6 +84,9 @@ public class UsersBean {
     protected boolean canCreateExternalUsers;
 
     @Autowired
+    protected AdminUsers adminUsersInitializer;
+
+    @Autowired
     protected CurrentUserInfo currentUserInfo;
     /**
      * Validation for existed user
@@ -140,7 +144,8 @@ public class UsersBean {
 
     public boolean isOnlyAdmin(Object objUser) {
         User user = (User) objUser;
-        return currentUserInfo.getUserName().equals(user.getUsername());
+        String username = user.getUsername();
+        return adminUsersInitializer.isSuperuser(username) || currentUserInfo.getUserName().equals(username);
     }
 
     public void deleteUser(String username) {
@@ -189,6 +194,12 @@ public class UsersBean {
 
     public boolean isInternalUser() {
         return internalUser;
+    }
+
+    public boolean isUnsafePassword(User user) {
+        String password = user.getPassword();
+        String username = user.getUsername();
+        return password != null && passwordEncoder.matches(username, password);
     }
 
     public void setInternalUser(boolean internalUser) {

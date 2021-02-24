@@ -701,7 +701,7 @@ public final class DecisionTableHelper {
                             sb);
                         if (!bindingContext.isExecutionMode()) {
                             final String statementInReturn = fuzzyContext.getFuzzyReturnType()
-                                .getDisplayName(INamedThing.SHORT) + "." + buildStatementByFieldsChain(
+                                .getName() + "." + buildStatementByFieldsChain(
                                     fuzzyContext.getFuzzyReturnType(),
                                     fieldsChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
@@ -1260,14 +1260,14 @@ public final class DecisionTableHelper {
                     grid.setCellValue(column, 1, statement);
                     grid.setCellValue(column,
                         2,
-                        type.getDisplayName(INamedThing.SHORT) + " " + (minMaxOrder ? "min" : "max"));
+                        type.getName() + " " + (minMaxOrder ? "min" : "max"));
                     int w1 = numberOfColumnsUnderTitleCounter.getWidth(column, 0);
                     if (w1 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                     }
                     grid.setCellValue(column + w1,
                         2,
-                        type.getDisplayName(INamedThing.SHORT) + " " + (minMaxOrder ? "max" : "min"));
+                        type.getName() + " " + (minMaxOrder ? "max" : "min"));
                     int w2 = numberOfColumnsUnderTitleCounter.getWidth(column, 1);
                     if (w2 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column + w1, 2, column + w1 + w2 - 1));

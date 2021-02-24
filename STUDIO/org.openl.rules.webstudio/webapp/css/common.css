@@ -1575,3 +1575,31 @@ option[value=""]:disabled + option[value=""]:disabled {
 .popup-panel[style*="display: inline-block"] {
     display: block !important;
 }
+
+.edit-icon:after {
+    content: "✎";
+    color: darkorange;
+    font-size: 18px;
+    display: inline-block;
+    transform: scaleX(-1);
+}
+
+.delete-icon:after {
+    content: "✖";
+    color: red;
+    font-size: 18px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.warning-icon:after {
+    content: "⚠";
+    color: red;
+    font-size: 18px;
+    display: inline-block;
+}
+
+.warning-icon, .delete-icon, .edit-icon {
+    display: inline-block;
+    padding: 0 2px;
+}
