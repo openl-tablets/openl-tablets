@@ -142,10 +142,14 @@ public class UsersBean {
         userManagementService.updateAuthorities(username,  groups);
     }
 
-    public boolean isOnlyAdmin(Object objUser) {
-        User user = (User) objUser;
+    public boolean isSuperuser(User user) {
         String username = user.getUsername();
-        return adminUsersInitializer.isSuperuser(username) || currentUserInfo.getUserName().equals(username);
+        return adminUsersInitializer.isSuperuser(username);
+    }
+
+    public boolean isCurrentUser(User user) {
+        String username = user.getUsername();
+        return currentUserInfo.getUserName().equals(username);
     }
 
     public void deleteUser(String username) {

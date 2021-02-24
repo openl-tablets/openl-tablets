@@ -1560,9 +1560,25 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: #c00;
 }
 
-.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon {
+.no-icon:after {
+    content: "✘";
+    color: #c00;
+}
+
+.su-icon:after {
+    content: "♛";
+    color: #44f;
+}
+
+.star-icon:after {
+    content: "★";
+    color: #44f;
+}
+
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .su-icon, .star-icon {
     display: inline-block;
     padding: 0 2px;
     font-size: 18px;
     text-decoration: none;
+    width: 18px;
 }
