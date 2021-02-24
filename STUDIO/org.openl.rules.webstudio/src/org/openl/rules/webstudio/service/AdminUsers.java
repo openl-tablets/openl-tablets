@@ -47,20 +47,24 @@ public class AdminUsers {
         this.administrators = new HashSet<>(Arrays.asList(administrators));
     }
 
-    public void initIfAdminUser(String userToAdd) {
-        if (!administrators.contains(userToAdd)) {
+    public boolean isSuperuser(String username) {
+        return administrators.contains(username)   ;
+    }
+
+    public void initIfSuperuser(String username) {
+        if (!isSuperuser(username)) {
             return;
         }
-        SimpleUser user = (SimpleUser) userService.loadUserByUsername(userToAdd);
-        String adminGroup = assignPrivileges(userToAdd);
+        SimpleUser user = (SimpleUser) userService.loadUserByUsername(username);
+        String adminGroup = assignPrivileges(username);
         if (user == null) {
-            userService.addUser(userToAdd, null, null, passwordEncoder.encode(userToAdd));
-            userService.updateAuthorities(userToAdd, Collections.singleton(adminGroup));
+            userService.addUser(username, null, null, passwordEncoder.encode(username));
+            userService.updateAuthorities(username, Collections.singleton(adminGroup));
         } else if (!user.hasPrivilege(ADMIN)) {
             Set<String> groups = new HashSet<>();
             groups.add(adminGroup);
             user.getAuthorities().stream().filter(g -> g instanceof Group).map(Privilege::getName).forEach(groups::add);
-            userService.updateAuthorities(userToAdd, groups);
+            userService.updateAuthorities(username, groups);
         }
     }
 

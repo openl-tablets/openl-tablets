@@ -64,7 +64,7 @@ public class OpenLUserDetailsService implements Function<SimpleUser, SimpleUser>
     }
 
     private User getUserFromDB(String username, String password, String firstName, String lastName) {
-        adminUsersInitializer.initIfAdminUser(username);
+        adminUsersInitializer.initIfSuperuser(username);
         User userDetails = userManagementService.loadUserByUsername(username);
         if (userDetails == null) {
             // Create a new user

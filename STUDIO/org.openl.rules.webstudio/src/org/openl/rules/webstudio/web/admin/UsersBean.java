@@ -24,6 +24,7 @@ import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.User;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
@@ -83,6 +84,10 @@ public class UsersBean {
 
     @ManagedProperty(value = "#{currentUserInfo}")
     protected CurrentUserInfo currentUserInfo;
+
+    @ManagedProperty(value = "#{adminUsersInitializer}")
+    protected AdminUsers adminUsersInitializer;
+
     /**
      * Validation for existed user
      */
@@ -139,7 +144,8 @@ public class UsersBean {
 
     public boolean isOnlyAdmin(Object objUser) {
         User user = (User) objUser;
-        return currentUserInfo.getUserName().equals(user.getUsername());
+        String username = user.getUsername();
+        return adminUsersInitializer.isSuperuser(username) || currentUserInfo.getUserName().equals(username);
     }
 
     public void deleteUser(String username) {
@@ -233,6 +239,10 @@ public class UsersBean {
 
     public void setCanCreateInternalUsers(boolean canCreateInternalUsers) {
         this.canCreateInternalUsers = canCreateInternalUsers;
+    }
+
+    public void setAdminUsersInitializer(AdminUsers adminUsersInitializer) {
+        this.adminUsersInitializer = adminUsersInitializer;
     }
 
     public boolean isCanCreateInternalUsers() {

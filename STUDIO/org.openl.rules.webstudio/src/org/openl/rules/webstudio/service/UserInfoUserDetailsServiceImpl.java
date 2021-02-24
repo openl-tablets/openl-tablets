@@ -34,7 +34,7 @@ public class UserInfoUserDetailsServiceImpl implements UserDetailsService {
     @Override
     public org.openl.rules.security.User loadUserByUsername(String name) throws UsernameNotFoundException,
                                                                          DataAccessException {
-        adminUsersInitializer.initIfAdminUser(name);
+        adminUsersInitializer.initIfSuperuser(name);
         User user = userDao.getUserByName(name);
         if (user == null) {
             throw new UsernameNotFoundException(String.format("Unknown user: '%s'", name));
