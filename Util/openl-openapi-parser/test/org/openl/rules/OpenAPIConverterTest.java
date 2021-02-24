@@ -260,7 +260,7 @@ public class OpenAPIConverterTest {
         assertEquals(3, testParameters.size());
 
         InputParameter countParam = findInputParameter(testParameters, "count");
-        assertEquals("java.lang.Long", countParam.getType().getJavaName());
+        assertEquals("java.lang.Integer", countParam.getType().getJavaName());
 
         InputParameter requestParam = findInputParameter(testParameters, "requestTest");
         assertEquals("java.lang.String", requestParam.getType().getJavaName());

@@ -211,24 +211,24 @@ public class DataTypeConverterTest {
         assertEquals("0", aField.getDefaultValue());
         FieldModel bField = findField(fields, "B");
         assertEquals("B", bField.getName());
-        assertEquals("Long", bField.getType());
+        assertEquals("Integer", bField.getType());
         assertEquals(0, bField.getDefaultValue());
         FieldModel cField = findField(fields, "C");
         assertEquals("C", cField.getName());
-        assertEquals("Long", cField.getType());
-        assertEquals(0L, cField.getDefaultValue());
+        assertEquals("Integer", cField.getType());
+        assertEquals(0, cField.getDefaultValue());
         FieldModel dField = findField(fields, "D");
         assertEquals("D", dField.getName());
         assertEquals("Double", dField.getType());
         assertEquals("2975671681509007947508815", dField.getDefaultValue());
         FieldModel eField = findField(fields, "E");
         assertEquals("E", eField.getName());
-        assertEquals("Long", eField.getType());
+        assertEquals("Integer", eField.getType());
         assertEquals(2147483647, eField.getDefaultValue());
         FieldModel fField = findField(fields, "F");
         assertEquals("F", fField.getName());
-        assertEquals("Long", fField.getType());
-        assertEquals(0L, fField.getDefaultValue());
+        assertEquals("Integer", fField.getType());
+        assertEquals(0, fField.getDefaultValue());
 
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Optional<SpreadsheetModel> apiTodo = spreadsheetResultModels.stream()
@@ -242,8 +242,8 @@ public class DataTypeConverterTest {
             .findFirst();
         assertTrue(cdTcodeValidationResultStep.isPresent());
         StepModel stepModel = cdTcodeValidationResultStep.get();
-        assertEquals("Long", stepModel.getType());
-        assertEquals("= 0L", stepModel.getValue());
+        assertEquals("Integer", stepModel.getType());
+        assertEquals("= 0", stepModel.getValue());
 
         Optional<StepModel> cdTCodeToBeProcessedStep = sm.getSteps()
             .stream()

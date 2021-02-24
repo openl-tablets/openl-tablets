@@ -1,0 +1,207 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "paths": {
+    "/apiTodo/{a}/{b}": {
+      "get": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmth",
+        "parameters": [
+          {
+            "name": "a",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          },
+          {
+            "name": "b",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AnotherDatatype"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/apiBla": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmthBla",
+        "requestBody": {
+          "content": {
+            "text/plain": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ToDoItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "someStep": {
+            "type": "boolean"
+          }
+        },
+        "additionalProperties": false
+      },
+      "Dynamo": {
+        "type": "object",
+        "properties": {
+          "A": {
+            "type": "number",
+            "default": 0
+          },
+          "B": {
+            "type": "integer",
+            "default": 0
+          },
+          "C": {
+            "type": "integer",
+            "default": 2432902008176640000
+          },
+          "D": {
+            "type": "number",
+            "default": 2975671681509007947508815
+          },
+          "E": {
+            "type": "integer",
+            "default": 2147483647
+          },
+          "F": {
+            "type": "integer",
+            "default": 21474836477
+          }
+        }
+      },
+      "DriverRisk": {
+        "type": "object",
+        "properties": {
+          "numDUI": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "numAccidents": {
+            "type": "array",
+            "items": {
+              "type": "boolean"
+            }
+          },
+          "numMovingViolations": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AnotherDatatype": {
+        "type": "object",
+        "properties": {
+          "numAccidents": {
+            "type": "boolean",
+            "default": 0
+          },
+          "numAccidentsString": {
+            "type": "string",
+            "default": "aaaa"
+          },
+          "numAccidentsStringByte": {
+            "type": "string",
+            "format": "byte",
+            "default": 777
+          },
+          "numAccidentsStringBinary": {
+            "type": "string",
+            "format": "binary",
+            "default": 101
+          },
+          "numAccidentsOne": {
+            "type": "string",
+            "format": "date",
+            "default": "2017-07-21"
+          },
+          "numAccidentsTwo": {
+            "type": "string",
+            "format": "date-time",
+            "default": "2017-07-21T17:32:28Z"
+          },
+          "numAccidentsnumber": {
+            "type": "boolean",
+            "default": false
+          },
+          "CDTcodeValidationResult": {
+            "type": "integer",
+            "default": 0
+          },
+          "numAccidentsnumberDouble": {
+            "type": "number",
+            "format": "double",
+            "default": 0
+          },
+          "numAccidentsnumberinteger32": {
+            "type": "integer",
+            "format": "int32",
+            "default": 0
+          },
+          "numAccidentsnumberinteger64": {
+            "type": "integer",
+            "format": "int64",
+            "default": 0
+          },
+          "CDTCodeToBeProcessed": {
+            "type": "number",
+            "default": 0
+          }
+        }
+      }
+    }
+  }
+}
