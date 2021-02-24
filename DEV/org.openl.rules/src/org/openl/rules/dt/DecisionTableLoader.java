@@ -33,6 +33,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.ParserUtils;
 
@@ -314,6 +315,9 @@ public class DecisionTableLoader {
             IBindingContext bindingContext) throws SyntaxNodeException {
         int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
         IOpenClass type = decisionTable.getType();
+        if (NullOpenClass.isAnyNull(type)) {
+            return;
+        }
         if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
             Collection.class)) && parametersCount > 1) {
             throw SyntaxNodeExceptionUtils
@@ -501,6 +505,9 @@ public class DecisionTableLoader {
     private void validateMapReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
+        if (NullOpenClass.isAnyNull(decisionTable.getType())) {
+            return;
+        }
         if (ClassUtils.isAssignable(decisionTable.getType().getInstanceClass(), Map.class)) {
             if (tableStructure.hasCollectReturnAction && !tableStructure.hasCollectReturnKeyAction) {
                 throw SyntaxNodeExceptionUtils.createError(
