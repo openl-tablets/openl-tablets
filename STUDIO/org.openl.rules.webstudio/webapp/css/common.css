@@ -1582,7 +1582,6 @@ option[value=""]:disabled + option[value=""]:disabled {
     font-size: 18px;
     display: inline-block;
     transform: scaleX(-1);
-    width: 18px;
 }
 
 .delete-icon:after {
@@ -1591,7 +1590,6 @@ option[value=""]:disabled + option[value=""]:disabled {
     font-size: 18px;
     display: inline-block;
     font-weight: bold;
-    width: 18px;
 }
 
 .warning-icon:after {
@@ -1599,5 +1597,9 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: red;
     font-size: 18px;
     display: inline-block;
-    width: 18px;
+}
+
+.warning-icon, .delete-icon, .edit-icon {
+    display: inline-block;
+    padding: 0 2px;
 }
