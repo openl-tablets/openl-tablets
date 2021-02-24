@@ -36,7 +36,12 @@ public final class Dates {
         calendar.set(year, month - 1, day, 0, 0, 0);
         calendar.set(Calendar.MILLISECOND, 0);
         calendar.setLenient(false); // Strict matching
-        return calendar.getTime();
+        try {
+            return calendar.getTime();
+        } catch (IllegalArgumentException ignored) {
+            //return null for invalid date arguments
+            return null;
+        }
     }
 
     /**
