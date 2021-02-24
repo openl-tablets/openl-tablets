@@ -30,10 +30,14 @@ public class OpenLClassLoader extends GroovyClassLoader {
 
     public OpenLClassLoader(URL[] urls, ClassLoader parent) {
         super(parent);
-        if (urls != null) {
+        if (urls != null && urls.length > 0) {
             for (URL url : urls) {
                 addURL(url);
             }
+            setResourceLoader(new GroovyResourceLoader(getResourceLoader()));
+        } else {
+            // Performance improvement, but groovy classes are loaded only from project classpath
+            setResourceLoader(filename -> null);
         }
     }
 
