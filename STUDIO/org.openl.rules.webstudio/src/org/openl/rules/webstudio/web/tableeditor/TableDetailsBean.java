@@ -43,23 +43,20 @@ public class TableDetailsBean {
     private Map<String, List<TableProperty>> groups;
     private final Set<String> propsToRemove = new HashSet<>();
 
-    private String newTableId;
     private String propertyToAdd;
-    private final String id;
+    private String id;
 
     private final PropertyResolver propertyResolver;
 
     public TableDetailsBean(PropertyResolver propertyResolver) {
         WebStudio studio = WebStudioUtils.getWebStudio();
-
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
-
         IOpenLTable table;
-
         String uri;
         if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
             table = studio.getModel().getTable(uri);
+            id = table.getId();
         } else {
             table = getTable();
             uri = table.getUri();
@@ -161,12 +158,8 @@ public class TableDetailsBean {
         return WebStudioUtils.getWebStudio().getModel().getTableById(id);
     }
 
-    public String getNewTableId() {
-        return newTableId;
-    }
-
-    public void setNewTableId(String newTableId) {
-        this.newTableId = newTableId;
+    public String getTableId() {
+        return id;
     }
 
     public List<SelectItem> getPropertiesToAdd() {
@@ -277,8 +270,8 @@ public class TableDetailsBean {
                         Enum<?>[] oldValueEnumArray = (Enum<?>[]) oldValue;
                         Enum<?>[] newValueArray = (Enum<?>[]) newValue;
                         if (!(oldValueEnumArray != null && oldValueEnumArray.length == newValueArray.length && Arrays
-                                .asList(oldValueEnumArray)
-                                .containsAll(Arrays.asList(newValueArray)))) {
+                            .asList(oldValueEnumArray)
+                            .containsAll(Arrays.asList(newValueArray)))) {
                             setProperty = true;
                         }
                     } else if (stringArray && !Arrays.equals((String[]) oldValue,
@@ -304,7 +297,7 @@ public class TableDetailsBean {
             if (studio.isUpdateSystemProperties()) {
                 EditHelper.updateSystemProperties(table, tableEditorModel, propertyResolver.getProperty("user.mode"));
             }
-            this.newTableId = tableEditorModel.save();
+            this.id = tableEditorModel.save();
             studio.compile();
         }
 

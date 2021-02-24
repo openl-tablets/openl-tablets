@@ -88,7 +88,7 @@
 
         <h:panelGroup rendered="#{tableDetailsBean.table.canContainProperties and tableDetailsBean.editable}" style="margin: 8px 0" layout="block">
             <a4j:commandButton id="savePropsButton" value="Save" style="margin-left: 2px;  #{tableDetailsBean.changed ? 'display:inline' : 'display:none'}"
-                action="#{tableDetailsBean.save}" data="#{tableDetailsBean.newTableId}"
+                action="#{tableDetailsBean.save}" data="#{tableDetailsBean.tableId}"
                 oncomplete="saveComplete(event.data)" />
             <h:outputLink id="addPropBtn" value="javascript:void(0)" onclick="if (!canOverwriteRevision()) return false; $j(this).hide();$j('#addPropsPanel').fadeIn()"
                 rendered="#{!empty tableDetailsBean.propertiesToAdd}" style="margin-left: 4px">Add Property</h:outputLink>
