@@ -20,19 +20,19 @@ public class DatesTest {
         assertEquals(new Date(116, 1, 29), Dates.Date(2016, 2, 29));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testDateWrongMonth() {
-        Dates.Date(2018, 13, 1);
+        assertNull(Dates.Date(2018, 13, 1));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testDateWrongDay() {
-        Dates.Date(2018, 2, 29);
+        assertNull(Dates.Date(2018, 2, 29));
     }
 
-    @Test(expected = Exception.class)
+    @Test
     public void testDateWrongYear() {
-        Dates.Date(0, 1, 1);
+        assertNull(Dates.Date(0, 1, 1));
     }
 
     @Test
