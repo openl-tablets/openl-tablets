@@ -533,7 +533,7 @@
                     toggleBlock("#casBlock", userMode === "cas");
                     toggleBlock("#samlBlock", userMode === "saml");
 
-                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml"));
+                    toggleBlock("#internalGroupsBlock", (userMode === "ad" || userMode === "cas" || userMode === "saml" || userMode === "multi"));
                     toggleBlock("#cas-group-field,#saml-group-field", !groupsInStudio);
 
                     $j(".block-with-description .field-description > p").hide();

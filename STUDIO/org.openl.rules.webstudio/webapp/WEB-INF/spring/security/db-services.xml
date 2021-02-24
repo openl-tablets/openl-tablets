@@ -36,6 +36,14 @@
             <bean class="org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl">
                 <constructor-arg name="userDao" ref="openlUserDao"/>
                 <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                <constructor-arg name="authoritiesMapper">
+                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                        <constructor-arg name="userManagementService" ref="userManagementService"/>
+                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                        <constructor-arg name="groupsAreManagedInStudio" value="true"/>
+                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                    </bean>
+                </constructor-arg>
             </bean>
         </property>
         <property name="hideUserNotFoundExceptions" value="false"/>

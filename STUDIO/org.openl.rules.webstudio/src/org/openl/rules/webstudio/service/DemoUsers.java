@@ -40,6 +40,7 @@ public class DemoUsers {
             return;
         }
 
+        initUser("admin", "Administrators");
         initUser("a1", "Administrators");
         initUser("u0", "Testers");
         initUser("u1", "Developers", "Analysts");
