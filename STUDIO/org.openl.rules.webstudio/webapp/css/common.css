@@ -1529,28 +1529,40 @@ option[value=""]:disabled + option[value=""]:disabled {
 
 .edit-icon:after {
     content: "✎";
-    color: darkorange;
-    font-size: 18px;
+    color: #f80;
     display: inline-block;
     transform: scaleX(-1);
 }
 
 .delete-icon:after {
     content: "✖";
-    color: red;
-    font-size: 18px;
-    display: inline-block;
+    color: #f00;
     font-weight: bold;
 }
 
 .warning-icon:after {
     content: "⚠";
-    color: red;
-    font-size: 18px;
-    display: inline-block;
+    color: #f00;
 }
 
-.warning-icon, .delete-icon, .edit-icon {
+.yes-icon:after {
+    content: "✔";
+    color: #0c0;
+}
+
+.check-icon:after {
+    content: "✔";
+    color: gray;
+}
+
+.no-icon:after {
+    content: "✘";
+    color: #c00;
+}
+
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon {
     display: inline-block;
     padding: 0 2px;
+    font-size: 18px;
+    text-decoration: none;
 }
