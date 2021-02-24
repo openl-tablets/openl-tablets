@@ -196,6 +196,12 @@ public class UsersBean {
         return internalUser;
     }
 
+    public boolean isUnsafePassword(User user) {
+        String password = user.getPassword();
+        String username = user.getUsername();
+        return password != null && passwordEncoder.matches(username, password);
+    }
+
     public void setInternalUser(boolean internalUser) {
         this.internalUser = internalUser;
     }
