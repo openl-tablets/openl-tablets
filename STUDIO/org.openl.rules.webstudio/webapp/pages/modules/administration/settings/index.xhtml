@@ -365,16 +365,13 @@
                                                     <a4j:commandLink
                                                             action="#{systemSettingsBean.deleteDesignRepository(repository.id)}"
                                                             title="Delete Design Repository Connection"
-                                                            styleClass="toolbarButton menuButton"
+                                                            styleClass="toolbarButton menuButton delete-icon"
                                                             render="repoSettings"
                                                             rendered="#{designRepos.size() > 1}"
                                                             onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                             oncomplete="switchToRepositoryTab();initSettingsPage();"
                                                             onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                        <img src="#{request.contextPath}/webresource/images/remove.png"
-                                                             alt="Delete Repository"/>
-                                                    </a4j:commandLink>
+                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"/>
                                                 </span>
                                             </li>
                                         </a4j:repeat>
@@ -412,16 +409,13 @@
                                                     <a4j:commandLink
                                                             action="#{systemSettingsBean.deleteProductionRepository(repository.configName)}"
                                                             title="Delete Deployment Repository Connection"
-                                                            styleClass="toolbarButton menuButton"
+                                                            styleClass="toolbarButton menuButton delete-icon"
                                                             render="repoSettings"
                                                             rendered="#{productionRepos.size() > 1}"
                                                             onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                             oncomplete="switchToRepositoryTab();initSettingsPage();"
                                                             onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})">
-                                                        <img src="#{request.contextPath}/webresource/images/remove.png"
-                                                             alt="Delete Repository"/>
-                                                    </a4j:commandLink>
+                                                            onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"/>
                                                 </span>
 
                                             </li>

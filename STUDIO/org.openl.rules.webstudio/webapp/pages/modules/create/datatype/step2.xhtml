@@ -56,9 +56,7 @@
                             <a4j:commandLink id="removeLink" action="#{wizard.removeParameter(parameter)}" 
                                 render="paramTable" execute="@form"
                                 immediate="true"
-                                title="Remove Parameter" style="margin-left: 5px;" disabled="#{wizard.parameters.size() == 1}">
-                                <h:graphicImage value="/images/delete.png" />
-                            </a4j:commandLink>
+                                title="Remove Parameter" style="margin-left: 5px;" styleClass="delete-icon #{wizard.parameters.size() == 1 ? 'disabled' : ''}"/>
                         </h:column>
                         <h:column>
                             <a4j:outputPanel ajaxRendered="true">

@@ -261,13 +261,11 @@
                                                 </td>
                                                 <td class="repositoryConfigButton">
                                                     <a4j:commandLink action="#{installWizard.deleteProductionRepository(repository.configName)}"
-                                                                     title="Delete Deployment Repository Connection" styleClass="toolbarButton menuButton"
+                                                                     title="Delete Deployment Repository Connection" styleClass="toolbarButton menuButton delete-icon"
                                                                      render="repositoryProps" rendered="#{productionRepos.size() > 1}"
                                                                      onclick="if(!window.confirm('Do you really want to delete repository connection?')) {return false;}"
                                                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
-                                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" >
-                                                        <img src="#{contextPath}/images/delete.png" alt="Delete Repository" />
-                                                    </a4j:commandLink>
+                                                                     onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})" />
                                                 </td>
                                             </tr>
                                         </table>

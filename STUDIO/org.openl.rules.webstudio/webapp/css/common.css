@@ -1631,3 +1631,7 @@ option[value=""]:disabled + option[value=""]:disabled {
     text-decoration: none;
     filter: saturate(80%);
 }
+
+.actionImage {
+    vertical-align: top;
+}

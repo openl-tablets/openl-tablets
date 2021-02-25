@@ -45,8 +45,10 @@
             color: #000;
             background: #f5f5f5;
         }
-        .toolbarButton > span {
-            display: block;
+        .toolbarButton > img {
+            vertical-align: top;
+        }
+        .toolbarButton > div {
             margin-top: 3px;
         }
         .toolbarButton .arrow {
@@ -235,7 +237,7 @@
                                         onclick="editTable();"
                                         rendered="#{tableBean.canEdit}"  >
                                         <img src="#{contextPath}/webresource/images/editTable.gif" />
-                                        <span>Edit</span>
+                                        <div>Edit</div>
                                     </h:outputLink>
                                 </td>
                                 <td>
@@ -245,7 +247,7 @@
                                         title="Open the table in Excel" target="hidden">
                                         <f:param name="id" value="#{tableBean.id}" />
                                         <img src="#{contextPath}/webresource/images/excel.png" />
-                                        <span>Open</span>
+                                        <div>Open</div>
                                     </h:outputLink>
                                 </td>
                                 <td>
@@ -254,7 +256,7 @@
                                         oncomplete="ws.nav.go('#{studio.url('copyTable')}?id=#{tableBean.id}')" title="Create a new table based on the existing one"
                                         styleClass="toolbarButton">
                                         <img src="#{contextPath}/webresource/images/copyTable.gif" />
-                                        <span>Copy</span>
+                                        <div>Copy</div>
                                     </a4j:commandLink>
                                 </td>
                                 <td>
@@ -263,8 +265,8 @@
                                         onclick="if (!onBeforeEdit()) return false; if (!confirm('Do you really want to remove this table?'))return false;"
                                         oncomplete="ws.changes.revertChanges();ws.nav.go('#' + encodeURIComponent('#{studio.currentRepositoryId}') + '/' + encodeURIComponent('#{studio.currentModule.project.name}') + '/' + encodeURIComponent('#{studio.currentModule.name}'), true)"
                                         styleClass="toolbarButton">
-                                        <img src="#{contextPath}/webresource/images/delete.png" />
-                                        <span>Remove</span>
+                                        <span class="delete-icon"/>
+                                        <div>Remove</div>
                                     </a4j:commandLink>
                                 </td>
                             </tr>
@@ -379,14 +381,14 @@
                                     <a class="toolbarButton" title="Launch the table" href="javascript:void(0)"
                                         onclick="showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-run').show();$j('.manual-trace').hide();">
                                         <img src="#{contextPath}/webresource/images/run.gif" />
-                                        <span>Run</span>
+                                        <div>Run</div>
                                     </a>
                                 </c:if>
                                 <c:if test="#{tableBean.canTrace}">
                                     <a class="toolbarButton" title="Launch the table and trace steps" href="javascript:void(0)"
                                         onclick=" showButtonMenu(event, 'inputArgsMenu', 'a');$j('.manual-trace').show();$j('.manual-run').hide();">
                                         <img src="#{contextPath}/webresource/images/trace.gif" />
-                                        <span>Trace</span>
+                                        <div>Trace</div>
                                     </a>
                                 </c:if>
                                 <div id="inputArgsMenu" style="display: none" >
@@ -436,14 +438,14 @@
                                     rendered="#{tableBean.canRun}"
                                     oncomplete="ws.nav.go('#{runLink}')">
                                     <img src="#{contextPath}/webresource/images/run.gif" />
-                                    <span>Run</span>
+                                    <div>Run</div>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                                 <a4j:commandLink action="#{runTestHelper.initTrace}" styleClass="toolbarButton changes-listener"
                                                  rendered="#{tableBean.canTrace}"
                                                  oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();" title="Trace">
                                     <img src="#{contextPath}/webresource/images/trace.gif" />
-                                    <span>Trace</span>
+                                    <div>Trace</div>
                                     <a4j:param name="id" value="#{tableBean.id}"/>
                                 </a4j:commandLink>
                             </c:if>
@@ -489,7 +491,7 @@
                             oncomplete="ws.nav.go('#{studio.url('create/index')}?initStep=test/step2.xhtml')" >
                             <a4j:param assignTo="#{tableCreatorWizardManager.tableType}" value="TEST_DIRECT" />
                             <img src="#{contextPath}/webresource/images/test_new.gif" />
-                            <span>Create Test</span>
+                            <div>Create Test</div>
                         </a4j:commandLink>
                     </h:form>
                 </td>

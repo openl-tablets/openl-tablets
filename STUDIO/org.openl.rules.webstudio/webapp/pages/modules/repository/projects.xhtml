@@ -82,11 +82,10 @@
                       &#160;
                       <h:commandLink immediate="true"
                           onclick="#{rich:component('modalDeleteNode')}.show();"
-                          title="Archive project">
+                          title="Archive project" styleClass="delete-icon">
                           <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                           <f:param name="projectName" value="#{prj.data.name}" />
                           <f:ajax listener="#{repositoryTreeController.deleteRulesProjectListener}" render=":deleteNodeForm"/>
-                          <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete"/>
                       </h:commandLink>
                   </h:panelGroup>
                 </h:panelGroup>

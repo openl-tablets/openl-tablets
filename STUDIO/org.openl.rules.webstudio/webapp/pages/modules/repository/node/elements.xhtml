@@ -31,9 +31,8 @@
         <h:commandLink action="#{repositoryTreeController.deleteElement}"
           immediate="true"
           onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the file/folder?')) {return false;}"
-          rendered="#{artefact.project.openedForEditing}" title="Delete">
+          rendered="#{artefact.project.openedForEditing}" title="Delete" styleClass="delete-icon">
           <f:param name="element" value="#{el.name}" />
-          <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
         </h:commandLink>
       </rich:column>
   </rich:dataTable>

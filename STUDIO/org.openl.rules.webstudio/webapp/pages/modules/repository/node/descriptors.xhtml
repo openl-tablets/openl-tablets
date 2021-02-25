@@ -56,9 +56,9 @@
     </rich:column>
     <rich:column style="text-align: center">
       <h:commandLink action="#{deploymentController.deleteItem}" immediate="true"
-        onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the deployed project?')) {return false;}" rendered="#{artefact.openedForEditing}" title="Delete">
+        onclick="if (!canOverwriteRevision()) return false; if(!window.confirm('Are you sure you want to delete the deployed project?')) {return false;}" rendered="#{artefact.openedForEditing}" title="Delete"
+        styleClass="delete-icon">
         <f:param name="key" value="#{item.name}" />
-        <h:graphicImage url="/webresource/images/delete.png" styleClass="actionImage" alt="Delete" />
       </h:commandLink>
     </rich:column>
   </rich:dataTable>

@@ -51,9 +51,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.treeText}" />
                                 <a4j:commandLink action="#{inputArgsBean.initCollection}" rendered="#{item.valueNull}"
                                     onclick="saveAllComplexNodeTypes()"
@@ -77,9 +75,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.treeText}" />
 
                                 <ui:param name="row" value="#{inputArgsBean.getRow(item, rowKeyVar)}"/>
@@ -110,9 +106,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:inputText id="nodeValue" value="#{item.valueForEdit}" />
                                 <h:message for="nodeValue" />
@@ -121,9 +115,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:inputText id="numberNodeValue" value="#{item.valueForEdit}" onkeypress="checkIsNumber(event, this)" />
                                 <h:message for="numberNodeValue" />
@@ -132,9 +124,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:selectBooleanCheckbox value="#{item.valueForEdit}" />
                             </rich:treeNode>
@@ -142,9 +132,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:selectOneMenu value="#{item.valueForEdit}">
                                     <f:selectItems value="#{item.valuesForSelect}"/>
@@ -154,9 +142,7 @@
                                 <a4j:commandLink action="#{inputArgsBean.deleteFromCollection}"
                                     rendered="#{item.elementOfCollection}" render="dynamicTreePanel"
                                     onclick="saveAllComplexNodeTypes()"
-                                    title="Delete from collection">
-                                    <h:graphicImage value="/images/delete.png" />
-                                </a4j:commandLink>
+                                    title="Delete from collection" styleClass="delete-icon"/>
                                 <h:outputText value="#{item.name} = " rendered="#{not empty item.name}" />
                                 <h:inputText id="dateNodeValue" value="#{item.valueForEdit}" styleClass="dateNodeValue" />
                             </rich:treeNode>

@@ -220,10 +220,8 @@
                                     </h:panelGroup>
                                     <h:panelGroup rendered="#{modulesNumber > 1}">
                                         <a href="javascript:void(0)" title="Remove Module"
-                                           class="editable-link-inner third-button"
-                                           onclick="removeModule('#{i.index}')"><img
-                                                src="#{request.contextPath}/webresource/images/remove.png"
-                                                style="opacity:0.4"/></a>
+                                           class="editable-link-inner third-button delete-icon"
+                                           onclick="removeModule('#{i.index}')"/>
                                     </h:panelGroup>
                                 </h:panelGroup>
                             </h:panelGroup>
@@ -264,10 +262,7 @@
                                         <span class="path" style="color:red">Could not find the project
                                         <h:form style="display: inline;">
                                             <a4j:commandLink action="#{projectBean.removeDependency(dependency.name)}"
-                                                             oncomplete="ws.nav.reload()" title="Remove dependency">
-                                                <img src="#{request.contextPath}/webresource/images/remove.png"
-                                                     style="opacity: 0.4;margin-left: 3px; vertical-align: top"/>
-                                            </a4j:commandLink>
+                                                             oncomplete="ws.nav.reload()" title="Remove dependency" styleClass="delete-icon"/>
                                         </h:form>
                                     </span>
                                     </h:panelGroup>

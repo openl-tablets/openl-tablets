@@ -60,8 +60,7 @@
                             </td>
                             <td>
                                 <a4j:commandLink action="#{propertiesManager.removeProperty}"
-                                    render="propertiesTable newPropertySelect" execute="@this">
-                                    <h:graphicImage value="/images/delete.png" title="Remove property" />
+                                    render="propertiesTable newPropertySelect" execute="@this" styleClass="delete-icon">
                                     <f:setPropertyActionListener value="#{prop}"
                                         target="#{propertiesManager.propToRemove}" />
                                 </a4j:commandLink>
