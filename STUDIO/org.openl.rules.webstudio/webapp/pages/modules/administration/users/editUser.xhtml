@@ -60,6 +60,9 @@
     <script>
       //<![CDATA[
         function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups) {
+            if (#{!usersBean.canCreateUsers}) {
+                return;
+            }
             $j("#editUserForm\\:username").text(username);
             $j("#editUserForm\\:usernameHidden").val(username);
             $j("#editUserForm\\:firstName").val(firstName);
