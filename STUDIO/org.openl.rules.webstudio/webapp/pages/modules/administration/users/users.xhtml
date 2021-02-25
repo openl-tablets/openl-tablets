@@ -12,7 +12,9 @@
             <f:facet name="header">
                 Username
             </f:facet>
-            <span style="white-space: pre;">#{user.username}</span>
+            <span onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups()})"
+               style="white-space: pre;" class="clickable" title="Edit">#{user.username}</span>
+            <span class="warning-icon" style="#{usersBean.isUnsafePassword(user) ? '' : 'display: none'}" title="Unsafe default password"/>
         </h:column>
 
         <h:column>
@@ -46,16 +48,10 @@
             </h:column>
 
         <h:column>
-            <span class="warning-icon" style="#{usersBean.isUnsafePassword(user) ? '' : 'visibility: hidden'}" title="Unsafe default password"/>
-            <a href="javascript:void(0)" style="#{usersBean.canCreateUsers ? '' : 'visibility: hidden'}"
-                onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups()})"
-                title="Edit" class="edit-icon"/> <!-- !!! DO NOT REMOVE !!! This comment adds a space before a4j:commandLink tag !!! -->
-            <a4j:commandLink execute="@this" render="@form" rendered="#{!usersBean.isSuperuser(user) and !usersBean.isCurrentUser(user)}"
+            <a4j:commandLink execute="@this" render="@form"
                 action="#{usersBean.deleteUser(user.username)}"
                 onclick="if(!window.confirm('Are you sure you want to delete the user?')) {return false;}"
-                             title="Delete" styleClass="delete-icon"/>
-            <span class="su-icon" style="#{usersBean.isSuperuser(user) ? '' : 'display: none'}" title="Superuser cannot be deleted"/>
-            <span class="star-icon" style="#{usersBean.isCurrentUser(user) ? '' : 'display: none'}" title="The current user cannot be deleted"/>
+                             title="Delete" styleClass="delete-icon #{usersBean.isSuperuser(user) or usersBean.isCurrentUser(user) ? 'disabled' : ''}"/>
         </h:column>
     </h:dataTable>
     </h:form>

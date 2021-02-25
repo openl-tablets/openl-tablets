@@ -1548,7 +1548,8 @@ table.properties-form.wide .error {
     pointer-events: none;
     cursor: default;
     border-color: lightgray;
-    opacity: 0.3;
+    opacity: 0.4;
+    filter: brightness(50%);
 }
 
 option[value=""]:disabled {
@@ -1578,25 +1579,25 @@ option[value=""]:disabled + option[value=""]:disabled {
 
 .edit-icon:after {
     content: "✎";
-    color: #f80;
+    color: #a82;
     display: inline-block;
     transform: scaleX(-1);
 }
 
 .delete-icon:after {
     content: "✖";
-    color: #f00;
+    color: #a00;
     font-weight: bold;
 }
 
 .warning-icon:after {
     content: "⚠";
-    color: #f00;
+    color: #a00;
 }
 
 .yes-icon:after {
     content: "✔";
-    color: #0c0;
+    color: #6b6;
 }
 
 .check-icon:after {
@@ -1606,28 +1607,27 @@ option[value=""]:disabled + option[value=""]:disabled {
 
 .no-icon:after {
     content: "✘";
-    color: #c00;
+    color: #a00;
 }
 
-.no-icon:after {
-    content: "✘";
-    color: #c00;
-}
-
-.su-icon:after {
-    content: "♛";
-    color: #44f;
-}
-
-.star-icon:after {
-    content: "★";
-    color: #44f;
-}
-
-.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .su-icon, .star-icon {
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon {
     display: inline-block;
     padding: 0 2px;
-    font-size: 18px;
+    font-size: 14px;
     text-decoration: none;
-    width: 18px;
+    width: 16px;
+    height: 16px;
+    text-shadow: 1px 1px 3px;
+    line-height: 16px;
+}
+
+.clickable {
+    cursor:pointer;
+    text-decoration: underline dotted cadetblue;
+}
+
+.clickable:hover {
+    text-shadow: 1px 1px 3px cadetblue;
+    text-decoration: none;
+    filter: saturate(80%);
 }

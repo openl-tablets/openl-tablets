@@ -18,7 +18,8 @@
         <tbody>
         <a4j:repeat value="#{groupsBean.groups}" var="group">
         <tr>
-            <td>#{group.name}</td>
+            <td><span onclick="editGroup('#{utils.toJSText(group.name)}', '#{utils.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
+                      title="Edit" style="white-space: pre;" class="clickable">#{group.name}</span></td>
             <td>#{group.description}</td>
             <td>
                 <a4j:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group)}">
@@ -34,9 +35,6 @@
                 </a4j:repeat>
             </td>
             <td>
-                <a href="javascript:void(0)"
-                    onclick="editGroup('#{utils.toJSText(group.name)}', '#{utils.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
-                    title="Edit" class="edit-icon"></a>
                 <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
                     rendered="#{!groupsBean.isOnlyAdmin(group)}"
                     action="#{groupsBean.deleteGroup(group.name)}"
