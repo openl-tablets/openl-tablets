@@ -224,10 +224,11 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //log4j
         permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
 
-	//openapi
+        //openapi
         permission java.lang.management.ManagementPermission "monitor";
         permission java.lang.RuntimePermission "createSecurityManager";
         permission java.lang.RuntimePermission "shutdownHooks";
 
-
+        //ZipFileSystem for JDK 8 issue
+        permission java.io.FilePermission "${catalina.base}/lib/Example3-datasource.jar", "read,write";
 };
