@@ -16,6 +16,9 @@ public final class TableUtils {
             return null;
         }
         String decodedUri = StringTool.decodeURL(uri);
+        if (decodedUri != null) {
+            decodedUri = decodedUri.substring(0, decodedUri.lastIndexOf(":"));
+        }
         return DigestUtils.md5Hex(decodedUri);
     }
 
