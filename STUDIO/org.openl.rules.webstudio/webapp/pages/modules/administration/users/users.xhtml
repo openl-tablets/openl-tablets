@@ -12,7 +12,7 @@
             <f:facet name="header">
                 Username
             </f:facet>
-            <span onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups()})"
+            <span onclick="editUser('#{utils.toJSText(user.username)}', '#{utils.toJSText(user.firstName)}', '#{utils.toJSText(user.lastName)}', #{user.internalUser}, #{usersBean.getGroups(user)}, #{usersBean.getOnlyAdminGroups()}, #{usersBean.isSuperuser(user)}, #{usersBean.isCurrentUser(user)})"
                style="white-space: pre;" class="clickable" title="Edit">#{user.username}</span>
             <span class="warning-icon" style="#{usersBean.isUnsafePassword(user) ? '' : 'display: none'}" title="Unsafe default password"/>
         </h:column>

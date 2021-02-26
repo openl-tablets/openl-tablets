@@ -18,6 +18,8 @@
 
         <h:form id="editUserForm">
         <div style="max-height: 370px; overflow: auto;">
+            <div class="problem-warning superuser">This user cannot be deleted or Administrator privilegy revoked<br/>due this username is defined in <b>security.administrators</b> property.</div>
+            <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilegy.</div>
             <h:panelGrid columns="3" cellspacing="5">
                 <label>Username:</label>
                 <h:outputText id="username" style="font-weight: bold" />
@@ -59,10 +61,13 @@
 
     <script>
       //<![CDATA[
-        function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups) {
+        function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups, isSuperuser, isCurrentUser) {
             if (#{!usersBean.canCreateUsers}) {
                 return;
             }
+            $j("#editUserForm .superuser").toggle(isSuperuser);
+            $j("#editUserForm .currentuser").toggle(!isSuperuser && isCurrentUser);
+
             $j("#editUserForm\\:username").text(username);
             $j("#editUserForm\\:usernameHidden").val(username);
             $j("#editUserForm\\:firstName").val(firstName);
@@ -75,6 +80,7 @@
                 box.attr("checked", checked);
                 var isAdminGroup = $j.inArray(group, onlyAdminGroups) != -1;
                 box.parent().css("color", isAdminGroup ? "red" : "");
+                box.toggleClass("disabled", isAdminGroup && (isSuperuser || isCurrentUser))
             });
 
             $j(".external-user").remove();
