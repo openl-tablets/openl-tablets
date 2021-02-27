@@ -56,7 +56,9 @@ public class TableDetailsBean {
         if (studio.getModel().getTableById(id) == null) {
             uri = studio.getTableUri();
             table = studio.getModel().getTable(uri);
-            id = table.getId();
+            if (table != null) {
+                id = table.getId();
+            }
         } else {
             table = getTable();
             uri = table.getUri();
