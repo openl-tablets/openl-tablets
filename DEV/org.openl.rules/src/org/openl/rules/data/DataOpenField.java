@@ -13,20 +13,20 @@ public class DataOpenField extends AOpenField {
     private Object data;
     private ModuleOpenClass declaringClass;
     private XlsNodeTypes nodeType;
+    private String uri;
 
     public DataOpenField() {
         super(null, null);
     }
 
     public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
-
         super(table.getDataModel().getName(),
             table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
-
         this.table = table;
-        data = table.getDataArray();
+        this.data = table.getDataArray();
         this.nodeType = table.getTableSyntaxNode().getNodeType();
         this.declaringClass = declaringClass;
+        this.uri = table.getTableSyntaxNode().getUri();
     }
 
     @Override
@@ -75,5 +75,9 @@ public class DataOpenField extends AOpenField {
 
     public XlsNodeTypes getNodeType() {
         return nodeType;
+    }
+
+    public String getUri() {
+        return uri;
     }
 }

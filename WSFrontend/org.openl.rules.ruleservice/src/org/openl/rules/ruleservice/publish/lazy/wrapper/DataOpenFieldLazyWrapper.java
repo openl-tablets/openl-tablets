@@ -121,4 +121,9 @@ public final class DataOpenFieldLazyWrapper extends DataOpenField {
     public XlsNodeTypes getNodeType() {
         return delegate.getNodeType();
     }
+
+    @Override
+    public String getUri() {
+        return delegate.getUri();
+    }
 }

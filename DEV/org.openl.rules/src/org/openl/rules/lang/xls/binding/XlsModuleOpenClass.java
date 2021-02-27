@@ -6,8 +6,10 @@
 
 package org.openl.rules.lang.xls.binding;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -206,6 +208,8 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
      * Populate current module fields with data from dependent modules.
      */
     protected void initDependencies() {// Reduce iterators over dependencies for
+        List<IOpenField> fields = new ArrayList<>();
+        Map<String, ITable> dataTables = new HashMap<>();
         // compilation issue with lazy loading
         for (CompiledDependency dependency : this.getDependencies()) {
             // commented as there is no need to add each datatype to upper
@@ -224,14 +228,83 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             // Populate current module fields with data from dependent modules.
             // Required
             // for data tables inheriting from dependent modules.
-            addDataTables(dependency.getCompiledOpenClass()); // Required for
+            collectDataTables(dependency, dataTables); // Required for
             // data tables.
-            addFields(dependency);
+            collectDependencyFields(dependency, fields);
         }
+
+        addDataTablesFromDependencies(dataTables);
+        addFieldsFromDependencies(fields);
 
         for (IOpenClass type : getTypes()) {
             if (type instanceof CustomSpreadsheetResultOpenClass) {
                 ((CustomSpreadsheetResultOpenClass) type).fixModuleFieldTypes();
+            }
+        }
+    }
+
+    private void addFieldsFromDependencies(List<IOpenField> fields) {
+        Set<Integer> hiddenFields = new HashSet<>();
+        for (int i = 0; i < fields.size() - 1; i++) {
+            for (int j = i + 1; j < fields.size(); j++) {
+                IOpenField openField1 = fields.get(i);
+                IOpenField openField2 = fields.get(j);
+                if (Objects.equals(openField1.getName(),
+                    openField2
+                        .getName()) && openField1 instanceof DataOpenField && openField2 instanceof DataOpenField && XlsNodeTypes.XLS_DATA
+                            .equals(((DataOpenField) openField1).getNodeType()) && XlsNodeTypes.XLS_DATA
+                                .equals(((DataOpenField) openField2).getNodeType())) {
+                    if (!Objects.equals(((DataOpenField) openField1).getUri(), ((DataOpenField) openField2).getUri())) {
+                        hiddenFields.add(i);
+                        hiddenFields.add(j);
+                    }
+                }
+            }
+        }
+        for (int i = 0; i < fields.size(); i++) {
+            if (!hiddenFields.contains(i)) {
+                addField(fields.get(i));
+            }
+        }
+    }
+
+    private void collectDependencyFields(CompiledDependency dependency, List<IOpenField> depFields) {
+        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
+        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields()) {
+            if (isDependencyFieldInheritable(depField)) {
+                depFields.add(depField);
+            }
+        }
+    }
+
+    private void collectDataTables(CompiledDependency dependency, Map<String, ITable> dataTables) {
+        IOpenClass openClass = dependency.getCompiledOpenClass().getOpenClassWithErrors();
+        if (openClass instanceof XlsModuleOpenClass) {
+            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
+            if (xlsModuleOpenClass.getDataBase() != null) {
+                for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
+                    if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
+                        if (!dataTables.containsKey(table.getName())) {
+                            dataTables.put(table.getName(), table);
+                        } else {
+                            dataTables.put(table.getName(), null);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void addDataTablesFromDependencies(Map<String, ITable> dataTables) {
+        for (ITable table : dataTables.values()) {
+            if (table != null) {
+                try {
+                    getDataBase().registerTable(table);
+                } catch (DuplicatedTableException e) {
+                    rulesModuleBindingContext.addError(e);
+                } catch (OpenlNotCheckedException e) {
+                    addError(e);
+                }
             }
         }
     }
@@ -317,41 +390,6 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         return spreadsheetResultOpenClass;
     }
 
-    private void addDataTables(CompiledOpenClass dependency) {
-        IOpenClass openClass = dependency.getOpenClassWithErrors();
-
-        if (openClass instanceof XlsModuleOpenClass) {
-            XlsModuleOpenClass xlsModuleOpenClass = (XlsModuleOpenClass) openClass;
-            if (xlsModuleOpenClass.getDataBase() != null) {
-                for (ITable table : xlsModuleOpenClass.getDataBase().getTables()) {
-                    if (XlsNodeTypes.XLS_DATA.equals(table.getXlsNodeType())) {
-                        try {
-                            getDataBase().registerTable(table);
-                        } catch (DuplicatedTableException e) {
-                            rulesModuleBindingContext.addError(e);
-                        } catch (OpenlNotCheckedException e) {
-                            addError(e);
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private void addFields(CompiledDependency dependency) throws DuplicatedFieldException {
-        CompiledOpenClass compiledOpenClass = dependency.getCompiledOpenClass();
-        for (IOpenField depField : compiledOpenClass.getOpenClassWithErrors().getFields()) {
-            try {
-                if (isDependencyFieldInheritable(depField)) {
-                    addField(depField);
-                }
-            } catch (OpenlNotCheckedException e) {
-                LOG.debug("ADD FIELD", e);
-                addError(e);
-            }
-        }
-    }
-
     public XlsMetaInfo getXlsMetaInfo() {
         return (XlsMetaInfo) xlsMetaInfo;
     }
@@ -376,7 +414,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
             }
             throw new DuplicatedFieldException("", openField.getName());
         }
-        fieldMap().put(openField.getName(), openField);
+        fields.put(openField.getName(), openField);
         addFieldToLowerCaseMap(openField);
     }
 
