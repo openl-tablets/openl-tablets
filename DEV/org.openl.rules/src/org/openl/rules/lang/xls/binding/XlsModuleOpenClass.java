@@ -363,7 +363,7 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         if (existedField != null) {
             if (openField instanceof DataOpenField && existedField instanceof DataOpenField && XlsNodeTypes.XLS_DATA
                 .equals(((DataOpenField) openField).getNodeType()) && XlsNodeTypes.XLS_DATA
-                    .equals(((DataOpenField) openField).getNodeType())) {
+                    .equals(((DataOpenField) existedField).getNodeType())) {
                 return;
             }
             if (openField instanceof ConstantOpenField && existedField instanceof ConstantOpenField) {
