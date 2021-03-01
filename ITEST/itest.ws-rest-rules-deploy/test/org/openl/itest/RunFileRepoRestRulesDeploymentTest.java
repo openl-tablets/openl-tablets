@@ -129,7 +129,7 @@ public class RunFileRepoRestRulesDeploymentTest {
     }
 
     @Test
-    @Ignore
+    @Ignore("Check EPBDS-10940 issue")
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
 
