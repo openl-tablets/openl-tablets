@@ -211,6 +211,10 @@ public class HttpClient {
             try (ZipInputStream actual = new ZipInputStream(body.getInputStream())) {
                 ZipEntry entry;
                 while ((entry = actual.getNextEntry()) != null) {
+                    if (entry.getName().endsWith("/")) {
+                        // skip folder
+                        continue;
+                    }
                     if (expectedEntries.remove(entry.getName())) {
                         try (InputStream expectedStream = expected.getInputStream(expected.getEntry(entry.getName()))) {
                             compareStream(String.format("Zip entry: [%s/%s] at: ", responseFile, entry.getName()),
