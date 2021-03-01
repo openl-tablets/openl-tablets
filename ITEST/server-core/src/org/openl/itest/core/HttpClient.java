@@ -3,11 +3,22 @@ package org.openl.itest.core;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.fail;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
 
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -156,6 +167,10 @@ public class HttpClient {
                     assertNotNull("Expected non-empty body for URL :" + url, body);
                     compareJson(responseFile, body);
                     break;
+                case "zip":
+                    assertNotNull("Expected non-empty body for URL :" + url, body);
+                    compareZip(responseFile, body);
+                    break;
                 default:
                     assertNotNull("Expected non-empty body for URL :" + url, body);
                     compareBinary(responseFile, body);
@@ -172,29 +187,84 @@ public class HttpClient {
                     // Ignored
                 }
             }
+            if (ex instanceof RuntimeException) {
+                throw (RuntimeException) ex;
+            } else if (ex instanceof AssertionError) {
+                throw (AssertionError) ex;
+            }
             throw new RuntimeException(ex);
         }
     }
 
-    private void compareBinary(String responseFile, Resource body) {
+    private void compareZip(String responseFile, Resource body) throws IOException, URISyntaxException {
+        try (ZipFile expected = new ZipFile(Paths.get(getClass().getResource(responseFile).toURI()).toFile())) {
+            Set<String> expectedEntries = new HashSet<>();
+            for (Enumeration<? extends ZipEntry> it = expected.entries(); it.hasMoreElements();) {
+                ZipEntry entry = it.nextElement();
+                if (entry.getName().endsWith("/")) {
+                    // skip folder
+                    continue;
+                }
+                expectedEntries.add(entry.getName());
+            }
+            Set<String> unexpectedEntries = new HashSet<>();
+            try (ZipInputStream actual = new ZipInputStream(body.getInputStream())) {
+                ZipEntry entry;
+                while ((entry = actual.getNextEntry()) != null) {
+                    if (expectedEntries.remove(entry.getName())) {
+                        try (InputStream expectedStream = expected.getInputStream(expected.getEntry(entry.getName()))) {
+                            compareStream(String.format("Zip entry: [%s/%s] at: ", responseFile, entry.getName()),
+                                expectedStream,
+                                actual);
+                        }
+                    } else {
+                        unexpectedEntries.add(entry.getName());
+                    }
+                }
+            }
+            boolean failed = false;
+            StringBuilder errorMessage = new StringBuilder();
+            Function<String, String> tab = s -> "    " + s;
+            if (!unexpectedEntries.isEmpty()) {
+                failed = true;
+                errorMessage.append("UNEXPECTED entries:\r\n")
+                    .append(unexpectedEntries.stream().map(tab).collect(Collectors.joining("\r\n")));
+            }
+            if (!expectedEntries.isEmpty()) {
+                if (failed) {
+                    errorMessage.append("\r\n");
+                } else {
+                    failed = true;
+                }
+                errorMessage.append("MISSED entries:\r\n")
+                    .append(expectedEntries.stream().map(tab).collect(Collectors.joining("\r\n")));
+            }
+            if (failed) {
+                fail(errorMessage.toString());
+            }
+        }
+    }
+
+    private void compareBinary(String responseFile, Resource body) throws IOException {
         try (InputStream actual = body.getInputStream();
                 InputStream file = getClass().getResourceAsStream(responseFile)) {
             if (file == null) {
                 throw new FileNotFoundException(String.format("File '%s' is not found", responseFile));
             }
-
-            int ch = file.read();
-            int counter = -1;
-            while (ch != -1) {
-                counter++;
-                assertEquals("File: [" + responseFile + "] at: " + counter, ch, actual.read());
-                ch = file.read();
-            }
-
-            assertEquals("File: [" + responseFile + "] at: " + counter, -1, actual.read());
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            compareStream("File: [" + responseFile + "] at: ", actual, file);
         }
+    }
+
+    private void compareStream(String message, InputStream expected, InputStream actual) throws IOException {
+        int ch = expected.read();
+        int counter = -1;
+        while (ch != -1) {
+            counter++;
+            assertEquals(message + counter, ch, actual.read());
+            ch = expected.read();
+        }
+
+        assertEquals(message + counter, -1, actual.read());
     }
 
     private static void compareJson(String responseFile, Resource body) {

@@ -6,13 +6,14 @@ import java.util.concurrent.TimeUnit;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
 import org.openl.itest.core.worker.TaskScheduler;
 
-public class RunRestRulesDeploymentTest {
+public class RunFileRepoRestRulesDeploymentTest {
 
     private static String OPENL_CONFIG_LOCATION;
 
@@ -22,7 +23,7 @@ public class RunRestRulesDeploymentTest {
     @BeforeClass
     public static void setUp() throws Exception {
         OPENL_CONFIG_LOCATION = System.getProperty("openl.config.location");
-        System.setProperty("openl.config.location", "file:./openl-repository/jdbc-application.properties");
+        System.setProperty("openl.config.location", "file:./openl-repository/file-application.properties");
         server = JettyServer.start();
         client = server.client();
     }
@@ -73,10 +74,12 @@ public class RunRestRulesDeploymentTest {
         client.send("project1_methods.get");
         client.send("yaml_project_project2_methods.get");
         client.send("project1_sayHello.post");
+        client.get("/admin/deploy/yaml_project.zip","/multiple-deployment_v1.zip");
 
         // should be updated
         client.post("/admin/deploy", "/multiple-deployment_v2.zip", 201);
         client.send("project1_sayHello_2.post");
+        client.get("/admin/deploy/yaml_project.zip","/multiple-deployment_v2.zip");
 
         client.send("yaml_project_all.delete");
         client.send("admin_services_no_services.json.get");
@@ -126,6 +129,7 @@ public class RunRestRulesDeploymentTest {
     }
 
     @Test
+    @Ignore("Check EPBDS-10940 issue")
     public void test_EPBDS_8758_multithread2() throws Exception {
         client.send("admin_services_no_services.json.get");
 
@@ -224,16 +228,13 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy/someDeployment", "/EPBDS-8987/someDeployment.zip", 201);
         client.send("EPBDS-8987/deployed-rules_services_1.get");
         client.post("/admin/deploy/multiple-deployment_v1", "/EPBDS-8987/multiple-deployment_v1.zip", 201);
-        // 3 projects are exposed but should one. Currently it's not possible to fix for DB because of restrictions in repository design
-        // it works in different way for Folder Repositories
-        client.send("EPBDS-8987/deployed-rules_services_2.get");
+        client.send("EPBDS-8987/deployed-rules_services_2.1.get");
         client.send("EPBDS-8987/delete_all_1.delete");
         client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy/deployment1", "/EPBDS-8987/deployment1.zip", 201);
         client.send("EPBDS-8987/deployed-rules_services_3.get");
         client.post("/admin/deploy/deployment2", "/EPBDS-8987/deployment2.zip", 201);
-        // 2 projects are exposed but should one. Checkout the prev comment
-        client.send("EPBDS-8987/deployed-rules_services_4.get");
+        client.send("EPBDS-8987/deployed-rules_services_4.1.get");
         client.send("EPBDS-8987/delete_all_2.delete");
         client.send("admin_services_no_services.json.get");
         client.post("/admin/deploy/deployment1", "/EPBDS-8987/deployment1.zip", 201);

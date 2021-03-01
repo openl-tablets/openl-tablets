@@ -9,7 +9,6 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import org.w3c.dom.Node;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.ComparisonResult;
@@ -18,6 +17,8 @@ import org.xmlunit.diff.Difference;
 import org.xmlunit.diff.DifferenceEvaluator;
 import org.xmlunit.diff.DifferenceEvaluators;
 import org.xmlunit.diff.ElementSelectors;
+
+import com.fasterxml.jackson.databind.JsonNode;
 
 final class Comparators {
 
