@@ -302,6 +302,7 @@
                     datatype: "json"
                 }).done(function () {
                     $j('#groupsTable').trigger('refresh');
+                    location.reload();
                 }).fail(function () {
                     ws.ui.error("Could not delete");
                     $j('#groupsTable').trigger('refresh');
@@ -472,6 +473,7 @@
             }).done(function () {
                 $j('#groupsTable').trigger('refresh');
                 RichFaces.$("modalAddEditGroup").hide();
+                location.reload();
             }).fail(function () {
                 ws.ui.error("Could not save");
                 $j('#groupsTable').trigger('refresh');
