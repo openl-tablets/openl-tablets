@@ -13,7 +13,6 @@ import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
 import org.openl.itest.core.worker.TaskScheduler;
 
-@Ignore
 public class RunFileRepoRestRulesDeploymentTest {
 
     private static String OPENL_CONFIG_LOCATION;
