@@ -14,10 +14,11 @@
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
     <util:list id="authenticationProviders">
-        <!-- Check AD before as the main authentification provider -->
-        <ref bean="authenticationProviderWrapper"/>
         <!-- Database is used to support backward compatibility, when users are managed in both, AD and Database -->
         <ref bean="daoAuthenticationProvider"/>
+        <!-- EPBDS-11178 It cannot be passed throught if AD connection is unavailable, -->
+        <!-- so we have to set it in the second order -->
+        <ref bean="authenticationProviderWrapper"/>
     </util:list>
 
     <util:list id="logoutHandlers">
