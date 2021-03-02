@@ -1535,6 +1535,12 @@ option[value=""]:disabled + option[value=""]:disabled {
     transform: scaleX(-1);
 }
 
+.close-icon:after {
+    content: "✖";
+    color: #aaa;
+    font-weight: bold;
+}
+
 .delete-icon:after {
     content: "✖";
     color: #a00;
@@ -1561,7 +1567,7 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: #a00;
 }
 
-.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon {
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon {
     display: inline-block;
     padding: 0 2px;
     font-size: 14px;
@@ -1572,13 +1578,21 @@ option[value=""]:disabled + option[value=""]:disabled {
     line-height: 16px;
 }
 
+.icon-small {
+    font-size: 12px;
+    width: 8px;
+    height: 8px;
+    text-shadow: none;
+    line-height: 8px;
+    padding: 0;
+}
+
 .clickable {
     cursor:pointer;
-    text-decoration: underline dotted cadetblue;
 }
 
 .clickable:hover {
-    text-shadow: 1px 1px 3px cadetblue;
+    text-shadow: 1px 1px 2px #00000040;
     text-decoration: none;
     filter: saturate(80%);
 }
