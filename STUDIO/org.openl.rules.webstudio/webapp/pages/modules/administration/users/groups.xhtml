@@ -67,6 +67,10 @@
             display: table-row;
         }
 
+        #privilegesTable > div:hover {
+            background-color: #FAE5C1;
+        }
+
         #privilegesTable > div > div {
             padding: 6px 11px;
             text-align: center;
@@ -75,9 +79,18 @@
 
         }
 
+        #privilegesTable > div > label {
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+
+        }
+
         #privilegesTable > div:first-child {
             font-weight: bold;
-            text-align: center;
+        }
+
+        #privilegesTable > div:first-child > div {
+            text-align: left;
         }
 
         #privilegesTable > div:first-child > div {
@@ -104,13 +117,6 @@
             color: #fff;
         }
 
-        .selectedRow {
-            background: #eff7ff;
-        }
-
-        .selectedGroup {
-            background: #77d100;
-        }
     </style>
 
     <section id="groupsTable">
@@ -233,6 +239,7 @@
             }
 
             function resolveSubPrivileges(name) {
+
                 var group = groups[name];
                 if (group.allPrivileges !== undefined) {
                     // already processed
@@ -242,7 +249,23 @@
 
                 group.roles && group.roles.forEach(function (role) {
                     resolveSubPrivileges(role);
-                    group.allPrivileges = group.allPrivileges.concat(groups[role].allPrivileges);
+                    var subRole = groups[role];
+                    group.allPrivileges = group.allPrivileges.concat(subRole.allPrivileges);
+                });
+            }
+
+            function propogadeCycledGroups(child, name) {
+                var group = groups[child];
+                group.cycledGroups = group.cycledGroups || [];
+                var cycledGroups = group.cycledGroups;
+                cycledGroups.push(name);
+                group.roles && group.roles.forEach(function (role) {
+                    if ($j.inArray(role, cycledGroups) === -1) {
+                        propogadeCycledGroups(role, name);
+                        cycledGroups.forEach(function (parent) {
+                            propogadeCycledGroups(role, parent);
+                        });
+                    }
                 });
             }
 
@@ -255,7 +278,8 @@
                     .done(function (data) {
                         renderGroupsTable(data);
                         groups = data;
-                        $j.each(groups, function (name, item) {
+                        $j.each(groups, function (name) {
+                            propogadeCycledGroups(name, name);
                             resolveSubPrivileges(name);
                         });
                     });
@@ -355,9 +379,16 @@
                 $j("#addEditGroupForm input[name=description]").val(description);
                 $j("#modalAddEditGroup_header_content").text(name !== undefined ? "Edit Group" : "Add New Group");
 
-                render(name);
+                var cycledGroups = groups[name] && groups[name].cycledGroups;
+                var allowedGroups = {};
+                $j.each(groups, function (name, gr) {
+                    if ($j.inArray(name, cycledGroups) === -1) {
+                        allowedGroups[name] = gr;
+                    }
+                });
+                render(allowedGroups, privileges);
                 openGroup(name);
-                $j("#privilegesTable input[value=ADMIN]").parent().toggleClass("disabled", isOnlyAdmin);
+                $j("#privilegesTable input[value=ADMIN]").parent().toggleClass("disabled", isOnlyAdmin === true);
 
                 RichFaces.$("modalAddEditGroup").show();
             }
@@ -375,26 +406,21 @@
                 });
             }
 
-            function render(skipRole) {
+            function render(groups, privileges) {
                 var html = "<div><div style='min-width: 150px;'>Privilege:</div>";
-                $j.each(groups, function (name) {
-                    if (name !== skipRole) {
-                        html += "<label><input type='checkbox' value='" + name + "' name='group'><div>" + name + "</div></label>";
-                    }
+                $j.each(groups, function (name, gr) {
+                    html += "<label><input type='checkbox' value='" + name + "' name='group'><div>" + name + "</div></label>";
                 });
                 html += "</div>";
                 $j.each(privileges, function (code, value) {
                     html += "<div><label><input type='checkbox' value='" + code + "' name='privilege'>" + value + "</label>";
                     $j.each(groups, function (name, gr) {
-                        if (name === skipRole) {
-                            return;
-                        }
                         if ($j.inArray(code, gr.privileges) !== -1) {
                             html += "<div><span class='yes-icon'/></div>";
                         } else if ($j.inArray(code, gr.allPrivileges) !== -1) {
                             html += "<div><span class='check-icon'/></div>";
                         } else {
-                            html += "<div><span/></div>";
+                            html += "<div><span class='empty-icon'/></div>";
                         }
                     });
                     html += "</div>";
