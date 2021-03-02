@@ -1616,7 +1616,12 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: #a00;
 }
 
-.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon {
+.empty-icon:after {
+    content: " ";
+    color: #ffffff00;
+}
+
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon, .empty-icon {
     display: inline-block;
     padding: 0 2px;
     font-size: 14px;
