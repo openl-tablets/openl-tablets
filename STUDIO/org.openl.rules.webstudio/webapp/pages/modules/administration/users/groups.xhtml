@@ -298,8 +298,8 @@
                 $j.ajax({
                     type: "DELETE",
                     contentType: 'text/plain',
-                    url: "#{contextPath}/web/admin/management/groups/" + name,
-                    datatype: "json"
+                    url: "#{contextPath}/web/admin/management/groups",
+                    data: name
                 }).done(function () {
                     $j('#groupsTable').trigger('refresh');
                     location.reload();
@@ -439,17 +439,8 @@
 
         function saveGroup() {
             var name = $j("#addEditGroupForm input[name=name]").val();
-            var description = $j("#addEditGroupForm input[name=description]").val();
-            var roles = $j("input[name=group]:checked").map(function () {
-                return $j(this).val();
-            }).get();
-            var privileges = $j("input[name=privilege]:checked").map(function () {
-                return $j(this).val();
-            }).get();
 
             var isBlank = !name || /^\s*$/.test(name);
-
-            $j("#addEditGroupForm .error").text(isBlank);
 
             if (isBlank) {
                 $j("#addEditGroupForm .error").text("Cannot be empty");
@@ -457,19 +448,11 @@
             } else {
                 $j("#addEditGroupForm .error").text("");
             }
-            var oldName = $j("#addEditGroupForm input[name=oldName]").val();
 
             $j.ajax({
                 type: "POST",
-                url: "#{contextPath}/web/admin/management/groups/" + oldName,
-                contentType: 'application/json',
-                data: JSON.stringify({
-                    name: name,
-                    description: description,
-                    privileges: privileges,
-                    roles: roles
-                }),
-                dataType: "json"
+                url: "#{contextPath}/web/admin/management/groups",
+                data: $j("#addEditGroupForm").serialize(),
             }).done(function () {
                 $j('#groupsTable').trigger('refresh');
                 RichFaces.$("modalAddEditGroup").hide();
