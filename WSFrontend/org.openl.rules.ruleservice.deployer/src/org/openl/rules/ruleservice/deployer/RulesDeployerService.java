@@ -131,10 +131,15 @@ public class RulesDeployerService implements Closeable {
         if (deployRepo.supports().folders()) {
             final String fullDeployPath = baseDeployPath + deployPath;
             try {
-                FileItem archive = deployRepo.read(fullDeployPath);
-                if (archive != null) {
-                    IOUtils.copyAndClose(archive.getStream(), output);
-                    return;
+                if (Optional.ofNullable(deployRepo.check(fullDeployPath))
+                        .map(FileData::getSize)
+                        .filter(size -> size > FileData.UNDEFINED_SIZE)
+                        .isPresent()) {
+                    FileItem archive = deployRepo.read(fullDeployPath);
+                    if (archive != null) {
+                        IOUtils.copyAndClose(archive.getStream(), output);
+                        return;
+                    }
                 }
             } catch (IOException ignored) {
                 // OK
@@ -143,13 +148,13 @@ public class RulesDeployerService implements Closeable {
             final boolean isMultiProject = isDeployment || ((FolderRepository) deployRepo).listFolders(fullDeployPath)
                 .size() > 1;
 
-            final String basePath = isMultiProject ? fullDeployPath : baseDeployPath + projectsPath.iterator().next();
+            final String basePath = (isMultiProject ? fullDeployPath : baseDeployPath + projectsPath.iterator().next()) + "/";
             List<FileData> files = deployRepo.list(basePath);
             try (ZipOutputStream target = new ZipOutputStream(output)) {
                 for (FileData fileData : files) {
                     try (FileItem fileItem = deployRepo.read(fileData.getName())) {
                         ZipEntry targetEntry = new ZipEntry(
-                            fileItem.getData().getName().substring(basePath.length() + 1));
+                            fileItem.getData().getName().substring(basePath.length()));
                         target.putNextEntry(targetEntry);
                         IOUtils.copy(fileItem.getStream(), target);
                     }
@@ -193,12 +198,17 @@ public class RulesDeployerService implements Closeable {
      */
     public boolean delete(String deployPath, Set<String> projectsPath) throws IOException {
         if (deployRepo.supports().folders()) {
-            FileData fd = deployRepo.check(baseDeployPath + deployPath);
-            return deployRepo.delete(fd);
+            FileData data = new FileData();
+            data.setName(baseDeployPath + deployPath);
+            data.setAuthor(DEFAULT_AUTHOR_NAME);
+            data.setComment("Delete deployment.");
+            return deployRepo.deleteHistory(data);
         } else {
             List<FileData> toDelete = projectsPath.stream().map(name -> baseDeployPath + name).map(name -> {
                 FileData data = new FileData();
                 data.setName(name);
+                data.setAuthor(DEFAULT_AUTHOR_NAME);
+                data.setComment("Delete deployment.");
                 return data;
             }).collect(Collectors.toList());
             return deployRepo.delete(toDelete);
