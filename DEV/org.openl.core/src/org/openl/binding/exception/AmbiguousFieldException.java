@@ -6,10 +6,13 @@
 
 package org.openl.binding.exception;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.openl.base.INamedThing;
 import org.openl.exception.OpenlNotCheckedException;
+import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 
 /**
@@ -34,11 +37,16 @@ public class AmbiguousFieldException extends OpenlNotCheckedException {
         sb.append("Field ").append(fieldName);
         sb.append(" is ambiguous:\n").append("Matching fields:\n");
         boolean first = true;
+        Set<IOpenClass> openClasses = new HashSet<>();
+        for (IOpenField f : matchingFields) {
+            openClasses.add(f.getDeclaringClass());
+        }
         for (IOpenField f : matchingFields) {
             if (!first) {
                 sb.append(", ");
             }
-            sb.append(f.getDisplayName(INamedThing.LONG));
+            sb.append(openClasses.size() == 1 ? "" : f.getDeclaringClass().getDisplayName(INamedThing.SHORT) + ".")
+                .append(f.getDisplayName(INamedThing.SHORT));
             first = false;
         }
 

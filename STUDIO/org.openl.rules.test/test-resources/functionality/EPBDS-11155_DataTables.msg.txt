@@ -1,1 +1,1 @@
-ERROR: Identifier 'myTypes' is not found.
+ERROR: Field myTypes is ambiguous:

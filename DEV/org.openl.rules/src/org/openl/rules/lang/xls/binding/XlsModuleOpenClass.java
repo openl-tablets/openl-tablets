@@ -6,21 +6,14 @@
 
 package org.openl.rules.lang.xls.binding;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenL;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.binding.impl.BindHelper;
@@ -93,6 +86,9 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
     private SpreadsheetResultOpenClass spreadsheetResultOpenClass;
 
     private ITableProperties globalTableProperties;
+
+    private final Map<String, List<IOpenField>> hiddenFields = new HashMap<>();
+    private final Map<String, List<IOpenField>> hiddenLowerCasedFields = new HashMap<>();
 
     private final ObjectToDataOpenCastConvertor objectToDataOpenCastConvertor = new ObjectToDataOpenCastConvertor();
 
@@ -243,8 +239,21 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
         }
     }
 
+    @Override
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
+        IOpenField field = super.getField(fname, strictMatch);
+        if (field == null) {
+            if (strictMatch && hiddenFields.containsKey(fname) || !strictMatch && hiddenLowerCasedFields
+                .containsKey(fname)) {
+                throw new AmbiguousFieldException(fname,
+                    strictMatch ? hiddenFields.get(fname) : hiddenLowerCasedFields.get(fname.toLowerCase()));
+            }
+        }
+        return field;
+    }
+
     private void addFieldsFromDependencies(List<IOpenField> fields) {
-        Set<Integer> hiddenFields = new HashSet<>();
+        Set<Integer> fieldsToHide = new HashSet<>();
         for (int i = 0; i < fields.size() - 1; i++) {
             for (int j = i + 1; j < fields.size(); j++) {
                 IOpenField openField1 = fields.get(i);
@@ -255,15 +264,19 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                             .equals(((DataOpenField) openField1).getNodeType()) && XlsNodeTypes.XLS_DATA
                                 .equals(((DataOpenField) openField2).getNodeType())) {
                     if (!Objects.equals(((DataOpenField) openField1).getUri(), ((DataOpenField) openField2).getUri())) {
-                        hiddenFields.add(i);
-                        hiddenFields.add(j);
+                        fieldsToHide.add(i);
+                        fieldsToHide.add(j);
                     }
                 }
             }
         }
         for (int i = 0; i < fields.size(); i++) {
-            if (!hiddenFields.contains(i)) {
+            if (!fieldsToHide.contains(i)) {
                 addField(fields.get(i));
+            } else {
+                IOpenField f = fields.get(i);
+                this.hiddenFields.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
+                this.hiddenLowerCasedFields.computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>()).add(f);
             }
         }
     }
