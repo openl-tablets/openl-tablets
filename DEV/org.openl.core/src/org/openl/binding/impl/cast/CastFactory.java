@@ -525,7 +525,7 @@ public class CastFactory implements ICastFactory {
 
         if (NullOpenClass.the.equals(from)) {
             if (isPrimitive(to)) {
-                return null;
+                return JavaUnboxingNullCast.getInstance(to.getInstanceClass());
             } else {
                 return JavaUpCast.getInstance();
             }
