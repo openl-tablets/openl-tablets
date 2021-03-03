@@ -1,13 +1,10 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.component.UIInput;
@@ -16,12 +13,10 @@ import javax.faces.event.ValueChangeEvent;
 import javax.faces.validator.ValidatorException;
 import javax.validation.constraints.Size;
 
-import org.openl.rules.security.Privilege;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.User;
 import org.openl.util.StringUtils;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 
 @ManagedBean
 @RequestScoped
@@ -72,21 +67,6 @@ public class UserProfileBean extends UsersBean {
      */
     public User getUser() {
         return user;
-    }
-
-    /**
-     * Return the user's privileges
-     *
-     * @return Collection of user's privileges
-     */
-    private Collection<Privilege> getPriveleges() {
-        Collection<Privilege> privileges = new ArrayList<>();
-
-        for (GrantedAuthority auth : user.getAuthorities()) {
-            Privilege group = groupManagementService.getGroupByName(auth.getAuthority());
-            privileges.add(group);
-        }
-        return privileges;
     }
 
     /**
