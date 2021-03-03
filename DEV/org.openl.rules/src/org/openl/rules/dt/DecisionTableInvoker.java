@@ -9,6 +9,7 @@ import org.openl.rules.dt.algorithm.FailOnMissException;
 import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.method.RulesMethodInvoker;
+import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -20,12 +21,14 @@ import org.openl.vm.Tracer;
 public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
     private final boolean returnEmptyResult;
+    private final IOpenClass retType;
 
     DecisionTableInvoker(DecisionTable decisionTable) {
         super(decisionTable);
         // This expression should be calculated once to improve performance of DT calculations
         this.returnEmptyResult = decisionTable.getMethodProperties() != null && DTEmptyResultProcessingEnum.RETURN
             .equals(decisionTable.getMethodProperties().getEmptyResultProcessing());
+        this.retType = decisionTable.getType();
     }
 
     @Override
@@ -74,7 +77,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
             throw new FailOnMissException(message, getInvokableMethod());
         }
 
-        return null;
+        return retType.nullObject();
     }
 
 }
