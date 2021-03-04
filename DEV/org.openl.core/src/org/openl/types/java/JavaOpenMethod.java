@@ -181,7 +181,7 @@ public class JavaOpenMethod implements IOpenMethod, IMethodSignature {
 
     @Override
     public String toString() {
-        return getName();
+        return MethodUtil.printMethod(getName(), getParameterTypes());
     }
 
     @Override

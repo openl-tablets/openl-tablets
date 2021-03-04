@@ -7,7 +7,16 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -36,7 +45,6 @@ import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -1030,7 +1038,8 @@ public class ProjectModel {
                 compiledOpenClass = validate(instantiationStrategy);
             }
 
-            addAllSyntaxNodes(webStudioWorkspaceDependencyManager.getDependencyLoaders().values());
+            XlsMetaInfo metaInfo = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
+            allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
@@ -1080,35 +1089,6 @@ public class ProjectModel {
             RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
         OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
         return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
-    }
-
-    private void addAllSyntaxNodes(
-            Collection<Collection<IDependencyLoader>> collectionsDependencyLoaders) throws OpenLCompilationException {
-        boolean projectDependencyLoaderFound = false;
-        for (Collection<IDependencyLoader> collectionDependencyLoaders : collectionsDependencyLoaders) {
-            for (IDependencyLoader dl : collectionDependencyLoaders) {
-                XlsMetaInfo metaInfo = null;
-                if (!projectDependencyLoaderFound && Objects.equals(dl.getProject().getName(),
-                    moduleInfo.getProject().getName())) {
-                    projectDependencyLoaderFound = true;
-                    metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
-                        .getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
-                } else if (!dl.isProject() && dl.isCompiled()) {
-                    metaInfo = (XlsMetaInfo) dl.getCompiledDependency()
-                        .getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
-                }
-                if (metaInfo != null) {
-                    allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
-                }
-            }
-        }
-        if (!projectDependencyLoaderFound) {
-            throw new IllegalStateException(String.format("Module '%s' is not found!", moduleInfo.getName()));
-        }
     }
 
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
