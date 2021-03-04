@@ -172,7 +172,7 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/project/allOf/allOfInRequest.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        assertEquals(4, datatypeModels.size());
+        assertEquals(3, datatypeModels.size());
         assertEquals(1, spreadsheetModels.size());
 
         Optional<DatatypeModel> body = datatypeModels.stream().filter(x -> x.getName().equals("Body")).findFirst();
@@ -180,13 +180,7 @@ public class OpenAPIConverterTest {
         assertFalse(isBodyPresented);
         SpreadsheetModel sprModel = spreadsheetModels.iterator().next();
         List<InputParameter> parameters = sprModel.getParameters();
-        assertEquals(1, parameters.size());
-        InputParameter ip = parameters.iterator().next();
-        TypeInfo type = ip.getType();
-        assertEquals("body", type.getSimpleName());
-        assertEquals(TypeInfo.Type.DATATYPE, type.getType());
-        assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals(type.getSimpleName())));
-        assertNull(ip.getIn());
+        assertEquals(2, parameters.size());
     }
 
     @Test

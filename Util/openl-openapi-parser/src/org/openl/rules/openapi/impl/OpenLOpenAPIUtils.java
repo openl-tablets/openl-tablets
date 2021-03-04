@@ -513,6 +513,9 @@ public class OpenLOpenAPIUtils {
     public static Map<String, Schema> getAllFields(OpenAPI openAPI, ComposedSchema cs) {
         Map<String, Schema> propMap = new HashMap<>();
         List<Schema> interfaces = getInterfaces(cs);
+        if (CollectionUtils.isNotEmpty(cs.getProperties())) {
+            propMap.putAll(cs.getProperties());
+        }
         if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> sc : interfaces) {
                 if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
