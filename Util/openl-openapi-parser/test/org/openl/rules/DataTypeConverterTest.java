@@ -21,6 +21,7 @@ import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ProjectModel;
 import org.openl.rules.model.scaffolding.SpreadsheetModel;
 import org.openl.rules.model.scaffolding.StepModel;
+import org.openl.rules.model.scaffolding.TypeInfo;
 import org.openl.rules.openapi.OpenAPIModelConverter;
 import org.openl.rules.openapi.impl.OpenAPIScaffoldingConverter;
 
@@ -148,7 +149,7 @@ public class DataTypeConverterTest {
             .extractProjectModel("test.converter/datatype/EPBDS-10285_datatype_in_request_body.json");
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        assertEquals(2, datatypeModels.size());
+        assertEquals(3, datatypeModels.size());
         assertEquals(2, spreadsheetModels.size());
         Optional<SpreadsheetModel> helloKittyOptional = spreadsheetModels.stream()
             .filter(x -> x.getName().equals("HelloKitty"))
@@ -156,27 +157,9 @@ public class DataTypeConverterTest {
         assertTrue(helloKittyOptional.isPresent());
         SpreadsheetModel spreadsheetModel = helloKittyOptional.get();
         List<InputParameter> parameters = spreadsheetModel.getParameters();
-        assertEquals(4, parameters.size());
-
-        Optional<InputParameter> numDui = parameters.stream()
-            .filter(x -> x.getFormattedName().equals("numDUI"))
-            .findFirst();
-        assertTrue(numDui.isPresent());
-
-        Optional<InputParameter> numAccidents = parameters.stream()
-            .filter(x -> x.getFormattedName().equals("numAccidents"))
-            .findFirst();
-        assertTrue(numAccidents.isPresent());
-
-        Optional<InputParameter> category = parameters.stream()
-            .filter(x -> x.getFormattedName().equals("category"))
-            .findFirst();
-        assertTrue(category.isPresent());
-
-        Optional<InputParameter> numMovingViolations = parameters.stream()
-            .filter(x -> x.getFormattedName().equals("numMovingViolations"))
-            .findFirst();
-        assertTrue(numMovingViolations.isPresent());
+        assertEquals(1, parameters.size());
+        InputParameter ip = parameters.iterator().next();
+        assertEquals(TypeInfo.Type.DATATYPE, ip.getType().getType());
 
         // project model with expandable request, but one more datatype has a link to this datatype
         ProjectModel pm = converter
