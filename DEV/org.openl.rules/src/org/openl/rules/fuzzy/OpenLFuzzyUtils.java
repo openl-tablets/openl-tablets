@@ -273,7 +273,7 @@ public final class OpenLFuzzyUtils {
         if (source == null) {
             return StringUtils.EMPTY;
         }
-        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_]|\\.|,|;)");
+        String[] tokens = source.split("(?<=.)(?=\\p{Lu}|\\d|\\s|[_-]|\\.|,|;)");
 
         tokens = concatTokens(tokens, "\\p{Lu}+");
         tokens = concatTokens(tokens, "\\d+");
