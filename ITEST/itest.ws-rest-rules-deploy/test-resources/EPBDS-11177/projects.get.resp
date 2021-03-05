@@ -1,0 +1,25 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+	{
+		"startedTime": "###",
+		"name": "project1",
+		"servicePath": "project1/project1",
+		"urls": {
+			"RESTFUL": "project1"
+		},
+		"hasManifest": false,
+		"deploymentName": "project1",
+		"status": "DEPLOYED"
+	},
+	{
+		"startedTime": "###",
+		"name": "project1",
+		"servicePath": "project2/project1",
+		"urls": {},
+		"hasManifest": false,
+		"deploymentName": "project2",
+		"status": "FAILED"
+	}
+]
