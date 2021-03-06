@@ -100,7 +100,14 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.send("EPBDS-8758/doSomething_v1.get");
 
-        AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(() -> {
+            client.send("EPBDS-8758/doSomething.get");
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         TaskScheduler taskScheduler = new TaskScheduler();
 
         executor.start();
@@ -132,7 +139,14 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.send("EPBDS-8758/doSomething_v1.get");
 
-        AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
+        AsyncExecutor executor = new AsyncExecutor(() -> {
+            client.send("EPBDS-8758/doSomething.get");
+            try {
+                TimeUnit.MILLISECONDS.sleep(10);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
         executor.start();
 
         AsyncExecutor deployers = AsyncExecutor.start(
@@ -211,9 +225,12 @@ public class RunRestRulesDeploymentTest {
     @Test
     public void EPBDS_11144() {
         client.send("admin_services_no_services.json.get");
-        client.post("/admin/deploy/EPBDS-10916%20+Whitespaces in Name #", "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip", 201);
+        client.post("/admin/deploy/EPBDS-10916%20+Whitespaces in Name #",
+            "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip",
+            201);
         client.send("EPBDS-11144/deployed-rules_services.get");
-        client.get("/admin/deploy/EPBDS-10916%20+Whitespaces in Name.zip","/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
+        client.get("/admin/deploy/EPBDS-10916%20+Whitespaces in Name.zip",
+            "/EPBDS-11144/EPBDS-10916%20+Whitespaces in Name #.zip");
         client.send("EPBDS-11144/delete.delete");
         client.send("admin_services_no_services.json.get");
     }
@@ -224,7 +241,8 @@ public class RunRestRulesDeploymentTest {
         client.post("/admin/deploy/someDeployment", "/EPBDS-8987/someDeployment.zip", 201);
         client.send("EPBDS-8987/deployed-rules_services_1.get");
         client.post("/admin/deploy/multiple-deployment_v1", "/EPBDS-8987/multiple-deployment_v1.zip", 201);
-        // 3 projects are exposed but should one. Currently it's not possible to fix for DB because of restrictions in repository design
+        // 3 projects are exposed but should one. Currently it's not possible to fix for DB because of restrictions in
+        // repository design
         // it works in different way for Folder Repositories
         client.send("EPBDS-8987/deployed-rules_services_2.get");
         client.send("EPBDS-8987/delete_all_1.delete");
