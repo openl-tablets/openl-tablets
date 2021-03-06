@@ -194,8 +194,19 @@
 
             var onlyAdmin = "";
 
+            var escaped = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': '&quot;',
+                "'": '&#39;',
+                "/": '&#x2F;'
+            };
+
             function text(value) {
-                return value ? value : "";
+                return value ? value.replace(/[&<>"'\/]/g, function (s) {
+                    return escaped[s];
+                }) : "";
             }
 
             function renderGroupsTable(data) {
@@ -209,7 +220,7 @@
                     var privs = "";
 
                     item.roles && item.roles.forEach(function (role) {
-                        privs += "<span class='role'>" + role + "</span>";
+                        privs += "<span class='role'>" + text(role) + "</span>";
                     });
 
                     item.privileges && item.privileges.forEach(function (priv) {
@@ -224,7 +235,7 @@
 
                     list += htmlTemplate
                         .replace(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
-                        .replace(/{name}/g, name)
+                        .replace(/{name}/g, text(name))
                         .replace(/{description}/g, text(item.description))
                         .replace(/{privileges}/g, privs);
                 });
@@ -410,7 +421,7 @@
             function render(groups, privileges) {
                 var html = "<div><div style='min-width: 150px;'>Privilege:</div>";
                 $j.each(groups, function (name, gr) {
-                    html += "<label><input type='checkbox' value='" + name + "' name='group'><div>" + name + "</div></label>";
+                    html += "<label><input type='checkbox' value='" + text(name) + "' name='group'><div>" + text(name) + "</div></label>";
                 });
                 html += "</div>";
                 $j.each(privileges, function (code, value) {

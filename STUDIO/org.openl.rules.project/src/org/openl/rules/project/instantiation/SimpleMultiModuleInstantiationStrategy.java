@@ -8,8 +8,6 @@ import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The simplest way of multimodule instantiation strategy. There will be created virtual module that depends on each
@@ -18,7 +16,6 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class SimpleMultiModuleInstantiationStrategy extends MultiModuleInstantiationStartegy {
-    private final Logger log = LoggerFactory.getLogger(SimpleMultiModuleInstantiationStrategy.class);
 
     private RulesEngineFactory<?> engineFactory;
 

@@ -259,4 +259,17 @@ public class RunRestRulesDeploymentTest {
         client.send("EPBDS-8987/delete_all_2.delete");
         client.send("admin_services_no_services.json.get");
     }
+
+    @Test
+    public void EPBDS_11177() {
+        client.send("admin_services_no_services.json.get");
+        client.post("/admin/deploy", "/EPBDS-11177/project1.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-11177/project2.zip", 201);
+        client.post("/admin/deploy", "/EPBDS-11177/project2.zip", 201);
+        client.send("EPBDS-11177/projects.get");
+        client.send("EPBDS-11177/project1.delete");
+        client.send("EPBDS-11177/project2.delete");
+        client.send("admin_services_no_services.json.get");
+    }
+
 }

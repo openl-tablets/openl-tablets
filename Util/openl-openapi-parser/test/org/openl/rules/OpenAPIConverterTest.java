@@ -181,12 +181,6 @@ public class OpenAPIConverterTest {
         SpreadsheetModel sprModel = spreadsheetModels.iterator().next();
         List<InputParameter> parameters = sprModel.getParameters();
         assertEquals(1, parameters.size());
-        InputParameter ip = parameters.iterator().next();
-        TypeInfo type = ip.getType();
-        assertEquals("body", type.getSimpleName());
-        assertEquals(TypeInfo.Type.DATATYPE, type.getType());
-        assertTrue(datatypeModels.stream().anyMatch(model -> model.getName().equals(type.getSimpleName())));
-        assertNull(ip.getIn());
     }
 
     @Test

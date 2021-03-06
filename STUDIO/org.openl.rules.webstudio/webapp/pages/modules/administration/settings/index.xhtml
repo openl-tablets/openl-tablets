@@ -249,15 +249,13 @@
                                 <span>System</span>
                             </a>
                         </li>
-                        <c:if test="#{usersBean.canCreateUsers}">
+                        <c:if test="#{isNotSingleMode}">
                             <li>
                                 <a href="#users">
                                     <h:graphicImage url="/webresource/images/admin/users/users.png" alt="Users"/>
                                     <span>Users</span>
                                 </a>
                             </li>
-                        </c:if>
-                        <c:if test="#{isNotSingleMode}">
                             <li>
                                 <a href="#groups">
                                     <h:graphicImage url="/webresource/images/admin/users/groups.png"

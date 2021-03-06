@@ -67,7 +67,7 @@ public class OpenLClassLoader extends GroovyClassLoader {
             throw new IllegalArgumentException("Bundle class loader cannot register class loader containing himself");
         }
         ClassLoader classLoader1 = applyGroovySupport(classLoader, new URL[0]);
-        if (classLoader1 instanceof GroovyClassLoader) {
+        if (classLoader1 instanceof GroovyClassLoader && classLoader1 != classLoader) {
             groovyClassLoaders.add((GroovyClassLoader) classLoader1);
         }
         bundleClassLoaders.add(classLoader1);

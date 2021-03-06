@@ -310,7 +310,6 @@ public class OpenLOpenAPIUtils {
                     }
                 }
 
-                // Callbacks: openl doesn't support it
                 if (operation.getCallbacks() != null) {
                     for (Callback c : operation.getCallbacks().values()) {
                         Callback callback = resolve(jxPathContext, c, Callback::get$ref);
@@ -510,15 +509,19 @@ public class OpenLOpenAPIUtils {
         return Collections.emptyMap();
     }
 
-    public static Map<String, Schema> getAllFields(OpenAPI openAPI, ComposedSchema cs) {
+    public static Map<String, Schema> getAllFields(JXPathContext jxPathContext, ComposedSchema cs) {
         Map<String, Schema> propMap = new HashMap<>();
         List<Schema> interfaces = getInterfaces(cs);
+        if (CollectionUtils.isNotEmpty(cs.getProperties())) {
+            propMap.putAll(cs.getProperties());
+        }
         if (CollectionUtils.isNotEmpty(interfaces)) {
             for (Schema<?> sc : interfaces) {
-                if (StringUtils.isEmpty(sc.get$ref()) && CollectionUtils.isNotEmpty(sc.getProperties())) {
+                String reference = sc.get$ref();
+                if (StringUtils.isEmpty(reference) && CollectionUtils.isNotEmpty(sc.getProperties())) {
                     propMap.putAll(sc.getProperties());
-                } else if (!StringUtils.isEmpty(sc.get$ref())) {
-                    Schema<?> s = getSchemas(openAPI).get(OpenAPITypeUtils.getSimpleName(sc.get$ref()));
+                } else if (!StringUtils.isEmpty(reference)) {
+                    Schema<?> s = resolve(jxPathContext, sc, Schema::get$ref);
                     if (s != null && CollectionUtils.isNotEmpty(s.getProperties())) {
                         propMap.putAll(s.getProperties());
                     }
@@ -557,21 +560,19 @@ public class OpenLOpenAPIUtils {
     }
 
     public static List<InputParameter> extractParameters(JXPathContext jxPathContext,
-            OpenAPI openAPI,
             Set<String> refsToExpand,
             PathItem pathItem) {
-        return visitPathItemForParametersOfRequest(jxPathContext, openAPI, pathItem, refsToExpand);
+        return visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand);
     }
 
     private static List<InputParameter> visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
-            OpenAPI openAPI,
             PathItem pathItem,
             Set<String> refsToExpand) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
         boolean pathParametersArePresented = CollectionUtils.isNotEmpty(pathParameters);
         if (pathParametersArePresented) {
-            parameterModels.addAll(collectInputParams(openAPI, jxPathContext, pathParameters, refsToExpand, true));
+            parameterModels.addAll(collectInputParams(jxPathContext, pathParameters, refsToExpand, true));
         }
         Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
         if (satisfyingOperationWithMethod != null) {
@@ -582,7 +583,7 @@ public class OpenLOpenAPIUtils {
             boolean operationsParametersArePresented = CollectionUtils.isNotEmpty(parameters);
             if (operationsParametersArePresented) {
                 parameterModels
-                    .addAll(collectInputParams(openAPI, jxPathContext, parameters, refsToExpand, allowPrimitiveTypes));
+                    .addAll(collectInputParams(jxPathContext, parameters, refsToExpand, allowPrimitiveTypes));
             }
             RequestBody requestBody = resolve(jxPathContext,
                 satisfyingOperation.getRequestBody(),
@@ -593,7 +594,6 @@ public class OpenLOpenAPIUtils {
                     MediaType content = mediaType.getContent();
                     Schema<?> resSchema = resolve(jxPathContext, content.getSchema(), Schema::get$ref);
                     parameterModels.addAll(collectInputParams(jxPathContext,
-                        openAPI,
                         refsToExpand,
                         mediaType,
                         resSchema,
@@ -621,8 +621,7 @@ public class OpenLOpenAPIUtils {
         return resultName.toString();
     }
 
-    private static List<InputParameter> collectInputParams(OpenAPI openAPI,
-            JXPathContext jxPathContext,
+    private static List<InputParameter> collectInputParams(JXPathContext jxPathContext,
             Collection<Parameter> params,
             Set<String> refsToExpand,
             boolean allowPrimitiveTypes) {
@@ -635,7 +634,7 @@ public class OpenLOpenAPIUtils {
                     Schema<?> resSchema = resolve(jxPathContext, paramSchema, Schema::get$ref);
                     String ref = paramSchema.get$ref();
                     if (ref != null && refsToExpand.contains(ref)) {
-                        result.addAll(collectParameters(openAPI, jxPathContext, refsToExpand, resSchema, ref));
+                        result.addAll(collectParameters(jxPathContext, refsToExpand, resSchema, ref));
                     } else {
                         if (paramSchema instanceof ArraySchema) {
                             refsToExpand.removeIf(x -> x.equals(((ArraySchema) paramSchema).getItems().get$ref()));
@@ -656,8 +655,7 @@ public class OpenLOpenAPIUtils {
         return result;
     }
 
-    private static List<InputParameter> collectParameters(OpenAPI openAPI,
-            JXPathContext jxPathContext,
+    private static List<InputParameter> collectParameters(JXPathContext jxPathContext,
             Set<String> refsToExpand,
             Schema<?> paramSchema,
             String ref) {
@@ -665,7 +663,7 @@ public class OpenLOpenAPIUtils {
         Map<String, Schema> properties;
         if (paramSchema instanceof ComposedSchema) {
             ComposedSchema cs = (ComposedSchema) paramSchema;
-            properties = getAllFields(openAPI, cs);
+            properties = getAllFields(jxPathContext, cs);
         } else {
             properties = paramSchema.getProperties();
         }
@@ -695,7 +693,6 @@ public class OpenLOpenAPIUtils {
     }
 
     private static List<InputParameter> collectInputParams(JXPathContext jxPathContext,
-            OpenAPI openAPI,
             Set<String> refsToExpand,
             MediaTypeInfo mediaType,
             Schema<?> resSchema,
@@ -718,7 +715,7 @@ public class OpenLOpenAPIUtils {
             }
             // only root schema is expandable
             if (refIsPresented && refsToExpand.contains(ref)) {
-                result = collectParameters(openAPI, jxPathContext, refsToExpand, resSchema, ref);
+                result = collectParameters(jxPathContext, refsToExpand, resSchema, ref);
             } else {
                 // non expandable
                 TypeInfo typeInfo = OpenAPITypeUtils

@@ -2,11 +2,11 @@ package org.openl.rules.openapi.impl;
 
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.LINK_TO_DEFAULT_RUNTIME_CONTEXT;
 import static org.openl.rules.openapi.impl.OpenAPITypeUtils.SCHEMAS_LINK;
+import static org.openl.rules.openapi.impl.OpenAPITypeUtils.getSimpleName;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.APPLICATION_JSON;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.TEXT_PLAIN;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
-
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -168,10 +168,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             String ref = refWithCount.getKey();
             Integer numberOfRefUsage = refWithCount.getValue();
             boolean refIsParentOrField = !parents.contains(ref) && !fieldsRefs.contains(ref);
+            boolean refIsNotChild = !childSet.contains(getSimpleName(ref));
             boolean refIsNotRuntimeContext = !ref.equals(LINK_TO_DEFAULT_RUNTIME_CONTEXT);
             return refIsNotRuntimeContext && numberOfRefUsage
                 .equals(1) && (!allUsedSchemaRefs.containsKey(ref) || allUsedSchemaRefs.get(ref)
-                    .equals(1)) && refIsParentOrField;
+                    .equals(1)) && refIsParentOrField && refIsNotChild;
         }).map(Map.Entry::getKey).collect(Collectors.toSet());
 
         // path + schemas
@@ -829,8 +830,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String usedSchemaInResponse = typeInfo.getSimpleName();
         pathInfo.setReturnType(typeInfo);
         boolean isChild = childSet.contains(usedSchemaInResponse);
-        List<InputParameter> parameters = OpenLOpenAPIUtils
-            .extractParameters(jxPathContext, openAPI, refsToExpand, pathItem);
+        List<InputParameter> parameters = OpenLOpenAPIUtils.extractParameters(jxPathContext, refsToExpand, pathItem);
         String normalizedPath = replaceBrackets(path);
         String formattedName = normalizeName(normalizedPath);
         spr.setName(formattedName);
