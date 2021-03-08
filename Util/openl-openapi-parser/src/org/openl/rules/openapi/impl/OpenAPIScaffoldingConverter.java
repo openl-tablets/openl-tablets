@@ -88,6 +88,11 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             JXPathVariation.class.getSimpleName(),
             VariationsResult.class.getSimpleName())));
 
+    // collect all refs which are using variations
+    protected final Set<String> ignoredRefs = VARIATIONS_SCHEMAS_NAME.stream()
+        .map(s -> SCHEMAS_LINK + s)
+        .collect(Collectors.toSet());
+
     public OpenAPIScaffoldingConverter() {
         // default constructor
     }
@@ -103,11 +108,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         String projectName = openAPI.getInfo().getTitle();
 
         boolean areVariationsProvided = OpenLOpenAPIUtils.checkVariations(openAPI, VARIATIONS_SCHEMAS_NAME);
-
-        // collect all refs which are using variations
-        final Set<String> ignoredRefs = VARIATIONS_SCHEMAS_NAME.stream()
-            .map(s -> SCHEMAS_LINK + s)
-            .collect(Collectors.toSet());
 
         Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(openAPI, jxPathContext);
 
@@ -306,9 +306,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         Set<String> dtNames = dts.stream().map(DatatypeModel::getName).collect(Collectors.toSet());
         checkTypes(spreadsheetParserModels, dtNames);
 
-        final Consumer<MethodModel> applyInclude = method -> {
-            method.setInclude(openAPI.getPaths().get(method.getPathInfo().getOriginalPath()) != null);
-        };
+        final Consumer<MethodModel> applyInclude = method -> method
+            .setInclude(openAPI.getPaths().get(method.getPathInfo().getOriginalPath()) != null);
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
@@ -434,12 +433,10 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME, SPREADSHEET_RESULT, TypeInfo.Type.SPREADSHEET)));
             lostModel.setModel(model);
             spreadsheetParserModels.add(lostModel);
-            if (isRuntimeContextProvided) {
-                if (!pathsWithRequestsRefs.containsKey(originalPath)) {
-                    Map<String, Integer> mapWithRC = new HashMap<>();
-                    mapWithRC.put(LINK_TO_DEFAULT_RUNTIME_CONTEXT, 1);
-                    pathsWithRequestsRefs.put(originalPath, mapWithRC);
-                }
+            if (isRuntimeContextProvided && !pathsWithRequestsRefs.containsKey(originalPath)) {
+                Map<String, Integer> mapWithRC = new HashMap<>();
+                mapWithRC.put(LINK_TO_DEFAULT_RUNTIME_CONTEXT, 1);
+                pathsWithRequestsRefs.put(originalPath, mapWithRC);
             }
         }
     }
@@ -620,7 +617,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         }
         for (SpreadsheetParserModel parserModel : models) {
             SpreadsheetModel spreadsheetModel = parserModel.getModel();
-            String returnType = spreadsheetModel.getType();
             String refType = parserModel.getReturnRef() != null
                                                                 ? OpenAPITypeUtils
                                                                     .getSimpleName(parserModel.getReturnRef())

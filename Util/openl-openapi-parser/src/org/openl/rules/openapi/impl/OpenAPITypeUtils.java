@@ -157,7 +157,7 @@ public class OpenAPITypeUtils {
         } else if (foundSchema instanceof ArraySchema) {
             TypeInfo typeInfo = extractType(pathContext, foundSchema, false);
             result = typeInfo.isReference();
-        } else if (OBJECT.toLowerCase().equals(foundSchema.getType())) {
+        } else if (OBJECT.equalsIgnoreCase(foundSchema.getType())) {
             result = true;
         }
         return result;
@@ -303,10 +303,6 @@ public class OpenAPITypeUtils {
             return false;
         }
         return false;
-    }
-
-    private static boolean isNullType(Schema<?> schema) {
-        return "null".equals(schema.getType());
     }
 
     public static Map<String, List<String>> getChildrenMap(OpenAPI openAPI) {

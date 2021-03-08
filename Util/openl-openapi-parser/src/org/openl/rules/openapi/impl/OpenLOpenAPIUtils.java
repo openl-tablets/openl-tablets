@@ -51,8 +51,10 @@ public class OpenLOpenAPIUtils {
     public static final String APPLICATION_JSON = "application/json";
     public static final String TEXT_PLAIN = "text/plain";
 
-    public static final byte MAX_PARAMETERS_COUNT = 7;
     public static final int MIN_PARAMETERS_COUNT = 1;
+
+    private OpenLOpenAPIUtils() {
+    }
 
     @SuppressWarnings("unchecked")
     public static <T> T resolve(JXPathContext jxPathContext, T obj, Function<T, String> getRefFuc) {
