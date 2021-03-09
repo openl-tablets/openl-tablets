@@ -61,13 +61,18 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     @Override
-    public boolean isProject() {
+    public boolean isProjectLoader() {
         return module == null;
     }
 
     @Override
     public ProjectDescriptor getProject() {
         return project;
+    }
+
+    @Override
+    public Module getModule() {
+        return module;
     }
 
     public String getDependencyName() {
@@ -92,7 +97,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         final ClassLoader classLoader = buildClassLoader(dependencyManager);
         RulesInstantiationStrategy rulesInstantiationStrategy;
         Collection<Module> modules = getModules();
-        if (isProject()) {
+        if (isProjectLoader()) {
             if (modules.isEmpty()) {
                 throw new IllegalStateException("Expected at least one module in the project.");
             }
@@ -116,7 +121,7 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
             try {
                 dependencyManager.compilationBegin();
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();
-                if (!isProject() && realCompileRequired) {
+                if (!isProjectLoader() && realCompileRequired) {
                     synchronized (lazyCompiledOpenClass) {
                         CompiledOpenClass compiledOpenClass = CompiledOpenClassCache.getInstance()
                             .get(deployment, dependencyName);

@@ -44,13 +44,18 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     @Override
-    public boolean isProject() {
+    public boolean isProjectLoader() {
         return module == null;
     }
 
     @Override
     public ProjectDescriptor getProject() {
         return project;
+    }
+
+    @Override
+    public Module getModule() {
+        return module;
     }
 
     public SimpleDependencyLoader(ProjectDescriptor project,
@@ -104,7 +109,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             AbstractDependencyManager dependencyManager) throws OpenLCompilationException {
         RulesInstantiationStrategy rulesInstantiationStrategy;
         ClassLoader classLoader = buildClassLoader(dependencyManager);
-        if (!isProject()) {
+        if (!isProjectLoader()) {
             rulesInstantiationStrategy = RulesInstantiationStrategyFactory
                 .getStrategy(module, executionMode, dependencyManager, classLoader);
         } else {
@@ -163,4 +168,5 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     public interface EmptyInterface {
     }
+
 }

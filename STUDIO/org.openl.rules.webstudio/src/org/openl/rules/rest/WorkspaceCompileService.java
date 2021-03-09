@@ -69,8 +69,7 @@ public class WorkspaceCompileService {
                     ProjectDescriptor projectDescriptor = queue.poll();
                     for (Module module : projectDescriptor.getModules()) {
                         Collection<IDependencyLoader> dependencyLoadersForModule = webStudioWorkspaceDependencyManager
-                            .getDependencyLoaders()
-                            .get(module.getName());
+                            .findDependencyLoadersByName(module.getName());
                         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
@@ -96,11 +95,10 @@ public class WorkspaceCompileService {
                             String projectDependencyName = ProjectExternalDependenciesHelper
                                 .buildDependencyNameForProject(pd.getName());
                             Collection<IDependencyLoader> dependencyLoadersForProject = webStudioWorkspaceDependencyManager
-                                .getDependencyLoaders()
-                                .get(projectDependencyName);
+                                .findDependencyLoadersByName(projectDependencyName);
                             if (dependencyLoadersForProject != null) {
                                 for (IDependencyLoader dependencyLoader : dependencyLoadersForProject) {
-                                    if (dependencyLoader != null && dependencyLoader.isProject()) {
+                                    if (dependencyLoader != null && dependencyLoader.isProjectLoader()) {
                                         queue.add(dependencyLoader.getProject());
                                         break;
                                     }
@@ -180,8 +178,7 @@ public class WorkspaceCompileService {
         WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager = webStudio.getModel()
             .getWebStudioWorkspaceDependencyManager();
         Collection<IDependencyLoader> dependencyLoadersForModule = webStudioWorkspaceDependencyManager
-            .getDependencyLoaders()
-            .get(currentProjectDependencyName);
+            .findDependencyLoadersByName(currentProjectDependencyName);
         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
             if (dependencyLoader.getRefToCompiledDependency() != null) {
                 return true;

@@ -2,6 +2,7 @@ package org.openl.rules.project.instantiation;
 
 import org.openl.dependency.CompiledDependency;
 import org.openl.exception.OpenLCompilationException;
+import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 /**
@@ -23,7 +24,9 @@ public interface IDependencyLoader {
 
     ProjectDescriptor getProject();
 
-    boolean isProject();
+    Module getModule();
+
+    boolean isProjectLoader();
 
     void reset();
 
