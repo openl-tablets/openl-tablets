@@ -52,8 +52,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
     }
 
     @Override
-    public boolean isCompiled() {
-        return lazyCompiledOpenClass != null;
+    public CompiledDependency getRefToCompiledDependency() {
+        return lazyCompiledDependency;
     }
 
     private Collection<Module> getModules() {
@@ -111,7 +111,8 @@ public final class LazyRuleServiceDependencyLoader implements IDependencyLoader 
         rulesInstantiationStrategy.setExternalParameters(parameters);
         IPrebindHandler prebindHandler = LazyBinderMethodHandler.getPrebindHandler();
         try {
-            LazyBinderMethodHandler.setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, deployment));
+            LazyBinderMethodHandler
+                .setPrebindHandler(new LazyPrebindHandler(modules, dependencyManager, classLoader, deployment));
             try {
                 dependencyManager.compilationBegin();
                 lazyCompiledOpenClass = rulesInstantiationStrategy.compile();

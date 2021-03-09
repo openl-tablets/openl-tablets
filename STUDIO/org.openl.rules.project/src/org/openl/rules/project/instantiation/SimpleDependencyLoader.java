@@ -25,7 +25,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     private final AbstractDependencyManager dependencyManager;
     private final String dependencyName;
-    private CompiledDependency compiledDependency;
+    private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
     private final boolean singleModuleMode;
     private final ProjectDescriptor project;
@@ -42,13 +42,13 @@ public class SimpleDependencyLoader implements IDependencyLoader {
         return params;
     }
 
-    private Collection<Module> getModules() {
-        return module != null ? Collections.singleton(module) : project.getModules();
+    @Override
+    public CompiledDependency getRefToCompiledDependency() {
+        return compiledDependency;
     }
 
-    @Override
-    public boolean isCompiled() {
-        return compiledDependency != null;
+    private Collection<Module> getModules() {
+        return module != null ? Collections.singleton(module) : project.getModules();
     }
 
     @Override
