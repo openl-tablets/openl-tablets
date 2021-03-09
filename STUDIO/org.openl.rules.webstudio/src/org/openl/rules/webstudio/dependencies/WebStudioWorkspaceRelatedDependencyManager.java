@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
@@ -41,7 +42,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final ThreadLocal<Long> threadVersion = new ThreadLocal<>();
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
-    private volatile boolean shutdowned = false;
+    private volatile boolean active = true;
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
@@ -49,7 +50,6 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             Map<String, Object> externalParameters) {
         super(rootClassLoader, executionMode, externalParameters);
         this.projects = new ArrayList<>(Objects.requireNonNull(projects, "projects cannot be null"));
-        initDependencyLoaders();
     }
 
     @Override
@@ -135,7 +135,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
                     .getMessages()
                     .stream()
                     .anyMatch(e -> e instanceof CompilationInterruptedOpenLErrorMessage)) {
-                    if (!shutdowned) {
+                    if (active) {
                         loadDependencyAsync(dependency, consumer);
                     } else {
                         consumer.accept(null);
@@ -150,6 +150,10 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     protected Map<String, Collection<IDependencyLoader>> initDependencyLoaders() {
+        return buildDependencyLoaders(projects);
+    }
+
+    private Map<String, Collection<IDependencyLoader>> buildDependencyLoaders(List<ProjectDescriptor> projects) {
         Map<String, Collection<IDependencyLoader>> dependencyLoaders = new HashMap<>();
         for (ProjectDescriptor project : projects) {
             try {
@@ -198,8 +202,16 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     }
 
     public void shutdown() {
-        shutdowned = true;
+        active = false;
         executorService.shutdown();
         version.incrementAndGet();
+    }
+
+    public void expand(List<ProjectDescriptor> projects) {
+        Map<String, Collection<IDependencyLoader>> dependencyLoaders = buildDependencyLoaders(projects);
+        addDependencyLoaders(dependencyLoaders.values()
+            .stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(ArrayList::new)));
     }
 }

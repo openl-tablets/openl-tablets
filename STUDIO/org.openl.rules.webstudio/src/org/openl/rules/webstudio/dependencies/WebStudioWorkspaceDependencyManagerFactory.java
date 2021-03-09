@@ -1,9 +1,12 @@
 package org.openl.rules.webstudio.dependencies;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.ui.WebStudio;
@@ -19,47 +22,40 @@ public class WebStudioWorkspaceDependencyManagerFactory {
         this.studio = studio;
     }
 
-    public WebStudioWorkspaceRelatedDependencyManager getDependencyManager(Module module) {
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
-        projectDescriptors.add(module.getProject());
-        projectDescriptors.addAll(getDependentProjects(module));
-
+    public WebStudioWorkspaceRelatedDependencyManager buildDependencyManager(ProjectDescriptor project) {
+        List<ProjectDescriptor> workspaceProjectsToResolveDependencies = resolveWorkspace(project);
         ClassLoader rootClassLoader = WebStudioWorkspaceRelatedDependencyManager.class.getClassLoader();
-        return new WebStudioWorkspaceRelatedDependencyManager(projectDescriptors,
+        return new WebStudioWorkspaceRelatedDependencyManager(workspaceProjectsToResolveDependencies,
             rootClassLoader,
             false,
             studio.getExternalProperties());
     }
 
-    private List<ProjectDescriptor> getDependentProjects(Module module) {
-        ProjectDescriptor project = module.getProject();
-
-        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
-        addDependentProjects(projectDescriptors, project);
-
-        return projectDescriptors;
-    }
-
-    private void addDependentProjects(List<ProjectDescriptor> projectDescriptors, ProjectDescriptor project) {
-        if (project.getDependencies() != null) {
-            for (ProjectDependencyDescriptor dependencyDescriptor : project.getDependencies()) {
-                boolean found = false;
-                for (ProjectDescriptor projectDescriptor : studio.getAllProjects()) {
-                    if (dependencyDescriptor.getName().equals(projectDescriptor.getName())) {
-                        if (!projectDescriptors.contains(projectDescriptor)) {
-                            projectDescriptors.add(projectDescriptor);
-                            addDependentProjects(projectDescriptors, projectDescriptor);
-                        }
-                        found = true;
-                        break;
+    public List<ProjectDescriptor> resolveWorkspace(ProjectDescriptor project) {
+        List<ProjectDescriptor> projectsInWorkspace = new ArrayList<>();
+        Queue<ProjectDescriptor> queue = new ArrayDeque<>();
+        queue.add(project);
+        while (!queue.isEmpty()) {
+            ProjectDescriptor p = queue.poll();
+            projectsInWorkspace.add(p);
+            if (p.getDependencies() != null && !p.getDependencies().isEmpty()) {
+                Set<String> projectDependencyNames = p.getDependencies()
+                    .stream()
+                    .map(ProjectDependencyDescriptor::getName)
+                    .collect(Collectors.toSet());
+                for (ProjectDescriptor pd : studio.getAllProjects()) {
+                    if (projectDependencyNames.contains(pd.getName())) {
+                        queue.add(pd);
+                        projectDependencyNames.remove(pd.getName());
                     }
                 }
-                if (!found) {
+                for (String notFoundProjectDependencyName : projectDependencyNames) {
                     log.warn("Dependency '{}' for project '{}' is not found.",
-                        dependencyDescriptor.getName(),
-                        project.getName());
+                        p.getName(),
+                        notFoundProjectDependencyName);
                 }
             }
         }
+        return projectsInWorkspace;
     }
 }

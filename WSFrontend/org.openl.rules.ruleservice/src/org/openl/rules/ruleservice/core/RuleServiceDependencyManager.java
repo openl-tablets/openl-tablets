@@ -83,7 +83,7 @@ public class RuleServiceDependencyManager extends AbstractDependencyManager {
             CompilationInfo compilationInfo = compilationInfoStack.pop();
             long t = System.currentTimeMillis() - compilationInfo.time;
 
-            if (log.isInfoEnabled() && !dependencyLoader.isProject() && writeToLog) {
+            if (log.isInfoEnabled() && !dependencyLoader.isProjectLoader() && writeToLog) {
                 log.info("SUCCESS COMPILATION - {} - Module '{}',  project '{}', deployment '{}' in [{}] ms.",
                     compilationType,
                     dependencyLoader.getDependencyName(),

@@ -1,6 +1,8 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import org.openl.OpenClassUtil;
@@ -22,6 +24,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     private final Logger log = LoggerFactory.getLogger(AbstractDependencyManager.class);
 
     private volatile Map<String, Collection<IDependencyLoader>> dependencyLoaders;
+    private final Object dependencyLoadersFlag = new Object();
     private final LinkedHashSet<DependencyRelation> dependencyRelations = new LinkedHashSet<>();
     private final ThreadLocal<Deque<String>> compilationStackThreadLocal = ThreadLocal.withInitial(ArrayDeque::new);
     private final Map<String, ClassLoader> externalJarsClassloaders = new HashMap<>();
@@ -86,7 +89,6 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                 dependOnThisDependency,
                 dependency);
         }
-
     }
 
     protected AbstractDependencyManager(ClassLoader rootClassLoader,
@@ -101,16 +103,67 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         this.externalParameters = Collections.unmodifiableMap(this.externalParameters);
     }
 
+    public Collection<IDependencyLoader> findDependencyLoadersByName(String dependencyName) {
+        Collection<IDependencyLoader> dependencyLoaders = getDependencyLoaders().get(dependencyName);
+        if (dependencyLoaders != null) {
+            return Collections.unmodifiableCollection(dependencyLoaders);
+        }
+        return null;
+    }
+
     public Collection<IDependencyLoader> getAllDependencyLoaders() {
         return Collections.unmodifiableCollection(
             getDependencyLoaders().values().stream().flatMap(Collection::stream).collect(Collectors.toList()));
     }
 
-    public final Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
+    protected void addDependencyLoaders(Collection<IDependencyLoader> dependencyLoadersToAdd) {
+        if (dependencyLoadersToAdd != null) {
+            synchronized (dependencyLoadersFlag) {
+                for (IDependencyLoader dependencyLoader : dependencyLoadersToAdd) {
+                    Collection<IDependencyLoader> dependencyLoadersByDependencyName = this.dependencyLoaders
+                        .computeIfAbsent(dependencyLoader.getDependencyName(), e -> new CopyOnWriteArrayList<>());
+                    boolean f = false;
+                    for (IDependencyLoader dl : dependencyLoadersByDependencyName) {
+                        if (dl.isProjectLoader() && dependencyLoader.isProjectLoader() && Objects
+                            .equals(dl.getProject().getName(), dependencyLoader.getProject().getName())) {
+                            f = true;
+                            break;
+                        } else if (!dl.isProjectLoader() && !dependencyLoader.isProjectLoader() && dl
+                            .getModule() != null && dependencyLoader.getModule() != null && Objects
+                                .equals(dl.getModule().getName(), dependencyLoader.getModule().getName()) && Objects
+                                    .equals(dl.getModule().getProject().getName(),
+                                        dependencyLoader.getModule().getProject().getName())) {
+                            f = true;
+                            break;
+                        }
+                    }
+                    if (!f) {
+                        dependencyLoadersByDependencyName.add(dependencyLoader);
+                    }
+                }
+            }
+        }
+    }
+
+    private Map<String, Collection<IDependencyLoader>> getDependencyLoaders() {
         if (dependencyLoaders == null) {
             synchronized (this) {
                 if (dependencyLoaders == null) {
-                    dependencyLoaders = initDependencyLoaders();
+                    Map<String, Collection<IDependencyLoader>> initDependencyLoaders = initDependencyLoaders();
+                    if (initDependencyLoaders != null) {
+                        Map<String, Collection<IDependencyLoader>> modifiableAndConcurrentDependencyLoaders = new ConcurrentHashMap<>();
+                        for (Map.Entry<String, Collection<IDependencyLoader>> entry : initDependencyLoaders
+                            .entrySet()) {
+                            if (entry.getValue() != null && !entry.getValue().isEmpty()) {
+                                Collection<IDependencyLoader> c = modifiableAndConcurrentDependencyLoaders
+                                    .computeIfAbsent(entry.getKey(), e -> new CopyOnWriteArrayList<>());
+                                c.addAll(entry.getValue());
+                            }
+                        }
+                        dependencyLoaders = initDependencyLoaders;
+                    } else {
+                        dependencyLoaders = new HashMap<>();
+                    }
                 }
             }
         }
@@ -132,7 +185,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     public final Collection<String> getAvailableDependencies() {
         Set<String> availableDependencies = new HashSet<>();
         for (Map.Entry<String, Collection<IDependencyLoader>> entry : getDependencyLoaders().entrySet()) {
-            if (entry.getValue().stream().noneMatch(IDependencyLoader::isProject)) {
+            if (entry.getValue().stream().noneMatch(IDependencyLoader::isProjectLoader)) {
                 availableDependencies.add(entry.getKey());
             }
         }
@@ -142,7 +195,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
     // Disable cache. if cache required it should be used in loaders.
     @Override
     public synchronized CompiledDependency loadDependency(IDependency dependency) throws OpenLCompilationException {
-        final IDependencyLoader dependencyLoader = findDependencyLoader(dependency);
+        final IDependencyLoader dependencyLoader = findDependencyLoadersByName(dependency);
         final String dependencyName = dependency.getNode().getIdentifier();
         Deque<String> compilationStack = getCompilationStack();
         try {
@@ -153,7 +206,8 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
                                                   : "Dependency '{}' is not found in the compilation stack.",
                     dependencyName);
             }
-            boolean isCircularDependency = !dependencyLoader.isProject() && compilationStack.contains(dependencyName);
+            boolean isCircularDependency = !dependencyLoader.isProjectLoader() && compilationStack
+                .contains(dependencyName);
             if (!isCircularDependency && !compilationStack.isEmpty()) {
                 DependencyRelation dr = new DependencyRelation(getCompilationStack().getFirst(), dependencyName);
                 this.addDependencyRelation(dr);
@@ -175,7 +229,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             }
 
             if (compiledDependency == null) {
-                if (dependencyLoader.isProject()) {
+                if (dependencyLoader.isProjectLoader()) {
                     return throwCompilationError(dependency, dependencyLoader.getProject().getName());
                 } else {
                     return throwCompilationError(dependency, dependencyName);
@@ -189,7 +243,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         }
     }
 
-    protected IDependencyLoader findDependencyLoader(IDependency dependency) throws OpenLCompilationException {
+    protected IDependencyLoader findDependencyLoadersByName(IDependency dependency) throws OpenLCompilationException {
         final String dependencyName = dependency.getNode().getIdentifier();
         Collection<IDependencyLoader> loaders = getDependencyLoaders().get(dependencyName);
         if (loaders == null || loaders.isEmpty()) {
@@ -235,8 +289,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
             return externalJarsClassloaders.get(project.getName());
         }
         ClassLoader parentClassLoader = rootClassLoader == null ? this.getClass().getClassLoader() : rootClassLoader;
-        OpenLClassLoader externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(),
-            parentClassLoader);
+        OpenLClassLoader externalJarsClassloader = new OpenLClassLoader(project.getClassPathUrls(), parentClassLoader);
         // To load classes from dependency jars first
         if (project.getDependencies() != null) {
             for (ProjectDependencyDescriptor projectDependencyDescriptor : project.getDependencies()) {
@@ -256,7 +309,7 @@ public abstract class AbstractDependencyManager implements IDependencyManager {
         return getDependencyLoaders().values()
             .stream()
             .flatMap(Collection::stream)
-            .filter(IDependencyLoader::isProject)
+            .filter(IDependencyLoader::isProjectLoader)
             .map(IDependencyLoader::getProject)
             .collect(Collectors.toCollection(ArrayList::new));
     }
