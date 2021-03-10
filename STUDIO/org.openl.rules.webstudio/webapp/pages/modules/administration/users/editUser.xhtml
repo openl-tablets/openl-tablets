@@ -1,66 +1,69 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalEditUser" minWidth="530" autosized="true">
+    <rich:popupPanel id="modalEditUser" width="530" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Edit User" />
+            <h:outputText value="Edit User"/>
         </f:facet>
 
         <f:facet name="controls">
             <h:graphicImage value="/images/close.gif" class="close"
-                onclick="hideEditUser()" alt="Close" />
+                            onclick="hideEditUser()" alt="Close"/>
         </f:facet>
 
         <h:form id="editUserForm">
-        <div style="max-height: 370px; overflow: auto;">
-            <div class="problem-warning superuser">This user cannot be deleted and Administrator privilege cannot be revoked<br/>because the user is defined in <b>security.administrators</b> property.</div>
-            <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
-            <h:panelGrid columns="3" cellspacing="5">
-                <label>Username:</label>
-                <h:outputText id="username" style="font-weight: bold" />
-                <h:inputHidden id="usernameHidden" value="#{usersBean.username}" />
+            <div style="max-height: 370px; overflow: auto;">
+                <div class="problem-warning superuser">This user cannot be deleted and Administrator privilege cannot be revoked<br/>because the user is defined in
+                    <b>security.administrators</b> property.
+                </div>
+                <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
+                <h:panelGrid columns="3" cellspacing="5">
+                    <label>Username:</label>
+                    <h:outputText id="username" style="font-weight: bold"/>
+                    <h:inputHidden id="usernameHidden" value="#{usersBean.username}"/>
 
-                <label>Password:</label>
-                <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user" />
-                <a4j:outputPanel ajaxRendered="true" id="passwordError">
-                    <h:message for="password" styleClass="error" />
-                </a4j:outputPanel>
+                    <label>Password:</label>
+                    <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user"/>
+                    <a4j:outputPanel ajaxRendered="true" id="passwordError">
+                        <h:message for="password" styleClass="error"/>
+                    </a4j:outputPanel>
 
-                <label>First Name:</label>
-                <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user" />
-                <a4j:outputPanel ajaxRendered="true" id="firstNameError">
-                    <h:message for="firstName" styleClass="error" />
-                </a4j:outputPanel>
+                    <label>First Name:</label>
+                    <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user"/>
+                    <a4j:outputPanel ajaxRendered="true" id="firstNameError">
+                        <h:message for="firstName" styleClass="error"/>
+                    </a4j:outputPanel>
 
-                <label>Last Name:</label>
-                <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user" />
-                <a4j:outputPanel ajaxRendered="true" id="lastNameError">
-                    <h:message for="lastName" styleClass="error" />
-                </a4j:outputPanel>
+                    <label>Last Name:</label>
+                    <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user"/>
+                    <a4j:outputPanel ajaxRendered="true" id="lastNameError">
+                        <h:message for="lastName" styleClass="error"/>
+                    </a4j:outputPanel>
 
-                <label>Groups:</label>
-                <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
-                    <f:selectItems value="#{usersBean.groupItems}" />
-                </h:selectManyCheckbox>
-            </h:panelGrid>
+                    <label>Groups:</label>
+                    <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
+                        <f:selectItems value="#{usersBean.groupItems}"/>
+                    </h:selectManyCheckbox>
+                </h:panelGrid>
             </div>
 
             <footer>
                 <a4j:commandButton value="Save" action="#{usersBean.editUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideEditUser()" render=":userList" styleClass="button-primary" />
-                <input type="button" value="Cancel" onclick="hideEditUser()" />
+                                   oncomplete="if(!event.data) hideEditUser()" render=":userList"
+                                   styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="hideEditUser()"/>
             </footer>
         </h:form>
 
     </rich:popupPanel>
 
     <script>
-      //<![CDATA[
+        //<![CDATA[
         function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups, isSuperuser, isCurrentUser) {
             if (#{!usersBean.canCreateUsers}) {
                 return;
@@ -73,14 +76,15 @@
             $j("#editUserForm\\:firstName").val(firstName);
             $j("#editUserForm\\:lastName").val(lastName);
 
-            $j("input[id^='editUserForm\\:editUserGroups']").each(function() {
-                var box = $j( this );
-                var group = box.val();
-                var checked = $j.inArray(group, groups) != -1;
+            $j("input[id^='editUserForm\\:editUserGroups']").each(function () {
+                let box = $j(this);
+                let group = box.val();
+                let checked = $j.inArray(group, groups) !== -1;
                 box.attr("checked", checked);
-                var isAdminGroup = $j.inArray(group, onlyAdminGroups) != -1;
+                let isAdminGroup = $j.inArray(group, onlyAdminGroups) !== -1;
                 box.parent().css("color", isAdminGroup ? "red" : "");
-                box.toggleClass("disabled", isAdminGroup && (isSuperuser || isCurrentUser))
+                let shouldBeDisabled = isAdminGroup && (isSuperuser || isCurrentUser);
+                box.prop('disabled', shouldBeDisabled)
             });
 
             $j(".external-user").remove();
@@ -88,7 +92,7 @@
             $j("#editUserForm\\:password").closest('tr').toggle(internalUser);
             if (!internalUser) {
                 $j(".internal-user").each(function () {
-                    var $elem = $j(this);
+                    let $elem = $j(this);
                     $elem.parent().append($j('<span/>').addClass('external-user').html($elem.val()));
                 });
             }
@@ -107,7 +111,8 @@
             // Reset form
             $j("#editUserForm")[0].reset();
         }
-      //]]>
+
+        //]]>
     </script>
 
 </ui:composition>
