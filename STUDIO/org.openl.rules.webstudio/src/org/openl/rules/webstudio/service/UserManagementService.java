@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
 import org.openl.rules.security.standalone.dao.UserDao;
@@ -56,10 +58,7 @@ public class UserManagementService {
         return resultUsers;
     }
 
-    public void addUser(String user,
-                        String firstName,
-                        String lastName,
-                        String passwordHash) {
+    public void addUser(String user, String firstName, String lastName, String passwordHash) {
         User persistUser = new User();
         persistUser.setLoginName(user);
         persistUser.setPasswordHash(passwordHash);
@@ -92,6 +91,30 @@ public class UserManagementService {
         persistUser.setGroups(groups);
 
         userDao.update(persistUser);
+    }
+
+    public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
+        Set<String> fullAuthorities = new HashSet<>(authorities);
+        if (leaveAdminGroups) {
+            User persistUser = userDao.getUserByName(user);
+            Set<Group> currentGroups = persistUser.getGroups();
+            Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
+            fullAuthorities.addAll(currentAdminGroups);
+        }
+        updateAuthorities(user, fullAuthorities);
+    }
+
+    public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
+        Set<String> groupNames = new HashSet<>();
+
+        for (Group group : groups) {
+            SimpleGroup simpleGroup = PrivilegesEvaluator.wrap(group);
+            if (simpleGroup.hasPrivilege(Privileges.ADMIN.getAuthority())) {
+                groupNames.add(group.getName());
+            }
+        }
+
+        return groupNames;
     }
 
     public void deleteUser(String username) {
