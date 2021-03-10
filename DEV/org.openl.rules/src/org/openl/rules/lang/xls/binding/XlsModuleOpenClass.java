@@ -300,7 +300,10 @@ public class XlsModuleOpenClass extends ModuleOpenClass implements ExtendableMod
                         if (!dataTables.containsKey(table.getName())) {
                             dataTables.put(table.getName(), table);
                         } else {
-                            dataTables.put(table.getName(), null);
+                            ITable existingTable = dataTables.get(table.getName());
+                            if (!Objects.equals(existingTable.getUri(), table.getUri())) {
+                                dataTables.put(table.getName(), null);
+                            }
                         }
                     }
                 }
