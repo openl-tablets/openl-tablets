@@ -106,13 +106,13 @@
         <com.fasterxml.jackson.version>2.11.4</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.36.v20210114</jetty.server.version>
+        <jetty.server.version>9.4.38.v20210224</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.13</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
-        <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
+        <org.apache.thrift.version>0.14.1</org.apache.thrift.version>
         <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
         <owasp.version>6.1.0</owasp.version>
         <groovy.version>3.0.7</groovy.version>
