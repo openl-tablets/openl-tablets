@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.StringJoiner;
-import java.util.stream.Collectors;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.component.UIComponent;
@@ -88,6 +87,7 @@ public class UsersBean {
 
     @Autowired
     protected CurrentUserInfo currentUserInfo;
+
     /**
      * Validation for existed user
      */
@@ -139,7 +139,9 @@ public class UsersBean {
             String passwordHash = updatePassword ? passwordEncoder.encode(changedPassword) : null;
             userManagementService.updateUserData(username, firstName, lastName, passwordHash, updatePassword);
         }
-        userManagementService.updateAuthorities(username,  groups);
+        boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || currentUserInfo.getUserName()
+            .equals(username);
+        userManagementService.updateAuthorities(username, groups, leaveAdminGroups);
     }
 
     public boolean isSuperuser(User user) {
