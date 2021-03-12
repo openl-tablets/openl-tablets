@@ -1,5 +1,7 @@
 package org.openl.rules.dt.data;
 
+import java.util.Objects;
+
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IMemberMetaInfo;
@@ -7,18 +9,19 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DecisionRowField implements IOpenField {
+class ConditionOrActionDirectParameterField implements IOpenField {
 
-    private final IDecisionRow conditionOrAction;
+    private final IDecisionRow decisionRow;
+    private final int paramNum;
     private final DecisionTableDataType decisionTableDataType;
-    private final ConditionOrActionDataType dataType;
 
-    DecisionRowField(IDecisionRow condOrAction,
-            ConditionOrActionDataType dataType,
+    ConditionOrActionDirectParameterField(IDecisionRow decisionRow,
+            int paramNum,
             DecisionTableDataType decisionTableDataType) {
-        this.conditionOrAction = condOrAction;
-        this.dataType = dataType;
-        this.decisionTableDataType = decisionTableDataType;
+        super();
+        this.decisionTableDataType = Objects.requireNonNull(decisionTableDataType, "declaringClass cannot be null");
+        this.decisionRow = Objects.requireNonNull(decisionRow, "decisionRow cannot be null");
+        this.paramNum = paramNum;
     }
 
     @Override
@@ -26,15 +29,19 @@ public class DecisionRowField implements IOpenField {
         RuleExecutionObject reo = (RuleExecutionObject) target;
         int ruleNum = reo.getRuleNum();
 
-        Object[] res = new Object[conditionOrAction.getNumberOfParams()];
-        conditionOrAction.loadValues(res, 0, ruleNum, target, env.getLocalFrame(), env);
+        Object[] res = new Object[decisionRow.getNumberOfParams()];
+        decisionRow.loadValues(res, 0, ruleNum, target, env.getLocalFrame(), env);
 
-        return res;
+        Object ret = res[paramNum];
+        if (ret == null) {
+            return getType().nullObject();
+        }
+        return ret;
     }
 
     @Override
     public boolean isConst() {
-        return false;
+        return true;
     }
 
     @Override
@@ -64,7 +71,7 @@ public class DecisionRowField implements IOpenField {
 
     @Override
     public IOpenClass getType() {
-        return dataType;
+        return decisionRow.getParams()[paramNum].getType();
     }
 
     @Override
@@ -74,12 +81,12 @@ public class DecisionRowField implements IOpenField {
 
     @Override
     public String getDisplayName(int mode) {
-        return getName();
+        return SpreadsheetStructureBuilder.DOLLAR_SIGN + decisionRow.getName() + "." + getName();
     }
 
     @Override
     public String getName() {
-        return SpreadsheetStructureBuilder.DOLLAR_SIGN + conditionOrAction.getName();
+        return decisionRow.getParams()[paramNum].getName();
     }
 
 }

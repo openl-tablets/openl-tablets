@@ -215,10 +215,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         final int[] tableStructure1 = tableStructure;
         final int[] headerIndexes1 = headerIndexes;
 
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(null,
-            "DecisionTableDataType",
-            openl,
-            false);
+        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(null, "DecisionTableDataType", openl);
         IBindingContext dtHeaderBindingContext = new ComponentBindingContext(cxt, ruleExecutionType);
 
         while (i < h) {

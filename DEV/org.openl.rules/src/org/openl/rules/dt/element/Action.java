@@ -1,6 +1,8 @@
 package org.openl.rules.dt.element;
 
+import java.util.BitSet;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
 
@@ -203,23 +205,24 @@ public class Action extends FunctionalRow implements IAction {
     }
 
     @Override
-    protected IParameterDeclaration[] getParams(IOpenClass declaringClass,
+    protected void prepareParams(IOpenClass declaringClass,
             IMethodSignature signature,
             IOpenClass methodType,
             IOpenSourceCodeModule methodSource,
             OpenL openl,
             IBindingContext bindingContext) throws Exception {
 
-        if (EXTRA_RET.equals(methodSource
-            .getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && getParams() == null) {
+        if (EXTRA_RET.equals(
+            methodSource.getCode()) && (isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction())) {
             ParameterDeclaration extraParam = new ParameterDeclaration(methodType, EXTRA_RET);
-
-            IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[] { extraParam };
-            setParams(parameterDeclarations);
-            return getParams();
+            params = new IParameterDeclaration[] { extraParam };
+            paramInitialized = new BitSet(1);
+            paramInitialized.set(0);
+            paramsUniqueNames = new HashSet<>();
+            paramsUniqueNames.add(extraParam.getName());
+        } else {
+            super.prepareParams(declaringClass, signature, methodType, methodSource, openl, bindingContext);
         }
-
-        return super.getParams(declaringClass, signature, methodType, methodSource, openl, bindingContext);
     }
 
     @Override
@@ -238,7 +241,7 @@ public class Action extends FunctionalRow implements IAction {
             bindingContext);
 
         if ((isReturnAction() || isCollectReturnAction() || isCollectReturnKeyAction()) && StringUtils
-            .isEmpty(source.getCode()) && getParams() == null) {
+            .isEmpty(source.getCode())) {
             return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }
 

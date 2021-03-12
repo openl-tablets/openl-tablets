@@ -1,10 +1,20 @@
 package org.openl.rules.dt.data;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.openl.OpenL;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseAction;
 import org.openl.rules.dt.IBaseCondition;
 import org.openl.rules.dt.element.IDecisionRow;
+import org.openl.types.IOpenField;
+import org.openl.types.IParameterDeclaration;
 
 /**
  * Provides access to the elements of the Decision table as data.
@@ -26,16 +36,67 @@ import org.openl.rules.dt.element.IDecisionRow;
 
 public class DecisionTableDataType extends ComponentOpenClass {
 
-    public DecisionTableDataType(DecisionTable dtable, String name, OpenL openl, boolean skipConditionRows) {
+    private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
+    private final Map<String, List<IOpenField>> nonConflictConditionParamNamesLowerCase = new HashMap<>();
+
+    public DecisionTableDataType(DecisionTable decisionTable, String name, OpenL openl) {
         super(name, openl);
-        if (!skipConditionRows && dtable != null) {
-            for (IBaseCondition condOrAction : dtable.getConditionRows()) {
-                ConditionOrActionDataType dataType = new ConditionOrActionDataType(condOrAction, this.getOpenl());
-                addField(new DecisionRowField((IDecisionRow) condOrAction, dataType, this));
+
+        if (decisionTable != null) {
+            for (IBaseCondition condition : decisionTable.getConditionRows()) {
+                addParameterFields((IDecisionRow) condition);
+            }
+            for (IBaseAction action : decisionTable.getActionRows()) {
+                addParameterFields((IDecisionRow) action);
             }
         }
+
         addField(new DecisionRuleIdField(this));
-        addField(new DecisionRuleNameField(this, dtable != null ? dtable.getRuleRow() : null));
+        addField(new DecisionRuleNameField(this, decisionTable != null ? decisionTable.getRuleRow() : null));
     }
 
+    @Override
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
+        List<IOpenField> conditionParameterFields;
+        if (strictMatch || fname == null) {
+            conditionParameterFields = nonConflictConditionParamNames.get(fname);
+        } else {
+            conditionParameterFields = nonConflictConditionParamNamesLowerCase.get(fname.toLowerCase());
+        }
+        if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
+            if (conditionParameterFields.size() == 1) {
+                return conditionParameterFields.iterator().next();
+            } else {
+                List<IOpenField> decisionRowFields = conditionParameterFields.stream()
+                    .filter(e -> e instanceof DecisionRowField)
+                    .collect(Collectors.toList());
+                if (decisionRowFields.size() != 1) {
+                    throw new AmbiguousFieldException(fname, conditionParameterFields);
+                } else {
+                    return decisionRowFields.iterator().next();
+                }
+            }
+        }
+        return super.getField(fname, strictMatch);
+    }
+
+    private void addParameterFields(IDecisionRow decisionRow) {
+        ConditionOrActionDataType dataType = new ConditionOrActionDataType(decisionRow, this.getOpenl());
+        DecisionRowField decisionRowField = new DecisionRowField(decisionRow, dataType, this);
+        nonConflictConditionParamNames.computeIfAbsent(decisionRowField.getName(), e -> new ArrayList<>())
+            .add(decisionRowField);
+        nonConflictConditionParamNamesLowerCase
+            .computeIfAbsent(decisionRowField.getName().toLowerCase(), e -> new ArrayList<>())
+            .add(decisionRowField);
+        IParameterDeclaration[] pdd = decisionRow.getParams();
+        for (int i = 0; i < pdd.length; i++) {
+            if (pdd[i] != null) {
+                IOpenField f = new ConditionOrActionDirectParameterField(decisionRow, i, this);
+                nonConflictConditionParamNames.computeIfAbsent(pdd[i].getName(), e -> new ArrayList<>()).add(f);
+                nonConflictConditionParamNamesLowerCase
+                    .computeIfAbsent(pdd[i].getName().toLowerCase(), e -> new ArrayList<>())
+                    .add(f);
+            }
+        }
+    }
 }
