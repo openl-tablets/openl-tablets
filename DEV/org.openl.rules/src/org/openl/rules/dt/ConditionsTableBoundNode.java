@@ -10,7 +10,6 @@ import org.openl.rules.lang.xls.binding.DTColumnsDefinitionType;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
-import org.openl.types.impl.CompositeMethod;
 
 /**
  * @author Marat Kamalov
@@ -18,20 +17,19 @@ import org.openl.types.impl.CompositeMethod;
  */
 public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
 
-    public ConditionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl) {
-        super(tableSyntaxNode, openl);
+    public ConditionsTableBoundNode(TableSyntaxNode tableSyntaxNode, OpenL openl, IBindingContext bindingContext) {
+        super(tableSyntaxNode, openl, bindingContext);
     }
 
     @Override
-    protected DTColumnsDefinition createDefinition(Map<String, List<IParameterDeclaration>> localParameters,
-            IOpenMethodHeader header,
-            CompositeMethod compositeMethod,
-            IBindingContext bindingContext) {
+    protected DTColumnsDefinition createDefinition(IOpenMethodHeader header,
+            String expression,
+            Map<String, List<IParameterDeclaration>> parameters) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION,
-            localParameters,
             header,
-            compositeMethod,
-            bindingContext.isExecutionMode() ? null : getTableSyntaxNode());
+            expression,
+            parameters,
+            getTableSyntaxNode());
     }
 
     @Override
