@@ -10,6 +10,7 @@ import org.openl.rules.dt.algorithm.IDecisionTableAlgorithm;
 import org.openl.rules.enumeration.DTEmptyResultProcessingEnum;
 import org.openl.rules.method.RulesMethodInvoker;
 import org.openl.types.IOpenClass;
+import org.openl.util.OpenClassUtils;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
@@ -66,7 +67,7 @@ public class DecisionTableInvoker extends RulesMethodInvoker<DecisionTable> {
 
         Object returnValue = Tracer
             .invoke(new ActionInvoker(rules, actions, returnEmptyResult), target, params, env, this);
-        if (returnValue != null) {
+        if (!OpenClassUtils.isVoid(retType) && returnValue != null) {
             return returnValue;
         }
 
