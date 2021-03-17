@@ -112,7 +112,7 @@ public class AProjectArtefact implements IProjectArtefact {
 
     protected ProjectVersion createProjectVersion(FileData fileData) {
         if (fileData == null) {
-            return new RepositoryProjectVersionImpl();
+            return new RepositoryProjectVersionImpl(true);
         }
         RepositoryVersionInfoImpl rvii = new RepositoryVersionInfoImpl(fileData.getModifiedAt(), fileData.getAuthor());
         String version = fileData.getVersion();

@@ -37,8 +37,8 @@ public class RepositoryProjectVersionImpl implements ProjectVersion {
         this.versionInfo = versionInfo;
     }
 
-    public RepositoryProjectVersionImpl() {
-        this("0", null, false);
+    public RepositoryProjectVersionImpl(boolean deleted) {
+        this("0", null, deleted);
     }
 
     public RepositoryProjectVersionImpl(String revision, VersionInfo versionInfo, boolean deleted) {

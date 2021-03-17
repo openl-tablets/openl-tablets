@@ -321,10 +321,13 @@ public class AProject extends AProjectFolder implements IProject {
 
         final String folderPath = getFolderPath();
         final Repository repository = getRepository();
-        FileItem fileItem;
+        FileItem fileItem = null;
         try {
             if (isHistoric()) {
-                fileItem = repository.readHistory(folderPath, getFileData().getVersion());
+                FileData fileData = getFileData();
+                if (fileData != null) {
+                    fileItem = repository.readHistory(folderPath, getFileData().getVersion());
+                }
             } else {
                 fileItem = repository.read(folderPath);
             }

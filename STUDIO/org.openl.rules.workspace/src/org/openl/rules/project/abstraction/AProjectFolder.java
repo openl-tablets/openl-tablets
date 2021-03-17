@@ -326,7 +326,7 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
 
     protected Map<String, AProjectArtefact> createInternalArtefacts() {
         HashMap<String, AProjectArtefact> internalArtefacts = new HashMap<>();
-        Collection<FileData> fileDatas;
+        Collection<FileData> fileDatas = new ArrayList<>();
         String path = getFolderPath();
         if (!path.isEmpty() && !path.endsWith("/")) {
             path += "/";
@@ -334,7 +334,10 @@ public class AProjectFolder extends AProjectArtefact implements IProjectFolder {
         try {
             if (isHistoric()) {
                 if (getRepository().supports().folders()) {
-                    fileDatas = ((FolderRepository) getRepository()).listFiles(path, getFileData().getVersion());
+                    FileData fileData = getFileData();
+                    if (fileData != null) {
+                        fileDatas = ((FolderRepository) getRepository()).listFiles(path, fileData.getVersion());
+                    }
                 } else {
                     throw new UnsupportedOperationException(
                         "Cannot get internal artifacts for historic project version");

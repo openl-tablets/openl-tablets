@@ -71,6 +71,7 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
             if (projectVersion.isDeleted()) {
                 continue;
             }
+
             String hash = projectVersionCacheDB.getHash(project.getBusinessName(),
                 projectVersion.getVersionName(),
                 projectVersion.getVersionInfo().getCreatedAt(),
@@ -82,6 +83,9 @@ public class ProjectVersionCacheMonitor implements Runnable, InitializingBean {
                     branch,
                     project.getRealPath(),
                     projectVersion.getVersionName());
+                if (designProject.isDeleted()) {
+                    continue;
+                }
                 cacheProjectVersion(designProject, ProjectVersionH2CacheDB.RepoType.DESIGN);
             }
         }
