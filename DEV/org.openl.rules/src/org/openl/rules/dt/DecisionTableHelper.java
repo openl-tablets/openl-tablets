@@ -1461,6 +1461,10 @@ public final class DecisionTableHelper {
         return sb.toString();
     }
 
+    private static String toLowerCase(String x) {
+        return x != null ? x.toLowerCase() : null;
+    }
+
     private static MatchedDefinition matchByDTColumnDefinition(DecisionTable decisionTable,
             DTColumnsDefinition definition,
             IBindingContext bindingContext) {
@@ -1479,13 +1483,13 @@ public final class DecisionTableHelper {
         Map<String, IParameterDeclaration> completeParameters = new HashMap<>();
         for (IParameterDeclaration parameter : definition.getParameters()) {
             if (parameter != null && parameter.getName() != null) {
-                completeParameters.put(parameter.getName(), parameter);
+                completeParameters.put(toLowerCase(parameter.getName()), parameter);
             }
         }
 
         Set<String> methodParametersUsedInExpression = new HashSet<>();
         for (IdentifierNode identifierNode : identifierNodes) {
-            if (!completeParameters.containsKey(identifierNode.getIdentifier())) {
+            if (!completeParameters.containsKey(toLowerCase(identifierNode.getIdentifier()))) {
                 methodParametersUsedInExpression.add(identifierNode.getIdentifier());
             }
         }
@@ -1500,15 +1504,15 @@ public final class DecisionTableHelper {
             String param = itr.next();
             boolean found = false;
             for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
-                if (param.equals(definition.getHeader().getSignature().getParameterName(i))) {
-                    paramToIndex.put(param, i);
+                if (param.equalsIgnoreCase(definition.getHeader().getSignature().getParameterName(i))) {
+                    paramToIndex.put(toLowerCase(param), i);
                     found = true;
                     IOpenClass type = definition.getHeader().getSignature().getParameterType(i);
                     for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
-                        if (param.equals(header.getSignature().getParameterName(j)) && type
+                        if (param.equalsIgnoreCase(header.getSignature().getParameterName(j)) && type
                             .equals(header.getSignature().getParameterType(j))) {
                             usedMethodParameterIndexes.add(j);
-                            methodParametersToRename.put(param, param);
+                            methodParametersToRename.put(toLowerCase(param), param);
                             break;
                         }
                     }
@@ -1518,7 +1522,7 @@ public final class DecisionTableHelper {
             if (!found) {
                 for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
                     IOpenClass paramType = definition.getHeader().getSignature().getParameterType(i);
-                    if (paramType.getField(param) != null) {
+                    if (paramType.getField(param, false) != null) {
                         for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                             if (paramType.equals(header.getSignature().getParameterType(j))) {
                                 usedParamIndexesByField.add(j);
@@ -1539,10 +1543,10 @@ public final class DecisionTableHelper {
             itr = methodParametersUsedInExpression.iterator();
             while (itr.hasNext()) {
                 String param = itr.next();
-                if (methodParametersToRename.containsKey(param)) {
+                if (methodParametersToRename.containsKey(toLowerCase(param))) {
                     continue;
                 }
-                int j = paramToIndex.get(param);
+                int j = paramToIndex.get(toLowerCase(param));
                 IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
                 boolean duplicatedMatch = false;
                 for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
@@ -1598,20 +1602,22 @@ public final class DecisionTableHelper {
 
         Set<String> methodParameterNames = new HashSet<>();
         for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-            methodParameterNames.add(header.getSignature().getParameterName(i));
+            methodParameterNames.add(toLowerCase(header.getSignature().getParameterName(i)));
         }
 
         Map<String, String> renamedLocalParameters = new HashMap<>();
+        Set<String> renamedLocalParametersValues = new HashSet<>();
         for (String paramName : methodParameterNames) {
-            if (completeParameters.containsKey(paramName)) {
+            if (completeParameters.containsKey(toLowerCase(paramName))) {
                 int k = 1;
                 String newParamName = "_" + paramName;
-                while (completeParameters.containsKey(newParamName) || renamedLocalParameters
-                    .containsValue(newParamName) || methodParameterNames.contains(newParamName)) {
+                while (completeParameters.containsKey(toLowerCase(newParamName)) || renamedLocalParametersValues
+                    .contains(toLowerCase(newParamName)) || methodParameterNames.contains(toLowerCase(newParamName))) {
                     newParamName = "_" + paramName + "_" + k;
                     k++;
                 }
                 renamedLocalParameters.put(paramName, newParamName);
+                renamedLocalParametersValues.add(toLowerCase(newParamName));
             }
         }
 
