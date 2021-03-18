@@ -52,7 +52,7 @@
                                  onclick="if (!canOverwriteRevision()) return false; openUpdateFileDialog();return false;"
                                  title="Upload the updated file"/>
                 <h:commandButton id="exportId" rendered="#{repositoryTreeState.canExport and node.hasVersions()}"
-                                 value="Export file" onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.name}');return false;"
+                                 value="Export file" onclick="openExportModuleDialog('#{artefact.repository.id}', '#{artefact.project.name}', '#{node.internalArtifactPath.stringValue}');return false;"
                                  title="Export file"/>
                 <h:commandButton id="copyId" rendered="#{repositoryTreeState.canModify}" value="Copy file"
                                  onclick="if (!canOverwriteRevision()) return false; openCopyFileDialog();return false;"

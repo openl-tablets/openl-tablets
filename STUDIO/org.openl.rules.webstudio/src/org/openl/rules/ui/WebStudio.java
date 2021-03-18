@@ -1374,10 +1374,6 @@ public class WebStudio implements DesignTimeRepositoryListener {
         return versions;
     }
 
-    public String getCurrentModulePath() {
-        return currentModule.getRulesPath().getFileName().toString();
-    }
-
     public void freezeProject(String name) {
         frozenProjects.add(name);
     }

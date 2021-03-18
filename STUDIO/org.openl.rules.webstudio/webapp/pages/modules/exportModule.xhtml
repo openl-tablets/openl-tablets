@@ -36,7 +36,7 @@
             <a4j:jsFunction name="renderExportFileForm" render="exportFileData" oncomplete="showExportFileDialog()">
                 <a4j:param name="repositoryId" assignTo="#{exportBean.repositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{exportBean.initProject}"/>
-                <a4j:param name="fileName" assignTo="#{exportBean.fileName}"/>
+                <a4j:param name="artifactName" assignTo="#{exportBean.artifactName}"/>
             </a4j:jsFunction>
 
         </h:form>
@@ -46,8 +46,8 @@
     <script>
         //<![CDATA[
 
-        function openExportModuleDialog(repositoryId, projectName, moduleName) {
-            renderExportFileForm(repositoryId, projectName, moduleName);
+        function openExportModuleDialog(repositoryId, projectName, artifactName) {
+            renderExportFileForm(repositoryId, projectName, artifactName);
         }
 
         function showExportFileDialog() {

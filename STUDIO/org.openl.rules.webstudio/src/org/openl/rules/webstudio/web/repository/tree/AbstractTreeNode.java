@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -367,5 +368,10 @@ public abstract class AbstractTreeNode implements TreeNode {
     @Override
     public void refresh() {
         data.refresh();
+    }
+
+    @Override
+    public ArtefactPath getInternalArtifactPath() {
+        return getData().getArtefactPath().withoutFirstSegment();
     }
 }

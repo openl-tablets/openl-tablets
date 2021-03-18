@@ -154,7 +154,7 @@
                                id="updateModuleButton"
                                title="Update module" value="Update"
                                rendered="#{!empty module and studio.model.editable}" />
-                <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog('#{rProject.repository.id}', '#{rProject.name}', '#{studio.currentModulePath}'); return false;"
+                <h:commandLink styleClass="changes-listener" onclick="openExportModuleDialog('#{rProject.repository.id}', '#{rProject.name}', '#{studio.currentModule.rulesRootPath.path}'); return false;"
                                id="exportModuleButton"
                                title="Export module" value="Export"
                                rendered="#{!empty module}" />

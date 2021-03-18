@@ -1293,7 +1293,7 @@ public class RepositoryTreeController {
                 .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
-            ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+            ArtefactPath selectedNodePath = selectedNode.getInternalArtifactPath();
 
             is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             file = File.createTempFile("export-", "-file");
@@ -1367,7 +1367,7 @@ public class RepositoryTreeController {
                     .getProjectByPath(repositoryId, branch, selectedProject.getRealPath(), version);
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-                ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+                ArtefactPath selectedNodePath = selectedNode.getInternalArtifactPath();
                 is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             } else {
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();

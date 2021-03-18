@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 
@@ -80,4 +81,9 @@ public interface TreeNode extends org.richfaces.model.TreeNode {
      */
     String getType();
 
+    /**
+     * Get internal path to artifact without first segment
+     * @return artifact path
+     */
+    ArtefactPath getInternalArtifactPath();
 }
