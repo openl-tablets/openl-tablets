@@ -1,1 +1,1 @@
-ERROR: Cannot convert from 'double' to 'java.lang.Void'.
+ERROR: Spreadsheet cannot return 'java.lang.Void' type.

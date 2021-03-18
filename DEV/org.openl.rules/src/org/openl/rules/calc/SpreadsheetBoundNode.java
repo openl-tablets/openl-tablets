@@ -34,6 +34,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.OpenClassUtils;
 
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
@@ -224,8 +225,10 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
-        if (header.getType() == JavaOpenClass.VOID) {
-            throw SyntaxNodeExceptionUtils.createError("Spreadsheet cannot return 'void' type.", tableSyntaxNode);
+        if (OpenClassUtils.isVoid(header.getType())) {
+            throw SyntaxNodeExceptionUtils.createError(String.format("Spreadsheet cannot return '%s' type.",
+                    header.getType().getName()),
+                    tableSyntaxNode);
         }
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);

@@ -26,7 +26,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
-import org.openl.types.java.JavaOpenClass;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Helper class that encapsulates several OpenL engine methods.
@@ -196,7 +196,7 @@ public final class OpenLManager {
 
         IOpenClass type = header.getType();
 
-        if (type != JavaOpenClass.VOID && type != NullOpenClass.the) {
+        if (!OpenClassUtils.isVoid(type) && !NullOpenClass.isAnyNull(type)) {
 
             IOpenCast cast = null;
             try {

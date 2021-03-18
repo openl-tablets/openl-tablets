@@ -50,6 +50,7 @@ public final class JavaOpenClassCache {
         javaClassCache.put(boolean.class, JavaOpenClass.BOOLEAN);
         javaClassCache.put(Boolean.class, new JavaOpenClass(Boolean.class, true));
         javaClassCache.put(void.class, JavaOpenClass.VOID);
+        javaClassCache.put(Void.class, JavaOpenClass.CLS_VOID);
         javaClassCache.put(String.class, JavaOpenClass.STRING);
         javaClassCache.put(Object.class, JavaOpenClass.OBJECT);
         javaClassCache.put(Class.class, JavaOpenClass.CLASS);

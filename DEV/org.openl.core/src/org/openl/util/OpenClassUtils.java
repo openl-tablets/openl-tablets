@@ -18,6 +18,6 @@ public final class OpenClassUtils {
     }
 
     public static boolean isVoid(IOpenClass type) {
-        return JavaOpenClass.VOID.equals(type) || JavaOpenClass.CLS_VOID.equals(type);
+        return type == JavaOpenClass.VOID || type == JavaOpenClass.CLS_VOID;
     }
 }
