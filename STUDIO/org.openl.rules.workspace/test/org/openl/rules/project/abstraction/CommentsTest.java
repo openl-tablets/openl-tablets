@@ -15,11 +15,13 @@ import org.junit.Test;
 
 public class CommentsTest {
 
+    public static final String TEMPLATE = "FOO";
+
     private Comments comments;
+    private Comments comments2;
 
     @Before
     public void setUp() {
-        Map<String, Object> parameters = new HashMap<>();
         String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
@@ -38,6 +40,8 @@ public class CommentsTest {
             copiedFromTemplate,
             restoredFromTemplate,
             newBranchNameTemplate);
+
+        comments2 = new Comments(dateTimeFormat, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE);
     }
 
     @Test
@@ -162,5 +166,17 @@ public class CommentsTest {
         assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}", actualWithSymbol);
     }
 
+    @Test
+    public void testSimpleComments() {
+        assertEquals(TEMPLATE, comments2.saveProject("foo"));
+        assertEquals(TEMPLATE, comments2.createProject("foo"));
+        assertEquals(TEMPLATE, comments2.archiveProject("foo"));
+        assertEquals(TEMPLATE, comments2.restoreProject("foo"));
+        assertEquals(TEMPLATE, comments2.eraseProject("foo"));
+        assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
+        assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
+        assertEquals("Project {username} {myProjectName} is copied-from. {foo}",
+                comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
+    }
 
 }

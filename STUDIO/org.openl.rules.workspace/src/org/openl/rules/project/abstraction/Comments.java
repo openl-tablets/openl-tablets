@@ -126,6 +126,9 @@ public final class Comments {
         }
         String paramName = "{project-name}";
         int from = copiedFromTemplate.indexOf(paramName);
+        if (from == -1) {
+            return Collections.singletonList(comment);
+        }
         String prefix = copiedFromTemplate.substring(0, from);
         String suffix = copiedFromTemplate.substring(from + paramName.length());
         if (comment.startsWith(prefix) && comment.endsWith(suffix)) {
