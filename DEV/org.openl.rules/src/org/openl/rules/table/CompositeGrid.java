@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.rules.table.xls.XlsSheetGridModel;
+
 /**
  * An {@link IGrid} implementation that composes several {@link IGridTable} together.<br>
  * It is possible to compose from top to bottom and from left to right by {@link #vertical} flag.<br>
@@ -116,17 +118,36 @@ public class CompositeGrid extends AGrid {
         if (t1 == null || t2 == null) {
             return null;
         }
-        if (t1.grid() != t2.grid()) {
+        if (t1.grid() != t2.grid() || isGenerated(t1.grid()) || isGenerated(t2.grid())) {
+            // try to find some range in real table
+            int h = 0;
+            int w = 0;
             for (IGridTable gridTable : gridTables) {
-                // check if table belongs to grid
-                if (gridTable.getGrid() != t2.grid()) {
-                    continue;
+                if (isGenerated(gridTable.getGrid())) {
+                    h = h + gridTable.getHeight();
+                    w = w + gridTable.getWidth();
+                } else {
+                    Transform g1;
+                    Transform g2;
+                    if (vertical) {
+                        g1 = transform(colStart, h);
+                        g2 = transform(colEnd, h);
+                    } else {
+                        g1 = transform(w, rowStart);
+                        g2 = transform(w, rowEnd);
+                    }
+                    return g1.grid().getRangeUri(g1.getCol(), g1.getRow(), g2.getCol(), g2.getRow());
                 }
-                IGridRegion region = gridTable.getRegion();
-                return t2.grid().getRangeUri(region.getLeft(), region.getTop(), region.getRight(), region.getBottom());
             }
         }
         return t1.grid().getRangeUri(t1.getCol(), t1.getRow(), t2.getCol(), t2.getRow());
+    }
+
+    private boolean isGenerated(IGrid grid) {
+        if (grid instanceof XlsSheetGridModel) {
+            return ((XlsSheetGridModel) grid).getSheetSource().getWorkbookSource().getUri() == null;
+        }
+        return false;
     }
 
     @Override
