@@ -89,18 +89,18 @@
           <h:outputText value="#{rulesDeploy.url}" rendered="#{!openedForEditing}"/>
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}interceptingTemplateClassName" value="Intercepting template class:"/>
-      <h:panelGroup>
+      <h:outputLabel for="#{prefix}interceptingTemplateClassName" value="Intercepting template class:" rendered="#{!repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}"/>
+      <h:panelGroup rendered="#{!repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}">
           <h:inputText id="#{prefix}interceptingTemplateClassName" maxlength="100" size="40" value="#{rulesDeploy.interceptingTemplateClassName}" rendered="#{openedForEditing}" validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
           <h:outputText value="#{rulesDeploy.interceptingTemplateClassName}" rendered="#{!openedForEditing}"/>
           <h:message for="#{prefix}interceptingTemplateClassName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
-      <h:outputLabel for="#{prefix}annotationTemplateClassName" value="Annotation template class:" rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}"/>
+      <h:outputLabel for="#{prefix}templateClassName" value="Template class:" rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}"/>
       <h:panelGroup rendered="#{repositoryProjectRulesDeployConfig.annotationTemplateClassNameSupported}">
-          <h:inputText id="#{prefix}annotationTemplateClassName" maxlength="100" size="40" value="#{rulesDeploy.annotationTemplateClassName}" rendered="#{openedForEditing}" validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
-          <h:outputText value="#{rulesDeploy.annotationTemplateClassName}" rendered="#{!openedForEditing}"/>
-          <h:message for="#{prefix}annotationTemplateClassName" styleClass="error" style="display: block" />
+            <h:inputText id="#{prefix}templateClassName" maxlength="100" size="40" value="#{rulesDeploy.templateClassName}" rendered="#{openedForEditing}" validator="#{repositoryProjectRulesDeployConfig.validateServiceClass}"/>
+            <h:outputText value="#{rulesDeploy.templateClassName}" rendered="#{!openedForEditing}"/>
+            <h:message for="#{prefix}templateClassName" styleClass="error" style="display: block" />
       </h:panelGroup>
 
       <h:outputLabel for="#{prefix}groups" value="Service groups:" rendered="#{repositoryProjectRulesDeployConfig.groupsSupported}"/>
