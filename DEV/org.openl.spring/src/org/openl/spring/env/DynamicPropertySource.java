@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
+import org.openl.info.OpenLVersion;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -150,6 +151,9 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
         if (!origin.equals(properties)) {
             // Save the difference only
             File settingsFile = getFile();
+            if (!settingsFile.exists() && properties.getProperty(".version") == null) {
+                properties.put(".version", OpenLVersion.getVersion());
+            }
             File parent = settingsFile.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());

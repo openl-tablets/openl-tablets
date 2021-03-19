@@ -78,7 +78,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         this.repositorySettings = repositorySettings;
     }
 
-    public void init() {
+    public void init() throws RepositoryException {
         synchronized (projects) {
             if (repositories != null) {
                 return;
@@ -123,11 +123,15 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
             if (!separateDeployConfigRepo) {
                 Repository repository = getRepository(repositoryForDeployConfig);
-                if (!(repository.supports().mappedFolders())) {
-                    deployConfigRepository = repository;
+                if (repository != null) {
+                    if (!(repository.supports().mappedFolders())) {
+                        deployConfigRepository = repository;
+                    } else {
+                        // Deploy config repository currently supports only flat folder structure.
+                        deployConfigRepository = ((FolderMapper) repository).getDelegate();
+                    }
                 } else {
-                    // Deploy config repository currently supports only flat folder structure.
-                    deployConfigRepository = ((FolderMapper) repository).getDelegate();
+                    throw new RepositoryException(String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
                 }
             } else {
                 deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
