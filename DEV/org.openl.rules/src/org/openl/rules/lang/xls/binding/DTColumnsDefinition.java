@@ -10,23 +10,31 @@ import org.openl.types.impl.CompositeMethod;
 
 public class DTColumnsDefinition {
 
+    private final String tableName;
     private final String expression;
     private final Map<String, List<IParameterDeclaration>> parameters;
     private final IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
     private final DTColumnsDefinitionType type;
     private final String uri;
+    private Set<String> externalParameters;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
+            String tableName,
             IOpenMethodHeader header,
             String expression,
             Map<String, List<IParameterDeclaration>> parameters,
             TableSyntaxNode tableSyntaxNode) {
+        this.tableName = tableName;
         this.header = Objects.requireNonNull(header, "header cannot be null");
         this.expression = Objects.requireNonNull(expression, "expression cannot be null");
         this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
         this.type = Objects.requireNonNull(type, "type cannot be null");
         this.uri = tableSyntaxNode.getUri();
+    }
+
+    public String getTableName() {
+        return tableName;
     }
 
     public String getExpression() {
@@ -43,6 +51,17 @@ public class DTColumnsDefinition {
 
     public void setCompositeMethod(CompositeMethod compositeMethod) {
         this.compositeMethod = compositeMethod;
+    }
+
+    public Set<String> getExternalParameters() {
+        if (externalParameters == null) {
+            return Collections.emptySet();
+        }
+        return externalParameters;
+    }
+
+    public void setExternalParameters(Set<String> externalParameters) {
+        this.externalParameters = externalParameters;
     }
 
     public int getNumberOfTitles() {

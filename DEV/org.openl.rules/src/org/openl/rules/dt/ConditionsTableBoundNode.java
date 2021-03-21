@@ -26,6 +26,7 @@ public class ConditionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode
             String expression,
             Map<String, List<IParameterDeclaration>> parameters) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.CONDITION,
+            getTableName(),
             header,
             expression,
             parameters,

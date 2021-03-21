@@ -36,18 +36,15 @@ public abstract class ADtColumnsDefinitionTableBinder extends DataNodeBinder {
 
         IdentifierNode in = parseHeader(tsn);
         String tableName;
-        if (in == null) {
-            tableName = tableNamePrefix + tsn.getUri();
-        } else {
+        if (in != null) {
             tableName = in.getIdentifier();
             if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
                 String formattedPrefix = tableNamePrefix.substring(0, tableNamePrefix.length() - 2);
                 String message = formattedPrefix + " table " + tableName + TableNameChecker.NAME_ERROR_MESSAGE;
                 cxt.addMessage(OpenLMessagesUtils.newWarnMessage(message, in));
             }
+            aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
         }
-
-        aDtColumnsDefinitionTableBoundNode.setTableName(tableName);
 
         tsn.setMetaInfoReader(new DtColumnsDefinitionMetaInfoReader(aDtColumnsDefinitionTableBoundNode));
 

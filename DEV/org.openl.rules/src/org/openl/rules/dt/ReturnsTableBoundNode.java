@@ -26,6 +26,7 @@ public class ReturnsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
             String expression,
             Map<String, List<IParameterDeclaration>> parameters) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.RETURN,
+            getTableName(),
             header,
             expression,
             parameters,

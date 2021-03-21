@@ -51,7 +51,7 @@ class DeclaredDTHeader extends DTHeader {
 
     @Override
     String getStatement() {
-        return matchedDefinition.getStatement();
+        return matchedDefinition.getStatementWithReplacedIdentifiers();
     }
 
     IParameterDeclaration[][] getColumnParameters() {

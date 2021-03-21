@@ -14,6 +14,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
+import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.BindHelper;
@@ -251,10 +252,25 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         }
     }
 
-    private IBindingContext buildDtHeaderBindingContext() {
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(null, "DecisionTableDataType", openl);
-        IBindingContext dtHeaderBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
-        return dtHeaderBindingContext;
+    private ComponentBindingContext buildDtHeaderBindingContext() {
+        DecisionTableDataType decisionTableDataType = new DecisionTableDataType(null,
+            "DecisionTableDataType",
+            openl,
+            "External parameter",
+            true);
+        for (DTColumnsDefinition dtColumnsDefinition : getXlsModuleOpenClass().getXlsDefinitions()
+            .getDtColumnsDefinitions()) {
+            for (String title : dtColumnsDefinition.getTitles()) {
+                for (IParameterDeclaration parameter : dtColumnsDefinition.getParameters(title)) {
+                    if (parameter != null && parameter.getName() != null) {
+                        decisionTableDataType.addDecisionTableField(new DTColumnsDefinitionField(parameter
+                            .getName(), parameter.getType(), decisionTableDataType, dtColumnsDefinition, title));
+                    }
+                }
+            }
+        }
+
+        return new ComponentBindingContext(bindingContext, decisionTableDataType);
     }
 
     private static class PreBindDetails {
@@ -353,8 +369,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         return ArrayUtils.toPrimitive(t.toArray(new Integer[] {}));
     }
 
-    private boolean isParameterIsUsed(CompositeMethod compositeMethod,
-            Collection<IParameterDeclaration> parameters) {
+    private boolean isParameterIsUsed(CompositeMethod compositeMethod, Collection<IParameterDeclaration> parameters) {
         List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(compositeMethod);
         for (IdentifierNode identifierNode : identifierNodes) {
             for (IParameterDeclaration parameterDeclaration : parameters) {
@@ -369,7 +384,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     @Override
     public void finalizeBind(IBindingContext cxt) {
-        IBindingContext dtHeaderBindingContext = buildDtHeaderBindingContext();
+        ComponentBindingContext dtHeaderBindingContext = buildDtHeaderBindingContext();
         for (Map.Entry<DTColumnsDefinition, PreBindDetails> entry : definitions.entrySet()) {
             compileValidateExpressionAndAddDefinition(entry.getKey(), entry.getValue(), dtHeaderBindingContext);
         }
@@ -377,7 +392,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
 
     private void compileValidateExpressionAndAddDefinition(DTColumnsDefinition dtColumnsDefinition,
             PreBindDetails preBindDetail,
-            IBindingContext dtHeaderBindingContext) {
+            ComponentBindingContext dtHeaderBindingContext) {
         IParameterDeclaration[] allParameterDeclarations = dtColumnsDefinition.getParameters()
             .stream()
             .filter(e -> e != null && e.getName() != null)
@@ -389,14 +404,25 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         GridCellSourceCodeModule expressionCellSourceCodeModule = new GridCellSourceCodeModule(
             preBindDetail.expressionTable,
             bindingContext);
-
-        CompositeMethod compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
-            expressionCellSourceCodeModule,
-            preBindDetail.header.getName(),
-            newSignature,
-            getXlsModuleOpenClass(),
-            dtHeaderBindingContext);
-
+        DecisionTableDataType decisionTableDataType = (DecisionTableDataType) dtHeaderBindingContext
+            .getComponentOpenClass();
+        CompositeMethod compositeMethod;
+        Set<String> externalParameters;
+        try {
+            compositeMethod = OpenLManager.makeMethodWithUnknownType(getOpenl(),
+                expressionCellSourceCodeModule,
+                preBindDetail.header.getName(),
+                newSignature,
+                getXlsModuleOpenClass(),
+                dtHeaderBindingContext);
+            externalParameters = decisionTableDataType.getUsedFields()
+                .stream()
+                .map(INamedThing::getName)
+                .collect(Collectors.toSet());
+        } finally {
+            decisionTableDataType.resetLowerCasedUsedFields();
+        }
+        dtColumnsDefinition.setExternalParameters(externalParameters);
         dtColumnsDefinition.setCompositeMethod(compositeMethod);
 
         validate(preBindDetail.header,

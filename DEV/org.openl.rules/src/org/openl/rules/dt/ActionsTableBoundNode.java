@@ -26,6 +26,7 @@ public class ActionsTableBoundNode extends ADtColumnsDefinitionTableBoundNode {
             String expression,
             Map<String, List<IParameterDeclaration>> parameters) {
         return new DTColumnsDefinition(DTColumnsDefinitionType.ACTION,
+            getTableName(),
             header,
             expression,
             parameters,

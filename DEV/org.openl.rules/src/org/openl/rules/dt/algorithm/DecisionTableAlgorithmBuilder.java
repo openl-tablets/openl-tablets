@@ -120,7 +120,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     }
 
-    private void prepareParamDeclarations(IBindingContext bindingContext) {
+    private void prepareCondAndActionParams(IBindingContext bindingContext) {
         for (IBaseCondition condition : table.getConditionRows()) {
             ((IDecisionRow) condition).prepareParams(bindingContext);
         }
@@ -131,16 +131,21 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
 
     @Override
     public IDecisionTableAlgorithm prepareAndBuildAlgorithm(IBindingContext bindingContext) throws Exception {
-        prepareParamDeclarations(bindingContext);
-        evaluators = prepareConditions(bindingContext);
-        prepareActions(bindingContext);
+        prepareCondAndActionParams(bindingContext);
+        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table,
+            table.getName() + "Type",
+            openl,
+            "Parameter",
+            false);
+        evaluators = prepareConditions(ruleExecutionType, bindingContext);
+        prepareActions(ruleExecutionType, bindingContext);
 
         baseInfo = new IndexInfo().withTable(table);
         return buildAlgorithm();
     }
 
-    private void prepareActions(IBindingContext bindingContext) throws Exception {
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table, table.getName() + "Type", openl);
+    private void prepareActions(DecisionTableDataType ruleExecutionType,
+            IBindingContext bindingContext) throws Exception {
         IBindingContext actionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
         int nActions = table.getNumberOfActions();
         for (int i = 0; i < nActions; i++) {
@@ -161,8 +166,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             table.getSyntaxNode());
     }
 
-    private IConditionEvaluator[] prepareConditions(IBindingContext bindingContext) {
-        DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table, table.getName() + "Type", openl);
+    private IConditionEvaluator[] prepareConditions(DecisionTableDataType ruleExecutionType,
+            IBindingContext bindingContext) {
         IBindingContext conditionBindingContext = new ComponentBindingContext(bindingContext, ruleExecutionType);
         int nConditions = table.getNumberOfConditions();
         final IConditionEvaluator[] evaluators = new IConditionEvaluator[nConditions];
