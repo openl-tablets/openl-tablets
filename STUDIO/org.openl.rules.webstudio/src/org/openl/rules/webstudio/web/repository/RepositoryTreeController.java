@@ -1050,9 +1050,6 @@ public class RepositoryTreeController {
     }
 
     public String unlockProject() {
-        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
-        String projectName = WebStudioUtils.getRequestParameter("projectName");
-
         try {
             RulesProject project = userWorkspace.getProject(repositoryId, projectName);
             if (project == null) {
@@ -1063,6 +1060,8 @@ public class RepositoryTreeController {
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
             closeProjectForAllUsers(workspacesRoot, project);
             resetStudioModel();
+
+            WebStudioUtils.addInfoMessage("Project was unlocked successfully.");
         } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
@@ -1131,18 +1130,18 @@ public class RepositoryTreeController {
     }
 
     public String unlockDeploymentConfiguration() {
-        String deploymentProjectName = WebStudioUtils.getRequestParameter("deploymentProjectName");
-
         try {
-            ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
+            ADeploymentProject deploymentProject = userWorkspace.getDDProject(projectName);
             if (deploymentProject == null) {
                 // It was deleted by other user
                 return null;
             }
             deploymentProject.unlock();
             resetStudioModel();
+
+            WebStudioUtils.addInfoMessage("Deploy configuration was unlocked successfully.");
         } catch (Exception e) {
-            log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);
+            log.error("Cannot unlock deployment project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
         }
         return null;

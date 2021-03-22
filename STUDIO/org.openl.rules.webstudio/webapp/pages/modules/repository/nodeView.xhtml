@@ -132,7 +132,7 @@
 
                         <h:commandButton id="unlockId1"
                                          rendered="#{repositoryTreeController.canUnlock and node.data.locked and not node.data.lockedByMe}"
-                                         value="Unlock" onclick="openUnlockDialog('project');return false;"
+                                         value="Unlock" onclick="openSelectedUnlockDialog('project');return false;"
                                          title="#{unlockMessage}">
                             <f:ajax render="unlockId1"/>
                         </h:commandButton>
@@ -370,7 +370,7 @@
                 <h:commandButton id="unlockId2"
                                  rendered="#{repositoryTreeController.canUnlockDeployment and node.data.locked and not node.data.lockedByMe}"
                                  value="Unlock Deploy Configuration"
-                                 onclick="openUnlockDialog('deployment');return false;" title="#{unlockMessage}">
+                                 onclick="openSelectedUnlockDialog('deployment');return false;" title="#{unlockMessage}">
                     <f:ajax render="unlockId2"/>
                 </h:commandButton>
             </h:panelGroup>

@@ -19,15 +19,27 @@
         <h:outputText value="All unsaved user changes will be lost during unlock. Do you want to proceed?" />
       </h:panelGroup>
 
+      <h:inputHidden id="hiddenRepositoryId" value="#{repositoryTreeController.repositoryId}" />
+      <h:inputHidden id="hiddenProjectName" value="#{repositoryTreeController.projectName}" />
       <footer>
-        <h:commandButton id="unlock-project"
+        <h:commandButton id="unlock-selected-project"
                          value="Unlock"
                          action="#{repositoryTreeController.unlockSelectedProject}"
                          styleClass="button-primary"/>
-        <h:commandButton id="unlock-deploy-configuration"
+        <h:commandButton id="unlock-selected-deploy-configuration"
                          value="Unlock"
                          action="#{repositoryTreeController.unlockSelectedDeployConfiguration}"
                          styleClass="button-primary"/>
+        <h:commandButton id="unlock-project"
+                         value="Unlock"
+                         action="#{repositoryTreeController.unlockProject}"
+                         styleClass="button-primary">
+        </h:commandButton>
+        <h:commandButton id="unlock-deploy-configuration"
+                         value="Unlock"
+                         action="#{repositoryTreeController.unlockDeploymentConfiguration}"
+                         styleClass="button-primary">
+        </h:commandButton>
         <input type="button" value="Cancel" onclick="RichFaces.$('modalUnlockNode').hide();" />
       </footer>
     </h:form>
@@ -35,15 +47,43 @@
   </rich:popupPanel>
 
   <script>
-      function openUnlockDialog(nodeType) {
+      function openSelectedUnlockDialog(nodeType) {
           if (nodeType === 'project') {
-              $j('#unlockNodeForm\\:unlock-project').show();
-              $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
+            $j('#unlockNodeForm\\:unlock-selected-project').show();
+            $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
+            $j('#unlockNodeForm\\:unlock-project').hide();
+            $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
           } else {
-              $j('#unlockNodeForm\\:unlock-project').hide();
-              $j('#unlockNodeForm\\:unlock-deploy-configuration').show();
+            $j('#unlockNodeForm\\:unlock-selected-project').hide();
+            $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').show();
+            $j('#unlockNodeForm\\:unlock-project').hide();
+            $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
+
           }
           RichFaces.$('modalUnlockNode').show();
+      }
+
+      function openProjectUnlockDialog(repositoryId, projectName) {
+        document.getElementById('unlockNodeForm:hiddenProjectName').value = projectName;
+        document.getElementById('unlockNodeForm:hiddenRepositoryId').value = repositoryId;
+
+        $j('#unlockNodeForm\\:unlock-selected-project').hide();
+        $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
+        $j('#unlockNodeForm\\:unlock-project').show();
+        $j('#unlockNodeForm\\:unlock-deploy-configuration').hide();
+
+        RichFaces.$('modalUnlockNode').show();
+      }
+
+      function openDeploymentUnlockDialog(deploymentProjectName) {
+        document.getElementById('unlockNodeForm:hiddenProjectName').value = deploymentProjectName;
+
+        $j('#unlockNodeForm\\:unlock-selected-project').hide();
+        $j('#unlockNodeForm\\:unlock-selected-deploy-configuration').hide();
+        $j('#unlockNodeForm\\:unlock-project').hide();
+        $j('#unlockNodeForm\\:unlock-deploy-configuration').show();
+
+        RichFaces.$('modalUnlockNode').show();
       }
   </script>
 

@@ -70,11 +70,8 @@
                   <h:panelGroup rendered="#{repositoryTreeController.canUnlock and prj.data.locked and not prj.data.lockedByMe}">
                       &#160;
                       <h:commandLink immediate="true"
-                          action="#{repositoryTreeController.unlockProject}"
-                          onclick="if(!window.confirm('All unsaved user changes will be lost during unlock. Do you want to proceed?')) {return false;}"
+                          onclick="openProjectUnlockDialog('#{prj.data.repository.id}', '#{prj.data.name}');return false;"
                           title="Unlock project">
-                          <f:param name="repositoryId" value="#{prj.data.repository.id}" />
-                          <f:param name="projectName" value="#{prj.data.name}" />
                           <h:graphicImage url="/webresource/images/unlock.png" styleClass="actionImage" alt="Unlock"/>
                       </h:commandLink>
                   </h:panelGroup>
