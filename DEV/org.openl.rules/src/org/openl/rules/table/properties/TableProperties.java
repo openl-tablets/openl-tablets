@@ -2,6 +2,7 @@ package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,14 +16,15 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DynamicObject;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.print.NicePrinter;
+import org.openl.util.print.NicePrinterAdaptor;
 
-public class TableProperties extends DynamicObject implements ITableProperties {
+public class TableProperties implements ITableProperties {
+
+    private final HashMap<String, Object> fieldValues = new HashMap<>();
 
     private String currentTableType;
     /**
@@ -68,16 +70,6 @@ public class TableProperties extends DynamicObject implements ITableProperties {
             }
         }
         return downLevelProperties;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return JavaOpenClass.getOpenClass(getClass());
-    }
-
-    @Override
-    public void setType(IOpenClass type) {
-        throw new UnsupportedOperationException();
     }
 
     // <<< INSERT >>>
@@ -678,7 +670,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         if (allProperties != null) {
             return allProperties;
         }
-        Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
+        Map<String, Object> tableAndCategoryProp = mergeLevelProperties(new HashMap<>(fieldValues), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
             moduleProperties);
         Map<String, Object> tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
@@ -692,24 +684,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return allProperties;
     }
 
-    @Override
     public void setFieldValue(String name, Object value) {
-        super.setFieldValue(name, toPropertyValue(value));
-    }
-
-    private Object toPropertyValue(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value.getClass().isArray()) {
-            Object[] value1 = ((Object[]) value).clone();
-            Arrays.sort(value1);
-            return value1;
-        }
-        if (value instanceof Date) {
-            return ((Date) value).clone();
-        }
-        return value;
+        fieldValues.put(name, preprocess(name, value));
     }
 
     /**
@@ -717,7 +693,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     @Override
     public Map<String, Object> getTableProperties() {
-        return super.getFieldValues();
+        return Collections.unmodifiableMap(fieldValues);
     }
 
     /**
@@ -843,10 +819,31 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
 
+    private Object preprocess(String name, Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value.getClass().isArray()) {
+            Object[] array = ((Object[]) value).clone();
+            Arrays.sort(array);
+            return array;
+        }
+        if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime((Date) value);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            return calendar.getTime();
+        }
+        return value;
+    }
+
     private Map<String, Object> extractPropertiesMap(Map<String, Object> externalProperties) {
         Map<String, Object> tmp = new HashMap<>();
         for (Entry<String, Object> entry : externalProperties.entrySet()) {
-            tmp.put(entry.getKey(), toPropertyValue(entry.getValue()));
+            tmp.put(entry.getKey(), preprocess(entry.getKey(), entry.getValue()));
         }
         return Collections.unmodifiableMap(tmp);
     }
@@ -865,4 +862,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return true;
     }
 
+    @Override
+    public String toString() {
+        NicePrinter printer = new NicePrinter();
+        printer.print(fieldValues, new NicePrinterAdaptor());
+        return printer.getBuffer().toString();
+    }
 }
