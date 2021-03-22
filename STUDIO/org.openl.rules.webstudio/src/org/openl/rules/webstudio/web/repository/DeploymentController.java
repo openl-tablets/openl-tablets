@@ -209,6 +209,15 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
+            if (project.getProjectDescriptors().isEmpty()){
+                WebStudioUtils.addErrorMessage(
+                    String.format(
+                            "Configuration '%s' should contain at least one project to be deployed",
+                            project.getName()
+                    )
+                );
+                return null;
+            }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
 
             try {
