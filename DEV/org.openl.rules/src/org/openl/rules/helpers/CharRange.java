@@ -61,6 +61,13 @@ public class CharRange extends IntRange {
         return Character.isUnicodeIdentifierPart((char) ch);
     }
 
+    public boolean contains(Character value) {
+        if (value == null) {
+            return false;
+        }
+        return contains((long) value);
+    }
+
     public static CharRange autocast(char x, CharRange y) {
         return new CharRange(x);
     }

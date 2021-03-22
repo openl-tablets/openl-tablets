@@ -65,7 +65,17 @@ public class IntRange implements INumberRange {
         return this.min <= range.min && this.max >= range.max;
     }
 
-    public boolean contains(long value) {
+    public boolean contains(Integer value) {
+        if (value == null) {
+            return false;
+        }
+        return contains(value.longValue());
+    }
+
+    public boolean contains(Long value) {
+        if (value == null) {
+            return false;
+        }
         return min <= value && value <= max;
     }
 
