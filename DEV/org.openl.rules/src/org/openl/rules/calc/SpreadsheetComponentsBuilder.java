@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 import org.apache.commons.collections4.BidiMap;
@@ -23,6 +24,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
+import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.result.ArrayResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
@@ -433,10 +435,10 @@ public class SpreadsheetComponentsBuilder {
         if (Boolean.FALSE
             .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
-        } else if (spreadsheetHeaderType
-            .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
-                .getAggregateInfo()
-                .getComponentType(spreadsheetHeaderType) == null) {
+        } else if (!isFormula(headerDefinition) &&
+                (spreadsheetHeaderType.getAggregateInfo() == null
+                    || spreadsheetHeaderType.getAggregateInfo() != null
+                        && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null)) {
             int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
             if (nonEmptyCellsCount == 1) {
                 headerDefinition.setType(spreadsheetHeaderType);
@@ -446,6 +448,26 @@ public class SpreadsheetComponentsBuilder {
         String key = headerDefinitions.getKey(headerDefinition);
         returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition);
         headerDefinitions.replace(key, returnHeaderDefinition);
+    }
+
+    private boolean isFormula(SpreadsheetHeaderDefinition headerDefinition) {
+        String cellValue = "";
+
+        try {
+            ILogicalTable cell = LogicalTableHelper.mergeBounds(
+                cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow()),
+                cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn())
+            );
+            cellValue = Optional.ofNullable(cell.getSource())
+                    .map(table -> cell.getCell(0, 0))
+                    .map(ICell::getStringValue)
+                    .map(StringUtils::trimToNull)
+                    .orElse("");
+        } catch (RuntimeException e){
+            LOG.warn("Could not extract cell value: ", e);
+        }
+
+        return SpreadsheetExpressionMarker.isFormula(cellValue);
     }
 
     private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
