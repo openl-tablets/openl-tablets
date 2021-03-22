@@ -15,26 +15,26 @@ public final class StringRangeParser extends ARangeParser<String> {
     private final RangeParser[] parsers;
     private final Pattern[] patterns;
 
-    private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S+)\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*([])])\\s*";
-    private static final String MIN_MAX_PATTERN = "\\s*(\\S+)\\s*([-…]|\\.{3}|\\.{2})\\s*(\\S+)\\s*";
-    private static final String VERBAL_PATTERN = "\\s*(\\S+)\\s*(\\+|(?<=\\s)and\\s+more|(?<=\\s)or\\s+less)\\s*";
-    private static final String MORE_LESS_PATTERN = "\\s*(<=?|>=?|less\\s+than(?=\\s)|more\\s+than(?=\\s))\\s*(\\S+)\\s*";
-    private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(\\S+)\\s*(<=?|>=?)\\s*(\\S+)\\s*";
-    private static final String SIMPLE_PATTERN = "\\s*(\\S+)\\s*";
+    private static final String BRACKETS_PATTERN = "\\s*([\\[(])\\s*(\\S*.{0,99}?[^\\\\.])\\s*(?:[-;…]|\\.{3}|\\.{2})\\s*(.{1,100})\\s*([])])\\s*";
+    private static final String MIN_MAX_PATTERN = "\\s*(\\S*.{0,99}?[^\\\\.])\\s*([-…]|\\.{3}|\\.{2})\\s*(.{1,100})\\s*";
+    private static final String VERBAL_PATTERN = "(.+)(\\+|(?<=\\s)and\\s+more|(?<=\\s)or\\s+less)\\s*";
+    private static final String MORE_LESS_PATTERN = "\\s*(<=?|>=?|less\\s+than(?=\\s)|more\\s+than(?=\\s))(.+)";
+    private static final String RANGE_MORE_LESS_PATTERN = "\\s*(<=?|>=?)\\s*(.{1,100})\\s*(<=?|>=?)\\s*(.{1,100})\\s*";
+    private static final String SIMPLE_PATTERN = "(.+)";
 
     private StringRangeParser() {
         StringRangeBoundAdapter adapter = new StringRangeBoundAdapter();
         patterns = new Pattern[] { Pattern.compile(BRACKETS_PATTERN),
                 Pattern.compile(MIN_MAX_PATTERN),
                 Pattern.compile(VERBAL_PATTERN),
-                Pattern.compile(MORE_LESS_PATTERN),
                 Pattern.compile(RANGE_MORE_LESS_PATTERN),
+                Pattern.compile(MORE_LESS_PATTERN),
                 Pattern.compile(SIMPLE_PATTERN) };
         parsers = new RangeParser[] { new BracketsParser<>(patterns[0], adapter),
                 new MinMaxParser<>(patterns[1], adapter),
                 new VerbalParser<>(patterns[2], adapter),
-                new MoreLessParser<>(patterns[3], adapter),
-                new RangeWithMoreLessParser<>(patterns[4], adapter),
+                new RangeWithMoreLessParser<>(patterns[3], adapter),
+                new MoreLessParser<>(patterns[4], adapter),
                 new SimpleParser<>(patterns[5], adapter) };
     }
 
@@ -71,7 +71,7 @@ public final class StringRangeParser extends ARangeParser<String> {
 
         @Override
         public String adaptValue(String s) {
-            return s;
+            return s != null ? s.trim() : null;
         }
 
         @Override

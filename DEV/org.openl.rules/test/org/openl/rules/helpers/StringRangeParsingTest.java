@@ -55,8 +55,49 @@ public class StringRangeParsingTest {
 
     @Test
     public void testToStringWhitespaces() {
-        assertEquals("[B; B]", new StringRange("  B  ").toString());
+        // Part 1
+        assertEquals("[A  A; Z  Z]", new StringRange("A  A-Z  Z").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("A  A..Z  Z").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("A  A … Z  Z").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("A  A ... Z  Z").toString());
 
+        assertEquals("[A  A; Z  Z]", new StringRange("[A  A; Z  Z]").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("(A  A;Z  Z]").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("[A  A; Z  Z)").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("(A  A; Z  Z)").toString());
+
+        assertEquals("(A  A; Z  Z)", new StringRange("(A  A .. Z  Z)").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("[A  A .. Z  Z]").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("(A  A .. Z  Z]").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("[A  A .. Z  Z)").toString());
+
+        assertEquals(">= A  A", new StringRange("A  A and more").toString());
+        assertEquals("<= A  A", new StringRange("A  A or less").toString());
+
+        assertEquals("> A  A", new StringRange("more than A  A").toString());
+        assertEquals("< Z  Z", new StringRange("less than Z  Z").toString());
+
+        assertEquals(">= A  A", new StringRange(">= A  A").toString());
+        assertEquals("<= A  A", new StringRange("<= A  A").toString());
+
+        assertEquals("> A  A", new StringRange("> A  A").toString());
+        assertEquals("< Z  Z", new StringRange("< Z  Z").toString());
+        assertEquals(">= A  A", new StringRange("A  A+").toString());
+
+        assertEquals("[A  A; Z  Z]", new StringRange(">=A  A <=Z  Z").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("<=Z  Z >=A  A").toString());
+
+        assertEquals("[A  A; Z  Z)", new StringRange(">=A  A <Z  Z").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("<Z  Z >=A  A").toString());
+
+        assertEquals("(A  A; Z  Z]", new StringRange(">A  A <=Z  Z").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("<=Z  Z >A  A").toString());
+
+        assertEquals("(A  A; Z  Z)", new StringRange(">A  A <Z  Z").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("<Z  Z >A  A").toString());
+
+        // Part 2
+        assertEquals("[B; B]", new StringRange("  B  ").toString());
         assertEquals("[AA; ZZ]", new StringRange("  AA  -  ZZ  ").toString());
         assertEquals("[AA; ZZ]", new StringRange("  AA  ..  ZZ  ").toString());
         assertEquals("(AA; ZZ)", new StringRange("  AA   …   ZZ  ").toString());
@@ -96,6 +137,48 @@ public class StringRangeParsingTest {
 
         assertEquals("(AA; ZZ)", new StringRange("  >  AA   <  ZZ  ").toString());
         assertEquals("(AA; ZZ)", new StringRange("  <  ZZ   >  AA  ").toString());
+
+        //Part 3
+        assertEquals("[A  A; Z  Z]", new StringRange("  A  A  -  Z  Z  ").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("  A  A  ..  Z  Z  ").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("  A  A   …   Z  Z  ").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("  A  A   ...   Z  Z  ").toString());
+
+        assertEquals("[A  A; Z  Z]", new StringRange("  [A  A  ;   Z  Z  ]  ").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("  (A  A  ;   Z  Z  ]  ").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("  [A  A  ;   Z  Z  )  ").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("  (A  A  ;   Z  Z  )  ").toString());
+
+        assertEquals("(A  A; Z  Z)", new StringRange("  (  A  A   ..   Z  Z  )  ").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("  [  A  A   ..   Z  Z  ]  ").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("  (  A  A   ..   Z  Z  ]  ").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("  [  A  A   ..   Z  Z  )  ").toString());
+
+        assertEquals(">= A  A", new StringRange("  A  A   and   more  ").toString());
+        assertEquals("<= A  A", new StringRange("  A  A   or   less  ").toString());
+
+        assertEquals("> A  A", new StringRange("  more   than   A  A  ").toString());
+        assertEquals("< Z  Z", new StringRange("  less   than   Z  Z  ").toString());
+
+        assertEquals(">= A  A", new StringRange("  >=   A  A  ").toString());
+        assertEquals("<= A  A", new StringRange("  <=   A  A  ").toString());
+
+        assertEquals("> A  A", new StringRange("  >   A  A  ").toString());
+        assertEquals("< Z  Z", new StringRange("  <   Z  Z  ").toString());
+        assertEquals(">= A  A", new StringRange("  A  A+  ").toString());
+
+        assertEquals("[A  A; Z  Z]", new StringRange("  >=  A  A   <=  Z  Z  ").toString());
+        assertEquals("[A  A; Z  Z]", new StringRange("  <=  Z  Z   >=  A  A  ").toString());
+
+        assertEquals("[A  A; Z  Z)", new StringRange("  >=  A  A   <  Z  Z  ").toString());
+        assertEquals("[A  A; Z  Z)", new StringRange("  <  Z  Z   >=  A  A  ").toString());
+
+        assertEquals("(A  A; Z  Z]", new StringRange("  >  A  A   <=  Z  Z  ").toString());
+        assertEquals("(A  A; Z  Z]", new StringRange("  <=  Z  Z   >  A  A  ").toString());
+
+        assertEquals("(A  A; Z  Z)", new StringRange("  >  A  A   <  Z  Z  ").toString());
+        assertEquals("(A  A; Z  Z)", new StringRange("  <  Z  Z   >  A  A  ").toString());
+
     }
 
     @Test
@@ -313,26 +396,6 @@ public class StringRangeParsingTest {
     @Test(expected = RuntimeException.class)
     public void testParseException() {
         new StringRange(null);
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testParseException1() {
-        new StringRange("Aand more");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testParseException2() {
-        new StringRange("Aor less");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testParseException3() {
-        new StringRange("more thanA");
-    }
-
-    @Test(expected = RuntimeException.class)
-    public void testParseException4() {
-        new StringRange("less thanA");
     }
 
     private void assertInclude(StringRange range, String... args) {
