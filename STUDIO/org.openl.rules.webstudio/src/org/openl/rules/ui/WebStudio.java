@@ -718,23 +718,26 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // TODO Replace exceptions with FacesUtils.addErrorMessage()
             throw new IllegalStateException("Error while updating project in user workspace.", e);
         }
-
-        currentProject = resolveProject(projectDescriptor);
-        for (Module module : currentProject.getModules()) {
-            File moduleFile = module.getRulesPath().toFile();
-            String moduleHistoryPath = currentProject.getProjectFolder()
-                    .resolve(FolderHelper.HISTORY_FOLDER)
-                    .resolve(module.getName())
-                    .toString();
-            ProjectHistoryService.save(moduleHistoryPath, moduleFile);
-        }
-        if (currentProject == null) {
-            log.warn("The project has not been resolved after update.");
-        }
-
+        storeProjectHistory();
         clearUploadedFiles();
 
         return null;
+    }
+
+    public void storeProjectHistory() {
+        currentProject = resolveProject(getCurrentProjectDescriptor());
+        if (currentProject == null) {
+            log.warn("The project has not been resolved after update.");
+        } else {
+            for (Module module : currentProject.getModules()) {
+                File moduleFile = module.getRulesPath().toFile();
+                String moduleHistoryPath = currentProject.getProjectFolder()
+                        .resolve(FolderHelper.HISTORY_FOLDER)
+                        .resolve(module.getName())
+                        .toString();
+                ProjectHistoryService.save(moduleHistoryPath, moduleFile);
+            }
+        }
     }
 
     private void tryLockProject() throws ProjectException {

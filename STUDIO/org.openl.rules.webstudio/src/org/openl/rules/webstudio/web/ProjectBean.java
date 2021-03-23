@@ -935,6 +935,7 @@ public class ProjectBean {
                 projectModel,
                 generated,
                 currentProject.hasArtefact(RULES_DEPLOY_XML));
+            studio.storeProjectHistory();
 
             refreshProject(currentProject.getRepository().getId(), currentProject.getName());
 
