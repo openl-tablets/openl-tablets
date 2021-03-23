@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.text.TextInfo;
@@ -50,7 +51,8 @@ class MatchedDefinition {
             if (externalParametersToRename == null) {
                 externalParametersToRename = new HashMap<>();
             }
-            externalParametersToRename.put(name.toLowerCase(), newName);
+            //External parameter is case-sensitive
+            externalParametersToRename.put(name, newName);
             parametersRenamingIsUsed = true;
         }
     }
@@ -67,7 +69,8 @@ class MatchedDefinition {
         if (externalParametersToRename == null || name == null) {
             return name;
         }
-        String newName = externalParametersToRename.get(name.toLowerCase());
+        //External parameter is case-sensitive
+        String newName = externalParametersToRename.get(name);
         return newName != null ? newName : name;
     }
 
@@ -77,10 +80,10 @@ class MatchedDefinition {
 
     public String getStatementWithReplacedIdentifiers() {
         return replaceIdentifierNodeNamesInCode(statement,
-            identifierNodes,
-            methodParametersToRename,
-            externalParametersToRename,
-            parametersToRename);
+                identifierNodes,
+                Pair.of(methodParametersToRename, true),
+                Pair.of(externalParametersToRename, false),
+                Pair.of(parametersToRename, true));
     }
 
     public int[] getUsedMethodParameterIndexes() {
@@ -102,25 +105,32 @@ class MatchedDefinition {
         }
     }
 
-    @SafeVarargs
-    static String replaceIdentifierNodeNamesInCode(String code,
+    @SafeVarargs static String replaceIdentifierNodeNamesInCode(String code,
             List<IdentifierNode> identifierNodes,
-            Map<String, String>... namesMaps) {
+            Pair<Map<String, String>, Boolean>... namesMaps) {
         final TextInfo textInfo = new TextInfo(code);
-        identifierNodes.sort(
-            Comparator.<IdentifierNode> comparingInt(e -> e.getLocation().getStart().getAbsolutePosition(textInfo))
-                .reversed());
+        identifierNodes.sort(Comparator.<IdentifierNode>comparingInt(e -> e.getLocation()
+                .getStart()
+                .getAbsolutePosition(textInfo)).reversed());
         StringBuilder sb = new StringBuilder(code);
         for (IdentifierNode identifierNode : identifierNodes) {
             int start = identifierNode.getLocation().getStart().getAbsolutePosition(textInfo);
             int end = identifierNode.getLocation().getEnd().getAbsolutePosition(textInfo);
-            for (Map<String, String> m : namesMaps) {
-                if (m != null && m.containsKey(
-                    identifierNode.getIdentifier() != null ? identifierNode.getIdentifier().toLowerCase() : null)) {
+            for (Pair<Map<String, String>, Boolean> m : namesMaps) {
+                if (m != null && m.getKey() != null && m.getKey()
+                        .containsKey(identifierNode.getIdentifier() != null ?
+                                     (Boolean.TRUE.equals(m.getValue()) ?
+                                      identifierNode.getIdentifier().toLowerCase() :
+                                      identifierNode.getIdentifier()) :
+                                     null)) {
                     sb.replace(start,
-                        end + 1,
-                        m.get(identifierNode.getIdentifier() != null ? identifierNode.getIdentifier().toLowerCase()
-                                                                     : null));
+                            end + 1,
+                            m.getKey()
+                                    .get(identifierNode.getIdentifier() != null ?
+                                         (Boolean.TRUE.equals(m.getValue()) ?
+                                          identifierNode.getIdentifier().toLowerCase() :
+                                          identifierNode.getIdentifier()) :
+                                         null));
                 }
             }
         }

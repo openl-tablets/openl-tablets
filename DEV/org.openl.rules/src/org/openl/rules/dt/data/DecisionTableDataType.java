@@ -21,11 +21,11 @@ import org.openl.types.IParameterDeclaration;
 
 /**
  * Provides access to the elements of the Decision table as data.
- *
+ * <p>
  * Each Condition and action becomes an internal type and parameters become attributes of this type.
- *
+ * <p>
  * Current implementation has the following limitations:
- *
+ * <p>
  * a) it supports only the access from action method to the variables defined in conditions. No access to other actions
  * is provided b) it will work only if variables in conditions are constants (not formulas) c) it does not provide
  * access to other rules than current one (for example we may want to access the previous rule via $previous.$C1.limit
@@ -34,7 +34,6 @@ import org.openl.types.IParameterDeclaration;
  * external access to internals of the different tables
  *
  * @author snshor Created Jun 15, 2010
- *
  */
 
 public class DecisionTableDataType extends ComponentOpenClass {
@@ -42,22 +41,21 @@ public class DecisionTableDataType extends ComponentOpenClass {
     private final String displayName;
 
     private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
-    private final Map<String, List<IOpenField>> nonConflictConditionParamNamesLowerCase = new HashMap<>();
 
     // This is very simple way to find what fields was used during expression compilation
     private Set<IOpenField> usedFields;
-    private final boolean writeUsedFields;
+    private final boolean traceUsedFields;
 
     public DecisionTableDataType(DecisionTable decisionTable,
             String name,
             OpenL openl,
             String displayName,
-            boolean writeUsedFields) {
+            boolean traceUsedFields) {
         super(name, openl);
 
         this.displayName = Objects.requireNonNull(displayName, "displayName cannot be null");
-        this.writeUsedFields = writeUsedFields;
-        if (writeUsedFields) {
+        this.traceUsedFields = traceUsedFields;
+        if (traceUsedFields) {
             usedFields = new HashSet<>();
         }
 
@@ -74,33 +72,30 @@ public class DecisionTableDataType extends ComponentOpenClass {
         addField(new DecisionRuleNameField(this, decisionTable != null ? decisionTable.getRuleRow() : null));
     }
 
-    @Override
-    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
+    @Override public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
         if (fname == null) {
             return null;
         }
-        List<IOpenField> conditionParameterFields;
-        if (strictMatch) {
-            conditionParameterFields = nonConflictConditionParamNames.get(fname);
-        } else {
-            conditionParameterFields = nonConflictConditionParamNamesLowerCase.get(fname.toLowerCase());
+        if (!strictMatch) {
+            throw new IllegalStateException("Non-strict match is not supported");
         }
+        List<IOpenField> conditionParameterFields = nonConflictConditionParamNames.get(fname);
         if (conditionParameterFields != null && !conditionParameterFields.isEmpty()) {
             if (conditionParameterFields.size() == 1) {
                 IOpenField f = conditionParameterFields.iterator().next();
-                if (writeUsedFields) {
+                if (traceUsedFields) {
                     usedFields.add(f);
                 }
                 return f;
             } else {
                 List<IOpenField> decisionRowFields = conditionParameterFields.stream()
-                    .filter(e -> e instanceof DecisionRowField)
-                    .collect(Collectors.toList());
+                        .filter(e -> e instanceof DecisionRowField)
+                        .collect(Collectors.toList());
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
                     IOpenField f = decisionRowFields.iterator().next();
-                    if (writeUsedFields) {
+                    if (traceUsedFields) {
                         usedFields.add(f);
                     }
                     return f;
@@ -113,13 +108,11 @@ public class DecisionTableDataType extends ComponentOpenClass {
     public void addDecisionTableField(IOpenField f) {
         if (f != null) {
             nonConflictConditionParamNames.computeIfAbsent(f.getName(), e -> new ArrayList<>()).add(f);
-            nonConflictConditionParamNamesLowerCase.computeIfAbsent(f.getName().toLowerCase(), e -> new ArrayList<>())
-                .add(f);
         }
     }
 
     public void resetLowerCasedUsedFields() {
-        if (writeUsedFields) {
+        if (traceUsedFields) {
             usedFields = new HashSet<>();
         }
     }
@@ -141,8 +134,7 @@ public class DecisionTableDataType extends ComponentOpenClass {
         }
     }
 
-    @Override
-    public String getDisplayName(int mode) {
+    @Override public String getDisplayName(int mode) {
         return displayName;
     }
 }
