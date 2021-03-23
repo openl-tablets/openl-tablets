@@ -633,7 +633,9 @@ public class ProjectBean {
 
     private void refreshProject(String repoId, String name) {
         studio.getModel().clearModuleInfo();
-        studio.resolveProject(studio.getCurrentProjectDescriptor());
+        ProjectDescriptor oldProjectDescriptor = studio.getCurrentProjectDescriptor();
+        ProjectDescriptor newProjectDescriptor = studio.resolveProject(oldProjectDescriptor);
+        studio.forceUpdateProjectDescriptor(repoId, newProjectDescriptor, oldProjectDescriptor);
         TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, name);
         if (projectNode != null) {
             // For example, repository wasn't refreshed yet
