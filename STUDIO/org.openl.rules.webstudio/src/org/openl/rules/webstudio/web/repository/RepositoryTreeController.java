@@ -556,7 +556,7 @@ public class RepositoryTreeController {
                 return null;
             }
             if (NameChecker.isReservedName(projectName)) {
-                WebStudioUtils.addErrorMessage("Specified project name is a reserved word.");
+                WebStudioUtils.addErrorMessage("Specified deploy configuration name is a reserved word.");
                 return null;
             }
             if (userWorkspace.hasDDProject(projectName)) {
