@@ -555,6 +555,10 @@ public class RepositoryTreeController {
                     "Specified name is not a valid Deploy Configuration name. " + NameChecker.BAD_NAME_MSG);
                 return null;
             }
+            if (NameChecker.isReservedName(projectName)) {
+                WebStudioUtils.addErrorMessage("Specified project name is a reserved word.");
+                return null;
+            }
             if (userWorkspace.hasDDProject(projectName)) {
                 WebStudioUtils.addErrorMessage(
                     "Cannot create configuration because configuration with such name already exists.");
