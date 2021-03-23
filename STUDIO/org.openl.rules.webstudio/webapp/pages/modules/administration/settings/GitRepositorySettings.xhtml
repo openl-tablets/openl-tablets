@@ -119,7 +119,7 @@
         <h:inputText value="#{settings.newBranchTemplate}" title="This pattern is used for new branches."
                      id="#{prependId}newBranchTemplate" rendered="#{isDesignRepo}"
                      validator="#{validators.newBranchNamePatternValidator}">
-        </h:inputText>             
+        </h:inputText>
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}newBranchTemplateShowInfo');return false;" title="Details" rendered="#{isDesignRepo}"/>
 
         <h:outputText value=""/>
@@ -128,9 +128,12 @@
 
         <h:outputText value="Branch name pattern:" rendered="#{isDesignRepo}"/>
         <h:inputText value="#{settings.newBranchRegex}" title="Additional regex for new branches."
-                     id="#{prependId}regexValidation" rendered="#{isDesignRepo}">
+                     id="#{prependId}regexValidation" rendered="#{isDesignRepo}" validator="#{validators.newBranchRegex}">
         </h:inputText>
         <h:link value="" style="background: url('webresource/images/info.png'); display: inline-block;" class="imageButton" onclick="showShowInfo('#{prependId}regexValidation');return false;" title="Details" rendered="#{isDesignRepo}"/>
+        <h:outputText value=""/>
+        <h:message for="#{prependId}regexValidation" styleClass="error"/>
+        <h:outputText value=""/>
 
         <h:outputText value="Invalid branch name message hint:" rendered="#{isDesignRepo}"/>
         <h:inputText value="#{settings.newBranchRegexError}" title="Error message for regex validation."
