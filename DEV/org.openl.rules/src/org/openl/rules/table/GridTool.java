@@ -206,7 +206,7 @@ public class GridTool {
                         int row;
                         if (before) {
                             col = cFrom;
-                            row = rowFrom;
+                            row = rFrom;
                         } else {
                             col = cTo;
                             row = rTo;
