@@ -109,6 +109,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
         Sheet sheet = getSheet();
         Cell cell = PoiExcelHelper.getCell(col, row, sheet);
         if (cell != null) {
+            cell.removeCellComment();
+            cell.removeHyperlink();
             sheet.getRow(row).removeCell(cell);
         }
     }
@@ -120,14 +122,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void createCell(int col, int row, Object value, String formula, ICellStyle style, ICellComment comment) {
+    public void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor) {
         if (StringUtils.isNotBlank(formula)) {
             setCellFormula(col, row, formula);
         } else {
             setCellValue(col, row, value);
         }
         setCellStyle(col, row, style);
-        setCellComment(col, row, comment);
+        setCellComment(col, row, comment, prevCommentAuthor);
     }
 
     protected void copyCell(Cell cellFrom, int colTo, int rowTo) {
@@ -488,12 +490,24 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void setCellComment(int col, int row, ICellComment comment) {
-        Comment poiComment = null;
+    public void setCellComment(int col, int row, String comment, String prevCommentAuthor) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
-
+        Comment poiComment = null;
         if (comment != null) {
-            poiComment = ((XlsCellComment) comment).getXlxComment();
+            Sheet sheet = getSheet();
+            CreationHelper factory = sheet.getWorkbook().getCreationHelper();
+            ClientAnchor anchor = factory.createClientAnchor();
+            anchor.setCol1(poiCell.getColumnIndex());
+            anchor.setCol2(poiCell.getColumnIndex());
+            anchor.setRow1(poiCell.getRowIndex());
+            anchor.setRow2(poiCell.getRowIndex());
+            if (poiCell.getCellComment() == null) {
+                poiComment = sheet.createDrawingPatriarch().createCellComment(anchor);
+            } else {
+                poiComment = poiCell.getCellComment();
+            }
+            poiComment.setString(factory.createRichTextString(comment));
+            poiComment.setAuthor(prevCommentAuthor);
         }
         poiCell.setCellComment(poiComment);
     }
