@@ -127,7 +127,7 @@ jobs:
           More detailed information you can find at [Release Notes ${{ env.RELEASE_TAG }}](//openl-tablets.org/release-notes?ver=${{ env.RELEASE_TAG }}).
           All artifacts are ready for Downloads.
           Enjoy!
-        draft: false
+        draft: true
         prerelease: false
 
     - name: Attach DEMO
