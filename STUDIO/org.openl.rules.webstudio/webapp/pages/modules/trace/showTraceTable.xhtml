@@ -21,7 +21,6 @@
         </h:panelGroup>
 
         <h:panelGroup rendered="#{empty param.first}">
-            <ui:include src="/pages/common/tableViewMenu.xhtml" />
 
             <div style="border-bottom: 1px solid #dddddd; padding-bottom: 5px">
             <table>
@@ -53,6 +52,9 @@
                             </ui:include>
                         </td>
                     </h:panelGroup>
+                    <td style="vertical-align: top">
+                        <ui:include src="/pages/common/tableViewMenu.xhtml" />
+                    </td>
                 </tr>
                 </table>
                 
