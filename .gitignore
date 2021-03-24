@@ -13,8 +13,8 @@ syntax: glob
 .settings
 .metadata
 .workspace
-*.project
-*.classpath
+.project
+.classpath
 *.springBeans
 *.springWebflow
 maven-eclipse.xml
