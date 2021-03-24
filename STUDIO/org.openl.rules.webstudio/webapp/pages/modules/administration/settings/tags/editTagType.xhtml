@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalEditTagType" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Edit Tag Type" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideEditTagType()" alt="Close" />
+        </f:facet>
+
+        <h:form id="editTagTypeForm">
+            <div>
+                <h:inputHidden id="createHidden" value="#{tagTypeBean.create}"/>
+                <h:inputHidden id="nameHidden" value="#{tagTypeBean.name}" rendered="#{not tagTypeBean.create}"/>
+
+                <h:panelGrid columns="3" cellspacing="5">
+                    <label>Name:</label>
+                    <h:inputText id="name" value="#{tagTypeBean.name}" validator="#{tagTypeBean.nameValidator}" />
+                    <a4j:outputPanel ajaxRendered="true">
+                        <h:message for="name" styleClass="error" />
+                    </a4j:outputPanel>
+
+                    <label>Extensible:</label>
+                    <h:selectBooleanCheckbox value="#{tagTypeBean.extensible}" />
+                    <h:outputText value=""/>
+
+                    <label>Nullable:</label>
+                    <h:selectBooleanCheckbox value="#{tagTypeBean.nullable}" />
+                    <h:outputText value=""/>
+                </h:panelGrid>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save" action="#{tagTypeBean.save}" data="#{facesContext.maximumSeverity}"
+                                   oncomplete="if(!event.data) hideEditTagType()" render=":tagTypeList :tagsSection" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="hideEditTagType()" />
+            </footer>
+
+            <a4j:jsFunction name="initEditTagTypeDialog" render="@form" oncomplete="showEditTagTypeDialog();">
+                <a4j:param name="name" assignTo="#{tagTypeBean.initialName}"/>
+            </a4j:jsFunction>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function editTagType(name) {
+            initEditTagTypeDialog(name ? name : '');
+        }
+
+        function showEditTagTypeDialog() {
+            let $name = $j("#editTagTypeForm\\:name");
+            let name = $name.val();
+            $name.prop('disabled', name);
+            RichFaces.$('modalEditTagType').show();
+        }
+
+        function hideEditTagType() {
+            RichFaces.$("modalEditTagType").hide();
+
+            // Reset form
+            $j("#editTagTypeForm")[0].reset();
+        }
+        //]]>
+    </script>
+
+</ui:composition>

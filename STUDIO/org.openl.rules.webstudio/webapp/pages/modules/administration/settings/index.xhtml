@@ -271,6 +271,13 @@
                                 <span>Notification</span>
                             </a>
                         </li>
+                        <li>
+                            <a href="#tags">
+                                <h:graphicImage url="/webresource/images/admin/systemSettings/tag.png"
+                                                alt="Tags"/>
+                                <span>Tags</span>
+                            </a>
+                        </li>
                         <br style="clear:both;"/>
                     </ul>
                     <div class="data-container">
@@ -809,6 +816,9 @@
                             </section>
                             <input type="button" title="Post a message" value="Post"/>
                             <input type="button" title="Remove a message" value="Remove"/>
+                        </div>
+                        <div id="tags" class="fields">
+                            <ui:include src="/pages/modules/administration/settings/tags/tags.xhtml"/>
                         </div>
                     </div>
                 </div>

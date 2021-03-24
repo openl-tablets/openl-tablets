@@ -5,5 +5,9 @@
     <mapping class="org.openl.rules.security.standalone.persistence.Group" />
     <mapping class="org.openl.rules.security.standalone.persistence.User" />
     <mapping class="org.openl.rules.security.standalone.persistence.UserSetting" />
+    <mapping class="org.openl.rules.security.standalone.persistence.TagType" />
+    <mapping class="org.openl.rules.security.standalone.persistence.Tag" />
+    <mapping class="org.openl.rules.security.standalone.persistence.OpenLProject" />
+    <mapping class="org.openl.rules.security.standalone.persistence.ProjectGrouping" />
   </session-factory>
 </hibernate-configuration>

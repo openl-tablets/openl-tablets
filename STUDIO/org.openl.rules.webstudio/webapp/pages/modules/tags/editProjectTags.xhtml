@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalEditProjectTags" minWidth="330" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Tags"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideEditProjectTags()" alt="Close"/>
+        </f:facet>
+
+        <h:form id="editProjectTagsForm">
+            <div>
+                <table class="formfields">
+                    <ui:repeat value="#{projectTagsBean.tags}" var="tag">
+                        <tr>
+                            <td>
+                                <h:inputHidden value="#{tag.id}"/>
+                                <label><h:outputText value="#{tag.tagType}:"/></label>
+                            </td>
+                            <td>
+                                <h:selectOneMenu id="tagSelection" value="#{tag.id}" hideNoSelectionOption="true">
+                                    <f:ajax event="change" render="tagSelection"/>
+                                    <f:selectItem itemLabel="[None]" itemValue="-1"
+                                                  itemDisabled="#{not repositoryTreeController.getTagType(tag.tagType).nullable}"
+                                                  noSelectionOption="#{not repositoryTreeController.getTagType(tag.tagType).nullable}"/>
+                                    <f:selectItems value="#{projectTagsBean.getTagValues(tag.tagType)}" var="t"
+                                                   itemValue="#{t.id}" itemLabel="#{t.name}"/>
+                                </h:selectOneMenu>
+                            </td>
+                            <td>
+                                <h:panelGroup rendered="#{repositoryTreeController.getTagType(tag.tagType).extensible}">
+                                    <span class="clickable" onclick="createTagValue('#{utils.toJSText(tag.tagType)}', renderEditProjectTagsForm)" title="Add tag">
+                                        +
+                                    </span>
+                                </h:panelGroup>
+                            </td>
+                        </tr>
+                    </ui:repeat>
+
+                </table>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save" action="#{projectTagsBean.save}" data="#{facesContext.maximumSeverity}"
+                                   oncomplete="if(!event.data) hideEditProjectTags()" render="nodeView"
+                                   styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="hideEditProjectTags()"/>
+            </footer>
+
+            <a4j:jsFunction name="renderEditProjectTagsForm" render="@form"/>
+            <a4j:jsFunction name="initEditProjectTagsDialog" action="#{projectTagsBean.init}" render="@form" oncomplete="showEditProjectTagsDialog();"/>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function editProjectTags() {
+            initEditProjectTagsDialog();
+        }
+
+        function showEditProjectTagsDialog() {
+            RichFaces.$('modalEditProjectTags').show();
+        }
+
+        function hideEditProjectTags() {
+            RichFaces.$("modalEditProjectTags").hide();
+
+            // Reset form
+            $j("#editProjectTagsForm")[0].reset();
+        }
+
+        //]]>
+    </script>
+
+</ui:composition>

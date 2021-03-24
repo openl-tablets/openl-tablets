@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -24,14 +25,24 @@ import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.security.standalone.persistence.OpenLProject;
+import org.openl.rules.security.standalone.persistence.ProjectGrouping;
+import org.openl.rules.security.standalone.persistence.Tag;
+import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
 import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.OpenLProjectService;
+import org.openl.rules.webstudio.service.ProjectGroupingService;
+import org.openl.rules.webstudio.service.TagService;
+import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeProjectGrouping;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
@@ -62,6 +73,21 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
+    @Autowired
+    private CurrentUserInfo currentUserInfo;
+
+    @Autowired
+    private TagTypeService tagTypeService;
+
+    @Autowired
+    private TagService tagService;
+
+    @Autowired
+    private ProjectGroupingService projectGroupingService;
+
+    @Autowired
+    private OpenLProjectService projectService;
+
     private static final String DEFAULT_TAB = "Properties";
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeState.class);
     private static final IFilter<AProjectArtefact> ALL_FILTER = new AllFilter<>();
@@ -84,6 +110,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     private final Object lock = new Object();
     private String errorMessage;
     private final WorkspaceListener workspaceListener = new WorkspaceListener();
+
+    private ProjectGrouping projectGrouping;
 
     private void buildTree() {
         try {
@@ -114,9 +142,59 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             Collection<RulesProject> rulesProjects = userWorkspace.getProjects();
 
             IFilter<AProjectArtefact> filter = this.filter;
-            for (RulesProject project : rulesProjects) {
-                if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
-                    addRulesProjectToTree(project);
+            final ProjectGrouping grouping = getProjectGrouping();
+            final String group1 = grouping.getGroup1();
+            if (group1 == null) {
+                for (RulesProject project : rulesProjects) {
+                    if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
+                        addRulesProjectToTree(project);
+                    }
+                }
+            } else {
+                final List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
+
+                if (TreeProjectGrouping.GROUPING_REPOSITORY.equals(group1)) {
+                    repositories.forEach(repository -> {
+                        final String repoId = repository.getId();
+                        final String name = "[" + repository.getName() + "]";
+                        final String id = RepositoryUtils.getTreeNodeId(repoId);
+
+                        final List<RulesProject> subProjects = rulesProjects.stream()
+                            .filter(project -> project.getRepository().getId().equals(repoId))
+                            .collect(Collectors.toList());
+                        rulesRepository.add(new TreeProjectGrouping(id,
+                            name,
+                            subProjects,
+                            projectGrouping,
+                            1,
+                            tagService,
+                            hideDeleted,
+                            projectDescriptorResolver,
+                            projectService,
+                            repositories));
+                    });
+                } else {
+                    final List<Tag> tags = tagService.getByTagType(group1);
+                    tags.forEach(tag -> {
+                        final String name = tag.getName();
+                        final String id = RepositoryUtils.getTreeNodeId(name);
+
+                        final List<OpenLProject> projectsForTags = projectService.getProjectsForTag(tag.getId());
+
+                        final List<RulesProject> subProjects = rulesProjects.stream()
+                            .filter(project -> projectsForTags.stream().anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
+                            .collect(Collectors.toList());
+
+                        rulesRepository.add(new TreeProjectGrouping(id,
+                            name,
+                            subProjects,
+                            projectGrouping,
+                            1,
+                            tagService,
+                            hideDeleted,
+                            projectDescriptorResolver,
+                            projectService, repositories));
+                    });
                 }
             }
             if (rulesProjects.isEmpty()) {
@@ -729,9 +807,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     // for any project artefact
     public boolean getCanModify() {
-        AProjectArtefact selectedArtefact = getSelectedNode().getData();
-        String projectId = RepositoryUtils.getTreeNodeId(selectedArtefact.getProject());
-        RulesProject project = (RulesProject) getRulesRepository().getChild(projectId).getData();
+        UserWorkspaceProject project = getSelectedProject();
         return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
     }
 
@@ -807,6 +883,68 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
+        }
+    }
+
+    public List<String> getGroupingTypes() {
+        final List<String> types = new ArrayList<>();
+        types.add(TreeProjectGrouping.GROUPING_NONE);
+        types.add(TreeProjectGrouping.GROUPING_REPOSITORY);
+        types.addAll(tagTypeService.getAllTagTypes().stream().map(TagType::getName).collect(Collectors.toList()));
+        return types;
+    }
+
+    public ProjectGrouping getProjectGrouping() {
+        if (projectGrouping == null) {
+            final String userName = currentUserInfo.getUserName();
+            projectGrouping = projectGroupingService.getProjectGrouping(userName);
+            if (projectGrouping == null) {
+                projectGrouping = new ProjectGrouping();
+                projectGrouping.setLoginName(userName);
+            } else {
+                final List<String> groupings = tagTypeService.getAllTagTypes()
+                    .stream()
+                    .map(TagType::getName)
+                    .collect(Collectors.toList());
+                groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
+                groupings.add(null);
+                if (!groupings.contains(projectGrouping.getGroup1())) {
+                    projectGrouping.setGroup1(null);
+                }
+                if (!groupings.contains(projectGrouping.getGroup2())) {
+                    projectGrouping.setGroup2(null);
+                }
+                if (!groupings.contains(projectGrouping.getGroup3())) {
+                    projectGrouping.setGroup3(null);
+                }
+            }
+        }
+        return projectGrouping;
+    }
+
+    public void setProjectGrouping(ProjectGrouping projectGrouping) {
+        this.projectGrouping = projectGrouping;
+    }
+
+    public void group() {
+        try {
+            if (TreeProjectGrouping.GROUPING_NONE.equals(projectGrouping.getGroup1())) {
+                projectGrouping.setGroup1(null);
+            }
+            if (TreeProjectGrouping.GROUPING_NONE.equals(projectGrouping.getGroup2())) {
+                projectGrouping.setGroup2(null);
+            }
+            if (TreeProjectGrouping.GROUPING_NONE.equals(projectGrouping.getGroup3())) {
+                projectGrouping.setGroup3(null);
+            }
+
+            projectGroupingService.save(projectGrouping);
+
+            invalidateTree();
+        } catch (Exception e) {
+            String msg = e.getMessage();
+            log.error(msg, e);
+            WebStudioUtils.addErrorMessage(msg);
         }
     }
 

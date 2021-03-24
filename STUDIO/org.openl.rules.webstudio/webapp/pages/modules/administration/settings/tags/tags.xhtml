@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j">
+
+    <h:panelGroup>
+        <h:form>
+            <h1>Tag types</h1>
+            <h:dataTable id="tagTypeList" value="#{tagTypeBean.tagTypes}" var="tagType" styleClass="table">
+                <h:column>
+                    <f:facet name="header">
+                        Name
+                    </f:facet>
+                    <span class="clickable" onclick="editTagType('#{utils.toJSText(tagType.name)}')" title="Edit">
+                        <h:outputText value="#{tagType.name}" />
+                    </span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        Extensible
+                    </f:facet>
+                    #{tagType.extensible ? 'Yes' : 'No'}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        Nullable
+                    </f:facet>
+                    #{tagType.nullable ? 'Yes' : 'No'}
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Action</f:facet>
+                    <a4j:commandLink execute="@this" render="@form tagsSection"
+                                     action="#{tagTypeBean.delete(tagType.name)}"
+                                     styleClass="delete-icon"
+                                     onclick="if(!window.confirm('Are you sure you want to delete the tag type?')) {return false;}"
+                                     title="Delete"/>
+                </h:column>
+            </h:dataTable>
+
+            <a href="javascript:void(0)" onclick="editTagType()">Add New Tag Type</a>
+        </h:form>
+
+        <ui:include src="/pages/modules/administration/settings/tags/editTagType.xhtml"/>
+    </h:panelGroup>
+
+    <h:panelGroup id="tagsSection">
+        <h:form rendered="#{not empty tagTypeBean.tagTypes}">
+            <h1>Tags</h1>
+            <h:dataTable id="tagList" value="#{tagBean.tags}" var="tag" styleClass="table">
+                <h:column>
+                    <f:facet name="header">
+                        Tag type
+                    </f:facet>
+                    <span class="clickable" onclick="editTag(#{tag.id})" title="Edit">
+                        <h:outputText value="#{tag.tagType}"/>
+                    </span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">
+                        Name
+                    </f:facet>
+                    <span class="clickable" onclick="editTag(#{tag.id})" title="Edit">
+                        <h:outputText value="#{tag.name}"/>
+                    </span>
+                </h:column>
+                <h:column>
+                    <f:facet name="header">Action</f:facet>
+                    <a4j:commandLink execute="@this" render="@form"
+                                     action="#{tagBean.delete(tag.id)}"
+                                     onclick="if(!window.confirm('Are you sure you want to delete the tag?')) {return false;}"
+                                     styleClass="delete-icon"
+                                     title="Delete"/>
+                </h:column>
+            </h:dataTable>
+
+            <a href="javascript:void(0)" onclick="editTag()">Add New Tag</a>
+        </h:form>
+
+        <ui:include src="/pages/modules/administration/settings/tags/editTag.xhtml"/>
+    </h:panelGroup>
+
+</ui:composition>

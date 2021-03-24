@@ -42,6 +42,8 @@
             <h:graphicImage value="/images/close.gif" class="close" onclick="hideNewProjectDialog()" alt="Close"/>
         </f:facet>
 
+        <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
+
         <rich:tabPanel id="projectType" switchType="client" onitemchange="resizePopupPanel('modalNewProject')">
 
             <rich:tab id="template" header="Template">
@@ -181,7 +183,10 @@
                     <footer>
                         <!-- TODO: Change h:commandButton to a4j:commandButton and show validation errors inside dialog box.
                                 Now errors are shown after dialog is closed. -->
-                        <h:commandButton id="sbtTemplates" value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtTemplates#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                         onclick="createProjectTags(function () {$j('#createProjectFormTempl\\:sbtTemplatesHidden').click();}); return false;"
+                                         rendered="#{hasTags}"/>
+                        <h:commandButton id="sbtTemplates#{hasTags ? 'Hidden' : ''}" value="Create" styleClass="button-primary #{hasTags ? 'hidden' : ''}"
                                          action="#{repositoryTreeController.createNewRulesProject}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
@@ -250,7 +255,10 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton id="sbtFiles" value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtFiles#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                         onclick="createProjectTags(function () {$j('#createProjectFormFiles\\:sbtFilesHidden').click();}); return false;"
+                                         rendered="#{hasTags}"/>
+                        <h:commandButton id="sbtFiles#{hasTags ? 'Hidden' : ''}" value="Create" styleClass="button-primary #{hasTags ? 'hidden' : ''}"
                                          action="#{repositoryTreeController.createProjectWithFiles}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
@@ -319,8 +327,11 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton id="sbtZips" value="Create" action="#{repositoryTreeController.upload}"
-                                         styleClass="button-primary"/>
+                        <h:commandButton id="sbtZips#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                         onclick="createProjectTags(function () {$j('#uploadProjectForm\\:sbtZipsHidden').click();}); return false;"
+                                         rendered="#{hasTags}"/>
+                        <h:commandButton id="sbtZips#{hasTags ? 'Hidden' : ''}" value="Create" action="#{repositoryTreeController.upload}"
+                                         styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                 </h:form>
@@ -459,9 +470,12 @@
                         </script>
                     </h:panelGrid>
                     <footer>
-                        <h:commandButton id="submitOpenAPIFile" value="Create"
+                        <h:commandButton id="submitOpenAPIFile#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                         onclick="createProjectTags(function () {$j('#openAPIProjectForm\\:submitOpenAPIFileHidden').click();}); return false;"
+                                         rendered="#{hasTags}"/>
+                        <h:commandButton id="submitOpenAPIFile#{hasTags ? 'Hidden' : ''}" value="Create"
                                          action="#{repositoryTreeController.upload}"
-                                         styleClass="button-primary"/>
+                                         styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                 </h:form>
@@ -551,8 +565,11 @@
 
                     <h:panelGroup id="localUploadButtonPanel">
                         <footer>
-                            <a4j:commandButton id="sbtWorkspace" action="#{localUpload.upload}"
-                                               styleClass="button-primary"
+                            <h:commandButton id="sbtWorkspace#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                             onclick="createProjectTags(function () {$j('#uploadWorkspaceProjectForm\\:sbtWorkspaceHidden').click();}); return false;"
+                                             rendered="#{hasTags}"/>
+                            <a4j:commandButton id="sbtWorkspace#{hasTags ? 'Hidden' : ''}" action="#{localUpload.upload}"
+                                               styleClass="button-primary #{hasTags ? 'hidden' : ''}"
                                                rendered="#{not empty localUpload.projects4Upload}" process="@form"
                                                value="Create"
                                                oncomplete="hideNewProjectDialog()"
@@ -592,9 +609,12 @@
                     </h:panelGrid>
 
                     <footer>
-                        <h:commandButton id="sbtRepo" value="Import" action="#{repositoryTreeController.importFromRepo}"
+                        <h:commandButton id="sbtRepo#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                                         onclick="createProjectTags(function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}); return false;"
+                                         rendered="#{hasTags}"/>
+                        <h:commandButton id="sbtRepo#{hasTags ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
                                          onclick="if (!#{repositoryTreeController.openLProjectInFolder} &amp;&amp; !confirm('Chosen folder is not OpenL project. Are you sure?')) return false;"
-                                         styleClass="button-primary"/>
+                                         styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
                     <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo"/>

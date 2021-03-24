@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalEditTag" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Edit Tag" />
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideEditTag()" alt="Close" />
+        </f:facet>
+
+        <h:form id="editTagForm">
+            <div>
+                <h:inputHidden id="nameHidden" value="#{tagBean.id}" />
+
+                <h:panelGrid columns="3" cellspacing="5">
+                    <label>Tag type:</label>
+                    <h:selectOneMenu value="#{tagBean.tagType}">
+                        <f:selectItems value="#{tagTypeBean.tagTypes}" var="t" itemValue="#{t.name}" itemLabel="#{t.name}"/>
+                    </h:selectOneMenu>
+                    <h:outputText value=""/>
+
+                    <label>Name:</label>
+                    <h:inputText id="name" value="#{tagBean.name}" validator="#{tagBean.nameValidator}"/>
+                    <a4j:outputPanel ajaxRendered="true">
+                        <h:message for="name" styleClass="error" />
+                    </a4j:outputPanel>
+                </h:panelGrid>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save" action="#{tagBean.save}" data="#{facesContext.maximumSeverity}"
+                                   oncomplete="if(!event.data) hideEditTag()" render=":tagList" styleClass="button-primary" />
+                <input type="button" value="Cancel" onclick="hideEditTag()" />
+            </footer>
+
+            <a4j:jsFunction name="initEditTagDialog" render="@form" oncomplete="showEditTagDialog();">
+                <a4j:param name="id" assignTo="#{tagBean.initialTag}"/>
+            </a4j:jsFunction>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function editTag(id) {
+            initEditTagDialog(id);
+        }
+
+        function showEditTagDialog() {
+            RichFaces.$('modalEditTag').show();
+        }
+
+        function hideEditTag() {
+            RichFaces.$("modalEditTag").hide();
+
+            // Reset form
+            $j("#editTagForm")[0].reset();
+        }
+        //]]>
+    </script>
+
+</ui:composition>

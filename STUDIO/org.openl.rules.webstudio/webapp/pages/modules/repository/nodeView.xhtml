@@ -21,7 +21,7 @@
         }
     </style>
 
-    <h:panelGroup layout="block" rendered="#{node.type == 'repository'}">
+    <h:panelGroup layout="block" rendered="#{node.type == 'repository' || node.type == 'group'}">
         <ui:include src="/pages/modules/repository/projects.xhtml"/>
     </h:panelGroup>
 
@@ -280,6 +280,29 @@
                     </ui:fragment>
                 </h:panelGroup>
             </table>
+            <ui:fragment rendered="#{node.type == 'project' and not empty projectTagsBean.tagTypes}">
+                #{projectTagsBean.init()}
+                <h3>
+                    Tags
+                    <h:panelGroup rendered="#{repositoryTreeState.canModify}">
+                        <a href="javascript:void(0)" title="Edit" style="opacity:0.4"
+                           onclick="editProjectTags()"><img src="#{request.contextPath}/webresource/images/edit.png"/></a>
+                    </h:panelGroup>
+
+                </h3>
+                <table class="formfields" style="max-width: 500px;">
+                <ui:repeat value="#{projectTagsBean.tags}" var="tag">
+                    <tr>
+                        <td class="label">
+                            <h:outputText value="#{tag.tagType}:"/>
+                        </td>
+                        <td>
+                            <h:outputText value="#{empty tag.name ? '[None]' : tag.name}"/>
+                        </td>
+                    </tr>
+                </ui:repeat>
+                </table>
+            </ui:fragment>
         </rich:tab>
         <ui:remove><!--
          FIXME: because of the bug: https://issues.jboss.org/browse/RF-10961

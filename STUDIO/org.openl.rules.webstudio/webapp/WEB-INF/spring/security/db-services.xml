@@ -17,6 +17,22 @@
         <constructor-arg name="groupDao" ref="groupDao" />
     </bean>
 
+    <bean id="tagTypeService" class="org.openl.rules.webstudio.service.TagTypeService">
+        <property name="tagTypeDao" ref="openlTagTypeDao" />
+    </bean>
+
+    <bean id="tagService" class="org.openl.rules.webstudio.service.TagService">
+        <property name="tagDao" ref="openlTagDao" />
+    </bean>
+
+    <bean id="projectService" class="org.openl.rules.webstudio.service.OpenLProjectService">
+        <property name="projectDao" ref="openLProjectDao" />
+    </bean>
+
+    <bean id="projectGroupingService" class="org.openl.rules.webstudio.service.ProjectGroupingService">
+        <property name="projectGroupingDao" ref="projectGroupingDao" />
+    </bean>
+
     <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
         <constructor-arg name="userSettingDao" ref="openlUserSettingDao"/>
         <constructor-arg name="propertyResolver" ref="environment"/>

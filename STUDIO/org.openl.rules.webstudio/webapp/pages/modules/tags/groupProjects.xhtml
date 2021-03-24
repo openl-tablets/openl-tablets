@@ -1,0 +1,114 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalGroupProjects" minWidth="300" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Group Projects"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close" onclick="hideGroupProjectsDialog();"
+                            alt="Close"/>
+        </f:facet>
+
+        <h:form id="groupingForm">
+            <table>
+                <ui:remove>
+                    <!-- We can always group at least by repostitory -->
+                </ui:remove>
+                <tr>
+                    <td>Level 1:</td>
+                    <td>
+                        <h:selectOneMenu value="#{repositoryTreeState.projectGrouping.group1}" id="grouping1">
+                            <f:selectItems value="#{repositoryTreeState.groupingTypes}"/>
+                        </h:selectOneMenu>
+                    </td>
+                </tr>
+
+                <ui:remove>
+                    <!-- Repository and at least 1 tag -->
+                </ui:remove>
+                <ui:fragment rendered="#{tagTypeBean.tagTypes.size() > 0}">
+                    <tr>
+                        <td>Level 2:</td>
+                        <td>
+                            <h:selectOneMenu value="#{repositoryTreeState.projectGrouping.group2}" id="grouping2">
+                                <f:selectItems value="#{repositoryTreeState.groupingTypes}"/>
+                            </h:selectOneMenu>
+                        </td>
+                    </tr>
+                </ui:fragment>
+
+                <ui:remove>
+                    <!-- Repository and at least 2 tags -->
+                </ui:remove>
+                <ui:fragment rendered="#{tagTypeBean.tagTypes.size() > 1}">
+                    <tr>
+                        <td>Level 3:</td>
+                        <td>
+                            <h:selectOneMenu value="#{repositoryTreeState.projectGrouping.group3}" id="grouping3">
+                                <f:selectItems value="#{repositoryTreeState.groupingTypes}"/>
+                            </h:selectOneMenu>
+                        </td>
+                    </tr>
+                </ui:fragment>
+            </table>
+
+            <p class="hidden">
+                <span id="groupingFormMessage" class="error"/>
+            </p>
+
+            <footer>
+                <h:commandButton value="Group" action="#{repositoryTreeState.group}" styleClass="button-primary" id="save"/>
+                <input type="button" value="Cancel" onclick="hideGroupProjectsDialog();"/>
+            </footer>
+        </h:form>
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function showGroupProjectsDialog() {
+            const noneValue = '[None]';
+
+            $j('#groupingForm\\:grouping1').change(function () {
+                if ($j(this).val() === noneValue) {
+                    $j('#groupingForm\\:grouping2').val(noneValue);
+                    $j('#groupingForm\\:grouping3').val(noneValue);
+                }
+            });
+
+            $j('#groupingForm\\:grouping2').change(function () {
+                if ($j(this).val() === noneValue) {
+                    $j('#groupingForm\\:grouping3').val(noneValue);
+                }
+            });
+
+            $j('#groupingForm\\:grouping1,#groupingForm\\:grouping2,#groupingForm\\:grouping3').change(function () {
+                let val1 = $j('#groupingForm\\:grouping1').val();
+                let val2 = $j('#groupingForm\\:grouping2').val();
+                let val3 = $j('#groupingForm\\:grouping3').val();
+                let hasSame = (val1 !== noneValue &&  (val1 === val2 || val1 === val3) || val2 !== noneValue && val2 === val3);
+                let $message = $j('#groupingFormMessage');
+                if (hasSame) {
+                    $message.text('Groups can\'t be the same');
+                    $message.parent().removeClass('hidden');
+                } else {
+                    $message.text('');
+                    $message.parent().addClass('hidden');
+                }
+                $j('#groupingForm\\:save').prop('disabled', hasSame);
+            });
+
+            RichFaces.$('modalGroupProjects').show();
+        }
+
+        function hideGroupProjectsDialog() {
+            RichFaces.$('modalGroupProjects').hide();
+        }
+        //]]>
+    </script>
+
+</ui:composition>

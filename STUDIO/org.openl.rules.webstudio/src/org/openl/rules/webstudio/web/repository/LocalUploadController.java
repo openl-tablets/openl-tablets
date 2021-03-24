@@ -201,6 +201,7 @@ public class LocalUploadController {
 
                         createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
                             repositoryId);
+                        // TODO: Save tags
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;
