@@ -9,6 +9,7 @@ import org.openl.binding.impl.FieldUsageSearcher;
 import org.openl.binding.impl.MethodUsagesSearcher;
 import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
+import org.openl.binding.impl.NodeUsageSearcher;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -53,6 +54,7 @@ public class MetaInfoReaderUtils {
         List<NodeUsage> nodeUsages = new ArrayList<>(
             MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(), sourceString, startIndex));
         FieldUsageSearcher.findAllFields(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
+        NodeUsageSearcher.findTypes(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
         nodeUsages.sort(Comparator.comparingInt(NodeUsage::getStart));
         return nodeUsages;
     }

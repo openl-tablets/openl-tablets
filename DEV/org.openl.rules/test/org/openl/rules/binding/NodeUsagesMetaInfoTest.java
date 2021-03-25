@@ -31,6 +31,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
     private TableSyntaxNode totalAssets;
     private TableSyntaxNode miscAssets;
     private TableSyntaxNode constructors;
+    private TableSyntaxNode arrayNodeHints;
     private MetaInfoReader dataBMetaReader;
     private MetaInfoReader dataCMetaReader;
     private MetaInfoReader typeCMetaReader;
@@ -64,6 +65,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         miscAssets = findTable(
             "Spreadsheet SpreadsheetResult MiscAssets (SpreadsheetResultTotalAssets totalAssets1, SpreadsheetResult totalAssets2)");
         constructors = findTable("Spreadsheet SpreadsheetResult constructorHints()");
+        arrayNodeHints = findTable("Spreadsheet SpreadsheetResult arrayNodeHints()");
 
         dataBMetaReader = dataB.getMetaInfoReader();
         dataCMetaReader = dataC.getMetaInfoReader();
@@ -551,6 +553,60 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals("java.text\nSimpleDateFormat <init>(String p0)", usedNodes.get(1).getDescription());
         assertEquals(16, usedNodes.get(1).getStart());
         assertEquals(31, usedNodes.get(1).getEnd());
+    }
+
+    @Test
+    public void testArrayBoundNodeMetaInformation() {
+        MetaInfoReader metaInfoReader = arrayNodeHints.getMetaInfoReader();
+
+        CellMetaInfo cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 2));
+        List<? extends NodeUsage> usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(10, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 3));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals("org.openl.generated.beans\nclass TypeC", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(36, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 4));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals("java.text\nclass SimpleDateFormat", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(31, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 5));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(3, usedNodes.size());
+        assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(10, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 6));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(3, usedNodes.size());
+        assertEquals("java.lang\nclass String", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(11, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 7));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals("java.lang\n@interface Override", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(13, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 8));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(2, usedNodes.size());
+        assertEquals("java.lang\ninterface Runnable", usedNodes.get(1).getDescription());
+        assertEquals(6, usedNodes.get(1).getStart());
+        assertEquals(13, usedNodes.get(1).getEnd());
     }
 
     private CellMetaInfo getMetaInfo(MetaInfoReader metaInfoReader, ICell cell) {
