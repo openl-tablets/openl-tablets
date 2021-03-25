@@ -177,12 +177,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             String url = "/" + getUrl(service);
-            //temporary fix till https://issues.apache.org/jira/browse/CXF-8433 will be fixed
-            if (runningServices.values().stream().anyMatch(v -> v.getDestination().getAddress().getAddress().getValue().equals(url))) {
-                throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'. There is an endpoint already running on '%s'.",
-                        service.getDeployPath(), url));
-            }
-            //
             svrFactory.setAddress(url);
             if (isStoreLogDataEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());

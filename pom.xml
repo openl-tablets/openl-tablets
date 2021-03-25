@@ -92,7 +92,7 @@
         <cassandra.driver.version>4.3.1</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
         <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.4.2</org.apache.cxf.version>
+        <org.apache.cxf.version>3.4.3</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
