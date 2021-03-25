@@ -16,18 +16,19 @@ import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
 /**
- * Converts {@link ArrayBoundNode} or @{@link ArrayInitializerNode} to type {@link SimpleNodeUsage}
+ * Converts {@link ArrayBoundNode}, {@link CastNode} or {@link ArrayInitializerNode} to type {@link SimpleNodeUsage}
  *
  * @author Vladyslav Pikus
  */
-final class ArrayBoundNodeUsageCreator implements NodeUsageCreator {
+final class TypeNodeUsageCreator implements NodeUsageCreator {
 
-    private ArrayBoundNodeUsageCreator() {
+    private TypeNodeUsageCreator() {
     }
 
     @Override
     public boolean accept(IBoundNode boundNode) {
-        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode;
+        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode
+                || (boundNode instanceof CastNode && "type.cast".equals(boundNode.getSyntaxNode().getType()));
     }
 
     @Override
@@ -38,7 +39,7 @@ final class ArrayBoundNodeUsageCreator implements NodeUsageCreator {
         }
         IdentifierNode identifierNode = getIdentifierNode(syntaxNode);
         IOpenClass type = boundNode.getType();
-        if (type == null || identifierNode == null) {
+        if (type == null || identifierNode == null || !"type.name".equals(identifierNode.getType())) {
             return Optional.empty();
         }
         ILocation location = identifierNode.getSourceLocation();
@@ -84,23 +85,19 @@ final class ArrayBoundNodeUsageCreator implements NodeUsageCreator {
         builder.append(' ');
     }
 
-    private static IdentifierNode getIdentifierNode(ISyntaxNode syntaxNode) {
+    static IdentifierNode getIdentifierNode(ISyntaxNode syntaxNode) {
         ISyntaxNode res = syntaxNode;
-        for (int i = 0; i < 2; i++) {
-            if (res.getNumberOfChildren() > 0) {
-                res = res.getChild(0);
-            } else {
-                return null;
-            }
+        while (res.getNumberOfChildren() > 0 && !(res instanceof IdentifierNode)) {
+            res = res.getChild(0);
         }
         return res instanceof IdentifierNode ? (IdentifierNode) res : null;
     }
 
     private static class Holder {
-        private static final ArrayBoundNodeUsageCreator INSTANCE = new ArrayBoundNodeUsageCreator();
+        private static final TypeNodeUsageCreator INSTANCE = new TypeNodeUsageCreator();
     }
 
-    public static ArrayBoundNodeUsageCreator getInstance() {
+    public static TypeNodeUsageCreator getInstance() {
         return Holder.INSTANCE;
     }
 }

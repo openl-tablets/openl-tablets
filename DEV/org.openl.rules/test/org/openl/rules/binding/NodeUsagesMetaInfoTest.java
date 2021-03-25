@@ -447,7 +447,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         CellMetaInfo cellMetaInfo = getMetaInfo(metaInfoReader, constructors.getGridTable().getCell(1, 2));
         assertNotNull(cellMetaInfo);
         List<? extends NodeUsage> usedNodes = cellMetaInfo.getUsedNodes();
-        assertEquals(4, usedNodes.size());
+        assertEquals(6, usedNodes.size());
 
         assertNull(usedNodes.get(0).getUri());
         assertEquals("Cell type: TypeC", usedNodes.get(0).getDescription());
@@ -465,9 +465,19 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(27, usedNodes.get(2).getEnd());
 
         assertEquals(typeB.getUri(), usedNodes.get(3).getUri());
-        assertEquals("TypeB <init>()", usedNodes.get(3).getDescription());
-        assertEquals(51, usedNodes.get(3).getStart());
-        assertEquals(55, usedNodes.get(3).getEnd());
+        assertEquals("Datatype TypeB", usedNodes.get(3).getDescription());
+        assertEquals(38, usedNodes.get(3).getStart());
+        assertEquals(42, usedNodes.get(3).getEnd());
+
+        assertEquals(typeB.getUri(), usedNodes.get(4).getUri());
+        assertEquals("TypeB <init>()", usedNodes.get(4).getDescription());
+        assertEquals(51, usedNodes.get(4).getStart());
+        assertEquals(55, usedNodes.get(4).getEnd());
+
+        assertNull(null, usedNodes.get(5).getUri());
+        assertEquals("java.lang\nclass String", usedNodes.get(5).getDescription());
+        assertEquals(61, usedNodes.get(5).getStart());
+        assertEquals(66, usedNodes.get(5).getEnd());
     }
 
     @Test
@@ -562,6 +572,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         CellMetaInfo cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 2));
         List<? extends NodeUsage> usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
+        assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
         assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(10, usedNodes.get(1).getEnd());
@@ -569,6 +580,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 3));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
         assertEquals("org.openl.generated.beans\nclass TypeC", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(36, usedNodes.get(1).getEnd());
@@ -576,6 +588,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 4));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
         assertEquals("java.text\nclass SimpleDateFormat", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(31, usedNodes.get(1).getEnd());
@@ -583,6 +596,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 5));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(3, usedNodes.size());
+        assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
         assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(10, usedNodes.get(1).getEnd());
@@ -590,6 +604,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 6));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(3, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
         assertEquals("java.lang\nclass String", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(11, usedNodes.get(1).getEnd());
@@ -597,6 +612,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 7));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
         assertEquals("java.lang\n@interface Override", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(13, usedNodes.get(1).getEnd());
@@ -604,9 +620,18 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 8));
         usedNodes = cellMetaInfo.getUsedNodes();
         assertEquals(2, usedNodes.size());
+        assertNull(usedNodes.get(1).getUri());
         assertEquals("java.lang\ninterface Runnable", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(13, usedNodes.get(1).getEnd());
+
+        cellMetaInfo = getMetaInfo(metaInfoReader, arrayNodeHints.getGridTable().getCell(1, 9));
+        usedNodes = cellMetaInfo.getUsedNodes();
+        assertEquals(3, usedNodes.size());
+        assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
+        assertEquals("Datatype TypeC extends TypeB", usedNodes.get(1).getDescription());
+        assertEquals(3, usedNodes.get(1).getStart());
+        assertEquals(7, usedNodes.get(1).getEnd());
     }
 
     private CellMetaInfo getMetaInfo(MetaInfoReader metaInfoReader, ICell cell) {

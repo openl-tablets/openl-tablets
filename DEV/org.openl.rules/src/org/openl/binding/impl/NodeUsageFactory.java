@@ -18,7 +18,7 @@ public final class NodeUsageFactory {
 
     private static final List<NodeUsageCreator> CREATORS = Arrays.asList(MethodBoundNodeUsageCreator.getInstance(),
         FieldBoundNodeUsageCreator.getInstance(),
-        ArrayBoundNodeUsageCreator.getInstance());
+        TypeNodeUsageCreator.getInstance());
 
     private NodeUsageFactory() {
     }
