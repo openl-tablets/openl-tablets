@@ -35,6 +35,7 @@
         <module>itest.WebService-lazy</module>
         <module>itest.SpreadsheetResult</module>
         <module>itest.storelogdata</module>
+        <module>itest.tracing</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>
