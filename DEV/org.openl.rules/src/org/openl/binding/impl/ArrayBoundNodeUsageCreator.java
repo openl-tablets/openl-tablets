@@ -20,7 +20,7 @@ import org.openl.util.text.TextInfo;
  *
  * @author Vladyslav Pikus
  */
-public final class ArrayBoundNodeUsageCreator implements NodeUsageCreator {
+final class ArrayBoundNodeUsageCreator implements NodeUsageCreator {
 
     private ArrayBoundNodeUsageCreator() {
     }

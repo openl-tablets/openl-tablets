@@ -2,14 +2,11 @@ package org.openl.rules.lang.xls.types.meta;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
-import org.openl.binding.impl.FieldUsageSearcher;
-import org.openl.binding.impl.MethodUsagesSearcher;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.binding.impl.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
-import org.openl.binding.impl.NodeUsageSearcher;
+import org.openl.binding.impl.NodeUsageFactory;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -50,13 +47,7 @@ public class MetaInfoReaderUtils {
             // Table contains errors
             return Collections.emptyList();
         }
-
-        List<NodeUsage> nodeUsages = new ArrayList<>(
-            MethodUsagesSearcher.findAllMethods(method.getMethodBodyBoundNode(), sourceString, startIndex));
-        FieldUsageSearcher.findAllFields(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
-        NodeUsageSearcher.findTypes(nodeUsages, method.getMethodBodyBoundNode(), sourceString, startIndex);
-        nodeUsages.sort(Comparator.comparingInt(NodeUsage::getStart));
-        return nodeUsages;
+        return NodeUsageFactory.createNodeUsageList(method.getMethodBodyBoundNode(), sourceString, startIndex);
     }
 
     private static List<CellMetaInfo> getMetaInfoForCompositeSource(CompositeMethod method,

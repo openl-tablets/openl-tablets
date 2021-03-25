@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.openl.binding.IBoundNode;
 
 /**
- * Base interface of converters from {@link IBoundNode} to {@link NodeUsage}. Used in {@link NodeUsageSearcher}
+ * Base interface of converters from {@link IBoundNode} to {@link NodeUsage}. Used in {@link NodeUsageFactory}
  *
  * @author Vladyslav Pikus
  */
