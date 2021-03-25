@@ -819,6 +819,7 @@ public class ProjectBean {
     }
 
     public void regenerateOpenAPI() {
+        studio.initProjectHistory();
         tryLockProject();
 
         ProjectDescriptor currentProjectDescriptor = studio.getCurrentProjectDescriptor();

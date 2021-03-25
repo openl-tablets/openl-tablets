@@ -642,14 +642,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         }
         ProjectDescriptor projectDescriptor;
         try {
-            for (Module module : currentProject.getModules()) {
-                File moduleFile = module.getRulesPath().toFile();
-                String moduleHistoryPath = currentProject.getProjectFolder()
-                        .resolve(FolderHelper.HISTORY_FOLDER)
-                        .resolve(module.getName())
-                        .toString();
-                ProjectHistoryService.init(moduleHistoryPath, moduleFile);
-            }
+            initProjectHistory();
             tryLockProject();
 
             projectDescriptor = getCurrentProjectDescriptor();
@@ -737,6 +730,17 @@ public class WebStudio implements DesignTimeRepositoryListener {
                         .toString();
                 ProjectHistoryService.save(moduleHistoryPath, moduleFile);
             }
+        }
+    }
+
+    public void initProjectHistory(){
+        for (Module module : currentProject.getModules()) {
+            File moduleFile = module.getRulesPath().toFile();
+            String moduleHistoryPath = currentProject.getProjectFolder()
+                    .resolve(FolderHelper.HISTORY_FOLDER)
+                    .resolve(module.getName())
+                    .toString();
+            ProjectHistoryService.init(moduleHistoryPath, moduleFile);
         }
     }
 
