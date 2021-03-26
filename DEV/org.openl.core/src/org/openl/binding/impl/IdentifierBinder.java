@@ -8,12 +8,27 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
 
 /**
  *
  * @author Yury Molchan
  */
 public class IdentifierBinder extends ANodeBinder {
+
+    private static final Class<?> SPR_CLAZZ;
+
+    static {
+        //FIXME needs to figure out better solution. In wonder world, IdentifierBinder must know nothing of concrete
+        // classes it must work in the same way for all types
+        Class<?> sprType;
+        try {
+            sprType = IdentifierBinder.class.getClassLoader().loadClass("org.openl.rules.calc.SpreadsheetResult");
+        } catch (ClassNotFoundException e) {
+            sprType = null;
+        }
+        SPR_CLAZZ = sprType;
+    }
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
@@ -45,7 +60,6 @@ public class IdentifierBinder extends ANodeBinder {
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
-
         String fieldName = node.getText();
         IOpenClass type = target.getType();
         int dims = 0;
@@ -54,10 +68,15 @@ public class IdentifierBinder extends ANodeBinder {
             type = type.getComponentClass();
         }
         IOpenField field;
+        boolean strictMatch = isStrictMatch(node);
         if (target.isStaticTarget()) {
-            field = type.getStaticField(fieldName, false);
+            field = type.getStaticField(fieldName, strictMatch);
         } else {
-            field = type.getField(fieldName, false);
+            if (!isSpreadsheetResult(type)) {
+                // disable strict match for non SPR types to save backward compatibility with old client projects
+                strictMatch = false;
+            }
+            field = type.getField(fieldName, strictMatch);
         }
 
         if (field == null) {
@@ -79,6 +98,10 @@ public class IdentifierBinder extends ANodeBinder {
 
         BindHelper.checkOnDeprecation(node, bindingContext, field);
         return new FieldBoundNode(node, field, target, dims);
+    }
+
+    private static boolean isSpreadsheetResult(IOpenClass type) {
+        return SPR_CLAZZ != null && ClassUtils.isAssignable(type.getInstanceClass(), SPR_CLAZZ);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {
