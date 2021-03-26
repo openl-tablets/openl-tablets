@@ -293,9 +293,15 @@ public class TestBean {
      */
     private static int getColumn(IGridTable spreadsheet, int columnFieldNumber) {
         int column = 0;
+        int shift = 0;
         // The column 0 contains row headers that's why "<=" instead of "<"
         for (int i = 0; i <= columnFieldNumber; i++) {
-            column += spreadsheet.getCell(i, 0).getWidth();
+            if (shift == 0) {
+                shift = spreadsheet.getCell(i, 0).getWidth();
+                columnFieldNumber += shift - 1;
+                column += shift;
+            }
+            shift--;
         }
         return column;
     }
@@ -307,9 +313,15 @@ public class TestBean {
      */
     private static int getRow(IGridTable spreadsheet, int rowFieldNumber) {
         int row = 0;
+        int shift = 0;
         // The row 0 contains column headers that's why "<=" instead of "<"
         for (int i = 0; i <= rowFieldNumber; i++) {
-            row += spreadsheet.getCell(0, i).getHeight();
+            if (shift == 0) {
+                shift = spreadsheet.getCell(i, 0).getHeight();
+                rowFieldNumber += shift - 1;
+                row += shift;
+            }
+            shift--;
         }
         return row;
     }
