@@ -213,7 +213,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
                 ruleExecutionType,
                 table.getSyntaxNode());
         } catch (Exception e) {
-            BindHelper.processError(e, table.getSyntaxNode().getModule(), bindingContext);
+            BindHelper.processError(e, table.getSyntaxNode(), bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
