@@ -382,8 +382,8 @@ public final class DecisionTableHelper {
                                     String newParamNameLowerCased = toLowerCase(newParamName);
                                     int k = 1;
                                     while (usedMethodSignatureIdentifiers.contains(newParamNameLowerCased) || usedAllParameterIdentifiers
-                                            .containsKey(newParamName) || usedLocalParameterIdentifiers
-                                            .contains(newParamNameLowerCased)) {
+                                            .containsKey(newParamName) || usedLocalParameterIdentifiers.contains(
+                                            newParamNameLowerCased)) {
                                         newParamName = "_" + parameterDeclaration.getName() + "_" + k;
                                         newParamNameLowerCased = toLowerCase(newParamName);
                                         k++;
@@ -518,7 +518,7 @@ public final class DecisionTableHelper {
         grid.setCellValue(declaredReturn.getColumn(), 1, declaredReturn.getStatement());
         DTColumnsDefinition dtColumnsDefinition = declaredReturn.getMatchedDefinition().getDtColumnsDefinition();
         int c = declaredReturn.getColumn();
-        while (c < originalTable.getSource().getWidth()) {
+        while (c < declaredReturn.getColumn() + declaredReturn.getWidth()) {
             ICell cell = originalTable.getSource().getCell(c, 0);
             String d = cell.getStringValue();
             d = OpenLFuzzyUtils.toTokenString(d);
@@ -586,7 +586,7 @@ public final class DecisionTableHelper {
                 grid.addMergedRegion(new GridRegion(row,
                         declaredReturn.getColumn(),
                         row,
-                        originalTable.getSource().getWidth() - 1));
+                        declaredReturn.getColumn() + declaredReturn.getWidth() - 1));
             }
         }
     }
