@@ -13,7 +13,7 @@
                     <f:facet name="header">
                         Name
                     </f:facet>
-                    <span class="clickable" onclick="editTagType('#{utils.toJSText(tagType.name)}')" title="Edit">
+                    <span class="clickable" onclick="editTagType(#{tagType.id})" title="Edit">
                         <h:outputText value="#{tagType.name}" />
                     </span>
                 </h:column>
@@ -54,7 +54,7 @@
                         Tag type
                     </f:facet>
                     <span class="clickable" onclick="editTag(#{tag.id})" title="Edit">
-                        <h:outputText value="#{tag.tagType}"/>
+                        <h:outputText value="#{tag.type.name}"/>
                     </span>
                 </h:column>
                 <h:column>

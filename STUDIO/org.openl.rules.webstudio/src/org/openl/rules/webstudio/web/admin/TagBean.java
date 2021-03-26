@@ -7,6 +7,7 @@ import javax.faces.context.FacesContext;
 
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.service.TagService;
+import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -15,12 +16,14 @@ import org.springframework.web.context.annotation.RequestScope;
 @Service
 @RequestScope
 public class TagBean {
+    private final TagTypeService tagTypeService;
     private final TagService tagService;
     private Long id;
     private String tagType;
     private String name;
 
-    public TagBean(TagService tagService) {
+    public TagBean(TagTypeService tagTypeService, TagService tagService) {
+        this.tagTypeService = tagTypeService;
         this.tagService = tagService;
     }
 
@@ -33,7 +36,7 @@ public class TagBean {
         if (id != null) {
             final Tag tag = tagService.getById(id);
             if (tag != null) {
-                this.tagType = tag.getTagType();
+                this.tagType = tag.getType().getName();
                 this.name = tag.getName();
             }
         }
@@ -78,7 +81,7 @@ public class TagBean {
         } else {
             tag = tagService.getById(id);
         }
-        tag.setTagType(tagType);
+        tag.setType(tagTypeService.getByName(tagType));
         tag.setName(name);
         if (id == null) {
             tagService.save(tag);

@@ -1,17 +1,19 @@
 CREATE TABLE OpenL_Tag_Types (
+    id ${identity},
     name ${varchar}(255) not null,
     extensible ${boolean} not null,
     nullable ${boolean} not null,
-    PRIMARY KEY (name)
+    PRIMARY KEY (id),
+    CONSTRAINT uni_OpenL_Tag_Types1 UNIQUE (name)
 );
 
 CREATE TABLE OpenL_Tags (
     id ${identity},
-    tag_type ${varchar}(255) not null,
+    tag_type_id ${bigint} not null,
     name ${varchar}(255) not null,
     PRIMARY KEY (id),
-    CONSTRAINT fk_OpenL_Tags1 FOREIGN KEY (tag_type) REFERENCES OpenL_Tag_Types(name) ON DELETE CASCADE ON UPDATE CASCADE,
-    CONSTRAINT uni_OpenL_Tags1 UNIQUE (tag_type, name)
+    CONSTRAINT fk_OpenL_Tags1 FOREIGN KEY (tag_type_id) REFERENCES OpenL_Tag_Types(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT uni_OpenL_Tags1 UNIQUE (tag_type_id, name)
 );
 
 CREATE TABLE OpenL_Projects (

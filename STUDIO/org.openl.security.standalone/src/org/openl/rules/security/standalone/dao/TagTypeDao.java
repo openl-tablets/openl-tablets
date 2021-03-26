@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface TagTypeDao extends Dao<TagType> {
     @Transactional
+    TagType getById(Long id);
+
+    @Transactional
     TagType getByName(String name);
 
     @Transactional

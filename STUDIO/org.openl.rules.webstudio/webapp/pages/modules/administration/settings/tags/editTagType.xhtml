@@ -18,8 +18,7 @@
 
         <h:form id="editTagTypeForm">
             <div>
-                <h:inputHidden id="createHidden" value="#{tagTypeBean.create}"/>
-                <h:inputHidden id="nameHidden" value="#{tagTypeBean.name}" rendered="#{not tagTypeBean.create}"/>
+                <h:inputHidden id="idHidden" value="#{tagTypeBean.id}"/>
 
                 <h:panelGrid columns="3" cellspacing="5">
                     <label>Name:</label>
@@ -45,7 +44,7 @@
             </footer>
 
             <a4j:jsFunction name="initEditTagTypeDialog" render="@form" oncomplete="showEditTagTypeDialog();">
-                <a4j:param name="name" assignTo="#{tagTypeBean.initialName}"/>
+                <a4j:param name="id" assignTo="#{tagTypeBean.initialId}"/>
             </a4j:jsFunction>
 
         </h:form>
@@ -54,14 +53,11 @@
 
     <script>
         //<![CDATA[
-        function editTagType(name) {
-            initEditTagTypeDialog(name ? name : '');
+        function editTagType(id) {
+            initEditTagTypeDialog(id);
         }
 
         function showEditTagTypeDialog() {
-            let $name = $j("#editTagTypeForm\\:name");
-            let name = $name.val();
-            $name.prop('disabled', name);
             RichFaces.$('modalEditTagType').show();
         }
 

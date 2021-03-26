@@ -294,7 +294,7 @@
                 <ui:repeat value="#{projectTagsBean.tags}" var="tag">
                     <tr>
                         <td class="label">
-                            <h:outputText value="#{tag.tagType}:"/>
+                            <h:outputText value="#{tag.type.name}:"/>
                         </td>
                         <td>
                             <h:outputText value="#{empty tag.name ? '[None]' : tag.name}"/>

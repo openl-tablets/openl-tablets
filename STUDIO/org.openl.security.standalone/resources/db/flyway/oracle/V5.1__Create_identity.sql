@@ -1,3 +1,13 @@
+create SEQUENCE OpenL_Tag_Types_ID_SEQ;
+create or replace trigger OpenL_Tag_Types_ID_TRG
+before insert on OpenL_Tag_Types
+for each row
+begin
+  if :new.id is null then
+    select OpenL_Tag_Types_ID_SEQ.nextval into :new.id from dual;
+  end if;
+end;
+
 create SEQUENCE OpenL_Tags_ID_SEQ;
 create or replace trigger OpenL_Tags_ID_TRG
 before insert on OpenL_Tags

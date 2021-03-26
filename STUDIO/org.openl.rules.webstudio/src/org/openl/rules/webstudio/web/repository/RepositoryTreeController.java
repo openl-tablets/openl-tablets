@@ -2820,14 +2820,6 @@ public class RepositoryTreeController {
         return tags;
     }
 
-    public List<Tag> getTagValues(String tagType) {
-        return tagService.getByTagType(tagType);
-    }
-
-    public TagType getTagType(String newProjectName) {
-        return tagTypeService.getByName(newProjectName);
-    }
-
     public boolean isHasTags() {
         return !tagTypeService.getAllTagTypes().isEmpty();
     }
@@ -2836,10 +2828,9 @@ public class RepositoryTreeController {
         tags = new ArrayList<>();
         final List<TagType> tagTypes = tagTypeService.getAllTagTypes();
         tagTypes.forEach(type -> {
-            final String typeName = type.getName();
             final Tag t = new Tag();
             t.setId(ProjectTagsBean.NONE_ID);
-            t.setTagType(typeName);
+            t.setType(type);
             tags.add(t);
         });
     }

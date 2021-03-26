@@ -63,11 +63,11 @@ public class ProjectTagsBean {
         }
         final List<TagType> tagTypes = getTagTypes();
         tagTypes.forEach(type -> {
-            final String typeName = type.getName();
-            if (tags.stream().noneMatch(tag -> tag.getTagType().equals(typeName))) {
+            final Long typeId = type.getId();
+            if (tags.stream().noneMatch(tag -> tag.getType().getId().equals(typeId))) {
                 final Tag t = new Tag();
                 t.setId(NONE_ID);
-                t.setTagType(typeName);
+                t.setType(type);
                 tags.add(t);
             }
         });
@@ -138,7 +138,7 @@ public class ProjectTagsBean {
         }
 
         Tag tag = new Tag();
-        tag.setTagType(tagTypeForNewTag);
+        tag.setType(tagType);
         tag.setName(newTagValue);
         tagService.save(tag);
 

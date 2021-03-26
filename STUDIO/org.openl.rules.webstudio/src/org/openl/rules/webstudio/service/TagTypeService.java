@@ -15,7 +15,6 @@ public class TagTypeService {
 
     /**
      * TODO: Should we replace TagType with non-hibernate-dependent class?
-     * @return
      */
     public List<TagType> getAllTagTypes() {
         return tagTypeDao.getAll();
@@ -31,6 +30,10 @@ public class TagTypeService {
 
     public void delete(String name) {
         tagTypeDao.deleteByName(name);
+    }
+
+    public TagType getById(Long id) {
+        return  tagTypeDao.getById(id);
     }
 
     public TagType getByName(String name) {

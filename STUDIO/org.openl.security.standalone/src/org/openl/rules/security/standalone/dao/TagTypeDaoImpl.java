@@ -11,6 +11,16 @@ import org.springframework.transaction.annotation.Transactional;
 
 public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagTypeDao {
     @Override
+    public TagType getById(Long id) {
+        CriteriaBuilder builder = getSession().getCriteriaBuilder();
+        CriteriaQuery<TagType> criteria = builder.createQuery(TagType.class);
+        Root<TagType> u = criteria.from(TagType.class);
+        criteria.select(u).where(builder.equal(u.get("id"), id)).distinct(true);
+        List<TagType> results = getSession().createQuery(criteria).getResultList();
+        return results.isEmpty() ? null : results.get(0);
+    }
+
+    @Override
     @Transactional
     public TagType getByName(final String name) {
         CriteriaBuilder builder = getSession().getCriteriaBuilder();

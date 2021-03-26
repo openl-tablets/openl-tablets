@@ -5,21 +5,38 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+
+import org.hibernate.annotations.Type;
 
 @Entity
 @Table(name = "OpenL_Tag_Types")
 public class TagType implements Serializable {
     private static final long serialVersionUID = 1L;
+    private Long id;
     private String name;
     private boolean extensible;
     private boolean nullable;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO, generator = "OpenL_Tag_Types_ID_SEQ")
+    @SequenceGenerator(sequenceName = "OpenL_Tag_Types_ID_SEQ", name = "OpenL_Tag_Types_ID_SEQ")
+    @Column(name = "id")
+    @Type(type = "java.lang.Long")
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
     /**
      * Tag type name.
      */
-    @Id
     @Column(name = "name", unique = true, nullable = false)
     public String getName() {
         return name;

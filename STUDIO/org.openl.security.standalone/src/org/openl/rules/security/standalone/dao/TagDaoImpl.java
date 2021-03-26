@@ -29,7 +29,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .orderBy(builder.asc(builder.upper(root.get("tagType"))), builder.asc(builder.upper(root.get("name"))));
+            .orderBy(builder.asc(builder.upper(root.get("type").get("name"))), builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 
@@ -40,7 +40,7 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .where(builder.and(builder.equal(root.get("tagType"), tagType)))
+            .where(builder.and(builder.equal(root.get("type").get("name"), tagType)))
             .orderBy(builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }

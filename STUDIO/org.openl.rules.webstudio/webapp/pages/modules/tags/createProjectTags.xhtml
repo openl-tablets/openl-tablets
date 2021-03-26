@@ -23,21 +23,21 @@
                         <tr>
                             <td>
                                 <h:inputHidden value="#{tag.id}"/>
-                                <label><h:outputText value="#{tag.tagType}:"/></label>
+                                <label><h:outputText value="#{tag.type.name}:"/></label>
                             </td>
                             <td>
                                 <h:selectOneMenu id="tagSelection" value="#{tag.id}" hideNoSelectionOption="true">
                                     <f:ajax event="change" render="tagSelection"/>
                                     <f:selectItem itemLabel="[None]" itemValue="-1"
-                                                  itemDisabled="#{not repositoryTreeController.getTagType(tag.tagType).nullable}"
-                                                  noSelectionOption="#{not repositoryTreeController.getTagType(tag.tagType).nullable}"/>
-                                    <f:selectItems value="#{projectTagsBean.getTagValues(tag.tagType)}" var="t"
+                                                  itemDisabled="#{not tag.type.nullable}"
+                                                  noSelectionOption="#{not tag.type.nullable}"/>
+                                    <f:selectItems value="#{projectTagsBean.getTagValues(tag.type.name)}" var="t"
                                                    itemValue="#{t.id}" itemLabel="#{t.name}"/>
                                 </h:selectOneMenu>
                             </td>
                             <td>
-                                <h:panelGroup rendered="#{repositoryTreeController.getTagType(tag.tagType).extensible}">
-                                    <span class="clickable" onclick="createTagValue('#{utils.toJSText(tag.tagType)}', renderCreateProjectTagsForm)" title="Add tag">
+                                <h:panelGroup rendered="#{tag.type.extensible}">
+                                    <span class="clickable" onclick="createTagValue('#{utils.toJSText(tag.type.name)}', renderCreateProjectTagsForm)" title="Add tag">
                                         +
                                     </span>
                                 </h:panelGroup>

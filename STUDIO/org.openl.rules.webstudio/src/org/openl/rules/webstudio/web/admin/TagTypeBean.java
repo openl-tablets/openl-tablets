@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.List;
 
 import javax.faces.component.UIComponent;
+import javax.faces.component.UIInput;
 import javax.faces.context.FacesContext;
 
 import org.openl.rules.security.standalone.persistence.TagType;
@@ -16,10 +17,10 @@ import org.springframework.web.context.annotation.RequestScope;
 @RequestScope
 public class TagTypeBean {
     private final TagTypeService tagTypeService;
+    private Long id;
     private String name;
     private boolean extensible;
     private boolean nullable;
-    private boolean create;
 
     public TagTypeBean(TagTypeService tagTypeService) {
         this.tagTypeService = tagTypeService;
@@ -29,26 +30,24 @@ public class TagTypeBean {
         return tagTypeService.getAllTagTypes();
     }
 
-    public void setInitialName(String name) {
-        if (StringUtils.isNotBlank(name)) {
-            create = false;
-            this.name = name;
-            final TagType tagType = tagTypeService.getByName(name);
+    public void setInitialId(Long id) {
+        this.id = id;
+        if (id != null) {
+            final TagType tagType = tagTypeService.getById(id);
             if (tagType != null) {
+                this.name = tagType.getName();
                 this.extensible = tagType.isExtensible();
                 this.nullable = tagType.isNullable();
             }
-        } else {
-            this.create = true;
         }
     }
 
-    public boolean isCreate() {
-        return create;
+    public Long getId() {
+        return id;
     }
 
-    public void setCreate(boolean create) {
-        this.create = create;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -77,25 +76,27 @@ public class TagTypeBean {
 
     public void nameValidator(FacesContext context, UIComponent component, Object value) {
         String name = (String) value;
+        final Long id = (Long) ((UIInput) context.getViewRoot().findComponent("editTagTypeForm:idHidden")).getValue();
+
         WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
-        if (create) {
-            WebStudioUtils.validate(tagTypeService.getByName(name) == null, "Tag type with such name exists already");
-        }
+        final TagType existing = tagTypeService.getByName(name);
+        WebStudioUtils.validate(existing == null || existing.getId().equals(id),
+            "Tag type with such name exists already");
     }
 
     public void save() {
         TagType tagType;
-        if (create) {
+        if (id == null) {
             tagType = new TagType();
-            tagType.setName(name);
         } else {
-            tagType = tagTypeService.getByName(name);
+            tagType = tagTypeService.getById(id);
         }
 
+        tagType.setName(name);
         tagType.setExtensible(extensible);
         tagType.setNullable(nullable);
 
-        if (create) {
+        if (id == null) {
             tagTypeService.save(tagType);
         } else {
             tagTypeService.update(tagType);

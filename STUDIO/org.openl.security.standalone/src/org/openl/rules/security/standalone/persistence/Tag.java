@@ -5,9 +5,14 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
@@ -19,7 +24,7 @@ public class Tag implements Serializable {
     private static final long serialVersionUID = 1L;
     private Long id;
     private String name;
-    private String tagType;
+    private TagType type;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "OpenL_Tags_ID_SEQ")
@@ -46,13 +51,14 @@ public class Tag implements Serializable {
         this.name = name;
     }
 
-    @Column(name = "tag_type")
-    public String getTagType() {
-        return tagType;
+    @ManyToOne(targetEntity = TagType.class, fetch = FetchType.EAGER)
+    @JoinColumn(name = "tag_type_id")
+    public TagType getType() {
+        return type;
     }
 
-    public void setTagType(String tagType) {
-        this.tagType = tagType;
+    public void setType(TagType type) {
+        this.type = type;
     }
 
     @Override
