@@ -346,10 +346,12 @@ public class CopyBean {
                 customRegexError = StringUtils.isNotBlank(customRegexError)
                         ? customRegexError
                         : "The branch name does not match the following pattern: " + customRegex;
-                WebStudioUtils.validate(customRegexPattern.matcher(customRegex).matches(), customRegexError);
+                WebStudioUtils.validate(customRegexPattern.matcher(newBranchName).matches(), customRegexError);
             } catch (PatternSyntaxException patternSyntaxException) {
                 LOG.debug(patternSyntaxException.getMessage(), patternSyntaxException);
-                WebStudioUtils.throwValidationError(String.format("Branch name pattern '%s' is invalid.", customRegex));
+                WebStudioUtils.throwValidationError(
+                    String.format("Branch name pattern '%s' is not valid regular expression.", customRegex)
+                );
             }
         }
 

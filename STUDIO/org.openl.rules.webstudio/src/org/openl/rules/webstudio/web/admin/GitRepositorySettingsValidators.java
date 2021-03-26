@@ -45,7 +45,9 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
         try {
             Pattern.compile(pattern);
         } catch (PatternSyntaxException patternSyntaxException) {
-            WebStudioUtils.throwValidationError(String.format("Branch name pattern '%s' is invalid.", value));
+            WebStudioUtils.throwValidationError(
+                String.format("Branch name pattern '%s' is not valid regular expression.", value)
+            );
         }
     }
 
