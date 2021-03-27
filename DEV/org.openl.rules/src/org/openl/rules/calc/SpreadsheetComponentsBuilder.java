@@ -435,10 +435,9 @@ public class SpreadsheetComponentsBuilder {
         if (Boolean.FALSE
             .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
-        } else if (!isFormula(headerDefinition) &&
-                (spreadsheetHeaderType.getAggregateInfo() == null
+        } else if (spreadsheetHeaderType.getAggregateInfo() == null
                     || spreadsheetHeaderType.getAggregateInfo() != null
-                        && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null)) {
+                        && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null) {
             int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
             if (nonEmptyCellsCount == 1) {
                 headerDefinition.setType(spreadsheetHeaderType);
@@ -448,26 +447,6 @@ public class SpreadsheetComponentsBuilder {
         String key = headerDefinitions.getKey(headerDefinition);
         returnHeaderDefinition = new ReturnSpreadsheetHeaderDefinition(headerDefinition);
         headerDefinitions.replace(key, returnHeaderDefinition);
-    }
-
-    private boolean isFormula(SpreadsheetHeaderDefinition headerDefinition) {
-        String cellValue = "";
-
-        try {
-            ILogicalTable cell = LogicalTableHelper.mergeBounds(
-                cellsHeaderExtractor.getRowNamesTable().getRow(headerDefinition.getRow()),
-                cellsHeaderExtractor.getColumnNamesTable().getColumn(headerDefinition.getColumn())
-            );
-            cellValue = Optional.ofNullable(cell.getSource())
-                    .map(table -> cell.getCell(0, 0))
-                    .map(ICell::getStringValue)
-                    .map(StringUtils::trimToNull)
-                    .orElse("");
-        } catch (RuntimeException e){
-            LOG.warn("Could not extract cell value: ", e);
-        }
-
-        return SpreadsheetExpressionMarker.isFormula(cellValue);
     }
 
     private int getNonEmptyCellsCount(SpreadsheetHeaderDefinition headerDefinition) {
@@ -494,7 +473,10 @@ public class SpreadsheetComponentsBuilder {
                     cellsHeaderExtractor.getRowNamesTable().getRow(rowIndex),
                     cellsHeaderExtractor.getColumnNamesTable().getColumn(columnIndex));
                 String value = cell.getSource().getCell(0, 0).getStringValue();
-                if (!StringUtils.isBlank(value)) {
+                boolean isFormula = Optional.ofNullable(StringUtils.trimToNull(value))
+                        .map(SpreadsheetExpressionMarker::isFormula)
+                        .orElse(false);
+                if (!StringUtils.isBlank(value) && !isFormula) {
                     nonEmptyCellsCount += 1;
                 }
             }
