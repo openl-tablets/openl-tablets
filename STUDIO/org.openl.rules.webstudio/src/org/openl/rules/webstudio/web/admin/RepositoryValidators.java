@@ -15,13 +15,13 @@ import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
 public final class RepositoryValidators {
-    private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private RepositoryValidators() {
     }
@@ -50,7 +50,7 @@ public final class RepositoryValidators {
             String msg = "Repository name is empty. Please, enter repository name.";
             throw new RepositoryValidationException(msg);
         }
-        if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
+        if (!NameChecker.checkName(prodConfig.getName())) {
             String msg = String.format(
                 "Repository name '%s' contains illegal characters. Please, correct repository name.",
                 prodConfig.getName());
