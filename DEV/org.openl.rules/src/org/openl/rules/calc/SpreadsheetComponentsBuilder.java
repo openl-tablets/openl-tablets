@@ -14,6 +14,7 @@ import org.apache.commons.collections4.bidimap.DualHashBidiMap;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundMethodNode;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
@@ -39,12 +40,14 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
+import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
 import org.openl.util.text.AbsolutePosition;
@@ -592,15 +595,24 @@ public class SpreadsheetComponentsBuilder {
                         throw SyntaxNodeExceptionUtils.createError(
                             String.format("Cannot convert from '%s' to '%s'.",
                                 nonEmptySpreadsheetCell.getType().getName(),
-                                spreadsheet.getHeader().getType().getName()),
-                            symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
+                                spreadsheet.getHeader().getType().getName()
+                            ),
+                            Optional.ofNullable(nonEmptySpreadsheetCell.getMethod())
+                                .filter(CompositeMethod.class::isInstance)
+                                .map(CompositeMethod.class::cast)
+                                .map(CompositeMethod::getMethodBodyBoundNode)
+                                .map(IBoundMethodNode::getSyntaxNode)
+                                .orElse(null)
+                        );
                     } else {
                         return null;
                     }
                 } else {
-                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
-                        symbolicTypeDefinition == null ? null : symbolicTypeDefinition.getName());
-
+                    throw SyntaxNodeExceptionUtils.createError(
+                        "There is no return expression cell.",
+                        Optional.ofNullable(symbolicTypeDefinition)
+                            .map(SymbolicTypeDefinition::getName).orElse(null)
+                    );
                 }
             } else {
                 if (asArray) {
