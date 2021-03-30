@@ -1,0 +1,13 @@
+ERROR: Cannot convert from 'java.lang.String' to 'java.lang.Double'.
+ERROR: Parameter cell format: <type> <name>
+ERROR: Parameter cell format: <type> <name>
+ERROR: Encountered "<EOF>" at line 1, column 6.
+ERROR: Cannot parse cell value '10.1'. Expected value of type 'Integer'.
+ERROR: Cannot convert from 'java.math.BigDecimal' to 'java.lang.Double'.
+ERROR: Cannot parse cell value '10.1'. Expected value of type 'Integer'
+ERROR: Cannot parse cell value '100.33'. Expected value of type 'Integer'.
+ERROR: Cannot convert from 'double' to 'java.lang.Integer'.
+ERROR: Cannot convert from 'java.lang.Integer[]' to 'java.lang.String[]'.
+ERROR: Cannot parse cell value '10.1'. Expected value of type 'Integer'.
+ERROR: Cannot parse cell value '100.33'. Expected value of type 'Integer'.
+ERROR: Cannot convert from 'double' to 'java.lang.Integer'.

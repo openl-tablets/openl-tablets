@@ -48,4 +48,6 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     boolean isEqual(int rule1, int rule2);
 
+    boolean hasDeclaredParams();
+
 }

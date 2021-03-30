@@ -167,24 +167,30 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public String[] getParamPresentation() {
-
         int length = paramsTable.getHeight();
-
         String[] result = new String[length];
         int fromHeight = 0;
-
         for (int i = 0; i < result.length; i++) {
-
             int gridHeight = paramsTable.getRow(i).getSource().getHeight();
-
             IGridTable singleParamGridTable = presentationTable.getSource()
                 .getRows(fromHeight, fromHeight + gridHeight - 1);
             result[i] = singleParamGridTable.getCell(0, 0).getStringValue();
-
             fromHeight += gridHeight;
         }
-
         return result;
+    }
+
+    @Override
+    public boolean hasDeclaredParams() {
+        boolean res = false;
+        for (int i = 0; i < paramsTable.getHeight(); i++) {
+            ILogicalTable paramTable = paramsTable.getRow(i);
+            IOpenSourceCodeModule source = new GridCellSourceCodeModule(paramTable.getSource());
+            if (StringUtils.isNotBlank(source.getCode())) {
+                res = true;
+            }
+        }
+        return res;
     }
 
     @Override
