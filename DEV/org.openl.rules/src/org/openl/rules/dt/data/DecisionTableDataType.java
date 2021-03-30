@@ -61,10 +61,10 @@ public class DecisionTableDataType extends ComponentOpenClass {
 
         if (decisionTable != null) {
             for (IBaseCondition condition : decisionTable.getConditionRows()) {
-                addParameterFields((IDecisionRow) condition);
+                addParameterFields(decisionTable, (IDecisionRow) condition);
             }
             for (IBaseAction action : decisionTable.getActionRows()) {
-                addParameterFields((IDecisionRow) action);
+                addParameterFields(decisionTable, (IDecisionRow) action);
             }
         }
 
@@ -121,14 +121,14 @@ public class DecisionTableDataType extends ComponentOpenClass {
         return usedFields;
     }
 
-    private void addParameterFields(IDecisionRow decisionRow) {
+    private void addParameterFields(DecisionTable decisionTable, IDecisionRow decisionRow) {
         ConditionOrActionDataType dataType = new ConditionOrActionDataType(decisionRow, this.getOpenl());
-        DecisionRowField decisionRowField = new DecisionRowField(decisionRow, dataType, this);
+        DecisionRowField decisionRowField = new DecisionRowField(decisionTable, decisionRow, dataType, this);
         addDecisionTableField(decisionRowField);
         IParameterDeclaration[] pdd = decisionRow.getParams();
         for (int i = 0; i < pdd.length; i++) {
             if (pdd[i] != null) {
-                IOpenField f = new ConditionOrActionDirectParameterField(decisionRow, i, this);
+                IOpenField f = new ConditionOrActionDirectParameterField(decisionTable, decisionRow, i, this);
                 addDecisionTableField(f);
             }
         }
