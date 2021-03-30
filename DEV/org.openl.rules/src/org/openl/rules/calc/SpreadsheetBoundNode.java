@@ -225,11 +225,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
-        if (OpenClassUtils.isVoid(header.getType())) {
-            throw SyntaxNodeExceptionUtils.createError(String.format("Spreadsheet cannot return '%s' type.",
-                    header.getType().getName()),
-                    tableSyntaxNode);
-        }
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         componentsBuilder.buildHeaders(header.getType());

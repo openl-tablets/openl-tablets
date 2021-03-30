@@ -27,6 +27,7 @@ import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.result.ArrayResultBuilder;
+import org.openl.rules.calc.result.EmptyResultBuilder;
 import org.openl.rules.calc.result.IResultBuilder;
 import org.openl.rules.calc.result.ScalarResultBuilder;
 import org.openl.rules.calc.result.SpreadsheetResultBuilder;
@@ -50,6 +51,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.JavaKeywordUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.text.AbsolutePosition;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.IPosition;
@@ -497,6 +499,11 @@ public class SpreadsheetComponentsBuilder {
 
     private IResultBuilder getResultBuilderInternal(Spreadsheet spreadsheet,
             IBindingContext bindingContext) throws SyntaxNodeException {
+
+        if (OpenClassUtils.isVoid(spreadsheet.getHeader().getType())) {
+            return new EmptyResultBuilder();
+        }
+
         IResultBuilder resultBuilder;
 
         SymbolicTypeDefinition symbolicTypeDefinition = null;
