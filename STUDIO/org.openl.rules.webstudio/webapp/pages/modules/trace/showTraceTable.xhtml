@@ -26,23 +26,25 @@
             <table>
                 <tr class="tr-middle-align">
                     <td  style="padding-right: 5px;"><b>Input parameters: </b></td>
-                    <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
-                        <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
-                            <td>
-                                <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
-                            </td>
-                        </h:panelGroup>
-                        <h:panelGroup rendered="#{!showTraceTableBean.isSpreadsheetResult(parameter.value)}">
-                            <td>
-                                <ui:include src="/pages/modules/test/parameter.xhtml">
-                                    <ui:param name="parameter" value="#{parameter}" />
-                                    <ui:param name="lazy" value="true" />
-                                    <ui:param name="trace" value="true"/>
-                                    <ui:param name="requestId" value="#{mainBean.requestId}" />
-                                </ui:include>
-                            </td>
-                        </h:panelGroup>
-                    </ui:repeat>
+                    <td>
+                        <ui:repeat value="#{showTraceTableBean.inputParameters}" var="parameter">
+                            <h:panelGroup rendered="#{showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <span>
+                                    <h:outputText value="#{showTraceTableBean.getFormattedSpreadsheetResult(parameter.value)}" escape="false" />
+                                </span>
+                            </h:panelGroup>
+                            <h:panelGroup rendered="#{!showTraceTableBean.isSpreadsheetResult(parameter.value)}">
+                                <span>
+                                    <ui:include src="/pages/modules/test/parameter.xhtml">
+                                        <ui:param name="parameter" value="#{parameter}" />
+                                        <ui:param name="lazy" value="true" />
+                                        <ui:param name="trace" value="true"/>
+                                        <ui:param name="requestId" value="#{mainBean.requestId}" />
+                                    </ui:include>
+                                </span>
+                            </h:panelGroup>
+                        </ui:repeat>
+                    </td>
                     <h:panelGroup rendered="#{!empty showTraceTableBean.context}">
                         <td>
                             <ui:include src="/pages/modules/test/parameter.xhtml">
@@ -52,9 +54,11 @@
                             </ui:include>
                         </td>
                     </h:panelGroup>
-                    <td style="vertical-align: top">
-                        <ui:include src="/pages/common/tableViewMenu.xhtml" />
-                    </td>
+                    <h:panelGroup>
+                        <td style="vertical-align: top">
+                            <ui:include src="/pages/common/tableViewMenu.xhtml" />
+                        </td>
+                    </h:panelGroup>
                 </tr>
                 </table>
                 
