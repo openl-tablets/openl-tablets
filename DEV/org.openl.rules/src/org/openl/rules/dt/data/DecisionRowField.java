@@ -25,7 +25,8 @@ public class DecisionRowField implements IOpenField {
         this.decisionTableDataType = decisionTableDataType;
     }
 
-    @Override public Object get(Object target, IRuntimeEnv env) {
+    @Override
+    public Object get(Object target, IRuntimeEnv env) {
         RuleExecutionObject reo = (RuleExecutionObject) target;
         int ruleNum = reo.getRuleNum();
         Object[] res = new Object[conditionOrAction.getNumberOfParams()];
@@ -38,43 +39,53 @@ public class DecisionRowField implements IOpenField {
         return res;
     }
 
-    @Override public boolean isConst() {
+    @Override
+    public boolean isConst() {
         return false;
     }
 
-    @Override public boolean isReadable() {
+    @Override
+    public boolean isReadable() {
         return true;
     }
 
-    @Override public boolean isWritable() {
+    @Override
+    public boolean isWritable() {
         return false;
     }
 
-    @Override public void set(Object target, Object value, IRuntimeEnv env) {
+    @Override
+    public void set(Object target, Object value, IRuntimeEnv env) {
         throw new UnsupportedOperationException();
     }
 
-    @Override public IOpenClass getDeclaringClass() {
+    @Override
+    public IOpenClass getDeclaringClass() {
         return decisionTableDataType;
     }
 
-    @Override public IMemberMetaInfo getInfo() {
+    @Override
+    public IMemberMetaInfo getInfo() {
         return null;
     }
 
-    @Override public IOpenClass getType() {
+    @Override
+    public IOpenClass getType() {
         return dataType;
     }
 
-    @Override public boolean isStatic() {
+    @Override
+    public boolean isStatic() {
         return false;
     }
 
-    @Override public String getDisplayName(int mode) {
+    @Override
+    public String getDisplayName(int mode) {
         return getName();
     }
 
-    @Override public String getName() {
+    @Override
+    public String getName() {
         return SpreadsheetStructureBuilder.DOLLAR_SIGN + conditionOrAction.getName();
     }
 

@@ -72,7 +72,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
         addField(new DecisionRuleNameField(this, decisionTable != null ? decisionTable.getRuleRow() : null));
     }
 
-    @Override public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
+    @Override
+    public IOpenField getField(String fname, boolean strictMatch) throws AmbiguousFieldException {
         if (fname == null) {
             return null;
         }
@@ -89,8 +90,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 return f;
             } else {
                 List<IOpenField> decisionRowFields = conditionParameterFields.stream()
-                        .filter(e -> e instanceof DecisionRowField)
-                        .collect(Collectors.toList());
+                    .filter(e -> e instanceof DecisionRowField)
+                    .collect(Collectors.toList());
                 if (decisionRowFields.size() != 1) {
                     throw new AmbiguousFieldException(fname, conditionParameterFields);
                 } else {
@@ -134,7 +135,8 @@ public class DecisionTableDataType extends ComponentOpenClass {
         }
     }
 
-    @Override public String getDisplayName(int mode) {
+    @Override
+    public String getDisplayName(int mode) {
         return displayName;
     }
 }
