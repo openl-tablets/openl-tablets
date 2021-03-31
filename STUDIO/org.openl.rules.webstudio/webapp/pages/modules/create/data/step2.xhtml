@@ -43,17 +43,16 @@
         </script>
 
 
+        <!-- dataTableForm:dataTableTreePanel:dataTableTreePanelItem:rowKeyConverter is a temporary solution.
+             After migrating to the newer version of RichFaces it can be removed.
+             See: https://issues.jboss.org/browse/RF-11102 for details -->
         <h:form id="dataTableForm">
             <rich:panel id="dataTableTreePanel">
-                <rich:tree toggleType="client" selectionType="client"
-                    value="#{wizard.tree.rootNode}" var="item"
-                    nodeType="#{item.nodeType}" binding="#{wizard.tree.currentTreeNode}"
-                    styleClass="dataTableTreeTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
-                    <!-- rowKeyConverter is a temporary solution.
-                     After migrating to the newer version of RichFaces it can be removed.
-                     See: https://issues.jboss.org/browse/RF-11102 for details -->
-                     
-                    <rich:treeNode type="complex">
+                <rich:tree id="dataTableTreePanelItem" toggleType="client" selectionType="client"
+                        value="#{wizard.tree.rootNode}" var="item"
+                        nodeType="#{item.nodeType}" binding="#{wizard.tree.currentTreeNode}"
+                        styleClass="dataTableTreeTree" rowKeyConverter="org.richfaces.IntegerSequenceRowKeyConverter">
+                    <rich:treeNode id="dataTableTreePanelComplexNode" type="complex">
                         <h:outputText styleClass="nodeName" value="#{item.name} :"/>
                         <h:outputText styleClass="nodeFieldName" value="Display Name =" rendered="#{item.leaf}" />
                         <h:inputText value="#{item.businessName}" rendered="#{item.leaf}"/>
@@ -82,7 +81,7 @@
                         </a4j:commandLink>
                     </rich:treeNode>
                     
-                    <rich:treeNode type="simple">
+                    <rich:treeNode id="dataTableTreePanelSimpleNode" type="simple">
                         <h:outputText styleClass="nodeName" value="#{item.name} :" />
                         <h:outputText styleClass="nodeFieldName" value="Display Name ="/>
                         <h:inputText value="#{item.businessName}"/>
