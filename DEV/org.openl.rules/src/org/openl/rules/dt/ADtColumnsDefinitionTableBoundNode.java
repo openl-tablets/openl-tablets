@@ -37,6 +37,7 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
@@ -125,23 +126,37 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 signatureCode1 = StringUtils.EMPTY;
             }
             final String signatureCode = signatureCode1;
-            IGridTable expressionTable = tableBody.getSource()
-                .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
-            ICell expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
             boolean finished = false;
             String prefix = JavaOpenClass.VOID.getName() + " " + RandomStringUtils.random(16, true, false) + "(";
             String headerCode = prefix + signatureCode + ")";
             IOpenMethodHeader header;
+            boolean inputParametersCompilationFailed = false;
             try {
-                header = OpenLManager.makeMethodHeader(getOpenl(),
-                    new org.openl.source.impl.StringSourceCodeModule(headerCode, null),
-                    bindingContext);
+                bindingContext.pushErrors();
+                StringSourceCodeModule headerCodeSourceCodeModule = new StringSourceCodeModule(headerCode, null);
+                header = OpenLManager.makeMethodHeader(getOpenl(), headerCodeSourceCodeModule, bindingContext);
+                if (!bindingContext.isExecutionMode()) {
+                    addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
+                }
             } catch (OpenLCompilationException e) {
-                throw new IllegalStateException("Illegal state", e);
+                inputParametersCompilationFailed = true;
+                header = null;
+            } finally {
+                bindingContext.popErrors();
             }
-            if (!bindingContext.isExecutionMode()) {
-                addMetaInfoForInputs(header, inputsCell, headerCode, prefix.length());
+
+            if (inputParametersCompilationFailed) {
+                IGridTable pCodeTable = tableBody1.getSource()
+                    .getSubtable(tableStructure[headerIndexes[INPUTS_INDEX]], i, 1, 1);
+                GridCellSourceCodeModule pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable,
+                    bindingContext);
+                BindHelper.processError("Invalid input parameters.", pGridCellSourceCodeModule, bindingContext);
             }
+
+            IGridTable expressionTable = tableBody.getSource()
+                .getSubtable(tableStructure[headerIndexes[EXPRESSION_INDEX]], i, 1, 1);
+            ICell expressionCell = tableBody.getSource().getCell(tableStructure[headerIndexes[EXPRESSION_INDEX]], i);
+
             int j = 0;
             int j1 = 0;
             Map<String, List<IParameterDeclaration>> parameters = new HashMap<>();
@@ -245,7 +260,7 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                     parametersForMergedTitle = new ArrayList<>();
                 }
             }
-            if (!finished) {
+            if (!finished && header != null) {
                 createAndAddDefinition(header, parameters, expressionTable, expressionCell);
             }
             i = i + expressionTable.getCell(0, 0).getHeight();
