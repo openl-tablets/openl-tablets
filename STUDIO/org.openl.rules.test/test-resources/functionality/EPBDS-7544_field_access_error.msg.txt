@@ -1,1 +1,5 @@
-ERROR: No value present
+ERROR: Static field 'id' is not found in type 'org.openl.rules.beans.ChildWithId'
+ERROR: Static method 'getClass()' is not found in type 'org.openl.rules.beans.AccessBean'
+ERROR: Static method 'getClass()' is not found in type 'MyType'
+ERROR: Static field 'value' is not found in type 'org.openl.generated.beans.MyType'
+ERROR: Static method 'getValue()' is not found in type 'MyType'

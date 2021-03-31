@@ -149,14 +149,18 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if (fields == null || staticFields == null) {
+        ensureFieldsInitialized();
+        return fields;
+    }
+
+    private void ensureFieldsInitialized(){
+        if (this.fields == null || this.staticFields == null) {
             synchronized (this) {
-                if (fields == null || staticFields == null) {
+                if (this.fields == null || this.staticFields == null) {
                     initializeFields();
                 }
             }
         }
-        return fields;
     }
 
     private void initializeFields() {
@@ -558,9 +562,7 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public IOpenField getStaticField(String fname) {
-        if (staticFields == null) {
-            initializeFields();
-        }
+        ensureFieldsInitialized();
         IOpenField openField = staticFields.get(fname);
         if (openField == null) {
             for (IOpenClass superClass : superClasses()) {
@@ -574,18 +576,14 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public IOpenField getStaticField(String fname, boolean strictMatch) {
-        if (staticFields == null) {
-            initializeFields();
-        }
+        ensureFieldsInitialized();
         Optional<String> first = staticFields.keySet().stream().filter(f -> f.equalsIgnoreCase(fname)).findFirst();
-        return staticFields.get(first.get());
+        return first.map(s -> staticFields.get(s)).orElse(null);
     }
 
     @Override
     public Collection<IOpenField> getStaticFields() {
-        if (staticFields == null) {
-            initializeFields();
-        }
+        ensureFieldsInitialized();
         Collection<IOpenField> ret = new ArrayList<>(staticFields.values());
         for (IOpenClass superClass : superClasses()) {
             if (!superClass.isInterface()) {

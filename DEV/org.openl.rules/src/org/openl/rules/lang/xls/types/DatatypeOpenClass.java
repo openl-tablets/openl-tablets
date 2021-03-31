@@ -14,6 +14,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openl.base.INamedThing;
 import org.openl.binding.exception.DuplicatedFieldException;
@@ -127,21 +128,27 @@ public class DatatypeOpenClass extends ADynamicClass {
     }
 
     private volatile Map<String, IOpenField> fields;
+    private volatile Map<String, IOpenField> staticFields;
 
     @Override
     public Collection<IOpenField> getFields() {
-        if (this.fields == null) {
-            synchronized (this) {
-                if (this.fields == null) {
-                    fields = initializeFields();
-                }
-            }
-        }
+        ensureFieldsInitialized();
         return Collections.unmodifiableCollection(this.fields.values());
     }
 
-    private Map<String, IOpenField> initializeFields() {
+    private void ensureFieldsInitialized(){
+        if (this.fields == null || this.staticFields == null) {
+            synchronized (this) {
+                if (this.fields == null || this.staticFields == null) {
+                    initializeFields();
+                }
+            }
+        }
+    }
+
+    private void initializeFields() {
         Map<String, IOpenField> fields = new LinkedHashMap<>();
+        Map<String, IOpenField> staticFields = new LinkedHashMap<>();
         Iterable<IOpenClass> superClasses = superClasses();
         for (IOpenClass superClassValue : superClasses) {
             for (IOpenField field : superClassValue.getFields()) {
@@ -149,7 +156,9 @@ public class DatatypeOpenClass extends ADynamicClass {
             }
         }
         fieldMap().forEach(fields::putIfAbsent);
-        return fields;
+        staticFields.put("class", new JavaOpenClass.JavaClassClassField(instanceClass));
+        this.fields = fields;
+        this.staticFields = staticFields;
     }
 
     @Override
@@ -323,5 +332,33 @@ public class DatatypeOpenClass extends ADynamicClass {
 
     public void setTableSyntaxNode(TableSyntaxNode tableSyntaxNode) {
         this.tableSyntaxNode = tableSyntaxNode;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        ensureFieldsInitialized();
+        return staticFields.get(fname);
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        ensureFieldsInitialized();
+        return staticFields.values();
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        ensureFieldsInitialized();
+        Optional<String> first = staticFields.keySet().stream().filter(f -> f.equalsIgnoreCase(name)).findFirst();
+        return first.map(s -> staticFields.get(s)).orElse(null);
+    }
+
+    @Override
+    protected void invalidateInternalData() {
+        super.invalidateInternalData();
+        synchronized (this) {
+            this.fields = null;
+            this.staticFields = null;
+        }
     }
 }

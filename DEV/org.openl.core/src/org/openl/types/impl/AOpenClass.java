@@ -335,7 +335,7 @@ public abstract class AOpenClass implements IOpenClass {
         invalidateInternalData();
     }
 
-    protected final void invalidateInternalData() {
+    protected void invalidateInternalData() {
         allMethodsCacheInvalidated = true;
         allMethodNamesMapInvalidated = true;
         allConstructorNamesMapInvalidated = true;
