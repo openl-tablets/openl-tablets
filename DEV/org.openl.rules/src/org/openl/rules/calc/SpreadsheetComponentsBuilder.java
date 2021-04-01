@@ -595,6 +595,9 @@ public class SpreadsheetComponentsBuilder {
             }
 
             if (returnSpreadsheetCells.size() == 0) {
+                IdentifierNode symbolicTypeDefinitionName = Optional.ofNullable(symbolicTypeDefinition)
+                        .map(SymbolicTypeDefinition::getName)
+                        .orElse(null);
                 if (!nonEmptySpreadsheetCells.isEmpty()) {
                     SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells
                         .get(nonEmptySpreadsheetCells.size() - 1);
@@ -609,7 +612,7 @@ public class SpreadsheetComponentsBuilder {
                                 .map(CompositeMethod.class::cast)
                                 .map(CompositeMethod::getMethodBodyBoundNode)
                                 .map(IBoundMethodNode::getSyntaxNode)
-                                .orElse(null)
+                                .orElse(symbolicTypeDefinitionName)
                         );
                     } else {
                         return null;
@@ -617,8 +620,7 @@ public class SpreadsheetComponentsBuilder {
                 } else {
                     throw SyntaxNodeExceptionUtils.createError(
                         "There is no return expression cell.",
-                        Optional.ofNullable(symbolicTypeDefinition)
-                            .map(SymbolicTypeDefinition::getName).orElse(null)
+                        symbolicTypeDefinitionName
                     );
                 }
             } else {
