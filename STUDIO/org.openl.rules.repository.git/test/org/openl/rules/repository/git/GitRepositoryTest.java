@@ -15,6 +15,8 @@ import static org.openl.rules.repository.git.TestGitUtils.writeText;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1247,6 +1249,22 @@ public class GitRepositoryTest {
 
         // Not committed changes should be aborted
         assertTrue(existingFile.exists());
+    }
+
+    @Test
+    public void testURIIdentity() throws URISyntaxException {
+        URI a = new URI("https://github.com/openl-tablets/openl-tablets.git");
+        URI b = new URI("https://github.com/openl-tablets/openl-tablets.git");
+        assertEquals(a, b);
+        assertTrue(GitRepository.isSame(a, b));
+
+        b = new URI("http://github.com/openl-tablets/openl-tablets.git/");
+        assertNotEquals(a, b);
+        assertTrue(GitRepository.isSame(a, b));
+
+        b = new URI("http://github.com/openl-tablets/openl-tablets.git?a=foo&b=bar");
+        assertNotEquals(a, b);
+        assertFalse(GitRepository.isSame(a, b));
     }
 
     private GitRepository createRepository(File remote, File local) {

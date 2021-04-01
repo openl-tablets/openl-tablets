@@ -29,12 +29,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -617,6 +619,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             File local = new File(localRepositoryPath);
 
             boolean shouldCloneOrInit;
+            boolean shouldUpdateOrigin = false;
             if (!local.exists()) {
                 shouldCloneOrInit = true;
             } else {
@@ -638,10 +641,14 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     URI proposedUri = getUri(uri);
                                     URI savedUri = getUri(remoteUrl);
                                     if (!proposedUri.equals(savedUri)) {
-                                        throw new IOException(String.format(
-                                            "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
-                                            local,
-                                            remoteUrl));
+                                        if (isSame(proposedUri, savedUri)) {
+                                            shouldUpdateOrigin = true;
+                                        } else {
+                                            throw new IOException(String.format(
+                                                    "Folder '%s' already contains local git repository, but is configured to different URI (%s).\nDelete it or choose another local path or set correct URL for repository.",
+                                                    local,
+                                                    remoteUrl));
+                                        }
                                     }
                                 }
                             }
@@ -682,6 +689,15 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 } catch (Exception e) {
                     FileUtils.deleteQuietly(local);
                     throw e;
+                }
+            } else if (shouldUpdateOrigin) {
+                try (Repository repository = Git.open(local).getRepository()) {
+                    StoredConfig config = repository.getConfig();
+                    config.setString(ConfigConstants.CONFIG_REMOTE_SECTION,
+                                    Constants.DEFAULT_REMOTE_NAME,
+                                    ConfigConstants.CONFIG_KEY_URL,
+                                    uri);
+                    config.save();
                 }
             }
 
@@ -2879,5 +2895,51 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         public FileItem getResult() {
             return result;
         }
+    }
+
+    static boolean isSame(URI a, URI b) {
+        if (!Objects.equals(a.getRawFragment(), b.getRawFragment())) {
+            return false;
+        }
+        Function<String, String> remLastSlash = s -> {
+            int i = s.length();
+            while (i > 0 && s.charAt(i - 1) == '/') {
+                i--;
+            }
+            if (i != s.length() && s.charAt(i) == '/') {
+                return s.substring(0, i);
+            } else {
+                return s;
+            }
+        };
+        if (!Objects.equals(a.getRawSchemeSpecificPart(), b.getRawSchemeSpecificPart())) {
+            if (!Objects.equals(remLastSlash.apply(a.getRawSchemeSpecificPart()),
+                    remLastSlash.apply(b.getRawSchemeSpecificPart()))) {
+                return false;
+            }
+        }
+        if (!Objects.equals(a.getRawPath(), b.getRawPath())) {
+            if (!Objects.equals(remLastSlash.apply(a.getRawPath()), remLastSlash.apply(b.getRawPath()))) {
+                return false;
+            }
+        }
+        if (!Objects.equals(a.getRawQuery(), b.getRawQuery())) {
+            return false;
+        }
+        if (!Objects.equals(a.getRawAuthority(), b.getRawAuthority())) {
+            return false;
+        }
+        if (a.getHost() != null) {
+            if (!Objects.equals(a.getRawUserInfo(), b.getRawUserInfo())) {
+                return false;
+            }
+            if (!a.getHost().equalsIgnoreCase(b.getHost())) {
+                return false;
+            }
+            if (a.getPort() != b.getPort()) {
+                return false;
+            }
+        }
+        return Objects.equals(a.getRawAuthority(), b.getRawAuthority());
     }
 }
