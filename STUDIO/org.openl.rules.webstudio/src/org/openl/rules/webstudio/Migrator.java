@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import org.openl.info.OpenLVersion;
 import org.openl.rules.repository.git.branch.BranchesData;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
@@ -45,21 +44,16 @@ public class Migrator {
 
     public static void migrate() {
         DynamicPropertySource settings = DynamicPropertySource.get();
-        if (!settings.getFile().exists()) {
-            // first start on the current directory, no migration needed
-            return;
-        }
         HashMap<String, String> props = new HashMap<>();
 
-        Object fromVersion = settings.getProperty(".version");
-        String stringFromVersion = fromVersion == null ? "5.23.1" : fromVersion.toString();
+        String fromVersion = settings.version();
+        String stringFromVersion = fromVersion == null ? "5.23.1" : fromVersion;
 
         // add subsequent migrations in order of priority
         if (stringFromVersion.compareTo("5.24.0") < 0) {
             migrateTo5_24(settings, props);
         }
 
-        props.put(".version", OpenLVersion.getVersion()); // Mark the file version
         try {
             settings.save(props);
             settings.reloadIfModified();

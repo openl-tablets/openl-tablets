@@ -15,6 +15,7 @@ import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
 import org.openl.info.OpenLVersion;
+import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.EnumerablePropertySource;
 
@@ -29,10 +30,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
     public static final String OPENL_HOME = "openl.home";
     public static final String OPENL_HOME_SHARED = "openl.home.shared";
 
+    private static final String PROP_VERSION = ".version";
+
     private final RawPropertyResolver resolver;
     private final String appName;
 
     private volatile Properties settings;
+    private volatile String version;
     private volatile long timestamp;
 
     public DynamicPropertySource(String appName, RawPropertyResolver resolver) {
@@ -72,12 +76,16 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             } catch (IOException e) {
                 ConfigLog.LOG.error("Failed to load", e);
             }
+            version = properties.getProperty(PROP_VERSION);
+        } else {
+            // If the file does not exist, then it is default settings for the current version.
+            version = OpenLVersion.getVersion();
         }
         settings = properties;
         timestamp = lastModified;
     }
 
-    public File getFile() {
+    private File getFile() {
         String property = resolver.getProperty(OPENL_HOME_SHARED);
         return new File(property, appName + ".properties");
     }
@@ -100,6 +108,13 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
 
     public static DynamicPropertySource get() {
         return THE;
+    }
+
+    /**
+     * Returns the OpenL version of these properties.
+     */
+    public String version() {
+        return version;
     }
 
     public void setOpenLHomeDir(String workingDir) {
@@ -141,19 +156,35 @@ public class DynamicPropertySource extends EnumerablePropertySource<Object> {
             }
         }
         Properties origin = settings;
-        settings = new Properties(); // 'unconfigure' settings for matching with defaults. to get settings not from a
-                                     // file
+
+        // 'unconfigure' settings for matching with defaults. to get settings not from a file
+        settings = new Properties();
 
         // Do clean up from default values
-        properties.entrySet().removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
+        properties.entrySet()
+            .removeIf(e -> Objects.equals(resolver.getRawProperty(e.getKey().toString()), e.getValue().toString()));
 
+        // Remove version for correct determining of properties to save
+        properties.remove(PROP_VERSION);
+
+        boolean noPropsToSave = properties.isEmpty();
+
+        version = OpenLVersion.getVersion();
         settings = properties;
+
+        if (noPropsToSave) {
+            // Nothing to save. Delete old settings.
+            File settingsFile = getFile();
+            FileUtils.deleteQuietly(settingsFile);
+            return;
+        }
+
+        // Mark version of the settings for migration purposes.
+        properties.put(PROP_VERSION, OpenLVersion.getVersion());
+
         if (!origin.equals(properties)) {
             // Save the difference only
             File settingsFile = getFile();
-            if (!settingsFile.exists() && properties.getProperty(".version") == null) {
-                properties.put(".version", OpenLVersion.getVersion());
-            }
             File parent = settingsFile.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new FileNotFoundException("Can't create the folder " + parent.getAbsolutePath());
