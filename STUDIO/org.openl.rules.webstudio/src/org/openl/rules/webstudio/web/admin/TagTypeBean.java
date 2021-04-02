@@ -8,6 +8,7 @@ import javax.faces.context.FacesContext;
 
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -79,6 +80,7 @@ public class TagTypeBean {
         final Long id = (Long) ((UIInput) context.getViewRoot().findComponent("editTagTypeForm:idHidden")).getValue();
 
         WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+        WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
         final TagType existing = tagTypeService.getByName(name);
         WebStudioUtils.validate(existing == null || existing.getId().equals(id),
             "Tag type with such name exists already");

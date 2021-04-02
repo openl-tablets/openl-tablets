@@ -9,5 +9,6 @@
     <mapping class="org.openl.rules.security.standalone.persistence.Tag" />
     <mapping class="org.openl.rules.security.standalone.persistence.OpenLProject" />
     <mapping class="org.openl.rules.security.standalone.persistence.ProjectGrouping" />
+    <mapping class="org.openl.rules.security.standalone.persistence.TagTemplate" />
   </session-factory>
 </hibernate-configuration>

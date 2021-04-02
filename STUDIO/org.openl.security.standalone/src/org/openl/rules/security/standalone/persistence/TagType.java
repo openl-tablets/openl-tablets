@@ -69,7 +69,7 @@ public class TagType implements Serializable {
         if (!(o instanceof TagType))
             return false;
         TagType tagType = (TagType) o;
-        return getName().equals(tagType.getName());
+        return Objects.equals(getId(), tagType.getId());
     }
 
     @Override

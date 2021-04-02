@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -10,35 +9,53 @@ import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
+import org.openl.rules.webstudio.service.TagTemplateService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.repository.RepositorySelectNodeStateHolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
 
 @Service
 @SessionScope
 public class ProjectTagsBean {
-    public static final long NONE_ID = -1L;
+    private static final long NONE_ID = -1L;
     private final TagTypeService tagTypeService;
     private final TagService tagService;
     private final OpenLProjectService projectService;
     private final RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
+    private final TagTemplateService tagTemplateService;
 
     private OpenLProject openlProject;
     private List<Tag> tags;
     private String tagTypeForNewTag;
     private String newTagValue;
 
+    private String projectName;
+
     public ProjectTagsBean(TagTypeService tagTypeService,
-            TagService tagService,
-            OpenLProjectService projectService,
-            RepositorySelectNodeStateHolder repositorySelectNodeStateHolder) {
+        TagService tagService,
+        OpenLProjectService projectService,
+        RepositorySelectNodeStateHolder repositorySelectNodeStateHolder,
+        TagTemplateService tagTemplateService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
         this.projectService = projectService;
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
+        this.tagTemplateService = tagTemplateService;
+    }
+
+    public void initFromTemplate() {
+        openlProject = null;
+        tags = new ArrayList<>();
+
+        if (StringUtils.isNotBlank(projectName)) {
+            tags.addAll(tagTemplateService.getTags(projectName));
+        }
+
+        fillAbsentTags();
     }
 
     public void init() {
@@ -47,7 +64,6 @@ public class ProjectTagsBean {
 
         if (selectedProject == null) {
             openlProject = null;
-            tags = Collections.emptyList();
         } else {
             RulesProject project = (RulesProject) selectedProject.getData();
             final String repoId = project.getRepository().getId();
@@ -61,6 +77,11 @@ public class ProjectTagsBean {
         } else {
             tags = new ArrayList<>();
         }
+        fillAbsentTags();
+    }
+
+    private void fillAbsentTags() {
+        tags.stream().filter(tag -> tag.getId() == null).forEach(tag -> tag.setId(NONE_ID));
         final List<TagType> tagTypes = getTagTypes();
         tagTypes.forEach(type -> {
             final Long typeId = type.getId();
@@ -143,5 +164,30 @@ public class ProjectTagsBean {
         tagService.save(tag);
 
         // TODO: unique tag check
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public void saveTags(RulesProject project) {
+        final String repoId = project.getRepository().getId();
+        final String realPath = project.getRealPath();
+
+        final OpenLProject existing = projectService.getProject(repoId, realPath);
+        if (existing != null) {
+            projectService.delete(existing.getId());
+        }
+
+        final List<Tag> currentTags = new ArrayList<>();
+        tags.removeIf(tag -> tag.getId() == -1L);
+        tags.forEach(tag -> currentTags.add(tagService.getById(tag.getId())));
+
+        OpenLProject openlProject = new OpenLProject();
+        openlProject.setRepositoryId(repoId);
+        openlProject.setProjectPath(realPath);
+        openlProject.setTags(currentTags);
+
+        projectService.save(openlProject);
     }
 }

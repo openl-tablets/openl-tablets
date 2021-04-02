@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalProjectsWithoutTags" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Projects without tags"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideProjectsWithoutTags()" alt="Close"/>
+        </f:facet>
+
+        <h:form>
+            <div>
+                <h:dataTable value="#{projectsWithoutTagsBean.projectsWithoutTags}" var="project"  styleClass="table">
+                    <h:column>
+                        <f:facet name="header">
+                            Fill tags
+                        </f:facet>
+                        <h:selectBooleanCheckbox value="#{project.fillTags}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Repository
+                        </f:facet>
+                        <h:outputText value="#{project.repoName}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Path
+                        </f:facet>
+                        <h:outputText value="#{project.projectPath}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Name
+                        </f:facet>
+                        <h:outputText value="#{project.projectName}"/>
+                    </h:column>
+                    <h:column>
+                        <f:facet name="header">
+                            Tags
+                        </f:facet>
+                        <div>
+                            <ui:repeat value="#{project.tags}" var="tag" varStatus="status">
+                                <p title="#{tag.type.name}: #{tag.name}"><h:outputText value="#{tag.name}"/></p>
+                            </ui:repeat>
+                        </div>
+                    </h:column>
+                </h:dataTable>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save" action="#{projectsWithoutTagsBean.applyTags}"
+                                   oncomplete="hideProjectsWithoutTags()"
+                                   styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="hideProjectsWithoutTags()"/>
+            </footer>
+
+            <a4j:jsFunction name="initProjectsWithoutTags" action="#{projectsWithoutTagsBean.init}" render="@form"
+                            oncomplete="showProjectsWithoutTags();"/>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function openProjectsWithoutTags() {
+            initProjectsWithoutTags();
+        }
+
+        function showProjectsWithoutTags() {
+            RichFaces.$('modalProjectsWithoutTags').show();
+        }
+
+        function hideProjectsWithoutTags() {
+            RichFaces.$("modalProjectsWithoutTags").hide();
+        }
+
+        //]]>
+    </script>
+
+</ui:composition>

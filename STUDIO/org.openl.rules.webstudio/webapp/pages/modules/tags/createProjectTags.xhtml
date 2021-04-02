@@ -19,7 +19,7 @@
         <h:form id="createProjectTagsForm">
             <div>
                 <table class="formfields">
-                    <ui:repeat value="#{repositoryTreeController.tags}" var="tag">
+                    <ui:repeat value="#{projectTagsBean.tags}" var="tag">
                         <tr>
                             <td>
                                 <h:inputHidden value="#{tag.id}"/>
@@ -56,7 +56,9 @@
             </footer>
 
             <a4j:jsFunction name="renderCreateProjectTagsForm" render="@form"/>
-            <a4j:jsFunction name="initCreateProjectTagsDialog" action="#{projectTagsBean.init}" render="@form" oncomplete="showCreateProjectTagsDialog();"/>
+            <a4j:jsFunction name="initCreateProjectTagsDialog" action="#{projectTagsBean.initFromTemplate}" render="@form" oncomplete="showCreateProjectTagsDialog();">
+                <a4j:param name="projectName" assignTo="#{projectTagsBean.projectName}"/>
+            </a4j:jsFunction>
 
         </h:form>
 
@@ -66,9 +68,9 @@
         //<![CDATA[
         let submitForm = function () {};
 
-        function createProjectTags(submitFormFunction) {
+        function createProjectTags(projectName, submitFormFunction) {
             submitForm = submitFormFunction;
-            initCreateProjectTagsDialog();
+            initCreateProjectTagsDialog(projectName);
         }
 
         function showCreateProjectTagsDialog() {

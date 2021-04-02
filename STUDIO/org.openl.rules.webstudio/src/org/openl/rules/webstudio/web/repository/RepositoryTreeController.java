@@ -70,12 +70,7 @@ import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
-import org.openl.rules.security.standalone.persistence.OpenLProject;
-import org.openl.rules.security.standalone.persistence.Tag;
-import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.webstudio.service.OpenLProjectService;
-import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
@@ -147,6 +142,9 @@ public class RepositoryTreeController {
     private RepositoryTreeState repositoryTreeState;
 
     @Autowired
+    private ProjectTagsBean projectTagsBean;
+
+    @Autowired
     private MultiUserWorkspaceManager workspaceManager;
 
     private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
@@ -189,13 +187,7 @@ public class RepositoryTreeController {
     private OpenAPIEditorService openAPIEditorService;
 
     @Autowired
-    private TagService tagService;
-
-    @Autowired
     private TagTypeService tagTypeService;
-
-    @Autowired
-    private OpenLProjectService projectService;
 
     private String repositoryId;
     private String projectName;
@@ -230,8 +222,6 @@ public class RepositoryTreeController {
     private String algorithmsPath;
     private boolean editModelsPath = false;
     private boolean editAlgorithmsPath = false;
-
-    private List<Tag> tags;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -2631,8 +2621,6 @@ public class RepositoryTreeController {
 
         projectName = null;
         projectFolder = "";
-
-        initTags();
     }
 
     public String getFilterRepositoryId() {
@@ -2816,43 +2804,11 @@ public class RepositoryTreeController {
         return project != null && !project.isLocalOnly() && !project.isDeleted();
     }
 
-    public List<Tag> getTags() {
-        return tags;
-    }
-
     public boolean isHasTags() {
         return !tagTypeService.getAllTagTypes().isEmpty();
     }
 
-    private void initTags() {
-        tags = new ArrayList<>();
-        final List<TagType> tagTypes = tagTypeService.getAllTagTypes();
-        tagTypes.forEach(type -> {
-            final Tag t = new Tag();
-            t.setId(ProjectTagsBean.NONE_ID);
-            t.setType(type);
-            tags.add(t);
-        });
-    }
-
     private void saveTags(RulesProject project) {
-        final String repoId = project.getRepository().getId();
-        final String realPath = project.getRealPath();
-
-        final OpenLProject existing = projectService.getProject(repoId, realPath);
-        if (existing != null) {
-            projectService.delete(existing.getId());
-        }
-
-        final List<Tag> currentTags = new ArrayList<>();
-        tags.removeIf(tag -> tag.getId() == -1L);
-        tags.forEach(tag -> currentTags.add(tagService.getById(tag.getId())));
-
-        OpenLProject openlProject = new OpenLProject();
-        openlProject.setRepositoryId(repoId);
-        openlProject.setProjectPath(realPath);
-        openlProject.setTags(currentTags);
-
-        projectService.save(openlProject);
+        projectTagsBean.saveTags(project);
     }
 }

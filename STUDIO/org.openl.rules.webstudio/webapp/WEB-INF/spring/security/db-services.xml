@@ -33,6 +33,12 @@
         <property name="projectGroupingDao" ref="projectGroupingDao" />
     </bean>
 
+    <bean id="tagTemplateService" class="org.openl.rules.webstudio.service.TagTemplateService">
+        <property name="tagTemplateDao" ref="tagTemplateDao" />
+        <property name="tagTypeDao" ref="openlTagTypeDao" />
+        <property name="tagDao" ref="openlTagDao" />
+    </bean>
+
     <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
         <constructor-arg name="userSettingDao" ref="openlUserSettingDao"/>
         <constructor-arg name="propertyResolver" ref="environment"/>

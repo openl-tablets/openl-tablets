@@ -7,11 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-/**
- * This class contains information about application user.
- *
- * @author Andrey Naumenko
- */
 @Entity
 @Table(name = "OpenL_Project_Grouping")
 public class ProjectGrouping implements Serializable {

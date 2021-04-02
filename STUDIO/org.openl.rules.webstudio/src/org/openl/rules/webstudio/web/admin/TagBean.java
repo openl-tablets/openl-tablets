@@ -8,6 +8,7 @@ import javax.faces.context.FacesContext;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
@@ -69,6 +70,7 @@ public class TagBean {
     public void nameValidator(FacesContext context, UIComponent component, Object value) {
         String name = (String) value;
         WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
+        WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
         // TODO: Unique name check
     }
 
