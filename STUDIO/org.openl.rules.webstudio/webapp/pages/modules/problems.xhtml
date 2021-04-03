@@ -1,12 +1,19 @@
 <ui:composition
-    xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:rich="http://richfaces.org/rich">
+        xmlns="http://www.w3.org/1999/xhtml"
+        xmlns:c="http://java.sun.com/jsp/jstl/core"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <style>
-        .tree-problems .rf-trn-ico {
-            display: none;
+        .messagePanel {
+            float: left;
+            margin-left:15px;
+        }
+
+        .messagePanelHolder{
+            overflow: auto;
+            margin-bottom:15px;
         }
     </style>
 
@@ -16,40 +23,81 @@
         </div>
 
         <div class="panel-body container">
-            <rich:tree id="problemsTree" styleClass="tree tree-problems" value="#{problemsBean.tree}" var="node"
-                nodeType="#{node.type}" toggleType="client">
-                <rich:treeNode type="errors" id="problemsTree-errors">
-                    <h:outputText value="#{node.name}" />
-                    <span class="badge badge-small badge-error">#{node.numErrors}</span>
-                </rich:treeNode>
-                <rich:treeNode type="error">
-                    <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-error problem-small">
-                        <h:outputText value="#{node.name}" />
-                    </h:outputLink>
-                </rich:treeNode>
-                <rich:treeNode type="warnings" id="problemsTree-warnings">
-                    <h:outputText value="#{node.name}" />
-                    <span class="badge badge-small badge-warning">#{node.numErrors}</span>
-                </rich:treeNode>
-                <rich:treeNode type="warning">
-                    <h:outputLink value="#{node.url}" title="#{node.title}" styleClass="problem-warning problem-small">
-                        <h:outputText value="#{node.name}" />
-                    </h:outputLink>
-                </rich:treeNode>
-            </rich:tree>
+            <div class="messagePanelHolder">
+                <div id="progressInfoPanel" class='messagePanel'/>
+                <div id="errorsInfoPanel" class='messagePanel'>Errors:
+                    <span id="errorsCount" class='badge badge-error'/>
+                </div>
+                <div id="warningsInfoPanel" class='messagePanel'>Warnings:
+                    <span id="warningsCount" class='badge badge-warning'/>
+                </div>
+            </div>
+            <div id="errorsPanel"></div>
+            <div id="warningsPanel"></div>
 
             <script>
                 //<![CDATA[
-                $j(function () {
-                    var hasProblems = #{problemsBean.hasProblems ? 'true' : 'false'};
-                    if (ws && ws.nav.isProjectChanged()) {
-                        if (hasProblems) {
-                            ws.ui.problems.show();
-                        } else {
-                            ws.ui.problems.hide();
-                        }
-                    }
+                var $jq = jQuery.noConflict();
+                var messageId = -1;
+                var messageIndex = -1;
+
+                $jq('#progressInfoPanel').bind('refresh', function () {
+                    $jq.ajax({
+                        url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
+                        datatype: "text"
+                    })
+                        .done(function (data) {
+                            $jq('#progressInfoPanel').text(Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ") completed");
+
+                            $jq('#errorsInfoPanel').toggle(data.errorsCount !== 0);
+                            $jq('#errorsCount').text(data.errorsCount);
+
+                            $jq('#warningsInfoPanel').toggle(data.warningsCount !== 0);
+                            $jq('#warningsCount').text(data.warningsCount);
+
+                            if (data.messageIndex !== -1 || data.messageId !== -1) {
+                                messageIndex = data.messageIndex;
+                                messageId = data.messageId;
+                            }
+
+                            if (data.messages.length !== 0) {
+                                var warningsPanel = document.getElementById("warningsPanel");
+                                var errorsPanel = document.getElementById("errorsPanel");
+                                var warningsHtml = "";
+                                var errorsHtml = "";
+
+                                data.messages.forEach(function (item) {
+                                    if (item.severity === 'WARN') {
+                                        warningsHtml +=
+                                            "<div><a href = " + item.url + " title class='problem-warning problem-small' style='color: black; text-decoration:none;'>" + item.summary + "</a></div>";
+                                    } else if (item.severity === 'ERROR') {
+                                        errorsHtml +=
+                                            "<div><a href = " + item.url + " title class='problem-error problem-small' style='color: black; text-decoration:none;'>" + item.summary + "</a></div>";
+                                    }
+                                });
+
+                                var warningsDiv = document.createElement("DIV");
+                                var errorsDiv = document.createElement("DIV");
+
+                                if (data.dataType === 'new') {
+                                    while(warningsPanel.firstChild) warningsPanel.removeChild(warningsPanel.firstChild);
+                                    while(errorsPanel.firstChild) errorsPanel.removeChild(errorsPanel.firstChild);
+                                    warningsDiv.innerHTML = warningsHtml;
+                                    errorsDiv.innerHTML = errorsHtml;
+                                } else {
+                                    warningsDiv.innerHTML += warningsHtml;
+                                    errorsDiv.innerHTML += errorsHtml;
+                                }
+
+                                warningsPanel.appendChild(warningsDiv);
+                                errorsPanel.appendChild(errorsDiv);
+                            }
+                            setTimeout(function () {$jq('#progressInfoPanel').trigger('refresh')}, 1000);
+                        });
                 });
+
+                $jq('#progressInfoPanel').trigger('refresh');
+
                 //]]>
             </script>
         </div>
