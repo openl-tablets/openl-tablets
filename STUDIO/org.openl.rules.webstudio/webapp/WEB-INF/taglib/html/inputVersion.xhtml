@@ -2,16 +2,21 @@
 <ui:composition
     xmlns:ui="http://java.sun.com/jsf/facelets"
     xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:a4j="http://richfaces.org/a4j"
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:rich="http://richfaces.org/rich">
 
     <h:panelGroup id="#{!empty id ? id : 'version'}" rendered="#{!empty rendered ? rendered : true}">
-        <script src="#{facesContext.externalContext.request.contextPath}/javascript/taglib/html/inputVersion.js" />
+        <h:inputText id="versionInput" readonly="true" value="#{value}" onclick="showVersionPopup(this)"/>
+        <a4j:commandLink title="Clear"
+                 style="text-decoration: none; display:#{(empty value) ? 'none' : 'inline-block'}; margin-left: 5px;"
+                 id="versionClear"
+                 onclick="clearVersion(this)">
+            <img src="#{request.contextPath}/webresource/images/close.gif" style="opacity:0.4"/>
+        </a4j:commandLink>
 
-        <h:inputText value="#{value}" readonly="true" onclick="showVersionPopup(this, event)" />
-
-        <div style="display: none; padding: 2px 6px; border-top: 0">
+        <div id="versionPopup" style="display: none; padding: 2px 6px; border-top: 0">
             <c:set var="subVersions" value="#{value != null ? fn:split(value, '.') : null}" />
             <c:set var="majorVersion" value="#{subVersions != null and fn:length(subVersions) > 0 ? subVersions[0] : 0}"/>
             <c:set var="minorVersion" value="#{subVersions != null and fn:length(subVersions) > 1 ? subVersions[1] : 0}"/>
@@ -19,22 +24,60 @@
             <c:set var="dataString" value="#{majorVersion}.#{minorVersion}.#{variantVersion}"/>
             <c:set var="data" value="${fn:split(dataString, '.')}" />
             <c:set var="isShortView" value="#{(empty shortView or (!empty shortView and (shortView eq false)))}" />
-            <h:panelGrid columns="2">
+            <h:panelGrid id="versionPanel" columns="2">
                 <h:outputText value="Major" />
-                <rich:inputNumberSpinner value="#{data[0]}" maxValue="10000"
+                <rich:inputNumberSpinner id="versionValue_minor" value="#{data[0]}" maxValue="10000"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 0)" />
                 <h:outputText value="Minor" />
-                <rich:inputNumberSpinner value="#{data[1]}" maxValue="100"
+                <rich:inputNumberSpinner id="versionValue_major" value="#{data[1]}" maxValue="100"
                     inputSize="4" onchange="applyVersion(this, #{isShortView}, 1)" />
                 <c:if test="#{isShortView}">
                      <h:outputText value="Variant" />
-                     <rich:inputNumberSpinner value="#{data[2]}" maxValue="100"
+                     <rich:inputNumberSpinner id="versionValue_variant" value="#{data[2]}" maxValue="100"
                     	inputSize="4" onchange="applyVersion(this, #{isShortView}, 2)" />
                 </c:if>
             </h:panelGrid>
         </div>
 
-        <h:inputHidden value="#{value}" />
+        <h:inputHidden id="versionHidden" value="#{value}" />
+
+        <script>
+            function showVersionPopup(element) {
+                let input = $j(element);
+                let left = input.position().left + input.offsetParent().scrollLeft();
+                let top  = input.position().top + input.offsetParent().scrollTop() + input.outerHeight();
+                let popup = input.next().next();
+
+                popup.popup({
+                    caller: element,
+                    left  : left,
+                    top   : top
+                });
+            }
+
+            function applyVersion(element, isShort, i) {
+                let popup = $j(element).closest("div");
+                let input = popup.prev().prev();
+                let version = input.val() || (isShort ? "0.0.0" : "0.0");
+                let subVersions = version.split(".");
+                subVersions[i] = $j(element).find("input").val();
+                let result = subVersions.join(".");
+                input.val(result);
+                $j(input).trigger("change");
+                popup.next().val(result);
+                popup.prev().css("display", "inline-block");
+            }
+
+            function clearVersion(element) {
+                let clear = $j(element);
+                let input = clear.prev();
+                $j('[id*=versionValue]').each(function(){RichFaces.$($j(this).attr('id')).setValue(0)})
+                input.val("");
+                $j(input).trigger("change");
+                clear.next().next().val("");
+                clear.hide();
+            }
+        </script>
     </h:panelGroup>
 
 </ui:composition>
