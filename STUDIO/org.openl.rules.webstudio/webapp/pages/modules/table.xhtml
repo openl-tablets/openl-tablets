@@ -105,6 +105,10 @@
             margin: 0px 2px 5px 2px;
         }
 
+        #testsSection > div:nth-child(1) {
+            display: none;
+        }
+
     </style>
 
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
@@ -533,43 +537,22 @@
                     </h:panelGroup>
                 </td>
                 </c:if>
-
                 <!-- If table has tests and runs -->
-                <c:if test="#{tableBean.hasAnyTests}">
-                <c:set var="oneTest" value="#{fn:length(tableBean.allTests) == 1}" />
-                <td style="padding: 0 10px">
-                    <div style="font-weight: bold; color: #333333; margin-bottom: 2px">Available Tests/Runs</div>
-                    <div>
-                        <ui:repeat value="#{tableBean.allTests}" var="test2" varStatus="i">
-                        <h:panelGroup rendered="#{i.index == 0}">
-                            <h:outputLink value="#{studio.url('table', test2.uri)}" >
-                                <f:param name="id" value="#{test2.id}" />
-                                <h:outputText value="#{test2.name}" />
-                            </h:outputLink>
-                            <h:outputLink value="javascript:void(0)" rendered="#{!oneTest}"
-                                onclick="ws.ui.showPopupMenu(event, 'availableTests', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})"
-                                style="margin-left: 4px">
-                                <h:graphicImage url="/webresource/images/arrow_down.png"
-                                    title="Other Available Tests/Runs" />
-                            </h:outputLink>
-                        </h:panelGroup>
-                        </ui:repeat>
-                    </div>
-                    <h:panelGroup id="availableTests" class="targetTablesPopup" rendered="#{!oneTest}" layout="block">
-                        <ui:repeat value="#{tableBean.allTests}" var="test3" varStatus="i">
-                        <h:panelGroup rendered="#{i.index > 0}">
+                <div id="tableTestsPanel">
+                    <td style="padding: 0 10px">
+                        <div id="testsPanel" style="font-weight: bold; color: #333333; margin-bottom: 2px">Available Tests/Runs</div>
                         <div>
-                            <h:outputLink value="#{studio.url('table', test3.uri)}">
-                                <f:param name="id" value="#{test3.id}" />
-                                <h:outputText value="#{test3.name}" />
-                            </h:outputLink>
+                            <section id="testsSection">
+                                <div>
+                                    <h:outputLink value="{testLink}">
+                                        <f:param name="id" value="{testId}"/>
+                                        <h:outputText value="{testName}"/>
+                                    </h:outputLink>
+                                </div>
+                            </section>
                         </div>
-                        </h:panelGroup>
-                        </ui:repeat>
-                    </h:panelGroup>
-                </td>
-                </c:if>
-
+                    </td>
+                </div>
             </tr>
         </table>
     </div>
@@ -872,6 +855,38 @@
                 $j('input:radio[name=inputArgsForm\\:inputTestCaseType]').val(['BEAN']);
             }
         }
+
+        var $jq = jQuery.noConflict();
+
+        $jq('#tableTestsPanel').bind('refresh', function () {
+            $jq.ajax({
+                url: "#{contextPath}/web/compile/tests/#{tableBean.id}",
+                datatype: "text"
+            })
+                .done(function (data) {
+                    $jq('#ftableTestsPanel').toggle(data.allTests.length !== 0);
+                    $jq('#testsPanel').toggle(data.allTests.length !== 0);
+
+                    var rowTemplate = $j('#testsSection>div:nth-child(1)');
+                    var htmlTemplate = $j('<div/>').append(rowTemplate).html();
+                    var tests = htmlTemplate;
+                    $j('#testsSection div.row').remove();
+                    data.allTests.forEach(function (item) {
+                        tests += htmlTemplate
+                            .replace(/{testLink}/g, item.uri)
+                            .replace(/{testId}/g, item.id)
+                            .replace(/{testName}/g, item.name);
+                    });
+                    $j('#testsSection').html(tests);
+
+                    if (data.compiled !== true) {
+                        setTimeout(function () {$jq('#tableTestsPanel').trigger('refresh')}, 1000);
+                    }
+                });
+        });
+
+        $jq('#tableTestsPanel').trigger('refresh');
+
         //]]>
     </script>
 
