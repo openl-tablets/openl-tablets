@@ -3,6 +3,7 @@ package org.openl.rules.repository;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 import java.util.stream.Stream;
@@ -30,6 +31,14 @@ public class RepositoryInstatiator {
         ServiceLoader<RepositoryFactory> factories = ServiceLoader.load(RepositoryFactory.class,
             RepositoryFactory.class.getClassLoader());
         String factoryId = props.apply(prefix + ".factory");
+        if (Objects.isNull(factoryId)) {
+            throw new IllegalArgumentException(
+                String.format(
+                    "Invalid configuration for repository %s",
+                    prefix.substring(prefix.indexOf(".") + 1)
+                )
+            );
+        }
         ArrayList<String> repos = new ArrayList<>();
         for (RepositoryFactory factory : factories) {
             repos.add(factory.getRefID());

@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -110,7 +111,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 });
                 repository.setListener(callback);
             }
-            repositories.sort(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER));
+            repositories = repositories
+                    .stream()
+                    .filter(r -> Objects.nonNull(r.getName()))
+                    .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
 
             deploymentConfigurationLocation = propertyResolver
                 .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);

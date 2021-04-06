@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -144,12 +145,19 @@ public class RepositoryEditor {
     public void reload() {
         repositoryConfigurations.clear();
 
-        String[] repositoryConfigNames = split(
-            properties.getProperty(repoListConfig));
+        String[] repositoryConfigNames = split(properties.getProperty(repoListConfig));
         for (String configName : repositoryConfigNames) {
-            RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
-            repositoryConfigurations.add(config);
+            if (isValidConfig(configName)) {
+                RepositoryConfiguration config = new RepositoryConfiguration(configName, properties);
+                repositoryConfigurations.add(config);
+            }
         }
+    }
+
+    private boolean isValidConfig(String configName) {
+        return Objects.nonNull(
+            properties.getPropertyResolver().getProperty(Comments.REPOSITORY_PREFIX + configName + ".factory")
+        );
     }
 
     public void addRepository(RepositoryConfiguration configuration) {
