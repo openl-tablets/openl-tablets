@@ -11,6 +11,7 @@ import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -99,4 +100,18 @@ public interface IBindingContext extends ICastFactory {
     void setExternalParams(Map<String, Object> params);
 
     Map<String, Object> getExternalParams();
+
+    /**
+     * Analyzes the binding context and returns the name for internal/temporary/service variable with the name:
+     * varNamePrefix + '$' + available_index.
+     */
+    default String getTemporaryVarName() {
+        int index = 0;
+        String tmpVarName = "tmp$";
+        while (findVar(ISyntaxConstants.THIS_NAMESPACE, tmpVarName, true) != null) {
+            tmpVarName = "tmp$" + index;
+            index++;
+        }
+        return tmpVarName;
+    }
 }
