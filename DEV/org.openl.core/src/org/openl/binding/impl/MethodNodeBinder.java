@@ -1,10 +1,13 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.ILocalVar;
 import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.cast.AutoCastFactory;
@@ -85,6 +88,36 @@ public class MethodNodeBinder extends ANodeBinder {
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
 
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
+
+        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
+        if (type != null) {
+            Map<String, IBoundNode> namedParams = new HashMap<>();
+            boolean isAllParamsAssign = true;
+            try {
+                bindingContext.pushLocalVarContext();
+
+                ILocalVar localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, bindingContext.getTemporaryVarName(), type);
+                TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
+                for (int i = 0; i < childrenCount - 1; i++) {
+                    ISyntaxNode child = node.getChild(i);
+                    String childType = child.getType();
+                    if ("op.assign".equals(childType)) {
+                        IBoundNode iBoundNode = ANodeBinder.bindChildNode(child, varBindingContext);
+                        namedParams.put(child.getChild(0).getText(), iBoundNode);
+                    } else {
+                        isAllParamsAssign = false;
+                        break;
+                    }
+                }
+                if (isAllParamsAssign && namedParams.keySet().stream().allMatch(n -> type.getField(n) != null)) {
+                    IMethodCaller methodCaller = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
+                    MethodBoundNode methodBoundNode = new MethodBoundNode(node, methodCaller);
+                    return new NamedConstructorNode(localVar, node, 0, methodBoundNode, namedParams.values().toArray(IBoundNode.EMPTY));
+                }
+            } finally {
+                bindingContext.popLocalVarContext();
+            }
+        }
 
         IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
         if (hasErrorBoundNode(children)) {
