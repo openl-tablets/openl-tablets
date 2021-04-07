@@ -1,10 +1,10 @@
 package org.openl.rules.beans;
 
-public class ChildWithId extends AccessBean {
+class ChildWithId extends AccessBean {
 
     public final String id = "childId";
 
-    public String getId() {
+    String getId() {
         return "getId()";
     }
 

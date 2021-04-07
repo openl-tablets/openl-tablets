@@ -1,6 +1,6 @@
 package org.openl.rules.beans;
 
-public class AccessBean {
+class AccessBean {
     public static final String instance = "instance";
     public static final String staticField = "staticField";
     public static final String getId = "getId";
@@ -8,35 +8,35 @@ public class AccessBean {
     public final String name = "name";
     private String privateField;
 
-    public String getInstance() {
+    String getInstance() {
         return "getInstance()";
     }
 
-    public String getField() {
+    String getField() {
         return "getField()";
     }
 
-    public String getId() {
+    String getId() {
         return "getId()";
     }
 
-    public String id() {
+    String id() {
         return "id()";
     }
 
-    public static String name() {
+    static String name() {
         return "static name()";
     }
 
-    public String getPrivateField() {
+    String getPrivateField() {
         return privateField;
     }
 
-    public void setPrivateField(String privateField) {
+    void setPrivateField(String privateField) {
         this.privateField = privateField;
     }
 
-    public static void main(String[] args) {
+    static void main(String[] args) {
         AccessBean s = null;
         System.out.println(s.name());
     }
