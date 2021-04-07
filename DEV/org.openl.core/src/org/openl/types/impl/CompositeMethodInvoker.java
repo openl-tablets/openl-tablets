@@ -62,7 +62,9 @@ public class CompositeMethodInvoker implements Invokable {
         IBoundNode[] children = boundNode.getChildren();
         if (children != null) {
             for (IBoundNode child : children) {
-                clearSyntaxNodes(child);
+                if (child != null) {
+                    clearSyntaxNodes(child);
+                }
             }
         }
     }
