@@ -19,6 +19,7 @@ import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.ui.ObjectViewer;
 import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.DecisionTableTraceObject;
@@ -174,7 +175,8 @@ public class ShowTraceTableBean {
     }
 
     public String getFormattedSpreadsheetResult(Object value) {
-        return ObjectViewer.displaySpreadsheetResultNoFilters((SpreadsheetResult) value);
+        WebStudio webStudio = WebStudioUtils.getWebStudio();
+        return ObjectViewer.displaySpreadsheetResultNoFilters((SpreadsheetResult) value, !webStudio.isShowRealNumbers());
     }
 
     private void fillRegions(ITracerObject tto, List<IGridRegion> regions) {

@@ -87,7 +87,7 @@ public class HTMLRenderer {
                 editor.getLinkBuilder(),
                 mode,
                 editor.getView(),
-                openLTable.getMetaInfoReader());
+                openLTable.getMetaInfoReader(), false);
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);

@@ -12,6 +12,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 import org.openl.rules.ui.TraceHelper;
+import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
 import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
@@ -29,21 +30,21 @@ public class TraceService {
 
     @GET
     @Path("nodes")
-    public List<TraceNode> getNodes(@QueryParam("id") Integer id, @Context HttpServletRequest request) {
+    public List<TraceNode> getNodes(@QueryParam("id") Integer id, @Context HttpServletRequest request, @QueryParam("showRealNumbers") Boolean showRealNumbers) {
         TraceHelper traceHelper = WebStudioUtils.getTraceHelper(request.getSession());
         ITracerObject element = traceHelper.getTableTracer(id == null ? 0 : id);
-        return createNodes(element.getChildren(), traceHelper);
+        return createNodes(element.getChildren(), traceHelper, showRealNumbers != null && showRealNumbers);
     }
 
-    private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper) {
+    private List<TraceNode> createNodes(Iterable<ITracerObject> children, TraceHelper traceHelper, boolean showRealNumbers) {
         List<TraceNode> nodes = new ArrayList<>(16);
         for (ITracerObject child : children) {
-            nodes.add(createNode(child, traceHelper));
+            nodes.add(createNode(child, traceHelper, showRealNumbers));
         }
         return nodes;
     }
 
-    private TraceNode createNode(ITracerObject element, TraceHelper traceHelper) {
+    private TraceNode createNode(ITracerObject element, TraceHelper traceHelper, boolean showRealNumbers) {
 
         TraceNode node = new TraceNode();
         if (element == null) {
@@ -51,7 +52,7 @@ public class TraceService {
             node.setExtraClasses("value");
             return node;
         }
-        String name = TraceFormatter.getDisplayName(element);
+        String name = TraceFormatter.getDisplayName(element, !showRealNumbers);
         node.setTitle(name);
         node.setTooltip(name);
 

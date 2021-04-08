@@ -39,7 +39,7 @@ public class FormattedCell implements ICell {
     public FormattedCell(ICell delegate, CellMetaInfo cellMetaInfo) {
         this.delegate = delegate;
         this.objectValue = this.delegate.getObjectValue();
-        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo);
+        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo, false);
 
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());

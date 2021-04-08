@@ -13,7 +13,9 @@ import org.openl.rules.lang.xls.types.CellMetaInfo;
 import org.openl.rules.table.FormattedCell;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.formatters.ArrayFormatter;
+import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.formatters.FormulaFormatter;
+import org.openl.rules.table.formatters.SmartNumberFormatter;
 import org.openl.rules.table.ui.ICellStyle;
 import org.openl.types.IOpenClass;
 import org.openl.util.ClassUtils;
@@ -22,6 +24,7 @@ import org.openl.util.formatters.BooleanFormatter;
 import org.openl.util.formatters.DefaultFormatter;
 import org.openl.util.formatters.EnumFormatter;
 import org.openl.util.formatters.IFormatter;
+import org.openl.util.formatters.NumberFormatter;
 
 public final class XlsDataFormatterFactory {
 
@@ -39,7 +42,7 @@ public final class XlsDataFormatterFactory {
      * @param cellMetaInfo meta info for the cell
      * @return found formatter
      */
-    public static IFormatter getFormatter(ICell cell, CellMetaInfo cellMetaInfo) {
+    public static IFormatter getFormatter(ICell cell, CellMetaInfo cellMetaInfo, boolean smartNumbers) {
         IFormatter formatter = null;
         IOpenClass dataType = cellMetaInfo == null ? null : cellMetaInfo.getDataType();
         if (dataType != null) {
@@ -47,7 +50,7 @@ public final class XlsDataFormatterFactory {
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
-                formatter = getNumberFormatter(cell);
+                formatter = getNumberFormatter(cell, smartNumbers);
                 // Numeric Array
                 if (cellMetaInfo.isMultiValue()) {
                     formatter = new ArrayFormatter(formatter);
@@ -89,7 +92,7 @@ public final class XlsDataFormatterFactory {
         return formatter;
     }
 
-    private static IFormatter getNumberFormatter(ICell cell) {
+    private static IFormatter getNumberFormatter(ICell cell, boolean smartNumbers) {
         ICellStyle xlsStyle = cell == null ? null : cell.getStyle();
         if (xlsStyle != null) {
             short formatIndex = xlsStyle.getFormatIndex();
@@ -98,8 +101,11 @@ public final class XlsDataFormatterFactory {
                 format = format.replaceAll("#\" \"", "# ");
             }
             return new XlsNumberFormatter(formatIndex, format, dataFormatter, locale);
+        } else if (smartNumbers) {
+            return new SmartNumberFormatter(locale);
+        } else {
+            return new NumberFormatter(FormattersManager.DEFAULT_NUMBER_FORMAT, locale);
         }
-        return new DefaultFormatter();
     }
 
     private static IFormatter getDateFormatter(ICell cell) {
@@ -126,7 +132,7 @@ public final class XlsDataFormatterFactory {
      * @param meta meta info for the cell
      * @return Formatted string value
      */
-    public static String getFormattedValue(ICell cell, CellMetaInfo meta) {
+    public static String getFormattedValue(ICell cell, CellMetaInfo meta, boolean smartNumbers) {
         if (cell instanceof FormattedCell) {
             return ((FormattedCell) cell).getFormattedValue();
         }
@@ -135,7 +141,7 @@ public final class XlsDataFormatterFactory {
 
         String formattedValue = null;
         if (value != null) {
-            IFormatter cellDataFormatter = getFormatter(cell, meta);
+            IFormatter cellDataFormatter = getFormatter(cell, meta, smartNumbers);
 
             if (cellDataFormatter == null && value instanceof Date) {
                 // Cell type is unknown but in Excel it's stored as a Date.

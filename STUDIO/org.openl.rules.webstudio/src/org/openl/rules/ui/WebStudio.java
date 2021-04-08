@@ -140,6 +140,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
 
     private RulesTreeView treeView;
     private String tableView;
+    private boolean showRealNumbers;
     private boolean showFormulas;
     private int testsPerPage;
     private boolean testsFailuresOnly;
@@ -212,6 +213,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
         testsFailuresOnly = userSettingsManager.getBooleanProperty(userName, "test.failures.only");
         testsFailuresPerTest = userSettingsManager.getIntegerProperty(userName, "test.failures.pertest");
         showComplexResult = userSettingsManager.getBooleanProperty(userName, "test.result.complex.show");
+        showRealNumbers = userSettingsManager.getBooleanProperty(userName, "trace.realNumbers.show");
 
         String defaultModuleMode = userSettingsManager.getStringProperty(userName, "project.module.default.mode");
         if (StringUtils.isNotEmpty(defaultModuleMode)) {
@@ -1421,5 +1423,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
                 model.clearModuleInfo();
             }
         }
+    }
+
+    public void setShowRealNumbers(boolean showRealNumbers) {
+        this.showRealNumbers = showRealNumbers;
+        userSettingsManager.setProperty(rulesUserSession.getUserName(), "trace.realNumbers.show", showRealNumbers);
+    }
+
+    public boolean isShowRealNumbers() {
+        return showRealNumbers;
     }
 }

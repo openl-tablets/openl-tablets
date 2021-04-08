@@ -23,22 +23,22 @@ public class TraceFormatterTest {
         spreadsheetTraceObject.addChild(leafNode);
 
         leafNode.setResult(null);
-        assertEquals("$Value$Vehicle_Premiums = null", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = null", TraceFormatter.getDisplayName(leafNode, false));
 
         leafNode.setResult(0.95);
-        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode, false));
 
         leafNode.setResult(new DoubleValue(0.95));
-        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = 0.95", TraceFormatter.getDisplayName(leafNode, false));
 
         leafNode.setResult(new DoubleValue[] { new DoubleValue(0.95) });
-        assertEquals("$Value$Vehicle_Premiums = {0.95}", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = {0.95}", TraceFormatter.getDisplayName(leafNode, false));
 
         leafNode.setResult(new DoubleValue[] { new DoubleValue(0.95), new DoubleValue(0.55) });
-        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = {0.95,0.55}", TraceFormatter.getDisplayName(leafNode, false));
 
         leafNode.setResult(new double[][] { { 0.95, 0.55 }, { 1.95, 1.55 } });
-        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}", TraceFormatter.getDisplayName(leafNode));
+        assertEquals("$Value$Vehicle_Premiums = {{0.95,0.55},{1.95,1.55}}", TraceFormatter.getDisplayName(leafNode, false));
     }
 
     protected SpreadsheetCell createCellMock() {

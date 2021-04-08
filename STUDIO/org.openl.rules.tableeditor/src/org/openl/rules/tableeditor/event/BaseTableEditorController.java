@@ -70,7 +70,7 @@ public class BaseTableEditorController {
             editor.getLinkBuilder(),
             mode,
             editor.getView(),
-            editorModel.getMetaInfoReader());
+            editorModel.getMetaInfoReader(), false);
     }
 
     protected String render(String editorId) {

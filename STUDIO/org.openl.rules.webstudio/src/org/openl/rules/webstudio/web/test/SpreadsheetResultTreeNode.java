@@ -20,7 +20,7 @@ public class SpreadsheetResultTreeNode extends ParameterDeclarationTreeNode {
         // TODO Instead render a table using jsf components.
         SpreadsheetResult value = (SpreadsheetResult) getValue();
         return config.isHasExplainLinks() ? ObjectViewer.displaySpreadsheetResult(value, config.getRequestId())
-                                          : ObjectViewer.displaySpreadsheetResultNoFilters(value);
+                                          : ObjectViewer.displaySpreadsheetResultNoFilters(value, false);
     }
 
     @Override

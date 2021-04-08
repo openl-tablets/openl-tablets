@@ -303,7 +303,7 @@ public class TableEditorController extends BaseTableEditorController {
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
 
             CellMetaInfo meta = getMetaInfo(editorModel, row, col);
-            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta);
+            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
             IFormatter formulaResultFormatter = null;
             if (!(currentFormatter instanceof FormulaFormatter)) {
                 formulaResultFormatter = currentFormatter;

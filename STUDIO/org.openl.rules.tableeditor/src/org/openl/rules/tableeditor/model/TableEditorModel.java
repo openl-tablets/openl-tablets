@@ -195,7 +195,7 @@ public class TableEditorModel {
         } else {
             ICell cell = gridTable.getGrid().getCell(gcol, grow);
             CellMetaInfo metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
-            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo);
+            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
 
             // Don't reformat value if value is belong to domain
             IOpenClass dataType = metaInfo == null ? null : metaInfo.getDataType();

@@ -21,17 +21,13 @@ import org.slf4j.LoggerFactory;
 public class TableViewer {
     private final Logger log = LoggerFactory.getLogger(TableViewer.class);
 
-    private IGrid grid;
-
-    private IGridRegion reg;
-
-    private LinkBuilder linkBuilder;
-
-    private String mode;
-
-    private String view;
-
-    private MetaInfoReader metaInfoReader;
+    private final IGrid grid;
+    private final IGridRegion reg;
+    private final LinkBuilder linkBuilder;
+    private final String mode;
+    private final String view;
+    private final MetaInfoReader metaInfoReader;
+    private final boolean smartNumbers;
 
     private void setStyle(ICell cell, CellModel cm) {
         ICellStyle style = cell.getStyle();
@@ -83,26 +79,20 @@ public class TableViewer {
         cm.setFont(cell.getFont());
     }
 
-    /**
-     * Default constructor
-     */
-    public TableViewer() {
-
-    }
-
     public TableViewer(IGrid grid,
             IGridRegion reg,
             LinkBuilder linkBuilder,
             String mode,
             String view,
-            MetaInfoReader metaInfoReader) {
-        super();
+            MetaInfoReader metaInfoReader,
+            boolean smartNumbers) {
         this.grid = grid;
         this.reg = reg;
         this.linkBuilder = linkBuilder;
         this.mode = mode;
         this.view = view;
         this.metaInfoReader = metaInfoReader;
+        this.smartNumbers = smartNumbers;
     }
 
     CellModel buildCell(ICell cell, CellModel cm, CellMetaInfo metaInfo) {
@@ -113,7 +103,7 @@ public class TableViewer {
             cm.setWidth(getWidth(cell));
         }
 
-        String formattedValue = XlsDataFormatterFactory.getFormattedValue(cell, metaInfo);
+        String formattedValue = XlsDataFormatterFactory.getFormattedValue(cell, metaInfo, smartNumbers);
         if (StringUtils.isNotBlank(formattedValue)) {
             String content;
             if (Constants.MODE_EDIT.equals(mode)) {
@@ -194,10 +184,10 @@ public class TableViewer {
 
             if (metaInfo.isReturnCell()) {
                 buff.append("<span class=\"title title-")
-                        .append(NodeType.OTHER.toString().toLowerCase())
-                        .append(" ")
-                        .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
-                        .append("\">");
+                    .append(NodeType.OTHER.toString().toLowerCase())
+                    .append(" ")
+                    .append(Constants.TABLE_EDITOR_META_INFO_CLASS)
+                    .append("\">");
                 buff.append("  &#9733;");
                 buff.append("<em>RETURN</em></span>");
             }
