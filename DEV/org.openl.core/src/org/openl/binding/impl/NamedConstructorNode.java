@@ -27,7 +27,7 @@ public class NamedConstructorNode extends ABoundNode implements IBoundMethodNode
         for (IBoundNode child : children) {
             child.evaluate(env);
         }
-        return tempVar.get(null, env);
+        return evaluate;
     }
 
     /*

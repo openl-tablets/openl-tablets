@@ -102,7 +102,7 @@ public class MethodNodeBinder extends ANodeBinder {
                     ISyntaxNode child = node.getChild(i);
                     String childType = child.getType();
                     if ("op.assign".equals(childType)) {
-                        IBoundNode iBoundNode = ANodeBinder.bindChildNode(child, varBindingContext);
+                        IBoundNode iBoundNode = bindChildNode(child, varBindingContext);
                         namedParams.put(child.getChild(0).getText(), iBoundNode);
                     } else {
                         isAllParamsAssign = false;
