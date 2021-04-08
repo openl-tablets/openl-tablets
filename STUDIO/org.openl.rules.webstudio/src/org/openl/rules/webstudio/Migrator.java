@@ -115,7 +115,8 @@ public class Migrator {
         props.put("project.history.home", null); // Remove
 
         // migrate deploy-config
-        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository"))) {
+        if (("true").equals(settings.getProperty("repository.deploy-config.separate-repository")) ||
+                ("true").equals(Props.text("repository.deploy-config.separate-repository"))) {
             props.put("repository.deploy-config.separate-repository", null);
             props.put("repository.deploy-config.use-repository", null);
 
