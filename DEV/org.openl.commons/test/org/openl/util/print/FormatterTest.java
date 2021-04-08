@@ -1,8 +1,12 @@
 package org.openl.util.print;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
@@ -103,8 +107,41 @@ public class FormatterTest {
         assertEquals(str, devStr);
     }
 
+    @Test
+    public void testBean() {
+        MyType myType = new MyType("foo", 0.1, Arrays.asList("foo", "bar"));
+        String busStr = printBusView(myType);
+        assertEquals("FormatterTest$MyType(id=0){\n  d=0.1\n  list={\n    [0]=foo\n    [1]=bar\n    }\n  str=foo\n  }",
+            busStr);
+    }
+
     private void assertContains(String text, String expected) {
         assertNotNull(text);
         assertTrue(text, text.contains(expected));
+    }
+
+    private static class MyType {
+
+        private final String str;
+        private final Double d;
+        private final List<String> list;
+
+        public MyType(String str, Double d, List<String> list) {
+            this.str = str;
+            this.d = d;
+            this.list = list;
+        }
+
+        public String getStr() {
+            return str;
+        }
+
+        public Double getD() {
+            return d;
+        }
+
+        public List<String> getList() {
+            return list;
+        }
     }
 }
