@@ -47,12 +47,10 @@ public final class XlsDataFormatterFactory {
 
             // Numeric
             if (ClassUtils.isAssignable(instanceClass, Number.class)) {
-                IFormatter numberFormatter = getNumberFormatter(cell);
+                formatter = getNumberFormatter(cell);
                 // Numeric Array
-                if (cellMetaInfo.isMultiValue() && numberFormatter != null) {
-                    formatter = new ArrayFormatter(numberFormatter);
-                } else {
-                    formatter = numberFormatter;
+                if (cellMetaInfo.isMultiValue()) {
+                    formatter = new ArrayFormatter(formatter);
                 }
 
                 // Date
@@ -69,12 +67,10 @@ public final class XlsDataFormatterFactory {
 
                 // Enum
             } else if (instanceClass.isEnum()) {
-                IFormatter enumFormatter = new EnumFormatter(instanceClass);
+                formatter = new EnumFormatter(instanceClass);
                 // Enum Array
                 if (cellMetaInfo.isMultiValue()) {
-                    formatter = new ArrayFormatter(enumFormatter);
-                } else {
-                    formatter = enumFormatter;
+                    formatter = new ArrayFormatter(formatter);
                 }
 
             } else {
