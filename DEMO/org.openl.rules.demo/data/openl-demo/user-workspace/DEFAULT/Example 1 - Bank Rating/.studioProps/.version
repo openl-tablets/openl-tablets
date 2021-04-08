@@ -1,10 +1,11 @@
 #Project version
-#Mon Jul 06 20:12:20 GMT+03:00 2020
-version=94ae044e35da2fce1ef67ff9dc20481e51cb6df1
-size=-1
-branch=master
+#Wed Apr 07 19:16:29 GMT+03:00 2021
+modified-at=2021-04-07
 author=DEFAULT
 repository-id=design
-modified-at-long=1594051765000
-modified-at=2020-07-06
-comment=Project Example 1 - Bank Rating is created.\n
+comment=Project Example 1 - Bank Rating is created.
+version=6b9fcb63c7ca37b8647187ad868abfb215f48bdb
+modified-at-long=1617809586000
+branch=master
+path-in-repository=DESIGN/rules/Example 1 - Bank Rating
+size=-1

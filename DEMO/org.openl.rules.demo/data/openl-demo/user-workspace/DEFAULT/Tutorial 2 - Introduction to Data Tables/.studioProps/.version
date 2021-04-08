@@ -1,10 +1,11 @@
 #Project version
-#Mon Jul 06 20:13:40 GMT+03:00 2020
-version=844d34691b48a27dc4c08a6cc034282a9d1b9ed6
-size=-1
-branch=master
+#Wed Apr 07 19:49:50 GMT+03:00 2021
+modified-at=2021-04-07
 author=DEFAULT
 repository-id=design
-modified-at-long=1594051882000
-modified-at=2020-07-06
-comment=Project Tutorial 2 - Introduction to Data Tables is created.\n
+comment=Project Tutorial 2 - Introduction to Data Tables is created.
+version=7a56950ed25028cf8d7cc9e5f436f39a4ba31ee0
+modified-at-long=1617809697000
+branch=master
+path-in-repository=DESIGN/rules/Tutorial 2 - Introduction to Data Tables
+size=-1
