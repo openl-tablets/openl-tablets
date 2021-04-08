@@ -1,9 +1,11 @@
 package org.openl.rules.webstudio.web.trace;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Optional;
+import java.util.function.Function;
 
-import org.apache.commons.lang3.ArrayUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
@@ -12,7 +14,17 @@ import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.tbasic.runtime.Result;
-import org.openl.rules.webstudio.web.trace.node.*;
+import org.openl.rules.webstudio.web.trace.node.ATableTracerNode;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTraceObject;
+import org.openl.rules.webstudio.web.trace.node.DTRuleTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.MatchTraceObject;
+import org.openl.rules.webstudio.web.trace.node.OverloadedMethodChoiceTraceObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
+import org.openl.rules.webstudio.web.trace.node.ResultTraceObject;
+import org.openl.rules.webstudio.web.trace.node.SpreadsheetTracerLeaf;
+import org.openl.rules.webstudio.web.trace.node.TBasicOperationTraceObject;
+import org.openl.rules.webstudio.web.trace.node.WScoreTraceObject;
 import org.openl.util.OpenClassUtils;
 import org.openl.util.formatters.IFormatter;
 import org.slf4j.Logger;
@@ -64,7 +76,7 @@ public class TraceFormatter {
         String operationName = tbo.getOperationName();
         String resultValue = "";
         if (result != null) {
-            resultValue = "(" +format(result, smartNumbers) + ")";
+            resultValue = "(" + format(result, smartNumbers) + ")";
         }
         int operationRow = tbo.getOperationRow();
 
@@ -127,15 +139,7 @@ public class TraceFormatter {
 
         if (!OpenClassUtils.isVoid(spreadsheetCell.getType())) {
             /* write result for all cells, excluding void type */
-            Object result = stl.getResult();
-            String txt;
-            if (result != null && result.getClass().isArray()) {
-                txt = ArrayUtils.toString(result);
-            } else {
-                txt = format(result, smartNumbers);
-            }
-
-            buf.append(" = ").append(txt);
+            buf.append(" = ").append(format(stl.getResult(), smartNumbers));
         }
         return buf.toString();
     }
@@ -162,18 +166,33 @@ public class TraceFormatter {
 
     private static String format(Object o, boolean smartNumbers) {
         if (o instanceof Number) {
-            IFormatter formatter = FormattersManager.getFormatter(o.getClass(), smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
+            IFormatter formatter = FormattersManager.getFormatter(o.getClass(),
+                smartNumbers ? null : FormattersManager.DEFAULT_NUMBER_FORMAT);
             return formatter.format(o);
+        } else if (o != null && o.getClass().isArray()) {
+            StringBuilder sb = new StringBuilder("{");
+            for (int i = 0; i < Array.getLength(o); i++) {
+                if (i > 0) {
+                    sb.append(",");
+                }
+                Object elem = Array.get(o, i);
+                sb.append(format(elem, smartNumbers));
+            }
+            return sb.append("}").toString();
         } else {
+            final Function<Object, String> getClassName = obj -> Optional.ofNullable(obj)
+                .map(Object::getClass)
+                .map(Class::getName)
+                .orElse("null");
             try {
                 return FormattersManager.format(o);
             } catch (Throwable e) {
                 Logger log = LoggerFactory.getLogger(TraceFormatter.class);
                 log.debug(e.getMessage(), e);
                 return String.format(
-                        "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
-                        e.getClass().getName(),
-                        o.getClass().getName());
+                    "<span style=\"color: red;\">'%s' exception has been thrown. Failed to format '%s'.</span>",
+                    getClassName.apply(e),
+                    getClassName.apply(o));
             }
         }
     }
