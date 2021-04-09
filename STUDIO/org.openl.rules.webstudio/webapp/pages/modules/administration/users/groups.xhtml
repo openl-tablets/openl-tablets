@@ -269,13 +269,12 @@
                 var group = groups[child];
                 group.cycledGroups = group.cycledGroups || [];
                 var cycledGroups = group.cycledGroups;
-                cycledGroups.push(name);
+                if($j.inArray(name, cycledGroups)=== -1){
+                    cycledGroups.push(name);
+                }
                 group.roles && group.roles.forEach(function (role) {
                     if ($j.inArray(role, cycledGroups) === -1) {
                         propogadeCycledGroups(role, name);
-                        cycledGroups.forEach(function (parent) {
-                            propogadeCycledGroups(role, parent);
-                        });
                     }
                 });
             }
