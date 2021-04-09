@@ -43,6 +43,7 @@ import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -276,6 +277,9 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             IOpenClass conditionMethodType,
             IBindingContext bindingContext) {
         IParameterDeclaration[] params = condition.getParams();
+        if (NullParameterDeclaration.isAnyNull(params)) {
+            return DefaultConditionEvaluator.INSTANCE; // parameters defined with error cannot build evaluator
+        }
         if (params.length == 1) {
             IOpenClass conditionParamType = params[0].getType();
 

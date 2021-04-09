@@ -41,7 +41,6 @@ public class MethodSignature implements IMethodSignature {
     @Override
     public IOpenClass[] getParameterTypes() {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
-
         for (int i = 0; i < parameterTypes.length; i++) {
             parameterTypes[i] = parameters[i].getType();
         }

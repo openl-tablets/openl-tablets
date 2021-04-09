@@ -43,7 +43,10 @@ public class MethodBindingContext extends BindingContextDelegator {
         IOpenClass[] params = signature.getParameterTypes();
         for (int i = 0; i < params.length; i++) {
             try {
-                localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
+                String pName = signature.getParameterName(i);
+                if (pName != null) {
+                    localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, pName, params[i]);
+                }
             } catch (DuplicatedVarException e) {
                 throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }

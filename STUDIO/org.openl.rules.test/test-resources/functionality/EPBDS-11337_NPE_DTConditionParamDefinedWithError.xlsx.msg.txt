@@ -1,0 +1,2 @@
+ERROR: Parameter cell format: <type> <name>
+ERROR: Identifier 'intArr' is not found.

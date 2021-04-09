@@ -23,7 +23,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public final class NullOpenClass implements IOpenClass {
 
-    private StaticOpenClass staticOpenClass = new StaticOpenClass(this);
+    private final StaticOpenClass staticOpenClass = new StaticOpenClass(this);
 
     public static final NullOpenClass the = new NullOpenClass();
 

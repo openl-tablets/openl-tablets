@@ -27,6 +27,7 @@ import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.NullOpenClass;
+import org.openl.types.NullParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
 import org.openl.types.impl.OpenMethodHeader;
@@ -237,13 +238,13 @@ public abstract class FunctionalRow implements IDecisionRow {
                     openl,
                     bindingContext);
 
-                if (parameterDeclaration != null) {
+                if (parameterDeclaration == null) {
+                    params[i] = NullParameterDeclaration.the;
+                } else {
                     String paramName = parameterDeclaration.getName();
-
                     if (!paramNames.add(paramName)) {
                         BindHelper.processError("Duplicated parameter name: " + paramName, source, bindingContext);
                     }
-
                     params[i] = parameterDeclaration;
                 }
             }

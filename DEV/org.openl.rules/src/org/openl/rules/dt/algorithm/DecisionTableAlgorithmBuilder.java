@@ -1,6 +1,7 @@
 package org.openl.rules.dt.algorithm;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
 
@@ -271,7 +272,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(condition);
         for (IParameterDeclaration condParam : condition.getParams()) {
             if (identifierNodes.stream()
-                .anyMatch(identifierNode -> condParam.getName().equals(identifierNode.getIdentifier()))) {
+                .anyMatch(identifierNode -> Objects.equals(condParam.getName(), identifierNode.getIdentifier()))) {
                 return true;
             }
         }
