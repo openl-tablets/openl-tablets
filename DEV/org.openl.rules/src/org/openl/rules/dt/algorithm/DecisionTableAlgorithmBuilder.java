@@ -218,6 +218,7 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         }
         IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         if (methodNode == null) {
+            // method defined with error
             return DefaultConditionEvaluator.INSTANCE;
         }
         condition.setConditionParametersUsed(checkConditionParameterUsedInExpression(condition));
