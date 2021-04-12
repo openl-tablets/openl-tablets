@@ -32,6 +32,7 @@ import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -555,35 +556,28 @@ public final class DecisionTableHelper {
                     sb.append(type.getName())
                         .append(" ")
                         .append(var)
-                        .append(" = new ")
+                        .append("=new ")
                         .append(type.getName())
                         .append("();");
-                    sb.append("int ").append(var).append("_").append(" = 0;");
+                    sb.append("int ").append(var).append("_").append("=0;");
                     vm = variables.computeIfAbsent(currentVariable, e -> new HashMap<>());
                     vm.put(fieldsChain[j], var);
-                    variableAssignments.add(
-                        currentVariable + "." + fieldsChain[j].getName() + " = " + var + "_ > 0 ? " + var + " : null;");
+                    variableAssignments
+                        .add(currentVariable + "." + fieldsChain[j].getName() + "=" + var + "_>0?" + var + ":null;");
                 } else {
                     var = vm.get(fieldsChain[j]);
                 }
                 currentVariable = var;
                 variablesInChain.add(currentVariable);
             } else {
-                sb.append(currentVariable)
-                    .append(".")
-                    .append(fieldsChain[j].getName())
-                    .append(" = ")
-                    .append(insertStatement)
-                    .append(";");
-                for (String cv : variablesInChain) {
-                    sb.append(cv)
-                        .append("_ = (")
-                        .append(insertStatement)
-                        .append(" != null) ? ")
-                        .append(cv)
-                        .append("_ + 1 : ")
-                        .append(cv)
-                        .append("_;");
+                final String localVar = currentVariable + "." + fieldsChain[j].getName();
+                sb.append(localVar).append("=").append(insertStatement).append(";");
+                if (!variablesInChain.isEmpty()) {
+                    sb.append("if(").append(localVar).append("!=null){");
+                    for (String cv : variablesInChain) {
+                        sb.append(cv).append("_++;");
+                    }
+                    sb.append('}');
                 }
             }
         }
@@ -701,8 +695,7 @@ public final class DecisionTableHelper {
                             sb);
                         if (!bindingContext.isExecutionMode()) {
                             final String statementInReturn = fuzzyContext.getFuzzyReturnType()
-                                .getName() + "." + buildStatementByFieldsChain(
-                                    fuzzyContext.getFuzzyReturnType(),
+                                .getName() + "." + buildStatementByFieldsChain(fuzzyContext.getFuzzyReturnType(),
                                     fieldsChain).getKey();
                             writeInputParametersToReturnMetaInfo(decisionTable, statement, statementInReturn);
                         }
@@ -805,8 +798,12 @@ public final class DecisionTableHelper {
         }
         variableAssignments.forEach(sb::append);
         sb.append(FUZZY_RET_VARIABLE_NAME).append("_ > 0 ? ").append(FUZZY_RET_VARIABLE_NAME).append(" : null;");
+        final String expression = sb.toString();
+        if (expression.length() > SpreadsheetVersion.EXCEL2007.getMaxTextLength()) {
+            throw new IllegalStateException("Generated expression is too long!");
+        }
         grid.setCellValue(fuzzyReturns.get(0).getColumn(), 0, header);
-        grid.setCellValue(fuzzyReturns.get(0).getColumn(), 1, sb.toString());
+        grid.setCellValue(fuzzyReturns.get(0).getColumn(), 1, expression);
         int j = fuzzyReturns.size() - 1;
         if (fuzzyReturns.get(j).getColumn() + fuzzyReturns.get(j).getWidth() - fuzzyReturns.get(0).getColumn() > 1) {
             for (int row = 0; row < IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1; row++) {
@@ -1258,16 +1255,12 @@ public final class DecisionTableHelper {
                             .getStatement() + " " + stringOperator + ">= min";
                     }
                     grid.setCellValue(column, 1, statement);
-                    grid.setCellValue(column,
-                        2,
-                        type.getName() + " " + (minMaxOrder ? "min" : "max"));
+                    grid.setCellValue(column, 2, type.getName() + " " + (minMaxOrder ? "min" : "max"));
                     int w1 = numberOfColumnsUnderTitleCounter.getWidth(column, 0);
                     if (w1 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                     }
-                    grid.setCellValue(column + w1,
-                        2,
-                        type.getName() + " " + (minMaxOrder ? "max" : "min"));
+                    grid.setCellValue(column + w1, 2, type.getName() + " " + (minMaxOrder ? "max" : "min"));
                     int w2 = numberOfColumnsUnderTitleCounter.getWidth(column, 1);
                     if (w2 > 1) {
                         grid.addMergedRegion(new GridRegion(2, column + w1, 2, column + w1 + w2 - 1));
