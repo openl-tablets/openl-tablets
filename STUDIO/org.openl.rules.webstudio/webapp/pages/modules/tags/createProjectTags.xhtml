@@ -22,25 +22,33 @@
                     <ui:repeat value="#{projectTagsBean.tags}" var="tag">
                         <tr>
                             <td>
-                                <h:inputHidden value="#{tag.id}"/>
                                 <label><h:outputText value="#{tag.type.name}:"/></label>
                             </td>
                             <td>
-                                <h:selectOneMenu id="tagSelection" value="#{tag.id}" hideNoSelectionOption="true">
-                                    <f:ajax event="change" render="tagSelection"/>
-                                    <f:selectItem itemLabel="[None]" itemValue="-1"
-                                                  itemDisabled="#{not tag.type.nullable}"
-                                                  noSelectionOption="#{not tag.type.nullable}"/>
-                                    <f:selectItems value="#{projectTagsBean.getTagValues(tag.type.name)}" var="t"
-                                                   itemValue="#{t.id}" itemLabel="#{t.name}"/>
-                                </h:selectOneMenu>
-                            </td>
-                            <td>
-                                <h:panelGroup rendered="#{tag.type.extensible}">
-                                    <span class="clickable" onclick="createTagValue('#{utils.toJSText(tag.type.name)}', renderCreateProjectTagsForm)" title="Add tag">
-                                        +
-                                    </span>
-                                </h:panelGroup>
+                                <h:inputHidden value="#{tag.name}"/>
+
+                                <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
+                                    <h:panelGroup rendered="#{tag.type.nullable}">
+                                        <h:panelGroup rendered="#{tag.name == '[None]'}">
+                                            <option value="[None]" selected="selected">[None]</option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != '[None]'}">
+                                            <option value="[None]">[None]</option>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{not tag.type.nullable and tag.name == '[None]'}">
+                                        <option value="[None]" disabled="disabled" selected="selected">[None]</option>
+                                    </h:panelGroup>
+
+                                    <ui:repeat value="#{projectTagsBean.getTagValues(tag.type.name)}" var="t">
+                                        <h:panelGroup rendered="#{tag.name == t.name}">
+                                            <option value="#{t.name}" selected="selected"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != t.name}">
+                                            <option value="#{t.name}"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                    </ui:repeat>
+                                </select>
                             </td>
                         </tr>
                     </ui:repeat>
@@ -74,6 +82,24 @@
         }
 
         function showCreateProjectTagsDialog() {
+            $j('.editable-select').editableSelect({
+                filter: false
+            }).on('select.editable-select', function (e, $li) {
+                $li.parent().prev().prev('input[type=hidden]').val($li.text());
+            });
+
+            let $editableInput = $j('.editable-select.es-input');
+            // Support extensible tags filled from template
+            $editableInput.prev('input[type=hidden]').each(function () {
+                $j(this).next('.editable-select.es-input').val($j(this).val());
+            });
+            $editableInput.change(function () {
+                $j(this).prev('input[type=hidden]').val($j(this).val());
+            });
+
+            $j('.editable-select').prop('readonly', false);
+            $j('.editable-select.readonly').prop('readonly', true);
+
             RichFaces.$('modalCreateProjectTags').show();
         }
 

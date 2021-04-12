@@ -55,6 +55,11 @@ select {
     font-family: Verdana, Helvetica, Arial;
 }
 
+input.editable-select {
+    width: 200px;
+    padding-left: 6px;
+}
+
 input[type='text']:focus, input[type='password']:focus, textarea:focus, select:focus {
     border: 1px solid #39c;
     outline: none;

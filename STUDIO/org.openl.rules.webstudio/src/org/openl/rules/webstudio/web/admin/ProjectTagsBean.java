@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.openl.rules.project.abstraction.RulesProject;
@@ -22,6 +23,7 @@ import org.springframework.web.context.annotation.SessionScope;
 @SessionScope
 public class ProjectTagsBean {
     private static final long NONE_ID = -1L;
+    private static final String NONE_NAME = "[None]";
     private final TagTypeService tagTypeService;
     private final TagService tagService;
     private final OpenLProjectService projectService;
@@ -30,8 +32,6 @@ public class ProjectTagsBean {
 
     private OpenLProject openlProject;
     private List<Tag> tags;
-    private String tagTypeForNewTag;
-    private String newTagValue;
 
     private String projectName;
 
@@ -54,6 +54,8 @@ public class ProjectTagsBean {
         if (StringUtils.isNotBlank(projectName)) {
             tags.addAll(tagTemplateService.getTags(projectName));
         }
+
+        tags.removeIf(tag -> tag.getId() == null && !tag.getType().isExtensible());
 
         fillAbsentTags();
     }
@@ -78,16 +80,17 @@ public class ProjectTagsBean {
             tags = new ArrayList<>();
         }
         fillAbsentTags();
+        tags.sort(Comparator.comparing((Tag tag) -> tag.getType().getName()).thenComparing(Tag::getName));
     }
 
     private void fillAbsentTags() {
-        tags.stream().filter(tag -> tag.getId() == null).forEach(tag -> tag.setId(NONE_ID));
         final List<TagType> tagTypes = getTagTypes();
         tagTypes.forEach(type -> {
             final Long typeId = type.getId();
             if (tags.stream().noneMatch(tag -> tag.getType().getId().equals(typeId))) {
                 final Tag t = new Tag();
                 t.setId(NONE_ID);
+                t.setName(NONE_NAME);
                 t.setType(type);
                 tags.add(t);
             }
@@ -109,6 +112,16 @@ public class ProjectTagsBean {
     public void save() {
         TreeNode selectedNode = this.repositorySelectNodeStateHolder.getSelectedNode();
         TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
+        
+        // Validate
+        tags.stream()
+            .filter(tag -> !tag.getType().isExtensible() && !tag.getName().equals(NONE_NAME))
+            .forEach(tag -> {
+                final Tag existed = tagService.getByName(tag.getName());
+                if (existed == null) {
+                    throw new IllegalArgumentException("Tag type '" + tag.getType().getName() + "' isn't extensible");
+                }
+            });
 
         if (selectedProject != null) {
             boolean create = false;
@@ -123,10 +136,11 @@ public class ProjectTagsBean {
                 openlProject.setProjectPath(realPath);
                 openlProject.setTags(new ArrayList<>());
             }
-            tags.removeIf(tag -> tag.getId() == null || tag.getId() == -1L);
+            tags.removeIf(tag -> tag.getName().equals(NONE_NAME));
             final List<Tag> currentTags = openlProject.getTags();
             currentTags.clear();
-            tags.forEach(tag -> currentTags.add(tagService.getById(tag.getId())));
+
+            createExtensibleAndLoadCurrentTags(currentTags);
             if (create) {
                 projectService.save(openlProject);
             } else {
@@ -135,35 +149,20 @@ public class ProjectTagsBean {
         }
     }
 
-    public String getTagTypeForNewTag() {
-        return tagTypeForNewTag;
-    }
+    private void createExtensibleAndLoadCurrentTags(List<Tag> currentTags) {
+        // Save extensible tags
+        tags.stream().filter(tag -> tag.getType().isExtensible()).forEach(tag -> {
+            final Tag existed = tagService.getByName(tag.getName());
+            if (existed == null) {
+                // Ignore id because we can enter our new value in editable combobox.
+                Tag newTag = new Tag();
+                newTag.setType(tag.getType());
+                newTag.setName(tag.getName());
+                tagService.save(newTag);
+            }
+        });
 
-    public void setTagTypeForNewTag(String tagTypeForNewTag) {
-        this.tagTypeForNewTag = tagTypeForNewTag;
-        this.newTagValue = null;
-    }
-
-    public void setNewTagValue(String newTagValue) {
-        this.newTagValue = newTagValue;
-    }
-
-    public String getNewTagValue() {
-        return newTagValue;
-    }
-
-    public void saveTag() {
-        final TagType tagType = tagTypeService.getByName(tagTypeForNewTag);
-        if (!tagType.isExtensible()) {
-            throw new IllegalArgumentException("Tag type isn't extensible");
-        }
-
-        Tag tag = new Tag();
-        tag.setType(tagType);
-        tag.setName(newTagValue);
-        tagService.save(tag);
-
-        // TODO: unique tag check
+        tags.forEach(tag -> currentTags.add(tagService.getByName(tag.getName())));
     }
 
     public void setProjectName(String projectName) {
@@ -180,8 +179,8 @@ public class ProjectTagsBean {
         }
 
         final List<Tag> currentTags = new ArrayList<>();
-        tags.removeIf(tag -> tag.getId() == -1L);
-        tags.forEach(tag -> currentTags.add(tagService.getById(tag.getId())));
+        tags.removeIf(tag -> tag.getName().equals(NONE_NAME));
+        createExtensibleAndLoadCurrentTags(currentTags);
 
         OpenLProject openlProject = new OpenLProject();
         openlProject.setRepositoryId(repoId);

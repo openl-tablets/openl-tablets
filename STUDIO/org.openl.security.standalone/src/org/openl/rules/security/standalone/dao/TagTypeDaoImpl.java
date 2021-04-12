@@ -26,7 +26,8 @@ public class TagTypeDaoImpl extends BaseHibernateDao<TagType> implements TagType
         CriteriaBuilder builder = getSession().getCriteriaBuilder();
         CriteriaQuery<TagType> criteria = builder.createQuery(TagType.class);
         Root<TagType> u = criteria.from(TagType.class);
-        criteria.select(u).where(builder.equal(u.get("name"), name)).distinct(true);
+        // Case insensitive
+        criteria.select(u).where(builder.equal(builder.lower(u.get("name")), name.toLowerCase())).distinct(true);
         List<TagType> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }

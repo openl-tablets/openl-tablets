@@ -33,6 +33,10 @@ public class TagService {
         return tagDao.getById(id);
     }
 
+    public Tag getByName(String name) {
+        return tagDao.getByName(name);
+    }
+
     public void setTagDao(TagDao tagDao) {
         this.tagDao = tagDao;
     }
