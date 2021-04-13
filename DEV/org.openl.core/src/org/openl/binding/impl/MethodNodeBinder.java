@@ -18,6 +18,7 @@ import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMethodCaller;
@@ -89,6 +90,67 @@ public class MethodNodeBinder extends ANodeBinder {
         ISyntaxNode lastNode = node.getChild(childrenCount - 1);
 
         String methodName = ((IdentifierNode) lastNode).getIdentifier();
+        IOpenClass[] parameterTypes = IOpenClass.EMPTY;
+
+        bindingContext.pushErrors();
+        IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
+        List<SyntaxNodeException> syntaxNodeExceptions = bindingContext.popErrors();
+        if (syntaxNodeExceptions.isEmpty()) {
+            parameterTypes = getTypes(children);
+            IMethodCaller methodCaller = bindingContext
+                    .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
+            BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
+            methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
+            if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
+                log(methodName, parameterTypes, "entirely appropriate by signature method");
+                return new MethodBoundNode(node, methodCaller, children);
+            }
+            // can`t find directly the method with given name and parameters. so,
+            // if there are any parameters, try to bind it some additional ways
+            // someMethod( parameter1, ... )
+            //
+            if (childrenCount > 1) {
+                // Try to bind method, that contains one of the arguments as array type.
+                // For this try to find method without
+                // array argument (but the component type of it on the same place). And
+                // call it several times on runtime
+                // for collecting results.
+                //
+                IBoundNode arrayArgumentsMethod = makeArrayArgumentsMethod(node,
+                        bindingContext,
+                        methodName,
+                        parameterTypes,
+                        children);
+
+                if (arrayArgumentsMethod != null) {
+                    log(methodName, parameterTypes, "array argument method");
+                    return arrayArgumentsMethod;
+                }
+
+                if (methodCaller != null) {
+                    log(methodName, parameterTypes, "entirely appropriate by signature method");
+                    return new MethodBoundNode(node, methodCaller, children);
+                }
+
+                // Get the root component type and dimension of the array.
+                IOpenClass argumentType = parameterTypes[0];
+                int dims = 0;
+                while (argumentType.isArray()) {
+                    dims++;
+                    argumentType = argumentType.getComponentClass();
+                }
+                IBoundNode field = bindAsFieldBoundNode(node,
+                        methodName,
+                        parameterTypes,
+                        children,
+                        childrenCount,
+                        argumentType,
+                        dims);
+                if (field != null) {
+                    return field;
+                }
+            }
+        }
 
         IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, methodName);
         if (type != null) {
@@ -97,74 +159,10 @@ public class MethodNodeBinder extends ANodeBinder {
                 return iBoundNode;
             }
         }
-
-        IBoundNode[] children = bindChildren(node, bindingContext, 0, childrenCount - 1);
-        if (hasErrorBoundNode(children)) {
+        if(!syntaxNodeExceptions.isEmpty()){
+            syntaxNodeExceptions.forEach(bindingContext::addError);
             return new ErrorBoundNode(node);
         }
-        IOpenClass[] parameterTypes = getTypes(children);
-
-        IMethodCaller methodCaller = bindingContext
-            .findMethodCaller(ISyntaxConstants.THIS_NAMESPACE, methodName, parameterTypes);
-
-        BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
-        methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
-
-        if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
-            log(methodName, parameterTypes, "entirely appropriate by signature method");
-            return new MethodBoundNode(node, methodCaller, children);
-        }
-
-        // can`t find directly the method with given name and parameters. so,
-        // if there are any parameters, try to bind it some additional ways
-        // someMethod( parameter1, ... )
-        //
-        if (childrenCount > 1) {
-
-            // Try to bind method, that contains one of the arguments as array type.
-            // For this try to find method without
-            // array argument (but the component type of it on the same place). And
-            // call it several times on runtime
-            // for collecting results.
-            //
-            IBoundNode arrayArgumentsMethod = makeArrayArgumentsMethod(node,
-                bindingContext,
-                methodName,
-                parameterTypes,
-                children);
-
-            if (arrayArgumentsMethod != null) {
-                log(methodName, parameterTypes, "array argument method");
-                return arrayArgumentsMethod;
-            }
-
-            if (methodCaller != null) {
-                log(methodName, parameterTypes, "entirely appropriate by signature method");
-                return new MethodBoundNode(node, methodCaller, children);
-            }
-
-            // Get the root component type and dimension of the array.
-            IOpenClass argumentType = parameterTypes[0];
-            int dims = 0;
-            while (argumentType.isArray()) {
-                dims++;
-                argumentType = argumentType.getComponentClass();
-            }
-            IBoundNode field = bindAsFieldBoundNode(node,
-                methodName,
-                parameterTypes,
-                children,
-                childrenCount,
-                argumentType,
-                dims);
-            if (field != null) {
-                return field;
-            }
-
-            throw new MethodNotFoundException(methodName, parameterTypes);
-        }
-
-        // There are no other variants - so error.
         throw new MethodNotFoundException(methodName, parameterTypes);
     }
 
