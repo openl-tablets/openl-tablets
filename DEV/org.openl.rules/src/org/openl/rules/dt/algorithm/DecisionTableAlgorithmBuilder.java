@@ -224,7 +224,8 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         // tested in TypeInExpressionTest
         //
         IBoundNode[] children = methodNode.getChildren();
-        if (children != null && children.length == 1 && children[0].getChildren()[0] instanceof TypeBoundNode) {
+        if (children != null && children.length == 1 && children[0].getChildren() != null
+                && children[0].getChildren().length > 0 && children[0].getChildren()[0] instanceof TypeBoundNode) {
             String message = String.format("Cannot execute expression with only type definition '%s'.",
                 source.getCode());
             BindHelper.processError(message, source, bindingContext);

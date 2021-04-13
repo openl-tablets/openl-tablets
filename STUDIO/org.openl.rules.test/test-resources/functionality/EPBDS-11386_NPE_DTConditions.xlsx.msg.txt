@@ -1,0 +1,13 @@
+ERROR: Encountered " "@" "@ "" at line 1, column 1.
+ERROR: Encountered " "*" "* "" at line 1, column 1.
+ERROR: Unexpected bracket ')'
+ERROR: Encountered " "=" "= "" at line 1, column 1.
+ERROR: Encountered " "<" "< "" at line 1, column 1.
+ERROR: Encountered " ">" "> "" at line 1, column 1.
+ERROR: Encountered " "?" "? "" at line 1, column 1.
+ERROR: Encountered " <BOOL_OR> "|| "" at line 1, column 1.
+ERROR: Encountered " "/" "/ "" at line 1, column 1.
+ERROR: Unexpected bracket '}'
+ERROR: Unexpected bracket ']'
+ERROR: Encountered " "." ". "" at line 1, column 1.
+ERROR: Encountered " "," ", "" at line 1, column 1.
