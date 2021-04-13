@@ -7,13 +7,14 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
-public class NamedConstructorNode extends ABoundNode implements IBoundMethodNode {
+public class ShortConstructorNamedParamsNode extends ABoundNode implements IBoundMethodNode, ShortConstructor {
 
     private final int localFrameSize;
     private final ILocalVar tempVar;
-    private final IBoundNode constructor;
+    private final MethodBoundNode constructor;
 
-    public NamedConstructorNode(ILocalVar tempVar, ISyntaxNode node, int localFrameSize, IBoundNode constructor, IBoundNode... children) {
+
+    public ShortConstructorNamedParamsNode(ILocalVar tempVar, ISyntaxNode node, int localFrameSize, MethodBoundNode constructor, IBoundNode... children) {
         super(node, children);
         this.localFrameSize = localFrameSize;
         this.tempVar = tempVar;
@@ -30,34 +31,23 @@ public class NamedConstructorNode extends ABoundNode implements IBoundMethodNode
         return evaluate;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundMethodNode#getLocalFrameSize()
-     */
     @Override
     public int getLocalFrameSize() {
         return localFrameSize;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundMethodNode#getParametersSize()
-     */
     @Override
     public int getParametersSize() {
         return 0;
     }
 
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.openl.binding.IBoundNode#getType()
-     */
     @Override
     public IOpenClass getType() {
         return tempVar.getType();
     }
 
+    @Override
+    public MethodBoundNode getConstructor() {
+        return constructor;
+    }
 }
