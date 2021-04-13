@@ -62,6 +62,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import com.thoughtworks.xstream.io.StreamException;
 
 @Service
@@ -185,8 +186,10 @@ public class InputArgsBean {
             ClassLoader classLoader = WebStudioUtils.getProjectModel().getCompiledOpenClass().getClassLoader();
             ProjectJacksonObjectMapperFactoryBean objectMapperFactory = new ProjectJacksonObjectMapperFactoryBean();
             objectMapperFactory.setRulesDeploy(rulesDeploy);
-            objectMapperFactory.setXlsModuleOpenClass(
-                (XlsModuleOpenClass) WebStudioUtils.getWebStudio().getModel().getCompiledOpenClass().getOpenClass());
+            objectMapperFactory.setXlsModuleOpenClass((XlsModuleOpenClass) WebStudioUtils.getWebStudio()
+                .getModel()
+                .getCompiledOpenClass()
+                .getOpenClassWithErrors());
             objectMapperFactory.setClassLoader(classLoader);
             // Default values from webservices. TODO this should be configurable
             objectMapperFactory.setPolymorphicTypeValidation(true);
@@ -246,10 +249,10 @@ public class InputArgsBean {
                     validateFirstJsonSymbol(inputTextBean);
                 }
             } catch (JsonParseException e) {
-                throw new Message(constructJsonExceptionMessage(e));
+                throw new Message(constructJsonExceptionMessage(e), e);
             } catch (IOException e) {
                 if (StringUtils.isNotBlank(e.getMessage())) {
-                    throw new Message("Input parameters are wrong. " + e.getMessage());
+                    throw new Message("Input parameters are wrong. " + e.getMessage(), e);
                 }
                 throw new Message("Input parameters are wrong.");
             }
@@ -259,20 +262,21 @@ public class InputArgsBean {
             if (InputTestCaseType.TEXT.equals(inputTestCaseType) && stringStringMap != null) {
                 ObjectMapper objectMapper = configureObjectMapper();
                 if (argumentTreeNodes.length == 1 && !isProvideRuntimeContext()) {
-                    parsedArguments[0] = JsonUtils.fromJSON(inputTextBean,
-                            argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
+                    parsedArguments[0] = JsonUtils
+                        .fromJSON(inputTextBean, argumentTreeNodes[0].getType().getInstanceClass(), objectMapper);
                 } else {
                     for (int i = 0; i < argumentTreeNodes.length; i++) {
                         String field = stringStringMap.get(argumentTreeNodes[i].getName());
                         if (field != null) {
-                            parsedArguments[i] = JsonUtils
-                                    .fromJSON(field, argumentTreeNodes[i].getType().getInstanceClass(), objectMapper);
+                            parsedArguments[i] = tryParseJson(field,
+                                argumentTreeNodes[i].getType().getInstanceClass(),
+                                objectMapper);
                             stringStringMap.remove(argumentTreeNodes[i].getName());
                         }
                     }
                     if (!stringStringMap.isEmpty() && isProvideRuntimeContext()) {
                         String contextJson = stringStringMap.values().iterator().next();
-                        runtimeContext = JsonUtils.fromJSON(contextJson, IRulesRuntimeContext.class, objectMapper);
+                        runtimeContext = tryParseJson(contextJson, IRulesRuntimeContext.class, objectMapper);
                         if (runtimeContext == null) {
                             runtimeContext = new DefaultRulesRuntimeContext();
                         }
@@ -287,12 +291,12 @@ public class InputArgsBean {
             throw e;
         } catch (IOException e) {
             if (StringUtils.isNotBlank(e.getMessage())) {
-                throw new Message("Input parameters are wrong. " + e.getMessage());
+                throw new Message("Input parameters are wrong. " + e.getMessage(), e);
             }
-            throw new Message("Input parameters are wrong.");
+            throw new Message("Input parameters are wrong.", e);
         } catch (RuntimeException e) {
             if (e instanceof IllegalArgumentException || e.getCause() instanceof IllegalArgumentException) {
-                throw new Message("Input parameters are wrong.");
+                throw new Message("Input parameters are wrong.", e);
             } else {
                 throw e;
             }
@@ -537,5 +541,14 @@ public class InputArgsBean {
 
     public IRulesRuntimeContext getRuntimeContext() {
         return runtimeContext;
+    }
+
+    private static <T> T tryParseJson(String json, Class<T> clazz, ObjectMapper mapper) throws IOException {
+        try {
+            return JsonUtils.fromJSON(json, clazz, mapper);
+        } catch (MismatchedInputException ignored) {
+            // can be happened if plain text is passed instead of JSON.
+            return null;
+        }
     }
 }
