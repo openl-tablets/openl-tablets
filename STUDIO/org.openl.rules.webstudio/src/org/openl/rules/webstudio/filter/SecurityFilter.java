@@ -27,7 +27,6 @@ public class SecurityFilter implements Filter {
     public void doFilter(ServletRequest servletRequest,
             ServletResponse servletResponse,
             FilterChain filterChain) throws IOException, ServletException {
-        servletRequest.setCharacterEncoding("UTF-8");
         ServletContext sc = servletRequest.getServletContext();
         /*has been moved ahead as there is the case when step3 in wizard has a user mode choosen
           and new filterChainProxy object required but context still have an old one, see comment in the EPBDS-10752*/
