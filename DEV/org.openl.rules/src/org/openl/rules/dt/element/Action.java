@@ -21,6 +21,7 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
@@ -185,7 +186,8 @@ public class Action extends FunctionalRow implements IAction {
         CompositeMethod method = getMethod();
         String code = method.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
 
-        isSingleReturnParam = params.length == 1 && params[0].getName().equals(code);
+        isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0])
+                && params[0].getName().equals(code);
     }
 
     @Override
