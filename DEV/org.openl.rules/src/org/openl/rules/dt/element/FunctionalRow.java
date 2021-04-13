@@ -1,10 +1,12 @@
 package org.openl.rules.dt.element;
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.binding.impl.BindHelper;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.OpenlToolAdaptor;
@@ -21,6 +23,7 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.SimpleLogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -104,12 +107,11 @@ public abstract class FunctionalRow implements IDecisionRow {
 
     @Override
     public IOpenSourceCodeModule getSourceCodeModule() {
-
-        if (method != null) {
-            return method.getMethodBodyBoundNode().getSyntaxNode().getModule();
-        }
-
-        return null;
+        return Optional.ofNullable(method)
+            .map(CompositeMethod::getMethodBodyBoundNode)
+            .map(IBoundNode::getSyntaxNode)
+            .map(ISyntaxNode::getModule)
+            .orElse(null);
     }
 
     @Override
@@ -254,7 +256,9 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     private void prepareParamValues(CompositeMethod method, OpenlToolAdaptor ota, RuleRow ruleRow) throws Exception {
-
+        if (method.getMethodBodyBoundNode() == null) {
+            return;
+        }
         int len = nValues();
 
         IParameterDeclaration[] paramDecl = getParams(method.getDeclaringClass(),

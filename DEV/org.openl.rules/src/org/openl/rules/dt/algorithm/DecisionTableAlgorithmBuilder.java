@@ -208,10 +208,13 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
             BindHelper.processError(e, table.getSyntaxNode().getModule(), bindingContext);
             return DefaultConditionEvaluator.INSTANCE;
         }
+        IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
+        if (methodNode == null) {
+            return DefaultConditionEvaluator.INSTANCE;
+        }
         condition.setConditionParametersUsed(checkConditionParameterUsedInExpression(condition));
         condition.setRuleIdOrRuleNameUsed(checkRuleIdOrRuleNameInExpression(condition));
 
-        IBoundMethodNode methodNode = ((CompositeMethod) condition.getMethod()).getMethodBodyBoundNode();
         IOpenSourceCodeModule source = methodNode.getSyntaxNode().getModule();
         if (StringUtils.isEmpty(source.getCode())) {
             BindHelper.processError("Cannot execute empty expression.", source, bindingContext);
