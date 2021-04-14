@@ -1,9 +1,9 @@
 package org.openl.rules.lock;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.Writer;
 import java.nio.file.AccessDeniedException;
 import java.nio.file.FileAlreadyExistsException;
@@ -151,7 +151,7 @@ public class Lock {
             return LockInfo.NO_LOCK;
         }
         Properties properties = new Properties();
-        try (InputStream is = Files.newInputStream(lock)) {
+        try (BufferedReader is = Files.newBufferedReader(lock)) {
             properties.load(is);
             String userName = properties.getProperty(USER_NAME);
             String stringDate = properties.getProperty(DATE);
