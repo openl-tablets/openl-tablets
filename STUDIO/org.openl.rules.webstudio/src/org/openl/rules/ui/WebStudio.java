@@ -1174,6 +1174,7 @@ public class WebStudio implements DesignTimeRepositoryListener {
     public String url(String pageUrl, final String tableURI) {
         String projectName;
         String moduleName;
+        String repositoryId = currentRepositoryId;
         if (tableURI == null) {
             moduleName = getCurrentModule() == null ? null : getCurrentModule().getName();
             projectName = getCurrentProjectDescriptor() == null ? null : getCurrentProjectDescriptor().getName();
@@ -1187,6 +1188,14 @@ public class WebStudio implements DesignTimeRepositoryListener {
             if (project == null) {
                 return null;
             }
+
+            repositoryId = projects.entrySet()
+                .stream()
+                .filter(entry -> entry.getValue().stream().anyMatch(projectDescriptor -> projectDescriptor.equals(project)))
+                .findFirst()
+                .map(Map.Entry::getKey)
+                .orElse(currentRepositoryId);
+
             // Get a module
             Module module = CollectionUtils.findFirst(project.getModules(), new CollectionUtils.Predicate<Module>() {
                 @Override
@@ -1221,9 +1230,9 @@ public class WebStudio implements DesignTimeRepositoryListener {
             // list.
         }
         if (StringUtils.isBlank(moduleName)) {
-            return "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool.encodeURL(projectName);
+            return "#" + StringTool.encodeURL(repositoryId) + "/" + StringTool.encodeURL(projectName);
         }
-        String moduleUrl = "#" + StringTool.encodeURL(currentRepositoryId) + "/" + StringTool
+        String moduleUrl = "#" + StringTool.encodeURL(repositoryId) + "/" + StringTool
             .encodeURL(projectName) + "/" + StringTool.encodeURL(moduleName);
         if (StringUtils.isBlank(pageUrl)) {
             return moduleUrl;
