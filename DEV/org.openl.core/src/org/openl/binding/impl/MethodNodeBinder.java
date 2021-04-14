@@ -194,7 +194,7 @@ public class MethodNodeBinder extends ANodeBinder {
             if (isAllParamsAssign && namedParams.stream().allMatch(n -> type.getField(n) != null)) {
                 IMethodCaller methodCaller = MethodSearch.findConstructor(IOpenClass.EMPTY, bindingContext, type);
                 MethodBoundNode methodBoundNode = new MethodBoundNode(node, methodCaller);
-                return new ShortConstructorNamedParamsNode(localVar, node, 0, methodBoundNode, params.toArray(IBoundNode.EMPTY));
+                return new ConstructorNamedParamsNode(localVar, methodBoundNode, params.toArray(IBoundNode.EMPTY));
             } else if (!Date.class.getName().equals(type.getName())) {
                 IBoundNode[] children = params.toArray(IBoundNode.EMPTY);
                 if (hasErrorBoundNode(children)) {
@@ -205,8 +205,7 @@ public class MethodNodeBinder extends ANodeBinder {
                 BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
                 if (methodCaller != null) {
-                    MethodBoundNode methodBoundNode = new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY));
-                    return new ShortConstructorAllParamsNode(methodBoundNode, node, params.toArray(IBoundNode.EMPTY));
+                    return new ConstructorParamsNode(new MethodBoundNode(node, methodCaller, params.toArray(IBoundNode.EMPTY)), false);
                 }
             }
         } finally {

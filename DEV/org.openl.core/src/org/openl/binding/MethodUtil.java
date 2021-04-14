@@ -1,12 +1,7 @@
-/*
- * Created on Jun 3, 2003
- *
- * Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding;
 
 import java.lang.reflect.Method;
+import java.util.Map;
 import java.util.function.Function;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -39,6 +34,27 @@ public final class MethodUtil {
         return buf;
     }
 
+    public static StringBuilder printConstructorWithNamedParameters(IOpenMethodHeader method, Map<String, String> params, StringBuilder buf) {
+        buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
+        String prefix = "";
+        buf.append('(');
+        for (String name : params.keySet()) {
+            buf.append(prefix);
+            prefix = ",";
+            buf.append(params.get(name)).append(" ").append(name);
+        }
+        endPrintingMethodName(buf);
+        return buf;
+    }
+
+    public static StringBuilder printConstructor(IOpenMethodHeader method, StringBuilder buf) {
+        buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
+        buf.append('(');
+        printParameters(method, buf, DEFAULT_TYPE_CONVERTER);
+        endPrintingMethodName(buf);
+        return buf;
+    }
+
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
         StringBuilder buf = new StringBuilder();
         Function<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
@@ -54,11 +70,13 @@ public final class MethodUtil {
     private static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
             Function<IOpenClass, String> typeConverter) {
-
         startPrintingMethodName(methodHeader.getName(), buf);
+        printParameters(methodHeader, buf, typeConverter);
+        endPrintingMethodName(buf);
+    }
 
+    private static void printParameters(IOpenMethodHeader methodHeader, StringBuilder buf, Function<IOpenClass, String> typeConverter){
         IMethodSignature signature = methodHeader.getSignature();
-
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             String type = typeConverter.apply(signature.getParameterType(i));
             String name = signature.getParameterName(i);
@@ -78,8 +96,6 @@ public final class MethodUtil {
                 buf.append(name);
             }
         }
-
-        endPrintingMethodName(buf);
     }
 
     public static String printMethod(String name, Class<?>[] params, boolean shortClassNames) {

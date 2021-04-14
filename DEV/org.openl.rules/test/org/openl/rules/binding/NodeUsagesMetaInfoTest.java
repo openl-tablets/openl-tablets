@@ -226,7 +226,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(2, usedNodes.size());
 
         assertEquals(typeB.getUri(), usedNodes.get(0).getUri());
-        assertEquals("TypeB <init>(String aaa)", usedNodes.get(0).getDescription());
+        assertEquals("TypeB (String aaa)", usedNodes.get(0).getDescription());
         assertEquals(4, usedNodes.get(0).getStart());
         assertEquals(8, usedNodes.get(0).getEnd());
 
@@ -455,12 +455,12 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(0, usedNodes.get(0).getEnd());
 
         assertEquals(typeC.getUri(), usedNodes.get(1).getUri());
-        assertEquals("TypeC <init>(String aaa, TypeB bField, TypeB[] bArray, CarType[] carTypes)", usedNodes.get(1).getDescription());
+        assertEquals("TypeC (String aaa, TypeB bField, TypeB[] bArray, CarType[] carTypes)", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(10, usedNodes.get(1).getEnd());
 
         assertEquals(typeB.getUri(), usedNodes.get(2).getUri());
-        assertEquals("TypeB <init>(String aaa)", usedNodes.get(2).getDescription());
+        assertEquals("TypeB (String aaa)", usedNodes.get(2).getDescription());
         assertEquals(23, usedNodes.get(2).getStart());
         assertEquals(27, usedNodes.get(2).getEnd());
 
@@ -470,7 +470,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(42, usedNodes.get(3).getEnd());
 
         assertEquals(typeB.getUri(), usedNodes.get(4).getUri());
-        assertEquals("TypeB <init>()", usedNodes.get(4).getDescription());
+        assertEquals("TypeB ()", usedNodes.get(4).getDescription());
         assertEquals(51, usedNodes.get(4).getStart());
         assertEquals(55, usedNodes.get(4).getEnd());
 
@@ -540,7 +540,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(0, usedNodes.get(0).getEnd());
 
         assertNull(usedNodes.get(1).getUri());
-        assertEquals("java.math\nBigDecimal <init>(double p0)", usedNodes.get(1).getDescription());
+        assertEquals("java.math\nBigDecimal (double p0)", usedNodes.get(1).getDescription());
         assertEquals(6, usedNodes.get(1).getStart());
         assertEquals(15, usedNodes.get(1).getEnd());
     }
@@ -560,7 +560,7 @@ public class NodeUsagesMetaInfoTest extends BaseOpenlBuilderHelper {
         assertEquals(0, usedNodes.get(0).getEnd());
 
         assertNull(usedNodes.get(1).getUri());
-        assertEquals("java.text\nSimpleDateFormat <init>(String p0)", usedNodes.get(1).getDescription());
+        assertEquals("java.text\nSimpleDateFormat (String p0)", usedNodes.get(1).getDescription());
         assertEquals(16, usedNodes.get(1).getStart());
         assertEquals(31, usedNodes.get(1).getEnd());
     }
