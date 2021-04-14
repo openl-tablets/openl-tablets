@@ -384,8 +384,8 @@ public class DecisionTableLoader {
             throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
         }
         if (height == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            bindingContext.addMessage(OpenLMessagesUtils
-                .newWarnMessage("There are no rule rows in the table.", tableSyntaxNode));
+            bindingContext
+                .addMessage(OpenLMessagesUtils.newWarnMessage("There are no rule rows in the table.", tableSyntaxNode));
         }
         ILogicalTable toParse = tableBody;
 
@@ -425,7 +425,7 @@ public class DecisionTableLoader {
             loadRow(decisionTable, tableStructure, toParse, i, bindingContext);
         }
 
-        validateMapReturnType(tableSyntaxNode, decisionTable, tableStructure);
+        validateReturnType(tableSyntaxNode, decisionTable, tableStructure);
         return tableStructure;
     }
 
@@ -502,9 +502,13 @@ public class DecisionTableLoader {
         return new CompilationErrors(errors, messages, metaInfos, ex);
     }
 
-    private void validateMapReturnType(TableSyntaxNode tableSyntaxNode,
+    private void validateReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
+        if (tableStructure.actions.isEmpty()) {
+            throw SyntaxNodeExceptionUtils
+                .createError("Invalid Decision Table headers: At least one return header is required.", tableSyntaxNode);
+        }
         if (NullOpenClass.isAnyNull(decisionTable.getType())) {
             return;
         }
