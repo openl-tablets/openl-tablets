@@ -459,11 +459,9 @@ public class CopyBean {
             if (isSupportsBranches()) {
                 RulesProject project = getCurrentProject();
                 currentBranchName = project.getBranch();
-                // Remove restricted symbols
-                String simplifiedProjectName = getBusinessName().replaceAll("[^\\w\\-]", "");
                 String userName = getUserWorkspace().getUser().getUserName();
                 String date = new SimpleDateFormat("yyyyMMdd").format(new Date());
-                newBranchName = designRepoComments.newBranch(simplifiedProjectName, userName, date);
+                newBranchName = designRepoComments.newBranch(getBusinessName(), userName, date);
             }
         } catch (Exception e) {
             LOG.error(e.getMessage(), e);

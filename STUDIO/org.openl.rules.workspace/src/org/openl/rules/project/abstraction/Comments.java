@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
@@ -115,7 +116,10 @@ public final class Comments {
     }
 
     public String newBranch(String projectName, String userName, String date) {
-        return newBranchNameTemplate.replace(PROJECT_NAME, projectName == null ? StringUtils.EMPTY : projectName)
+        String simplifiedProjName = Optional.ofNullable(projectName)
+            .map(s -> s.replaceAll("[^\\p{LD}\\-$]", "")) // Remove restricted symbols
+            .orElse(StringUtils.EMPTY);
+        return newBranchNameTemplate.replace(PROJECT_NAME, simplifiedProjName)
             .replace(USER_NAME, userName == null ? StringUtils.EMPTY : userName)
             .replace(CURRENT_DATE, date == null ? StringUtils.EMPTY : date);
     }

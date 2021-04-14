@@ -6,9 +6,7 @@ import static org.junit.Assert.assertNull;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -41,7 +39,15 @@ public class CommentsTest {
             restoredFromTemplate,
             newBranchNameTemplate);
 
-        comments2 = new Comments(dateTimeFormat, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE, TEMPLATE);
+        comments2 = new Comments(dateTimeFormat,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE);
     }
 
     @Test
@@ -143,27 +149,28 @@ public class CommentsTest {
     public void testRestoredFrom() {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
-        assertEquals("Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}", actual);
+        assertEquals(
+            "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+            actual);
     }
 
     @Test
     public void testRestoredFromWithDollarSign() {
         Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
         String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
-        assertEquals("Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}", actualWithSymbol);
+        assertEquals(
+            "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+            actualWithSymbol);
     }
-
 
     @Test
     public void testNewBranch() {
-        String actual = comments.newBranch("myProjectName", "myUserName", "myCurrentDate");
-        assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}", actual);
-    }
-
-    @Test
-    public void testNewBranchWithDollarSign() {
-        String actualWithSymbol = comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate");
-        assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}", actualWithSymbol);
+        assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}",
+            comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
+        assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
+            comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
+        assertEquals("WebStudio/Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
+                comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
     }
 
     @Test
@@ -176,7 +183,7 @@ public class CommentsTest {
         assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
         assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
         assertEquals("Project {username} {myProjectName} is copied-from. {foo}",
-                comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
+            comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
     }
 
 }
