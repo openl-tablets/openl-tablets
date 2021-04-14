@@ -244,6 +244,7 @@ public final class TestMojo extends BaseOpenLMojo {
                     .setExternalParameters(externalParameters)
                     .build();
 
+                info("");
                 info("Searching tests in module '", module.getName(), "'...");
                 CompiledOpenClass openLRules = factory.getCompiledOpenClass();
                 Summary summary = executeTests(openLRules);
@@ -295,7 +296,6 @@ public final class TestMojo extends BaseOpenLMojo {
             for (TestSuiteMethod test : tests) {
                 String moduleName = test.getModuleName();
                 try {
-                    info("");
                     String moduleInfo = moduleName == null ? "" : String.format(" from module '%s'", moduleName);
                     info("Running ", String.format("'%s'", test.getName()), moduleInfo, "...");
                     TestUnitsResults result;
