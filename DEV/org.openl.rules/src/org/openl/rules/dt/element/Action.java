@@ -2,9 +2,11 @@ package org.openl.rules.dt.element;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundNode;
 import org.openl.rules.dt.DTScale;
 import org.openl.rules.dt.DecisionTable;
 import org.openl.rules.dt.data.RuleExecutionObject;
@@ -14,6 +16,7 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IMethodSignature;
@@ -184,7 +187,11 @@ public class Action extends FunctionalRow implements IAction {
 
         IParameterDeclaration[] params = getParams();
         CompositeMethod method = getMethod();
-        String code = method.getMethodBodyBoundNode().getSyntaxNode().getModule().getCode();
+        String code = Optional.ofNullable(method.getMethodBodyBoundNode())
+            .map(IBoundNode::getSyntaxNode)
+            .map(ISyntaxNode::getModule)
+            .map(IOpenSourceCodeModule::getCode)
+            .orElse(null);
 
         isSingleReturnParam = params.length == 1 && !NullParameterDeclaration.isAnyNull(params[0])
                 && params[0].getName().equals(code);

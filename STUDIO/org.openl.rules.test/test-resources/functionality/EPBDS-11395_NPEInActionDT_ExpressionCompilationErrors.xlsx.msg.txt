@@ -1,0 +1,13 @@
+ERROR: Encountered " "*" "* ""
+ERROR: Encountered " "@" "@ ""
+ERROR: Unexpected bracket ')'
+ERROR: Encountered " "=" "= ""
+ERROR: Encountered " "<" "< ""
+ERROR: Encountered " ">" "> ""
+ERROR: Encountered " "?" "? ""
+ERROR: Encountered " <BOOL_OR> "|| ""
+ERROR: Encountered " "/" "/ ""
+ERROR: Mismatched: opened with '(' and closed with '}'
+ERROR: Mismatched: opened with '(' and closed with ']'
+ERROR: Encountered " "." ". ""
+ERROR: Encountered " "/" "/ ""
