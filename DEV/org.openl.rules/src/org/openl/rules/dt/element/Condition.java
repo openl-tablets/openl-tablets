@@ -316,11 +316,6 @@ public class Condition extends FunctionalRow implements ICondition {
     }
 
     @Override
-    public void removeDebugInformation() {
-        getMethod().removeDebugInformation();
-    }
-
-    @Override
     public int getNumberOfEmptyRules(int paramIndex) {
         if (storage != null) {
             return storage[paramIndex].getInfo().getNumberOfSpaces();
