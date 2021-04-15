@@ -507,7 +507,7 @@ public class DecisionTableLoader {
             TableStructure tableStructure) throws SyntaxNodeException {
         if (tableStructure.actions.isEmpty()) {
             throw SyntaxNodeExceptionUtils
-                .createError("Invalid Decision Table headers: At least one return header is required.", tableSyntaxNode);
+                .createError("Invalid Decision Table headers: At least one return column header is required.", tableSyntaxNode);
         }
         if (NullOpenClass.isAnyNull(decisionTable.getType())) {
             return;
