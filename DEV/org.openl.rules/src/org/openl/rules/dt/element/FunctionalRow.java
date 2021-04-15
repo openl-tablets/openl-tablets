@@ -579,6 +579,11 @@ public abstract class FunctionalRow implements IDecisionRow {
     }
 
     @Override
+    public void removeDebugInformation() {
+        Optional.ofNullable(method).ifPresent(CompositeMethod::removeDebugInformation);
+    }
+
+    @Override
     public boolean isEqual(int rule1, int rule2) {
         int n = getNumberOfParams();
         for (int i = 0; i < n; i++) {

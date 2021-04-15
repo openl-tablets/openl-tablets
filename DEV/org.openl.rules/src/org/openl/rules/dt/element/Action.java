@@ -247,9 +247,9 @@ public class Action extends FunctionalRow implements IAction {
 
     @Override
     public void removeDebugInformation() {
-        getMethod().removeDebugInformation();
+        super.removeDebugInformation();
         if (storage != null) {
-            for (IStorage st : storage) {
+            for (IStorage<?> st : storage) {
                 int rules = st.size();
                 for (int i = 0; i < rules; i++) {
                     Object paramValue = st.getValue(i);

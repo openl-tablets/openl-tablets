@@ -1,5 +1,9 @@
 package org.openl.rules.dt;
 
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Stream;
+
 import org.openl.OpenL;
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
@@ -281,5 +285,11 @@ public class DecisionTable extends ExecutableRulesMethod implements IDecisionTab
         if (algorithm != null) {
             algorithm.cleanParamValuesForIndexedConditions();
         }
+
+        final Function<IBaseDecisionRow[], Stream<IBaseDecisionRow>> toStream = row -> Optional.ofNullable(row)
+            .map(Stream::of)
+            .orElseGet(Stream::empty);
+        Stream.concat(toStream.apply(actionRows), toStream.apply(conditionRows))
+            .forEach(IBaseDecisionRow::removeDebugInformation);
     }
 }

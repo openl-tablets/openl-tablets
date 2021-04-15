@@ -14,6 +14,4 @@ public interface IBaseCondition extends IBaseDecisionRow {
     @Override
     ILogicalTable getValueCell(int ruleIndex);
 
-    void removeDebugInformation();
-
 }

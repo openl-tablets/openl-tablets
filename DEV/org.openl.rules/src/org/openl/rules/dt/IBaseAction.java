@@ -17,5 +17,4 @@ public interface IBaseAction extends IBaseDecisionRow {
 
     boolean isCollectReturnKeyAction();
 
-    void removeDebugInformation();
 }
