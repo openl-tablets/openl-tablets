@@ -1,0 +1,2 @@
+ERROR: Invalid Decision Table headers: At least one return column header is required.
+ERROR: Invalid Decision Table headers: At least one return column header is required.
