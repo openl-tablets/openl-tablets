@@ -9,6 +9,8 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
     public Response toResponse(Exception e) {
         if (e instanceof SecurityException) {
             return  Response.status(Response.Status.FORBIDDEN.getStatusCode()).entity("You haven't privileges to do that.").build();
+        } else if (e instanceof IllegalArgumentException) {
+            return Response.status(Response.Status.CONFLICT.getStatusCode()).entity(e.getMessage()).build();
         }
         return  Response.status(Response.Status.BAD_REQUEST.getStatusCode()).entity(e.getMessage()).build();
     }
