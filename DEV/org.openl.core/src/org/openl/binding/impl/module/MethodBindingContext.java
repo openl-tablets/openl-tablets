@@ -4,10 +4,17 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.*;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
+import org.openl.types.impl.MethodSignature;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -48,6 +55,13 @@ public class MethodBindingContext extends BindingContextDelegator {
                     localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, pName, params[i]);
                 }
             } catch (DuplicatedVarException e) {
+                if (signature instanceof MethodSignature) {
+                    IParameterDeclaration paramDeclaration = ((MethodSignature) signature).getParameterDeclaration(i);
+                    if (paramDeclaration != null && paramDeclaration.getModule() != null) {
+                        BindHelper.processError(e, paramDeclaration.getModule(), delegate);
+                        continue;
+                    }
+                }
                 throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }
         }
