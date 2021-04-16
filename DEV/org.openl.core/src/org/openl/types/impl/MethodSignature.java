@@ -47,6 +47,10 @@ public class MethodSignature implements IMethodSignature {
         return parameterTypes;
     }
 
+    public IParameterDeclaration getParameterDeclaration(int i) {
+        return parameters[i];
+    }
+
     public MethodSignature merge(IParameterDeclaration[] extraParams) {
         return new MethodSignature(merge(parameters, extraParams));
     }
