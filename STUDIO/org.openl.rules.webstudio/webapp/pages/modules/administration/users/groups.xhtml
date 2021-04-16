@@ -467,8 +467,12 @@
                 $j('#groupsTable').trigger('refresh');
                 RichFaces.$("modalAddEditGroup").hide();
                 location.reload();
-            }).fail(function () {
-                ws.ui.error("Could not save");
+            }).fail(function (response) {
+                if (response.responseText) {
+                    ws.ui.error(response.responseText);
+                } else {
+                    ws.ui.error("Could not save.")
+                }
                 $j('#groupsTable').trigger('refresh');
             });
         }
