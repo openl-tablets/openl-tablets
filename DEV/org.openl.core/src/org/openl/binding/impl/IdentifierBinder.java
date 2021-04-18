@@ -8,27 +8,12 @@ import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.ClassUtils;
 
 /**
  *
  * @author Yury Molchan
  */
 public class IdentifierBinder extends ANodeBinder {
-
-    private static final Class<?> SPR_CLAZZ;
-
-    static {
-        //FIXME needs to figure out better solution. In wonder world, IdentifierBinder must know nothing of concrete
-        // classes it must work in the same way for all types
-        Class<?> sprType;
-        try {
-            sprType = IdentifierBinder.class.getClassLoader().loadClass("org.openl.rules.calc.SpreadsheetResult");
-        } catch (ClassNotFoundException e) {
-            sprType = null;
-        }
-        SPR_CLAZZ = sprType;
-    }
 
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) throws Exception {
@@ -72,27 +57,36 @@ public class IdentifierBinder extends ANodeBinder {
         if (target.isStaticTarget()) {
             field = type.getStaticField(fieldName, strictMatch);
         } else {
-            if (!isSpreadsheetResult(type)) {
-                // disable strict match for non SPR types to save backward compatibility with old client projects
+            if (!isAllowStrictFieldMatch(type)) {
+                // disable strict match for all types to save backward compatibility with old client projects, except
+                // new types annotated with @AllowStrictFieldMatchType
                 strictMatch = false;
             }
             field = type.getField(fieldName, strictMatch);
         }
 
         if (field == null) {
-            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.", type.isStatic() ? "Static field" : "Field", fieldName, type));
+            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
+                type.isStatic() ? "Static field" : "Field",
+                fieldName,
+                type));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
                 if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
-                    BindHelper.processWarn(String.format("Accessing to static field '%s' from non-static object of type '%s'.",
-                            field.getName(), target.getType().getName()), node, bindingContext);
+                    BindHelper.processWarn(
+                        String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                            field.getName(),
+                            target.getType().getName()),
+                        node,
+                        bindingContext);
                 }
             } else {
                 return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
-                        field.getName(), target.getType().getName()), node, bindingContext);
+                    field.getName(),
+                    target.getType().getName()), node, bindingContext);
             }
         }
 
@@ -100,8 +94,9 @@ public class IdentifierBinder extends ANodeBinder {
         return new FieldBoundNode(node, field, target, dims);
     }
 
-    private static boolean isSpreadsheetResult(IOpenClass type) {
-        return SPR_CLAZZ != null && ClassUtils.isAssignable(type.getInstanceClass(), SPR_CLAZZ);
+    private static boolean isAllowStrictFieldMatch(IOpenClass type) {
+        return type != null && type.getInstanceClass() != null && type.getInstanceClass()
+            .isAnnotationPresent(AllowStrictFieldMatchType.class);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

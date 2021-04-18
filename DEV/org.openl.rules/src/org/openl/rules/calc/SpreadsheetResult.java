@@ -13,6 +13,7 @@ import java.util.Objects;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import org.openl.binding.impl.AllowStrictFieldMatchType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.Point;
@@ -27,10 +28,8 @@ import org.slf4j.LoggerFactory;
  * Serializable bean that handles result of spreadsheet calculation.
  */
 @XmlRootElement
-@CustomJavaOpenClass(
-        type = SpreadsheetResultOpenClass.class,
-        variableInContextFinder = SpreadsheetResultRootDictionaryContext.class
-)
+@CustomJavaOpenClass(type = SpreadsheetResultOpenClass.class, variableInContextFinder = SpreadsheetResultRootDictionaryContext.class)
+@AllowStrictFieldMatchType
 public class SpreadsheetResult implements Serializable {
 
     private static final int MAX_WIDTH = 4;
@@ -89,8 +88,12 @@ public class SpreadsheetResult implements Serializable {
     }
 
     public SpreadsheetResult(SpreadsheetResult spr) {
-        this(spr.results, spr.rowNames, spr.columnNames, spr.rowNamesForResultModel, spr.columnNamesForResultModel,
-                spr.fieldsCoordinates);
+        this(spr.results,
+            spr.rowNames,
+            spr.columnNames,
+            spr.rowNamesForResultModel,
+            spr.columnNamesForResultModel,
+            spr.fieldsCoordinates);
         this.logicalTable = spr.logicalTable;
         this.customSpreadsheetResultOpenClass = spr.customSpreadsheetResultOpenClass;
         this.tableStructureDetails = spr.tableStructureDetails;
@@ -385,7 +388,8 @@ public class SpreadsheetResult implements Serializable {
             final boolean isSingleRow = nonNullsRowsCount == 1;
             final boolean isSingleColumn = nonNullsColumnsCount == 1;
             final boolean isTableStructureDetailsPresented = tableStructureDetails;
-            String[][] TableDetails = isTableStructureDetailsPresented ? new String[rowNames.length][columnNames.length] : null;
+            String[][] TableDetails = isTableStructureDetailsPresented ? new String[rowNames.length][columnNames.length]
+                                                                       : null;
             if (customSpreadsheetResultOpenClass != null) {
                 CustomSpreadsheetResultOpenClass csrt;
                 if (module != null) {
