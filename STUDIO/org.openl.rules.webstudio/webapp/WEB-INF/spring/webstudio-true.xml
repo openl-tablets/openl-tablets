@@ -69,11 +69,7 @@
             <list>
                 <bean class="org.openl.rules.rest.RestExceptionMapper"/>
                 <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
-                    <constructor-arg name="mapper">
-                        <bean class="com.fasterxml.jackson.databind.ObjectMapper">
-                            <property name="serializationInclusion" value="NON_DEFAULT"/>
-                        </bean>
-                    </constructor-arg>
+                    <constructor-arg name="mapper" ref="objectMapperFactoryBean"/>
                 </bean>
             </list>
         </property>

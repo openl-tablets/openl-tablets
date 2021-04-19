@@ -10,6 +10,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -351,6 +352,21 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
         result.sort(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER));
 
         return result;
+    }
+
+    @Override
+    public List<? extends AProject> getProjects(String repositoryId) {
+        synchronized (projects) {
+            if (projectsRefreshNeeded) {
+                refreshProjects();
+            }
+            return projects.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                .map(Map.Entry::getValue)
+                .sorted(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER))
+                .collect(Collectors.toList());
+        }
     }
 
     private void refreshProjects() {
