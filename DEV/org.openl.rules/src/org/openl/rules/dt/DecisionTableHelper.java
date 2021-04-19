@@ -1523,15 +1523,6 @@ public final class DecisionTableHelper {
             DTColumnsDefinition definition,
             IBindingContext bindingContext) {
         IOpenMethodHeader header = decisionTable.getHeader();
-        if (definition.isReturn()) {
-            IOpenClass methodReturnType = header.getType();
-            IOpenClass definitionType = definition.getCompositeMethod().getType();
-            IOpenCast openCast = bindingContext.getCast(definitionType, methodReturnType);
-            if (openCast == null || !openCast.isImplicit()) {
-                return null;
-            }
-        }
-
         List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(definition);
 
         Map<String, IParameterDeclaration> completeParameters = new HashMap<>();
@@ -2463,6 +2454,19 @@ public final class DecisionTableHelper {
         fits = filterWithWrongStructure(originalTable, fits, twoColumnsForReturn);
 
         // Declared covered columns filter
+        fits = filterHeadersByMax(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof DeclaredDTHeader)
+                .map(x -> (DeclaredDTHeader) x)
+                .filter(DeclaredDTHeader::isReturn)
+                .mapToLong(x -> {
+                    IOpenClass methodReturnType = decisionTable.getHeader().getType();
+                    IOpenClass definitionType = x.getCompositeMethod().getType();
+                    IOpenCast openCast = bindingContext.getCast(definitionType, methodReturnType);
+                    return openCast == null || !openCast.isImplicit() ? 0 : 1;
+                })
+                .sum(),
+            e -> e.stream().anyMatch(x -> x instanceof DeclaredDTHeader && x.isReturn()));
         fits = filterHeadersByMax(fits,
             e -> e.stream()
                 .filter(x -> x instanceof DeclaredDTHeader)
