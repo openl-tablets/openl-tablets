@@ -13,16 +13,16 @@ public class XlsDateFormatter extends DateFormatter {
 
     @Deprecated
     public static String convertToJavaFormat(String xlsFormat) {
-        xlsFormat = xlsFormat.replaceAll("m", "M");
+        xlsFormat = xlsFormat.replace("m", "M");
         if (Pattern.compile("h.MM").matcher(xlsFormat).find()) {
             xlsFormat = xlsFormat.replaceAll("h.MM",
                 xlsFormat.substring(xlsFormat.lastIndexOf("h"), xlsFormat.lastIndexOf("h") + 2) + "mm");
         }
-        xlsFormat = xlsFormat.replaceAll("Y", "y");
-        xlsFormat = xlsFormat.replaceAll("\\\\-", "-");
-        xlsFormat = xlsFormat.replaceAll(";@", "");
+        xlsFormat = xlsFormat.replace("Y", "y");
+        xlsFormat = xlsFormat.replace("\\-", "-");
+        xlsFormat = xlsFormat.replace(";@", "");
         xlsFormat = xlsFormat.replaceAll("AM.PM", "a");
-        xlsFormat = xlsFormat.replaceAll("\\\\ ", " ");
+        xlsFormat = xlsFormat.replace("\\ ", " ");
         xlsFormat = date_ptrn.matcher(xlsFormat).replaceAll("");
         return xlsFormat;
     }
