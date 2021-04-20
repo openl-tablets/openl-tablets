@@ -19,7 +19,6 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
-import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -88,11 +87,9 @@ public class OpenLOpenAPIUtils {
         return schemaNames;
     }
 
-    public static Schema<?> getUsedSchemaInResponse(JXPathContext jxPathContext, PathItem pathItem) {
+    public static Schema<?> getUsedSchemaInResponse(JXPathContext jxPathContext, Operation operation) {
         Schema<?> type = null;
-        Pair<Operation, PathItem.HttpMethod> operationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
-        if (operationWithMethod != null) {
-            Operation operation = operationWithMethod.getKey();
+        if (operation != null) {
             ApiResponses responses = operation.getResponses();
             if (responses != null) {
                 ApiResponse response = getResponse(jxPathContext, responses);
@@ -109,25 +106,6 @@ public class OpenLOpenAPIUtils {
             }
         }
         return type;
-    }
-
-    public static Pair<Operation, PathItem.HttpMethod> getOperation(PathItem path) {
-        Operation result;
-        PathItem.HttpMethod method = PathItem.HttpMethod.GET;
-        Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
-        if (CollectionUtils.isEmpty(operationsMap)) {
-            return null;
-        }
-        if (operationsMap.containsKey(PathItem.HttpMethod.GET)) {
-            result = operationsMap.get(PathItem.HttpMethod.GET);
-        } else if (operationsMap.containsKey(PathItem.HttpMethod.POST)) {
-            result = operationsMap.get(PathItem.HttpMethod.POST);
-        } else {
-            Map.Entry<PathItem.HttpMethod, Operation> firstOperation = operationsMap.entrySet().iterator().next();
-            result = firstOperation.getValue();
-            method = firstOperation.getKey();
-        }
-        return Pair.of(result, method);
     }
 
     public static ApiResponse getResponse(JXPathContext jxPathContext, ApiResponses apiResponses) {
@@ -216,25 +194,26 @@ public class OpenLOpenAPIUtils {
                 PathItem path = p.getValue();
                 Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
                 if (CollectionUtils.isNotEmpty(operationsMap)) {
-                    Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils
-                        .getOperation(path);
-                    if (satisfyingOperationWithMethod != null) {
-                        ApiResponses responses = satisfyingOperationWithMethod.getKey().getResponses();
-                        if (responses != null) {
-                            ApiResponse response = OpenLOpenAPIUtils.getResponse(jxPathContext, responses);
-                            if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
-                                MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
-                                if (mediaType != null) {
-                                    Schema<?> mediaTypeSchema = mediaType.getContent().getSchema();
-                                    if (mediaTypeSchema != null) {
-                                        Set<String> refs = OpenLOpenAPIUtils
-                                            .visitSchema(jxPathContext, mediaTypeSchema, false, false);
-                                        allSchemaRefResponses.put(p.getKey(), refs);
+                    for (Operation operation : operationsMap.values()) {
+                        if (operation != null) {
+                            ApiResponses responses = operation.getResponses();
+                            if (responses != null) {
+                                ApiResponse response = OpenLOpenAPIUtils.getResponse(jxPathContext, responses);
+                                if (response != null && CollectionUtils.isNotEmpty(response.getContent())) {
+                                    MediaTypeInfo mediaType = OpenLOpenAPIUtils.getMediaType(response.getContent());
+                                    if (mediaType != null) {
+                                        Schema<?> mediaTypeSchema = mediaType.getContent().getSchema();
+                                        if (mediaTypeSchema != null) {
+                                            Set<String> refs = OpenLOpenAPIUtils
+                                                .visitSchema(jxPathContext, mediaTypeSchema, false, false);
+                                            allSchemaRefResponses.put(p.getKey(), refs);
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
                 }
             }
         }
@@ -563,23 +542,24 @@ public class OpenLOpenAPIUtils {
 
     public static List<InputParameter> extractParameters(JXPathContext jxPathContext,
             Set<String> refsToExpand,
-            PathItem pathItem) {
-        return visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand);
+            PathItem pathItem,
+            Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
+        return visitPathItemForParametersOfRequest(jxPathContext, pathItem, refsToExpand, operationEntry);
     }
 
     private static List<InputParameter> visitPathItemForParametersOfRequest(JXPathContext jxPathContext,
             PathItem pathItem,
-            Set<String> refsToExpand) {
+            Set<String> refsToExpand,
+            Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
         List<InputParameter> parameterModels = new ArrayList<>();
         List<Parameter> pathParameters = pathItem.getParameters();
         boolean pathParametersArePresented = CollectionUtils.isNotEmpty(pathParameters);
         if (pathParametersArePresented) {
             parameterModels.addAll(collectInputParams(jxPathContext, pathParameters, refsToExpand, true));
         }
-        Pair<Operation, PathItem.HttpMethod> satisfyingOperationWithMethod = OpenLOpenAPIUtils.getOperation(pathItem);
-        if (satisfyingOperationWithMethod != null) {
-            Operation satisfyingOperation = satisfyingOperationWithMethod.getLeft();
-            PathItem.HttpMethod method = satisfyingOperationWithMethod.getRight();
+        if (operationEntry != null) {
+            Operation satisfyingOperation = operationEntry.getValue();
+            PathItem.HttpMethod method = operationEntry.getKey();
             List<Parameter> parameters = satisfyingOperation.getParameters();
             boolean allowPrimitiveTypes = method.equals(PathItem.HttpMethod.GET);
             boolean operationsParametersArePresented = CollectionUtils.isNotEmpty(parameters);

@@ -346,7 +346,7 @@ public class OpenAPIConverterTest {
         List<InputParameter> parametersList = testWithParams.getParameters();
         assertEquals(1, parametersList.size());
         InputParameter oneParam = parametersList.iterator().next();
-        validateTypeInfo("long", oneParam.getType().getSimpleName(), "simpleId", oneParam.getFormattedName());
+        validateTypeInfo("Long", oneParam.getType().getSimpleName(), "simpleId", oneParam.getFormattedName());
 
         SpreadsheetModel model = findSpreadsheetByName(spreadsheetResultModels, "myTestWithParams2");
         List<InputParameter> withPathParams = model.getParameters();
@@ -355,10 +355,13 @@ public class OpenAPIConverterTest {
             .filter(x -> x.getFormattedName().equals("pidId"))
             .findFirst();
         assertTrue(pidId.isPresent());
-        assertEquals("double", pidId.get().getType().getSimpleName());
+        assertEquals("Double", pidId.get().getType().getSimpleName());
 
         InputParameter sumParam = findInputParameter(withPathParams, "sum");
-        validateTypeInfo("float", sumParam.getType().getSimpleName(), "float", sumParam.getType().getJavaName());
+        validateTypeInfo("Float",
+            sumParam.getType().getSimpleName(),
+            "java.lang.Float",
+            sumParam.getType().getJavaName());
     }
 
     @Test

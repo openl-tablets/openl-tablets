@@ -1,0 +1,2 @@
+ERROR: OpenAPI Reconciliation: Unexpected method 'PlanDetails' is found for path '/PlanDetails1'.
+ERROR: OpenAPI Reconciliation: Expected operation 'POST' is not found for path '/PlanDetails'.
