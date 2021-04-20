@@ -21,7 +21,15 @@ public class XlsDateFormatter extends DateFormatter {
         xlsFormat = xlsFormat.replace("Y", "y");
         xlsFormat = xlsFormat.replace("\\-", "-");
         xlsFormat = xlsFormat.replace(";@", "");
-        xlsFormat = xlsFormat.replaceAll("AM.PM", "a");
+        // from the description of the Excel date format:
+        // If the format contains AM or PM, the hour is based on the 12-hour clock.
+        // Otherwise, the hour is based on the 24-hour clock.
+        // options: AM/PM, am/pm, A/P, a/p
+        Pattern amPmPattern = Pattern.compile("((AM/PM)|(A/P))", Pattern.CASE_INSENSITIVE);
+        if (!amPmPattern.matcher(xlsFormat).find()) {
+            xlsFormat = xlsFormat.replace("h", "H");
+        }
+        xlsFormat = amPmPattern.matcher(xlsFormat).replaceAll("a");
         xlsFormat = xlsFormat.replace("\\ ", " ");
         xlsFormat = date_ptrn.matcher(xlsFormat).replaceAll("");
         return xlsFormat;
