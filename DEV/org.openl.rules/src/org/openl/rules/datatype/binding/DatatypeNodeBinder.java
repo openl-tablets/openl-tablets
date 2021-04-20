@@ -5,9 +5,11 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
+import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -93,7 +95,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenClass arrayOpenClass = RuleRowHelper.getType(type + "[]", tableSource, bindingContext);
+                IOpenClass arrayOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                        type + "[]",
+                        tableSource,
+                        bindingContext);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -110,7 +115,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             // more type for it - array with appropriate type of elements.
             // Create appropriate OpenL class for type definition.
             //
-            IOpenClass baseOpenClass = RuleRowHelper.getType(type, tableSource, bindingContext);
+            IOpenClass baseOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                    type,
+                    tableSource,
+                    bindingContext);
 
             // Create domain class definition which will be used by OpenL engine at runtime.
             //

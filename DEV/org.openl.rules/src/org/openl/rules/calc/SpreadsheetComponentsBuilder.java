@@ -21,9 +21,9 @@ import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOneElementArrayCast;
 import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.calc.element.SpreadsheetCell;
 import org.openl.rules.calc.element.SpreadsheetExpressionMarker;
 import org.openl.rules.calc.result.ArrayResultBuilder;
@@ -299,7 +299,7 @@ public class SpreadsheetComponentsBuilder {
         try {
             nodes = Tokenizer.tokenize(source, SpreadsheetSymbols.TYPE_DELIMITER.toString());
         } catch (OpenLCompilationException e) {
-            LOG.debug("Error occured: ", e);
+            LOG.debug("Error occurred: ", e);
             throw SyntaxNodeExceptionUtils.createError("Cannot parse header.", source);
         }
 
@@ -323,7 +323,7 @@ public class SpreadsheetComponentsBuilder {
                 return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde, source);
             default:
                 String message = String.format("Valid header format: name [%s type].",
-                    SpreadsheetSymbols.TYPE_DELIMITER.toString());
+                    SpreadsheetSymbols.TYPE_DELIMITER);
                 throw SyntaxNodeExceptionUtils.createError(message, nodes[2]);
         }
     }
@@ -336,7 +336,10 @@ public class SpreadsheetComponentsBuilder {
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
             if (typeIdentifierNode != null) {
                 String typeIdentifier = typeIdentifierNode.getText();
-                headerType = RuleRowHelper.getType(typeIdentifier, symbolicTypeDefinition.getSource(), bindingContext);
+                headerType = OpenLManager.makeType(bindingContext.getOpenL(),
+                    typeIdentifier,
+                    symbolicTypeDefinition.getSource(),
+                    bindingContext);
             }
 
             if (headerType != null) {

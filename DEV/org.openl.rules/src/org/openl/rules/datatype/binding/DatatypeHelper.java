@@ -2,7 +2,7 @@ package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.rules.binding.RuleRowHelper;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -104,7 +104,7 @@ public class DatatypeHelper {
                 if (StringUtils.isBlank(code)) {
                     continue;
                 }
-                IOpenClass type = RuleRowHelper.getType(code, source, cxt);
+                IOpenClass type = OpenLManager.makeType(cxt.getOpenL(), code, source, cxt);
                 if (type != NullOpenClass.the) {
                     count += 1;
                 }

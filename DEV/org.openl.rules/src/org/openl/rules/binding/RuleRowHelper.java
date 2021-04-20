@@ -18,7 +18,6 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.domain.IDomain;
-import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.IMetaHolder;
@@ -142,10 +141,6 @@ public final class RuleRowHelper {
         }
 
         return arrayValues;
-    }
-
-    public static IOpenClass getType(String typeCode, IOpenSourceCodeModule source, IBindingContext bindingContext) {
-        return OpenLManager.makeType(bindingContext.getOpenL(), typeCode, source, bindingContext);
     }
 
     public static Object loadSingleParam(IOpenClass paramType,
