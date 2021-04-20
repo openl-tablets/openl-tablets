@@ -1,10 +1,14 @@
 package org.openl.rules.ui.copy;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
+import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
@@ -12,6 +16,8 @@ import org.openl.rules.table.xls.builder.CreateTableException;
 import org.openl.rules.tableeditor.renderkit.TableProperty;
 import org.openl.rules.tableeditor.renderkit.TableProperty.TablePropertyBuilder;
 import org.openl.rules.webstudio.WebStudioFormats;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IOpenMember;
 import org.openl.util.conf.Version;
 
 /**
@@ -76,8 +82,24 @@ public class VersionPropertyTableCopier extends TableCopier {
 
     @Override
     protected void doCopy() throws CreateTableException {
+        if (isVersionExists()) {
+            WebStudioUtils.throwValidationError(
+                String.format("Table with '%s' version number already exists.", getVersion().getValue()));
+        }
         super.doCopy();
         updateOriginalTable();
+    }
+
+    private boolean isVersionExists() {
+        return Arrays.stream(WebStudioUtils.getWebStudio().getModel().getTableSyntaxNodes())
+            .filter(Objects::nonNull)
+            .filter(node -> Optional.ofNullable(node.getMember())
+                .map(IOpenMember::getName)
+                .map(nodeName -> nodeName.equals(getTable().getName()))
+                .orElse(false))
+            .map(TableSyntaxNode::getTableProperties)
+            .map(ITableProperties::getVersion)
+            .anyMatch(v -> v.equals(getVersion().getValue()));
     }
 
     private void updateOriginalTable() {
