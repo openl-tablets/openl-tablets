@@ -49,4 +49,6 @@ public interface IOpenParser {
      * @return {@link IParsedCode} instance
      */
     IParsedCode parseAsType(IOpenSourceCodeModule source);
+
+    IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source);
 }

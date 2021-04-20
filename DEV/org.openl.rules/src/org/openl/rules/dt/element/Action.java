@@ -246,7 +246,7 @@ public class Action extends FunctionalRow implements IAction {
                 // trigger parameter compilation & initialization
                 super.prepareParams(declaringClass, signature, methodType, null, openl, bindingContext);
                 // generate return statement to return parameter
-                return new StringSourceCodeModule(params[0].getName(), source.getUri());
+                return new StringSourceCodeModule(params[0].getName() != null ? params[0].getName() : EXTRA_RET, source.getUri());
             }
             return new StringSourceCodeModule(EXTRA_RET, source.getUri());
         }

@@ -41,7 +41,6 @@ import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
@@ -319,9 +318,9 @@ public class SpreadsheetComponentsBuilder {
         }
         switch (nodes.length) {
             case 1:
-                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk, endsWithTilde);
+                return new SymbolicTypeDefinition(headerNameNode, null, endsWithAsterisk, endsWithTilde, source);
             case 2:
-                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde);
+                return new SymbolicTypeDefinition(headerNameNode, nodes[1], endsWithAsterisk, endsWithTilde, source);
             default:
                 String message = String.format("Valid header format: name [%s type].",
                     SpreadsheetSymbols.TYPE_DELIMITER.toString());
@@ -337,7 +336,7 @@ public class SpreadsheetComponentsBuilder {
             IdentifierNode typeIdentifierNode = symbolicTypeDefinition.getType();
             if (typeIdentifierNode != null) {
                 String typeIdentifier = typeIdentifierNode.getText();
-                headerType = RuleRowHelper.getType(typeIdentifier, typeIdentifierNode, bindingContext);
+                headerType = RuleRowHelper.getType(typeIdentifier, symbolicTypeDefinition.getSource(), bindingContext);
             }
 
             if (headerType != null) {
@@ -440,9 +439,10 @@ public class SpreadsheetComponentsBuilder {
         if (Boolean.FALSE
             .equals(tableSyntaxNode.getTableProperties().getAutoType()) && headerDefinition.getType() == null) {
             headerDefinition.setType(spreadsheetHeaderType);
-        } else if (spreadsheetHeaderType.getAggregateInfo() == null
-                    || spreadsheetHeaderType.getAggregateInfo() != null
-                        && spreadsheetHeaderType.getAggregateInfo().getComponentType(spreadsheetHeaderType) == null) {
+        } else if (spreadsheetHeaderType
+            .getAggregateInfo() == null || spreadsheetHeaderType.getAggregateInfo() != null && spreadsheetHeaderType
+                .getAggregateInfo()
+                .getComponentType(spreadsheetHeaderType) == null) {
             int nonEmptyCellsCount = getNonEmptyCellsCount(headerDefinition);
             if (nonEmptyCellsCount == 1) {
                 headerDefinition.setType(spreadsheetHeaderType);
@@ -479,8 +479,8 @@ public class SpreadsheetComponentsBuilder {
                     cellsHeaderExtractor.getColumnNamesTable().getColumn(columnIndex));
                 String value = cell.getSource().getCell(0, 0).getStringValue();
                 boolean isFormula = Optional.ofNullable(StringUtils.trimToNull(value))
-                        .map(SpreadsheetExpressionMarker::isFormula)
-                        .orElse(false);
+                    .map(SpreadsheetExpressionMarker::isFormula)
+                    .orElse(false);
                 if (!StringUtils.isBlank(value) && !isFormula) {
                     nonEmptyCellsCount += 1;
                 }
@@ -596,8 +596,8 @@ public class SpreadsheetComponentsBuilder {
 
             if (returnSpreadsheetCells.size() == 0) {
                 IdentifierNode symbolicTypeDefinitionName = Optional.ofNullable(symbolicTypeDefinition)
-                        .map(SymbolicTypeDefinition::getName)
-                        .orElse(null);
+                    .map(SymbolicTypeDefinition::getName)
+                    .orElse(null);
                 if (!nonEmptySpreadsheetCells.isEmpty()) {
                     SpreadsheetCell nonEmptySpreadsheetCell = nonEmptySpreadsheetCells
                         .get(nonEmptySpreadsheetCells.size() - 1);
@@ -605,23 +605,19 @@ public class SpreadsheetComponentsBuilder {
                         throw SyntaxNodeExceptionUtils.createError(
                             String.format("Cannot convert from '%s' to '%s'.",
                                 nonEmptySpreadsheetCell.getType().getName(),
-                                spreadsheet.getHeader().getType().getName()
-                            ),
+                                spreadsheet.getHeader().getType().getName()),
                             Optional.ofNullable(nonEmptySpreadsheetCell.getMethod())
                                 .filter(CompositeMethod.class::isInstance)
                                 .map(CompositeMethod.class::cast)
                                 .map(CompositeMethod::getMethodBodyBoundNode)
                                 .map(IBoundMethodNode::getSyntaxNode)
-                                .orElse(symbolicTypeDefinitionName)
-                        );
+                                .orElse(symbolicTypeDefinitionName));
                     } else {
                         return null;
                     }
                 } else {
-                    throw SyntaxNodeExceptionUtils.createError(
-                        "There is no return expression cell.",
-                        symbolicTypeDefinitionName
-                    );
+                    throw SyntaxNodeExceptionUtils.createError("There is no return expression cell.",
+                        symbolicTypeDefinitionName);
                 }
             } else {
                 if (asArray) {

@@ -22,7 +22,6 @@ import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.dt.data.DecisionTableDataType;
 import org.openl.rules.dt.element.ConditionHelper;
 import org.openl.rules.fuzzy.OpenLFuzzyUtils;
@@ -45,7 +44,6 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.MethodSignature;
-import org.openl.types.impl.ParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
@@ -182,24 +180,16 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
                 }
                 pGridCellSourceCodeModule = new GridCellSourceCodeModule(pCodeTable, bindingContext);
 
-                ParameterDeclaration parameterDeclaration = null;
+                IParameterDeclaration parameterDeclaration = null;
                 String code = ((IOpenSourceCodeModule) pGridCellSourceCodeModule).getCode();
                 if (StringUtils.isNotBlank(code)) {
-                    String[] parts = code.split("\\s+");
-
-                    if (parts.length > 2) {
+                    parameterDeclaration = OpenLManager
+                        .makeParameterDeclaration(openl, pGridCellSourceCodeModule, bindingContext);
+                    if (parameterDeclaration == null) {
                         String errMsg = "Parameter cell format: <type> or <type> <name>";
                         BindHelper.processError(errMsg, pGridCellSourceCodeModule, bindingContext);
                         finished = true;
                         break;
-                    } else {
-                        IOpenClass type = RuleRowHelper.getType(parts[0], pGridCellSourceCodeModule, bindingContext);
-
-                        if (parts.length == 1) {
-                            parameterDeclaration = new ParameterDeclaration(type, null);
-                        } else {
-                            parameterDeclaration = new ParameterDeclaration(type, parts[1]);
-                        }
                     }
                 }
 

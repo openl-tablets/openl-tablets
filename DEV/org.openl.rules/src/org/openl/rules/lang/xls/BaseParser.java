@@ -29,6 +29,11 @@ public abstract class BaseParser implements IOpenParser {
         return getNotSupportedCode(source, "a Type");
     }
 
+    @Override
+    public IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source) {
+        return getNotSupportedCode(source, "a param declaration");
+    }
+
     protected IParsedCode getNotSupportedCode(IOpenSourceCodeModule source, String sourceType) {
         String message = String.format("The source cannot be parsed as %s", sourceType);
         return getInvalidCode(message, source);

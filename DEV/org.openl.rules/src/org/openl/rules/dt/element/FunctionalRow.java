@@ -255,7 +255,7 @@ public abstract class FunctionalRow implements IDecisionRow {
         }
     }
 
-    public void prepareParams(IBindingContext bindingContext) {
+    public void prepareParams(OpenL openl, IBindingContext bindingContext) {
         for (int i = 0; i < paramsTable.getHeight(); i++) {
             if (!paramInitialized.get(i)) {
                 ILogicalTable paramTable = paramsTable.getRow(i);
@@ -263,17 +263,14 @@ public abstract class FunctionalRow implements IDecisionRow {
                     bindingContext);
                 String code = paramSource.getCode();
                 if (!StringUtils.isBlank(code)) {
-                    String[] parts = code.split("\\s+");
-                    if (parts.length == 2) {
-                        String typeCode = parts[0];
-                        IOpenClass type = RuleRowHelper.getType(typeCode, paramSource, bindingContext);
-                        params[i] = new ParameterDeclaration(type, parts[1]);
-                        if (params[i] != null) {
-                            if (!paramsUniqueNames.add(params[i].getName())) {
-                                BindHelper.processError("Duplicated parameter name: " + params[i].getName(),
-                                    paramSource,
-                                    bindingContext);
-                            }
+                    IParameterDeclaration pd = OpenLManager
+                        .makeParameterDeclaration(openl, paramSource, bindingContext);
+                    if (pd != null && pd.getName() != null) {
+                        params[i] = pd;
+                        if (!paramsUniqueNames.add(params[i].getName())) {
+                            BindHelper.processError("Duplicated parameter name: " + params[i].getName(),
+                                paramSource,
+                                bindingContext);
                         }
                         paramInitialized.set(i);
                     }
@@ -500,22 +497,18 @@ public abstract class FunctionalRow implements IDecisionRow {
             return new ParameterDeclaration(NullOpenClass.the, makeParamName(), paramSource);
         }
 
-        String[] parts = code.split("\\s+");
+        IParameterDeclaration parameterDeclaration = OpenLManager
+            .makeParameterDeclaration(openl, paramSource, bindingContext);
 
-        if (parts.length > 2) {
+        if (parameterDeclaration == null) {
             String errMsg = "Parameter cell format: <type> <name>";
             BindHelper.processError(errMsg, paramSource, bindingContext);
             return null;
         }
-
-        String typeCode = parts[0];
-        IOpenClass type = RuleRowHelper.getType(typeCode, paramSource, bindingContext);
-
-        if (parts.length == 2) {
-            return new ParameterDeclaration(type, parts[1], paramSource);
-        } else {
-            return new ParameterDeclaration(type, makeParamName(), paramSource);
+        if (parameterDeclaration.getName() == null) {
+            return new ParameterDeclaration(parameterDeclaration.getType(), makeParamName());
         }
+        return parameterDeclaration;
     }
 
     @Override

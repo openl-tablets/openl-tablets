@@ -34,7 +34,7 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     boolean isCondition();
 
-    void prepareParams(IBindingContext bindingContext);
+    void prepareParams(OpenL openl, IBindingContext bindingContext);
 
     void prepare(IOpenClass methodType,
             IMethodSignature signature,

@@ -80,6 +80,13 @@ public abstract class JavaCC30Grammar implements IGrammar {
         parseTopNode("type");
     }
 
+    @Override
+    public void parseAsParamDeclaration(Reader reader) {
+
+        ReInit(reader);
+        parseTopNode("param.declaration");
+    }
+
     protected IPosition pos(int line, int col) {
 
         return new JavaCC30Position(line, col);

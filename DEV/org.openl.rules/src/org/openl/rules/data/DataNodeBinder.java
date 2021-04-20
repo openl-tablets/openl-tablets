@@ -101,7 +101,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
-        IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
+        IOpenClass tableType = RuleRowHelper.getType(typeName, source, bindingContext);
 
         // Check that table type loaded properly.
         //

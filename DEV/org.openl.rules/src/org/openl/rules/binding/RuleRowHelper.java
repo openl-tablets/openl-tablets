@@ -18,6 +18,7 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentBindingContext;
 import org.openl.domain.IDomain;
+import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.BigDecimalValue;
 import org.openl.meta.IMetaHolder;
@@ -43,21 +44,17 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenIndex;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.util.DomainUtils;
-import org.openl.util.MessageUtils;
 import org.openl.util.StringPool;
 import org.openl.util.StringTool;
 
@@ -148,22 +145,7 @@ public final class RuleRowHelper {
     }
 
     public static IOpenClass getType(String typeCode, IOpenSourceCodeModule source, IBindingContext bindingContext) {
-        return getType(typeCode, new IdentifierNode("identifier", null, typeCode, source), bindingContext);
-
-    }
-
-    public static IOpenClass getType(String typeCode, ISyntaxNode node, IBindingContext bindingContext) {
-        if (typeCode.endsWith("[]")) {
-            String baseCode = typeCode.substring(0, typeCode.length() - 2).trim();
-            IOpenClass type = getType(baseCode, node, bindingContext);
-            return type.getAggregateInfo().getIndexedAggregateType(type);
-        }
-        IOpenClass type = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeCode);
-        if (type == null) {
-            BindHelper.processError(MessageUtils.getTypeNotFoundMessage(typeCode), node, bindingContext);
-            return NullOpenClass.the;
-        }
-        return type;
+        return OpenLManager.makeType(bindingContext.getOpenL(), typeCode, source, bindingContext);
     }
 
     public static Object loadSingleParam(IOpenClass paramType,
