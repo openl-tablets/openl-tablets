@@ -6,10 +6,6 @@ import static org.openl.rules.webstudio.web.admin.AdministrationSettings.PRODUCT
 import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -56,7 +52,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.ldap.authentication.ad.ActiveDirectoryLdapAuthenticationProvider;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.context.annotation.SessionScope;
 
 @Service
@@ -267,8 +262,7 @@ public class InstallWizard implements Serializable {
             propertyResolver.getRequiredProperty("security.saml.max-authentication-age", Integer.class),
             propertyResolver.getRequiredProperty("security.saml.metadata-trust-check", Boolean.class),
             propertyResolver.getRequiredProperty("security.saml.is-app-after-balancer", Boolean.class),
-            propertyResolver.getProperty("security.saml.server-certificate"),
-            propertyResolver.getProperty("security.saml.server-key-alias"));
+            propertyResolver.getProperty("security.saml.server-certificate"));
     }
 
     public String finish() {
@@ -289,11 +283,6 @@ public class InstallWizard implements Serializable {
                     properties.setProperty("security.cas.attribute.last-name", casSettings.getSecondNameAttribute());
                     properties.setProperty("security.cas.attribute.groups", casSettings.getGroupsAttribute());
                 } else if (SAML_USER_MODE.equals(userMode)) {
-                    String serverCertificate = samlSettings.getServerCertificate();
-                    if (StringUtils.isNotBlank(serverCertificate)) {
-                        importCertificateToKeystore(serverCertificate);
-                    }
-
                     properties.setProperty("security.saml.app-url", samlSettings.getWebStudioUrl());
                     properties.setProperty("security.saml.saml-server-metadata-url",
                         samlSettings.getSamlServerMetadataUrl());
@@ -320,8 +309,7 @@ public class InstallWizard implements Serializable {
                         samlSettings.getMaxAuthenticationAge());
                     properties.setProperty("security.saml.metadata-trust-check", samlSettings.isMetadataTrustCheck());
                     properties.setProperty("security.saml.is-app-after-balancer", samlSettings.isAppAfterBalancer());
-                    properties.setProperty("security.saml.server-certificate", serverCertificate);
-                    properties.setProperty("security.saml.server-public-alias", samlSettings.getServerKeyAlias());
+                    properties.setProperty("security.saml.server-certificate", samlSettings.getServerCertificate());
                 }
             }
 
@@ -355,34 +343,6 @@ public class InstallWizard implements Serializable {
             }
             return null;
         }
-    }
-
-    private void importCertificateToKeystore(String certificate) {
-        String keystorePassword = samlSettings.getKeystorePassword();
-
-        X509Certificate cert;
-        try {
-            cert = KeyStoreUtils.generateCertificate(certificate);
-        } catch (CertificateException e) {
-            throw new IllegalStateException("The entered certificate isn't valid", e);
-        }
-        File keystore;
-        KeyStore ks;
-        try {
-            keystore = ResourceUtils.getFile(samlSettings.getKeystoreFilePath());
-            ks = KeyStoreUtils.loadKeyStore(keystore, keystorePassword);
-        } catch (KeyStoreException | CertificateException | NoSuchAlgorithmException | IOException e) {
-            throw new IllegalStateException("The keystore of the application isn't valid", e);
-        }
-
-        try {
-            String certificateAlias = samlSettings.getServerKeyAlias();
-            ks.setCertificateEntry(certificateAlias, cert);
-            KeyStoreUtils.saveKeyStore(keystore, ks, keystorePassword);
-        } catch (KeyStoreException | IOException | CertificateException | NoSuchAlgorithmException e) {
-            throw new IllegalStateException("The keystore of the application can't be saved", e);
-        }
-
     }
 
     private void setProductionDbProperties() {
