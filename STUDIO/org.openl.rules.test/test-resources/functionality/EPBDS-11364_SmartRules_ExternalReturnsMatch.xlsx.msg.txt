@@ -1,1 +1,3 @@
 ERROR: Cannot convert from 'java.lang.Number[]' to 'java.lang.Double[]'.
+ERROR: Identifier '_Param1' is not found.
+ERROR: Identifier 'intArr' is not found.

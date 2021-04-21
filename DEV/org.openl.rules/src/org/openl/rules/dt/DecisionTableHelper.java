@@ -3,9 +3,27 @@ package org.openl.rules.dt;
 import static java.util.stream.Collectors.collectingAndThen;
 import static java.util.stream.Collectors.toList;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.Objects;
+import java.util.OptionalInt;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.SortedSet;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.function.ToLongFunction;
 import java.util.stream.Collectors;
@@ -1523,6 +1541,16 @@ public final class DecisionTableHelper {
             DTColumnsDefinition definition,
             IBindingContext bindingContext) {
         IOpenMethodHeader header = decisionTable.getHeader();
+        boolean mayHaveCompilationErrors = false;
+        if (definition.isReturn()) {
+            IOpenClass methodReturnType = header.getType();
+            IOpenClass definitionType = definition.getCompositeMethod().getType();
+            IOpenCast openCast = bindingContext.getCast(definitionType, methodReturnType);
+            if (openCast == null || !openCast.isImplicit()) {
+                mayHaveCompilationErrors = true;
+            }
+        }
+
         List<IdentifierNode> identifierNodes = DecisionTableUtils.retrieveIdentifierNodes(definition);
 
         Map<String, IParameterDeclaration> completeParameters = new HashMap<>();
@@ -1533,9 +1561,12 @@ public final class DecisionTableHelper {
         }
 
         Set<String> methodParametersUsedInExpression = new HashSet<>();
+        Map<String, String> originalMethodParametersUsedInExpression = new HashMap<>();
         for (IdentifierNode identifierNode : identifierNodes) {
             if (!completeParameters.containsKey(toLowerCase(identifierNode.getIdentifier()))) {
                 methodParametersUsedInExpression.add(toLowerCase(identifierNode.getIdentifier()));
+                originalMethodParametersUsedInExpression.put(toLowerCase(identifierNode.getIdentifier()),
+                    identifierNode.getIdentifier());
             }
         }
 
@@ -1555,7 +1586,7 @@ public final class DecisionTableHelper {
                     IOpenClass type = definition.getHeader().getSignature().getParameterType(i);
                     for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                         if (param.equalsIgnoreCase(header.getSignature().getParameterName(j)) && type
-                            .equals(header.getSignature().getParameterType(j))) {
+                            .isAssignableFrom(header.getSignature().getParameterType(j))) {
                             usedMethodParameterIndexes.add(j);
                             methodParametersToRename.put(toLowerCase(param), param);
                             break;
@@ -1565,16 +1596,20 @@ public final class DecisionTableHelper {
                 }
             }
             if (!found) {
+                int numberOfCandidates = 0;
                 for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
                     IOpenClass paramType = definition.getHeader().getSignature().getParameterType(i);
                     if (paramType.getField(param, false) != null) {
                         for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
-                            if (paramType.equals(header.getSignature().getParameterType(j))) {
+                            if (paramType.isAssignableFrom(header.getSignature().getParameterType(j))) {
                                 usedParamIndexesByField.add(j);
+                                numberOfCandidates++;
                             }
                         }
-                        break;
                     }
+                }
+                if (numberOfCandidates > 1) {
+                    mayHaveCompilationErrors = true;
                 }
                 itr.remove();
             }
@@ -1588,10 +1623,10 @@ public final class DecisionTableHelper {
             itr = methodParametersUsedInExpression.iterator();
             while (itr.hasNext()) {
                 String param = itr.next();
-                if (methodParametersToRename.containsKey(toLowerCase(param))) {
+                if (methodParametersToRename.containsKey(param)) {
                     continue;
                 }
-                int j = paramToIndex.get(toLowerCase(param));
+                int j = paramToIndex.get(param);
                 IOpenClass type = definition.getHeader().getSignature().getParameterType(j);
                 boolean duplicatedMatch = false;
                 for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
@@ -1603,10 +1638,10 @@ public final class DecisionTableHelper {
                             break;
                         case STRICT_CASTED:
                             predicate = openCast != null && openCast.isImplicit() && param
-                                .equals(header.getSignature().getParameterName(i));
+                                .equalsIgnoreCase(header.getSignature().getParameterName(i));
                             break;
                         case METHOD_ARGS_RENAMED:
-                            predicate = type.equals(header.getSignature().getParameterType(i));
+                            predicate = type.isAssignableFrom(header.getSignature().getParameterType(i));
                             break;
                         default:
                             throw new IllegalStateException();
@@ -1642,7 +1677,23 @@ public final class DecisionTableHelper {
         }
 
         if (usedMethodParameterIndexes.size() != methodParametersUsedInExpression.size()) {
-            return null;
+            Set<String> u = new HashSet<>();
+            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                u.add(header.getSignature().getParameterName(i));
+            }
+            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                String lowParamName = toLowerCase(header.getSignature().getParameterName(i));
+                if (!usedMethodParameterIndexes.contains(i) && methodParametersUsedInExpression
+                    .contains(lowParamName)) {
+                    String newParamName = "_" + originalMethodParametersUsedInExpression.get(lowParamName);
+                    while (u.contains(newParamName)) {
+                        newParamName = "_" + newParamName;
+                    }
+                    u.add(newParamName);
+                    methodParametersToRename.put(lowParamName, newParamName);
+                }
+            }
+            mayHaveCompilationErrors = true;
         }
 
         final String code = definition.getCompositeMethod()
@@ -1663,28 +1714,32 @@ public final class DecisionTableHelper {
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
                     identifierNodes,
-                    MatchType.STRICT);
+                    MatchType.STRICT,
+                    mayHaveCompilationErrors);
             case STRICT_CASTED:
                 return new MatchedDefinition(definition,
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
                     identifierNodes,
-                    MatchType.STRICT_CASTED);
+                    MatchType.STRICT_CASTED,
+                    mayHaveCompilationErrors);
             case METHOD_ARGS_RENAMED:
                 return new MatchedDefinition(definition,
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
                     identifierNodes,
-                    MatchType.METHOD_ARGS_RENAMED);
+                    MatchType.METHOD_ARGS_RENAMED,
+                    mayHaveCompilationErrors);
             case METHOD_ARGS_RENAMED_CASTED:
                 return new MatchedDefinition(definition,
                     code,
                     usedMethodParameterIndexesArray,
                     methodParametersToRename,
                     identifierNodes,
-                    MatchType.METHOD_ARGS_RENAMED_CASTED);
+                    MatchType.METHOD_ARGS_RENAMED_CASTED,
+                    mayHaveCompilationErrors);
             default:
                 return null;
         }
@@ -2457,26 +2512,12 @@ public final class DecisionTableHelper {
         fits = filterHeadersByMax(fits,
             e -> e.stream()
                 .filter(x -> x instanceof DeclaredDTHeader)
-                .map(x -> (DeclaredDTHeader) x)
-                .filter(DeclaredDTHeader::isReturn)
-                .mapToLong(x -> {
-                    IOpenClass methodReturnType = decisionTable.getHeader().getType();
-                    IOpenClass definitionType = x.getCompositeMethod().getType();
-                    IOpenCast openCast = bindingContext.getCast(definitionType, methodReturnType);
-                    return openCast == null || !openCast.isImplicit() ? 0 : 1;
-                })
-                .sum(),
-            e -> e.stream().anyMatch(x -> x instanceof DeclaredDTHeader && x.isReturn()));
-        fits = filterHeadersByMax(fits,
-            e -> e.stream()
-                .filter(x -> x instanceof DeclaredDTHeader)
                 .mapToLong(
                     x -> ((DeclaredDTHeader) x).getMatchedDefinition().getDtColumnsDefinition().getNumberOfTitles())
                 .sum(),
             all);
-        fits = filterBasedOnDeclaredDtHeaders(fits);
 
-        fits = filterHeadersByMatchType(decisionTable, fits);
+        fits = filterBasedOnDeclaredDtHeaders(fits);
 
         if (numberOfHCondition != numberOfParameters) {
             // full matches with condition headers
@@ -2492,6 +2533,16 @@ public final class DecisionTableHelper {
         }
 
         fits = filterHeadersByMin(fits, e -> e.stream().filter(e1 -> e1 instanceof UnmatchedDtHeader).count(), all);
+
+        fits = filterHeadersByMin(fits,
+            e -> e.stream()
+                .filter(x -> x instanceof DeclaredDTHeader)
+                .map(x -> (DeclaredDTHeader) x)
+                .mapToLong(x -> x.getMatchedDefinition().isMayHaveCompilationErrors() ? 1 : 0)
+                .sum(),
+            e -> e.stream().anyMatch(x -> x instanceof DeclaredDTHeader));
+
+        fits = filterHeadersByMatchType(decisionTable, fits);
 
         fits = filterHeadersByMax(fits,
             e -> e.stream().flatMapToInt(c -> Arrays.stream(c.getMethodParameterIndexes())).distinct().count(),

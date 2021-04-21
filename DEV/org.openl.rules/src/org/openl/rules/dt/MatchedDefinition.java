@@ -20,13 +20,15 @@ class MatchedDefinition {
     final Map<String, String> methodParametersToRename;
     final DTColumnsDefinition dtColumnsDefinition;
     boolean parametersRenamingIsUsed = false;
+    final boolean mayHaveCompilationErrors;
 
     public MatchedDefinition(DTColumnsDefinition dtColumnsDefinition,
             String statement,
             int[] usedMethodParameterIndexes,
             Map<String, String> methodParametersToRename,
             List<IdentifierNode> identifierNodes,
-            MatchType matchType) {
+            MatchType matchType,
+            boolean mayHaveCompilationErrors) {
         super();
         this.dtColumnsDefinition = dtColumnsDefinition;
         this.statement = statement;
@@ -34,6 +36,7 @@ class MatchedDefinition {
         this.matchType = matchType;
         this.methodParametersToRename = methodParametersToRename;
         this.identifierNodes = identifierNodes;
+        this.mayHaveCompilationErrors = mayHaveCompilationErrors;
     }
 
     public void renameParameterName(String name, String newName) {
@@ -103,6 +106,10 @@ class MatchedDefinition {
             default:
                 return matchType;
         }
+    }
+
+    public boolean isMayHaveCompilationErrors() {
+        return mayHaveCompilationErrors;
     }
 
     @SafeVarargs
