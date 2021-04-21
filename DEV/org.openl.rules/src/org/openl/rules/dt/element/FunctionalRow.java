@@ -2,13 +2,16 @@ package org.openl.rules.dt.element;
 
 import java.util.BitSet;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.BindHelper;
+import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.engine.OpenLManager;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
@@ -27,6 +30,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
@@ -351,11 +355,40 @@ public abstract class FunctionalRow implements IDecisionRow {
             int gridHeight = paramsTable.getRow(j).getSource().getHeight();
             IGridTable singleParamGridTable = paramGridColumn.getRows(fromHeight, fromHeight + gridHeight - 1);
 
-            Object loadedValue = RuleRowHelper.loadParam(LogicalTableHelper
-                .logicalTable(singleParamGridTable), paramType, paramDecl[j].getName(), ruleName, ota, paramIndexed[j]);
+            Object loadedValue;
+            if (paramDecl[j].getName() == null) {
+                loadedValue = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(
+                    singleParamGridTable), paramType, paramDecl[j].getName(), ruleName, ota, paramIndexed[j]);
+            } else {
+                // Column parameter must be invisible on column compilation, we don't want to prevent references to
+                // themself
+                OpenlToolAdaptor paramOta = new OpenlToolAdaptor(ota.getOpenl(),
+                    new OtaBindingContext(ota.getBindingContext(), paramDecl[j].getName()),
+                    ota.getTableSyntaxNode());
+                paramOta.setHeader(ota.getHeader());
+                loadedValue = RuleRowHelper.loadParam(LogicalTableHelper.logicalTable(
+                    singleParamGridTable), paramType, paramDecl[j].getName(), ruleName, paramOta, paramIndexed[j]);
+            }
             builders[j].writeObject(loadedValue, ruleN);
 
             fromHeight += gridHeight;
+        }
+    }
+
+    private static class OtaBindingContext extends BindingContextDelegator {
+        private final String paramName;
+
+        public OtaBindingContext(IBindingContext delegate, String paramName) {
+            super(delegate);
+            this.paramName = Objects.requireNonNull(paramName, "paramName cannot be null");
+        }
+
+        @Override
+        public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
+            if (strictMatch && paramName.equals(name) || !strictMatch && paramName.equalsIgnoreCase(name)) {
+                return null;
+            }
+            return super.findVar(namespace, name, strictMatch);
         }
     }
 
