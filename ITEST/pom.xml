@@ -29,6 +29,7 @@
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>
+        <module>itest.healthchecks</module>
         <module>itest.dateTimeFormat</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
