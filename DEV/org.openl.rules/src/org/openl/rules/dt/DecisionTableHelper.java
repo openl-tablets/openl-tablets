@@ -344,7 +344,6 @@ public final class DecisionTableHelper {
             usedMethodSignatureIdentifiers.add(toLowerCase(decisionTable.getSignature().getParameterName(i)));
         }
         for (List<DTHeader> dtHeaders : fits) {
-            Map<String, String> renamedParameters = new HashMap<>();
             Map<String, Integer> usedAllParameterIdentifiers = new HashMap<>();
             Set<String> externalParameters = new HashSet<>();
             for (DTHeader dtHeader : dtHeaders) {
@@ -362,6 +361,7 @@ public final class DecisionTableHelper {
                         declaredDTHeader.getMatchedDefinition().getDtColumnsDefinition().getExternalParameters());
                 }
             }
+            Map<String, String> renamedParameters = new HashMap<>();
             for (DTHeader dtHeader : dtHeaders) {
                 if (dtHeader instanceof DeclaredDTHeader) {
                     DeclaredDTHeader declaredDTHeader = (DeclaredDTHeader) dtHeader;
@@ -1581,14 +1581,14 @@ public final class DecisionTableHelper {
             boolean found = false;
             for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
                 if (param.equalsIgnoreCase(definition.getHeader().getSignature().getParameterName(i))) {
-                    paramToIndex.put(toLowerCase(param), i);
+                    paramToIndex.put(param, i);
                     found = true;
                     IOpenClass type = definition.getHeader().getSignature().getParameterType(i);
                     for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                         if (param.equalsIgnoreCase(header.getSignature().getParameterName(j)) && type
                             .isAssignableFrom(header.getSignature().getParameterType(j))) {
                             usedMethodParameterIndexes.add(j);
-                            methodParametersToRename.put(toLowerCase(param), param);
+                            methodParametersToRename.put(param, header.getSignature().getParameterName(j));
                             break;
                         }
                     }
@@ -1599,10 +1599,12 @@ public final class DecisionTableHelper {
                 int numberOfCandidates = 0;
                 for (int i = 0; i < definition.getHeader().getSignature().getNumberOfParameters(); i++) {
                     IOpenClass paramType = definition.getHeader().getSignature().getParameterType(i);
-                    if (paramType.getField(param, false) != null) {
+                    IOpenField field = paramType.getField(param, false);
+                    if (field != null) {
                         for (int j = 0; j < header.getSignature().getNumberOfParameters(); j++) {
                             if (paramType.isAssignableFrom(header.getSignature().getParameterType(j))) {
                                 usedParamIndexesByField.add(j);
+                                methodParametersToRename.put(param, field.getName());
                                 numberOfCandidates++;
                             }
                         }
