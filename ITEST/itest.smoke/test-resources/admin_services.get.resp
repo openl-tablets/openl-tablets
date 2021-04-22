@@ -1,0 +1,36 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[{
+        "startedTime": "#####",
+        "name": "multi_project_project1",
+        "servicePath": "multimodule/project1",
+        "urls": {
+            "RESTFUL": "multi_project/project1"
+        },
+        "hasManifest": false,
+        "deploymentName": "multimodule",
+        "status": "DEPLOYED"
+    }, {
+        "startedTime": "#####",
+        "name": "multi_project_project2",
+        "servicePath": "multimodule/project2",
+        "urls": {
+            "RESTFUL": "multi_project/project2"
+        },
+        "hasManifest": false,
+        "deploymentName": "multimodule",
+        "status": "DEPLOYED"
+    }, {
+        "startedTime": "#####",
+        "name": "simple_simple",
+        "servicePath": "simple/simple",
+        "urls": {
+            "WEBSERVICE": "simple",
+            "RESTFUL": "REST/simple"
+        },
+        "hasManifest": false,
+        "deploymentName": "simple",
+        "status": "DEPLOYED"
+    }
+]
