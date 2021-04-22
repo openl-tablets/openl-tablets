@@ -1,0 +1,2 @@
+DELETE /admin/deploy/multimodule HTTP/1.1
+
