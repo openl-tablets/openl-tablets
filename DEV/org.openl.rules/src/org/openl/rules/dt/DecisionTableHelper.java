@@ -1539,6 +1539,7 @@ public final class DecisionTableHelper {
 
     private static MatchedDefinition matchByDTColumnDefinition(DecisionTable decisionTable,
             DTColumnsDefinition definition,
+            int numberOfHCondition,
             IBindingContext bindingContext) {
         IOpenMethodHeader header = decisionTable.getHeader();
         boolean mayHaveCompilationErrors = false;
@@ -1679,6 +1680,9 @@ public final class DecisionTableHelper {
         }
 
         if (usedMethodParameterIndexes.size() != methodParametersUsedInExpression.size()) {
+            if (numberOfHCondition > 0) {
+                return null;
+            }
             Set<String> u = new HashSet<>();
             for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
                 u.add(header.getSignature().getParameterName(i));
@@ -2743,6 +2747,7 @@ public final class DecisionTableHelper {
                     numberOfColumnsUnderTitleCounter,
                     dtHeaders,
                     firstColumnHeight,
+                    numberOfHCondition,
                     bindingContext);
                 column = column + w;
                 i++;
@@ -2942,6 +2947,7 @@ public final class DecisionTableHelper {
             NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter,
             List<DTHeader> dtHeaders,
             int firstColumnHeight,
+            int numberOfHCondition,
             IBindingContext bindingContext) {
         if (firstColumnHeight != originalTable.getSource().getCell(column, 0).getHeight()) {
             return;
@@ -2972,6 +2978,7 @@ public final class DecisionTableHelper {
             if (titles.isEmpty()) {
                 MatchedDefinition matchedDefinition = matchByDTColumnDefinition(decisionTable,
                     definition,
+                    numberOfHCondition,
                     bindingContext);
                 if (matchedDefinition != null) {
                     DeclaredDTHeader dtHeader = new DeclaredDTHeader(matchedDefinition.getUsedMethodParameterIndexes(),
