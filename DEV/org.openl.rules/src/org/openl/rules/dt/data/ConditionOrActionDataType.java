@@ -8,7 +8,7 @@ import org.openl.types.IParameterDeclaration;
 class ConditionOrActionDataType extends ComponentOpenClass {
 
     ConditionOrActionDataType(IBaseDecisionRow conditionOrAction, OpenL openl) {
-        super(conditionOrAction.getName() + "Type", openl);
+        super(conditionOrAction.getName(), openl);
         IParameterDeclaration[] pdd = conditionOrAction.getParams();
         for (int i = 0; i < pdd.length; i++) {
             if (pdd[i] != null) {

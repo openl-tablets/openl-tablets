@@ -10,7 +10,7 @@ import org.openl.types.IOpenField;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
 
-class DTColumnsDefinitionField implements IOpenField {
+public class DTColumnsDefinitionField implements IOpenField {
 
     private final IOpenClass type;
     private final IOpenClass declaringClass;
@@ -50,6 +50,10 @@ class DTColumnsDefinitionField implements IOpenField {
             sb.append(" '").append(dtColumnsDefinition.getTableName()).append("'");
         }
         return sb.toString();
+    }
+
+    public DTColumnsDefinition getDtColumnsDefinition() {
+        return dtColumnsDefinition;
     }
 
     @Override

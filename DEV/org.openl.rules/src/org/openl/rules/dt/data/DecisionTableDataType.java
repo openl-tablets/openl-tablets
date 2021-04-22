@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,8 +37,6 @@ import org.openl.types.IParameterDeclaration;
 
 public class DecisionTableDataType extends ComponentOpenClass {
 
-    private final String displayName;
-
     private final Map<String, List<IOpenField>> nonConflictConditionParamNames = new HashMap<>();
 
     // This is very simple way to find what fields was used during expression compilation
@@ -49,11 +46,9 @@ public class DecisionTableDataType extends ComponentOpenClass {
     public DecisionTableDataType(DecisionTable decisionTable,
             String name,
             OpenL openl,
-            String displayName,
             boolean traceUsedFields) {
         super(name, openl);
 
-        this.displayName = Objects.requireNonNull(displayName, "displayName cannot be null");
         this.traceUsedFields = traceUsedFields;
         if (traceUsedFields) {
             usedFields = new HashSet<>();
@@ -133,10 +128,5 @@ public class DecisionTableDataType extends ComponentOpenClass {
                 addDecisionTableField(f);
             }
         }
-    }
-
-    @Override
-    public String getDisplayName(int mode) {
-        return displayName;
     }
 }

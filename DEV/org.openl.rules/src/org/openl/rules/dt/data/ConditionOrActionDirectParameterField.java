@@ -4,13 +4,14 @@ import java.util.Objects;
 
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.dt.IBaseDecisionRow;
 import org.openl.rules.dt.element.IDecisionRow;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-class ConditionOrActionDirectParameterField implements IOpenField {
+public class ConditionOrActionDirectParameterField implements IOpenField {
 
     private final int numberOfTableParameters;
     private final IDecisionRow decisionRow;
@@ -26,6 +27,10 @@ class ConditionOrActionDirectParameterField implements IOpenField {
         this.decisionTableDataType = Objects.requireNonNull(decisionTableDataType, "declaringClass cannot be null");
         this.decisionRow = Objects.requireNonNull(decisionRow, "decisionRow cannot be null");
         this.paramNum = paramNum;
+    }
+
+    public IBaseDecisionRow getConditionOrAction() {
+        return decisionRow;
     }
 
     @Override

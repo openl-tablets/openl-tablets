@@ -135,7 +135,6 @@ public class DecisionTableAlgorithmBuilder implements IAlgorithmBuilder {
         DecisionTableDataType ruleExecutionType = new DecisionTableDataType(table,
             table.getName() + "Type",
             openl,
-            "Parameter",
             false);
         evaluators = prepareConditions(ruleExecutionType, bindingContext);
         prepareActions(ruleExecutionType, bindingContext);

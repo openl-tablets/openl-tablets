@@ -261,15 +261,15 @@ public abstract class ADtColumnsDefinitionTableBoundNode extends ATableBoundNode
         DecisionTableDataType decisionTableDataType = new DecisionTableDataType(null,
             "DecisionTableDataType",
             openl,
-            "External parameter",
             true);
         for (DTColumnsDefinition dtColumnsDefinition : getXlsModuleOpenClass().getXlsDefinitions()
             .getDtColumnsDefinitions()) {
             for (String title : dtColumnsDefinition.getTitles()) {
                 for (IParameterDeclaration parameter : dtColumnsDefinition.getParameters(title)) {
                     if (parameter != null && parameter.getName() != null) {
-                        decisionTableDataType.addDecisionTableField(new DTColumnsDefinitionField(parameter
-                            .getName(), parameter.getType(), decisionTableDataType, dtColumnsDefinition, title));
+                        DTColumnsDefinitionField dtColumnsDefinitionField = new DTColumnsDefinitionField(parameter
+                            .getName(), parameter.getType(), decisionTableDataType, dtColumnsDefinition, title);
+                        decisionTableDataType.addDecisionTableField(dtColumnsDefinitionField);
                     }
                 }
             }

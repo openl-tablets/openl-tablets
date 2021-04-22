@@ -153,7 +153,7 @@ public class JavaOpenClass extends AOpenClass {
         return fields;
     }
 
-    private void ensureFieldsInitialized(){
+    private void ensureFieldsInitialized() {
         if (this.fields == null || this.staticFields == null) {
             synchronized (this) {
                 if (this.fields == null || this.staticFields == null) {
@@ -245,7 +245,10 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getPackageName() {
-        return getInstanceClass().getPackage().getName();
+        if (getInstanceClass().getPackage() != null) {
+            return getInstanceClass().getPackage().getName();
+        }
+        return null;
     }
 
     @Override
