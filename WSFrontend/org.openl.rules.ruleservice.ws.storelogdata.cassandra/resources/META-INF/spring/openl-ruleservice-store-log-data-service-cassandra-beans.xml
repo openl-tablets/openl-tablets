@@ -2,16 +2,13 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations" lazy-init="true">
+    <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations">
         <property name="createSchemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
-        <property name="enabled" value="#{ ${ruleservice.store.logs.cassandra.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 
     <!-- Cassandra logging store service bean. -->
     <bean id="cassandraStoreLogDataService"
-        class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraStoreLogDataService" lazy-init="true">
+          class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraStoreLogDataService">
         <property name="cassandraOperations" ref="cassandraOperations"/>
-        <property name="enabled" value="#{ ${ruleservice.store.logs.cassandra.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 </beans>
-

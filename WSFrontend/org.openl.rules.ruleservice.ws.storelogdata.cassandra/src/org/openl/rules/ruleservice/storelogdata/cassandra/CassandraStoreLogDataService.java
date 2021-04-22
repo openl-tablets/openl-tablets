@@ -8,9 +8,11 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ConditionalOnEnable({"ruleservice.store.logs.cassandra.enabled", "ruleservice.store.logs.enabled"})
 public class CassandraStoreLogDataService implements StoreLogDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
@@ -19,23 +21,12 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
-    private boolean enabled = true;
-
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
     }
 
     public void setCassandraOperations(CassandraOperations cassandraOperations) {
         this.cassandraOperations = cassandraOperations;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override

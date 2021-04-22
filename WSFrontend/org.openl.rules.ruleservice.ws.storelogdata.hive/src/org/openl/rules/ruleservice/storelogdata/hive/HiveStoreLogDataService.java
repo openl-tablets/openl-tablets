@@ -8,15 +8,16 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ConditionalOnEnable({"ruleservice.store.logs.hive.enabled", "ruleservice.store.logs.enabled"})
 public class HiveStoreLogDataService implements StoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
     private HiveOperations hiveOperations;
-    private boolean enabled = true;
 
     public void setHiveOperations(HiveOperations hiveOperations) {
         this.hiveOperations = hiveOperations;
@@ -106,14 +107,5 @@ public class HiveStoreLogDataService implements StoreLogDataService {
             storeLogDataAnnotation = serviceMethod.getAnnotation(StoreLogDataToHive.class);
         }
         return storeLogDataAnnotation;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 }

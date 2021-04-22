@@ -8,6 +8,4 @@ package org.openl.rules.ruleservice.storelogdata;
  */
 public interface StoreLogDataService {
     void save(StoreLogData storeLogData);
-
-    boolean isEnabled();
 }

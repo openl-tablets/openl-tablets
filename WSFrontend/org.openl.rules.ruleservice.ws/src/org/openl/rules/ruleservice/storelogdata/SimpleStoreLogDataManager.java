@@ -8,16 +8,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFaultStoreLogData;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+@ConditionalOnEnable("ruleservice.store.logs.enabled")
 public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     private final Logger log = LoggerFactory.getLogger(SimpleStoreLogDataManager.class);
 
     private final Collection<StoreLogDataService> storeLogDataServices;
 
+    @Autowired
     public SimpleStoreLogDataManager(Collection<StoreLogDataService> storeLogDataServices) {
         Objects.requireNonNull(storeLogDataServices);
+        for (StoreLogDataService storeLoggingService : storeLogDataServices) {
+            log.info("Store log data service '{}' is used.", storeLoggingService.getClass().getTypeName());
+        }
         this.storeLogDataServices = new ArrayList<>(storeLogDataServices);
     }
 

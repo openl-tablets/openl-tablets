@@ -10,21 +10,13 @@ import org.openl.rules.ruleservice.storelogdata.advice.ObjectSerializerAware;
 import org.openl.rules.ruleservice.storelogdata.advice.StoreLogDataAdvice;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogDatas;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@ConditionalOnEnable("ruleservice.store.logs.enabled")
 public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener {
     private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
-
-    private boolean storeLogDataEnabled = false;
-
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
-    }
 
     public void process(Method interfaceMethod,
             Object[] args,
@@ -74,13 +66,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException) {
-        if (isStoreLogDataEnabled()) {
-            process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
-        }
+        process(interfaceMethod,
+            args,
+            result,
+            lastOccurredException,
+            e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
     }
 
     @Override
@@ -89,13 +79,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException) {
-        if (isStoreLogDataEnabled()) {
-            process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
-        }
+        process(interfaceMethod,
+            args,
+            result,
+            lastOccurredException,
+            e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
     }
 
     @Override
@@ -103,13 +91,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException) {
-        if (isStoreLogDataEnabled()) {
-            process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
-        }
+        process(interfaceMethod,
+            args,
+            result,
+            lastOccurredException,
+            e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
     }
 
     @Override
@@ -117,13 +103,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException) {
-        if (isStoreLogDataEnabled()) {
-            process(interfaceMethod,
-                args,
-                result,
-                lastOccurredException,
-                e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
-        }
+        process(interfaceMethod,
+            args,
+            result,
+            lastOccurredException,
+            e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
     }
 
 }

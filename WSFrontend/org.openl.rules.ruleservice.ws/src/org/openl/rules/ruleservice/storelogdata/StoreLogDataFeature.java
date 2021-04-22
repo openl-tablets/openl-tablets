@@ -4,12 +4,12 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.openl.spring.config.ConditionalOnEnable;
 
 @NoJSR250Annotations
+@ConditionalOnEnable("ruleservice.store.logs.enabled")
 public class StoreLogDataFeature extends AbstractFeature {
     private static final int DEFAULT_LIMIT = Integer.MAX_VALUE;
-
-    private boolean storeLogDataEnabled = true;
 
     private int limit = DEFAULT_LIMIT;
 
@@ -27,28 +27,18 @@ public class StoreLogDataFeature extends AbstractFeature {
 
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
-        if (isStoreLogDataEnabled()) {
-            CollectRequestMessageInInterceptor storeLogDataInInterceptor = new CollectRequestMessageInInterceptor(
-                Integer.MAX_VALUE);
-            storeLogDataInInterceptor.setPrettyLogging(false);
-            provider.getInInterceptors().add(storeLogDataInInterceptor);
-            provider.getInFaultInterceptors().add(storeLogDataInInterceptor);
+        CollectRequestMessageInInterceptor storeLogDataInInterceptor = new CollectRequestMessageInInterceptor(
+            Integer.MAX_VALUE);
+        storeLogDataInInterceptor.setPrettyLogging(false);
+        provider.getInInterceptors().add(storeLogDataInInterceptor);
+        provider.getInFaultInterceptors().add(storeLogDataInInterceptor);
 
-            CollectResponseMessageOutInterceptor storeLogDataOutInterceptor = new CollectResponseMessageOutInterceptor(
-                Integer.MAX_VALUE,
-                getStoreLogDataManager());
-            storeLogDataOutInterceptor.setPrettyLogging(false);
-            provider.getOutInterceptors().add(storeLogDataOutInterceptor);
-            provider.getOutFaultInterceptors().add(storeLogDataOutInterceptor);
-        }
-    }
-
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
+        CollectResponseMessageOutInterceptor storeLogDataOutInterceptor = new CollectResponseMessageOutInterceptor(
+            Integer.MAX_VALUE,
+            getStoreLogDataManager());
+        storeLogDataOutInterceptor.setPrettyLogging(false);
+        provider.getOutInterceptors().add(storeLogDataOutInterceptor);
+        provider.getOutFaultInterceptors().add(storeLogDataOutInterceptor);
     }
 
     /**

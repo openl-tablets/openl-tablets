@@ -12,6 +12,7 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.annotation.Id;
@@ -20,11 +21,10 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 
+@ConditionalOnEnable({"ruleservice.store.logs.elasticsearch.enabled", "ruleservice.store.logs.enabled"})
 public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
-
-    private boolean enabled = true;
 
     private ElasticsearchOperations elasticsearchOperations;
 
@@ -36,15 +36,6 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     public void setElasticsearchOperations(ElasticsearchOperations elasticsearchOperations) {
         this.elasticsearchOperations = elasticsearchOperations;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     @Override

@@ -15,6 +15,7 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +29,7 @@ import com.datastax.oss.driver.api.core.DriverException;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
+@ConditionalOnEnable({"ruleservice.store.logs.cassandra.enabled", "ruleservice.store.logs.enabled"})
 public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
     private static final Logger LOG = LoggerFactory.getLogger(CassandraOperations.class);
 
@@ -38,15 +40,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
-    private boolean enabled;
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -114,9 +107,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     public void save(Object entity) {
-        if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save an entity to Cassandra. Feature is not enabled.");
-        }
         if (entity == null) {
             return;
         }
@@ -141,14 +131,12 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void onUndeploy(String deployPath) {
-        if (isEnabled()) {
-            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-            entitySavers.set(Collections.emptyMap());
-        }
+        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+        entitySavers.set(Collections.emptyMap());
     }
 
     public void createSchemaIfMissed(Class<?> entityClass) {
-        if (isEnabled() && isCreateSchemaEnabled()) {
+        if (isCreateSchemaEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -208,12 +196,10 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void afterPropertiesSet() {
-        if (isEnabled()) {
-            try {
-                init();
-            } catch (Exception e) {
-                LOG.error("Cassandra initialization failure.", e);
-            }
+        try {
+            init();
+        } catch (Exception e) {
+            LOG.error("Cassandra initialization failure.", e);
         }
     }
 }
