@@ -62,6 +62,7 @@
                 <ref bean="notificationService"/>
                 <ref bean="projectHistoryService"/>
                 <ref bean="propertyService"/>
+                <ref bean="tagConfigService"/>
             </list>
         </property>
         <property name="providers">

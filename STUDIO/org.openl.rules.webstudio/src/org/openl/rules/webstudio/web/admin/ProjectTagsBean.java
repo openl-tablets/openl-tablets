@@ -117,9 +117,9 @@ public class ProjectTagsBean {
         tags.stream()
             .filter(tag -> !tag.getType().isExtensible() && !tag.getName().equals(NONE_NAME))
             .forEach(tag -> {
-                final Tag existed = tagService.getByName(tag.getName());
+                final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
                 if (existed == null) {
-                    throw new IllegalArgumentException("Tag type '" + tag.getType().getName() + "' isn't extensible");
+                    throw new IllegalArgumentException("Tag type '" + tag.getType().getName() + "' isn't extensible. Can't create a new tag.");
                 }
             });
 
@@ -152,7 +152,7 @@ public class ProjectTagsBean {
     private void createExtensibleAndLoadCurrentTags(List<Tag> currentTags) {
         // Save extensible tags
         tags.stream().filter(tag -> tag.getType().isExtensible()).forEach(tag -> {
-            final Tag existed = tagService.getByName(tag.getName());
+            final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
             if (existed == null) {
                 // Ignore id because we can enter our new value in editable combobox.
                 Tag newTag = new Tag();
@@ -162,7 +162,7 @@ public class ProjectTagsBean {
             }
         });
 
-        tags.forEach(tag -> currentTags.add(tagService.getByName(tag.getName())));
+        tags.forEach(tag -> currentTags.add(tagService.getByName(tag.getType().getId(), tag.getName())));
     }
 
     public void setProjectName(String projectName) {

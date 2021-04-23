@@ -33,8 +33,8 @@ public class TagService {
         return tagDao.getById(id);
     }
 
-    public Tag getByName(String name) {
-        return tagDao.getByName(name);
+    public Tag getByName(Long tagTypeId, String name) {
+        return tagDao.getByName(tagTypeId, name);
     }
 
     public void setTagDao(TagDao tagDao) {

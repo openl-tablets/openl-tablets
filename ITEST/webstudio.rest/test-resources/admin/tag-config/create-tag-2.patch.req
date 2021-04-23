@@ -1,0 +1,4 @@
+PATCH /web/admin/tag-config/tag HTTP/1.1
+Content-Type: application/x-www-form-urlencoded; charset=UTF-8
+
+tagTypeId=1&name=Finance

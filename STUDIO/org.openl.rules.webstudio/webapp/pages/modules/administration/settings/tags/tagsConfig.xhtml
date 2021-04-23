@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <style>
+        #tag-types-list {
+            max-width: fit-content;
+        }
+
+        .tag-type {
+            padding: 5px;
+            margin-bottom: 15px;
+            border: 1px solid black;
+        }
+
+        .tags-list {
+            padding: 5px;
+            margin: 5px 0;
+            border: 1px solid #dddddd;
+        }
+
+        .tag-value {
+            display: inline-block;
+            padding: 2px;
+            margin-right: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid;
+            border-radius: 3px;
+        }
+
+        .tag-type .delete-icon {
+            float: right;
+        }
+
+        .tag-value .delete-icon {
+            text-align: right;
+        }
+
+        input.tag-type-name, input.tag-name {
+            width: auto;
+        }
+    </style>
+
+    <div id="tag-types-list"></div>
+
+    <script>
+        //<![CDATA[
+        $j(() => {
+            let tc = new TagsConfig();
+
+            $j('#tag-types-list').bind('refresh', () => tc.reload());
+            $j('#tag-types-list').trigger('refresh');
+        });
+
+        let TagsConfig = function () {
+            const createTagType = function (tagType) {
+                let $tagType = $j('<div></div>');
+                $tagType.addClass('tag-type');
+                $tagType.data('id', tagType.id);
+
+                let $tagTypeName = createTagTypeName(tagType);
+                $tagType.append($tagTypeName);
+
+                let $nullableComponent = createNullable(tagType);
+                $tagType.append($nullableComponent);
+
+                let $extensibleComponent = createExtensible(tagType);
+                $tagType.append($extensibleComponent);
+
+                let $tagTypeDelete = createDeleteTagTypeButton(tagType, $tagType);
+                $tagType.append($tagTypeDelete);
+
+                let $tags = createTagsList(tagType);
+                $tagType.append($tags);
+
+                return $tagType;
+            };
+
+            const createDeleteTagTypeButton = function (tagType, $tagType) {
+                let $tagTypeDelete = $j('<span class="clickable delete-icon" title="Delete tag type"></span>');
+                $tagTypeDelete.click(() => {
+                    if (!window.confirm('Are you sure you want to delete tag type?')) {
+                        return false;
+                    }
+
+                    $j.ajax({
+                        type: "DELETE",
+                        contentType: 'text/plain',
+                        url: "#{contextPath}/web/admin/tag-config/type",
+                        data: '' + tagType.id,
+                        beforeSend: showLoader
+                    }).done(
+                        () => $tagType.remove()
+                    ).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                });
+                return $tagTypeDelete;
+            };
+
+            const createTagTypeName = function (tagType) {
+                let $tagTypeName = $j('<input type="text" placeholder="Enter Tag Type" title="Tag type">');
+                $tagTypeName.addClass('tag-type-name');
+                $tagTypeName.val(tagType.name);
+
+                const applyChanges = () => {
+                    let name = $tagTypeName.val();
+                    if (name !== tagType.name) {
+                        let obj = {
+                            id: tagType.id,
+                            name: name
+                        }
+                        updateTagType(obj, () => tagType.name = name, response => {
+                            ws.ui.info(response.responseText);
+                            $tagTypeName.focus();
+                        });
+                    }
+                };
+
+                $tagTypeName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") $tagTypeName.val(tagType.name);
+                });
+                $tagTypeName.focusout(applyChanges);
+
+                return $tagTypeName;
+            };
+
+            const createNewTagTypeName = function () {
+                let $tagTypeName = $j('<input type="text" placeholder="New Tag Type">');
+                $tagTypeName.addClass('tag-type-name');
+
+                const applyChanges = () => {
+                    let name = $tagTypeName.val();
+                    if (name !== '') {
+                        let obj = {
+                            name: name
+                        }
+                        updateTagType(obj,
+                            () => $j('#tag-types-list').trigger('refresh'),
+                            response => {
+                                ws.ui.info(response.responseText);
+                                $tagTypeName.focus();
+                            }
+                        );
+                    }
+                };
+
+                $tagTypeName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") $tagTypeName.val('');
+                });
+                $tagTypeName.focusout(applyChanges);
+
+                return $tagTypeName;
+            };
+
+            const createNullable = function (tagType) {
+                let $nullable = $j('<input type="checkbox">');
+                $nullable.prop('checked', tagType.nullable);
+                let $nullableLabel = $j('<label>Nullable</label>')
+                $nullableLabel.prepend($nullable);
+                $nullable.click(() => {
+                    let nullable = $nullable.prop("checked");
+                    let obj = {
+                        id: tagType.id,
+                        nullable: nullable
+                    }
+                    updateTagType(obj, () => tagType.nulllable = nullable);
+                });
+                return $nullableLabel;
+            };
+            const createExtensible = function (tagType) {
+                let $extensible = $j('<input type="checkbox">');
+                $extensible.prop('checked', tagType.extensible);
+                let $extensibleLabel = $j('<label>Extensible</label>')
+                $extensibleLabel.prepend($extensible);
+                $extensible.click(() => {
+                    let extensible = $extensible.prop("checked");
+                    let obj = {
+                        id: tagType.id,
+                        extensible: extensible
+                    }
+                    updateTagType(obj, () => tagType.extensible = extensible);
+                });
+                return $extensibleLabel;
+            };
+
+            const createTag = function (tag) {
+                let $tag = $j('<div></div>');
+                $tag.addClass('tag-value');
+                $tag.data('id', tag.id);
+
+                let $tagText = $j('<span></span>');
+                $tagText.text(tag.name);
+                let $editTagName = createEditTagName(tag);
+                $tagText.click(() => {
+                    $tagText.replaceWith($editTagName);
+                    $editTagName.focus();
+                });
+                $tag.append($tagText);
+
+                let $tagDelete = createDeleteTagButton(tag, $tag);
+                $tag.append($tagDelete);
+
+                return $tag;
+            };
+
+            const createDeleteTagButton = function (tag, $tag) {
+                let $tagDelete = $j('<span class="clickable delete-icon" title="Delete tag"></span>');
+                $tagDelete.click(() => {
+                    if (!window.confirm('Are you sure you want to delete the tag?')) {
+                        return false;
+                    }
+
+                    $j.ajax({
+                        type: "DELETE",
+                        contentType: 'text/plain',
+                        url: "#{contextPath}/web/admin/tag-config/tag",
+                        data: '' + tag.id,
+                        beforeSend: showLoader
+                    }).done(
+                        () => $tag.remove()
+                    ).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                });
+                return $tagDelete;
+            };
+
+            const createNewTagName = function (tagType) {
+                let $tagName = $j('<input type="text" placeholder="New Tag">');
+                $tagName.addClass('tag-name');
+
+                const triggerRefresh = () => $j('#tag-types-list').trigger('refresh');
+
+                const applyChanges = () => {
+                    let name = $tagName.val();
+                    if (name !== '') {
+                        let obj = {
+                            tagTypeId: tagType.id,
+                            name: name
+                        }
+                        updateTag(obj,
+                            () => triggerRefresh(),
+                            response => {
+                                ws.ui.info(response.responseText);
+                                $tagName.focus();
+                            }
+                        );
+                    }
+                };
+                $tagName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") triggerRefresh();
+                });
+                $tagName.focusout(applyChanges);
+
+                return $tagName;
+            };
+
+            const createEditTagName = function (tag) {
+                let $tagName = $j('<input type="text" placeholder="Enter Tag Name">');
+                $tagName.addClass('tag-name');
+                $tagName.val(tag.name);
+
+                const triggerRefresh = () => $j('#tag-types-list').trigger('refresh');
+
+                const applyChanges = () => {
+                    let name = $tagName.val();
+
+                    if (name !== tag.name) {
+                        let obj = {
+                            tagId: tag.id,
+                            name: name
+                        }
+                        updateTag(obj,
+                            () => triggerRefresh(),
+                            response => {
+                                ws.ui.info(response.responseText);
+                                $tagName.focus();
+                            }
+                        );
+                    } else {
+                        triggerRefresh();
+                    }
+                };
+
+
+                $tagName.on('keyup', (e) => {
+                    if (e.key === "Enter") applyChanges();
+                    if (e.key === "Escape") triggerRefresh();
+                });
+                $tagName.focusout(applyChanges);
+
+                return $tagName;
+            };
+
+            const createTagsList = function (tagType) {
+                let $tags = $j('<div></div>');
+                $tags.addClass('tags-list');
+
+                if (Array.isArray(tagType.tags)) {
+                    for (let tag of tagType.tags) {
+                        let $tag = createTag(tag);
+
+                        $tags.append($tag);
+                    }
+                }
+
+                $tags.append(createNewTagName(tagType));
+
+                return $tags;
+            };
+
+            const updateTagType = function (patch, onDoneFunc, onFailFunc) {
+                $j.ajax({
+                    type: "PATCH",
+                    url: "#{contextPath}/web/admin/tag-config/type",
+                    data: patch,
+                    beforeSend: showLoader
+                }).done(
+                    () => onDoneFunc()
+                ).fail(
+                    response => onFailFunc ? onFailFunc(response) : handleError(response.status)
+                ).always(
+                    () => hideLoader()
+                );
+            };
+
+            const updateTag = function (patch, onDoneFunc, onFailFunc) {
+                $j.ajax({
+                    type: "PATCH",
+                    url: "#{contextPath}/web/admin/tag-config/tag",
+                    data: patch,
+                    beforeSend: showLoader
+                }).done(
+                    () => onDoneFunc()
+                ).fail(
+                    response => onFailFunc ? onFailFunc(response) : handleError(response.status)
+                ).always(
+                    () => hideLoader()
+                );
+            };
+
+            return {
+                reload: function () {
+                    $j.ajax({
+                        url: "#{contextPath}/web/admin/tag-config/types",
+                        datatype: "json",
+                        beforeSend: showLoader
+                    }).done(data => {
+                        let $tagTypesList = $j('#tag-types-list');
+                        $tagTypesList.empty();
+
+                        if (Array.isArray(data)) {
+                            for (let tagType of data) {
+                                let $tagType = createTagType(tagType);
+                                $tagTypesList.append($tagType);
+                            }
+
+                            let $newTagType = createNewTagTypeName();
+                            $tagTypesList.append($newTagType);
+                        }
+                    }).fail(
+                        response => handleError(response.status)
+                    ).always(
+                        () => hideLoader()
+                    );
+                }
+            };
+        };
+
+        //]]>
+    </script>
+</ui:composition>

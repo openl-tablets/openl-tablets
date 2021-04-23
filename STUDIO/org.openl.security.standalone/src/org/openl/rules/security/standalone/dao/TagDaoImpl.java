@@ -1,6 +1,5 @@
 package org.openl.rules.security.standalone.dao;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -24,12 +23,15 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
 
     @Override
     @Transactional
-    public Tag getByName(String name) {
+    public Tag getByName(Long tagTypeId, String name) {
         CriteriaBuilder builder = getSession().getCriteriaBuilder();
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> u = criteria.from(Tag.class);
         // Case insensitive
-        criteria.select(u).where(builder.equal(builder.lower(u.get("name")), name.toLowerCase())).distinct(true);
+        criteria.select(u)
+            .where(builder.and(builder.equal(u.get("type").get("id"), tagTypeId),
+                builder.equal(builder.lower(u.get("name")), name.toLowerCase())))
+            .distinct(true);
         List<Tag> results = getSession().createQuery(criteria).getResultList();
         return results.isEmpty() ? null : results.get(0);
     }
@@ -41,7 +43,8 @@ public class TagDaoImpl extends BaseHibernateDao<Tag> implements TagDao {
         CriteriaQuery<Tag> criteria = builder.createQuery(Tag.class);
         Root<Tag> root = criteria.from(Tag.class);
         criteria.select(root)
-            .orderBy(builder.asc(builder.upper(root.get("type").get("name"))), builder.asc(builder.upper(root.get("name"))));
+            .orderBy(builder.asc(builder.upper(root.get("type").get("name"))),
+                builder.asc(builder.upper(root.get("name"))));
         return getSession().createQuery(criteria).getResultList();
     }
 

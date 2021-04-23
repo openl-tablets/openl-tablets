@@ -4,9 +4,11 @@ import static org.openl.rules.security.AccessManager.isGranted;
 
 import org.springframework.security.core.GrantedAuthority;
 
-class SecurityChecker {
+public final class SecurityChecker {
+    private SecurityChecker() {
+    }
 
-    static void allow(GrantedAuthority authority) {
+    public static void allow(GrantedAuthority authority) {
         if (!isGranted(authority)) {
             throw new SecurityException(authority);
         }

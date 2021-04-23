@@ -1,0 +1,9 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[{
+    "id":1,
+    "name":"Domain",
+    "extensible": true,
+    "tags": [{"id": 1, "name": "Policy"}]
+}]

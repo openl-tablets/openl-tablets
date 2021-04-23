@@ -18,7 +18,8 @@
     </bean>
 
     <bean id="tagTypeService" class="org.openl.rules.webstudio.service.TagTypeService">
-        <property name="tagTypeDao" ref="openlTagTypeDao" />
+        <constructor-arg name="tagTypeDao" ref="openlTagTypeDao" />
+        <constructor-arg name="tagDao" ref="openlTagDao" />
     </bean>
 
     <bean id="tagService" class="org.openl.rules.webstudio.service.TagService">

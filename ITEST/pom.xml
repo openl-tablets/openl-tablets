@@ -39,6 +39,7 @@
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
+        <module>webstudio.rest</module>
     </modules>
 
     <dependencyManagement>
@@ -59,6 +60,11 @@
                 <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>apache-jsp</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
@@ -66,6 +72,12 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>

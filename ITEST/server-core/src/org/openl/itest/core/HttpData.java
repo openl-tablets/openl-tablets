@@ -173,6 +173,8 @@ class HttpData {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
             body = readChunckedBody(input);
+        } else if (firstLine.endsWith("204 No Content")) {
+            body = new byte[0];
         } else {
             body = StreamUtils.copyToByteArray(input);
         }
