@@ -34,10 +34,7 @@ public final class SpringInitializer implements ServletContextListener {
         // e.g. as a common dependency for the Spring Boot application.
         applicationContext.setClassLoader(Thread.currentThread().getContextClassLoader());
 
-        applicationContext.setConfigLocations("classpath:openl-ruleservice-beans.xml",
-            "classpath:openl-ruleservice-store-log-data-beans.xml",
-            "classpath:openl-ruleservice-admin-beans.xml",
-            "classpath:openl-ruleservice-override-beans.xml");
+        applicationContext.setConfigLocations("classpath:openl-ruleservice-ws-beans.xml");
         new PropertySourcesLoader().initialize(applicationContext, servletContext);
         applicationContext.addBeanFactoryPostProcessor(
             bf -> bf.registerSingleton("servletContextPath", servletContext.getContextPath()));
