@@ -82,10 +82,11 @@ public class VersionPropertyTableCopier extends TableCopier {
 
     @Override
     protected void doCopy() throws CreateTableException {
-        if (Objects.isNull(getVersion().getValue())) {
+        Object newVersion = getVersion().getValue();
+        if (Objects.isNull(newVersion)) {
             WebStudioUtils.throwValidationError("Table version should not be empty.");
         }
-        if (isVersionExists()) {
+        if (newVersion.equals(getOriginalVersion().toString()) || isVersionExists(newVersion)) {
             WebStudioUtils.throwValidationError(
                 String.format("Table with '%s' version number already exists.", getVersion().getValue()));
         }
@@ -93,7 +94,7 @@ public class VersionPropertyTableCopier extends TableCopier {
         updateOriginalTable();
     }
 
-    private boolean isVersionExists() {
+    private boolean isVersionExists(Object newVersion) {
         return Arrays.stream(WebStudioUtils.getWebStudio().getModel().getTableSyntaxNodes())
             .filter(Objects::nonNull)
             .filter(node -> Optional.ofNullable(node.getMember())
@@ -103,7 +104,7 @@ public class VersionPropertyTableCopier extends TableCopier {
             .map(TableSyntaxNode::getTableProperties)
             .map(ITableProperties::getVersion)
             .filter(Objects::nonNull)
-            .anyMatch(v -> v.equals(getVersion().getValue()));
+            .anyMatch(v -> v.equals(newVersion));
     }
 
     private void updateOriginalTable() {
