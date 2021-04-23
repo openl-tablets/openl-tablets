@@ -34,17 +34,16 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FolderProjectSaver {
+public class ZipProjectSaveStrategy {
 
     private final DesignTimeRepository designTimeRepository;
     private final PathFilter zipFilter;
     private final ZipCharsetDetector zipCharsetDetector;
 
     @Inject
-    public FolderProjectSaver(DesignTimeRepository designTimeRepository,
+    public ZipProjectSaveStrategy(DesignTimeRepository designTimeRepository,
             @Qualifier("zipFilter") PathFilter zipFilter,
             ZipCharsetDetector zipCharsetDetector) {
-
         this.designTimeRepository = designTimeRepository;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;

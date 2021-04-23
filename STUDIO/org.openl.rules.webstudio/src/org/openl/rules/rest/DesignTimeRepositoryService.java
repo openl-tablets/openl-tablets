@@ -52,21 +52,21 @@ public class DesignTimeRepositoryService {
     private final BeanValidationProvider validationProvider;
     private final CreateUpdateProjectModelValidator createUpdateProjectModelValidator;
     private final ZipArchiveValidator zipArchiveValidator;
-    private final FolderProjectSaver zipProjectSaver;
+    private final ZipProjectSaveStrategy zipProjectSaveStrategy;
 
     @Inject
     public DesignTimeRepositoryService(DesignTimeRepository designTimeRepository,
-            PropertyResolver propertyResolver,
-            BeanValidationProvider validationService,
-            CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
-            ZipArchiveValidator zipArchiveValidator,
-            FolderProjectSaver zipProjectSaver) {
+                                       PropertyResolver propertyResolver,
+                                       BeanValidationProvider validationService,
+                                       CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
+                                       ZipArchiveValidator zipArchiveValidator,
+                                       ZipProjectSaveStrategy zipProjectSaveStrategy) {
         this.designTimeRepository = designTimeRepository;
         this.propertyResolver = propertyResolver;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
-        this.zipProjectSaver = zipProjectSaver;
+        this.zipProjectSaveStrategy = zipProjectSaveStrategy;
     }
 
     @GET
@@ -131,7 +131,7 @@ public class DesignTimeRepositoryService {
         try {
             IOUtils.copyAndClose(inZip, Files.newOutputStream(archiveTmp));
             validationProvider.validate(archiveTmp, zipArchiveValidator);
-            FileData data = zipProjectSaver.save(model, archiveTmp);
+            FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
             return mapFileDataResponse(data);
         } finally {
             FileUtils.delete(archiveTmp);
