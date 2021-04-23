@@ -13,6 +13,7 @@
     <import resource="repository-beans.xml" />
     <import resource="security-beans.xml" />
     <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="validation-beans.xml" />
 
     <bean id="currentUserInfo" class="org.openl.rules.webstudio.security.CurrentUserInfo" />
 
