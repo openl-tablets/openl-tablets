@@ -29,6 +29,7 @@ import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -91,12 +92,12 @@ public class DesignTimeRepositoryService {
         List<Map<String, Object>> result = designTimeRepository.getProjects(repoName)
             .stream()
             .filter(proj -> !proj.isDeleted())
-            .map(src -> mapProjectResponse(src, repository.supports().mappedFolders()))
+            .map(src -> mapProjectResponse(src, repository.supports()))
             .collect(Collectors.toList());
         return Response.ok(result).build();
     }
 
-    private <T extends AProject> Map<String, Object> mapProjectResponse(T src, boolean foldersSupport) {
+    private <T extends AProject> Map<String, Object> mapProjectResponse(T src, Features features) {
         Map<String, Object> dest = new LinkedHashMap<>();
         dest.put("name", src.getBusinessName());
         dest.put("modifiedBy", Optional.of(src.getFileData()).map(FileData::getAuthor).orElse(null));
@@ -106,9 +107,11 @@ public class DesignTimeRepositoryService {
                 .map(Date::toInstant)
                 .map(instant -> ZonedDateTime.ofInstant(instant, ZoneId.systemDefault()))
                 .orElse(null));
-        dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
         dest.put("rev", Optional.of(src.getFileData()).map(FileData::getVersion).orElse(null));
-        if (foldersSupport) {
+        if (features.branches()) {
+            dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
+        }
+        if (features.mappedFolders()) {
             dest.put("path", src.getRealPath());
         }
         return dest;
