@@ -127,7 +127,7 @@ public class DesignTimeRepositoryService {
             @Multipart(value = "template", type = "application/zip") InputStream inZip,
             @Multipart(value = "overwrite", required = false) boolean overwrite) throws IOException {
 
-        getRepositoryByName(repoName);
+        Repository repository = getRepositoryByName(repoName);
         SecurityChecker.allow(overwrite ? Privileges.EDIT_PROJECTS : Privileges.CREATE_PROJECTS);
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repoName,
@@ -148,7 +148,7 @@ public class DesignTimeRepositoryService {
             validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
             FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
-            return mapFileDataResponse(data);
+            return mapFileDataResponse(data, repository.supports());
         } finally {
             FileUtils.deleteQuietly(archiveTmp);
             lock.unlock();
@@ -172,9 +172,11 @@ public class DesignTimeRepositoryService {
         return new Comments(propertyResolver, repoName);
     }
 
-    private Map<String, Object> mapFileDataResponse(FileData src) {
+    private Map<String, Object> mapFileDataResponse(FileData src, Features features) {
         Map<String, Object> dest = new LinkedHashMap<>();
-        dest.put("branch", src.getBranch());
+        if (features.branches()) {
+            dest.put("branch", src.getBranch());
+        }
         dest.put("rev", src.getVersion());
         return dest;
     }
