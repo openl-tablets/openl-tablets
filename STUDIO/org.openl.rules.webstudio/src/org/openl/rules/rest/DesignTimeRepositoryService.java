@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Date;
@@ -21,7 +22,6 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
 import org.openl.rules.lock.Lock;
@@ -79,22 +79,26 @@ public class DesignTimeRepositoryService {
     }
 
     @GET
-    public List<String> getRepositoryList() {
+    public List<Map<String, Object>> getRepositoryList() {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
-        return designTimeRepository.getRepositories().stream().map(Repository::getId).collect(Collectors.toList());
+        return designTimeRepository.getRepositories().stream().map(repository -> {
+            Map<String, Object> dest = new LinkedHashMap<>();
+            dest.put("id", repository.getId());
+            dest.put("name", repository.getName());
+            return dest;
+        }).collect(Collectors.toList());
     }
 
     @GET
     @javax.ws.rs.Path("/{repo-name}/projects")
-    public Response getProjectListByRepository(@PathParam("repo-name") String repoName) {
+    public List<Map<String, Object>> getProjectListByRepository(@PathParam("repo-name") String repoName) {
         SecurityChecker.allow(Privileges.VIEW_PROJECTS);
         Repository repository = getRepositoryByName(repoName);
-        List<Map<String, Object>> result = designTimeRepository.getProjects(repoName)
+        return designTimeRepository.getProjects(repoName)
             .stream()
             .filter(proj -> !proj.isDeleted())
             .map(src -> mapProjectResponse(src, repository.supports()))
             .collect(Collectors.toList());
-        return Response.ok(result).build();
     }
 
     private <T extends AProject> Map<String, Object> mapProjectResponse(T src, Features features) {
@@ -112,7 +116,7 @@ public class DesignTimeRepositoryService {
             dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
         }
         if (features.mappedFolders()) {
-            dest.put("path", src.getRealPath());
+            dest.put("path", Paths.get(src.getRealPath()).getParent().toString().replace('\\', '/'));
         }
         return dest;
     }
@@ -120,7 +124,7 @@ public class DesignTimeRepositoryService {
     @PUT
     @javax.ws.rs.Path("/{repo-name}/projects/{project-name}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Object createProjectFromZip(@PathParam("repo-name") String repoName,
+    public Map<String, Object> createProjectFromZip(@PathParam("repo-name") String repoName,
             @PathParam("project-name") String projectName,
             @Multipart(value = "path", required = false) String path,
             @Multipart(value = "comment", required = false) String comment,
