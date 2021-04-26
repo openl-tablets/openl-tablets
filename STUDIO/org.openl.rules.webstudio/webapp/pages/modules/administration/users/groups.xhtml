@@ -468,8 +468,9 @@
                 RichFaces.$("modalAddEditGroup").hide();
                 location.reload();
             }).fail(function (response) {
-                if (response.responseText) {
-                    ws.ui.error(response.responseText);
+                let json = JSON.parse(response.responseText);
+                if (json.message) {
+                    ws.ui.error(json.message);
                 } else {
                     ws.ui.error("Could not save.")
                 }
