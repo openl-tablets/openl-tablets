@@ -23,7 +23,6 @@ public class SAMLSettings {
     private boolean metadataTrustCheck;
     private boolean isAppAfterBalancer;
     private String serverCertificate;
-    private String serverKeyAlias;
 
     public SAMLSettings(String webStudioUrl,
             String samlServerMetadataUrl,
@@ -46,8 +45,7 @@ public class SAMLSettings {
             int maxAuthenticationAge,
             boolean metadataTrustCheck,
             boolean isAppAfterBalancer,
-            String serverCertificate,
-            String serverKeyAlias) {
+            String serverCertificate) {
         this.webStudioUrl = webStudioUrl;
         this.samlServerMetadataUrl = samlServerMetadataUrl;
         this.requestTimeout = requestTimeout;
@@ -70,7 +68,6 @@ public class SAMLSettings {
         this.metadataTrustCheck = metadataTrustCheck;
         this.isAppAfterBalancer = isAppAfterBalancer;
         this.serverCertificate = serverCertificate;
-        this.serverKeyAlias = serverKeyAlias;
     }
 
     public String getWebStudioUrl() {
@@ -231,13 +228,5 @@ public class SAMLSettings {
 
     public void setServerCertificate(String serverCertificate) {
         this.serverCertificate = serverCertificate;
-    }
-
-    public String getServerKeyAlias() {
-        return serverKeyAlias;
-    }
-
-    public void setServerKeyAlias(String serverKeyAlias) {
-        this.serverKeyAlias = serverKeyAlias;
     }
 }

@@ -152,6 +152,9 @@ public class TableProperty {
      */
     public String getDisplayValue() {
         if (value instanceof Date) {
+            if ("expirationDate".equals(name) || "endRequestDate".equals(name)) {
+                return formats.formatDate((Date) value);
+            }
             return formats.formatDateOrDateTime((Date) value);
         }
         return getStringValue();

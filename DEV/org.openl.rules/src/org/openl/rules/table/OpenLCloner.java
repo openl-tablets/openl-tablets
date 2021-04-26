@@ -23,7 +23,7 @@ import com.rits.cloning.IInstantiationStrategy;
 /**
  * Extension for {@link Cloner}. To add OpenL classes to prevent cloning instances of them.
  *
- * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutatation of listed
+ * TODO: should be analyzed variations of tracing different rules. Check if we have issues with mutation of listed
  * below OpenL not cloned classes.
  *
  * @author DLiauchuk

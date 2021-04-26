@@ -81,4 +81,11 @@ public class SmokeITest {
     public void testSysInfo() {
         client.send("sys.json.get");
     }
+
+    @Test
+    public void testAdmin() {
+        client.send("admin_services.get");
+        client.send("admin_deploy_download.get");
+        client.send("admin_deploy_delete.delete");
+    }
 }

@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 import org.openl.base.INamedThing;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.MethodUtil;
@@ -28,6 +29,8 @@ import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
+import org.openl.rules.dt.element.OneDimArrayHolder;
+import org.openl.rules.dt.element.TwoDimArrayHolder;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -68,20 +71,18 @@ public final class RuleRowHelper {
     public static final String ARRAY_ELEMENTS_SEPARATOR = ",";
     public static final String CONSTRUCTOR = "constructor";
 
+    private static final Object EMPTY_CELL = new Object();
+    private static final Object[] EMPTY_ROW = new Object[0];
+
     public static int calculateHeight(ILogicalTable table) {
-
         int height = table.getHeight();
-
         int last = -1;
-
         for (int i = 0; i < height; i++) {
             String source = table.getRow(i).getSource().getCell(0, 0).getStringValue();
-
             if (source != null && source.trim().length() != 0) {
                 last = i;
             }
         }
-
         return last + 1;
     }
 
@@ -637,10 +638,8 @@ public final class RuleRowHelper {
 
         IOpenClass arrayType = paramType.getAggregateInfo().getComponentType(paramType);
 
-        boolean isFormula = isFormula(dataTable);
-
         if (oneCellTable) {
-            if (!isFormula) {
+            if (!isFormula(dataTable)) {
                 // try to load as constant first
                 String[] tokens = extractElementsFromCommaSeparatedArray(dataTable.getRow(0));
                 if (tokens != null && tokens.length == 1) {
@@ -702,28 +701,21 @@ public final class RuleRowHelper {
      *         case Object[].
      */
     private static Object processAsObjectParams(IOpenClass paramType, Object[] paramsArray) {
-        List<CompositeMethod> methodsList = null;
-        Object ary;
         int paramsLength = paramsArray.length;
-        ary = paramType.getAggregateInfo().makeIndexedAggregate(paramType, paramsLength);
+        Object array = null;
+        boolean hasFormulas = false;
         for (int i = 0; i < paramsLength; i++) {
             if (paramsArray[i] instanceof CompositeMethod) {
-                methodsList = new ArrayList<>(addMethod(methodsList, (CompositeMethod) paramsArray[i]));
+                hasFormulas = true;
+                break;
             } else {
-                Array.set(ary, i, paramsArray[i]);
+                if (array == null) {
+                    array = paramType.getAggregateInfo().makeIndexedAggregate(paramType, paramsLength);
+                }
+                Array.set(array, i, paramsArray[i]);
             }
         }
-
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
-    }
-
-    private static List<CompositeMethod> addMethod(List<CompositeMethod> methods, CompositeMethod method) {
-        if (methods == null) {
-            methods = new ArrayList<>();
-        }
-        methods.add(method);
-
-        return methods;
+        return hasFormulas ? new OneDimArrayHolder(paramType, paramsArray) : array;
     }
 
     private static Object loadSimpleArrayParams(ILogicalTable dataTable,
@@ -732,35 +724,102 @@ public final class RuleRowHelper {
             OpenlToolAdaptor openlAdaptor,
             IOpenClass aggregateType,
             IOpenClass paramType) {
-
-        int height = RuleRowHelper.calculateHeight(dataTable);
-
-        List<CompositeMethod> methodsList = null;
-        List<Object> values = new ArrayList<>();
-
-        for (int i = 0; i < height; i++) { // load array values represented as
-            // number of cells
-            ILogicalTable cell = dataTable.getRow(i);
-            Object parameter = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
-
-            if (parameter instanceof CompositeMethod) {
-                methodsList = new ArrayList<>(addMethod(methodsList, (CompositeMethod) parameter));
-            } else {
-                if (parameter != null) {
+        boolean hasFormulas = false;
+        final int height = dataTable.getHeight();
+        final int width = dataTable.getWidth();
+        if (!paramType.isArray() || height == 1 || width == 1) {
+            List<Object> values = new ArrayList<>();
+            // 1 dim array
+            boolean byHeight = height > 1 || width == 1;
+            for (int i = 0; i < (byHeight ? height : width); i++) { // load array values represented as
+                // number of cells
+                ILogicalTable cell = byHeight ? dataTable.getRow(i) : dataTable.getColumn(i).transpose();
+                String cellValue = cell.getCell(0, 0).getStringValue();
+                if (!StringUtils.isEmpty(cellValue)) {
+                    Object parameter = loadSingleParam(paramType, paramName, ruleName, cell, openlAdaptor);
+                    if (parameter instanceof CompositeMethod) {
+                        hasFormulas = true;
+                    }
                     values.add(parameter);
+                } else {
+                    values.add(EMPTY_CELL);
                 }
             }
+            // For backward compatibility
+            while (values.size() > 0 && values.get(values.size() - 1) == EMPTY_CELL) {
+                values.remove(values.size() - 1);
+            }
+            for (int i = 0; i < values.size(); i++) {
+                if (values.get(i) == EMPTY_CELL) {
+                    values.set(i, paramType.nullObject());
+                }
+            }
+            if (hasFormulas) {
+                return new OneDimArrayHolder(paramType, values.toArray(new Object[0]));
+            } else {
+                IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
+                Object array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+                IOpenIndex index = aggregateInfo.getIndex(aggregateType);
+                for (int i = 0; i < values.size(); i++) {
+                    index.setValue(array, i, values.get(i));
+                }
+                return array;
+            }
+        } else {
+            List<Object[]> values = new ArrayList<>();
+            // 2 dim array
+            for (int i = 0; i < width; i++) {
+                Object[] values1 = new Object[height];
+                boolean emptyRow = true;
+                for (int j = 0; j < height; j++) {
+                    // load array values represented as number of cells
+                    ILogicalTable cell = dataTable.getSubtable(i, j, 1, 1);
+                    String cellValue = cell.getCell(0, 0).getStringValue();
+                    if (!StringUtils.isEmpty(cellValue)) {
+                        emptyRow = false;
+                        Object parameter = loadSingleParam(paramType
+                            .getComponentClass(), paramName, ruleName, cell, openlAdaptor);
+                        if (parameter instanceof CompositeMethod) {
+                            hasFormulas = true;
+                        }
+                        values1[j] = parameter;
+                    } else {
+                        values1[j] = null;
+                    }
+                }
+                if (emptyRow) {
+                    values.add(EMPTY_ROW);
+                } else {
+                    values.add(values1);
+                }
+            }
+            while (values.size() > 0 && values.get(values.size() - 1) == EMPTY_ROW) {
+                values.remove(values.size() - 1);
+            }
+            for (int i = 0; i < values.size(); i++) {
+                if (values.get(i) == EMPTY_ROW) {
+                    values.set(i, new Object[dataTable.getHeight()]);
+                }
+            }
+            if (hasFormulas) {
+                return new TwoDimArrayHolder(paramType, values.toArray(new Object[0][0]));
+            } else {
+                IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
+                Object array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
+                IOpenIndex index = aggregateInfo.getIndex(aggregateType);
+                for (int i = 0; i < values.size(); i++) {
+                    IAggregateInfo aggregateInfo1 = paramType.getAggregateInfo();
+                    Object array1 = aggregateInfo1.makeIndexedAggregate(paramType.getComponentClass(),
+                        dataTable.getHeight());
+                    IOpenIndex index1 = aggregateInfo1.getIndex(paramType);
+                    for (int j = 0; j < values.get(i).length; j++) {
+                        Object v = values.get(i)[j];
+                        index1.setValue(array1, j, v != null ? v : paramType.getComponentClass().nullObject());
+                    }
+                    index.setValue(array, i, array1);
+                }
+                return array;
+            }
         }
-
-        IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
-        Object ary = aggregateInfo.makeIndexedAggregate(paramType, values.size());
-        IOpenIndex index = aggregateInfo.getIndex(aggregateType);
-
-        for (int i = 0; i < values.size(); i++) {
-            index.setValue(ary, i, values.get(i));
-        }
-
-        return methodsList == null ? ary : new ArrayHolder(paramType, methodsList.toArray(CompositeMethod.EMPTY_ARRAY));
-
     }
 }

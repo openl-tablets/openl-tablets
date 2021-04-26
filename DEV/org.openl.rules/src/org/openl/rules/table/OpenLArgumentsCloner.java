@@ -9,5 +9,6 @@ public class OpenLArgumentsCloner extends OpenLCloner {
          * to avoid cloning generated at runtime custom SpreadsheetResult children classes
          */
         dontCloneInstanceOf(SpreadsheetResult.class);
+        dontCloneInstanceOf(groovy.lang.MetaClass.class);
     }
 }

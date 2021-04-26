@@ -70,6 +70,9 @@ public class ManagementService {
             @FormParam("group") final Set<String> roles,
             @FormParam("privilege") final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
+        if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
+            throw new IllegalArgumentException("A group with such name already exists.");
+        }
         if (StringUtils.isBlank(oldName)) {
             groupManagementService.addGroup(name, description);
         } else {
