@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.inject.Inject;
@@ -23,8 +24,11 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.apache.cxf.jaxrs.ext.multipart.Multipart;
+import org.openl.rules.lock.Lock;
+import org.openl.rules.lock.LockManager;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.exception.NotFoundException;
@@ -37,6 +41,7 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -53,20 +58,23 @@ public class DesignTimeRepositoryService {
     private final CreateUpdateProjectModelValidator createUpdateProjectModelValidator;
     private final ZipArchiveValidator zipArchiveValidator;
     private final ZipProjectSaveStrategy zipProjectSaveStrategy;
+    private final LockManager lockManager;
 
     @Inject
     public DesignTimeRepositoryService(DesignTimeRepository designTimeRepository,
-                                       PropertyResolver propertyResolver,
-                                       BeanValidationProvider validationService,
-                                       CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
-                                       ZipArchiveValidator zipArchiveValidator,
-                                       ZipProjectSaveStrategy zipProjectSaveStrategy) {
+            PropertyResolver propertyResolver,
+            BeanValidationProvider validationService,
+            CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
+            ZipArchiveValidator zipArchiveValidator,
+            ZipProjectSaveStrategy zipProjectSaveStrategy,
+            @Value("${openl.home.shared}") Path homeDirectory) {
         this.designTimeRepository = designTimeRepository;
         this.propertyResolver = propertyResolver;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
+        this.lockManager = new LockManager(homeDirectory.resolve("locks/api"));
     }
 
     @GET
@@ -121,21 +129,40 @@ public class DesignTimeRepositoryService {
 
         CreateUpdateProjectModel model = new CreateUpdateProjectModel(repoName,
             getUserName(),
-            projectName,
-            path,
+            StringUtils.trimToNull(projectName),
+            StringUtils.trimToNull(path),
             StringUtils.isNotBlank(comment) ? comment : createCommentsService(repoName).createProject(projectName),
             overwrite);
-        validationProvider.validate(model, createUpdateProjectModelValidator);
+        validationProvider.validate(model); // perform basic validation
 
         final Path archiveTmp = Files.createTempFile(projectName, ".zip");
+        final Lock lock = getLock(model);
         try {
             IOUtils.copyAndClose(inZip, Files.newOutputStream(archiveTmp));
+            if (!lock.tryLock(getUserName(), 15, TimeUnit.SECONDS)) {
+                throw new IllegalStateException("Can't create a lock.");
+            }
+            validationProvider.validate(model, createUpdateProjectModelValidator);
             validationProvider.validate(archiveTmp, zipArchiveValidator);
             FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
             return mapFileDataResponse(data);
         } finally {
             FileUtils.delete(archiveTmp);
+            lock.unlock();
         }
+    }
+
+    private Lock getLock(CreateUpdateProjectModel model) {
+        Repository repository = getRepositoryByName(model.getRepoName());
+        StringBuilder lockId = new StringBuilder(model.getRepoName());
+        if (repository.supports().branches()) {
+            lockId.append("/[branches]/").append(((BranchRepository) repository).getBaseBranch()).append('/');
+        }
+        if (repository.supports().mappedFolders() && !StringUtils.isNotEmpty(model.getPath())) {
+            lockId.append(model.getPath());
+        }
+        lockId.append(model.getProjectName());
+        return lockManager.getLock(lockId.toString());
     }
 
     private Comments createCommentsService(String repoName) {

@@ -17,7 +17,9 @@ public class BeanValidationProvider {
 
     public void validate(Object bean, Validator... validators) {
         validateInternal(bean, commonValidators);
-        validateInternal(bean, validators);
+        if (validators != null && validators.length > 0) {
+            validateInternal(bean, validators);
+        }
     }
 
     private void validateInternal(Object bean, Validator[] validators) {
