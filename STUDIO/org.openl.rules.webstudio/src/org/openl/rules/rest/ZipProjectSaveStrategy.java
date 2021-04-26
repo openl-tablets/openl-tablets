@@ -100,7 +100,7 @@ public class ZipProjectSaveStrategy {
                         return repository.check(projectData.getName());
                     }
                 } finally {
-                    FileUtils.delete(tmp);
+                    FileUtils.deleteQuietly(tmp);
                 }
             }
         }

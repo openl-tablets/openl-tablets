@@ -147,7 +147,7 @@ public class DesignTimeRepositoryService {
             FileData data = zipProjectSaveStrategy.save(model, archiveTmp);
             return mapFileDataResponse(data);
         } finally {
-            FileUtils.delete(archiveTmp);
+            FileUtils.deleteQuietly(archiveTmp);
             lock.unlock();
         }
     }
