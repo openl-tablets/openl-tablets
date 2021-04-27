@@ -605,7 +605,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 TypeInfo returnType = pathInfo.getReturnType();
                 if (returnType.getDimension() == 0 && (datatypeNames
                     .contains(lowerCasedSpreadsheetName) || spreadsheetWithSameNameAndParametersExists)) {
-                    String modifiedName = findSpreadsheetResultName(reservedWords, returnRef);
+                    String modifiedName = findSpreadsheetName(returnRef, reservedWords);
                     spreadsheetModel.setName(modifiedName);
                     returnType.setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(returnType.getDimension()));
                     pathInfo.setFormattedPath(modifiedName);
@@ -682,10 +682,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             }
         }
         return calledRefs;
-    }
-
-    private String findSpreadsheetResultName(Set<String> reservedWords, String returnRef) {
-        return findSpreadsheetName(returnRef, reservedWords);
     }
 
     private String findSpreadsheetName(final String returnRef, final Set<String> reservedNames) {
@@ -811,49 +807,57 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             Set<String> childSet) {
         List<SpreadsheetParserModel> spreadsheetParserModels = new ArrayList<>();
         Map<PathItem.HttpMethod, Operation> httpMethodOperationMap = pathItem.readOperationsMap();
+        boolean multipleOperations = httpMethodOperationMap.keySet().size() > 1;
         for (Map.Entry<PathItem.HttpMethod, Operation> operationEntry : httpMethodOperationMap.entrySet()) {
-            PathItem.HttpMethod httpMethod = operationEntry.getKey();
-            if (PathItem.HttpMethod.GET.equals(httpMethod) || PathItem.HttpMethod.POST.equals(httpMethod)) {
-                SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
-                SpreadsheetModel spr = new SpreadsheetModel();
-                spreadsheetParserModel.setModel(spr);
-                PathInfo pathInfo = generatePathInfo(path, operationEntry);
-                spr.setPathInfo(pathInfo);
-                Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext,
-                    operationEntry.getValue());
-                if (responseSchema == null) {
-                    continue;
-                }
-                TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, responseSchema, false);
-                if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
-                    typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
-                        typeInfo.getSimpleName(),
-                        TypeInfo.Type.SPREADSHEET,
-                        typeInfo.getDimension(),
-                        typeInfo.isReference());
-                }
-                String usedSchemaInResponse = typeInfo.getSimpleName();
-                pathInfo.setReturnType(typeInfo);
-                boolean isChild = childSet.contains(usedSchemaInResponse);
-                List<InputParameter> parameters = OpenLOpenAPIUtils
-                    .extractParameters(jxPathContext, refsToExpand, pathItem, operationEntry);
-                String normalizedPath = replaceBrackets(path);
-                String formattedName = normalizeName(normalizedPath);
-                spr.setName(formattedName);
-                spr.setParameters(parameters);
-                pathInfo.setFormattedPath(formattedName);
-                List<StepModel> stepModels = getStepModels(openAPI,
-                    jxPathContext,
-                    pathType,
-                    spreadsheetParserModel,
-                    spr,
-                    usedSchemaInResponse,
-                    isChild);
-                spr.setSteps(stepModels);
-                spreadsheetParserModels.add(spreadsheetParserModel);
+            SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
+            SpreadsheetModel spr = new SpreadsheetModel();
+            spreadsheetParserModel.setModel(spr);
+            PathInfo pathInfo = generatePathInfo(path, operationEntry);
+            spr.setPathInfo(pathInfo);
+            Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext,
+                operationEntry.getValue());
+            if (responseSchema == null) {
+                continue;
             }
+            TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, responseSchema, false);
+            if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
+                typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
+                    typeInfo.getSimpleName(),
+                    TypeInfo.Type.SPREADSHEET,
+                    typeInfo.getDimension(),
+                    typeInfo.isReference());
+            }
+            String usedSchemaInResponse = typeInfo.getSimpleName();
+            pathInfo.setReturnType(typeInfo);
+            boolean isChild = childSet.contains(usedSchemaInResponse);
+            List<InputParameter> parameters = OpenLOpenAPIUtils
+                .extractParameters(jxPathContext, refsToExpand, pathItem, operationEntry);
+            String normalizedPath = replaceBrackets(path);
+            String formattedName = generateSpreadsheetName(normalizedPath,
+                multipleOperations,
+                operationEntry.getKey().name());
+            spr.setName(formattedName);
+            spr.setParameters(parameters);
+            pathInfo.setFormattedPath(formattedName);
+            List<StepModel> stepModels = getStepModels(openAPI,
+                jxPathContext,
+                pathType,
+                spreadsheetParserModel,
+                spr,
+                usedSchemaInResponse,
+                isChild);
+            spr.setSteps(stepModels);
+            spreadsheetParserModels.add(spreadsheetParserModel);
         }
         return spreadsheetParserModels;
+    }
+
+    private String generateSpreadsheetName(String normalizedPath, boolean multipleOperations, String operationName) {
+        String potentialName = normalizeName(normalizedPath);
+        if (multipleOperations) {
+            potentialName += operationName;
+        }
+        return potentialName;
     }
 
     private PathInfo generatePathInfo(String path, Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {

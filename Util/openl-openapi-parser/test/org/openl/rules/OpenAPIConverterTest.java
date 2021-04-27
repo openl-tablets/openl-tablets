@@ -287,8 +287,8 @@ public class OpenAPIConverterTest {
         ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
         List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
         Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(85, datatypeModels.size());
-        assertEquals(9, spreadsheetModels.size());
+        assertEquals(86, datatypeModels.size());
+        assertEquals(10, spreadsheetModels.size());
     }
 
     @Test
