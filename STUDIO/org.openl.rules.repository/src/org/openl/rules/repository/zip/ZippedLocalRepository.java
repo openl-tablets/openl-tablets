@@ -15,6 +15,8 @@ import java.util.Map;
 
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Read only implementation of Local Repository to support deploying of zip archives as it is from file system without
@@ -27,6 +29,8 @@ import org.openl.util.StringUtils;
  * @author Vladyslav Pikus
  */
 public class ZippedLocalRepository extends AbstractArchiveRepository {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ZippedLocalRepository.class);
 
     private String uri;
     private String[] archives;
@@ -75,7 +79,12 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
             }
         }
         if (root == null) {
-            throw new IllegalStateException("Failed to initialize root directory!");
+            try {
+                root = Files.createTempDirectory("temp");
+                LOG.info("Application were started with temp root directory!");
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to initialize temp root directory!", e);
+            }
         }
         if (localStorage.isEmpty()) {
             try {
