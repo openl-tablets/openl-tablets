@@ -157,7 +157,7 @@ public class InstallWizard implements Serializable {
                     productionRepositoryEditor.validate();
                 } catch (Exception e) {
                     Throwable rootCause = ExceptionUtils.getRootCause(e);
-                    String message = "Incorrect Design Repository configuration: " + (rootCause == null ? e
+                    String message = "Incorrect Design Repository configuration: " + ((rootCause == null || rootCause.getMessage()==null)? e
                             .getMessage() : rootCause.getMessage());
                     WebStudioUtils.addErrorMessage(message);
                     return null;
