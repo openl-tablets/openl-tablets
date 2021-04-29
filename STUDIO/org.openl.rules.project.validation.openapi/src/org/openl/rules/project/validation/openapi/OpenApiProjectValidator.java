@@ -2,7 +2,16 @@ package org.openl.rules.project.validation.openapi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -182,8 +191,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             context.setServiceClass(enhancedServiceClass);
             try {
-                context
-                    .setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
+                Map<Method, Method> methodMap = JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass,
+                    enhancedServiceClass);
+                context.setMethodMap(methodMap);
+
+                if (methodMap.isEmpty()) {
+                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "There are no suitable methods to check. Check the provided rules, annotation template class, and included/excluded methods in module settings."));
+                }
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
