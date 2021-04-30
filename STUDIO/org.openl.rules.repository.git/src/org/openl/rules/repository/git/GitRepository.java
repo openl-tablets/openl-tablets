@@ -642,8 +642,8 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                 if (!uri.equals(remoteUrl)) {
                                     URI proposedUri = getUri(uri);
                                     URI savedUri = getUri(remoteUrl);
-                                    if (savedUri != null && !proposedUri.equals(savedUri)) {
-                                        if (isSame(proposedUri, savedUri)) {
+                                    if (!proposedUri.equals(savedUri)) {
+                                        if (savedUri != null && isSame(proposedUri, savedUri)) {
                                             shouldUpdateOrigin = true;
                                         } else {
                                             throw new IOException(String.format(
