@@ -811,6 +811,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         return project.isOpenedForEditing() && isGranted(EDIT_PROJECTS);
     }
 
+    public boolean getCanModifyTags() {
+        return isGranted(EDIT_PROJECTS);
+    }
+
     // for deployment project
     public boolean getCanDeploy() {
         return !getSelectedProject().isModified() && isGranted(DEPLOY_PROJECTS);
