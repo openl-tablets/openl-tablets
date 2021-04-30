@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets">
+<ui:composition xmlns:ui="http://java.sun.com/jsf/facelets"
+                xmlns:h="http://java.sun.com/jsf/html"
+                xmlns:a4j="http://richfaces.org/a4j">
 
     <style>
         #tag-types-list {
@@ -38,9 +40,55 @@
         input.tag-type-name, input.tag-name {
             width: auto;
         }
+
+        #tag-template {
+            border-top: 1px solid #ddd;
+            margin-top: 20px;
+        }
+        #tagTemplateForm\:tagTemplates {
+            height: 60px;
+        }
     </style>
 
     <div id="tag-types-list"></div>
+
+    <div id="tag-template">
+        <ui:include src="/pages/modules/administration/settings/tags/projectsWithoutTags.xhtml"/>
+        <h:form id="tagTemplateForm">
+            <h1>Tags from project name</h1>
+            <div>
+                <p>Project name template is used to extract tags from project name.</p>
+                <p>Tag types are wrapped with '%' symbol. '?' means any symbol. '*' means any text with any length.</p>
+                <p>For example, if we have template <strong>%Domain%-%LOB%-*</strong>, then for
+                    project <strong>Policy-L&amp;A-rules</strong> tags will be <strong>Policy</strong> for tag
+                    type <strong>Domain</strong> and <strong>L&amp;A</strong> for <strong>LOB</strong>.</p>
+                <p>Each template should be in a new line.</p>
+                <p>The order of templates is important: first template has highest priority, last template has lowest priority.</p>
+            </div>
+            <table>
+                <tr>
+                    <td>Project name templates:</td>
+                    <td>
+                        <h:inputTextarea id="tagTemplates"
+                                         value="#{tagTemplateBean.templates}"
+                                         validator="#{tagTemplateBean.templateValidator}"/>
+
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td><a4j:outputPanel ajaxRendered="true">
+                        <h:message for="tagTemplates" styleClass="error"/>
+                    </a4j:outputPanel></td>
+                </tr>
+            </table>
+            <a4j:commandButton value="Save" action="#{tagTemplateBean.save}"
+                               render="commonProps repositoryProps javaProps restartMessage tags"
+                               styleClass="button-primary" title="Apply changes"/>
+            <input type="button" value="Fill tags for projects" onclick="openProjectsWithoutTags()"/>
+
+        </h:form>
+    </div>
 
     <script>
         //<![CDATA[
