@@ -314,7 +314,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><label>Local logout</label></td>
+                                    <td><label>Local logout:</label></td>
                                     <td>
                                         <h:selectBooleanCheckbox id="samlLocalLogout"
                                                                  value="#{installWizard.samlSettings.localLogout}"
@@ -353,7 +353,7 @@
                                 </tr>
                                 <tr>
                                     <td>
-                                        <label>Is load-balancer or reverse-proxy in front of the local application</label>
+                                        <label>Is load-balancer or reverse-proxy in front of the local application:</label>
                                     </td>
                                     <td>
                                         <h:selectBooleanCheckbox id="samlIsAppAfterBalancer"
@@ -550,7 +550,8 @@
                 };
 
                 var showSamlAppAfterBalancer = function () {
-                    var isAfterBalancer = $("#step3Form\\:samlIsAppAfterBalancer").is(":checked");
+                    let $ = jQuery;
+                    let isAfterBalancer = $("#step3Form\\:samlIsAppAfterBalancer").is(":checked");
                     let samlScheme = $(".samlSchemeTd");
                     let samlServerName = $(".samlServerNameTd");
                     let samlServerPort = $(".samlServerPortTd");
@@ -593,7 +594,7 @@
 
                 //remove all whitespaces and new lines from input
                 $j("#step3Form\\:samlServerCertificate").on("input", function () {
-                    $(this).val(function (_, v) {
+                    jQuery(this).val(function (_, v) {
                         return v.replace(/\r?\n|\r|\s/g, '');
                     })
                 });
