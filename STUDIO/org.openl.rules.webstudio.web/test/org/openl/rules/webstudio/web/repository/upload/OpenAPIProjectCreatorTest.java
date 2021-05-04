@@ -64,7 +64,6 @@ public class OpenAPIProjectCreatorTest {
 
     private UserWorkspace userWorkspaceMock;
     private FileSystemRepository tempRepo;
-    private boolean executionMode = Boolean.FALSE;
     private Locale defaultLocale;
     private TimeZone defaultTimeZone;
 
@@ -116,11 +115,8 @@ public class OpenAPIProjectCreatorTest {
     }
 
     public boolean run(String path) {
-        if (executionMode) {
-            log.info(">>> Compiling rules from the directory '{}' in execution mode...", path);
-        } else {
-            log.info(">>> Compiling rules and running tests from the directory '{}'...", path);
-        }
+        log.info(">>> Compiling rules and running tests from the directory '{}'...", path);
+
         boolean testsFailed = false;
         final File testsDir = new File(path);
 
@@ -171,7 +167,7 @@ public class OpenAPIProjectCreatorTest {
                     }
                     Path projectFolderPath = Paths.get(OPENAPI_OUT, sourceFile);
                     SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<Object> engineFactoryBuilder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
-                    engineFactoryBuilder.setExecutionMode(executionMode);
+                    engineFactoryBuilder.setExecutionMode(false);
                     engineFactoryBuilder.setProject(projectFolderPath.toAbsolutePath().toFile().getPath());
                     SimpleProjectEngineFactory<Object> engineFactory = engineFactoryBuilder.build();
                     compiledOpenClass = engineFactory.getCompiledOpenClass();
@@ -194,9 +190,6 @@ public class OpenAPIProjectCreatorTest {
             // Check messages
             File msgFile = new File(testsDir, sourceFile + ".msg.txt");
             List<String> expectedMessages = new ArrayList<>();
-            if (msgFile.exists() && executionMode) {
-                continue;
-            }
             if (msgFile.exists()) {
                 try {
                     String content = IOUtils.toStringAndClose(new FileInputStream(msgFile));
@@ -274,15 +267,15 @@ public class OpenAPIProjectCreatorTest {
             if (messagesCount != 0) {
                 testsFailed = true;
             } else {
-                ok(startTime, executionMode, sourceFile);
+                ok(startTime, sourceFile);
             }
         }
         return testsFailed;
     }
 
-    private void ok(long startTime, boolean executionMode, String sourceFile) {
+    private void ok(long startTime, String sourceFile) {
         final long ms = (System.nanoTime() - startTime) / 1000000;
-        log.info("{} - in [{}] ({} ms)", executionMode ? "EXECUTION MODE COMPILED" : "SUCCESS", sourceFile, ms);
+        log.info("{} - in [{}] ({} ms)", "SUCCESS", sourceFile, ms);
     }
 
     private void error(int count, long startTime, String sourceFile, String msg, Object... args) {
