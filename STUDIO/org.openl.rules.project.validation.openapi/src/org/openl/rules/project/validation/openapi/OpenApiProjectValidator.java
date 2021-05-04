@@ -198,8 +198,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             context.setServiceClass(enhancedServiceClass);
             try {
-                context
-                    .setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
+                Map<Method, Method> methodMap = JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass,
+                    enhancedServiceClass);
+                context.setMethodMap(methodMap);
+
+                if (methodMap.isEmpty()) {
+                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "There are no suitable methods to check. Check the provided rules, annotation template class, and included/excluded methods in module settings."));
+                }
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));

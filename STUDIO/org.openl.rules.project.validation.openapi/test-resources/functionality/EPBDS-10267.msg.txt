@@ -1,4 +1,5 @@
 ERROR: Type 'OffsetDateTime' is not found.
 ERROR: Type 'OffsetDateTime' is not found.
 ERROR: Type 'OffsetDateTime' is not found.
-ERROR: Type 'OffsetDateTime' is not found. 
+ERROR: Type 'OffsetDateTime' is not found.
+WARN: OpenAPI Reconciliation: There are no suitable methods to check. Check the provided rules, annotation template class, and included/excluded methods in module settings.
