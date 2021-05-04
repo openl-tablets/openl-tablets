@@ -1,0 +1,5 @@
+ERROR: OpenAPI Reconciliation: Expected operation 'DELETE' is not found for path '/PlanDetails'.
+ERROR: OpenAPI Reconciliation: Expected operation 'PUT' is not found for path '/PlanDetails'.
+ERROR: OpenAPI Reconciliation: Expected operation 'HEAD' is not found for path '/PlanDetails'.
+ERROR: OpenAPI Reconciliation: Expected operation 'PATCH' is not found for path '/PlanDetails'.
+ERROR: OpenAPI Reconciliation: Expected operation 'OPTIONS' is not found for path '/PlanDetails'.

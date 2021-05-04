@@ -232,9 +232,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         ProjectModel projectModel;
         try {
             projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getTempFile().getAbsolutePath());
-        } catch (IOException e) {
+        } catch (Exception e) {
             projectBuilder.cancel();
-            throw new ProjectException(e.getMessage(), e);
+            throw new ProjectException("Cannot import the OpenAPI file. Possible broken OpenAPI file.", e.getCause());
         }
         return projectModel;
     }

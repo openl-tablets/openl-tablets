@@ -1128,7 +1128,7 @@ public class ProjectBean {
         ProjectModel projectModel;
         try {
             projectModel = converter.extractProjectModel(workspacePath + "/" + internalOpenAPIPath);
-        } catch (IOException e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new Message("OpenAPI file is corrupted.");
         }

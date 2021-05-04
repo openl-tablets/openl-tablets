@@ -1,0 +1,2 @@
+ERROR: OpenAPI Reconciliation: Unexpected method 'myTestWithParams' is found for path '/myTestWithParams'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/myTestWithParams/{simpleId}'.
