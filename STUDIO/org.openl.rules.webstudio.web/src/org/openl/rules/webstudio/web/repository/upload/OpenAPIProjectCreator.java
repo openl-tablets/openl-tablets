@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
 public class OpenAPIProjectCreator extends AProjectCreator {
     public static final String RULES_DEPLOY_XML = "rules-deploy.xml";
 
-    private final Logger LOGGER = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
+    private final Logger logger = LoggerFactory.getLogger(OpenAPIProjectCreator.class);
 
     private final ProjectFile uploadedOpenAPIFile;
     private final String comment;
@@ -232,9 +232,9 @@ public class OpenAPIProjectCreator extends AProjectCreator {
         ProjectModel projectModel;
         try {
             projectModel = converter.extractProjectModel(uploadedOpenAPIFile.getTempFile().getAbsolutePath());
-        } catch (IOException e) {
+        } catch (Exception e) {
             projectBuilder.cancel();
-            throw new ProjectException(e.getMessage(), e);
+            throw new ProjectException("Cannot import the OpenAPI file. Possible broken OpenAPI file.", e.getCause());
         }
         return projectModel;
     }
@@ -287,10 +287,10 @@ public class OpenAPIProjectCreator extends AProjectCreator {
     public void destroy() {
         try {
             if (!Files.deleteIfExists(uploadedOpenAPIFile.getTempFile().toPath())) {
-                LOGGER.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
+                logger.warn("Cannot delete the file {}", uploadedOpenAPIFile.getName());
             }
         } catch (IOException e) {
-            LOGGER.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
     }
 

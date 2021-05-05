@@ -458,7 +458,7 @@ public class SpreadsheetsConverterTest {
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10439_overloaded_spreadsheet.yaml");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
         Set<SpreadsheetModel> storeOrderModels = spreadsheetResultModels.stream()
-            .filter(x -> x.getName().equals("storeorder"))
+            .filter(x -> x.getName().contains("storeorder"))
             .collect(Collectors.toSet());
         assertEquals(2, storeOrderModels.size());
     }

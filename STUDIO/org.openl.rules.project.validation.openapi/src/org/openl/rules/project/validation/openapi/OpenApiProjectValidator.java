@@ -2,15 +2,31 @@ package org.openl.rules.project.validation.openapi;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
 import javax.ws.rs.BeanParam;
 import javax.ws.rs.CookieParam;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.FormParam;
+import javax.ws.rs.GET;
+import javax.ws.rs.HEAD;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.MatrixParam;
+import javax.ws.rs.OPTIONS;
+import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
@@ -182,8 +198,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
             }
             context.setServiceClass(enhancedServiceClass);
             try {
-                context
-                    .setMethodMap(JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass, enhancedServiceClass));
+                Map<Method, Method> methodMap = JAXRSOpenLServiceEnhancerHelper.buildMethodMap(serviceClass,
+                    enhancedServiceClass);
+                context.setMethodMap(methodMap);
+
+                if (methodMap.isEmpty()) {
+                    validatedCompiledOpenClass.addMessage(OpenLMessagesUtils.newWarnMessage(
+                        OPEN_API_VALIDATION_MSG_PREFIX + "There are no suitable methods to check. Check the provided rules, annotation template class, and included/excluded methods in module settings."));
+                }
             } catch (Exception e) {
                 validatedCompiledOpenClass.addMessage(OpenLMessagesUtils
                     .newErrorMessage(OPEN_API_VALIDATION_MSG_PREFIX + "Failed to build an interface for the project."));
@@ -282,24 +304,14 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     context.setActualPathItem(entry.getValue());
                     Pair<String, PathItem> expectedPath = findPathItem(context.getExpectedOpenAPI().getPaths(),
                         entry.getKey());
-                    Method method = findMethodByPath(context.getServiceClass(), entry.getKey());
-                    if (method == null) {
-                        continue;
-                    }
-                    IOpenMethod openMethod = getRulesMethod(context, method);
                     if (expectedPath != null && expectedPath.getRight() != null) {
                         context.setExpectedPath(expectedPath.getKey());
                         context.setExpectedPathItem(expectedPath.getValue());
-                        context.setMethod(method);
-                        context.setOpenMethod(openMethod);
-                        validatePathItem(context);
                     } else {
-                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                            String.format(
-                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
-                                openMethod != null ? openMethod.getName() : method.getName(),
-                                entry.getKey()));
+                        context.setExpectedPath(null);
+                        context.setExpectedPathItem(null);
                     }
+                    validatePathItem(context);
                 } finally {
                     context.setOpenMethod(null);
                     context.setMethod(null);
@@ -364,35 +376,60 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
 
     private void getAndValidateOperation(Context context,
             java.util.function.Function<PathItem, Operation> func,
-            String operationType) {
-        PathItem actualPathItem = context.getActualPathItem();
+            Class<? extends Annotation> operationAnnotation) {
+        Method method = findMethodByPathAndMethod(context.getServiceClass(),
+            context.getActualPath(),
+            operationAnnotation);
         PathItem expectedPathItem = context.getExpectedPathItem();
-
-        Operation expectedOperation = func.apply(expectedPathItem);
-        Operation actualOperation = func.apply(actualPathItem);
-
-        if (expectedOperation != null || actualOperation != null) {
-            if (actualOperation == null) {
+        String expectedPath = context.getExpectedPath();
+        if (method == null) {
+            if (expectedPath != null && expectedPathItem != null) {
+                PathItem actualPathItem = context.getActualPathItem();
+                Operation actualOperation = func.apply(actualPathItem);
+                Operation expectedOperation = func.apply(expectedPathItem);
+                if (expectedOperation != null && actualOperation == null) {
+                    OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                        String.format(
+                            OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' is not found for path '%s'.",
+                            operationAnnotation.getSimpleName(),
+                            context.getActualPath()));
+                }
+            }
+        } else {
+            IOpenMethod openMethod = getRulesMethod(context, method);
+            if (expectedPath == null || context.getExpectedPathItem() == null) {
                 OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                    String.format(
-                        OPEN_API_VALIDATION_MSG_PREFIX + "Expected operation '%s' is not found for path '%s'.",
-                        operationType,
-                        context.getActualPath()));
-            } else if (expectedOperation == null) {
-                OpenApiProjectValidatorMessagesUtils.addMethodError(context,
-                    String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' is found for path '%s'.",
-                        operationType,
+                    String.format(OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected method '%s' is found for path '%s'.",
+                        openMethod != null ? openMethod.getName() : method.getName(),
                         context.getActualPath()));
             } else {
-                try {
-                    context.setExpectedOperation(expectedOperation);
-                    context.setActualOperation(actualOperation);
-                    context.setOperationType(operationType);
-                    validateOperation(context);
-                } finally {
-                    context.setExpectedOperation(null);
-                    context.setActualOperation(null);
-                    context.setOperationType(null);
+                context.setMethod(method);
+                context.setOpenMethod(openMethod);
+
+                PathItem actualPathItem = context.getActualPathItem();
+
+                Operation expectedOperation = func.apply(expectedPathItem);
+                Operation actualOperation = func.apply(actualPathItem);
+
+                if (expectedOperation != null || actualOperation != null) {
+                    if (expectedOperation == null) {
+                        OpenApiProjectValidatorMessagesUtils.addMethodError(context,
+                            String.format(
+                                OPEN_API_VALIDATION_MSG_PREFIX + "Unexpected operation '%s' is found for path '%s'.",
+                                operationAnnotation.getSimpleName(),
+                                context.getActualPath()));
+                    } else {
+                        try {
+                            context.setExpectedOperation(expectedOperation);
+                            context.setActualOperation(actualOperation);
+                            context.setOperationType(operationAnnotation.getSimpleName());
+                            validateOperation(context);
+                        } finally {
+                            context.setExpectedOperation(null);
+                            context.setActualOperation(null);
+                            context.setOperationType(null);
+                        }
+                    }
                 }
             }
         }
@@ -416,7 +453,7 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
         return s;
     }
 
-    private Method findMethodByPath(Class<?> serviceClass, String path) {
+    private Method findMethodByPathAndMethod(Class<?> serviceClass, String path, Class<?> operationAnnotation) {
         path = normalizePath(path);
         Path classPathAnnotation = serviceClass.getAnnotation(Path.class);
         for (Method method : serviceClass.getMethods()) {
@@ -426,7 +463,16 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
                     .value();
                 methodPath = normalizePath(methodPath);
                 if (Objects.equals(methodPath, path)) {
-                    return method;
+                    if (operationAnnotation == null) {
+                        return method;
+                    } else {
+                        Annotation[] declaredAnnotations = method.getDeclaredAnnotations();
+                        for (Annotation declaredAnnotation : declaredAnnotations) {
+                            if (declaredAnnotation.annotationType().equals(operationAnnotation)) {
+                                return method;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1548,12 +1594,13 @@ public class OpenApiProjectValidator extends AbstractServiceInterfaceProjectVali
     }
 
     private void validatePathItem(Context context) {
-        getAndValidateOperation(context, PathItem::getGet, "GET");
-        getAndValidateOperation(context, PathItem::getPost, "POST");
-        getAndValidateOperation(context, PathItem::getDelete, "DELETE");
-        getAndValidateOperation(context, PathItem::getPut, "PUT");
-        getAndValidateOperation(context, PathItem::getTrace, "TRACE");
-        getAndValidateOperation(context, PathItem::getHead, "HEAD");
+        getAndValidateOperation(context, PathItem::getGet, GET.class);
+        getAndValidateOperation(context, PathItem::getPost, POST.class);
+        getAndValidateOperation(context, PathItem::getDelete, DELETE.class);
+        getAndValidateOperation(context, PathItem::getPut, PUT.class);
+        getAndValidateOperation(context, PathItem::getHead, HEAD.class);
+        getAndValidateOperation(context, PathItem::getPatch, PATCH.class);
+        getAndValidateOperation(context, PathItem::getOptions, OPTIONS.class);
     }
 
     public boolean isResolveMethodParameterNames() {

@@ -121,7 +121,7 @@
         </constructor-arg>
         <constructor-arg name="availableCredentials">
             <map>
-                <entry key="remote-server" value="#{environment.getProperty('security.saml.server-certificate')"/>
+                <entry key="remote-server" value="#{environment.getProperty('security.saml.server-certificate')}"/>
             </map>
         </constructor-arg>
         <constructor-arg name="defaultKey" value="#{environment.getProperty('security.saml.keystore-sp-alias')}"/>

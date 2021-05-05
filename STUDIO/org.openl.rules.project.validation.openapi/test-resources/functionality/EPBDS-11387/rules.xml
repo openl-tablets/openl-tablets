@@ -1,0 +1,33 @@
+<project>
+  <name>AllOper</name>
+  <modules>
+    <module>
+      <name>Algorithms</name>
+      <rules-root path="rules/Algorithms.xlsx"/>
+      <method-filter>
+        <includes>
+          <value>.+ PlanDetailsPUT\(.+\)</value>
+          <value>.+ PlanDetailsGET\(.+\)</value>
+          <value>.+ PlanDetailsPATCH\(.+\)</value>
+          <value>.+ PlanDetailsHEAD\(.+\)</value>
+          <value>.+ PlanDetailsPOST\(.+\)</value>
+          <value>.+ PlanDetailsOPTIONS\(.+\)</value>
+          <value>.+ PlanDetailsDELETE\(.+\)</value>
+        </includes>
+      </method-filter>
+    </module>
+    <module>
+      <name>Models</name>
+      <rules-root path="rules/Models.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+  <openapi>
+    <path>EPBDS-11387_all_operations.json</path>
+    <model-module-name>Models</model-module-name>
+    <algorithm-module-name>Algorithms</algorithm-module-name>
+    <mode>GENERATION</mode>
+  </openapi>
+</project>

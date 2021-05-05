@@ -386,8 +386,8 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     }
                 }
             }
-            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && !originalMethod
-                .isAnnotationPresent(POST.class) || originalMethod.isAnnotationPresent(GET.class)) {
+            if (numOfParameters <= MAX_PARAMETERS_COUNT_FOR_GET && allParametersIsPrimitive && httpAnnotationIsNotPresented(
+                originalMethod) || originalMethod.isAnnotationPresent(GET.class)) {
                 StringBuilder sb = new StringBuilder();
                 mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 String[] parameterNames = resolveParameterNames(originalMethod);
@@ -485,7 +485,7 @@ public class JAXRSOpenLServiceEnhancerHelper {
                     if (!hasResponse) {
                         annotateReturnElementClass(mv, returnType);
                     }
-                    if (!originalMethod.isAnnotationPresent(POST.class)) {
+                    if (httpAnnotationIsNotPresented(originalMethod)) {
                         addPostAnnotation(mv, originalMethod);
                     }
                     addPathAnnotation(mv, originalMethod, path);
@@ -502,6 +502,13 @@ public class JAXRSOpenLServiceEnhancerHelper {
             nicknames.add(nickname);
             addSwaggerMethodAnnotation(mv, originalMethod, nickname);
             return mv;
+        }
+
+        private boolean httpAnnotationIsNotPresented(Method originalMethod) {
+            return !(originalMethod.isAnnotationPresent(POST.class) || originalMethod
+                .isAnnotationPresent(PATCH.class) || originalMethod.isAnnotationPresent(DELETE.class) || originalMethod
+                    .isAnnotationPresent(PUT.class) || originalMethod
+                        .isAnnotationPresent(OPTIONS.class) || originalMethod.isAnnotationPresent(HEAD.class));
         }
 
         private Set<String> getUsedValuesInParamAnnotations(Method originalMethod,

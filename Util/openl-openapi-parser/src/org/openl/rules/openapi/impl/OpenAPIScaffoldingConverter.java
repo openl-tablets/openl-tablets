@@ -7,6 +7,7 @@ import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.APPLICATION_JSON;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.TEXT_PLAIN;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.getSchemas;
 import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.normalizeName;
+import static org.openl.rules.openapi.impl.OpenLOpenAPIUtils.resolve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -420,8 +421,12 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 if (CollectionUtils.isNotEmpty(properties)) {
                     steps = properties.entrySet()
                         .stream()
-                        .filter(x -> !IGNORED_FIELDS.contains(x.getKey()))
-                        .map(x -> createStep(jxPathContext, spreadsheetParserModels, refSpreadsheets, modelName, x))
+                        .filter(propertyEntry -> !IGNORED_FIELDS.contains(propertyEntry.getKey()))
+                        .map(propertyEntry -> createStep(jxPathContext,
+                            spreadsheetParserModels,
+                            refSpreadsheets,
+                            modelName,
+                            propertyEntry))
                         .collect(Collectors.toList());
                 }
             }
@@ -445,9 +450,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             List<SpreadsheetParserModel> spreadsheetParserModels,
             Set<String> refSpreadsheets,
             String modelName,
-            Map.Entry<String, Schema> x) {
-        StepModel step = extractStep(jxPathContext, x);
-        TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, x.getValue(), false);
+            Map.Entry<String, Schema> propertyEntry) {
+        StepModel step = extractStep(jxPathContext, propertyEntry);
+        TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, propertyEntry.getValue(), false);
         String stepType = typeInfo.getSimpleName();
         String type = OpenAPITypeUtils.removeArrayBrackets(stepType);
         String modelToCall = "";
@@ -605,7 +610,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                 TypeInfo returnType = pathInfo.getReturnType();
                 if (returnType.getDimension() == 0 && (datatypeNames
                     .contains(lowerCasedSpreadsheetName) || spreadsheetWithSameNameAndParametersExists)) {
-                    String modifiedName = findSpreadsheetResultName(reservedWords, returnRef);
+                    String modifiedName = findSpreadsheetName(returnRef, reservedWords);
                     spreadsheetModel.setName(modifiedName);
                     returnType.setJavaName(OpenAPITypeUtils.getSpreadsheetArrayClassName(returnType.getDimension()));
                     pathInfo.setFormattedPath(modifiedName);
@@ -684,10 +689,6 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return calledRefs;
     }
 
-    private String findSpreadsheetResultName(Set<String> reservedWords, String returnRef) {
-        return findSpreadsheetName(returnRef, reservedWords);
-    }
-
     private String findSpreadsheetName(final String returnRef, final Set<String> reservedNames) {
         String nameCandidate = OpenAPITypeUtils.getSimpleName(returnRef);
         return makeName(nameCandidate, reservedNames);
@@ -751,24 +752,21 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         List<SpreadsheetParserModel> spreadSheetModels = new ArrayList<>();
         Paths paths = openAPI.getPaths();
         if (paths != null) {
-            extractSpreadsheets(openAPI,
-                jxPathContext,
+            extractSpreadsheets(jxPathContext,
                 pathWithPotentialSprResult,
                 refsToExpand,
                 spreadSheetModels,
                 paths,
                 PathType.SPREADSHEET_RESULT_PATH,
                 childSet);
-            extractSpreadsheets(openAPI,
-                jxPathContext,
+            extractSpreadsheets(jxPathContext,
                 pathsWithPrimitiveReturns,
                 refsToExpand,
                 spreadSheetModels,
                 paths,
                 PathType.SIMPLE_RETURN_PATH,
                 childSet);
-            extractSpreadsheets(openAPI,
-                jxPathContext,
+            extractSpreadsheets(jxPathContext,
                 pathsWithSpreadsheets,
                 refsToExpand,
                 spreadSheetModels,
@@ -779,8 +777,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         return spreadSheetModels;
     }
 
-    private void extractSpreadsheets(OpenAPI openAPI,
-            JXPathContext jxPathContext,
+    private void extractSpreadsheets(JXPathContext jxPathContext,
             Set<String> pathWithPotentialSprResult,
             Set<String> refsToExpand,
             List<SpreadsheetParserModel> spreadSheetModels,
@@ -790,91 +787,109 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         for (String path : pathWithPotentialSprResult) {
             PathItem pathItem = paths.get(path);
             if (pathItem != null) {
-                SpreadsheetParserModel spr = extractSpreadsheetModel(openAPI,
-                    jxPathContext,
+                List<SpreadsheetParserModel> spr = extractSpreadsheetModel(jxPathContext,
                     pathItem,
                     path,
                     refsToExpand,
                     spreadsheetResultPath,
                     childSet);
-                spreadSheetModels.add(spr);
+                spreadSheetModels.addAll(spr);
             }
         }
     }
 
-    private SpreadsheetParserModel extractSpreadsheetModel(OpenAPI openAPI,
-            JXPathContext jxPathContext,
+    private List<SpreadsheetParserModel> extractSpreadsheetModel(JXPathContext jxPathContext,
             PathItem pathItem,
             String path,
             Set<String> refsToExpand,
             PathType pathType,
             Set<String> childSet) {
-        SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
-        SpreadsheetModel spr = new SpreadsheetModel();
-        spreadsheetParserModel.setModel(spr);
-        PathInfo pathInfo = generatePathInfo(path, pathItem);
-        spr.setPathInfo(pathInfo);
-        Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext, pathItem);
-        TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, responseSchema, false);
-        if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
-            typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
-                typeInfo.getSimpleName(),
-                TypeInfo.Type.SPREADSHEET,
-                typeInfo.getDimension(),
-                typeInfo.isReference());
+        List<SpreadsheetParserModel> spreadsheetParserModels = new ArrayList<>();
+        Map<PathItem.HttpMethod, Operation> httpMethodOperationMap = pathItem.readOperationsMap();
+        boolean multipleOperations = httpMethodOperationMap.keySet().size() > 1;
+        for (Map.Entry<PathItem.HttpMethod, Operation> operationEntry : httpMethodOperationMap.entrySet()) {
+            SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
+            SpreadsheetModel spr = new SpreadsheetModel();
+            spreadsheetParserModel.setModel(spr);
+            PathInfo pathInfo = generatePathInfo(path, operationEntry);
+            spr.setPathInfo(pathInfo);
+            Schema<?> responseSchema = OpenLOpenAPIUtils.getUsedSchemaInResponse(jxPathContext,
+                operationEntry.getValue());
+            if (responseSchema == null) {
+                continue;
+            }
+            TypeInfo typeInfo = OpenAPITypeUtils.extractType(jxPathContext, responseSchema, false);
+            if (PathType.SPREADSHEET_RESULT_PATH.equals(pathType)) {
+                typeInfo = new TypeInfo(SPREADSHEET_RESULT_CLASS_NAME,
+                    typeInfo.getSimpleName(),
+                    TypeInfo.Type.SPREADSHEET,
+                    typeInfo.getDimension(),
+                    typeInfo.isReference());
+            }
+            String usedSchemaInResponse = typeInfo.getSimpleName();
+            pathInfo.setReturnType(typeInfo);
+            boolean isChild = childSet.contains(usedSchemaInResponse);
+            List<InputParameter> parameters = OpenLOpenAPIUtils
+                .extractParameters(jxPathContext, refsToExpand, pathItem, operationEntry);
+            String normalizedPath = replaceBrackets(path);
+            String formattedName = generateSpreadsheetName(normalizedPath,
+                multipleOperations,
+                operationEntry.getKey().name());
+            spr.setName(formattedName);
+            spr.setParameters(parameters);
+            pathInfo.setFormattedPath(formattedName);
+            List<StepModel> stepModels = getStepModels(typeInfo,
+                jxPathContext,
+                pathType,
+                spreadsheetParserModel,
+                spr,
+                responseSchema,
+                isChild);
+            spr.setSteps(stepModels);
+            spreadsheetParserModels.add(spreadsheetParserModel);
         }
-        String usedSchemaInResponse = typeInfo.getSimpleName();
-        pathInfo.setReturnType(typeInfo);
-        boolean isChild = childSet.contains(usedSchemaInResponse);
-        List<InputParameter> parameters = OpenLOpenAPIUtils.extractParameters(jxPathContext, refsToExpand, pathItem);
-        String normalizedPath = replaceBrackets(path);
-        String formattedName = normalizeName(normalizedPath);
-        spr.setName(formattedName);
-        spr.setParameters(parameters);
-        pathInfo.setFormattedPath(formattedName);
-        List<StepModel> stepModels = getStepModels(openAPI,
-            jxPathContext,
-            pathType,
-            spreadsheetParserModel,
-            spr,
-            usedSchemaInResponse,
-            isChild);
-        spr.setSteps(stepModels);
-        return spreadsheetParserModel;
+        return spreadsheetParserModels;
     }
 
-    private PathInfo generatePathInfo(String path, PathItem pathItem) {
+    private String generateSpreadsheetName(String normalizedPath, boolean multipleOperations, String operationName) {
+        String potentialName = normalizeName(normalizedPath);
+        if (multipleOperations) {
+            potentialName += operationName;
+        }
+        return potentialName;
+    }
+
+    private PathInfo generatePathInfo(String path, Map.Entry<PathItem.HttpMethod, Operation> operationEntry) {
         PathInfo pathInfo = new PathInfo();
-        final OperationInfo operation = findOperation(pathItem);
+        final OperationInfo operationInfo = getOperationInfo(operationEntry.getValue(), operationEntry.getKey());
         pathInfo.setOriginalPath(path);
-        pathInfo.setOperation(Optional.ofNullable(operation.getMethod())
+        pathInfo.setOperation(Optional.ofNullable(operationInfo.getMethod())
             .map(String::toUpperCase)
             .map(PathInfo.Operation::valueOf)
             .orElseThrow(() -> new IllegalArgumentException("Invalid method operation")));
-        pathInfo.setConsumes(operation.getConsumes());
-        pathInfo.setProduces(operation.getProduces());
+        pathInfo.setConsumes(operationInfo.getConsumes());
+        pathInfo.setProduces(operationInfo.getProduces());
         return pathInfo;
     }
 
-    private List<StepModel> getStepModels(OpenAPI openAPI,
+    private List<StepModel> getStepModels(TypeInfo typeInfo,
             JXPathContext jxPathContext,
             PathType pathType,
             SpreadsheetParserModel spreadsheetParserModel,
             SpreadsheetModel spr,
-            String usedSchemaInResponse,
+            Schema<?> usedSchemaInResponse,
             boolean isChild) {
         List<StepModel> stepModels = new ArrayList<>();
-        boolean isArray = usedSchemaInResponse.endsWith("[]");
-        Schema<?> schema;
+        boolean isArray = typeInfo.getDimension() > 0;
+        String simpleName = typeInfo.getSimpleName();
+        final String nameOfSchema = isArray ? OpenAPITypeUtils.removeArrayBrackets(simpleName) : simpleName;
         if (PathType.SPREADSHEET_RESULT_PATH == pathType) {
-            final String nameOfSchema = isArray ? OpenAPITypeUtils.removeArrayBrackets(usedSchemaInResponse)
-                                                : usedSchemaInResponse;
-            schema = getSchemas(openAPI).get(nameOfSchema);
+            Schema<?> schema = resolve(jxPathContext, usedSchemaInResponse, Schema::get$ref);
             boolean isArrayOrChild = isArray || isChild;
-            spr.setType(isArrayOrChild ? usedSchemaInResponse : SPREADSHEET_RESULT);
+            spr.setType(isArrayOrChild ? simpleName : SPREADSHEET_RESULT);
             if (schema != null) {
                 if (isArrayOrChild) {
-                    stepModels = makeSingleStep(usedSchemaInResponse);
+                    stepModels = makeSingleStep(simpleName);
                 } else {
                     Map<String, Schema> properties = schema.getProperties();
                     if (CollectionUtils.isNotEmpty(properties)) {
@@ -891,8 +906,8 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             }
             spreadsheetParserModel.setReturnRef(SCHEMAS_LINK + nameOfSchema);
         } else {
-            spr.setType(usedSchemaInResponse);
-            stepModels = makeSingleStep(usedSchemaInResponse);
+            spr.setType(simpleName);
+            stepModels = makeSingleStep(simpleName);
         }
         return stepModels;
     }
@@ -902,70 +917,49 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .singletonList(new StepModel(OpenAPIScaffoldingConverter.RESULT, stepType, makeValue(stepType)));
     }
 
-    private OperationInfo findOperation(PathItem pathItem) {
-        String method = null;
+    private OperationInfo getOperationInfo(Operation operation, PathItem.HttpMethod method) {
         String consumes = null;
         String produces = null;
-        Operation operation = null;
-        if (pathItem != null) {
-            Map<PathItem.HttpMethod, Operation> operationsMap = pathItem.readOperationsMap();
-            if (CollectionUtils.isNotEmpty(operationsMap)) {
-                if (operationsMap.get(PathItem.HttpMethod.GET) != null) {
-                    method = PathItem.HttpMethod.GET.name();
-                    operation = operationsMap.get(PathItem.HttpMethod.GET);
-                } else if (operationsMap.get(PathItem.HttpMethod.POST) != null) {
-                    method = PathItem.HttpMethod.POST.name();
-                    operation = operationsMap.get(PathItem.HttpMethod.POST);
-                } else {
-                    Map.Entry<PathItem.HttpMethod, Operation> firstFoundOperation = operationsMap.entrySet()
-                        .iterator()
-                        .next();
-                    method = firstFoundOperation.getKey().name();
-                    operation = firstFoundOperation.getValue();
-                }
-            }
-            if (operation != null) {
-                RequestBody requestBody = operation.getRequestBody();
-                if (requestBody != null) {
-                    Content content = requestBody.getContent();
-                    if (CollectionUtils.isNotEmpty(content)) {
-                        if (content.containsKey(APPLICATION_JSON)) {
-                            consumes = APPLICATION_JSON;
-                        } else if (content.containsKey(TEXT_PLAIN)) {
-                            consumes = TEXT_PLAIN;
-                        } else {
-                            consumes = content.keySet().iterator().next();
-                        }
-                    }
-                }
-
-                ApiResponses responses = operation.getResponses();
-                ApiResponse successResponse = responses.get("200");
-                ApiResponse defaultResponse = responses.getDefault();
-                Content c = null;
-                if (successResponse != null) {
-                    c = successResponse.getContent();
-                } else if (defaultResponse != null) {
-                    c = defaultResponse.getContent();
-                } else {
-                    if (CollectionUtils.isNotEmpty(responses)) {
-                        ApiResponse firstResponse = responses.values().iterator().next();
-                        c = firstResponse.getContent();
-                    }
-                }
-                if (CollectionUtils.isNotEmpty(c)) {
-                    if (c.containsKey(APPLICATION_JSON)) {
-                        produces = APPLICATION_JSON;
-                    } else if (c.containsKey(TEXT_PLAIN)) {
-                        produces = TEXT_PLAIN;
+        if (operation != null) {
+            RequestBody requestBody = operation.getRequestBody();
+            if (requestBody != null) {
+                Content content = requestBody.getContent();
+                if (CollectionUtils.isNotEmpty(content)) {
+                    if (content.containsKey(APPLICATION_JSON)) {
+                        consumes = APPLICATION_JSON;
+                    } else if (content.containsKey(TEXT_PLAIN)) {
+                        consumes = TEXT_PLAIN;
                     } else {
-                        produces = c.keySet().iterator().next();
+                        consumes = content.keySet().iterator().next();
                     }
                 }
             }
 
+            ApiResponses responses = operation.getResponses();
+            ApiResponse successResponse = responses.get("200");
+            ApiResponse defaultResponse = responses.getDefault();
+            Content c = null;
+            if (successResponse != null) {
+                c = successResponse.getContent();
+            } else if (defaultResponse != null) {
+                c = defaultResponse.getContent();
+            } else {
+                if (CollectionUtils.isNotEmpty(responses)) {
+                    ApiResponse firstResponse = responses.values().iterator().next();
+                    c = firstResponse.getContent();
+                }
+            }
+            if (CollectionUtils.isNotEmpty(c)) {
+                if (c.containsKey(APPLICATION_JSON)) {
+                    produces = APPLICATION_JSON;
+                } else if (c.containsKey(TEXT_PLAIN)) {
+                    produces = TEXT_PLAIN;
+                } else {
+                    produces = c.keySet().iterator().next();
+                }
+            }
         }
-        return new OperationInfo(method, produces, consumes);
+        return new OperationInfo(method.name(), produces, consumes);
     }
 
     private String replaceBrackets(String path) {
