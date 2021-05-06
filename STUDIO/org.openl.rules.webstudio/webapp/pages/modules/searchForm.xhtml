@@ -29,7 +29,7 @@
             display: none;
             padding: 13px 11px 4px;
             width: 271px;
-            max-height: 260px;
+            max-height: 300px;
         }
         #advancedSearch > div {
             margin-bottom: 9px;
@@ -89,6 +89,7 @@
 
             setParam("query", $j("#searchQuery").val());
             setParam("header", $j("#tableHeader").val());
+            setParam("searchScope", $j("#searchScopeSelection").val());
             setParam("types", $j("#advancedSearch #multiselect-select").val().replace(/, /g, '-'));
 
             $j("#propertiesTable tr:visible").each(function() {
@@ -133,6 +134,12 @@
             </a>
         </span>
         <div id="advancedSearch">
+            <div>
+                <h:outputLabel for="searchScopeSelection" value="#{msg['ws.search.scope.type']}"/>
+                <h:selectOneMenu id="searchScopeSelection">
+                    <f:selectItems value="#{searchBean.searchScopeItems}"/>
+                </h:selectOneMenu>
+            </div>
             <div>
                 <label>#{msg['ws.search.table.type']}</label>
                 <oh:multiselect items="#{searchBean.tableTypeItems}" selected="#{searchBean.tableTypes}" />

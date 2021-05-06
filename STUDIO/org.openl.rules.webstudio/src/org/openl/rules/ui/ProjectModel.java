@@ -7,7 +7,17 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -22,6 +32,7 @@ import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.meta.IMetaHolder;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
@@ -34,10 +45,10 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
 import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
@@ -69,6 +80,7 @@ import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.web.SearchScope;
 import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
 import org.openl.rules.webstudio.web.util.Constants;
@@ -96,6 +108,7 @@ public class ProjectModel {
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = new HashSet<>();
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
@@ -812,6 +825,18 @@ public class ProjectModel {
         return tableSyntaxNodes;
     }
 
+    public synchronized Collection<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
+        if (isProjectCompiledSuccessfully()) {
+            return currentProjectXlsModuleSyntaxNodes.stream()
+                .filter(Objects::nonNull)
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .map(Arrays::asList)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
     public synchronized int getNumberOfTables() {
         int count = 0;
         TableSyntaxNode[] tables = getTableSyntaxNodes();
@@ -903,21 +928,22 @@ public class ProjectModel {
         }
     }
 
-    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors) {
-        XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        List<IOpenLTable> searchResults = new ArrayList<>();
+    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
+        return getSearchScopeData(searchScope).stream()
+            .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+            .filter(selectors)
+            .map(TableSyntaxNodeAdapter::new)
+            .collect(Collectors.toList());
+    }
 
-        TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode table : tables) {
-            if (!XlsNodeTypes.XLS_TABLEPART.toString().equals(table.getType()) // Exclude
-                    // TablePart
-                    // tables
-                    && selectors.test(table)) {
-                searchResults.add(new TableSyntaxNodeAdapter(table));
-            }
+    private Collection<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+        if (searchScope.equals(SearchScope.ALL_WITH_EXTRA_PROJECTS)) {
+            return getAllTableSyntaxNodes();
+        } else if (searchScope.equals(SearchScope.CURRENT_PROJECT)) {
+            return getCurrentProjectTableSyntaxNodes();
+        } else {
+            return Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes());
         }
-
-        return searchResults;
     }
 
     public synchronized void clearModuleInfo() {
@@ -958,22 +984,25 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
     }
 
-    private void addAllSyntaxNodes() {
-        for (Collection<IDependencyLoader> collectionDependencyLoaders : webStudioWorkspaceDependencyManager
-            .getDependencyLoaders()
-            .values()) {
-            for (IDependencyLoader dl : collectionDependencyLoaders) {
-                CompiledDependency compiledDependency = dl.getRefToCompiledDependency();
-                if (compiledDependency != null) {
-                    XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
-                        .getOpenClassWithErrors()
-                        .getMetaInfo();
-                    if (metaInfo != null) {
-                        allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+    private void collectSyntaxNodes() {
+        String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
+        webStudioWorkspaceDependencyManager.getDependencyLoaders()
+            .values()
+            .stream()
+            .flatMap(Collection::stream)
+            .forEach(dependencyLoader -> Optional.ofNullable(dependencyLoader.getRefToCompiledDependency())
+                .map(CompiledDependency::getCompiledOpenClass)
+                .map(CompiledOpenClass::getOpenClassWithErrors)
+                .map(IMetaHolder::getMetaInfo)
+                .filter(XlsMetaInfo.class::isInstance)
+                .map(XlsMetaInfo.class::cast)
+                .map(XlsMetaInfo::getXlsModuleNode)
+                .ifPresent(xlsModuleSyntaxNode -> {
+                    if (dependencyLoader.getProject().getName().equals(projectName)) {
+                        currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
                     }
-                }
-            }
-        }
+                    allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                }));
     }
 
     public synchronized void setModuleInfo(Module moduleInfo,
@@ -1049,11 +1078,12 @@ public class ProjectModel {
                 compiledOpenClass = validate(instantiationStrategy);
             }
 
-            addAllSyntaxNodes();
+            collectSyntaxNodes();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
 
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
                 List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
                 for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
@@ -1068,6 +1098,7 @@ public class ProjectModel {
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+                currentProjectXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
             } else {
                 workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }

@@ -47,9 +47,15 @@ public class SearchBean {
             new SelectItem("Properties", XlsNodeTypes.XLS_PROPERTIES.toString()),
             new SelectItem("Other", XlsNodeTypes.XLS_OTHER.toString()) };
 
+    private static final SelectItem[] searchScopeItems = new SelectItem[] {
+            new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()),
+            new SelectItem(SearchScope.CURRENT_PROJECT, SearchScope.CURRENT_PROJECT.getLabel()),
+            new SelectItem(SearchScope.ALL_WITH_EXTRA_PROJECTS, SearchScope.ALL_WITH_EXTRA_PROJECTS.getLabel()) };
+
     private String query;
     private String[] tableTypes;
     private String tableHeader;
+    private SearchScope searchScope;
     private final List<TableProperty> properties = new ArrayList<>();
 
     private List<IOpenLTable> searchResults;
@@ -76,6 +82,14 @@ public class SearchBean {
         this.tableTypes = tableTypes;
     }
 
+    public SearchScope getSearchScope() {
+        return searchScope;
+    }
+
+    public void setSearchScope(SearchScope searchScope) {
+        this.searchScope = searchScope;
+    }
+
     public String getTableHeader() {
         return tableHeader;
     }
@@ -86,6 +100,10 @@ public class SearchBean {
 
     public SelectItem[] getTableTypeItems() {
         return tableTypeItems;
+    }
+
+    public SelectItem[] getSearchScopeItems() {
+        return searchScopeItems;
     }
 
     public List<IOpenLTable> getSearchResults() {
@@ -107,6 +125,7 @@ public class SearchBean {
         String query = WebStudioUtils.getRequestParameter("query");
         String tableTypes = WebStudioUtils.getRequestParameter("types");
         String tableHeader = WebStudioUtils.getRequestParameter("header");
+        String searchScope = WebStudioUtils.getRequestParameter("searchScope");
 
         if (StringUtils.isNotBlank(query)) {
             // Replace all non-breaking spaces by breaking spaces
@@ -121,6 +140,8 @@ public class SearchBean {
         }
 
         this.tableHeader = tableHeader;
+
+        setSearchScope(SearchScope.valueOf(searchScope));
 
         // Init properties query
         for (TableProperty property : properties) {
@@ -162,7 +183,7 @@ public class SearchBean {
             selectors = selectors.and(new TablePropertiesSelector(properties));
         }
 
-        searchResults = projectModel.search(selectors);
+        searchResults = projectModel.search(selectors, getSearchScope());
     }
 
 }
