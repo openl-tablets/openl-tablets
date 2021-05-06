@@ -55,6 +55,9 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
                 case "module":
                     parseModuleInternal();
                     break;
+                case "param.declaration":
+                    parseParamDeclaration();
+                    break;
                 case "type":
                     parseType();
                     break;
@@ -72,10 +75,7 @@ public class BExGrammarWithParsingHelp extends BExGrammar {
         } catch (TokenMgrError err) {
             org.openl.util.text.TextInterval loc = pos(err.getMessage(), token);
 
-            syntaxError = new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(),
-                null,
-                loc,
-                    module);
+            syntaxError = new org.openl.syntax.exception.SyntaxNodeException(err.getMessage(), null, loc, module);
         } catch (Throwable e) {
             syntaxError = new SyntaxNodeException("", e, pos(token), module);
         }

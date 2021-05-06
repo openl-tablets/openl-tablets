@@ -2,7 +2,7 @@ package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.rules.binding.RuleRowHelper;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
@@ -96,20 +96,22 @@ public class DatatypeHelper {
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
 
         cxt.pushErrors();
-        for (int i = 1; i < height; ++i) {
-            ILogicalTable row = table.getRow(i);
-            GridCellSourceCodeModule source = new GridCellSourceCodeModule(row.getSource(), cxt);
-            String code = row.getCell(0, 0).getStringValue();
-            if (StringUtils.isBlank(code)) {
-                continue;
+        try {
+            for (int i = 1; i < height; ++i) {
+                ILogicalTable row = table.getRow(i);
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(row.getSource(), cxt);
+                String code = row.getCell(0, 0).getStringValue();
+                if (StringUtils.isBlank(code)) {
+                    continue;
+                }
+                IOpenClass type = OpenLManager.makeType(cxt.getOpenL(), code, source, cxt);
+                if (type != NullOpenClass.the) {
+                    count += 1;
+                }
             }
-            IOpenClass type = RuleRowHelper.getType(code, source, cxt);
-            if (type != NullOpenClass.the) {
-                count += 1;
-            }
+        } finally {
+            cxt.popErrors();
         }
-        cxt.popErrors();
-
         return count;
     }
 }

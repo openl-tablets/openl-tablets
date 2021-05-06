@@ -14,6 +14,11 @@ import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.constants.ConstantOpenField;
 import org.openl.rules.data.DataOpenField;
 import org.openl.rules.data.ITable;
+import org.openl.rules.dt.DTColumnsDefinitionField;
+import org.openl.rules.dt.data.ConditionOrActionDirectParameterField;
+import org.openl.rules.dt.data.ConditionOrActionParameterField;
+import org.openl.rules.dt.data.DecisionTableDataType;
+import org.openl.rules.lang.xls.binding.DTColumnsDefinition;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.syntax.ISyntaxNode;
@@ -23,7 +28,7 @@ import org.openl.types.NullOpenClass;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
-final class FieldBoundNodeUsageCreator implements NodeUsageCreator  {
+final class FieldBoundNodeUsageCreator implements NodeUsageCreator {
 
     private static final int MAX_DESCRIPTION_CLASS_NUMBER = 3;
     private static final int MAX_DESCRIPTION_CLASS_LENGTH = 50;
@@ -97,6 +102,26 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator  {
             description = MethodUtil.printType(boundField.getType()) + " " + boundField
                 .getName() + " = " + constantOpenField.getValueAsString();
             uri = constantOpenField.getMemberMetaInfo().getSourceUrl();
+        } else if (boundField instanceof ConditionOrActionParameterField) {
+            ConditionOrActionParameterField conditionOrActionParameterField = (ConditionOrActionParameterField) boundField;
+            description = "Parameter of " + conditionOrActionParameterField.getConditionOrAction()
+                .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
+        } else if (boundField instanceof ConditionOrActionDirectParameterField) {
+            ConditionOrActionDirectParameterField conditionOrActionDirectParameterField = (ConditionOrActionDirectParameterField) boundField;
+            description = "Parameter of " + conditionOrActionDirectParameterField.getConditionOrAction()
+                .getName() + "\n" + MethodUtil.printType(boundField.getType()) + " " + boundField.getName();
+        } else if (boundField instanceof DTColumnsDefinitionField) {
+            DTColumnsDefinitionField dtColumnsDefinitionField = (DTColumnsDefinitionField) boundField;
+            DTColumnsDefinition dtColumnsDefinition = dtColumnsDefinitionField.getDtColumnsDefinition();
+            String columnType;
+            if (dtColumnsDefinition.isCondition()) {
+                columnType = "condition";
+            } else {
+                columnType = dtColumnsDefinition.isAction() ? "action" : "return";
+            }
+            description = "External " + columnType + " parameter" + "\n" + MethodUtil
+                .printType(boundField.getType()) + " " + boundField.getName();
+            uri = dtColumnsDefinition.getUri();
         } else {
             IMetaInfo metaInfo = type.getMetaInfo();
             while (metaInfo == null && type.isArray()) {
@@ -108,7 +133,7 @@ final class FieldBoundNodeUsageCreator implements NodeUsageCreator  {
             if (metaInfo != null) {
                 uri = metaInfo.getSourceUrl();
                 description = metaInfo.getDisplayName(IMetaInfo.REGULAR) + "\n" + description;
-            } else if (type != NullOpenClass.the) {
+            } else if (type != NullOpenClass.the && !(type instanceof DecisionTableDataType)) {
                 description = MethodUtil.printType(type) + "\n" + description;
             } else {
                 IMetaInfo mi = boundField.getType().getMetaInfo();

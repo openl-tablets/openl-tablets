@@ -244,7 +244,7 @@ public class XlsBinder implements IOpenBinder {
             Predicate<ISyntaxNode> actionsSelector = getSelector(XlsNodeTypes.XLS_ACTIONS);
             Predicate<ISyntaxNode> returnsSelector = getSelector(XlsNodeTypes.XLS_RETURNS);
 
-            Predicate<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(returnsSelector).or(actionsSelector);
+            Predicate<ISyntaxNode> dtDefinitionSelector = conditionsSelector.or(actionsSelector).or(returnsSelector);
 
             Predicate<ISyntaxNode> notPropertiesAndNotDatatypeAndNotConstantsSelector = propertiesSelector.negate()
                 .and(dataTypeSelector.negate())

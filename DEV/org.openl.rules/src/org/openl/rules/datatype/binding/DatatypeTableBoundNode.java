@@ -25,6 +25,7 @@ import org.openl.binding.impl.SimpleNodeUsage;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.classloader.OpenLClassLoader;
+import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.gen.ByteCodeGenerationException;
 import org.openl.gen.FieldDescription;
@@ -484,7 +485,10 @@ public class DatatypeTableBoundNode implements IMemberBoundNode {
             BindHelper.processError(errorMessage, typeCellSource, bindingContext);
             return;
         }
-        IOpenClass fieldType = RuleRowHelper.getType(typeCellSource.getCode(), typeCellSource, bindingContext);
+        IOpenClass fieldType = OpenLManager.makeType(bindingContext.getOpenL(),
+                typeCellSource.getCode(),
+                typeCellSource,
+                bindingContext);
         if (fieldType == NullOpenClass.the) {
             fieldType = JavaOpenClass.OBJECT;
         }

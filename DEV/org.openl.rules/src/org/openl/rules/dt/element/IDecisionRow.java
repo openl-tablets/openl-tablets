@@ -34,6 +34,8 @@ public interface IDecisionRow extends IBaseDecisionRow {
 
     boolean isCondition();
 
+    void prepareParams(OpenL openl, IBindingContext bindingContext);
+
     void prepare(IOpenClass methodType,
             IMethodSignature signature,
             OpenL openl,
@@ -45,5 +47,7 @@ public interface IDecisionRow extends IBaseDecisionRow {
     void loadValues(Object[] dest, int offset, int ruleN, Object target, Object[] tableParams, IRuntimeEnv env);
 
     boolean isEqual(int rule1, int rule2);
+
+    boolean hasDeclaredParams();
 
 }

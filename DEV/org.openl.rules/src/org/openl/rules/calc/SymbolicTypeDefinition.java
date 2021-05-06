@@ -1,5 +1,6 @@
 package org.openl.rules.calc;
 
+import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.impl.IdentifierNode;
 
 public class SymbolicTypeDefinition {
@@ -8,8 +9,13 @@ public class SymbolicTypeDefinition {
     private final IdentifierNode type;
     private final boolean asterisk;
     private final boolean tilde;
+    private final IOpenSourceCodeModule source;
 
-    public SymbolicTypeDefinition(IdentifierNode name, IdentifierNode type, boolean asterisk, boolean tilde) {
+    public SymbolicTypeDefinition(IdentifierNode name,
+            IdentifierNode type,
+            boolean asterisk,
+            boolean tilde,
+            IOpenSourceCodeModule source) {
         this.name = name;
         this.type = type;
         this.asterisk = asterisk;
@@ -17,6 +23,7 @@ public class SymbolicTypeDefinition {
         if (asterisk && tilde) {
             throw new IllegalArgumentException("Only ~ or * can be used at the same time.");
         }
+        this.source = source;
     }
 
     public IdentifierNode getName() {
@@ -33,5 +40,9 @@ public class SymbolicTypeDefinition {
 
     public boolean isTildePresented() {
         return tilde;
+    }
+
+    public IOpenSourceCodeModule getSource() {
+        return source;
     }
 }

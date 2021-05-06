@@ -12,6 +12,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IOpenClass;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.OpenClassUtils;
+import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 
@@ -27,8 +28,8 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
 
     @Override
     public boolean accept(IBoundNode boundNode) {
-        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode
-                || (boundNode instanceof CastNode && "type.cast".equals(boundNode.getSyntaxNode().getType()));
+        return boundNode instanceof ArrayBoundNode || boundNode instanceof ArrayInitializerNode || (boundNode instanceof CastNode && "type.cast"
+            .equals(boundNode.getSyntaxNode().getType()));
     }
 
     @Override
@@ -51,7 +52,10 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
         int pstart = location.getStart().getAbsolutePosition(textInfo) + startIndex;
         int pend = location.getEnd().getAbsolutePosition(textInfo) + startIndex;
         if (componentOpenClass instanceof JavaOpenClass) {
-            StringBuilder description = new StringBuilder(componentOpenClass.getPackageName()).append('\n');
+            StringBuilder description = new StringBuilder();
+            if (StringUtils.isNotBlank(componentOpenClass.getPackageName())) {
+                description.append(componentOpenClass.getPackageName()).append('\n');
+            }
             printClassDeclaration(description, componentOpenClass.getInstanceClass());
             description.append(MethodUtil.printType(componentOpenClass));
             return Optional.of(new SimpleNodeUsage(pstart, pend, description.toString(), null, NodeType.OTHER));
@@ -77,10 +81,14 @@ final class TypeNodeUsageCreator implements NodeUsageCreator {
             }
             builder.append("interface");
         } else {
-            if (Modifier.isAbstract(cl.getModifiers())) {
-                builder.append("abstract ");
+            if (cl.isPrimitive()) {
+                builder.append("primitive");
+            } else {
+                if (Modifier.isAbstract(cl.getModifiers())) {
+                    builder.append("abstract ");
+                }
+                builder.append("class");
             }
-            builder.append("class");
         }
         builder.append(' ');
     }

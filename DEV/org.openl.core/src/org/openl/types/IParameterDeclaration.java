@@ -26,4 +26,5 @@ public interface IParameterDeclaration extends INamedThing {
     default void removeDebugInformation() {
         // do nothing
     }
+
 }

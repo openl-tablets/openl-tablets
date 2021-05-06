@@ -20,13 +20,15 @@ public interface IGrammar {
 
     ISyntaxNode getTopNode();
 
-    void parseAsMethod(Reader r);
+    void parseAsMethod(Reader reader);
 
-    void parseAsMethodHeader(Reader r);
+    void parseAsMethodHeader(Reader reader);
 
-    void parseAsModule(Reader r);
+    void parseAsModule(Reader reader);
 
     void parseAsType(Reader reader);
+
+    void parseAsParamDeclaration(Reader reader);
 
     void setModule(IOpenSourceCodeModule module);
 

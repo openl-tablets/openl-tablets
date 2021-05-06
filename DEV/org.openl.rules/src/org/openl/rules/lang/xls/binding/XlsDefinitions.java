@@ -10,9 +10,7 @@ public class XlsDefinitions {
 
     private final Collection<DTColumnsDefinition> dtColumnsDefinitions = new LinkedHashSet<>();
 
-    private static boolean theSame(DTColumnsDefinition dtColumnDefinition1,
-            DTColumnsDefinition dtColumnDefinition2) {
-
+    private static boolean theSame(DTColumnsDefinition dtColumnDefinition1, DTColumnsDefinition dtColumnDefinition2) {
         if (!Objects.equals(dtColumnDefinition1.getType(), dtColumnDefinition2.getType())) {
             return false;
         }
@@ -24,21 +22,9 @@ public class XlsDefinitions {
             .getNumberOfParameters()) {
             return false;
         }
-
-        String dtColumnDefinition1Code = dtColumnDefinition1.getCompositeMethod()
-            .getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule()
-            .getCode();
-        String dtColumnDefinition2Code = dtColumnDefinition2.getCompositeMethod()
-            .getMethodBodyBoundNode()
-            .getSyntaxNode()
-            .getModule()
-            .getCode();
-        if (!Objects.equals(dtColumnDefinition1Code, dtColumnDefinition2Code)) {
+        if (!Objects.equals(dtColumnDefinition1.getExpression(), dtColumnDefinition2.getExpression())) {
             return false;
         }
-
         Map<String, IOpenClass> map = new HashMap<>();
         for (int i = 0; i < dtColumnDefinition1.getHeader().getSignature().getNumberOfParameters(); i++) {
             map.put(dtColumnDefinition1.getHeader().getSignature().getParameterName(i),
@@ -57,8 +43,8 @@ public class XlsDefinitions {
             if (!titles2.contains(title)) {
                 return false;
             }
-            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getLocalParameters(title);
-            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getLocalParameters(title);
+            List<IParameterDeclaration> parameterDeclarations1 = dtColumnDefinition1.getParameters(title);
+            List<IParameterDeclaration> parameterDeclarations2 = dtColumnDefinition2.getParameters(title);
             if (parameterDeclarations1.size() != parameterDeclarations2.size()) {
                 return false;
             }

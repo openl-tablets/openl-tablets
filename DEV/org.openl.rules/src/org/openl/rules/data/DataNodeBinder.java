@@ -19,10 +19,10 @@ import java.util.Set;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.engine.OpenLManager;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -101,7 +101,10 @@ public class DataNodeBinder extends AXlsTableBinder {
             String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
         }
-        IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
+        IOpenClass tableType = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                typeName,
+                source,
+                bindingContext);
 
         // Check that table type loaded properly.
         //
