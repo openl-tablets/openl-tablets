@@ -15,8 +15,10 @@ import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLo
 
 public interface Simple4ServiceAnnotationTemplate {
 
-    @StoreLogDataToCassandra({ HelloEntity1.class, HelloEntity2.class, HelloEntity3.class })
-    @StoreLogDataToElasticsearch({ CustomElasticEntity1.class, CustomElasticEntity2.class, CustomElasticEntity3.class })
+    @StoreLogDataToCassandra(value = { HelloEntity1.class, HelloEntity2.class, HelloEntity3.class }, sync = true)
+    @StoreLogDataToElasticsearch(value = { CustomElasticEntity1.class,
+            CustomElasticEntity2.class,
+            CustomElasticEntity3.class }, sync = true)
     @PrepareStoreLogData(PrepareStoreLogDataValue.class)
     @PrepareStoreLogData(PrepareStoreLogDataArgs.class)
     @PrepareStoreLogData(PrepareStoreLogDataResult.class)

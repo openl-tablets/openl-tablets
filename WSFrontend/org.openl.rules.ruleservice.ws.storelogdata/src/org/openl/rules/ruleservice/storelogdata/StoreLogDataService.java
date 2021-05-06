@@ -7,7 +7,12 @@ package org.openl.rules.ruleservice.storelogdata;
  *
  */
 public interface StoreLogDataService {
+
     void save(StoreLogData storeLogData);
+
+    default boolean isSync(StoreLogData storeLogData) {
+        return false;
+    }
 
     boolean isEnabled();
 }
