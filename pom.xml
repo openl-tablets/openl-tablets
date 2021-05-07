@@ -450,7 +450,7 @@
                     <plugin>
                         <groupId>org.simplify4u.plugins</groupId>
                         <artifactId>sign-maven-plugin</artifactId>
-                        <version>0.3.0</version>
+                        <version>0.3.1</version>
                         <configuration>
                             <skip>${maven.deploy.skip}</skip>
                         </configuration>
