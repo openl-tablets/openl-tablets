@@ -960,6 +960,7 @@ public class ProjectModel {
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        currentProjectXlsModuleSyntaxNodes.clear();
         projectRoot = null;
         workbookSyntaxNodes = null;
     }
@@ -1039,6 +1040,7 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        currentProjectXlsModuleSyntaxNodes.clear();
         workbookSyntaxNodes = null;
 
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
