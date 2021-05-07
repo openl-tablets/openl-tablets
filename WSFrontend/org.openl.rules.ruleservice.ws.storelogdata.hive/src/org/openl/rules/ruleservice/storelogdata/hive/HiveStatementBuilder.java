@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -43,13 +44,13 @@ public final class HiveStatementBuilder {
     }
 
     private String getPartitions() {
-        ArrayList<String> partitionFields = getPartitionFields();
+        List<String> partitionFields = getPartitionFields();
         return partitionFields.size() == 0 ? "" :
                 partitionFields.stream().map(f -> f + "=?")
                         .collect(Collectors.joining(",", "PARTITION (", ")"));
     }
 
-    private ArrayList<String> getPartitionFields() {
+    private List<String> getPartitionFields() {
         return Arrays.stream(entityClass.getDeclaredFields())
                 .filter(f -> !f.isSynthetic() && f.isAnnotationPresent(Partition.class))
                 .sorted(Comparator.comparingInt(f -> f.getAnnotation(Partition.class).value()))
