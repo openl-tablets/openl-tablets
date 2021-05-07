@@ -35,6 +35,13 @@ public class HiveEntityDaoTest {
     }
 
     @Test
+    public void insertTest_partitionedEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, PartitionedHiveEntity.class);
+        PartitionedHiveEntity partitionedEntity = getPartitionedEntity();
+        hiveEntityDao.insert(partitionedEntity);
+    }
+
+    @Test
     public void insertTest_defaultEntity_NullField() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
@@ -76,6 +83,15 @@ public class HiveEntityDaoTest {
         defaultHiveEntity.setServiceName("serviceName");
         defaultHiveEntity.setUrl("url");
         return defaultHiveEntity;
+    }
+
+    private PartitionedHiveEntity getPartitionedEntity() {
+        PartitionedHiveEntity entity = new PartitionedHiveEntity();
+        entity.setId("id");
+        entity.setIncomingTime(ZonedDateTime.now());
+        entity.setOutcomingTime(ZonedDateTime.now());
+        entity.setRequest("request");
+        return entity;
     }
 
     private SimpleEntity getSimpleEntity() {

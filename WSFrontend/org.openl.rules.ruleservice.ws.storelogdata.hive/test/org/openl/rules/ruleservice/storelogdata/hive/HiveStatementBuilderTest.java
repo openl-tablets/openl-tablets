@@ -16,8 +16,16 @@ public class HiveStatementBuilderTest {
         Connection connection = Mockito.mock(Connection.class);
         HiveStatementBuilder builder = new HiveStatementBuilder(connection, DefaultHiveEntity.class);
         String insertStatement = builder.buildQuery();
-        String expectedStatement = "INSERT INTO TABLE openl_log_data (id,incomingtime,methodname,outcomingtime,"
-                + "publishertype,request,response,servicename,url) VALUES (?,?,?,?,?,?,?,?,?)";
+        String expectedStatement = "INSERT INTO TABLE openl_log_data  (id,incomingtime,methodname,outcomingtime,publishertype,request,response,servicename,url) VALUES (?,?,?,?,?,?,?,?,?)";
+        assertEquals(expectedStatement, insertStatement);
+    }
+
+    @Test
+    public void testCreateInsertStatement_defaultPartitionEntity() {
+        Connection connection = Mockito.mock(Connection.class);
+        HiveStatementBuilder builder = new HiveStatementBuilder(connection, PartitionedHiveEntity.class);
+        String insertStatement = builder.buildQuery();
+        String expectedStatement = "INSERT INTO TABLE partitioned_data PARTITION (incomingtime=?,outcomingtime=?) (id,request) VALUES (?,?)";
         assertEquals(expectedStatement, insertStatement);
     }
 

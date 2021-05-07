@@ -17,8 +17,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition;
+
 public class HiveEntityDao {
     private final PreparedStatement preparedStatement;
+    private final ArrayList<Field> sortedPartitionedFields;
     private final ArrayList<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
         byte.class,
@@ -45,8 +48,13 @@ public class HiveEntityDao {
                                                                       UnsupportedFieldTypeException {
         checkTypes(entityClass);
         preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
+        sortedPartitionedFields = Arrays.stream(entityClass.getDeclaredFields())
+                .filter(f -> !f.isSynthetic() && f.isAnnotationPresent(Partition.class))
+                .sorted(Comparator.comparingInt(f -> f.getAnnotation(Partition.class).value()))
+                .peek(f -> f.setAccessible(true))
+                .collect(Collectors.toCollection(ArrayList::new));
         sortedFields = Arrays.stream(entityClass.getDeclaredFields())
-                .filter(f -> !f.isSynthetic())
+                .filter(f -> !f.isSynthetic() && !f.isAnnotationPresent(Partition.class))
                 .sorted(Comparator.comparing(Field::getName))
                 .peek(f -> f.setAccessible(true))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -66,10 +74,17 @@ public class HiveEntityDao {
     }
 
     public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
-        for (int index = 0; index < sortedFields.size(); index++) {
-            setValue(index + 1, sortedFields.get(index), entity);
-        }
+        int startIndex = 1;
+        setValueForFields(entity, startIndex, sortedPartitionedFields);
+        startIndex += sortedPartitionedFields.size();
+        setValueForFields(entity, startIndex, sortedFields);
         preparedStatement.execute();
+    }
+
+    private void setValueForFields(Object entity, int startIndex, ArrayList<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+        for (int index = 0; index < fields.size(); index++) {
+            setValue(startIndex + index, fields.get(index), entity);
+        }
     }
 
     private void setValue(int index, Field field, Object entity) throws IllegalAccessException,
