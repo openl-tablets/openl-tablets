@@ -275,7 +275,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
+                listener.afterServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAwareInterfaces(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -289,7 +294,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
+                listener.beforeServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAwareInterfaces(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -390,11 +400,14 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterMethodInvocation(interfaceMethod, args, result, null);
+                listener.afterMethodInvocation(interfaceMethod,
+                    args,
+                    result,
+                    null,
+                    e -> processAwareInterfaces(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -404,7 +417,11 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeMethodInvocation(interfaceMethod, args, null, null);
+                listener.beforeMethodInvocation(interfaceMethod,
+                    args,
+                    null,
+                    null,
+                    e -> processAwareInterfaces(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }

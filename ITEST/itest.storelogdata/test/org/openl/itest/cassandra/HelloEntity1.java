@@ -66,8 +66,8 @@ public class HelloEntity1 {
     @Value(value = "boolValue2")
     private boolean boolValue2;
 
-    @Value(value = "objectSerializerFound")
-    private boolean objectSerializerFound;
+    @Value(value = "awareInstancesFound")
+    private boolean awareInstancesFound;
 
     @Value(value = "stringValue1", converter = NoConvertorString.class)
     private String stringValue1;
@@ -190,12 +190,12 @@ public class HelloEntity1 {
         this.result = result;
     }
 
-    public boolean isObjectSerializerFound() {
-        return objectSerializerFound;
+    public boolean isAwareInstancesFound() {
+        return awareInstancesFound;
     }
 
-    public void setObjectSerializerFound(boolean objectSerializerFound) {
-        this.objectSerializerFound = objectSerializerFound;
+    public void setAwareInstancesFound(boolean awareInstancesFound) {
+        this.awareInstancesFound = awareInstancesFound;
     }
 
     public Integer getIntValue1() {
