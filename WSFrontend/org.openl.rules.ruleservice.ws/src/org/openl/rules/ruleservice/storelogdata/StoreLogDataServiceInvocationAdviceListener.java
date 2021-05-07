@@ -1,6 +1,7 @@
 package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.reflect.Method;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import org.openl.binding.MethodUtil;
@@ -30,6 +31,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object[] args,
             Object result,
             Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate) {
         PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
         if (prepareStoreLogDatas != null) {
@@ -39,18 +41,11 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     StoreLogDataAdvice storeLogDataAdvice = null;
                     try {
                         storeLogDataAdvice = storeLogging.value().newInstance();
-                        if (storeLogDataAdvice instanceof ObjectSerializerAware) {
-                            ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
-                            if (storeLogData == null) {
-                                storeLogData = StoreLogDataHolder.get(); // Lazy local
-                                                                         // variable
-                                // initialization
-                            }
-                            objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
-                        }
+                        postProcessAdvice.accept(storeLogDataAdvice);
+                        storeLogData = processAwareInterfaces(storeLogData, storeLogDataAdvice);
                     } catch (Exception e) {
                         String msg = String.format(
-                            "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                            "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                             MethodUtil.printQualifiedMethodName(interfaceMethod),
                             storeLogging.value().getTypeName());
                         log.error(msg, e);
@@ -58,7 +53,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
                     if (storeLogDataAdvice != null) {
                         if (storeLogData == null) {
                             storeLogData = StoreLogDataHolder.get(); // Lazy local variable
-                                                                     // initialization
+                            // initialization
                         }
 
                         storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
@@ -68,17 +63,32 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
         }
     }
 
+    private StoreLogData processAwareInterfaces(StoreLogData storeLogData, StoreLogDataAdvice storeLogDataAdvice) {
+        if (storeLogDataAdvice instanceof ObjectSerializerAware) {
+            ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
+            if (storeLogData == null) {
+                storeLogData = StoreLogDataHolder.get(); // Lazy local
+                // variable
+                // initialization
+            }
+            objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
+        }
+        return storeLogData;
+    }
+
     @Override
     public void beforeServiceMethodAdvice(ServiceMethodAdvice serviceMethodAdvice,
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException) {
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice) {
         if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
                 lastOccurredException,
+                postProcessAdvice,
                 e -> e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
@@ -88,12 +98,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException) {
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice) {
         if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
                 lastOccurredException,
+                postProcessAdvice,
                 e -> !e.before() && e.bindToServiceMethodAdvice().equals(serviceMethodAdvice.getClass()));
         }
     }
@@ -102,12 +114,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void beforeMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException) {
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice) {
         if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
                 lastOccurredException,
+                postProcessAdvice,
                 e -> e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
@@ -116,12 +130,14 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
     public void afterMethodInvocation(Method interfaceMethod,
             Object[] args,
             Object result,
-            Exception lastOccurredException) {
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice) {
         if (isStoreLogDataEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
                 lastOccurredException,
+                postProcessAdvice,
                 e -> !e.before() && e.bindToServiceMethodAdvice().equals(PrepareStoreLogData.Default.class));
         }
     }
