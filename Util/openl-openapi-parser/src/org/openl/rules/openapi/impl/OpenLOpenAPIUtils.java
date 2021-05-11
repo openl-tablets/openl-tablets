@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.jxpath.CompiledExpression;
 import org.apache.commons.jxpath.JXPathContext;
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.model.scaffolding.ParameterModel;
 import org.openl.rules.model.scaffolding.TypeInfo;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.Operation;
 import io.swagger.v3.oas.models.PathItem;
+import io.swagger.v3.oas.models.Paths;
 import io.swagger.v3.oas.models.callbacks.Callback;
 import io.swagger.v3.oas.models.headers.Header;
 import io.swagger.v3.oas.models.media.ArraySchema;
@@ -141,9 +143,9 @@ public class OpenLOpenAPIUtils {
         }
     }
 
-    public static Map<String, Integer> getAllUsedSchemaRefs(OpenAPI openAPI, JXPathContext jxPathContext) {
+    public static Map<String, Integer> getAllUsedSchemaRefs(Paths paths, JXPathContext jxPathContext) {
         Map<String, Integer> types = new HashMap<>();
-        visitOpenAPI(openAPI, jxPathContext, (Schema<?> s) -> {
+        visitOpenAPI(paths, jxPathContext, (Schema<?> s) -> {
             String ref = s.get$ref();
             if (ref != null) {
                 Schema<?> x = (Schema<?>) OpenLOpenAPIUtils.resolveByRef(jxPathContext, ref);
@@ -156,11 +158,9 @@ public class OpenLOpenAPIUtils {
         return types;
     }
 
-    public static Map<String, Map<String, Integer>> collectPathsWithParams(OpenAPI openAPI,
-            JXPathContext jxPathContext) {
+    public static Map<String, Map<String, Integer>> collectPathsWithParams(Paths paths, JXPathContext jxPathContext) {
         Map<String, Map<String, Integer>> resultMap = new HashMap<>();
         Set<String> visitedSchemas = new HashSet<>();
-        Map<String, PathItem> paths = openAPI.getPaths();
         if (CollectionUtils.isNotEmpty(paths)) {
             for (Map.Entry<String, PathItem> pathWithItem : paths.entrySet()) {
                 visitPathItemRequests(pathWithItem.getValue(), jxPathContext, (Schema<?> s) -> {
@@ -186,15 +186,18 @@ public class OpenLOpenAPIUtils {
         return resultMap;
     }
 
-    public static Map<String, Set<String>> getAllUsedRefResponses(OpenAPI openAPI, JXPathContext jxPathContext) {
-        Map<String, PathItem> paths = openAPI.getPaths();
-        Map<String, Set<String>> allSchemaRefResponses = new HashMap<>();
+    public static Map<Pair<String, PathItem.HttpMethod>, Set<String>> getAllUsedRefResponses(Paths paths,
+            JXPathContext jxPathContext) {
+        Map<Pair<String, PathItem.HttpMethod>, Set<String>> allSchemaRefResponses = new HashMap<>();
         if (paths != null) {
-            for (Map.Entry<String, PathItem> p : paths.entrySet()) {
-                PathItem path = p.getValue();
-                Map<PathItem.HttpMethod, Operation> operationsMap = path.readOperationsMap();
+            for (Map.Entry<String, PathItem> pathEntry : paths.entrySet()) {
+                final String path = pathEntry.getKey();
+                PathItem pathItem = pathEntry.getValue();
+                Map<PathItem.HttpMethod, Operation> operationsMap = pathItem.readOperationsMap();
                 if (CollectionUtils.isNotEmpty(operationsMap)) {
-                    for (Operation operation : operationsMap.values()) {
+                    for (Map.Entry<PathItem.HttpMethod, Operation> methodOperationEntry : operationsMap.entrySet()) {
+                        final Operation operation = methodOperationEntry.getValue();
+                        final PathItem.HttpMethod httpMethod = methodOperationEntry.getKey();
                         if (operation != null) {
                             ApiResponses responses = operation.getResponses();
                             if (responses != null) {
@@ -206,7 +209,14 @@ public class OpenLOpenAPIUtils {
                                         if (mediaTypeSchema != null) {
                                             Set<String> refs = OpenLOpenAPIUtils
                                                 .visitSchema(jxPathContext, mediaTypeSchema, false, false);
-                                            allSchemaRefResponses.put(p.getKey(), refs);
+                                            final Pair<String, PathItem.HttpMethod> pathWithOperation = Pair.of(path,
+                                                httpMethod);
+                                            if (allSchemaRefResponses.containsKey(pathWithOperation)) {
+                                                Set<String> existingRefs = allSchemaRefResponses.get(pathWithOperation);
+                                                existingRefs.addAll(refs);
+                                            } else {
+                                                allSchemaRefResponses.put(pathWithOperation, refs);
+                                            }
                                         }
                                     }
                                 }
@@ -239,10 +249,8 @@ public class OpenLOpenAPIUtils {
         return result;
     }
 
-    private static void visitOpenAPI(OpenAPI openAPI, JXPathContext jxPathContext, Consumer<Schema<?>> visitor) {
-        Map<String, PathItem> paths = openAPI.getPaths();
+    private static void visitOpenAPI(Paths paths, JXPathContext jxPathContext, Consumer<Schema<?>> visitor) {
         Set<String> visitedSchemas = new HashSet<>();
-
         if (paths != null) {
             for (PathItem path : paths.values()) {
                 visitPathItem(path, jxPathContext, visitor, visitedSchemas);
@@ -707,7 +715,7 @@ public class OpenLOpenAPIUtils {
                     result = Collections.emptyList();
                 } else {
                     String parameter = type;
-                    if (type.endsWith("[]")) {
+                    if (typeInfo.getDimension() > 0) {
                         parameter = OpenAPITypeUtils.removeArrayBrackets(type);
                     }
                     if (OpenAPITypeUtils.isPrimitiveType(type)) {
