@@ -5,6 +5,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -423,7 +424,9 @@ public class SpreadsheetsConverterTest {
         ProjectModel projectModel = converter
             .extractProjectModel("test.converter/spreadsheets/EPBDS-10432_child_spr.json");
         List<SpreadsheetModel> spreadsheetResultModels = projectModel.getSpreadsheetResultModels();
-        Optional<SpreadsheetModel> spr = spreadsheetResultModels.stream().findAny();
+        Optional<SpreadsheetModel> spr = spreadsheetResultModels.stream()
+            .filter(spreadsheet -> spreadsheet.getName().equals("petsAGET"))
+            .findAny();
         assertTrue(spr.isPresent());
         SpreadsheetModel spreadsheetModel = spr.get();
         assertEquals("Pet", spreadsheetModel.getType());
