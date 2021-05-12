@@ -45,12 +45,23 @@
             border-top: 1px solid #ddd;
             margin-top: 20px;
         }
+
         #tagTemplateForm\:tagTemplates {
             height: 60px;
         }
     </style>
 
-    <div id="tag-types-list"></div>
+    <div>
+        <h1>Tag types and tag values</h1>
+        <div>
+            <p>To add a tag type, type tag type name in “New Tag Type” field and hit Enter/Tab. As a result, tag type will be added and fields for filling tag values will appear.</p>
+            <p>Add tag values by typing tag values names and hitting Enter.</p>
+            <p>If tag type is nullable, this tag type can be skipped when create a new project. Otherwise, it's mandatory.</p>
+            <p>If tag type is extensible, any user can create a new tag values for this type. Otherwise, tag values are configured by admin only.</p>
+            <p>All created tag types and values are saved automatically.</p>
+        </div>
+        <div id="tag-types-list"></div>
+    </div>
 
     <div id="tag-template">
         <ui:include src="/pages/modules/administration/settings/tags/projectsWithoutTags.xhtml"/>
@@ -82,9 +93,9 @@
                     </a4j:outputPanel></td>
                 </tr>
             </table>
-            <a4j:commandButton value="Save" action="#{tagTemplateBean.save}"
+            <a4j:commandButton value="Save templates" action="#{tagTemplateBean.save}"
                                render="commonProps repositoryProps javaProps restartMessage tags"
-                               styleClass="button-primary" title="Apply changes"/>
+                               title="Apply changes"/>
             <input type="button" value="Fill tags for projects" onclick="openProjectsWithoutTags()"/>
 
         </h:form>
@@ -207,7 +218,7 @@
             const createNullable = function (tagType) {
                 let $nullable = $j('<input type="checkbox">');
                 $nullable.prop('checked', tagType.nullable);
-                let $nullableLabel = $j('<label>Nullable</label>')
+                let $nullableLabel = $j('<label title="If checked, tag type is optional, otherwise it\' mandatory">Nullable</label>')
                 $nullableLabel.prepend($nullable);
                 $nullable.click(() => {
                     let nullable = $nullable.prop("checked");
@@ -222,7 +233,7 @@
             const createExtensible = function (tagType) {
                 let $extensible = $j('<input type="checkbox">');
                 $extensible.prop('checked', tagType.extensible);
-                let $extensibleLabel = $j('<label>Extensible</label>')
+                let $extensibleLabel = $j('<label title="If checked, tag values can be created by a user, otherwise tag values can be created only by admin">Extensible</label>')
                 $extensibleLabel.prepend($extensible);
                 $extensible.click(() => {
                     let extensible = $extensible.prop("checked");
