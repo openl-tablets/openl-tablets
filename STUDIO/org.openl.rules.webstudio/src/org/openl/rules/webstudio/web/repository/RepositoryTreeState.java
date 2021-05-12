@@ -165,7 +165,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         rulesRepository.add(new TreeProjectGrouping(id,
                             name,
                             subProjects,
-                            projectGrouping,
+                            grouping,
                             1,
                             tagService,
                             hideDeleted,
@@ -188,7 +188,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         rulesRepository.add(new TreeProjectGrouping(id,
                             name,
                             subProjects,
-                            projectGrouping,
+                            grouping,
                             1,
                             tagService,
                             hideDeleted,
@@ -460,6 +460,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         synchronized (lock) {
             root = null;
             errorMessage = null;
+            projectGrouping = null;
 
             // Clear all ViewScoped beans that could cache some temporary values (for example DeploymentController).
             // Because selection is invalidated too we can assume that view is changed so we can safely clear all
@@ -905,29 +906,27 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             if (projectGrouping == null) {
                 projectGrouping = new ProjectGrouping();
                 projectGrouping.setLoginName(userName);
-            } else {
-                final List<String> groupings = tagTypeService.getAllTagTypes()
-                    .stream()
-                    .map(TagType::getName)
-                    .collect(Collectors.toList());
-                groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
-                groupings.add(null);
-                if (!groupings.contains(projectGrouping.getGroup1())) {
-                    projectGrouping.setGroup1(null);
-                }
-                if (!groupings.contains(projectGrouping.getGroup2())) {
-                    projectGrouping.setGroup2(null);
-                }
-                if (!groupings.contains(projectGrouping.getGroup3())) {
-                    projectGrouping.setGroup3(null);
-                }
             }
         }
+        final List<String> groupings = tagTypeService.getAllTagTypes()
+            .stream()
+            .map(TagType::getName)
+            .collect(Collectors.toList());
+        groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
+        groupings.add(null);
+        if (!groupings.contains(projectGrouping.getGroup1())) {
+            projectGrouping.setGroup1(null);
+            projectGrouping.setGroup2(null);
+            projectGrouping.setGroup3(null);
+        }
+        if (!groupings.contains(projectGrouping.getGroup2())) {
+            projectGrouping.setGroup2(null);
+            projectGrouping.setGroup3(null);
+        }
+        if (!groupings.contains(projectGrouping.getGroup3())) {
+            projectGrouping.setGroup3(null);
+        }
         return projectGrouping;
-    }
-
-    public void setProjectGrouping(ProjectGrouping projectGrouping) {
-        this.projectGrouping = projectGrouping;
     }
 
     public void group() {
