@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -20,57 +19,19 @@ import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
 
-public class HiveOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener {
+public class HiveOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
-    private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
 
-    private Connection connection;
-    private boolean createTableEnabled = false;
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
     private boolean enabled;
-    private String connectionURL;
+    private boolean createTableEnabled = false;
 
-    @Override
-    public void afterPropertiesSet() {
-        if (isEnabled()) {
-            try {
-                init();
-            } catch (Exception e) {
-                log.error("Hive initialization failure.", e);
-            }
-        }
-    }
-
-    private synchronized void init() {
-        if (connection == null) {
-            try {
-                Class.forName(driverClass);
-            } catch (ClassNotFoundException exception) {
-                log.error("The driver is not found", exception);
-            }
-            try {
-                connection = DriverManager.getConnection(connectionURL);
-            } catch (SQLException e) {
-                log.error("Connection to Hive is not established", e);
-            }
-        }
-    }
-
-    @Override
-    public void destroy() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                log.error("Failed to close Hive connection.", e);
-            }
-        }
+    private Connection getConnection() throws SQLException {
+        return HiveDataSource.getConnection();
     }
 
     @Override
@@ -112,7 +73,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                 return currentEntitySaver;
             } else {
                 if (hiveEntityDao == null) {
-                    hiveEntityDao = new HiveEntityDao(connection, entityClass);
+                    hiveEntityDao = new HiveEntityDao(getConnection(), entityClass);
                 }
                 next = new HashMap<>(current);
                 next.put(entityClass, hiveEntityDao);
@@ -140,7 +101,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                     String sqlQuery = extractSqlQueryForEntity(entityClass);
                     String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
-                        try (Statement statement = connection.createStatement()) {
+                        try (Statement statement = getConnection().createStatement()) {
                             statement.execute(q.trim());
                         }
                     }
@@ -157,14 +118,6 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         }
     }
 
-    public boolean isCreateTableEnabled() {
-        return createTableEnabled;
-    }
-
-    public void setCreateTableEnabled(boolean createTableEnabled) {
-        this.createTableEnabled = createTableEnabled;
-    }
-
     public boolean isEnabled() {
         return enabled;
     }
@@ -173,8 +126,12 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         this.enabled = enabled;
     }
 
-    public void setConnectionURL(String connectionURL) {
-        this.connectionURL = connectionURL;
+    public boolean isCreateTableEnabled() {
+        return createTableEnabled;
+    }
+
+    public void setCreateTableEnabled(boolean createTableEnabled) {
+        this.createTableEnabled = createTableEnabled;
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {

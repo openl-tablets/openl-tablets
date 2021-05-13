@@ -2,9 +2,15 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
+    <bean id="hiveDataSource" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDataSource" destroy-method="close" lazy-init="true">
+        <property name="connectionURL" value="${hive.connection.url}"/>
+        <property name="username" value="${hive.connection.username}"/>
+        <property name="password" value="${hive.connection.password}"/>
+        <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
+    </bean>
+
     <bean id="hiveOperations" class="org.openl.rules.ruleservice.storelogdata.hive.HiveOperations" lazy-init="true">
         <property name="createTableEnabled" value="${ruleservice.store.logs.hive.table.create}"/>
-        <property name="connectionURL" value="${hive.connection.url}"/>
         <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 
@@ -15,5 +21,7 @@
         <property name="hiveOperations" ref="hiveOperations"/>
         <property name="enabled" value="${ruleservice.store.logs.hive.enabled}"/>
     </bean>
+
+
 
 </beans>
