@@ -64,6 +64,10 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
+    public CqlSession getCqlSession() {
+        return session;
+    }
+
     @Override
     public void destroy() {
         if (session != null) {

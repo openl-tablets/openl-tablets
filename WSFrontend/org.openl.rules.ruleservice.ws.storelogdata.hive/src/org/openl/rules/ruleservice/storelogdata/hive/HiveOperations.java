@@ -47,6 +47,10 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         }
     }
 
+    public Connection getConnection() {
+        return connection;
+    }
+
     private synchronized void init() {
         if (connection == null) {
             try {
