@@ -106,6 +106,7 @@ public class RunRestRulesDeploymentTest {
                 TimeUnit.MILLISECONDS.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         });
         TaskScheduler taskScheduler = new TaskScheduler();
@@ -145,6 +146,7 @@ public class RunRestRulesDeploymentTest {
                 TimeUnit.MILLISECONDS.sleep(10);
             } catch (InterruptedException e) {
                 e.printStackTrace();
+                Thread.currentThread().interrupt();
             }
         });
         executor.start();
