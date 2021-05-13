@@ -69,6 +69,9 @@ public class HelloEntity1 {
     @Value(value = "awareInstancesFound")
     private boolean awareInstancesFound;
 
+    @Value(value = "cassandraSessionFound")
+    private boolean cassandraSessionFound;
+
     @Value(value = "stringValue1", converter = NoConvertorString.class)
     private String stringValue1;
 
@@ -196,6 +199,14 @@ public class HelloEntity1 {
 
     public void setAwareInstancesFound(boolean awareInstancesFound) {
         this.awareInstancesFound = awareInstancesFound;
+    }
+
+    public boolean isCassandraSessionFound() {
+        return cassandraSessionFound;
+    }
+
+    public void setCassandraSessionFound(boolean cassandraSessionFound) {
+        this.cassandraSessionFound = cassandraSessionFound;
     }
 
     public Integer getIntValue1() {

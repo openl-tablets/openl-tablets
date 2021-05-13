@@ -1,12 +1,18 @@
 package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.slf4j.Logger;
@@ -28,6 +34,8 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
         this.cassandraOperations = cassandraOperations;
     }
 
+    private volatile Collection<Inject<?>> supportedInjects;
+
     @Override
     public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
@@ -36,6 +44,20 @@ public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
             return storeLogDataToCassandra.sync();
         }
         return false;
+    }
+
+    @Override
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(CassandraSession.class, cassandraOperations::getCqlSession));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
     }
 
     @Override

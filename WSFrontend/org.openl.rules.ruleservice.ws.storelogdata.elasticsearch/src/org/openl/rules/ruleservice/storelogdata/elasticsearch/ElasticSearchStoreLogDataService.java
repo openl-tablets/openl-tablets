@@ -4,10 +4,14 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
@@ -29,6 +33,8 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
+    private volatile Collection<Inject<?>> supportedInjects;
+
     public ElasticsearchOperations getElasticsearchOperations() {
         return elasticsearchOperations;
     }
@@ -45,6 +51,20 @@ public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataServic
             return storeLogDataToElasticsearch.sync();
         }
         return false;
+    }
+
+    @Override
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(InjectElasticsearchOperations.class, this::getElasticsearchOperations));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
     }
 
     @Override
