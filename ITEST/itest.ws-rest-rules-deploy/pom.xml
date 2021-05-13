@@ -10,6 +10,7 @@
 
     <properties>
         <surefire.argLine>-Xms8m -Xmx256m -Xss256k</surefire.argLine>
+        <surefire.argLine.perf>-Xms8m -Xmx90m -Xss256k</surefire.argLine.perf>
     </properties>
 
     <artifactId>itest.ws-rest-rules-deploy</artifactId>
