@@ -914,17 +914,24 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             .collect(Collectors.toList());
         groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
         groupings.add(null);
-        if (!groupings.contains(projectGrouping.getGroup1())) {
-            projectGrouping.setGroup1(null);
-            projectGrouping.setGroup2(null);
-            projectGrouping.setGroup3(null);
-        }
-        if (!groupings.contains(projectGrouping.getGroup2())) {
-            projectGrouping.setGroup2(null);
-            projectGrouping.setGroup3(null);
-        }
+        boolean changed = false;
         if (!groupings.contains(projectGrouping.getGroup3())) {
             projectGrouping.setGroup3(null);
+            changed = true;
+        }
+        if (!groupings.contains(projectGrouping.getGroup2())) {
+            projectGrouping.setGroup2(projectGrouping.getGroup3());
+            projectGrouping.setGroup3(null);
+            changed = true;
+        }
+        if (!groupings.contains(projectGrouping.getGroup1())) {
+            projectGrouping.setGroup1(projectGrouping.getGroup2());
+            projectGrouping.setGroup2(projectGrouping.getGroup3());
+            projectGrouping.setGroup3(null);
+            changed = true;
+        }
+        if (changed) {
+            projectGroupingService.save(projectGrouping);
         }
         return projectGrouping;
     }
