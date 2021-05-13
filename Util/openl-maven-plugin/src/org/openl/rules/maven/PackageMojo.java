@@ -220,6 +220,8 @@ public final class PackageMojo extends BaseOpenLMojo {
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
 
+            final boolean itselfLink = outputFile.equals(dependencyLib);
+
             try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
                 if (addDefaultManifest || manifestEntries != null) {
                     Manifest manifest = createManifest();
@@ -234,7 +236,7 @@ public final class PackageMojo extends BaseOpenLMojo {
 
                 ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
 
-                if (dependencyLib != null && dependencyLib.isFile()) {
+                if (dependencyLib != null && dependencyLib.isFile() && !itselfLink) {
                     arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
                 }
                 for (Artifact artifact : dependencies) {
