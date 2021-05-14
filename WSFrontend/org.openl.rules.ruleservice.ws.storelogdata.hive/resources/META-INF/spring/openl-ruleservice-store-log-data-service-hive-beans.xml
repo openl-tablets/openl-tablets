@@ -2,7 +2,7 @@
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <bean id="hiveDataSource" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDataSource" destroy-method="close" lazy-init="true">
+    <bean id="hiveDataSource" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDataSource" destroy-method="close">
         <property name="connectionURL" value="${hive.connection.url}"/>
         <property name="username" value="${hive.connection.username}"/>
         <property name="password" value="${hive.connection.password}"/>
