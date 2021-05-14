@@ -134,7 +134,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     deploymentRepository.getElements();
                 }
                 List<String> exceptions = userWorkspace.getDesignTimeRepository().getExceptions();
-                if(!exceptions.isEmpty()){
+                if (!exceptions.isEmpty()) {
                     errorMessage = exceptions.get(0);
                 }
             } catch (ProjectException e) {
