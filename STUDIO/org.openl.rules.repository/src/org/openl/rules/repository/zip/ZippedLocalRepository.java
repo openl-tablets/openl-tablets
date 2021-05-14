@@ -75,7 +75,11 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
             }
         }
         if (root == null) {
-            throw new IllegalStateException("Failed to initialize root directory!");
+            try {
+                root = Files.createTempDirectory("temp");
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to initialize temp root directory!", e);
+            }
         }
         if (localStorage.isEmpty()) {
             try {

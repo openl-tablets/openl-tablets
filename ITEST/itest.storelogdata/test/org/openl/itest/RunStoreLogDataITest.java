@@ -309,7 +309,8 @@ public class RunStoreLogDataITest {
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         assertEquals(1, observedValuesDlt.size());
 
-        ExpectedLogValues values = new ExpectedLogValues(REQUEST, REQUEST,
+        ExpectedLogValues values = new ExpectedLogValues(REQUEST,
+            REQUEST,
             HELLO_METHOD_NAME,
             SIMPLE1_SERVICE_NAME,
             KAFKA_PUBLISHER_TYPE);
@@ -558,130 +559,115 @@ public class RunStoreLogDataITest {
 
         client.post("/deployment4/simple4/Hello", "/simple4_Hello.req.json", "/simple4_Hello.resp.txt");
 
-        given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                List<Row> rows = getCassandraRows(helloEntity1TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                Row row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
+        List<Row> rows = getCassandraRows(helloEntity1TableName);
+        if (rows.size() == 0) { // Table is created but row is not created
+            fail("Table is created but row is not created");
+        }
+        assertEquals(1, rows.size());
+        Row row = rows.iterator().next();
+        assertNotNull(row.getString(CassandraFields.ID));
+        assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+        assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+        assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
+        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals("value1", row.getString(CassandraFields.VALUE));
-                assertEquals(5, row.getInt(CassandraFields.HOUR));
-                assertEquals("Good Morning", row.getString(CassandraFields.RESULT));
-                assertTrue(row.getBool(CassandraFields.OBJECT_SERIALIZER_FOUND));
+        assertEquals("value1", row.getString(CassandraFields.VALUE));
+        assertEquals(5, row.getInt(CassandraFields.HOUR));
+        assertEquals("Good Morning", row.getString(CassandraFields.RESULT));
+        assertTrue(row.getBool(CassandraFields.AWARE_INSTANCES_FOUND));
 
-                rows = getCassandraRows(helloEntity2TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
+        rows = getCassandraRows(helloEntity2TableName);
+        if (rows.size() == 0) { // Table is created but row is not created
+            fail("Table is created but row is not created");
+        }
+        assertEquals(1, rows.size());
+        row = rows.iterator().next();
+        assertNotNull(row.getString(CassandraFields.ID));
+        assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+        assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+        assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
+        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals("value1", row.getString(CassandraFields.VALUE));
-                assertEquals(5, row.getInt(CassandraFields.HOUR));
-                assertEquals("Good Morning", row.getString(CassandraFields.RESULT));
+        assertEquals("value1", row.getString(CassandraFields.VALUE));
+        assertEquals(5, row.getInt(CassandraFields.HOUR));
+        assertEquals("Good Morning", row.getString(CassandraFields.RESULT));
 
-                rows = getCassandraRows(helloEntity3TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                row = rows.iterator().next();
+        rows = getCassandraRows(helloEntity3TableName);
+        if (rows.size() == 0) { // Table is created but row is not created
+            fail("Table is created but row is not created");
+        }
+        assertEquals(1, rows.size());
+        row = rows.iterator().next();
 
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertNull(row.getString(CassandraFields.REQUEST));
-                assertNull(row.getString(CassandraFields.RESPONSE));
-                assertNull(row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
+        assertNotNull(row.getString(CassandraFields.ID));
+        assertNull(row.getString(CassandraFields.REQUEST));
+        assertNull(row.getString(CassandraFields.RESPONSE));
+        assertNull(row.getString(CassandraFields.METHOD_NAME));
+        assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+        assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertNull(row.getString(CassandraFields.VALUE));
-                assertNull(row.getString(CassandraFields.RESULT));
+        assertNull(row.getString(CassandraFields.VALUE));
+        assertNull(row.getString(CassandraFields.RESULT));
 
-                assertNull(EmbeddedCassandraServerHelper.getCluster()
-                    .getMetadata()
-                    .getKeyspace(KEYSPACE)
-                    .getTable(helloEntity4TableName));
+        assertNull(EmbeddedCassandraServerHelper.getCluster()
+            .getMetadata()
+            .getKeyspace(KEYSPACE)
+            .getTable(helloEntity4TableName));
 
-                return true;
-            }, equalTo(true));
+        SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
+        if (hits.length == 0) {
+            fail("SearchHit is not found.");
+        }
+        assertEquals(1, hits.length);
+        SearchHit hit = hits[0];
+        Map<String, Object> source = hit.getSourceAsMap();
 
-        given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-                if (hits.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hits.length);
-                SearchHit hit = hits[0];
-                Map<String, Object> source = hit.getSourceAsMap();
+        assertEquals("value1", hit.getSourceAsMap().get(ElasticFields.VALUE));
+        assertEquals(5, source.get(ElasticFields.HOUR));
+        assertEquals("Good Morning", source.get(ElasticFields.RESULT));
+        assertTrue((Boolean) source.get(ElasticFields.AWARE_INSTANCES_FOUND));
 
-                assertEquals("value1", hit.getSourceAsMap().get(ElasticFields.VALUE));
-                assertEquals(5, source.get(ElasticFields.HOUR));
-                assertEquals("Good Morning", source.get(ElasticFields.RESULT));
-                assertTrue((Boolean) source.get(ElasticFields.OBJECT_SERIALIZER_FOUND));
+        SearchHit[] hitsCustom2 = getElasticSearchHits(customElasticIndexName2);
+        if (hitsCustom2.length == 0) {
+            fail("SearchHit is not found.");
+        }
+        assertEquals(1, hitsCustom2.length);
+        SearchHit hitCustom2 = hitsCustom2[0];
+        Map<String, Object> source2 = hitCustom2.getSourceAsMap();
 
-                SearchHit[] hitsCustom2 = getElasticSearchHits(customElasticIndexName2);
-                if (hitsCustom2.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hitsCustom2.length);
-                SearchHit hitCustom2 = hitsCustom2[0];
-                Map<String, Object> source2 = hitCustom2.getSourceAsMap();
+        assertEquals("value1", source2.get(ElasticFields.VALUE));
+        assertEquals(5, source2.get(ElasticFields.HOUR));
+        assertEquals("Good Morning", source2.get(ElasticFields.RESULT));
 
-                assertEquals("value1", source2.get(ElasticFields.VALUE));
-                assertEquals(5, source2.get(ElasticFields.HOUR));
-                assertEquals("Good Morning", source2.get(ElasticFields.RESULT));
+        SearchHit[] hitsCustom3 = getElasticSearchHits(customElasticIndexName3);
+        if (hitsCustom3.length == 0) {
+            fail("SearchHit is not found.");
+        }
+        assertEquals(1, hitsCustom3.length);
+        SearchHit hitCustom3 = hitsCustom3[0];
+        Map<String, Object> source3 = hitCustom3.getSourceAsMap();
 
-                SearchHit[] hitsCustom3 = getElasticSearchHits(customElasticIndexName3);
-                if (hitsCustom3.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hitsCustom3.length);
-                SearchHit hitCustom3 = hitsCustom3[0];
-                Map<String, Object> source3 = hitCustom3.getSourceAsMap();
+        assertNotNull(source3.get(ElasticFields.ID));
+        assertNull(source3.get(ElasticFields.REQUEST));
+        assertNull(source3.get(ElasticFields.RESPONSE));
+        assertNull(source3.get(ElasticFields.METHOD_NAME));
+        assertEquals(SIMPLE4_SERVICE_NAME, source3.get(ElasticFields.SERVICE_NAME));
+        assertNull(source3.get(ElasticFields.INCOMING_TIME));
+        assertNull(source3.get(ElasticFields.OUTCOMING_TIME));
+        assertEquals(RESTFUL_PUBLISHER_TYPE, source3.get(ElasticFields.PUBLISHER_TYPE));
 
-                assertNotNull(source3.get(ElasticFields.ID));
-                assertNull(source3.get(ElasticFields.REQUEST));
-                assertNull(source3.get(ElasticFields.RESPONSE));
-                assertNull(source3.get(ElasticFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, source3.get(ElasticFields.SERVICE_NAME));
-                assertNull(source3.get(ElasticFields.INCOMING_TIME));
-                assertNull(source3.get(ElasticFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, source3.get(ElasticFields.PUBLISHER_TYPE));
+        assertNull(source3.get(ElasticFields.VALUE));
+        assertNull(source3.get(ElasticFields.RESULT));
 
-                assertNull(source3.get(ElasticFields.VALUE));
-                assertNull(source3.get(ElasticFields.RESULT));
-
-                assertFalse(elasticRunner.indexExists(customElasticIndexName4));
-
-                return true;
-            }, equalTo(true));
+        assertFalse(elasticRunner.indexExists(customElasticIndexName4));
     }
 
     @Test

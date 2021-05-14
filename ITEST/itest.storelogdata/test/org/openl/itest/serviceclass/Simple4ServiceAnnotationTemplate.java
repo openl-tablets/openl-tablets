@@ -10,6 +10,7 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
+import org.openl.rules.ruleservice.storelogdata.annotation.SyncSave;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 
@@ -20,7 +21,8 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(PrepareStoreLogDataValue.class)
     @PrepareStoreLogData(PrepareStoreLogDataArgs.class)
     @PrepareStoreLogData(PrepareStoreLogDataResult.class)
-    @PrepareStoreLogData(PrepareStoreLogDataObjectSerializerFound.class)
+    @PrepareStoreLogData(PrepareStoreLogDataAwareInterfaces.class)
+    @SyncSave
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
     @StoreLogDataToCassandra(HelloEntity1.class)
