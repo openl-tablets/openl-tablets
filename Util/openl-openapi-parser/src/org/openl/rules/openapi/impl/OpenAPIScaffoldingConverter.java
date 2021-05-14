@@ -108,11 +108,13 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         JXPathContext jxPathContext = JXPathContext.newContext(openAPI);
         String projectName = openAPI.getInfo().getTitle();
 
+        Paths paths = openAPI.getPaths();
+
         boolean areVariationsProvided = OpenLOpenAPIUtils.checkVariations(openAPI, VARIATIONS_SCHEMAS_NAME);
 
-        Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(openAPI, jxPathContext);
+        Map<String, Integer> allUsedSchemaRefs = OpenLOpenAPIUtils.getAllUsedSchemaRefs(paths, jxPathContext);
 
-        Map<String, Map<String, Integer>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(openAPI,
+        Map<String, Map<String, Integer>> pathsWithRequestsRefs = OpenLOpenAPIUtils.collectPathsWithParams(paths,
             jxPathContext);
 
         Set<String> pathsToIgnore = pathsWithRequestsRefs.entrySet().stream().filter(pathEntry -> {
@@ -122,6 +124,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
 
         if (areVariationsProvided) {
             pathsWithRequestsRefs.keySet().removeAll(pathsToIgnore);
+            paths.keySet().removeAll(pathsToIgnore);
         }
 
         Map<String, Integer> allUsedSchemaRefsInRequests = pathsWithRequestsRefs.values()
@@ -176,44 +179,42 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
                     .equals(1)) && refIsParentOrField && refIsNotChild;
         }).map(Map.Entry::getKey).collect(Collectors.toSet());
 
-        // path + schemas
-        Map<String, Set<String>> allRefsInResponses = OpenLOpenAPIUtils.getAllUsedRefResponses(openAPI, jxPathContext);
+        Map<Pair<String, PathItem.HttpMethod>, Set<String>> refsByPathAndOperation = OpenLOpenAPIUtils
+            .getAllUsedRefResponses(paths, jxPathContext);
 
-        if (areVariationsProvided) {
-            allRefsInResponses.keySet().removeAll(pathsToIgnore);
-        }
-
-        // all the paths which have primitive responses are possible spreadsheets too
-        Set<String> primitiveReturnsPaths = allRefsInResponses.entrySet()
+        // all the path methods which have primitive responses are possible spreadsheets too
+        Set<Pair<String, PathItem.HttpMethod>> primitiveReturnPathOperations = refsByPathAndOperation.entrySet()
             .stream()
-            .filter(entry -> entry.getValue().isEmpty())
+            .filter(pathWithOperation -> pathWithOperation.getValue().isEmpty())
             .map(Map.Entry::getKey)
             .collect(Collectors.toSet());
 
-        // searching for paths which response models are not included in ANY requestBody
-        Map<String, Set<String>> pathWithPotentialSprResult = allRefsInResponses.entrySet()
+        // searching for path methods which response models are not included in ANY requestBody
+        Map<Pair<String, PathItem.HttpMethod>, Set<String>> operationsPathWithPotentialSpr = refsByPathAndOperation
+            .entrySet()
             .stream()
-            .filter(entry -> !entry.getValue().isEmpty() && entry.getValue()
+            .filter(pathOperation -> !pathOperation.getValue().isEmpty() && pathOperation.getValue()
                 .stream()
                 .noneMatch(allUsedSchemaRefsInRequests::containsKey))
             .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        Set<String> spreadsheetPaths = allRefsInResponses.keySet()
+        Set<Pair<String, PathItem.HttpMethod>> spreadsheetOperations = refsByPathAndOperation.keySet()
             .stream()
-            .filter(x -> !pathWithPotentialSprResult.containsKey(x) && !primitiveReturnsPaths.contains(x))
+            .filter(pathWithOperation -> !operationsPathWithPotentialSpr
+                .containsKey(pathWithOperation) && !primitiveReturnPathOperations.contains(pathWithOperation))
             .collect(Collectors.toSet());
 
-        Set<String> spreadsheetResultRefs = pathWithPotentialSprResult.values()
+        Set<String> spreadsheetResultRefs = operationsPathWithPotentialSpr.values()
             .stream()
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
 
-        List<SpreadsheetParserModel> spreadsheetParserModels = extractSprModels(openAPI,
+        List<SpreadsheetParserModel> spreadsheetParserModels = extractSprModels(paths,
             jxPathContext,
-            pathWithPotentialSprResult.keySet(),
-            primitiveReturnsPaths,
+            operationsPathWithPotentialSpr.keySet(),
+            primitiveReturnPathOperations,
+            spreadsheetOperations,
             refsToExpand,
-            spreadsheetPaths,
             childSet);
         Set<String> dataModelRefs = new HashSet<>();
         List<DataModel> dataModels = extractDataModels(spreadsheetParserModels,
@@ -221,6 +222,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             openAPI,
             spreadsheetResultRefs,
             dataModelRefs);
+        // self-linked, array/child returned
         List<String> linkedRefs = spreadsheetParserModels.stream()
             .filter(SpreadsheetParserModel::isRefIsDataType)
             .map(SpreadsheetParserModel::getReturnRef)
@@ -229,13 +231,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             boolean notSpreadsheetAndExpanded = !(spreadsheetResultRefs.contains(x) || refsToExpand.contains(x));
             boolean isIgnored = ignoredRefs.contains(x);
             boolean isNotReserved = !x.equals(SPR_RESULT_LINK);
-            boolean notCalled = linkedRefs.contains(x);
+            boolean notDatatype = linkedRefs.contains(x);
             if (isIgnored) {
                 return false;
             } else {
-                return isNotReserved && (notSpreadsheetAndExpanded || notCalled);
+                return isNotReserved && (notSpreadsheetAndExpanded || notDatatype);
             }
         }).collect(Collectors.toSet());
+
         Set<String> refSpreadsheets = spreadsheetParserModels.stream()
             .filter(x -> !x.isRefIsDataType() && x.getReturnRef() != null)
             .map(SpreadsheetParserModel::getReturnRef)
@@ -258,6 +261,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             model.getPathInfo().setReturnType(new TypeInfo(type, type, TypeInfo.Type.DATATYPE));
             model.setSteps(makeSingleStep(type));
         });
+
         fillCallsInSteps(spreadsheetParserModels, datatypeRefs, dataModelRefs, dtToAdd);
 
         datatypeRefs.addAll(dtToAdd);
@@ -308,7 +312,7 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
         checkTypes(spreadsheetParserModels, dtNames);
 
         final Consumer<MethodModel> applyInclude = method -> method
-            .setInclude(openAPI.getPaths().get(method.getPathInfo().getOriginalPath()) != null);
+            .setInclude(paths.get(method.getPathInfo().getOriginalPath()) != null);
         List<SpreadsheetModel> spreadsheetModels = spreadsheetParserModels.stream()
             .map(SpreadsheetParserModel::getModel)
             .collect(Collectors.toList());
@@ -507,9 +511,9 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .collect(Collectors.toList());
         List<DataModel> dataModels = new ArrayList<>();
         for (SpreadsheetParserModel potentialDataModel : potentialDataModels) {
-            String originalType = potentialDataModel.getModel().getType();
-            String type = OpenAPITypeUtils.removeArrayBrackets(originalType);
-            if (!originalType.endsWith("[]") || type.equals(SPREADSHEET_RESULT)) {
+            final TypeInfo returnType = potentialDataModel.getModel().getPathInfo().getReturnType();
+            String type = OpenAPITypeUtils.removeArrayBrackets(returnType.getSimpleName());
+            if (returnType.getDimension() == 0 || type.equals(SPREADSHEET_RESULT)) {
                 continue;
             }
             PathInfo potentialDataTablePathInfo = potentialDataModel.getModel().getPathInfo();
@@ -742,15 +746,14 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
             .anyMatch(x -> x.getType().getType() == TypeInfo.Type.RUNTIMECONTEXT);
     }
 
-    private List<SpreadsheetParserModel> extractSprModels(OpenAPI openAPI,
+    private List<SpreadsheetParserModel> extractSprModels(Paths paths,
             JXPathContext jxPathContext,
-            Set<String> pathWithPotentialSprResult,
-            Set<String> pathsWithPrimitiveReturns,
+            Set<Pair<String, PathItem.HttpMethod>> pathWithPotentialSprResult,
+            Set<Pair<String, PathItem.HttpMethod>> pathsWithPrimitiveReturns,
+            Set<Pair<String, PathItem.HttpMethod>> pathsWithSpreadsheets,
             Set<String> refsToExpand,
-            Set<String> pathsWithSpreadsheets,
             Set<String> childSet) {
         List<SpreadsheetParserModel> spreadSheetModels = new ArrayList<>();
-        Paths paths = openAPI.getPaths();
         if (paths != null) {
             extractSpreadsheets(jxPathContext,
                 pathWithPotentialSprResult,
@@ -778,18 +781,23 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private void extractSpreadsheets(JXPathContext jxPathContext,
-            Set<String> pathWithPotentialSprResult,
+            Set<Pair<String, PathItem.HttpMethod>> pathWithMethod,
             Set<String> refsToExpand,
             List<SpreadsheetParserModel> spreadSheetModels,
             Paths paths,
             PathType spreadsheetResultPath,
             Set<String> childSet) {
-        for (String path : pathWithPotentialSprResult) {
-            PathItem pathItem = paths.get(path);
+        final Map<String, Set<PathItem.HttpMethod>> pathWithOperationsMap = pathWithMethod.stream()
+            .collect(Collectors.groupingBy(Pair::getKey, Collectors.mapping(Pair::getValue, Collectors.toSet())));
+
+        for (Map.Entry<String, Set<PathItem.HttpMethod>> pathWithOperations : pathWithOperationsMap.entrySet()) {
+            final String pathUrl = pathWithOperations.getKey();
+            PathItem pathItem = paths.get(pathUrl);
             if (pathItem != null) {
                 List<SpreadsheetParserModel> spr = extractSpreadsheetModel(jxPathContext,
+                    pathWithOperations.getValue(),
                     pathItem,
-                    path,
+                    pathUrl,
                     refsToExpand,
                     spreadsheetResultPath,
                     childSet);
@@ -799,15 +807,22 @@ public class OpenAPIScaffoldingConverter implements OpenAPIModelConverter {
     }
 
     private List<SpreadsheetParserModel> extractSpreadsheetModel(JXPathContext jxPathContext,
+            Set<PathItem.HttpMethod> methods,
             PathItem pathItem,
             String path,
             Set<String> refsToExpand,
             PathType pathType,
             Set<String> childSet) {
         List<SpreadsheetParserModel> spreadsheetParserModels = new ArrayList<>();
-        Map<PathItem.HttpMethod, Operation> httpMethodOperationMap = pathItem.readOperationsMap();
-        boolean multipleOperations = httpMethodOperationMap.keySet().size() > 1;
-        for (Map.Entry<PathItem.HttpMethod, Operation> operationEntry : httpMethodOperationMap.entrySet()) {
+        boolean multipleOperations = methods.size() > 1;
+
+        final Map<PathItem.HttpMethod, Operation> filteredMap = pathItem.readOperationsMap()
+            .entrySet()
+            .stream()
+            .filter(m -> methods.contains(m.getKey()))
+            .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+
+        for (Map.Entry<PathItem.HttpMethod, Operation> operationEntry : filteredMap.entrySet()) {
             SpreadsheetParserModel spreadsheetParserModel = new SpreadsheetParserModel();
             SpreadsheetModel spr = new SpreadsheetModel();
             spreadsheetParserModel.setModel(spr);

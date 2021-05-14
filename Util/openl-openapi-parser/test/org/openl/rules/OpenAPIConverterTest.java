@@ -283,15 +283,6 @@ public class OpenAPIConverterTest {
     }
 
     @Test
-    public void largeFileTest() throws IOException {
-        ProjectModel projectModel = converter.extractProjectModel("test.converter/twitter.json");
-        List<SpreadsheetModel> spreadsheetModels = projectModel.getSpreadsheetResultModels();
-        Set<DatatypeModel> datatypeModels = projectModel.getDatatypeModels();
-        assertEquals(86, datatypeModels.size());
-        assertEquals(10, spreadsheetModels.size());
-    }
-
-    @Test
     public void testSimpleTypes() throws IOException {
         ProjectModel pm = converter.extractProjectModel("test.converter/problems/simpleTypes.json");
         List<SpreadsheetModel> spreadsheetResultModels = pm.getSpreadsheetResultModels();
