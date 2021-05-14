@@ -370,7 +370,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 }
             } catch (IOException ex) {
                 LOG.error(ex.getMessage(), ex);
-            } catch (Exception e){
+            } catch (Exception e) {
                 exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {
