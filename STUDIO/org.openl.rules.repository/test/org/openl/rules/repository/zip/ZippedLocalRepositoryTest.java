@@ -265,6 +265,13 @@ public class ZippedLocalRepositoryTest {
         }
     }
 
+    @Test
+    public void testNoUri() throws IOException {
+        ZippedLocalRepository repository = new ZippedLocalRepository();
+        repository.initialize();
+        assertEquals(0, repository.list("/").size());
+    }
+
     private void assertSingleDeployment(String repositoryPath, String name) throws IOException {
         FileItem actualFileItem = repository.read(repositoryPath);
         assertNotNull(actualFileItem);

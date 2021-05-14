@@ -74,14 +74,7 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 root = findCommonParentPath(localStorage.values());
             }
         }
-        if (root == null) {
-            try {
-                root = Files.createTempDirectory("temp");
-            } catch (IOException e) {
-                throw new IllegalStateException("Failed to initialize temp root directory!", e);
-            }
-        }
-        if (localStorage.isEmpty()) {
+        if (localStorage.isEmpty() && root != null) {
             try {
                 Files.walkFileTree(root, EnumSet.noneOf(FileVisitOption.class), 1, new SimpleFileVisitor<Path>() {
                     @Override
@@ -98,6 +91,14 @@ public class ZippedLocalRepository extends AbstractArchiveRepository {
                 });
             } catch (IOException e) {
                 throw new IllegalStateException("Failed to initialize a repository", e);
+            }
+        }
+        if (root == null) {
+            try {
+                root = Files.createTempDirectory("temp");
+                root.toFile().deleteOnExit();
+            } catch (IOException e) {
+                throw new IllegalStateException("Failed to initialize temp root directory!", e);
             }
         }
         setRoot(root);
