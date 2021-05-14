@@ -3,13 +3,16 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.webstudio.service.OpenLProjectService;
+import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTemplateService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -22,23 +25,26 @@ public class ProjectsWithoutTagsBean {
     private final OpenLProjectService projectService;
     private final TagTemplateService tagTemplateService;
     private final DesignTimeRepository designTimeRepository;
+    private final TagService tagService;
 
     private List<ProjectTags> projectsWithoutTags = Collections.emptyList();
 
     public ProjectsWithoutTagsBean(OpenLProjectService projectService,
-        TagTemplateService tagTemplateService,
-        DesignTimeRepository designTimeRepository) {
+            TagTemplateService tagTemplateService,
+            DesignTimeRepository designTimeRepository,
+            TagService tagService) {
         this.projectService = projectService;
         this.tagTemplateService = tagTemplateService;
         this.designTimeRepository = designTimeRepository;
+        this.tagService = tagService;
     }
 
     public void init() {
         projectsWithoutTags = new ArrayList<>();
 
         final ArrayList<AProject> projects = new ArrayList<>(designTimeRepository.getProjects());
-        projects.sort(Comparator.comparing((AProject o) -> o.getRepository().getId())
-            .thenComparing(AProjectFolder::getRealPath));
+        projects.sort(
+            Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath));
 
         for (AProject project : projects) {
             final String repoId = project.getRepository().getId();
@@ -79,12 +85,39 @@ public class ProjectsWithoutTagsBean {
         int applied = 0;
         for (ProjectTags openLProject : projectsWithoutTags) {
             if (openLProject.fillTags) {
-                projectService.save(openLProject.getProject());
+                final OpenLProject project = openLProject.getProject();
+                createExtensibleIfAbsent(project.getTags());
+                if (project.getTags().isEmpty()) {
+                    continue;
+                }
+
+                OpenLProject existing = projectService.getProject(project.getRepositoryId(),
+                    project.getProjectPath());
+                if (existing == null) {
+                    projectService.save(project);
+                } else {
+                    existing.setTags(project.getTags());
+                    projectService.update(existing);
+                }
+
                 applied++;
             }
         }
 
         WebStudioUtils.addInfoMessage("Tags were added to " + applied + " projects.");
+    }
+
+    private void createExtensibleIfAbsent(List<Tag> tags) {
+        for (Iterator<Tag> iterator = tags.iterator(); iterator.hasNext();) {
+            Tag tag = iterator.next();
+            if (tag.getId() == null) {
+                if (tag.getType().isExtensible()) {
+                    tagService.save(tag);
+                } else {
+                    iterator.remove();
+                }
+            }
+        }
     }
 
     public static class ProjectTags {

@@ -21,7 +21,7 @@
                 <h:dataTable value="#{projectsWithoutTagsBean.projectsWithoutTags}" var="project"  styleClass="table">
                     <h:column>
                         <f:facet name="header">
-                            Fill tags
+                            Apply tags
                         </f:facet>
                         <h:selectBooleanCheckbox value="#{project.fillTags}"/>
                     </h:column>
@@ -49,7 +49,10 @@
                         </f:facet>
                         <div>
                             <ui:repeat value="#{project.tags}" var="tag" varStatus="status">
-                                <p title="#{tag.type.name}: #{tag.name}"><h:outputText value="#{tag.name}"/></p>
+                                <ui:param name="willCreate" value="#{tag.id == null and tag.type.extensible}"/>
+                                <ui:param name="cantCreate" value="#{tag.id == null and not tag.type.extensible}"/>
+                                <span title="#{tag.type.name}: #{tag.name}.#{willCreate ? ' Will be created.' :''}#{cantCreate ? ' Tag isn\'t extensible. Will not be created.' :''}"
+                                      class="tag-value #{willCreate ? 'tag-will-create' : ''} #{cantCreate ? 'tag-cant-create' : ''}"><h:outputText value="#{tag.name}"/></span>
                             </ui:repeat>
                         </div>
                     </h:column>
@@ -58,7 +61,7 @@
 
             <footer>
                 <a4j:commandButton value="Save" action="#{projectsWithoutTagsBean.applyTags}"
-                                   oncomplete="hideProjectsWithoutTags()"
+                                   oncomplete="hideProjectsWithoutTags();$j('#tag-types-list').trigger('refresh');"
                                    styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideProjectsWithoutTags()"/>
             </footer>
