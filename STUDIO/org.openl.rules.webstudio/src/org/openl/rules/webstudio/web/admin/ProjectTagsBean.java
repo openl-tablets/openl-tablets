@@ -170,6 +170,9 @@ public class ProjectTagsBean {
     }
 
     public void saveTags(RulesProject project) {
+        if (tags == null) {
+            return;
+        }
         final String repoId = project.getRepository().getId();
         final String realPath = project.getRealPath();
 
