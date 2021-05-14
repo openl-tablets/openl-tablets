@@ -150,7 +150,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 updateSelectedNode();
             }
         } catch (Exception e) {
-            //should never happen
+            // Should never happen
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
                                                                                    : rootCause.getMessage());
