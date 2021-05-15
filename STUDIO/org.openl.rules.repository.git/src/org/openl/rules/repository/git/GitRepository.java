@@ -833,7 +833,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
             }
 
             // Other cases
-            throw new IllegalStateException("Failed to initialize a repository", e);
+            throw new IllegalStateException("Failed to initialize a repository: " + e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
