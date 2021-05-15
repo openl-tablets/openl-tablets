@@ -780,16 +780,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     fastForwardNotMergedCommits(fetchResult);
                 } catch (Exception e) {
                     log.warn(e.getMessage(), e);
-                    if (credentialsProvider == null) {
-                        String message = e.getMessage();
-                        if (message != null && message.contains(JGitText.get().noCredentialsProvider)) {
-                            throw new IOException(
-                                "Authentication is required but login and password has not been specified.");
-                        }
-                    } else if (credentialsProvider.isHasAuthorizationFailure()) {
-                        throw new IOException("Incorrect login or password.");
-                    }
-                    // For other cases like temporary connection loss we should not fail. The local repository exists,
+                    // For all cases we should not fail. The local repository exists,
                     // will fetch later.
                 }
             }
