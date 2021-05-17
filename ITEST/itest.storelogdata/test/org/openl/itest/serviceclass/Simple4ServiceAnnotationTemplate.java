@@ -19,10 +19,7 @@ public interface Simple4ServiceAnnotationTemplate {
     @StoreLogDataToElasticsearch(value = { CustomElasticEntity1.class,
             CustomElasticEntity2.class,
             CustomElasticEntity3.class }, sync = true)
-    @PrepareStoreLogData(PrepareStoreLogDataValue.class)
-    @PrepareStoreLogData(PrepareStoreLogDataArgs.class)
-    @PrepareStoreLogData(PrepareStoreLogDataResult.class)
-    @PrepareStoreLogData(PrepareStoreLogDataAwareInterfaces.class)
+    @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
     @StoreLogDataToCassandra(HelloEntity1.class)
@@ -36,4 +33,5 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(value = BeforeAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class, before = true)
     @PrepareStoreLogData(value = AfterAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class)
     String Hello2(IRulesRuntimeContext runtimeContext, Integer hour);
+
 }

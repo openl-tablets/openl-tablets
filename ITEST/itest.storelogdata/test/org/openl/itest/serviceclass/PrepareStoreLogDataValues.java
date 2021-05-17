@@ -15,14 +15,14 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 
-public class PrepareStoreLogDataAwareInterfaces implements StoreLogDataAdvice, ObjectSerializerAware, IOpenClassAware, IOpenMemberAware {
+public class PrepareStoreLogDataValues implements StoreLogDataAdvice, ObjectSerializerAware, IOpenClassAware, IOpenMemberAware {
 
     ObjectSerializer objectSerializer;
     IOpenClass openClass;
     IOpenMember openMember;
 
     @CassandraSession
-    private CqlSession cassandraSession;
+    CqlSession cassandraSession;
 
     @InjectElasticsearchOperations
     ElasticsearchOperations elasticsearchOperations;
@@ -44,6 +44,10 @@ public class PrepareStoreLogDataAwareInterfaces implements StoreLogDataAdvice, O
 
     @Override
     public void prepare(Map<String, Object> values, Object[] args, Object result, Exception ex) {
+        values.put("value1", "value1");
+        values.put("hour", args[1]);
+        values.put("result", result);
+
         values.put("awareInstancesFound", objectSerializer != null && openMember != null && openClass != null);
 
         values.put("cassandraSessionFound", cassandraSession != null);

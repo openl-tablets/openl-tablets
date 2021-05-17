@@ -73,39 +73,73 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate) {
-        PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
-        if (prepareStoreLogDatas != null) {
-            StoreLogData storeLogData = null;
-            Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
-            try {
-                for (PrepareStoreLogData storeLogging : prepareStoreLogDatas.value()) {
-                    if (predicate.test(storeLogging)) {
-                        StoreLogDataAdvice storeLogDataAdvice = null;
-                        try {
-                            storeLogDataAdvice = storeLogging.value().newInstance();
-                            postProcessAdvice.accept(storeLogDataAdvice);
-                            storeLogData = processAwareInterfaces(storeLogData, storeLogDataAdvice, destroyFunctions);
-                        } catch (Exception e) {
-                            String msg = String.format(
-                                "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                                MethodUtil.printQualifiedMethodName(interfaceMethod),
-                                storeLogging.value().getTypeName());
-                            log.error(msg, e);
-                        }
-                        if (storeLogDataAdvice != null) {
-                            if (storeLogData == null) {
-                                storeLogData = StoreLogDataHolder.get(); // Lazy local variable
-                                // initialization
-                            }
-                            storeLogDataAdvice
-                                .prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
-                        }
-                    }
+        Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
+        try {
+            PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
+            if (prepareStoreLogDatas != null) {
+                StoreLogData storeLogData = null;
+                for (PrepareStoreLogData prepareStoreLogData : prepareStoreLogDatas.value()) {
+                    storeLogData = getStoreLogData(interfaceMethod,
+                        args,
+                        result,
+                        lastOccurredException,
+                        postProcessAdvice,
+                        predicate,
+                        storeLogData,
+                        destroyFunctions,
+                        prepareStoreLogData);
                 }
-            } finally {
-                destroyFunctions.forEach(e -> e.accept(null));
+            } else {
+                PrepareStoreLogData prepareStoreLogData = interfaceMethod.getAnnotation(PrepareStoreLogData.class);
+                if (prepareStoreLogData != null) {
+                    getStoreLogData(interfaceMethod,
+                        args,
+                        result,
+                        lastOccurredException,
+                        postProcessAdvice,
+                        predicate,
+                        null,
+                        destroyFunctions,
+                        prepareStoreLogData);
+
+                }
+            }
+        } finally {
+            destroyFunctions.forEach(e -> e.accept(null));
+        }
+    }
+
+    private StoreLogData getStoreLogData(Method interfaceMethod,
+            Object[] args,
+            Object result,
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice,
+            Predicate<PrepareStoreLogData> predicate,
+            StoreLogData storeLogData,
+            Collection<Consumer<Void>> destroyFunctions,
+            PrepareStoreLogData storeLogging) {
+        if (predicate.test(storeLogging)) {
+            StoreLogDataAdvice storeLogDataAdvice = null;
+            try {
+                storeLogDataAdvice = storeLogging.value().newInstance();
+                postProcessAdvice.accept(storeLogDataAdvice);
+                storeLogData = processAwareInterfaces(storeLogData, storeLogDataAdvice, destroyFunctions);
+            } catch (Exception e) {
+                String msg = String.format(
+                    "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                    MethodUtil.printQualifiedMethodName(interfaceMethod),
+                    storeLogging.value().getTypeName());
+                log.error(msg, e);
+            }
+            if (storeLogDataAdvice != null) {
+                if (storeLogData == null) {
+                    storeLogData = StoreLogDataHolder.get(); // Lazy local variable
+                    // initialization
+                }
+                storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
             }
         }
+        return storeLogData;
     }
 
     private StoreLogData processAwareInterfaces(StoreLogData storeLogData,
