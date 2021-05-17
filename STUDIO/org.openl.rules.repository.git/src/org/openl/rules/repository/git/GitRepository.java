@@ -56,6 +56,7 @@ import org.eclipse.jgit.api.Status;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.api.errors.RefAlreadyExistsException;
+import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.diff.DiffEntry;
 import org.eclipse.jgit.diff.DiffFormatter;
 import org.eclipse.jgit.dircache.DirCache;
@@ -87,6 +88,7 @@ import org.eclipse.jgit.transport.PushResult;
 import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.transport.RemoteRefUpdate;
 import org.eclipse.jgit.transport.TrackingRefUpdate;
+import org.eclipse.jgit.transport.URIish;
 import org.eclipse.jgit.treewalk.AbstractTreeIterator;
 import org.eclipse.jgit.treewalk.CanonicalTreeParser;
 import org.eclipse.jgit.treewalk.TreeWalk;
@@ -641,7 +643,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                                     URI proposedUri = getUri(uri);
                                     URI savedUri = getUri(remoteUrl);
                                     if (!proposedUri.equals(savedUri)) {
-                                        if (isSame(proposedUri, savedUri)) {
+                                        if (savedUri != null && isSame(proposedUri, savedUri)) {
                                             shouldUpdateOrigin = true;
                                         } else {
                                             throw new IOException(String.format(
@@ -803,7 +805,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
 
             // Unknown host
             if (cause instanceof UnknownHostException) {
-                String error = "Unknown host for URL " + uri;
+                String error = String.format("Unknown host for URL %s.", uri);
                 final String message = cause.getMessage();
                 if (message != null) {
                     error += " Root cause message: " + message;
@@ -811,8 +813,18 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                 throw new IllegalArgumentException(error, e);
             }
 
+            if (e instanceof TransportException) {
+                try {
+                    if ((new URIish(uri)).getScheme() == null) {
+                        throw new IllegalStateException("Incorrect URL.", e);
+                    }
+                } catch (URISyntaxException uriSyntaxException) {
+                    throw new IllegalStateException("Incorrect URL.", uriSyntaxException);
+                }
+            }
+
             // Other cases
-            throw new IllegalStateException("Failed to initialize a repository", e);
+            throw new IllegalStateException("Failed to initialize a repository: " + e.getMessage(), e);
         } finally {
             writeLock.unlock();
             log.debug("initialize(): unlock");
