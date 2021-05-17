@@ -388,7 +388,7 @@ public class MergeConflictBean {
             if (mergeOperation) {
                 ((BranchRepository) designRepository).forBranch(mergeConflict.getMergeBranchTo())
                     .merge(mergeConflict.getMergeBranchFrom(),
-                        userWorkspace.getUser().getUserId(),
+                        userWorkspace.getUser().getUserName(),
                         conflictResolveData);
             } else {
                 project.save(conflictResolveData);
