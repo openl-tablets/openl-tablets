@@ -142,7 +142,7 @@ public class Condition extends FunctionalRow implements ICondition {
             field = getLocalField(field);
             if (field instanceof ILocalVar) {
                 for (IParameterDeclaration param : params) {
-                    if (field.getName().equals(param.getName())) {
+                    if (Objects.equals(field.getName(), param.getName())) {
                         return true;
                     }
                 }
