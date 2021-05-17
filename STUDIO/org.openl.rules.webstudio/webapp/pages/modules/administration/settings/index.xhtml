@@ -439,7 +439,7 @@
                                                                 <h:panelGrid id="designInfoPanel" columns="2"
                                                                              columnClasses="titleColumn">
                                                                     <h:outputText value="Name:"/>
-                                                                    <h:inputText value="#{designRepository.name}" maxlength="3" onchange="updateRepoTab('#{designRepository.id}', this)"/>
+                                                                    <h:inputText value="#{designRepository.name}" maxlength="20" onchange="updateRepoTab('#{designRepository.id}', this)"/>
                                                                     <h:outputText value="Type:"/>
                                                                     <h:selectOneMenu value="#{designRepository.type}">
                                                                         <f:ajax event="change"
