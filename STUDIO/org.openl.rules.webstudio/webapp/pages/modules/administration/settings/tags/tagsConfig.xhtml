@@ -60,13 +60,24 @@
     </style>
 
     <div>
-        <h1>Tag types and tag values</h1>
+        <h1>Tag Types and Values</h1>
         <div>
-            <p>To add a tag type, type tag type name in “New Tag Type” field and hit Enter/Tab. As a result, tag type will be added and fields for filling tag values will appear.</p>
-            <p>Add tag values by typing tag values names and hitting Enter.</p>
-            <p>If tag type is nullable, this tag type can be skipped when create a new project. Otherwise, it's mandatory.</p>
-            <p>If tag type is extensible, any user can create a new tag values for this type. Otherwise, tag values are configured by admin only.</p>
+            <p><strong>Tag type</strong> is a category that includes tag values of the same group. For example, the
+                <strong>Product</strong> tag type can include tags Auto, Life, and Home.</p>
+            <p>If a tag type is nullable, its value definition can be skipped when creating a project. Otherwise, tag definition is mandatory.</p>
+            <p>For extensible tag types, any user can create new tag values. For other tag types, values are configured by an administrator only.</p>
+            <p>Proceed as follows:
+                <ul>
+                    <li>To add a tag type, in the <strong>New Tag Type</strong> field, enter the tag type name and press
+                        <strong>Enter</strong> or <strong>Tab</strong>. The tag type is added, and fields for tag values appear.</li>
+                    <li>To add a tag value, in the <strong>New Tag</strong> field, enter the tag name and press
+                        <strong>Enter</strong>.</li>
+                </ul>
+            </p>
             <p>All created tag types and values are saved automatically.</p>
+            <p>Hints:</p>
+            <p>Nullable: If selected, tag type definition is optional. If cleared, tag type definition is mandatory.</p>
+            <p>Extensible: If selected, tag values can be created by any user. If cleared, tag values can be created by an administrator only.</p>
         </div>
         <div id="tag-types-list"></div>
     </div>
@@ -74,15 +85,17 @@
     <div id="tag-template">
         <ui:include src="/pages/modules/administration/settings/tags/projectsWithoutTags.xhtml"/>
         <h:form id="tagTemplateForm">
-            <h1>Tags from project name</h1>
+            <h1>Tags from a Project Name</h1>
             <div>
-                <p>Project name template is used to extract tags from project name.</p>
-                <p>Tag types are wrapped with '%' symbol. '?' means any symbol. '*' means any text with any length.</p>
-                <p>For example, if we have template <strong>%Domain%-%LOB%-*</strong>, then for
-                    project <strong>Policy-L&amp;A-rules</strong> tags will be <strong>Policy</strong> for tag
-                    type <strong>Domain</strong> and <strong>L&amp;A</strong> for <strong>LOB</strong>.</p>
-                <p>Each template should be in a new line.</p>
-                <p>The order of templates is important: first template has highest priority, last template has lowest priority.</p>
+                <p>Tags can be extracted from a project name using a project name template.</p>
+                <p>Each template must be defined on its own line. The order of the templates is important: the first template has the highest priority, the last template has the lowest priority.</p>
+                <p>Tag types are wrapped with the percentage '%' symbol.</p>
+                <p>'?' stands for any symbol.</p>
+                <p>'*' stands for any text of any length.</p>
+                <p><strong>Example:</strong></p>
+                <p>For the <strong>%Domain%-%LOB%-*</strong> template, for the <strong>Policy-L&amp;A-rules</strong> project, the tags are
+                    <strong>Policy</strong> for the <strong>Domain</strong> tag type and <strong>L&amp;A</strong> for
+                    <strong>LOB</strong>.</p>
             </div>
             <table>
                 <tr>
