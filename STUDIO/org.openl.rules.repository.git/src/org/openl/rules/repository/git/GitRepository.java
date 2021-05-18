@@ -1040,7 +1040,7 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
         try {
             log.debug("getLastRevision(): lock");
             readLock.lock();
-            return git.getRepository().resolve("HEAD^{tree}");
+            return git.getRepository().resolve(branch);
         } finally {
             readLock.unlock();
             log.debug("getLastRevision(): unlock");
@@ -1082,7 +1082,9 @@ public class GitRepository implements FolderRepository, BranchRepository, Closea
                     if (!isEmpty()) {
                         checkoutForced(refUpdate.getRemoteName());
                     }
-
+                    if (!(Constants.R_HEADS + branch).equals(refUpdate.getRemoteName())) {
+                        branchesChanged = true;
+                    }
                     // It's assumed that we don't have unpushed commits at this point so there must be no additional
                     // merge
                     // while checking last revision. Accept only fast forwards.
