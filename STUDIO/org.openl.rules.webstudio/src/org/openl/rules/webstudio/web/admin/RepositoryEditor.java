@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.openl.config.PropertiesHolder;
+import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
@@ -91,14 +92,18 @@ public class RepositoryEditor {
                 if (repoValue != null && repoValue.startsWith(value)) {
                     final String suffix = repoValue.substring(value.length());
                     if (suffix.matches("\\d+")) {
-                        int i = Integer.parseInt(suffix);
-                        if (i > max.get()) {
-                            max.set(i);
+                        try {
+                            int i = Integer.parseInt(suffix);
+                            if (i > max.get()) {
+                                max.set(i);
+                            }
+                        } catch (NumberFormatException e) {
+                            //perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
                         }
                     }
                 }
             }));
-            return value + (max.incrementAndGet());
+            return max.get() != Integer.MAX_VALUE ? value + (max.incrementAndGet()) : value;
         };
     }
 
