@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.model.scaffolding.InputParameter;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
