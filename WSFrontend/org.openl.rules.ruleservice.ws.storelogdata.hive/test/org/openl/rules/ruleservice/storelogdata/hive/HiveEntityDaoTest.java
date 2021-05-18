@@ -29,46 +29,46 @@ public class HiveEntityDaoTest {
 
     @Test
     public void insertTest_defaultEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
-        hiveEntityDao.insert(defaultHiveEntity);
+        hiveEntityDao.insert(connection, defaultHiveEntity);
     }
 
     @Test
     public void insertTest_partitionedEntity() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, PartitionedHiveEntity.class);
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(PartitionedHiveEntity.class);
         PartitionedHiveEntity partitionedEntity = getPartitionedEntity();
-        hiveEntityDao.insert(partitionedEntity);
+        hiveEntityDao.insert(connection, partitionedEntity);
     }
 
     @Test
     public void insertTest_defaultEntity_NullField() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
         defaultHiveEntity.setId(null);
         defaultHiveEntity.setIncomingTime(null);
-        hiveEntityDao.insert(defaultHiveEntity);
+        hiveEntityDao.insert(connection, defaultHiveEntity);
     }
 
     @Test
     public void insertTest_supportTypes() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, SimpleEntity.class);
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(SimpleEntity.class);
         SimpleEntity simpleEntity = getSimpleEntity();
-        hiveEntityDao.insert(simpleEntity);
+        hiveEntityDao.insert(connection, simpleEntity);
     }
 
     @Test
     public void insertTest_nullValue() throws SQLException, IllegalAccessException, UnsupportedFieldTypeException {
-        HiveEntityDao hiveEntityDao = new HiveEntityDao(connection, DefaultHiveEntity.class);
+        HiveEntityDao hiveEntityDao = new HiveEntityDao(DefaultHiveEntity.class);
         DefaultHiveEntity defaultHiveEntity = getDefaultHiveEntity();
         defaultHiveEntity.setOutcomingTime(null);
         defaultHiveEntity.setId(null);
-        hiveEntityDao.insert(defaultHiveEntity);
+        hiveEntityDao.insert(connection, defaultHiveEntity);
     }
 
     @Test(expected = UnsupportedFieldTypeException.class)
-    public void insertTest_unsupportedType() throws SQLException, UnsupportedFieldTypeException {
-        new HiveEntityDao(connection, WrongTypeEntity.class);
+    public void insertTest_unsupportedType() throws UnsupportedFieldTypeException {
+        new HiveEntityDao(WrongTypeEntity.class);
     }
 
     private DefaultHiveEntity getDefaultHiveEntity() {

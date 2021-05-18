@@ -8,23 +8,23 @@ import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.Inject;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CassandraStoreLogDataService implements StoreLogDataService {
+public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
     private CassandraOperations cassandraOperations;
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
-
-    private boolean enabled = true;
 
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
@@ -34,24 +34,25 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
         this.cassandraOperations = cassandraOperations;
     }
 
-    private volatile Collection<Inject> supportedInjects;
+    private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    public boolean isSync(StoreLogData storeLogData) {
+        StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
+            .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
+        if (storeLogDataToCassandra != null) {
+            return storeLogDataToCassandra.sync();
+        }
+        return false;
     }
 
     @Override
-    public Collection<Inject> additionalInjects() {
+    public Collection<Inject<?>> additionalInjects() {
         if (supportedInjects == null) {
             synchronized (this) {
                 if (supportedInjects == null) {
-                    Collection<Inject> injects = new ArrayList<>();
-                    injects.add(new Inject(CassandraSession.class, cassandraOperations.getCqlSession()));
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(CassandraSession.class, cassandraOperations::getCqlSession));
                     supportedInjects = Collections.unmodifiableCollection(injects);
                 }
             }

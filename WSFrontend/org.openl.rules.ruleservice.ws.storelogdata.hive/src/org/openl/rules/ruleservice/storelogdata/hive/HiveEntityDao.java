@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition;
 
 public class HiveEntityDao {
-    private final PreparedStatement preparedStatement;
+    private final String sqlQuery;
     private final ArrayList<Field> sortedPartitionedFields;
     private final ArrayList<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
@@ -44,10 +44,9 @@ public class HiveEntityDao {
         ZonedDateTime.class,
         Date.class));
 
-    public HiveEntityDao(Connection connection, Class<?> entityClass) throws SQLException,
-                                                                      UnsupportedFieldTypeException {
+    public HiveEntityDao(Class<?> entityClass) throws UnsupportedFieldTypeException {
         checkTypes(entityClass);
-        preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
+        sqlQuery = new HiveStatementBuilder(entityClass).buildQuery();
         sortedPartitionedFields = Arrays.stream(entityClass.getDeclaredFields())
                 .filter(f -> !f.isSynthetic() && f.isAnnotationPresent(Partition.class))
                 .sorted(Comparator.comparingInt(f -> f.getAnnotation(Partition.class).value()))
@@ -73,21 +72,22 @@ public class HiveEntityDao {
         }
     }
 
-    public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+    public void insert(Connection connection, Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+        PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
         int startIndex = 1;
-        setValueForFields(entity, startIndex, sortedPartitionedFields);
+        setValueForFields(preparedStatement, entity, startIndex, sortedPartitionedFields);
         startIndex += sortedPartitionedFields.size();
-        setValueForFields(entity, startIndex, sortedFields);
+        setValueForFields(preparedStatement, entity, startIndex, sortedFields);
         preparedStatement.execute();
     }
 
-    private void setValueForFields(Object entity, int startIndex, ArrayList<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+    private void setValueForFields(PreparedStatement preparedStatement, Object entity, int startIndex, ArrayList<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
         for (int index = 0; index < fields.size(); index++) {
-            setValue(startIndex + index, fields.get(index), entity);
+            setValue(preparedStatement, startIndex + index, fields.get(index), entity);
         }
     }
 
-    private void setValue(int index, Field field, Object entity) throws IllegalAccessException,
+    private void setValue(PreparedStatement preparedStatement, int index, Field field, Object entity) throws IllegalAccessException,
                                                                  SQLException,
                                                                  UnsupportedFieldTypeException {
         if (String.class.equals(field.getType())) {

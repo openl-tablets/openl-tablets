@@ -10,10 +10,15 @@ import java.util.Collections;
  *
  */
 public interface StoreLogDataService {
+
     void save(StoreLogData storeLogData);
 
-    default Collection<Inject> additionalInjects() {
+    default Collection<Inject<?>> additionalInjects() {
         return Collections.emptyList();
+    }
+
+    default boolean isSync(StoreLogData storeLogData) {
+        return false;
     }
 
     boolean isEnabled();

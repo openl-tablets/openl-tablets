@@ -88,6 +88,9 @@ public class CustomElasticEntity1 {
     @Value(value = "awareInstancesFound")
     private boolean awareInstancesFound;
 
+    @Value(value = "elasticsearchOperationsFound")
+    private boolean elasticsearchOperationsFound;
+
     @Value(value = "stringValue1", converter = NoConvertorString.class)
     private String stringValue1;
 
@@ -255,6 +258,14 @@ public class CustomElasticEntity1 {
 
     public void setAwareInstancesFound(boolean awareInstancesFound) {
         this.awareInstancesFound = awareInstancesFound;
+    }
+
+    public boolean isElasticsearchOperationsFound() {
+        return elasticsearchOperationsFound;
+    }
+
+    public void setElasticsearchOperationsFound(boolean elasticsearchOperationsFound) {
+        this.elasticsearchOperationsFound = elasticsearchOperationsFound;
     }
 
     public String getStringValue1() {

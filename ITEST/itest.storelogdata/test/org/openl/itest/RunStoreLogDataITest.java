@@ -578,6 +578,7 @@ public class RunStoreLogDataITest {
         assertEquals(5, row.getInt(CassandraFields.HOUR));
         assertEquals("Good Morning", row.getString(CassandraFields.RESULT));
         assertTrue(row.getBool(CassandraFields.AWARE_INSTANCES_FOUND));
+        assertTrue(row.getBool(CassandraFields.CASSANDRA_SESSION_FOUND));
 
         rows = getCassandraRows(helloEntity2TableName);
         if (rows.size() == 0) { // Table is created but row is not created
@@ -634,6 +635,7 @@ public class RunStoreLogDataITest {
         assertEquals(5, source.get(ElasticFields.HOUR));
         assertEquals("Good Morning", source.get(ElasticFields.RESULT));
         assertTrue((Boolean) source.get(ElasticFields.AWARE_INSTANCES_FOUND));
+        assertTrue((Boolean) source.get(ElasticFields.ELASTICSEARCH_OPERATIONS_FOUND));
 
         SearchHit[] hitsCustom2 = getElasticSearchHits(customElasticIndexName2);
         if (hitsCustom2.length == 0) {

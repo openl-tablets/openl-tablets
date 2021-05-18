@@ -1,14 +1,13 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFault;
-import org.openl.rules.ruleservice.storelogdata.annotation.SyncSave;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,44 +27,30 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     public void store(StoreLogData storeLogData) {
         if (!storeLogData.isIgnorable()) {
             if (!ignoreByFault(storeLogData)) {
-                if (isSyncSave(storeLogData)) {
-                    save(storeLogData);
-                } else {
-                    executorService.submit(() -> {
-                        save(storeLogData);
-                    });
+                for (StoreLogDataService storeLoggingService : storeLogDataServices) {
+                    if (storeLoggingService.isSync(storeLogData)) {
+                        save(storeLoggingService, storeLogData);
+                    } else {
+                        executorService.submit(() -> {
+                            save(storeLoggingService, storeLogData);
+                        });
+                    }
                 }
             }
         }
     }
 
-    private void save(StoreLogData storeLogData) {
-        for (StoreLogDataService storeLoggingService : storeLogDataServices) {
-            try {
-                storeLoggingService.save(storeLogData);
-            } catch (Exception e) {
-                log.error("Failed on save operation.", e);
-            }
+    private void save(StoreLogDataService storeLogDataService, StoreLogData storeLogData) {
+        try {
+            storeLogDataService.save(storeLogData);
+        } catch (Exception e) {
+            log.error("Failed on save operation.", e);
         }
-    }
-
-    private static boolean isAnnotationPresentInServiceClassOrServiceMethod(StoreLogData storeLogData,
-            Class<? extends Annotation> annotationClass) {
-        if (storeLogData.getServiceClass() != null && storeLogData.getServiceClass()
-            .isAnnotationPresent(annotationClass)) {
-            return true;
-        }
-        return storeLogData.getServiceMethod() != null && storeLogData.getServiceMethod()
-            .isAnnotationPresent(annotationClass);
-    }
-
-    private boolean isSyncSave(StoreLogData storeLogData) {
-        return isAnnotationPresentInServiceClassOrServiceMethod(storeLogData, SyncSave.class);
     }
 
     private boolean ignoreByFault(StoreLogData storeLogData) {
         if (storeLogData.isFault()) {
-            return isAnnotationPresentInServiceClassOrServiceMethod(storeLogData, SkipFault.class);
+            return AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData, SkipFault.class) != null;
         }
         return false;
     }

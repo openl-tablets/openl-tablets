@@ -14,6 +14,7 @@ public interface CassandraFields {
     String HOUR = "hour";
     String RESULT = "result";
     String AWARE_INSTANCES_FOUND = "aware_instances_found";
+    String CASSANDRA_SESSION_FOUND = "cassandra_session_found";
     String INT_VALUE1 = "int_value1";
     String INT_VALUE2 = "int_value2";
     String INT_VALUE3 = "int_value3";

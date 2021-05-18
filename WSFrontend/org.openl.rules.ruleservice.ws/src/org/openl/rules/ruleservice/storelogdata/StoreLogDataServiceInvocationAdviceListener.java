@@ -2,6 +2,7 @@ package org.openl.rules.ruleservice.storelogdata;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
 
     private ApplicationContext applicationContext;
 
-    private Map<StoreLogDataService, Collection<Inject>> supportedInjects;
+    private Map<StoreLogDataService, Collection<Inject<?>>> supportedInjects;
 
     public boolean isStoreLogDataEnabled() {
         return storeLogDataEnabled;
@@ -56,9 +57,9 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             .filter(Objects::nonNull)
             .filter(StoreLogDataService::isEnabled)
             .collect(Collectors.toList());
-        Map<StoreLogDataService, Collection<Inject>> injects = new HashMap<>();
+        Map<StoreLogDataService, Collection<Inject<?>>> injects = new HashMap<>();
         for (StoreLogDataService storeLogDataService : activeStoreLogDataServices) {
-            Collection<Inject> supportedInjects = storeLogDataService.additionalInjects();
+            Collection<Inject<?>> supportedInjects = storeLogDataService.additionalInjects();
             if (supportedInjects != null) {
                 injects.put(storeLogDataService, storeLogDataService.additionalInjects());
             }
@@ -72,37 +73,78 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice,
             Predicate<PrepareStoreLogData> predicate) {
-        PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
-        if (prepareStoreLogDatas != null) {
-            StoreLogData storeLogData = null;
-            for (PrepareStoreLogData storeLogging : prepareStoreLogDatas.value()) {
-                if (predicate.test(storeLogging)) {
-                    StoreLogDataAdvice storeLogDataAdvice = null;
-                    try {
-                        storeLogDataAdvice = storeLogging.value().newInstance();
-                        postProcessAdvice.accept(storeLogDataAdvice);
-                        storeLogData = processAwareInterfaces(storeLogData, storeLogDataAdvice);
-                    } catch (Exception e) {
-                        String msg = String.format(
-                            "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                            MethodUtil.printQualifiedMethodName(interfaceMethod),
-                            storeLogging.value().getTypeName());
-                        log.error(msg, e);
-                    }
-                    if (storeLogDataAdvice != null) {
-                        if (storeLogData == null) {
-                            storeLogData = StoreLogDataHolder.get(); // Lazy local variable
-                            // initialization
-                        }
+        Collection<Consumer<Void>> destroyFunctions = new ArrayList<>();
+        try {
+            PrepareStoreLogDatas prepareStoreLogDatas = interfaceMethod.getAnnotation(PrepareStoreLogDatas.class);
+            if (prepareStoreLogDatas != null) {
+                StoreLogData storeLogData = null;
+                for (PrepareStoreLogData prepareStoreLogData : prepareStoreLogDatas.value()) {
+                    storeLogData = getStoreLogData(interfaceMethod,
+                        args,
+                        result,
+                        lastOccurredException,
+                        postProcessAdvice,
+                        predicate,
+                        storeLogData,
+                        destroyFunctions,
+                        prepareStoreLogData);
+                }
+            } else {
+                PrepareStoreLogData prepareStoreLogData = interfaceMethod.getAnnotation(PrepareStoreLogData.class);
+                if (prepareStoreLogData != null) {
+                    getStoreLogData(interfaceMethod,
+                        args,
+                        result,
+                        lastOccurredException,
+                        postProcessAdvice,
+                        predicate,
+                        null,
+                        destroyFunctions,
+                        prepareStoreLogData);
 
-                        storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
-                    }
                 }
             }
+        } finally {
+            destroyFunctions.forEach(e -> e.accept(null));
         }
     }
 
-    private StoreLogData processAwareInterfaces(StoreLogData storeLogData, StoreLogDataAdvice storeLogDataAdvice) {
+    private StoreLogData getStoreLogData(Method interfaceMethod,
+            Object[] args,
+            Object result,
+            Exception lastOccurredException,
+            Consumer<Object> postProcessAdvice,
+            Predicate<PrepareStoreLogData> predicate,
+            StoreLogData storeLogData,
+            Collection<Consumer<Void>> destroyFunctions,
+            PrepareStoreLogData storeLogging) {
+        if (predicate.test(storeLogging)) {
+            StoreLogDataAdvice storeLogDataAdvice = null;
+            try {
+                storeLogDataAdvice = storeLogging.value().newInstance();
+                postProcessAdvice.accept(storeLogDataAdvice);
+                storeLogData = processAwareInterfaces(storeLogData, storeLogDataAdvice, destroyFunctions);
+            } catch (Exception e) {
+                String msg = String.format(
+                    "Failed to instantiate store log data advice for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                    MethodUtil.printQualifiedMethodName(interfaceMethod),
+                    storeLogging.value().getTypeName());
+                log.error(msg, e);
+            }
+            if (storeLogDataAdvice != null) {
+                if (storeLogData == null) {
+                    storeLogData = StoreLogDataHolder.get(); // Lazy local variable
+                    // initialization
+                }
+                storeLogDataAdvice.prepare(storeLogData.getCustomValues(), args, result, lastOccurredException);
+            }
+        }
+        return storeLogData;
+    }
+
+    private StoreLogData processAwareInterfaces(StoreLogData storeLogData,
+            StoreLogDataAdvice storeLogDataAdvice,
+            Collection<Consumer<Void>> destroyFunctions) {
         if (storeLogDataAdvice instanceof ObjectSerializerAware) {
             ObjectSerializerAware objectSerializerAware = (ObjectSerializerAware) storeLogDataAdvice;
             if (storeLogData == null) {
@@ -112,11 +154,13 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             }
             objectSerializerAware.setObjectSerializer(storeLogData.getObjectSerializer());
         }
-        for (Map.Entry<StoreLogDataService, Collection<Inject>> entry : supportedInjects.entrySet()) {
-            for (Inject inject : entry.getValue()) {
+        for (Map.Entry<StoreLogDataService, Collection<Inject<?>>> entry : supportedInjects.entrySet()) {
+            for (Inject<?> inject : entry.getValue()) {
                 if (inject != null && inject.getAnnotationClass() != null && inject.getResource() != null) {
                     try {
-                        AnnotationUtils.inject(storeLogDataAdvice, inject.getAnnotationClass(), inject::getResource);
+                        Object resource = inject.getResource();
+                        AnnotationUtils.inject(storeLogDataAdvice, inject.getAnnotationClass(), () -> resource);
+                        destroyFunctions.add((e) -> inject.destroy(resource));
                     } catch (IllegalAccessException | InvocationTargetException e) {
                         log.error("Failed to inject resource of class '{}' through annotation '{}'",
                             inject.getResource().getClass().getTypeName(),

@@ -24,13 +24,13 @@ public class HiveOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
 
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
+            Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
+            Collections.unmodifiableMap(new HashMap<>()));
     private boolean enabled;
     private boolean createTableEnabled = false;
 
-    private Connection getConnection() throws SQLException {
+    public Connection getConnection() {
         return HiveDataSource.getConnection();
     }
 
@@ -54,15 +54,15 @@ public class HiveOperations implements RuleServicePublisherListener {
         if (entity == null) {
             return;
         }
-        try {
-            createTableIfNotExists(entity.getClass());
-            getHiveEntityDao(entity.getClass()).insert(entity);
+        try (Connection connection = getConnection()) {
+            createTableIfNotExists(connection, entity.getClass());
+            getHiveEntityDao(entity.getClass()).insert(connection, entity);
         } catch (Exception e) {
             log.error("Failed to save hive entity.", e);
         }
     }
 
-    private HiveEntityDao getHiveEntityDao(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
+    private HiveEntityDao getHiveEntityDao(Class<?> entityClass) throws UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = null;
         Map<Class<?>, HiveEntityDao> current;
         Map<Class<?>, HiveEntityDao> next;
@@ -73,7 +73,7 @@ public class HiveOperations implements RuleServicePublisherListener {
                 return currentEntitySaver;
             } else {
                 if (hiveEntityDao == null) {
-                    hiveEntityDao = new HiveEntityDao(getConnection(), entityClass);
+                    hiveEntityDao = new HiveEntityDao(entityClass);
                 }
                 next = new HashMap<>(current);
                 next.put(entityClass, hiveEntityDao);
@@ -82,7 +82,7 @@ public class HiveOperations implements RuleServicePublisherListener {
         return hiveEntityDao;
     }
 
-    public void createTableIfNotExists(Class<?> entityClass) {
+    public void createTableIfNotExists(Connection connection, Class<?> entityClass) {
         if (isEnabled() && isCreateTableEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
@@ -101,19 +101,19 @@ public class HiveOperations implements RuleServicePublisherListener {
                     String sqlQuery = extractSqlQueryForEntity(entityClass);
                     String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
-                        try (Statement statement = getConnection().createStatement()) {
+                        try (Statement statement = connection.createStatement()) {
                             statement.execute(q.trim());
                         }
                     }
                 } catch (IOException | SQLException e) {
                     throw new HiveTableCreationException(
-                        String.format("Failed to extract a file with schema creation SQL for '%s'.",
-                            entityClass.getTypeName()),
-                        e);
+                            String.format("Failed to extract a file with schema creation SQL for '%s'.",
+                                    entityClass.getTypeName()),
+                            e);
                 }
             } else {
                 throw new HiveTableCreationException(
-                    String.format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
+                        String.format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
             }
         }
     }
@@ -136,7 +136,7 @@ public class HiveOperations implements RuleServicePublisherListener {
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
-            .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
+                .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         }

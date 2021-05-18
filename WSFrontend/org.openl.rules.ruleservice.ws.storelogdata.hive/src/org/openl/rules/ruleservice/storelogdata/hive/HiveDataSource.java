@@ -21,13 +21,16 @@ public class HiveDataSource implements InitializingBean {
     private String username;
     private String password;
 
-    public static Connection getConnection() throws SQLException {
-        return ds.getConnection();
+    public static Connection getConnection() {
+        try {
+            return ds.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Cannot get connection to Hive",e);
+        }
     }
 
     @Override
     public void afterPropertiesSet() throws Exception {
-        //todo hikari config file
         if (enabled) {
             try {
                 Class.forName(driverClass);

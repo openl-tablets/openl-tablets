@@ -10,19 +10,16 @@ import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
-import org.openl.rules.ruleservice.storelogdata.annotation.SyncSave;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 
 public interface Simple4ServiceAnnotationTemplate {
 
-    @StoreLogDataToCassandra({ HelloEntity1.class, HelloEntity2.class, HelloEntity3.class })
-    @StoreLogDataToElasticsearch({ CustomElasticEntity1.class, CustomElasticEntity2.class, CustomElasticEntity3.class })
-    @PrepareStoreLogData(PrepareStoreLogDataValue.class)
-    @PrepareStoreLogData(PrepareStoreLogDataArgs.class)
-    @PrepareStoreLogData(PrepareStoreLogDataResult.class)
-    @PrepareStoreLogData(PrepareStoreLogDataAwareInterfaces.class)
-    @SyncSave
+    @StoreLogDataToCassandra(value = { HelloEntity1.class, HelloEntity2.class, HelloEntity3.class }, sync = true)
+    @StoreLogDataToElasticsearch(value = { CustomElasticEntity1.class,
+            CustomElasticEntity2.class,
+            CustomElasticEntity3.class }, sync = true)
+    @PrepareStoreLogData(PrepareStoreLogDataValues.class)
     String Hello(IRulesRuntimeContext runtimeContext, Integer hour);
 
     @StoreLogDataToCassandra(HelloEntity1.class)
@@ -36,4 +33,5 @@ public interface Simple4ServiceAnnotationTemplate {
     @PrepareStoreLogData(value = BeforeAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class, before = true)
     @PrepareStoreLogData(value = AfterAfterInterceptors.class, bindToServiceMethodAdvice = Simple4ServiceMethodAfterAdvice.class)
     String Hello2(IRulesRuntimeContext runtimeContext, Integer hour);
+
 }
