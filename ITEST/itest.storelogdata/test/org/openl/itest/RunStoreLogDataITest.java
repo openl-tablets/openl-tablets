@@ -827,6 +827,21 @@ public class RunStoreLogDataITest {
             }, equalTo(true));
     }
 
+    @Test
+    public void testStoreAndGetFromCassandra() {
+        client.send("simple6_Hello1.post");
+        client.send("simple6_ResponseById1.get");
+
+        client.send("simple6_Hello2.post");
+        client.send("simple6_ResponseById2.get");
+
+        client.send("simple6_Hello3.post");
+        client.send("simple6_ResponseById3.get");
+
+        client.send("simple6_Hello4.post");
+        client.send("simple6_ResponseById4.get");
+    }
+
     private interface Procedure {
         void invoke();
     }
