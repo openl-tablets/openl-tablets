@@ -4,13 +4,18 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.Inject;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,15 +25,15 @@ import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
 
-public class ElasticSearchStoreLogDataService implements StoreLogDataService {
+public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
-
-    private boolean enabled = true;
 
     private ElasticsearchOperations elasticsearchOperations;
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+
+    private volatile Collection<Inject<?>> supportedInjects;
 
     public ElasticsearchOperations getElasticsearchOperations() {
         return elasticsearchOperations;
@@ -39,12 +44,27 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public boolean isEnabled() {
-        return enabled;
+    public boolean isSync(StoreLogData storeLogData) {
+        StoreLogDataToElasticsearch storeLogDataToElasticsearch = AnnotationUtils
+            .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToElasticsearch.class);
+        if (storeLogDataToElasticsearch != null) {
+            return storeLogDataToElasticsearch.sync();
+        }
+        return false;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    @Override
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(InjectElasticsearchOperations.class, this::getElasticsearchOperations));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
     }
 
     @Override

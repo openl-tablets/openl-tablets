@@ -6,12 +6,6 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(value = { ElementType.METHOD, ElementType.TYPE })
-public @interface StoreLogDataToHive {
-    Class<?>[] value() default DEFAULT.class;
-
-    boolean sync() default false;
-
-    interface DEFAULT {
-    }
+@Target(value = { ElementType.METHOD, ElementType.FIELD })
+public @interface HiveConnection {
 }

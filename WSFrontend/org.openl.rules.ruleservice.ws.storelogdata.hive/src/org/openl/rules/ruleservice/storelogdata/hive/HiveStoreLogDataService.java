@@ -1,25 +1,60 @@
 package org.openl.rules.ruleservice.storelogdata.hive;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.Inject;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class HiveStoreLogDataService implements StoreLogDataService {
+public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
     private HiveOperations hiveOperations;
-    private boolean enabled = true;
+
+    private volatile Collection<Inject<?>> supportedInjects;
 
     public void setHiveOperations(HiveOperations hiveOperations) {
         this.hiveOperations = hiveOperations;
+    }
+
+    @Override
+    public boolean isSync(StoreLogData storeLogData) {
+        StoreLogDataToHive storeLogDataToHive = AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData,
+            StoreLogDataToHive.class);
+        if (storeLogDataToHive != null) {
+            return storeLogDataToHive.sync();
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(HiveConnection.class,
+                        () -> hiveOperations.getConnection(),
+                        IOUtils::closeQuietly));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
     }
 
     @Override
@@ -108,12 +143,4 @@ public class HiveStoreLogDataService implements StoreLogDataService {
         return storeLogDataAnnotation;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return this.enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 }
