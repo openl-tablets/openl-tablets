@@ -38,47 +38,34 @@ import org.openl.rules.table.IGridTable;
  */
 public class LookupHeadersTransformer extends TwoDimensionDecisionTableTranformer {
 
-    // physical index in grid table, indicating the beginning of return section
-    private int retStartIndex;
-
-    // physical index in grid table, indicating the beginning of the first HC
-    // column after return section
-    private int hcColumnStartAfterRet;
-
-    // physical index in grid table, indicating the first empty cell after all
-    // headers
-    private int firstEmptyCell;
+    private final int firstVerticalColumn;
+    private final int[] horizontalHeaderOffsets;
 
     LookupHeadersTransformer(IGridTable entireTable,
             IGridTable lookupValuesTable,
             int retTableWidth,
-            int retColumnStartIndex,
-            int firstEmptyCell) {
+            int firstVerticalColumn,
+            int[] horizontalHeaderOffsets) {
         super(entireTable, lookupValuesTable, retTableWidth);
-        this.retStartIndex = retColumnStartIndex;
-        this.firstEmptyCell = firstEmptyCell;
-        this.hcColumnStartAfterRet = retStartIndex + getRetTableWidth();
+        this.firstVerticalColumn = firstVerticalColumn;
+        this.horizontalHeaderOffsets = horizontalHeaderOffsets;
     }
 
     @Override
     public int getColumn(int col, int row) {
-        if (col < retStartIndex) {
+        if (col < firstVerticalColumn) {
             return super.getColumn(col, row);
-        } else if (col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
-            return col + getRetTableWidth();
-        } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
-            return col - (firstEmptyCell - hcColumnStartAfterRet);
+        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < 3) {
+            return horizontalHeaderOffsets[col - firstVerticalColumn];
         }
         return super.getColumn(col, row);
     }
 
     @Override
     public int getRow(int col, int row) {
-        if (col < retStartIndex) {
+        if (col < firstVerticalColumn) {
             return super.getRow(col, row);
-        } else if (col < retStartIndex + firstEmptyCell - hcColumnStartAfterRet) {
-            return row;
-        } else if (retStartIndex + firstEmptyCell - hcColumnStartAfterRet <= col && col < firstEmptyCell) {
+        } else if (col < firstVerticalColumn + horizontalHeaderOffsets.length && row < 3) {
             return row;
         }
         return super.getRow(col, row);
