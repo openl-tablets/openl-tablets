@@ -26,7 +26,7 @@ public class HiveDataSource implements InitializingBean {
         try {
             return ds.getConnection();
         } catch (SQLException e) {
-            throw new IllegalStateException("Cannot get connection to Hive",e);
+            throw new IllegalStateException("Cannot get connection to Hive", e);
         }
     }
 
