@@ -98,6 +98,26 @@
                 $j(this).prev('input[type=hidden]').val($j(this).val());
             });
 
+            $editableInput.each(function () {
+                let handler = $j._data(this, "events")['keydown'][0]['handler'];
+                $j(this).off('keydown').on('keydown', function (e) {
+                    if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                        handler.apply(this, arguments);
+                        setTimeout(() => {
+                            let selectedValue = $j(this).next('.es-list').find('li.selected').text();
+                            $j(this).val(selectedValue);
+                        });
+                        return;
+                    }
+                    if (e.key !== "Enter" && e.key !== "Escape" && e.key !== "Tab") {
+                        if ($j(this).val() === "[None]" && !$j(this).prop('readonly')) {
+                            $j(this).val("");
+                        }
+                    }
+                    handler.apply(this, arguments);
+                });
+            });
+
             $j('#createProjectTagsForm .editable-select').prop('readonly', false);
             $j('#createProjectTagsForm .editable-select.readonly').prop('readonly', true);
 

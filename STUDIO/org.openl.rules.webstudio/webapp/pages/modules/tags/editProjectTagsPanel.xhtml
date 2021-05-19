@@ -97,7 +97,11 @@
                             });
                             return;
                         }
-                        // if (e.key === "Escape") $tagTypeName.val(tagType.name);
+                        if (e.key !== "Escape" && e.key !== "Tab") {
+                            if ($j(this).val() === "[None]" && !$j(this).prop('readonly')) {
+                                $j(this).val("");
+                            }
+                        }
                         handler.apply(this, arguments);
                     });
                 });
