@@ -10,7 +10,7 @@ public final class AnnotationUtils {
     private AnnotationUtils() {
     }
 
-    public static void inject(Object target,
+    public static Object inject(Object target,
             Class<? extends Annotation> annotation,
             Supplier<Object> supplier) throws IllegalAccessException, InvocationTargetException {
         if (annotation != null) {
@@ -23,7 +23,7 @@ public final class AnnotationUtils {
                         if (!initialized) {
                             resource = supplier.get();
                             if (resource == null) {
-                                return;
+                                return null;
                             }
                             initialized = true;
                         }
@@ -40,7 +40,7 @@ public final class AnnotationUtils {
                     if (!initialized) {
                         resource = supplier.get();
                         if (resource == null) {
-                            return;
+                            return null;
                         }
                         initialized = true;
                     }
@@ -49,6 +49,8 @@ public final class AnnotationUtils {
                     }
                 }
             }
+            return resource;
         }
+        return null;
     }
 }
