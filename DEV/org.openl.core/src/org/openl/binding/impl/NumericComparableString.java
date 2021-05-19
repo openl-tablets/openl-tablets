@@ -59,12 +59,12 @@ public class NumericComparableString implements Comparable<NumericComparableStri
         int length = Math.min(splits.length, v.splits.length);
 
         for (int i = 0; i < length; i++) {
-            int cmp = 0;
+            int cmp;
             if (splitsNumbers[i] != null && v.splitsNumbers[i] != null) {
                 cmp = splitsNumbers[i].compareTo(v.splitsNumbers[i]);
-            }
-            if (cmp == 0) {
+            } else {
                 cmp = splits[i].compareTo(v.splits[i]);
+
             }
             if (cmp != 0) {
                 return cmp;
