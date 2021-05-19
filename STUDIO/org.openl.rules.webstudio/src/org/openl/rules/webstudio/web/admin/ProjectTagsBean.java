@@ -3,6 +3,7 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
@@ -12,9 +13,11 @@ import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTemplateService;
 import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.repository.RepositorySelectNodeStateHolder;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.context.annotation.SessionScope;
@@ -107,6 +110,28 @@ public class ProjectTagsBean {
 
     public List<Tag> getTagValues(String tagType) {
         return tagService.getByTagType(tagType);
+    }
+    
+    public void validateCreate() {
+        // Validate
+        tags.forEach(tag -> {
+            final String tagName = tag.getName();
+            WebStudioUtils.validate(StringUtils.isNotBlank(tagName), "Can not be empty");
+
+            final TagType type = tag.getType();
+
+            if (tagName.equals(NONE_NAME)) {
+                WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
+            }
+            if (tag.getId() == null) {
+                WebStudioUtils.validate(NameChecker.checkName(tagName), NameChecker.BAD_NAME_MSG);
+                final Tag existed = tagService.getByName(type.getId(), tagName);
+                if (existed == null) {
+                    WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
+                        "Tag type '" + type.getName() + "' isn't extensible. Can't create a new tag.");
+                }
+            }
+        });
     }
 
     public void save() {

@@ -52,9 +52,14 @@
                     && data.errorName.indexOf("ViewExpiredException") > -1) { // Session Timeout
                     handleError(399);
                 }
-                handleError(data.responseCode);
                 console.error("Error in response:");
                 console.error(data);
+                let errorMessage = data.errorMessage;
+                if (errorMessage && ws) {
+                    ws.ui.info(errorMessage);
+                } else {
+                    handleError(data.responseCode);
+                }
             };
             jsf.ajax.addOnError(onError);
 

@@ -67,7 +67,7 @@
             //<![CDATA[
 
             function initEditProjectTagsPanel() {
-                $j('.editable-select').editableSelect({
+                $j('#editProjectTagsPanel .editable-select').editableSelect({
                     filter: false
                 }).on('select.editable-select', function (e, $li) {
                     let typeId = $li.parent().parent().find('input[type=hidden][id$="tag-type"]').val();
@@ -77,7 +77,7 @@
                     let typeId = $j(this).parent().find('input[type=hidden][id$="tag-type"]').val();
                     saveTagChanges(typeId, $j(this).val());
                 };
-                let $comboInputs = $j('.editable-select.es-input');
+                let $comboInputs = $j('#editProjectTagsPanel .editable-select.es-input');
                 $comboInputs.focusout(applyManualEdit);
 
                 $comboInputs.each(function () {
@@ -103,13 +103,13 @@
                 });
 
 
-                $j('.editable-select').prop('readonly', false);
-                $j('.editable-select.readonly').prop('readonly', true);
+                $j('#editProjectTagsPanel .editable-select').prop('readonly', false);
+                $j('#editProjectTagsPanel .editable-select.readonly').prop('readonly', true);
 
                 let $hiddenNames = $j('input[type=hidden][id$="tag-name"]');
                 $hiddenNames.each(function () {
                     let $name = $j(this);
-                    $j(this).next('.editable-select.es-input').val($name.val());
+                    $j(this).next('#editProjectTagsPanel .editable-select.es-input').val($name.val());
                 });
             }
 

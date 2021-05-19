@@ -57,8 +57,9 @@
             </div>
 
             <footer>
-                <a4j:commandButton value="Save" data="#{facesContext.maximumSeverity}"
-                                   oncomplete="if(!event.data) {hideCreateProjectTags(); submitForm();}" render="nodeView"
+                <a4j:commandButton value="Save"
+                                   action="#{projectTagsBean.validateCreate}"
+                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitForm();}" render="nodeView"
                                    styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideCreateProjectTags()"/>
             </footer>
@@ -82,23 +83,23 @@
         }
 
         function showCreateProjectTagsDialog() {
-            $j('.editable-select').editableSelect({
+            $j('#createProjectTagsForm .editable-select').editableSelect({
                 filter: false
             }).on('select.editable-select', function (e, $li) {
                 $li.parent().prev().prev('input[type=hidden]').val($li.text());
             });
 
-            let $editableInput = $j('.editable-select.es-input');
+            let $editableInput = $j('#createProjectTagsForm .editable-select.es-input');
             // Support extensible tags filled from template
             $editableInput.prev('input[type=hidden]').each(function () {
-                $j(this).next('.editable-select.es-input').val($j(this).val());
+                $j(this).next('#createProjectTagsForm .editable-select.es-input').val($j(this).val());
             });
             $editableInput.change(function () {
                 $j(this).prev('input[type=hidden]').val($j(this).val());
             });
 
-            $j('.editable-select').prop('readonly', false);
-            $j('.editable-select.readonly').prop('readonly', true);
+            $j('#createProjectTagsForm .editable-select').prop('readonly', false);
+            $j('#createProjectTagsForm .editable-select.readonly').prop('readonly', true);
 
             RichFaces.$('modalCreateProjectTags').show();
         }
