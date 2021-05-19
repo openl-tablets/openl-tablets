@@ -6,6 +6,7 @@
         <property name="connectionURL" value="${hive.connection.url}"/>
         <property name="username" value="${hive.connection.username}"/>
         <property name="password" value="${hive.connection.password}"/>
+        <property name="maxPoolSize" value="${hive.connection.pool.maxSize}"/>
         <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
     </bean>
 

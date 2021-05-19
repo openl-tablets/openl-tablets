@@ -20,6 +20,7 @@ public class HiveDataSource implements InitializingBean {
     private String connectionURL;
     private String username;
     private String password;
+    private int maxPoolSize;
 
     public static Connection getConnection() {
         try {
@@ -40,6 +41,7 @@ public class HiveDataSource implements InitializingBean {
             config.setJdbcUrl(connectionURL);
             config.setUsername(username);
             config.setPassword(password);
+            config.setMaximumPoolSize(maxPoolSize);
             ds = new HikariDataSource(config);
         }
     }
@@ -60,6 +62,10 @@ public class HiveDataSource implements InitializingBean {
         this.password = password;
     }
 
+    public void setMaxPoolSize(int maxPoolSize) {
+        this.maxPoolSize = maxPoolSize;
+    }
+
     public boolean isEnabled() {
         return enabled;
     }
@@ -74,6 +80,10 @@ public class HiveDataSource implements InitializingBean {
 
     public String getPassword() {
         return password;
+    }
+
+    public int getMaxPoolSize() {
+        return maxPoolSize;
     }
 
     public void close(){
