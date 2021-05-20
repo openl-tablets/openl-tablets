@@ -17,22 +17,32 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
 public class HiveOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
     private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
 
     private Connection connection;
+
+    @Value("${ruleservice.store.logs.hive.table.create}")
     private boolean createTableEnabled = false;
+
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
+
+    @Value("${hive.connection.url}")
     private String connectionURL;
 
     @Override

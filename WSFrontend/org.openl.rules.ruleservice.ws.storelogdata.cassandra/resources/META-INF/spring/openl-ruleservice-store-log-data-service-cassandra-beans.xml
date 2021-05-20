@@ -5,10 +5,5 @@
 
     <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.cassandra"/>
 
-    <bean id="cassandraOperations" class="org.openl.rules.ruleservice.storelogdata.cassandra.CassandraOperations"
-          lazy-init="true">
-        <property name="createSchemaEnabled" value="${ruleservice.store.logs.cassandra.schema.create}"/>
-    </bean>
-
 </beans>
 
