@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,8 +22,8 @@ import org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition;
 
 public class HiveEntityDao {
     private final String sqlQuery;
-    private final ArrayList<Field> sortedPartitionedFields;
-    private final ArrayList<Field> sortedFields;
+    private final List<Field> sortedPartitionedFields;
+    private final List<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
         byte.class,
         Short.class,
@@ -81,7 +82,7 @@ public class HiveEntityDao {
         preparedStatement.execute();
     }
 
-    private void setValueForFields(PreparedStatement preparedStatement, Object entity, int startIndex, ArrayList<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+    private void setValueForFields(PreparedStatement preparedStatement, Object entity, int startIndex, List<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
         for (int index = 0; index < fields.size(); index++) {
             setValue(preparedStatement, startIndex + index, fields.get(index), entity);
         }
