@@ -33,17 +33,14 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
-    private boolean enabled;
     private String connectionURL;
 
     @Override
     public void afterPropertiesSet() {
-        if (isEnabled()) {
-            try {
-                init();
-            } catch (Exception e) {
-                log.error("Hive initialization failure.", e);
-            }
+        try {
+            init();
+        } catch (Exception e) {
+            log.error("Hive initialization failure.", e);
         }
     }
 
@@ -84,16 +81,11 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
 
     @Override
     public void onUndeploy(String deployPath) {
-        if (isEnabled()) {
-            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-            entitySavers.set(Collections.emptyMap());
-        }
+        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+        entitySavers.set(Collections.emptyMap());
     }
 
     public void save(Object entity) {
-        if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save an entity to Hive. Feature is not enabled.");
-        }
         if (entity == null) {
             return;
         }
@@ -126,7 +118,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
     }
 
     public void createTableIfNotExists(Class<?> entityClass) {
-        if (isEnabled() && isCreateTableEnabled()) {
+        if (isCreateTableEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -167,14 +159,6 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
 
     public void setCreateTableEnabled(boolean createTableEnabled) {
         this.createTableEnabled = createTableEnabled;
-    }
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
     }
 
     public void setConnectionURL(String connectionURL) {
