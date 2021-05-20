@@ -91,8 +91,7 @@ public class ProjectsWithoutTagsBean {
                     continue;
                 }
 
-                OpenLProject existing = projectService.getProject(project.getRepositoryId(),
-                    project.getProjectPath());
+                OpenLProject existing = projectService.getProject(project.getRepositoryId(), project.getProjectPath());
                 if (existing == null) {
                     projectService.save(project);
                 } else {
@@ -111,10 +110,16 @@ public class ProjectsWithoutTagsBean {
         for (Iterator<Tag> iterator = tags.iterator(); iterator.hasNext();) {
             Tag tag = iterator.next();
             if (tag.getId() == null) {
-                if (tag.getType().isExtensible()) {
-                    tagService.save(tag);
+                final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
+                if (existed == null) {
+                    if (tag.getType().isExtensible()) {
+                        tagService.save(tag);
+                    } else {
+                        iterator.remove();
+                    }
                 } else {
-                    iterator.remove();
+                    // Was created before.
+                    tag.setId(existed.getId());
                 }
             }
         }

@@ -38,10 +38,10 @@ public class ProjectTagsBean {
     private String projectName;
 
     public ProjectTagsBean(TagTypeService tagTypeService,
-        TagService tagService,
-        OpenLProjectService projectService,
-        RepositorySelectNodeStateHolder repositorySelectNodeStateHolder,
-        TagTemplateService tagTemplateService) {
+            TagService tagService,
+            OpenLProjectService projectService,
+            RepositorySelectNodeStateHolder repositorySelectNodeStateHolder,
+            TagTemplateService tagTemplateService) {
         this.tagTypeService = tagTypeService;
         this.tagService = tagService;
         this.projectService = projectService;
@@ -110,7 +110,7 @@ public class ProjectTagsBean {
     public List<Tag> getTagValues(String tagType) {
         return tagService.getByTagType(tagType);
     }
-    
+
     public void validateCreate() {
         // Validate
         tags.forEach(tag -> {
@@ -121,16 +121,19 @@ public class ProjectTagsBean {
 
             if (tagName.equals(NONE_NAME)) {
                 WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
-            }
-            final Tag existed = tagService.getByName(type.getId(), tagName);
-            if (existed == null) {
-                if (tag.getId() != null) {
-                    // It was removed externally
-                    tags.remove(tag);
+            } else {
+                final Tag existed = tagService.getByName(type.getId(), tagName);
+                if (existed == null) {
+                    if (tag.getId() != null) {
+                        // It was removed externally
+                        tags.remove(tag);
+                    }
+                    WebStudioUtils.validate(NameChecker.checkName(tagName),
+                        "Tag cannot contain forbidden characters (" + NameChecker
+                            .getForbiddenCharacters() + "), start with space, end with space or dot.");
+                    WebStudioUtils.validate(type.isExtensible(),
+                        String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
                 }
-                WebStudioUtils.validate(NameChecker.checkName(tagName), NameChecker.BAD_NAME_MSG);
-                WebStudioUtils.validate(type.isExtensible(),
-                    String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
             }
         });
     }
@@ -138,16 +141,15 @@ public class ProjectTagsBean {
     public void save() {
         TreeNode selectedNode = this.repositorySelectNodeStateHolder.getSelectedNode();
         TreeProject selectedProject = selectedNode instanceof TreeProject ? (TreeProject) selectedNode : null;
-        
+
         // Validate
-        tags.stream()
-            .filter(tag -> !tag.getType().isExtensible() && !tag.getName().equals(NONE_NAME))
-            .forEach(tag -> {
-                final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
-                if (existed == null) {
-                    throw new IllegalArgumentException(String.format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
-                }
-            });
+        tags.stream().filter(tag -> !tag.getType().isExtensible() && !tag.getName().equals(NONE_NAME)).forEach(tag -> {
+            final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
+            if (existed == null) {
+                throw new IllegalArgumentException(String
+                    .format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
+            }
+        });
 
         if (selectedProject != null) {
             boolean create = false;
