@@ -38,15 +38,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
         Collections.unmodifiableMap(new HashMap<>()));
-    private boolean enabled;
-
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -118,9 +109,6 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     public void save(Object entity) {
-        if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save an entity to Cassandra. Feature is not enabled.");
-        }
         if (entity == null) {
             return;
         }
@@ -145,14 +133,12 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void onUndeploy(String deployPath) {
-        if (isEnabled()) {
-            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-            entitySavers.set(Collections.emptyMap());
-        }
+        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+        entitySavers.set(Collections.emptyMap());
     }
 
     public void createSchemaIfMissed(Class<?> entityClass) {
-        if (isEnabled() && isCreateSchemaEnabled()) {
+        if (isCreateSchemaEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -212,12 +198,10 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
 
     @Override
     public void afterPropertiesSet() {
-        if (isEnabled()) {
-            try {
-                init();
-            } catch (Exception e) {
-                LOG.error("Cassandra initialization failure.", e);
-            }
+        try {
+            init();
+        } catch (Exception e) {
+            LOG.error("Cassandra initialization failure.", e);
         }
     }
 }

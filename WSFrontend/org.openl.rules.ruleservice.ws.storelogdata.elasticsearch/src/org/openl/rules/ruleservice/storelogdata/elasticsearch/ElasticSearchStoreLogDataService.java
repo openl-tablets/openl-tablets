@@ -12,23 +12,29 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.Inject;
-import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
+import org.springframework.stereotype.Component;
 
-public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataService {
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.elasticsearch.enabled")
+public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
 
+    @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();

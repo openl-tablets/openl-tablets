@@ -7,10 +7,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.core.interceptors.AnnotationUtils;
@@ -23,43 +21,28 @@ import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogDatas;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.factory.annotation.Autowired;
 
-public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener, ApplicationContextAware, InitializingBean {
+public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvocationAdviceListener, InitializingBean {
     private final Logger log = LoggerFactory.getLogger(StoreLogDataServiceInvocationAdviceListener.class);
 
-    private boolean storeLogDataEnabled = false;
-
-    private ApplicationContext applicationContext;
+    @Autowired
+    private StoreLogDataManager storeLogDataManager;
 
     private Map<StoreLogDataService, Collection<Inject<?>>> supportedInjects;
 
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
+    public StoreLogDataManager getStoreLogDataManager() {
+        return storeLogDataManager;
     }
 
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) {
-        this.applicationContext = applicationContext;
+    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
+        this.storeLogDataManager = storeLogDataManager;
     }
 
     @Override
     public void afterPropertiesSet() {
-        Map<String, StoreLogDataService> storeLogDataServices = applicationContext
-            .getBeansOfType(StoreLogDataService.class);
-
-        Collection<StoreLogDataService> activeStoreLogDataServices = storeLogDataServices.values()
-            .stream()
-            .filter(Objects::nonNull)
-            .filter(StoreLogDataService::isEnabled)
-            .collect(Collectors.toList());
         Map<StoreLogDataService, Collection<Inject<?>>> injects = new HashMap<>();
-        for (StoreLogDataService storeLogDataService : activeStoreLogDataServices) {
+        for (StoreLogDataService storeLogDataService : storeLogDataManager.getServices()) {
             Collection<Inject<?>> supportedInjects = storeLogDataService.additionalInjects();
             if (supportedInjects != null) {
                 injects.put(storeLogDataService, storeLogDataService.additionalInjects());
@@ -191,7 +174,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice) {
-        if (isStoreLogDataEnabled()) {
+        if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -208,7 +191,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice) {
-        if (isStoreLogDataEnabled()) {
+        if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -224,7 +207,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice) {
-        if (isStoreLogDataEnabled()) {
+        if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,
@@ -240,7 +223,7 @@ public class StoreLogDataServiceInvocationAdviceListener implements ServiceInvoc
             Object result,
             Exception lastOccurredException,
             Consumer<Object> postProcessAdvice) {
-        if (isStoreLogDataEnabled()) {
+        if (getStoreLogDataManager().isEnabled()) {
             process(interfaceMethod,
                 args,
                 result,

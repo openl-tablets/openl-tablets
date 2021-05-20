@@ -77,7 +77,5 @@
     </bean>
 
     <bean id="jaxwsServiceRuleServicePublisher"
-          class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher">
-        <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
-    </bean>
+          class="org.openl.rules.ruleservice.publish.JAXWSRuleServicePublisher"/>
 </beans>

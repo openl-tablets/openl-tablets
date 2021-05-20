@@ -20,6 +20,4 @@ public interface StoreLogDataService {
     default boolean isSync(StoreLogData storeLogData) {
         return false;
     }
-
-    boolean isEnabled();
 }

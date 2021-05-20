@@ -16,12 +16,19 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
 
     private final Collection<StoreLogDataService> storeLogDataServices;
 
+    private final boolean enabled;
+
     public SimpleStoreLogDataManager(Collection<StoreLogDataService> storeLogDataServices) {
         Objects.requireNonNull(storeLogDataServices);
         this.storeLogDataServices = new ArrayList<>(storeLogDataServices);
+        this.enabled = !storeLogDataServices.isEmpty();
     }
 
     ExecutorService executorService = Executors.newSingleThreadExecutor();
+
+    public Collection<StoreLogDataService> getServices() {
+        return storeLogDataServices;
+    }
 
     @Override
     public void store(StoreLogData storeLogData) {
@@ -38,6 +45,11 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return enabled;
     }
 
     private void save(StoreLogDataService storeLogDataService, StoreLogData storeLogData) {
