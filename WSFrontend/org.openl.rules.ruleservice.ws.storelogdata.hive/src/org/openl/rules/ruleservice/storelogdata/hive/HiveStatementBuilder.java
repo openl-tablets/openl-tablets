@@ -36,7 +36,7 @@ public final class HiveStatementBuilder {
 
     private String getPartitions() {
         List<String> partitionFields = getPartitionFields();
-        return partitionFields.size() == 0 ? "" :
+        return partitionFields.isEmpty() ? "" :
                 partitionFields.stream().map(f -> f + "=?")
                         .collect(Collectors.joining(",", "PARTITION (", ")"));
     }

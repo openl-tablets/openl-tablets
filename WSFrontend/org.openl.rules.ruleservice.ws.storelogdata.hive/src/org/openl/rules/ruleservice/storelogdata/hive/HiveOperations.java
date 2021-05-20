@@ -20,39 +20,34 @@ import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.zaxxer.hikari.HikariDataSource;
+
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
-public class HiveOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener {
+public class HiveOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
-    private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
-
-    private Connection connection;
 
     @Value("${ruleservice.store.logs.hive.table.create}")
     private boolean createTableEnabled = false;
 
-    private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
-    private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
-    private String connectionURL;
+    @Autowired
+    private HikariDataSource hiveDataSource;
 
-    @Override
-    public void afterPropertiesSet() {
-        try {
-            init();
-        } catch (Exception e) {
-            log.error("Hive initialization failure.", e);
-        }
-    }
+    private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
+            Collections.unmodifiableSet(new HashSet<>()));
+    private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
+            Collections.unmodifiableMap(new HashMap<>()));
 
     public Connection getConnection() {
-        return HiveDataSource.getConnection();
+        try {
+            return hiveDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Can not get connection to Hive", e);
+        }
     }
 
     @Override
@@ -142,8 +137,12 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         this.createTableEnabled = createTableEnabled;
     }
 
-    public void setConnectionURL(String connectionURL) {
-        this.connectionURL = connectionURL;
+    public HikariDataSource getHiveDataSource() {
+        return hiveDataSource;
+    }
+
+    public void setHiveDataSource(HikariDataSource hiveDataSource) {
+        this.hiveDataSource = hiveDataSource;
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {

@@ -5,4 +5,18 @@
 
     <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.hive"/>
 
+    <bean id="hiveDriverRegister" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDriverRegister"
+          init-method="init" lazy-init="true"/>
+
+    <bean id="hiveHikariConfig" class="com.zaxxer.hikari.HikariConfig" depends-on="hiveDriverRegister" lazy-init="true" >
+        <property name="jdbcUrl" value="${hive.connection.url}"/>
+        <property name="username" value="${hive.connection.username}"/>
+        <property name="password" value="${hive.connection.password}"/>
+        <property name="maximumPoolSize" value="${hive.connection.pool.maxSize}"/>
+    </bean>
+
+    <bean id="hiveDataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close" lazy-init="true">
+        <constructor-arg ref="hiveHikariConfig"/>
+    </bean>
+
 </beans>

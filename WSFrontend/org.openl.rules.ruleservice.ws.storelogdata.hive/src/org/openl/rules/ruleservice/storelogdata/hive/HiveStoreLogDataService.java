@@ -13,7 +13,6 @@ import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
-import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
