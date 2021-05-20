@@ -3,7 +3,6 @@ package org.openl.rules.webstudio.web.admin;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Objects;
 
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
@@ -123,13 +122,15 @@ public class ProjectTagsBean {
             if (tagName.equals(NONE_NAME)) {
                 WebStudioUtils.validate(type.isNullable(), "Tag type '" + type.getName() + "' is mandatory.");
             }
-            if (tag.getId() == null) {
-                WebStudioUtils.validate(NameChecker.checkName(tagName), NameChecker.BAD_NAME_MSG);
-                final Tag existed = tagService.getByName(type.getId(), tagName);
-                if (existed == null) {
-                    WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
-                        "Tag type '" + type.getName() + "' isn't extensible. Can't create a new tag.");
+            final Tag existed = tagService.getByName(type.getId(), tagName);
+            if (existed == null) {
+                if (tag.getId() != null) {
+                    // It was removed externally
+                    tags.remove(tag);
                 }
+                WebStudioUtils.validate(NameChecker.checkName(tagName), NameChecker.BAD_NAME_MSG);
+                WebStudioUtils.validate(type.isExtensible(),
+                    String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
             }
         });
     }
@@ -144,7 +145,7 @@ public class ProjectTagsBean {
             .forEach(tag -> {
                 final Tag existed = tagService.getByName(tag.getType().getId(), tag.getName());
                 if (existed == null) {
-                    throw new IllegalArgumentException("Tag type '" + tag.getType().getName() + "' isn't extensible. Can't create a new tag.");
+                    throw new IllegalArgumentException(String.format("'%s' is not allowed value for tag type '%s'.", tag.getName(), tag.getType().getName()));
                 }
             });
 

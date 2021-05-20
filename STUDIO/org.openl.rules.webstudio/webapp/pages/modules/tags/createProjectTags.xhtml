@@ -59,7 +59,8 @@
             <footer>
                 <a4j:commandButton value="Save"
                                    action="#{projectTagsBean.validateCreate}"
-                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitForm();}" render="nodeView"
+                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitForm();}"
+                                   render="@form nodeView"
                                    styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideCreateProjectTags()"/>
             </footer>

@@ -121,7 +121,7 @@ public class EditProjectTagsBean {
                 if (existed == null) {
                     WebStudioUtils.validate(type != null, "Tag type with id '" + typeId + "' does not exist.");
                     WebStudioUtils.validate(Objects.requireNonNull(type).isExtensible(),
-                        "Tag type '" + type.getName() + "' isn't extensible. Can't create a new tag.");
+                        String.format("'%s' is not allowed value for tag type '%s'.", tagName, type.getName()));
                 }
             }
 
