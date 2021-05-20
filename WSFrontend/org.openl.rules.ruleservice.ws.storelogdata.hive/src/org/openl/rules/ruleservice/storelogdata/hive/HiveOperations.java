@@ -23,12 +23,20 @@ import org.slf4j.LoggerFactory;
 public class HiveOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
 
+    private boolean createTableEnabled = false;
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
             Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
-            Collections.unmodifiableMap(new HashMap<>()));
-    private boolean enabled;
-    private boolean createTableEnabled = false;
+        Collections.unmodifiableMap(new HashMap<>()));
+
+    @Override
+    public void afterPropertiesSet() {
+        try {
+            init();
+        } catch (Exception e) {
+            log.error("Hive initialization failure.", e);
+        }
+    }
 
     public Connection getConnection() {
         return HiveDataSource.getConnection();
@@ -41,16 +49,11 @@ public class HiveOperations implements RuleServicePublisherListener {
 
     @Override
     public void onUndeploy(String deployPath) {
-        if (isEnabled()) {
-            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-            entitySavers.set(Collections.emptyMap());
-        }
+        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+        entitySavers.set(Collections.emptyMap());
     }
 
     public void save(Object entity) {
-        if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save an entity to Hive. Feature is not enabled.");
-        }
         if (entity == null) {
             return;
         }
@@ -83,7 +86,7 @@ public class HiveOperations implements RuleServicePublisherListener {
     }
 
     public void createTableIfNotExists(Connection connection, Class<?> entityClass) {
-        if (isEnabled() && isCreateTableEnabled()) {
+        if (isCreateTableEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -118,20 +121,16 @@ public class HiveOperations implements RuleServicePublisherListener {
         }
     }
 
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
     public boolean isCreateTableEnabled() {
         return createTableEnabled;
     }
 
     public void setCreateTableEnabled(boolean createTableEnabled) {
         this.createTableEnabled = createTableEnabled;
+    }
+
+    public void setConnectionURL(String connectionURL) {
+        this.connectionURL = connectionURL;
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {

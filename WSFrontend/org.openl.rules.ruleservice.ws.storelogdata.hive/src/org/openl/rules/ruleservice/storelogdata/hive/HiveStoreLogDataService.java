@@ -8,20 +8,28 @@ import java.util.Collections;
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.Inject;
-import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class HiveStoreLogDataService extends AbstractStoreLogDataService {
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
+public class HiveStoreLogDataService implements StoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+
+    @Autowired
     private HiveOperations hiveOperations;
 
     private volatile Collection<Inject<?>> supportedInjects;

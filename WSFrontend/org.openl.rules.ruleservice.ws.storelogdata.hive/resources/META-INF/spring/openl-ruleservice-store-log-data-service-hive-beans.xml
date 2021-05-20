@@ -1,28 +1,13 @@
 <?xml version='1.0'?>
 <beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean id="hiveDataSource" class="org.openl.rules.ruleservice.storelogdata.hive.HiveDataSource" destroy-method="close">
-        <property name="connectionURL" value="${hive.connection.url}"/>
-        <property name="username" value="${hive.connection.username}"/>
-        <property name="password" value="${hive.connection.password}"/>
-        <property name="maxPoolSize" value="${hive.connection.pool.maxSize}"/>
-        <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
-    </bean>
+    <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.hive"/>
 
-    <bean id="hiveOperations" class="org.openl.rules.ruleservice.storelogdata.hive.HiveOperations" lazy-init="true" depends-on="hiveDataSource">
+    <bean id="hiveOperations" class="org.openl.rules.ruleservice.storelogdata.hive.HiveOperations" lazy-init="true">
         <property name="createTableEnabled" value="${ruleservice.store.logs.hive.table.create}"/>
-        <property name="enabled" value="#{ ${ruleservice.store.logs.hive.enabled} and ${ruleservice.store.logs.enabled} }"/>
+        <property name="connectionURL" value="${hive.connection.url}"/>
     </bean>
-
-    <!-- Hive logging store service bean. -->
-    <bean id="hiveStoreLogDataService"
-          class="org.openl.rules.ruleservice.storelogdata.hive.HiveStoreLogDataService"
-          lazy-init="true">
-        <property name="hiveOperations" ref="hiveOperations"/>
-        <property name="enabled" value="${ruleservice.store.logs.hive.enabled}"/>
-    </bean>
-
-
 
 </beans>
