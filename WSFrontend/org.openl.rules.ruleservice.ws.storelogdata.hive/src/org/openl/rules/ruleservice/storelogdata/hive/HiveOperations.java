@@ -113,7 +113,7 @@ public class HiveOperations implements RuleServicePublisherListener {
                     String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
                         try (Statement statement = connection.createStatement()) {
-                            statement.execute(q.trim());
+                            statement.execute(removeCommentsInStatement(q.trim()));
                         }
                     }
                 } catch (IOException | SQLException e) {
@@ -152,5 +152,9 @@ public class HiveOperations implements RuleServicePublisherListener {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         }
         return IOUtils.toStringAndClose(inputStream);
+    }
+
+    static String removeCommentsInStatement(String statement) {
+        return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 }
