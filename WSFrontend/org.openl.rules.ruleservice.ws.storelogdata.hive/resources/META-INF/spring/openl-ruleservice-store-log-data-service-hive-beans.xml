@@ -5,9 +5,4 @@
 
     <context:component-scan base-package="org.openl.rules.ruleservice.storelogdata.hive"/>
 
-    <bean id="hiveOperations" class="org.openl.rules.ruleservice.storelogdata.hive.HiveOperations" lazy-init="true">
-        <property name="createTableEnabled" value="${ruleservice.store.logs.hive.table.create}"/>
-        <property name="connectionURL" value="${hive.connection.url}"/>
-    </bean>
-
 </beans>
