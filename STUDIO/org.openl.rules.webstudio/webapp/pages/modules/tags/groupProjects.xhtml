@@ -90,7 +90,7 @@
                 let val1 = $j('#groupingForm\\:grouping1').val();
                 let val2 = $j('#groupingForm\\:grouping2').val();
                 let val3 = $j('#groupingForm\\:grouping3').val();
-                let hasSame = (val1 !== noneValue &&  (val1 === val2 || val1 === val3) || val2 !== noneValue && val2 === val3);
+                let hasSame = (val1 !== noneValue && (val2 && val1 === val2 || val3 && val1 === val3) || val2 !== noneValue && val2 && val2 === val3);
                 let $message = $j('#groupingFormMessage');
                 if (hasSame) {
                     $message.text('Groups can\'t be the same');
