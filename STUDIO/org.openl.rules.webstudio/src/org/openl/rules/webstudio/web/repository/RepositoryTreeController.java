@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -1518,8 +1519,22 @@ public class RepositoryTreeController {
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
-        return getSelectedNode().getChildNodes().stream().filter(treeNode -> "project".equals(treeNode.getType())).collect(
-            Collectors.toList());
+        final TreeNode node = getSelectedNode();
+        final List<TreeNode> rulesProjects = getRulesProjects(node);
+        rulesProjects.sort(Comparator.comparing(treeNode -> treeNode.getName().toLowerCase()));
+        return rulesProjects;
+    }
+
+    private List<TreeNode> getRulesProjects(TreeNode node) {
+        List<TreeNode> list = new ArrayList<>();
+        for (TreeNode treeNode : node.getChildNodes()) {
+            if (UiConst.TYPE_PROJECT .equals(treeNode.getType())) {
+                list.add(treeNode);
+            } else if (UiConst.TYPE_GROUP.equals(treeNode.getType())) {
+                list.addAll(getRulesProjects(treeNode));
+            }
+        }
+        return list;
     }
 
     public SelectItem[] getSelectedProjectVersions() {
