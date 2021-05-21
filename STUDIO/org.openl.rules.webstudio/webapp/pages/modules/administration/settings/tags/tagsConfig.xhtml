@@ -64,8 +64,6 @@
         <div>
             <p><strong>Tag type</strong> is a category that includes tag values of the same group. For example, the
                 <strong>Product</strong> tag type can include tags Auto, Life, and Home.</p>
-            <p>If a tag type is nullable, its value definition can be skipped when creating a project. Otherwise, tag definition is mandatory.</p>
-            <p>For extensible tag types, any user can create new tag values. For other tag types, values are configured by an administrator only.</p>
             <p>Proceed as follows:
                 <ul>
                     <li>To add a tag type, in the <strong>New Tag Type</strong> field, enter the tag type name and press
@@ -75,9 +73,6 @@
                 </ul>
             </p>
             <p>All created tag types and values are saved automatically.</p>
-            <p>Hints:</p>
-            <p>Nullable: If selected, tag type definition is optional. If cleared, tag type definition is mandatory.</p>
-            <p>Extensible: If selected, tag values can be created by any user. If cleared, tag values can be created by an administrator only.</p>
         </div>
         <div id="tag-types-list"></div>
     </div>
@@ -140,8 +135,8 @@
                 let $tagTypeName = createTagTypeName(tagType);
                 $tagType.append($tagTypeName);
 
-                let $nullableComponent = createNullable(tagType);
-                $tagType.append($nullableComponent);
+                let $optionalComponent = createOptional(tagType);
+                $tagType.append($optionalComponent);
 
                 let $extensibleComponent = createExtensible(tagType);
                 $tagType.append($extensibleComponent);
@@ -236,25 +231,25 @@
                 return $tagTypeName;
             };
 
-            const createNullable = function (tagType) {
-                let $nullable = $j('<input type="checkbox">');
-                $nullable.prop('checked', tagType.nullable);
-                let $nullableLabel = $j('<label title="If checked, tag type is optional, otherwise it\' mandatory">Nullable</label>')
-                $nullableLabel.prepend($nullable);
-                $nullable.click(() => {
-                    let nullable = $nullable.prop("checked");
+            const createOptional = function (tagType) {
+                let $optional = $j('<input type="checkbox">');
+                $optional.prop('checked', tagType.nullable);
+                let $optionalLabel = $j('<label title="If selected, tag type definition is optional. If cleared, tag type definition is mandatory.">Optional</label>')
+                $optionalLabel.prepend($optional);
+                $optional.click(() => {
+                    let optional = $optional.prop("checked");
                     let obj = {
                         id: tagType.id,
-                        nullable: nullable
+                        nullable: optional
                     }
-                    updateTagType(obj, () => tagType.nulllable = nullable);
+                    updateTagType(obj, () => tagType.nulllable = optional);
                 });
-                return $nullableLabel;
+                return $optionalLabel;
             };
             const createExtensible = function (tagType) {
                 let $extensible = $j('<input type="checkbox">');
                 $extensible.prop('checked', tagType.extensible);
-                let $extensibleLabel = $j('<label title="If checked, tag values can be created by a user, otherwise tag values can be created only by admin">Extensible</label>')
+                let $extensibleLabel = $j('<label title="If selected, tag values can be created by any user. If cleared, tag values can be created by an administrator only.">Extensible</label>')
                 $extensibleLabel.prepend($extensible);
                 $extensible.click(() => {
                     let extensible = $extensible.prop("checked");
