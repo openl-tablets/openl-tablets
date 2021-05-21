@@ -913,6 +913,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             .map(TagType::getName)
             .collect(Collectors.toList());
         groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
+        groupings.add(TreeProjectGrouping.GROUPING_NONE);
         groupings.add(null);
         boolean changed = false;
         if (!groupings.contains(projectGrouping.getGroup3())) {
