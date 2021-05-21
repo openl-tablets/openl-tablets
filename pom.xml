@@ -116,7 +116,7 @@
         <owasp.version>6.1.0</owasp.version>
         <groovy.version>3.0.8</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
-        <jaeger.client.version>1.6.0</jaeger.client.version>
+        <jaeger.client.version>1.5.0</jaeger.client.version>
         <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
         <opentracing.mock.version>0.33.0</opentracing.mock.version>
 

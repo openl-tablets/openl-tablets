@@ -5,7 +5,7 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
-    <import resource="classpath:META-INF/spring/openl-ruleservice-rmi-publisher-beans.xml"/>
+    <import resource="classpath:META-INF/openl/extension-rmi-publisher-beans.xml"/>
 
     <util:map id="ruleServicePublishers">
         <entry key="RMI" value-ref="rmiServicesRuleServicePublisher"/>

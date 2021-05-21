@@ -5,10 +5,8 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
                            http://www.springframework.org/schema/util https://www.springframework.org/schema/util/spring-util.xsd">
 
-    <import resource="classpath:openl-ruleservice-cxf-configuration.xml"/>
     <import resource="classpath:openl-ruleservice-webservices-publisher-beans.xml"/>
     <import resource="classpath:openl-ruleservice-jaxrs-publisher-beans.xml"/>
-    <import resource="classpath:META-INF/spring/openl-ruleservice-rmi-publisher-beans.xml"/>
     <import resource="classpath:openl-ruleservice-kafka-publisher-beans.xml"/>
 
     <!-- Bean helps to read configuration and apply it to override types -->

@@ -9,8 +9,9 @@ import java.lang.annotation.Target;
 import org.springframework.context.annotation.Conditional;
 
 /**
- * Enables bean registration when all properties are true. For example in {@code @Conditional({"feature.enabled",
- * "feature.module.enabled"}) } bean registration will be when the following properties are defined:
+ * Enables bean registration when all properties are true. For example in
+ * {@code @ConditionalOnEnable({"feature.enabled", "feature.module.enabled"}) } bean registration will be when the
+ * following properties are defined:
  * 
  * <pre>
  *     feature.enabled=true

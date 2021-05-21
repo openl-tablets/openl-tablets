@@ -1,17 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context https://www.springframework.org/schema/context/spring-context.xsd">
 
-    <bean name="jaegerConfiguration" class="org.openl.rules.ruleservice.tracing.jaeger.config.JaegerConfiguration">
-        <constructor-arg name="enabled" value="${ruleservice.tracing.jaeger.enabled:false}"/>
-        <constructor-arg name="applicationName" value="${jaeger.service.name}"/>
-        <constructor-arg name="jaegerHost" value="${jaeger.agent.host}"/>
-        <constructor-arg name="jaegerPort" value="${jaeger.agent.port}"/>
-    </bean>
-
-    <bean class="org.openl.rules.ruleservice.tracing.jaeger.kafka.KafkaTracingProviderImpl" depends-on="jaegerConfiguration">
-        <property name="jaegerConfiguration" ref="jaegerConfiguration"/>
-    </bean>
+    <context:component-scan base-package="org.openl.rules.ruleservice.tracing.jaeger"/>
 
 </beans>

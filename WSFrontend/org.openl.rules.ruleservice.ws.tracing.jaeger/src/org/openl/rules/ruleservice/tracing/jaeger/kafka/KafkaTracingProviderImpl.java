@@ -7,7 +7,8 @@ import java.util.Map;
 
 import org.apache.kafka.common.header.Headers;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
-import org.openl.rules.ruleservice.tracing.jaeger.config.JaegerConfiguration;
+import org.openl.spring.config.ConditionalOnEnable;
+import org.springframework.stereotype.Component;
 
 import io.opentracing.Span;
 import io.opentracing.SpanContext;
@@ -18,15 +19,11 @@ import io.opentracing.contrib.kafka.TracingProducerInterceptor;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
 
+@Component
+@ConditionalOnEnable("ruleservice.tracing.jaeger.enabled")
 public class KafkaTracingProviderImpl implements KafkaTracingProvider {
 
     private static final String NAME = "Jaeger";
-
-    JaegerConfiguration jaegerConfiguration;
-
-    public void setJaegerConfiguration(JaegerConfiguration jaegerConfiguration) {
-        this.jaegerConfiguration = jaegerConfiguration;
-    }
 
     @Override
     public String getName() {
@@ -96,11 +93,11 @@ public class KafkaTracingProviderImpl implements KafkaTracingProvider {
 
     @Override
     public String getConsumerInterceptorProviders() {
-        return jaegerConfiguration.isEnabled() ? TracingConsumerInterceptor.class.getName() : "";
+        return TracingConsumerInterceptor.class.getName();
     }
 
     @Override
     public String getProducerInterceptorProviders() {
-        return jaegerConfiguration.isEnabled() ? TracingProducerInterceptor.class.getName() : "";
+        return TracingProducerInterceptor.class.getName();
     }
 }

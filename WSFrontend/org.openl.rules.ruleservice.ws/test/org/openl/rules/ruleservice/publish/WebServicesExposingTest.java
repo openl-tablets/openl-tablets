@@ -19,13 +19,14 @@ import org.openl.spring.env.PropertySourcesLoader;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = { "classpath:openl-ruleservice-beans.xml",
-        "classpath:openl-ruleservice-store-log-data-beans.xml" })
+@TestPropertySource(properties = { "project.url = http://localhost/", "build.date=2021-07-12" })
+@ContextConfiguration(initializers = PropertySourcesLoader.class, locations = {
+        "classpath:openl-ruleservice-ws-beans.xml" })
 public class WebServicesExposingTest implements ApplicationContextAware {
     private ApplicationContext applicationContext;
 
@@ -61,8 +62,8 @@ public class WebServicesExposingTest implements ApplicationContextAware {
 
             OpenLServiceBuilder openLServiceBuilder = new OpenLService.OpenLServiceBuilder();
             openLServiceBuilder.setName("mock")
-                    .setDeployPath("mock")
-                    .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl("0")));
+                .setDeployPath("mock")
+                .setDeployment(new DeploymentDescription("mock", new CommonVersionImpl("0")));
             OpenLService openLService = openLServiceBuilder.build(openLService1 -> {
             });
             openLServiceInProcessField.set(serviceManager, openLService);
@@ -76,16 +77,5 @@ public class WebServicesExposingTest implements ApplicationContextAware {
             serviceDescriptionInProcessField.set(serviceManager, null);
             openLServiceInProcessField.set(serviceManager, null);
         }
-    }
-
-    public static void main(String[] args) throws Exception {
-        ApplicationContext applicationContext = new ClassPathXmlApplicationContext(
-            "classpath:openl-ruleservice-beans.xml",
-            "classpath:openl-ruleservice-logging-beans.xml");
-        ServiceManagerImpl serviceManager = applicationContext.getBean("serviceManager", ServiceManagerImpl.class);
-        serviceManager.start();
-        System.out.print("Press enter for server stop:");
-        System.in.read();
-        System.out.println("Server has been stoped");
     }
 }
