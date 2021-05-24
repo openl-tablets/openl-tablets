@@ -469,7 +469,7 @@
                 location.reload();
             }).fail(function (response) {
                 let json = JSON.parse(response.responseText);
-                if (json.message) {
+                if (json && json.message) {
                     ws.ui.error(json.message);
                 } else {
                     ws.ui.error("Could not save.")
