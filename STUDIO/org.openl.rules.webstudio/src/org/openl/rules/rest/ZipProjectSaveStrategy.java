@@ -58,7 +58,8 @@ public class ZipProjectSaveStrategy {
         projectData.setAuthor(model.getAuthor());
         if (repository.supports().mappedFolders()) {
             AdditionalData<FileMappingData> additionalData = new FileMappingData(projectData.getName(),
-                model.getPath() + model.getProjectName());
+                StringUtils.isEmpty(model.getPath()) ? model.getProjectName()
+                                                     : model.getPath() + model.getProjectName());
             projectData.addAdditionalData(additionalData);
         }
         ProjectDescriptorNameAdaptor adaptor = new ProjectDescriptorNameAdaptor(model.getProjectName());
