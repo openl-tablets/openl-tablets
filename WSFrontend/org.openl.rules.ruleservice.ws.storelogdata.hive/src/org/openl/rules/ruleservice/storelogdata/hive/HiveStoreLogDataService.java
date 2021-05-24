@@ -7,12 +7,12 @@ import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
-import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
@@ -23,7 +23,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
-public class HiveStoreLogDataService implements StoreLogDataService {
+public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
@@ -38,7 +38,7 @@ public class HiveStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public boolean isSync(StoreLogData storeLogData) {
+    protected boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToHive storeLogDataToHive = AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData,
             StoreLogDataToHive.class);
         if (storeLogDataToHive != null) {
@@ -64,7 +64,7 @@ public class HiveStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public void save(StoreLogData storeLogData) {
+    protected void save(StoreLogData storeLogData, boolean sync) {
         StoreLogDataToHive storeLogDataAnnotation = getAnnotation(storeLogData);
         if (storeLogDataAnnotation == null)
             return;

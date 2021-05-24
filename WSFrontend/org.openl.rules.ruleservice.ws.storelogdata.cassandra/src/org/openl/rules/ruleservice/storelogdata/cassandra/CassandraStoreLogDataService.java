@@ -7,10 +7,10 @@ import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
-public class CassandraStoreLogDataService implements StoreLogDataService {
+public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
@@ -42,7 +42,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
     private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
-    public boolean isSync(StoreLogData storeLogData) {
+    protected boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
             .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
         if (storeLogDataToCassandra != null) {
@@ -66,7 +66,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public void save(StoreLogData storeLogData) {
+    protected void save(StoreLogData storeLogData, boolean sync) {
         Object[] entities;
 
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
@@ -126,7 +126,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
-                    cassandraOperations.save(entity);
+                    cassandraOperations.save(entity, sync);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
                     LOG.error("Failed on cassandra entity save operation.", e);

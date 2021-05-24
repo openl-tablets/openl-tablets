@@ -11,10 +11,10 @@ import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
 import org.openl.spring.config.ConditionalOnEnable;
@@ -30,7 +30,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @ConditionalOnEnable("ruleservice.store.logs.elasticsearch.enabled")
-public class ElasticSearchStoreLogDataService implements StoreLogDataService {
+public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
 
@@ -50,7 +50,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public boolean isSync(StoreLogData storeLogData) {
+    protected boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToElasticsearch storeLogDataToElasticsearch = AnnotationUtils
             .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToElasticsearch.class);
         if (storeLogDataToElasticsearch != null) {
@@ -74,7 +74,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public void save(StoreLogData storeLogData) {
+    protected void save(StoreLogData storeLogData, boolean sync) {
         Object[] entities;
 
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
