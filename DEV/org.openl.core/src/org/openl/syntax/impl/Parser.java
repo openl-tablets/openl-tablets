@@ -96,4 +96,12 @@ public class Parser implements IOpenParser {
         return new ParsedCode(node, source, nonNullError, null);
     }
 
+    @Override
+    public IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source) {
+        IGrammar grammar = grammarFactory.getGrammar();
+        grammar.setModule(source);
+        grammar.parseAsParamDeclaration(source.getCharacterStream());
+
+        return makeParsedCode(grammar, source);
+    }
 }

@@ -14,12 +14,16 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.openl.rules.ruleservice.storelogdata.hive.annotation.Partition;
+
 public class HiveEntityDao {
-    private final PreparedStatement preparedStatement;
-    private final ArrayList<Field> sortedFields;
+    private final String sqlQuery;
+    private final List<Field> sortedPartitionedFields;
+    private final List<Field> sortedFields;
     private final Set<Class<?>> supportedTypes = new HashSet<>(Arrays.asList(Byte.class,
         byte.class,
         Short.class,
@@ -41,12 +45,16 @@ public class HiveEntityDao {
         ZonedDateTime.class,
         Date.class));
 
-    public HiveEntityDao(Connection connection, Class<?> entityClass) throws SQLException,
-                                                                      UnsupportedFieldTypeException {
+    public HiveEntityDao(Class<?> entityClass) throws UnsupportedFieldTypeException {
         checkTypes(entityClass);
-        preparedStatement = new HiveStatementBuilder(connection, entityClass).buildInsertStatement();
+        sqlQuery = new HiveStatementBuilder(entityClass).buildQuery();
+        sortedPartitionedFields = Arrays.stream(entityClass.getDeclaredFields())
+                .filter(f -> !f.isSynthetic() && f.isAnnotationPresent(Partition.class))
+                .sorted(Comparator.comparingInt(f -> f.getAnnotation(Partition.class).value()))
+                .peek(f -> f.setAccessible(true))
+                .collect(Collectors.toCollection(ArrayList::new));
         sortedFields = Arrays.stream(entityClass.getDeclaredFields())
-                .filter(f -> !f.isSynthetic())
+                .filter(f -> !f.isSynthetic() && !f.isAnnotationPresent(Partition.class))
                 .sorted(Comparator.comparing(Field::getName))
                 .peek(f -> f.setAccessible(true))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -65,14 +73,22 @@ public class HiveEntityDao {
         }
     }
 
-    public void insert(Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
-        for (int index = 0; index < sortedFields.size(); index++) {
-            setValue(index + 1, sortedFields.get(index), entity);
-        }
+    public void insert(Connection connection, Object entity) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+        PreparedStatement preparedStatement = connection.prepareStatement(sqlQuery);
+        int startIndex = 1;
+        setValueForFields(preparedStatement, entity, startIndex, sortedPartitionedFields);
+        startIndex += sortedPartitionedFields.size();
+        setValueForFields(preparedStatement, entity, startIndex, sortedFields);
         preparedStatement.execute();
     }
 
-    private void setValue(int index, Field field, Object entity) throws IllegalAccessException,
+    private void setValueForFields(PreparedStatement preparedStatement, Object entity, int startIndex, List<Field> fields) throws IllegalAccessException, SQLException, UnsupportedFieldTypeException {
+        for (int index = 0; index < fields.size(); index++) {
+            setValue(preparedStatement, startIndex + index, fields.get(index), entity);
+        }
+    }
+
+    private void setValue(PreparedStatement preparedStatement, int index, Field field, Object entity) throws IllegalAccessException,
                                                                  SQLException,
                                                                  UnsupportedFieldTypeException {
         if (String.class.equals(field.getType())) {

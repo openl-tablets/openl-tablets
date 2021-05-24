@@ -81,9 +81,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     private final Cloner cloner = new Cloner();
 
+    @Autowired
     private StoreLogDataManager storeLogDataManager;
-
-    private boolean storeLogDataEnabled = false;
 
     @Autowired
     @Qualifier("serviceDescriptionInProcess")
@@ -95,14 +94,6 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
     public StoreLogDataManager getStoreLogDataManager() {
         return storeLogDataManager;
-    }
-
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     @Autowired
@@ -480,7 +471,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             dltProducer,
             objectSerializer,
             getStoreLogDataManager(),
-            isStoreLogDataEnabled());
+            getStoreLogDataManager().isEnabled());
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -559,7 +550,9 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                     service.getDeployPath()));
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getDeployPath()), t);
+            throw new RuleServiceDeployException(
+                String.format("Failed to deploy service '%s'.", service.getDeployPath()),
+                t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
@@ -667,7 +660,8 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             }
             runningServices.remove(service);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
+            throw new RuleServiceUndeployException(
+                String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
     }

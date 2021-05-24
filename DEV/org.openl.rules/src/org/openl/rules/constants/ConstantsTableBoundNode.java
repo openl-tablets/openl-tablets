@@ -79,8 +79,7 @@ public class ConstantsTableBoundNode implements IMemberBoundNode {
 
         GridCellSourceCodeModule typeCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 0);
         String typeName = typeCellSource.getCode();
-        RuleRowHelper.getType(typeName, typeCellSource, cxt);
-        IOpenClass constantType = RuleRowHelper.getType(typeName, typeCellSource, cxt);
+        IOpenClass constantType = OpenLManager.makeType(cxt.getOpenL(), typeName, typeCellSource, cxt);
 
         GridCellSourceCodeModule nameCellSource = DatatypeTableBoundNode.getCellSource(row, cxt, 1);
         String constantName = nameCellSource.getCode();

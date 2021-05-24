@@ -1,6 +1,7 @@
 package org.openl.j;
 
 import org.openl.OpenL;
+import org.openl.binding.impl.ParameterDeclarationNodeBinder;
 import org.openl.conf.*;
 import org.openl.conf.NodeBinderFactoryConfiguration.SingleBinderFactory;
 import org.openl.syntax.impl.ISyntaxConstants;
@@ -36,6 +37,8 @@ public class OpenLBuilder extends AOpenLBuilder {
                 org.openl.binding.impl.ArrayInitializationBinder.class.getName(),
                 "method.header",
                 org.openl.binding.impl.MethodHeaderNodeBinder.class.getName(),
+                "param.declaration",
+                ParameterDeclarationNodeBinder.class.getName(),
                 "method.parameters",
                 org.openl.binding.impl.module.MethodParametersNodeBinder.class.getName(),
                 "method.declaration",

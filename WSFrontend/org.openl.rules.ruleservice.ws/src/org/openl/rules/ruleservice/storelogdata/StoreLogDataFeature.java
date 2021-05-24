@@ -4,17 +4,17 @@ import org.apache.cxf.Bus;
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.feature.AbstractFeature;
 import org.apache.cxf.interceptor.InterceptorProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @NoJSR250Annotations
 public class StoreLogDataFeature extends AbstractFeature {
     private static final int DEFAULT_LIMIT = Integer.MAX_VALUE;
 
-    private boolean storeLogDataEnabled = true;
-
     private int limit = DEFAULT_LIMIT;
 
     private boolean prettyLogging;
 
+    @Autowired
     private StoreLogDataManager storeLogDataManager;
 
     public StoreLogDataManager getStoreLogDataManager() {
@@ -27,7 +27,7 @@ public class StoreLogDataFeature extends AbstractFeature {
 
     @Override
     protected void initializeProvider(InterceptorProvider provider, Bus bus) {
-        if (isStoreLogDataEnabled()) {
+        if (storeLogDataManager.isEnabled()) {
             CollectRequestMessageInInterceptor storeLogDataInInterceptor = new CollectRequestMessageInInterceptor(
                 Integer.MAX_VALUE);
             storeLogDataInInterceptor.setPrettyLogging(false);
@@ -41,14 +41,6 @@ public class StoreLogDataFeature extends AbstractFeature {
             provider.getOutInterceptors().add(storeLogDataOutInterceptor);
             provider.getOutFaultInterceptors().add(storeLogDataOutInterceptor);
         }
-    }
-
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     /**

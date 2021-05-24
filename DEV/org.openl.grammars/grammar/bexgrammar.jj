@@ -86,6 +86,9 @@ public class BExGrammar extends org.openl.grammar.JavaCC30Grammar
           case "module":
               parseModuleInternal();
               break;
+         case "param.declaration":
+              parseParamDeclaration();
+              break;
           case "type":
               parseType();
               break;
@@ -1097,10 +1100,27 @@ void TypeDimension() :
   }
 }
 
+void parseParamDeclaration() :
+{
+  int args = 1;
+}
+{
+  ResultType() [
+       VariableDeclaratorId()
+       {
+           ++args;
+       }
+  ]
+  {
+      nop("param.declaration", null, args);
+  }
+  < EOF >
+}
+
 void parseType() :
 {}
 {
-  Type() 
+  ResultType()
   < EOF >
 }
 

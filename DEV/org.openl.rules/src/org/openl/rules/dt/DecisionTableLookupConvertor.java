@@ -74,87 +74,68 @@ public class DecisionTableLookupConvertor {
         return new TransformedGridTable(table.getSource(), transformer);
     }
 
-    /**
-     *
-     * @param headerRow row with lookup table headers.
-     * @return physical index from grid table, indicating first empty cell in the header row
-     */
-    private int findFirstEmptyCellInHeader(ILogicalTable headerRow) {
-        int ncol = headerRow.getSource().getWidth();
-        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
-            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
-
-            if (headerStr == null) {
-                return columnIndex;
-            }
-        }
-        return 0;
-    }
-
     private CoordinatesTransformer getTransformer(ILogicalTable headerRow,
             ILogicalTable table,
             IGridTable lookupValuesTable,
             Integer lookupValuesTableHeight) throws OpenLCompilationException {
-        int retColumnStart = findRetColumnStart(headerRow);
-        int firstEmptyCell = findFirstEmptyCellInHeader(headerRow);
+        validateRetColumn(headerRow);
         int retTableWidth = retTable.getSource().getCell(0, 0).getWidth();
 
         if (lookupValuesTableHeight == null) {
             lookupValuesTableHeight = lookupValuesTable.getHeight();
         }
-        scale = new DTScale(lookupValuesTableHeight, lookupValuesTable.getWidth() / retTableWidth);
 
-        if (isRetLastColumn(retColumnStart, retTableWidth, firstEmptyCell)) {
-            return new TwoDimensionDecisionTableTranformer(table.getSource(), lookupValuesTable, retTableWidth);
-        } else {
-            return new LookupHeadersTransformer(table
-                .getSource(), lookupValuesTable, retTableWidth, retColumnStart, firstEmptyCell);
-        }
+        this.scale = new DTScale(lookupValuesTableHeight, lookupValuesTable.getWidth() / retTableWidth);
+
+        return new LookupHeadersTransformer(table.getSource(),
+            lookupValuesTable,
+            retTableWidth,
+            firstVerticalColumn(headerRow),
+            buildHorizontalHeaderOffsets(headerRow));
     }
 
-    /**
-     * Checks if the RET section is the last one in the header row
-     *
-     * @param retColumnStart index, indicating beginning of RET section
-     * @param retTableWidth width of RET section
-     * @param firstEmptyCell index, indicating first empty cell in the header
-     * @return true if RET section is the last one
-     */
-    private boolean isRetLastColumn(int retColumnStart, int retTableWidth, int firstEmptyCell) {
-        return retColumnStart + retTableWidth == firstEmptyCell;
-    }
-
-    /**
-     * Finds the physical index from grid table, indicating beginning of RET section.
-     *
-     * @param headerRow row with lookup table headers. For example:<br>
-     *            <table cellspacing="2">
-     *            <tr>
-     *            <td align="center" bgcolor="#8FCB52"><b>C1</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>C2</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>C3</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>HC1</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>HC2</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>HC3</b></td>
-     *            <td align="center" bgcolor="#8FCB52"><b>RET1</b> or <b>CRET1</b></td>
-     *            </tr>
-     *            </table>
-     *
-     * @return the physical index from grid table, indicating beginning of RET section
-     * @throws OpenLCompilationException if there is no RET or CRET section in the table.
-     */
-    private int findRetColumnStart(ILogicalTable headerRow) throws OpenLCompilationException {
-        int ncol = headerRow.getSource().getWidth();
-
-        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
+    private int firstVerticalColumn(ILogicalTable headerRow) {
+        for (int columnIndex = 0; columnIndex < headerRow.getSource().getWidth(); columnIndex++) {
             String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
-
             if (headerStr != null) {
                 headerStr = headerStr.toUpperCase();
+                if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
+                    .isValidCRetHeader(headerStr) || DecisionTableHelper.isValidHConditionHeader(headerStr)) {
+                    return columnIndex;
+                }
+            }
+        }
+        throw new IllegalStateException("Unexpected table structure");
+    }
 
+    private int[] buildHorizontalHeaderOffsets(ILogicalTable headerRow) {
+        List<Integer> hcOffsets = new ArrayList<>();
+        List<Integer> retOffsets = new ArrayList<>();
+        for (int columnIndex = 0; columnIndex < headerRow.getSource().getWidth(); columnIndex++) {
+            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
+            if (headerStr != null) {
+                headerStr = headerStr.toUpperCase();
+                if (DecisionTableHelper.isValidHConditionHeader(headerStr)) {
+                    hcOffsets.add(columnIndex);
+                } else if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
+                    .isValidCRetHeader(headerStr)) {
+                    retOffsets.add(columnIndex);
+                }
+            }
+        }
+        hcOffsets.addAll(retOffsets);
+        return hcOffsets.stream().mapToInt(Integer::intValue).toArray();
+    }
+
+    private void validateRetColumn(ILogicalTable headerRow) throws OpenLCompilationException {
+        int ncol = headerRow.getSource().getWidth();
+        for (int columnIndex = 0; columnIndex < ncol; columnIndex++) {
+            String headerStr = headerRow.getSource().getCell(columnIndex, 0).getStringValue();
+            if (headerStr != null) {
+                headerStr = headerStr.toUpperCase();
                 if (DecisionTableHelper.isValidRetHeader(headerStr) || DecisionTableHelper
                     .isValidCRetHeader(headerStr)) {
-                    return columnIndex;
+                    return;
                 }
             }
         }

@@ -80,7 +80,7 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <org.springframework.version>5.2.14.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.4.6</org.springsecurity.version>
-        <org.hibernate.version>5.2.18.Final</org.hibernate.version>
+        <org.hibernate.version>5.4.24.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
          -->
@@ -111,7 +111,7 @@
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
         <org.apache.avro.version>1.10.0</org.apache.avro.version>
         <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
-        <org.apache.thrift.version>0.14.1</org.apache.thrift.version>
+        <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
         <owasp.version>6.1.0</owasp.version>
         <groovy.version>3.0.8</groovy.version>
@@ -469,7 +469,7 @@
                     <plugin>
                         <groupId>org.simplify4u.plugins</groupId>
                         <artifactId>sign-maven-plugin</artifactId>
-                        <version>0.3.0</version>
+                        <version>0.3.1</version>
                         <configuration>
                             <skip>${maven.deploy.skip}</skip>
                         </configuration>
@@ -1263,7 +1263,7 @@
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
                 <artifactId>xstream</artifactId>
-                <version>1.4.16</version>
+                <version>1.4.17</version>
             </dependency>
             <!-- graph-theory data structures and algorithms. -->
             <dependency>
@@ -1401,7 +1401,7 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>5.1.1.Final</version>
+                <version>5.4.3.Final</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.logging</groupId>

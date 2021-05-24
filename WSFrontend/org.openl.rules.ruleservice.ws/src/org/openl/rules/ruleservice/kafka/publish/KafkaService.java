@@ -56,7 +56,7 @@ public final class KafkaService implements Runnable {
     private final KafkaConsumer<String, RequestMessage> consumer;
     private Thread loopRunningThread;
     private final ObjectSerializer objectSerializer;
-    private final boolean storeLoggingEnabled;
+    private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
 
     public static KafkaService createService(OpenLService service,
@@ -90,23 +90,23 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
-            boolean storeLoggingEnabled) {
+            boolean storageEnabled) {
         this.service = Objects.requireNonNull(service);
         this.inTopic = Objects.requireNonNull(inTopic);
         this.producer = Objects.requireNonNull(producer);
         this.consumer = Objects.requireNonNull(consumer);
         this.dltProducer = Objects.requireNonNull(dltProducer);
         this.objectSerializer = Objects.requireNonNull(objectSerializer);
-        if (storeLoggingEnabled) {
+        if (storageEnabled) {
             this.storeLogDataManager = Objects.requireNonNull(storeLogDataManager);
         }
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
-        this.storeLoggingEnabled = storeLoggingEnabled;
+        this.storageEnabled = storageEnabled;
     }
 
     public boolean isStoreLogDataEnabled() {
-        return storeLoggingEnabled;
+        return storageEnabled;
     }
 
     public StoreLogDataManager getStoreLogDataManager() {

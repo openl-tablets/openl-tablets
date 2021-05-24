@@ -142,7 +142,7 @@ public class Condition extends FunctionalRow implements ICondition {
             field = getLocalField(field);
             if (field instanceof ILocalVar) {
                 for (IParameterDeclaration param : params) {
-                    if (param.getName().equals(field.getName())) {
+                    if (Objects.equals(field.getName(), param.getName())) {
                         return true;
                     }
                 }
@@ -185,7 +185,7 @@ public class Condition extends FunctionalRow implements ICondition {
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
             if (signature.getParameterName(i).equals(source.getCode())) {
                 userDefinedOpenSourceCodeModule = source;
-                IParameterDeclaration[] params = getParams(declaringClass,
+                prepareParams(declaringClass,
                     signature,
                     methodParamType,
                     source,

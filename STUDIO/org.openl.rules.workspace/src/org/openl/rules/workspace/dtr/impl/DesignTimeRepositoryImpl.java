@@ -72,6 +72,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private PropertyResolver propertyResolver;
     private RepositorySettings repositorySettings;
 
+    private List<String> exceptions = new ArrayList<>();
+
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
@@ -210,7 +212,7 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         if ("getName".equals(methodName) && returnType == String.class) {
                             return repoName;
                         }
-                        throw new IllegalStateException(String.format("Repository '%s' : %s", repoName, message));
+                        throw new IllegalStateException(message);
                     });
         }
     }
@@ -372,8 +374,9 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     private void refreshProjects() {
         projects.clear();
         projectsVersions.clear();
+        exceptions.clear();
         for (Repository repository : getRepositories()) {
-            Collection<FileData> fileDatas;
+            Collection<FileData> fileDatas = Collections.emptyList();
             try {
                 String path = rulesLocation;
                 if (repository.supports().folders()) {
@@ -383,7 +386,8 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                 }
             } catch (IOException ex) {
                 LOG.error(ex.getMessage(), ex);
-                fileDatas = Collections.emptyList();
+            } catch (Exception e) {
+                exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
             }
             for (FileData fileData : fileDatas) {
                 AProject project = new AProject(repository, fileData);
@@ -480,6 +484,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     @Override
     public String getRulesLocation() {
         return rulesLocation;
+    }
+
+    @Override
+    public List<String> getExceptions() {
+        return exceptions;
     }
 
     private static class RepositoryListener implements Listener {

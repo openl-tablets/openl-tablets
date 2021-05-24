@@ -1,3 +1,2 @@
 ERROR: Variable 'b' is already defined.
-ERROR: Condition expression must return a boolean type if it uses condition parameters.
 ERROR: Variable 'foo' is already defined.
