@@ -58,33 +58,33 @@ public class WorkspaceCompileService {
             WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager = model
                 .getWebStudioWorkspaceDependencyManager();
             if (webStudioWorkspaceDependencyManager != null) {
+                MessageCounter messageCounter = new MessageCounter();
                 int compiledCount = 0;
-                int errorsCount = 0;
-                int warningsCount = 0;
                 int modulesCount = 0;
                 List<MessageDescription> newMessages = new ArrayList<>();
                 Deque<ProjectDescriptor> queue = new ArrayDeque<>();
                 queue.add(moduleInfo.getProject());
                 while (!queue.isEmpty()) {
                     ProjectDescriptor projectDescriptor = queue.poll();
+                    String dependencyName = ProjectExternalDependenciesHelper
+                        .buildDependencyNameForProject(projectDescriptor.getName());
+                    Collection<IDependencyLoader> loadersForProject = webStudioWorkspaceDependencyManager
+                        .findDependencyLoadersByName(dependencyName);
+                    for (IDependencyLoader dependencyLoader : loadersForProject) {
+                        CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
+                        if (compiledDependency != null) {
+                            processMessages(compiledDependency.getCompiledOpenClass()
+                                .getCurrentMessages(), messageCounter, model, newMessages);
+                        }
+                    }
                     for (Module module : projectDescriptor.getModules()) {
                         Collection<IDependencyLoader> dependencyLoadersForModule = webStudioWorkspaceDependencyManager
                             .findDependencyLoadersByName(module.getName());
                         for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
                             CompiledDependency compiledDependency = dependencyLoader.getRefToCompiledDependency();
                             if (compiledDependency != null) {
-                                for (OpenLMessage message : compiledDependency.getCompiledOpenClass().getCurrentMessages()) {
-                                    switch (message.getSeverity()) {
-                                        case WARN:
-                                            warningsCount++;
-                                            break;
-                                        case ERROR:
-                                            errorsCount++;
-                                            break;
-                                    }
-                                    MessageDescription messageDescription = getMessageDescription(message, model);
-                                    newMessages.add(messageDescription);
-                                }
+                                processMessages(compiledDependency.getCompiledOpenClass()
+                                    .getCurrentMessages(), messageCounter, model, newMessages);
                                 compiledCount++;
                             }
                             modulesCount++;
@@ -109,19 +109,8 @@ public class WorkspaceCompileService {
                 }
                 CompiledOpenClass compiledOpenClass = webStudio.getModel().getCompiledOpenClass();
                 if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
-                    for (OpenLMessage message : ((ValidatedCompiledOpenClass) compiledOpenClass)
-                        .getValidationMessages()) {
-                        switch (message.getSeverity()) {
-                            case WARN:
-                                warningsCount++;
-                                break;
-                            case ERROR:
-                                errorsCount++;
-                                break;
-                        }
-                        MessageDescription messageDescription = getMessageDescription(message, model);
-                        newMessages.add(messageDescription);
-                    }
+                    processMessages(((ValidatedCompiledOpenClass) compiledOpenClass)
+                        .getValidationMessages(), messageCounter, model, newMessages);
                 }
                 compileModuleInfo.put("dataType", "new");
                 if (messageIndex != -1 && messageId != -1) {
@@ -138,8 +127,8 @@ public class WorkspaceCompileService {
                 compileModuleInfo.put("messageId",
                     newMessages.isEmpty() ? -1 : newMessages.get(newMessages.size() - 1).getId());
                 compileModuleInfo.put("messageIndex", newMessages.size() - 1);
-                compileModuleInfo.put("errorsCount", errorsCount);
-                compileModuleInfo.put("warningsCount", warningsCount);
+                compileModuleInfo.put("errorsCount", messageCounter.errorsCount);
+                compileModuleInfo.put("warningsCount", messageCounter.warningsCount);
             }
         }
         return Response.ok(compileModuleInfo).build();
@@ -172,6 +161,23 @@ public class WorkspaceCompileService {
         return Response.ok(tableTestsInfo).build();
     }
 
+    private void processMessages(Collection<OpenLMessage> messages, MessageCounter counter,
+            ProjectModel model,
+            List<MessageDescription> newMessages) {
+        for (OpenLMessage message : messages) {
+            switch (message.getSeverity()) {
+                case WARN:
+                    counter.warningsCount++;
+                    break;
+                case ERROR:
+                    counter.errorsCount++;
+                    break;
+            }
+            MessageDescription messageDescription = getMessageDescription(message, model);
+            newMessages.add(messageDescription);
+        }
+    }
+
     private boolean isModuleCompiled(ProjectModel model, WebStudio webStudio) {
         String currentProjectDependencyName = ProjectExternalDependenciesHelper
             .buildDependencyNameForProject(model.getModuleInfo().getProject().getName());
@@ -202,4 +208,8 @@ public class WorkspaceCompileService {
         return new MessageDescription(message.getId(), message.getSummary(), message.getSeverity(), url);
     }
 
+    private class MessageCounter {
+        int warningsCount = 0;
+        int errorsCount = 0;
+    }
 }
