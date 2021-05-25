@@ -124,9 +124,9 @@ public class ProjectTagsBean {
             } else {
                 final Tag existed = tagService.getByName(type.getId(), tagName);
                 if (existed == null) {
-                    if (tag.getId() != null) {
+                    if (tag.getId() != null && tag.getId() != NONE_ID) {
                         // It was removed externally
-                        tags.remove(tag);
+                        tag.setId(null);
                     }
                     WebStudioUtils.validate(NameChecker.checkName(tagName),
                         "Tag cannot contain forbidden characters (" + NameChecker

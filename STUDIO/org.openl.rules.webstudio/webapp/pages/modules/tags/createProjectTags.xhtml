@@ -25,7 +25,8 @@
                                 <label><h:outputText value="#{tag.type.name}:"/></label>
                             </td>
                             <td>
-                                <h:inputHidden value="#{tag.name}"/>
+                                <h:inputHidden id="tag-type-name" value="#{tag.type.name}"/>
+                                <h:inputHidden id="tag-name" value="#{tag.name}"/>
 
                                 <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
                                     <h:panelGroup rendered="#{tag.type.nullable}">
@@ -58,6 +59,7 @@
 
             <footer>
                 <a4j:commandButton value="Save"
+                                   onclick="if (!confirmCreateTags()) return false;"
                                    action="#{projectTagsBean.validateCreate}"
                                    oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitForm();}"
                                    render="@form nodeView"
@@ -130,6 +132,36 @@
 
             // Reset form
             $j("#createProjectTagsForm")[0].reset();
+        }
+
+        function confirmCreateTags() {
+            let tagsToAdd = 0;
+            let message = '';
+            let $tagTypeNames = $j('#createProjectTagsForm').find('input[type=hidden][id$="tag-type-name"]');
+            $tagTypeNames.each(function () {
+                let tagType = $j(this).val();
+                let tagName = $j(this).parent().find('input[type=hidden][id$="tag-name"]').val();
+                let exist = $j(this).parent().find('.es-list').find('li').filter(function () {
+                    return $j(this).text().toLowerCase() === tagName.toLowerCase();
+                }).length > 0;
+
+                if (!exist) {
+                    tagsToAdd++;
+                    message += '"' + tagName + '" is not an allowed value for tag type "' + tagType + '".\n';
+                }
+            });
+
+            if (tagsToAdd > 0) {
+                if (tagsToAdd === 1) {
+                    message += 'Do you want to add it?';
+                } else {
+                    message += 'Do you want to add them?';
+                }
+
+                return window.confirm(message);
+            }
+
+            return true;
         }
 
         //]]>
