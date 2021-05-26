@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -305,23 +306,29 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     TreeProject getProjectNodeByBusinessName(String repoId, String businessName) {
-        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
-            TreeProject project = (TreeProject) treeNode;
-            if (((RulesProject) project.getData()).getBusinessName().equals(businessName)) {
-                if (repoId == null || repoId.equals(project.getData().getRepository().getId())) {
-                    return project;
-                }
-            }
-        }
-        return null;
+        return findProjectNode(getRulesRepository().getChildNodes(),
+            project -> ((RulesProject) project.getData()).getBusinessName()
+                .equals(businessName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
     }
 
     public TreeProject getProjectNodeByPhysicalName(String repoId, String physicalName) {
-        for (TreeNode treeNode : getRulesRepository().getChildNodes()) {
-            TreeProject project = (TreeProject) treeNode;
-            if (project.getData().getName().equals(physicalName)) {
-                if (repoId == null || repoId.equals(project.getData().getRepository().getId())) {
+        return findProjectNode(getRulesRepository().getChildNodes(),
+            project -> project.getData()
+                .getName()
+                .equals(physicalName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
+    }
+    
+    private TreeProject findProjectNode(List<TreeNode> nodes, Predicate<TreeProject> predicate) {
+        for (TreeNode node : nodes) {
+            if (node instanceof TreeProject) {
+                TreeProject project = (TreeProject) node;
+                if (predicate.test(project)) {
                     return project;
+                }
+            } else if (node instanceof TreeProjectGrouping) {
+                final TreeProject childNode = findProjectNode(node.getChildNodes(), predicate);
+                if (childNode != null) {
+                    return childNode;
                 }
             }
         }
