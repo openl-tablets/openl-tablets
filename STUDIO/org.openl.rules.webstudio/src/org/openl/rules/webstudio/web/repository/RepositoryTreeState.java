@@ -154,6 +154,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 final List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
 
                 if (TreeProjectGrouping.GROUPING_REPOSITORY.equals(group1)) {
+                    List<RulesProject> withoutRepo = new ArrayList<>(rulesProjects);
+
                     repositories.forEach(repository -> {
                         final String repoId = repository.getId();
                         final String name = "[" + repository.getName() + "]";
@@ -162,19 +164,33 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                         final List<RulesProject> subProjects = rulesProjects.stream()
                             .filter(project -> project.getRepository().getId().equals(repoId))
                             .collect(Collectors.toList());
-                        rulesRepository.add(new TreeProjectGrouping(id,
-                            name,
-                            subProjects,
-                            grouping,
-                            1,
-                            tagService,
-                            hideDeleted,
-                            projectDescriptorResolver,
-                            projectService,
-                            repositories));
+
+                        if (!subProjects.isEmpty()) {
+                            rulesRepository.add(new TreeProjectGrouping(id,
+                                name,
+                                subProjects,
+                                grouping,
+                                1,
+                                tagService,
+                                hideDeleted,
+                                projectDescriptorResolver,
+                                projectService,
+                                repositories));
+
+                            withoutRepo.removeAll(subProjects);
+                        }
                     });
+
+                    // Local projects
+                    for (RulesProject project : withoutRepo) {
+                        if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
+                            addRulesProjectToTree(project);
+                        }
+                    }
                 } else {
                     final List<Tag> tags = tagService.getByTagType(group1);
+                    List<RulesProject> withoutTags = new ArrayList<>(rulesProjects);
+
                     tags.forEach(tag -> {
                         final String name = tag.getName();
                         final String id = RepositoryUtils.getTreeNodeId(name);
@@ -185,16 +201,27 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                             .filter(project -> projectsForTags.stream().anyMatch(p -> p.getProjectPath().equals(project.getRealPath())))
                             .collect(Collectors.toList());
 
-                        rulesRepository.add(new TreeProjectGrouping(id,
-                            name,
-                            subProjects,
-                            grouping,
-                            1,
-                            tagService,
-                            hideDeleted,
-                            projectDescriptorResolver,
-                            projectService, repositories));
+                        if (!subProjects.isEmpty()) {
+                            rulesRepository.add(new TreeProjectGrouping(id,
+                                name,
+                                subProjects,
+                                grouping,
+                                1,
+                                tagService,
+                                hideDeleted,
+                                projectDescriptorResolver,
+                                projectService,
+                                repositories));
+
+                            withoutTags.removeAll(subProjects);
+                        }
                     });
+
+                    for (RulesProject project : withoutTags) {
+                        if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
+                            addRulesProjectToTree(project);
+                        }
+                    }
                 }
             }
             if (rulesProjects.isEmpty()) {

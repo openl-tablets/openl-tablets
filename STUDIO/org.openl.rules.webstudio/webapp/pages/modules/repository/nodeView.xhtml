@@ -280,7 +280,7 @@
                     </ui:fragment>
                 </h:panelGroup>
             </table>
-            <ui:fragment rendered="#{node.type == 'project' and not empty projectTagsBean.tagTypes}">
+            <ui:fragment rendered="#{node.type == 'project' and not empty projectTagsBean.tagTypes and not repositoryTreeState.localOnly}">
                 <ui:include src="/pages/modules/tags/editProjectTagsPanel.xhtml">
                     <ui:param name="node" value="#{node}"/>
                     <ui:param name="canModifyTags" value="#{repositoryTreeState.canModifyTags}"/>
