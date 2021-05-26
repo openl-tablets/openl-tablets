@@ -49,6 +49,7 @@ public class ZipArchiveValidatorTest extends AbstractConstraintValidatorTest {
     @Test
     public void testArchives() {
         assertNull(validateAndGetResult(Paths.get("test-resources/upload/zip/test-workspace.zip"), validator));
+        assertNull(validateAndGetResult(Paths.get("test-resources/upload/zip/project.zip"), validator));
     }
 
 }
