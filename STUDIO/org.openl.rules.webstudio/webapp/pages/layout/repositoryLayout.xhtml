@@ -75,6 +75,7 @@
                 },
 
                 ui: {
+                    loaderOpened: 0,
                     success: function(content) {
                         message(content, 4000, true, "success");
                     },
@@ -85,10 +86,18 @@
                         message(content, 8000, true);
                     },
                     showLoader: function() {
-                        showLoader();
+                        if (ws.ui.loaderOpened++ === 0) {
+                            showAnimatedPanel($j('#loadingPanel'));
+                        }
                     },
                     hideLoader: function() {
-                        hideLoader();
+                        if (ws.ui.loaderOpened-- === 1) {
+                            $j('#loadingPanel').hide();
+                        }
+                        if (ws.ui.loaderOpened < 0) {
+                            ws.ui.loaderOpened = 0;
+                            console.warn('hideLoader() without showLoader() is called.');
+                        }
                     }
                 }
             };
@@ -147,16 +156,16 @@
             }
 
             function showLoader() {
-                showAnimatedPanel($j('#loadingPanel'));
+                ws.ui.showLoader();
             }
 
             function hideLoader() {
-                $j('#loadingPanel').hide();
+                ws.ui.hideLoader();
             }
 
           $j(function () {
               fixRichFaces();
-              updateSubmitListener(showLoader);
+              updateSubmitListener(ws.ui.showLoader);
           });
           //]]>
         </script>
@@ -212,6 +221,6 @@
         </div>
 
         <!-- ajax request can change DOM, for example add submit buttons. We must add listeners to them when request is finished. -->
-        <a4j:status onstart="showLoader()" onstop="hideLoader(); updateSubmitListener(showLoader);" />
+        <a4j:status onstart="ws.ui.showLoader()" onstop="ws.ui.hideLoader(); updateSubmitListener(ws.ui.showLoader);" />
     </h:body>
 </html>
