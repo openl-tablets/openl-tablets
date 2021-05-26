@@ -89,7 +89,8 @@ public class ProjectModel {
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
-    private CompiledOpenClass compiledOpenClass;
+    private volatile CompiledOpenClass compiledOpenClass;
+    private volatile boolean projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
     private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
@@ -1004,6 +1005,7 @@ public class ProjectModel {
 
             WorkbookLoaders.resetCurrentFactory();
 
+            this.projectCompilationCompleted = false;
             webStudioWorkspaceDependencyManager
                 .loadDependencyAsync(
                     new Dependency(DependencyType.MODULE,
@@ -1022,6 +1024,7 @@ public class ProjectModel {
                         instantiationStrategy.setExternalParameters(externalParameters);
                         try {
                             this.compiledOpenClass = this.validate(instantiationStrategy);
+                            this.projectCompilationCompleted = true;
                             XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                 .getMetaInfo();
                             allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
@@ -1244,6 +1247,10 @@ public class ProjectModel {
                 }
             }
         }
+    }
+
+    public boolean isProjectCompilationCompleted() {
+        return projectCompilationCompleted;
     }
 
     public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
