@@ -22,7 +22,7 @@
                     <ui:repeat value="#{projectTagsBean.tags}" var="tag">
                         <tr>
                             <td>
-                                <label><h:outputText value="#{tag.type.name}:"/></label>
+                                <label class="#{not tag.type.nullable  ? 'required' : ''}"><h:outputText value="#{tag.type.name}:"/></label>
                             </td>
                             <td>
                                 <h:inputHidden id="tag-type-name" value="#{tag.type.name}"/>
