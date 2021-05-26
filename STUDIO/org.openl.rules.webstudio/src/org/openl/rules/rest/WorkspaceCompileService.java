@@ -107,7 +107,7 @@ public class WorkspaceCompileService {
                         }
                     }
                 }
-                CompiledOpenClass compiledOpenClass = webStudio.getModel().getCompiledOpenClass();
+                CompiledOpenClass compiledOpenClass = model.getCompiledOpenClass();
                 if (compiledOpenClass instanceof ValidatedCompiledOpenClass) {
                     processMessages(((ValidatedCompiledOpenClass) compiledOpenClass)
                         .getValidationMessages(), messageCounter, model, newMessages);
@@ -120,7 +120,9 @@ public class WorkspaceCompileService {
                         compileModuleInfo.put("dataType", "add");
                     }
                 }
-
+                if (model.isProjectCompilationCompleted()) {
+                    compiledCount = modulesCount;
+                }
                 compileModuleInfo.put("modulesCount", modulesCount);
                 compileModuleInfo.put("modulesCompiled", compiledCount);
                 compileModuleInfo.put("messages", newMessages);
