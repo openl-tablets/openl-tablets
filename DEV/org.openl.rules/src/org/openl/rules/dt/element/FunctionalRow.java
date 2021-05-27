@@ -588,8 +588,7 @@ public abstract class FunctionalRow implements IDecisionRow {
             Object value = storage[i].getValue(ruleN);
             if (value instanceof IOpenMethod) {
                 value = ((IOpenMethod) value).invoke(target, tableParams, env);
-            }
-            if (value instanceof ArrayHolder) {
+            } else if (value instanceof ArrayHolder) {
                 value = ((ArrayHolder) value).invoke(target, tableParams, env);
             }
             dest[i + offset] = value;
