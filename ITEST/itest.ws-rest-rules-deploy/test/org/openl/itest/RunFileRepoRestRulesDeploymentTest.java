@@ -97,34 +97,27 @@ public class RunFileRepoRestRulesDeploymentTest {
     }
 
     @Test
-    public void test_EPBDS_8758_multithread() {
+    public void test_EPBDS_8758_multithread() throws InterruptedException {
         client.send("admin_services_no_services.json.get");
 
         client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v1.zip", 201);
         client.send("EPBDS-8758/doSomething_v1.get");
 
         AsyncExecutor executor = new AsyncExecutor(() -> client.send("EPBDS-8758/doSomething.get"));
-        TaskScheduler taskScheduler = new TaskScheduler();
-
         executor.start();
 
-        taskScheduler.schedule(() -> {
-            client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
-            client.send("EPBDS-8758/doSomething_v2.get");
-        }, 1, TimeUnit.SECONDS);
+        TimeUnit.SECONDS.sleep(1);
+        client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v2.zip", 201);
+        client.send("EPBDS-8758/doSomething_v2.get");
+        client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
+        client.send("EPBDS-8758/doSomething_v3.get");
+        TimeUnit.SECONDS.sleep(1);
 
-        taskScheduler.schedule(() -> {
-            client.post("/admin/deploy", "/EPBDS-8758/EPBDS-8758-v3.zip", 201);
-            client.send("EPBDS-8758/doSomething_v3.get");
-        }, 2, TimeUnit.SECONDS);
-
-        boolean deployErrors = taskScheduler.await();
         boolean invocationErrors = executor.stop();
 
         client.send("EPBDS-8758/EPBDS-8758.delete");
 
         assertFalse(invocationErrors);
-        assertFalse(deployErrors);
         client.send("admin_services_no_services.json.get");
     }
 

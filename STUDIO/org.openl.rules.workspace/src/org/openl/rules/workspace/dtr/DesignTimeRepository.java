@@ -68,4 +68,6 @@ public interface DesignTimeRepository extends ProjectsContainer {
     List<Repository> getRepositories();
 
     String getRulesLocation();
+
+    List<String> getExceptions();
 }

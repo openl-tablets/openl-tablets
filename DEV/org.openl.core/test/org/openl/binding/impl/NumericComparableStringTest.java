@@ -75,4 +75,27 @@ public class NumericComparableStringTest {
         assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("000.1001")));
     }
 
+    @Test
+    public void testCompare() {
+        NumericComparableString actual = NumericComparableString.valueOf("A07B");
+
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A7A")));
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A07A")));
+
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A06")));
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A6")));
+
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A07")));
+        assertEquals(1, actual.compareTo(NumericComparableString.valueOf("A7")));
+
+        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("A7B")));
+        assertEquals(0, actual.compareTo(NumericComparableString.valueOf("A07B")));
+
+        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A08")));
+        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A8")));
+
+        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A7C")));
+        assertEquals(-1, actual.compareTo(NumericComparableString.valueOf("A07C")));
+    }
+
 }

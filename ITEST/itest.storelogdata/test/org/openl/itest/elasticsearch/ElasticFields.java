@@ -15,7 +15,8 @@ public interface ElasticFields {
     String VALUE = "value";
     String HOUR = "hour";
     String RESULT = "result";
-    String OBJECT_SERIALIZER_FOUND = "objectSerializerFound";
+    String AWARE_INSTANCES_FOUND = "awareInstancesFound";
+    String ELASTICSEARCH_OPERATIONS_FOUND = "elasticsearchOperationsFound";
     String INT_VALUE1 = "intValue1";
     String INT_VALUE2 = "intValue2";
     String INT_VALUE3 = "intValue3";

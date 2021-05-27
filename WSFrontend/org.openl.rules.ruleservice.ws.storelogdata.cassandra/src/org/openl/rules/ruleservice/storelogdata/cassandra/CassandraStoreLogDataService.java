@@ -1,25 +1,35 @@
 package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
+import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.CassandraSession;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
-public class CassandraStoreLogDataService implements StoreLogDataService {
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
+public class CassandraStoreLogDataService extends AbstractStoreLogDataService {
 
     private static final Logger LOG = LoggerFactory.getLogger(CassandraStoreLogDataService.class);
 
+    @Autowired
     private CassandraOperations cassandraOperations;
 
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
-
-    private boolean enabled = true;
 
     public CassandraOperations getCassandraOperations() {
         return cassandraOperations;
@@ -29,17 +39,34 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
         this.cassandraOperations = cassandraOperations;
     }
 
-    @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
+    private volatile Collection<Inject<?>> supportedInjects;
 
     @Override
-    public void save(StoreLogData storeLogData) {
+    protected boolean isSync(StoreLogData storeLogData) {
+        StoreLogDataToCassandra storeLogDataToCassandra = AnnotationUtils
+            .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToCassandra.class);
+        if (storeLogDataToCassandra != null) {
+            return storeLogDataToCassandra.sync();
+        }
+        return false;
+    }
+
+    @Override
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(CassandraSession.class, cassandraOperations::getCqlSession));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
+    }
+
+    @Override
+    protected void save(StoreLogData storeLogData, boolean sync) {
         Object[] entities;
 
         StoreLogDataToCassandra storeLogDataToCassandraAnnotation = storeLogData.getServiceClass()
@@ -99,7 +126,7 @@ public class CassandraStoreLogDataService implements StoreLogDataService {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
-                    cassandraOperations.save(entity);
+                    cassandraOperations.save(entity, sync);
                 } catch (Exception e) {
                     // Continue the loop if exception occurs
                     LOG.error("Failed on cassandra entity save operation.", e);
