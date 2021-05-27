@@ -61,8 +61,8 @@
                 <a4j:commandButton value="Save"
                                    onclick="if (!confirmCreateTags()) return false;"
                                    action="#{projectTagsBean.validateCreate}"
-                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitForm();}"
-                                   render="@form nodeView"
+                                   oncomplete="if(!#{facesContext.validationFailed}) {hideCreateProjectTags(); submitCreateProjectForm(); }"
+                                   render="@form"
                                    styleClass="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideCreateProjectTags()"/>
             </footer>
@@ -85,11 +85,19 @@
             initCreateProjectTagsDialog(projectName);
         }
 
+        function submitCreateProjectForm() {
+            submitForm();
+        }
+
         function showCreateProjectTagsDialog() {
             $j('#createProjectTagsForm .editable-select').editableSelect({
+                duration: 0,
                 filter: false
             }).on('select.editable-select', function (e, $li) {
                 $li.parent().prev().prev('input[type=hidden]').val($li.text());
+            }).on('hidden.editable-select', function (e, $li) {
+                // Workaround for a bug in Editor: input fields are hidden when combobox is changed.
+                $j('#createProjectTagsForm .editable-select.es-input').show();
             });
 
             let $editableInput = $j('#createProjectTagsForm .editable-select.es-input');
