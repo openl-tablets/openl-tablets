@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -100,6 +102,9 @@ import org.slf4j.LoggerFactory;
 public class ProjectModel {
 
     private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
+
+    private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator
+        .comparing(node -> node.getMember().getName(), String.CASE_INSENSITIVE_ORDER);
 
     /**
      * Compiled rules with errors. Representation of wrapper.
@@ -813,7 +818,7 @@ public class ProjectModel {
         return TableSyntaxNode.EMPTY_ARRAY;
     }
 
-    public synchronized Collection<TableSyntaxNode> getAllTableSyntaxNodes() {
+    public synchronized List<TableSyntaxNode> getAllTableSyntaxNodes() {
         List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<>();
         if (isProjectCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
@@ -825,7 +830,7 @@ public class ProjectModel {
         return tableSyntaxNodes;
     }
 
-    public synchronized Collection<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
+    private synchronized List<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             return currentProjectXlsModuleSyntaxNodes.stream()
                 .filter(Objects::nonNull)
@@ -937,12 +942,27 @@ public class ProjectModel {
     }
 
     private Collection<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
-        if (searchScope.equals(SearchScope.ALL_WITH_EXTRA_PROJECTS)) {
-            return getAllTableSyntaxNodes();
-        } else if (searchScope.equals(SearchScope.CURRENT_PROJECT)) {
-            return getCurrentProjectTableSyntaxNodes();
+        if (searchScope == SearchScope.ALL_WITH_EXTRA_PROJECTS) {
+            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
+            final Predicate<TableSyntaxNode> contains = unique::contains;
+            getAllTableSyntaxNodes().stream().filter(contains.negate()).sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
+            return nodes;
+        } else if (searchScope == SearchScope.CURRENT_PROJECT) {
+            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
+            final Predicate<TableSyntaxNode> contains = unique::contains;
+            getCurrentProjectTableSyntaxNodes().stream()
+                .filter(contains.negate())
+                .sorted(DEFAULT_NODE_CMP)
+                .forEach(nodes::add);
+            return nodes;
+        } else if (searchScope == SearchScope.CURRENT_MODULE) {
+            List<TableSyntaxNode> nodes = new ArrayList<>(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
+            nodes.sort(DEFAULT_NODE_CMP);
+            return nodes;
         } else {
-            return Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes());
+            throw new UnsupportedOperationException();
         }
     }
 
