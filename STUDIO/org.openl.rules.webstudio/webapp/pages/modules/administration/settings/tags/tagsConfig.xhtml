@@ -27,6 +27,7 @@
             background-color: #f5f5f5;
             border: 1px solid;
             border-radius: 3px;
+            cursor: default;
         }
 
         .tag-will-create {
@@ -124,6 +125,12 @@
 
             $j('#tag-types-list').bind('refresh', () => tc.reload());
             $j('#tag-types-list').trigger('refresh');
+
+            $j(window).click(event => {
+                if (!event.target.matches('.dropdown-icon')) {
+                    $j('.dropdown-content').hide();
+                }
+            });
         });
 
         let TagsConfig = function () {
@@ -269,21 +276,15 @@
 
                 let $tagText = $j('<span></span>');
                 $tagText.text(tag.name);
-                let $editTagName = createEditTagName(tag);
-                $tagText.click(() => {
-                    $tagText.replaceWith($editTagName);
-                    $editTagName.focus();
-                });
                 $tag.append($tagText);
 
-                let $tagDelete = createDeleteTagButton(tag, $tag);
-                $tag.append($tagDelete);
+                $tag.append(createDropdown(tag, $tag, $tagText));
 
                 return $tag;
             };
 
             const createDeleteTagButton = function (tag, $tag) {
-                let $tagDelete = $j('<span class="clickable delete-icon" title="Delete tag"></span>');
+                let $tagDelete = $j('<a href="#" title="Delete tag">Delete</span>');
                 $tagDelete.click(() => {
                     if (!window.confirm('Are you sure you want to delete the tag?')) {
                         return false;
@@ -304,6 +305,36 @@
                     );
                 });
                 return $tagDelete;
+            };
+
+            const createEditTagButton = function (tag, $tagText) {
+                let $editTagButton = $j('<a href="#" title="Edit tag">Edit</span>');
+                $editTagButton.click(() => {
+                    let $editTagName = createEditTagName(tag);
+                    $tagText.replaceWith($editTagName);
+                    $editTagName.focus();
+                });
+                return $editTagButton;
+            };
+
+            const createDropdown = function (tag, $tag, $tagText) {
+                let $dropdown = $j('<div class="dropdown"></div>');
+
+                let $dropdownContent = $j('<div class="dropdown-content"></div>');
+                $dropdownContent.append(createEditTagButton(tag, $tagText));
+                $dropdownContent.append(createDeleteTagButton(tag, $tag));
+
+                let $dropdownButton = $j('<span class="clickable dropdown-icon" title="Actions"></span>');
+                $dropdownButton.click(() => {
+                    // Close previous dropdowns
+                    $j('.dropdown-content').hide();
+                    $dropdownContent.show();
+                });
+
+                $dropdown.append($dropdownButton);
+                $dropdown.append($dropdownContent);
+
+                return $dropdown;
             };
 
             const createNewTagName = function (tagType) {

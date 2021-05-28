@@ -1626,7 +1626,12 @@ option[value=""]:disabled + option[value=""]:disabled {
     color: #ffffff00;
 }
 
-.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon, .empty-icon {
+.dropdown-icon:after {
+    content: "⋮";
+    color: black;
+}
+
+.warning-icon, .delete-icon, .edit-icon, .yes-icon, .no-icon, .check-icon, .close-icon, .empty-icon, .dropdown-icon {
     display: inline-block;
     padding: 0 2px;
     font-size: 14px;
@@ -1635,6 +1640,12 @@ option[value=""]:disabled + option[value=""]:disabled {
     height: 16px;
     text-shadow: 1px 1px 3px;
     line-height: 16px;
+}
+
+.dropdown-icon {
+    /* Reduce width */
+    width: 8px;
+    text-align: center;
 }
 
 .icon-small {
@@ -1658,4 +1669,31 @@ option[value=""]:disabled + option[value=""]:disabled {
 
 .actionImage {
     vertical-align: top;
+}
+
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: white;
+    min-width: 60px;
+    border: 1px solid #eaeaea;
+    box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.15);
+    z-index: 1;
+}
+
+.dropdown-content a {
+    color: black;
+    padding: 8px 12px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown-content a:hover {
+    background-color: #ddd
 }
