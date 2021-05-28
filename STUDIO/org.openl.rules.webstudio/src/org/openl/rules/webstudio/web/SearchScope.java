@@ -4,7 +4,7 @@ public enum SearchScope {
 
     CURRENT_MODULE("Current Module"),
     CURRENT_PROJECT("Current Project"),
-    ALL_WITH_EXTRA_PROJECTS("ALL (includes dependency project)");
+    ALL_WITH_EXTRA_PROJECTS("ALL (includes dependency projects)");
 
     private final String label;
 
