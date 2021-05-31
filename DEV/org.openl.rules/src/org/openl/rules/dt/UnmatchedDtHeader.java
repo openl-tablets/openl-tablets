@@ -1,18 +1,21 @@
 package org.openl.rules.dt;
 
 class UnmatchedDtHeader extends DTHeader {
-    UnmatchedDtHeader(String statement, int column, int width) {
-        super(new int[] {}, statement, column, width);
+    private final boolean vertical;
+
+    UnmatchedDtHeader(String statement, int column, int row, int width, boolean vertical) {
+        super(new int[] {}, statement, column, row, width);
+        this.vertical = vertical;
     }
 
     @Override
     boolean isCondition() {
-        return false;
+        return vertical;
     }
 
     @Override
     boolean isHCondition() {
-        return false;
+        return vertical;
     }
 
     @Override
