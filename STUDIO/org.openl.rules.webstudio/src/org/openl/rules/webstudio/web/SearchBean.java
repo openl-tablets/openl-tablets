@@ -30,22 +30,22 @@ public class SearchBean {
 
     // TODO Move table names to Rules Core
     private static final SelectItem[] tableTypeItems = new SelectItem[] {
-            new SelectItem("Decision", XlsNodeTypes.XLS_DT.toString()),
-            new SelectItem("Spreadsheet", XlsNodeTypes.XLS_SPREADSHEET.toString()),
-            new SelectItem("TBasic", XlsNodeTypes.XLS_TBASIC.toString()),
-            new SelectItem("Column Match", XlsNodeTypes.XLS_COLUMN_MATCH.toString()),
-            new SelectItem("Datatype", XlsNodeTypes.XLS_DATATYPE.toString()),
-            new SelectItem("Data", XlsNodeTypes.XLS_DATA.toString()),
-            new SelectItem("Method", XlsNodeTypes.XLS_METHOD.toString()),
-            new SelectItem("Test", XlsNodeTypes.XLS_TEST_METHOD.toString()),
-            new SelectItem("Run", XlsNodeTypes.XLS_RUN_METHOD.toString()),
-            new SelectItem("Constants", XlsNodeTypes.XLS_CONSTANTS.toString()),
-            new SelectItem("Conditions", XlsNodeTypes.XLS_CONDITIONS.toString()),
-            new SelectItem("Actions", XlsNodeTypes.XLS_ACTIONS.toString()),
-            new SelectItem("Returns", XlsNodeTypes.XLS_RETURNS.toString()),
-            new SelectItem("Environment", XlsNodeTypes.XLS_ENVIRONMENT.toString()),
-            new SelectItem("Properties", XlsNodeTypes.XLS_PROPERTIES.toString()),
-            new SelectItem("Other", XlsNodeTypes.XLS_OTHER.toString()) };
+            new SelectItem(XlsNodeTypes.XLS_DT.toString(), "Decision"),
+            new SelectItem(XlsNodeTypes.XLS_SPREADSHEET.toString(), "Spreadsheet"),
+            new SelectItem(XlsNodeTypes.XLS_TBASIC.toString(), "TBasic"),
+            new SelectItem(XlsNodeTypes.XLS_COLUMN_MATCH.toString(), "Column Match"),
+            new SelectItem(XlsNodeTypes.XLS_DATATYPE.toString(), "Datatype"),
+            new SelectItem(XlsNodeTypes.XLS_DATA.toString(), "Data"),
+            new SelectItem(XlsNodeTypes.XLS_METHOD.toString(), "Method"),
+            new SelectItem(XlsNodeTypes.XLS_TEST_METHOD.toString(), "Test"),
+            new SelectItem(XlsNodeTypes.XLS_RUN_METHOD.toString(), "Run"),
+            new SelectItem(XlsNodeTypes.XLS_CONSTANTS.toString(), "Constants"),
+            new SelectItem(XlsNodeTypes.XLS_CONDITIONS.toString(), "Conditions"),
+            new SelectItem(XlsNodeTypes.XLS_ACTIONS.toString(), "Actions"),
+            new SelectItem(XlsNodeTypes.XLS_RETURNS.toString(), "Returns"),
+            new SelectItem(XlsNodeTypes.XLS_ENVIRONMENT.toString(), "Environment"),
+            new SelectItem(XlsNodeTypes.XLS_PROPERTIES.toString(), "Properties"),
+            new SelectItem(XlsNodeTypes.XLS_OTHER.toString(), "Other") };
 
     private static final SelectItem[] searchScopeItems = new SelectItem[] {
             new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()),

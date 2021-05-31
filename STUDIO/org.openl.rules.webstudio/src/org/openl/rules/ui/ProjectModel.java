@@ -103,8 +103,9 @@ public class ProjectModel {
 
     private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
-    private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator
-        .comparing(node -> node.getMember().getName(), String.CASE_INSENSITIVE_ORDER);
+    private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
+        node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
+        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
 
     /**
      * Compiled rules with errors. Representation of wrapper.
