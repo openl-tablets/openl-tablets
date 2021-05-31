@@ -5,13 +5,15 @@ import java.util.Arrays;
 abstract class DTHeader {
     final int[] methodParameterIndexes;
     final int column;
+    final int row;
     final String statement;
     final int width;
 
-    DTHeader(int[] methodParameterIndexes, String statement, int column, int width) {
+    DTHeader(int[] methodParameterIndexes, String statement, int column, int row, int width) {
         this.methodParameterIndexes = methodParameterIndexes;
         this.statement = statement;
         this.column = column;
+        this.row = row;
         this.width = width;
     }
 
@@ -50,6 +52,10 @@ abstract class DTHeader {
 
     int getColumn() {
         return column;
+    }
+
+    public int getRow() {
+        return row;
     }
 
     private String getTypeString() {

@@ -2,20 +2,18 @@ package org.openl.rules.dt;
 
 class SimpleDTHeader extends DTHeader {
 
-    private int row;
     private final boolean horizontal;
     private String title;
 
-    SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int width) {
-        super(new int[] { methodParameterIndex }, statement, column, width);
+    SimpleDTHeader(int methodParameterIndex, String statement, String title, int column, int row, int width) {
+        super(new int[] { methodParameterIndex }, statement, column, row, width);
         this.title = title;
         this.horizontal = false;
     }
 
     SimpleDTHeader(int methodParameterIndex, String statement, int column, int row) {
-        super(new int[] { methodParameterIndex }, statement, column, 1);
+        super(new int[] { methodParameterIndex }, statement, column, row, 1);
         this.horizontal = true;
-        this.row = row;
     }
 
     public String getTitle() {

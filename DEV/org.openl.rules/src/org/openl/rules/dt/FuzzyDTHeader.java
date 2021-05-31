@@ -11,6 +11,7 @@ class FuzzyDTHeader extends DTHeader {
     private final FuzzyResult fuzzyResult;
     private final int topColumn;
     private final boolean returnDTHeader;
+    private final boolean vertical;
 
     FuzzyDTHeader(int methodParameterIndex,
             String statement,
@@ -18,15 +19,18 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(new int[] { methodParameterIndex }, statement, column, width);
+            boolean returnDTHeader,
+            boolean vertical) {
+        super(new int[] { methodParameterIndex }, statement, column, row, width);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
         this.fuzzyResult = fuzzyResult;
+        this.vertical = vertical;
     }
 
     FuzzyDTHeader(String statement,
@@ -34,15 +38,18 @@ class FuzzyDTHeader extends DTHeader {
             IOpenField[] fieldsChain,
             int topColumn,
             int column,
+            int row,
             int width,
             FuzzyResult fuzzyResult,
-            boolean returnDTHeader) {
-        super(EMPTY_INDEXES, statement, column, width);
+            boolean returnDTHeader,
+            boolean vertical) {
+        super(EMPTY_INDEXES, statement, column, row, width);
         this.topColumn = topColumn;
         this.fieldsChain = fieldsChain;
         this.returnDTHeader = returnDTHeader;
         this.title = title;
         this.fuzzyResult = fuzzyResult;
+        this.vertical = vertical;
     }
 
     String getTitle() {
@@ -60,7 +67,7 @@ class FuzzyDTHeader extends DTHeader {
 
     @Override
     boolean isHCondition() {
-        return false;
+        return vertical;
     }
 
     @Override
