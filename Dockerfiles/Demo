@@ -24,9 +24,6 @@ RUN set -eux ; \
 # Clean up temporaries
     rm -rf /var/lib/apt/lists/* ; \
     \
-# Fix SEVERE error while running image via non-root user
-    mkdir -p conf/Catalina/localhost ; \
-    \
 # Download artifact.
     artifactUrl="$SERVER/org/openl/rules/demo/openl-demo-app" ; \
     if [ "$VERSION" = "latest" ] ; then \
