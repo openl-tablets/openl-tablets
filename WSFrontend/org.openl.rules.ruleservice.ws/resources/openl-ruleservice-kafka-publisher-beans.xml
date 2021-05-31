@@ -41,7 +41,5 @@
           class="org.openl.rules.ruleservice.kafka.publish.KafkaRuleServicePublisher">
         <property name="defaultBootstrapServers" value="${ruleservice.kafka.bootstrap.servers}"/>
         <property name="defaultGroupId" value="${ruleservice.kafka.group.id}"/>
-        <property name="storeLogDataManager" ref="storeLogDataManager"/>
-        <property name="storeLogDataEnabled" value="${ruleservice.store.logs.enabled}"/>
     </bean>
 </beans>

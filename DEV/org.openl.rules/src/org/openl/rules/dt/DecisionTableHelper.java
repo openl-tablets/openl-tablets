@@ -1053,6 +1053,7 @@ public final class DecisionTableHelper {
         grid.setCellValue(column, 1, declaredDtHeader.getStatement());
 
         int firstColumn = column;
+        int lastParamFirstColumn = firstColumn;
 
         for (int j = 0; j < declaredDtHeader.getColumnParameters().length; j++) {
             final int firstTitleColumn = column;
@@ -1076,7 +1077,7 @@ public final class DecisionTableHelper {
                 if (w1 > 1) {
                     grid.addMergedRegion(new GridRegion(2, column, 2, column + w1 - 1));
                 }
-
+                lastParamFirstColumn = column;
                 column = column + w1;
             }
 
@@ -1103,6 +1104,14 @@ public final class DecisionTableHelper {
                         declaredDtHeader.getMatchedDefinition().getDtColumnsDefinition().getUri());
                 }
             }
+        }
+        if (column < firstColumn + declaredDtHeader.getWidth()) {
+
+            grid.addMergedRegion(new GridRegion(IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
+                lastParamFirstColumn,
+                IDecisionTableConstants.SIMPLE_DT_HEADERS_HEIGHT - 1,
+                firstColumn + declaredDtHeader.getWidth() - 1));
+            column = firstColumn + declaredDtHeader.getWidth();
         }
         // merge columns
         if (column - firstColumn > 1) {

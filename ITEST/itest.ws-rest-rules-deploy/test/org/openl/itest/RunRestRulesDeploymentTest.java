@@ -102,11 +102,6 @@ public class RunRestRulesDeploymentTest {
 
         AsyncExecutor executor = new AsyncExecutor(() -> {
             client.send("EPBDS-8758/doSomething.get");
-            try {
-                TimeUnit.MILLISECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
         TaskScheduler taskScheduler = new TaskScheduler();
 
@@ -141,11 +136,6 @@ public class RunRestRulesDeploymentTest {
 
         AsyncExecutor executor = new AsyncExecutor(() -> {
             client.send("EPBDS-8758/doSomething.get");
-            try {
-                TimeUnit.MILLISECONDS.sleep(10);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
         });
         executor.start();
 

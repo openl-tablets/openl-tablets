@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Collections;
@@ -17,59 +16,37 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.Entity;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.DisposableBean;
-import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
-public class HiveOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener {
+import com.zaxxer.hikari.HikariDataSource;
+
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
+public class HiveOperations implements RuleServicePublisherListener {
     private final Logger log = LoggerFactory.getLogger(HiveOperations.class);
-    private static final String driverClass = "org.apache.hive.jdbc.HiveDriver";
 
-    private Connection connection;
+    @Value("${ruleservice.store.logs.hive.table.create}")
     private boolean createTableEnabled = false;
+
+    @Autowired
+    private HikariDataSource hiveDataSource;
+
     private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
+            Collections.unmodifiableSet(new HashSet<>()));
     private final AtomicReference<Map<Class<?>, HiveEntityDao>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
-    private boolean enabled;
-    private String connectionURL;
+            Collections.unmodifiableMap(new HashMap<>()));
 
-    @Override
-    public void afterPropertiesSet() {
-        if (isEnabled()) {
-            try {
-                init();
-            } catch (Exception e) {
-                log.error("Hive initialization failure.", e);
-            }
-        }
-    }
-
-    private synchronized void init() {
-        if (connection == null) {
-            try {
-                Class.forName(driverClass);
-            } catch (ClassNotFoundException exception) {
-                log.error("The driver is not found", exception);
-            }
-            try {
-                connection = DriverManager.getConnection(connectionURL);
-            } catch (SQLException e) {
-                log.error("Connection to Hive is not established", e);
-            }
-        }
-    }
-
-    @Override
-    public void destroy() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                log.error("Failed to close Hive connection.", e);
-            }
+    public Connection getConnection() {
+        try {
+            return hiveDataSource.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Can not get connection to Hive", e);
         }
     }
 
@@ -80,28 +57,23 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
 
     @Override
     public void onUndeploy(String deployPath) {
-        if (isEnabled()) {
-            entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
-            entitySavers.set(Collections.emptyMap());
-        }
+        entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
+        entitySavers.set(Collections.emptyMap());
     }
 
     public void save(Object entity) {
-        if (!isEnabled()) {
-            throw new IllegalStateException("Failed to save an entity to Hive. Feature is not enabled.");
-        }
         if (entity == null) {
             return;
         }
-        try {
-            createTableIfNotExists(entity.getClass());
-            getHiveEntityDao(entity.getClass()).insert(entity);
+        try (Connection connection = getConnection()) {
+            createTableIfNotExists(connection, entity.getClass());
+            getHiveEntityDao(entity.getClass()).insert(connection, entity);
         } catch (Exception e) {
             log.error("Failed to save hive entity.", e);
         }
     }
 
-    private HiveEntityDao getHiveEntityDao(Class<?> entityClass) throws SQLException, UnsupportedFieldTypeException {
+    private HiveEntityDao getHiveEntityDao(Class<?> entityClass) throws UnsupportedFieldTypeException {
         HiveEntityDao hiveEntityDao = null;
         Map<Class<?>, HiveEntityDao> current;
         Map<Class<?>, HiveEntityDao> next;
@@ -112,7 +84,7 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                 return currentEntitySaver;
             } else {
                 if (hiveEntityDao == null) {
-                    hiveEntityDao = new HiveEntityDao(connection, entityClass);
+                    hiveEntityDao = new HiveEntityDao(entityClass);
                 }
                 next = new HashMap<>(current);
                 next.put(entityClass, hiveEntityDao);
@@ -121,8 +93,8 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         return hiveEntityDao;
     }
 
-    public void createTableIfNotExists(Class<?> entityClass) {
-        if (isEnabled() && isCreateTableEnabled()) {
+    public void createTableIfNotExists(Connection connection, Class<?> entityClass) {
+        if (isCreateTableEnabled()) {
             Set<Class<?>> current;
             Set<Class<?>> next;
             do {
@@ -141,18 +113,18 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
                     String[] queries = sqlQuery.split(";");
                     for (String q : queries) {
                         try (Statement statement = connection.createStatement()) {
-                            statement.execute(q.trim());
+                            statement.execute(removeCommentsInStatement(q.trim()));
                         }
                     }
                 } catch (IOException | SQLException e) {
                     throw new HiveTableCreationException(
-                        String.format("Failed to extract a file with schema creation SQL for '%s'.",
-                            entityClass.getTypeName()),
-                        e);
+                            String.format("Failed to extract a file with schema creation SQL for '%s'.",
+                                    entityClass.getTypeName()),
+                            e);
                 }
             } else {
                 throw new HiveTableCreationException(
-                    String.format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
+                        String.format("Missed @Entity annotation for hive entity class '%s'.", entityClass.getTypeName()));
             }
         }
     }
@@ -165,24 +137,24 @@ public class HiveOperations implements InitializingBean, DisposableBean, RuleSer
         this.createTableEnabled = createTableEnabled;
     }
 
-    public boolean isEnabled() {
-        return enabled;
+    public HikariDataSource getHiveDataSource() {
+        return hiveDataSource;
     }
 
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
-    }
-
-    public void setConnectionURL(String connectionURL) {
-        this.connectionURL = connectionURL;
+    public void setHiveDataSource(HikariDataSource hiveDataSource) {
+        this.hiveDataSource = hiveDataSource;
     }
 
     private static String extractSqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
-            .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
+                .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         if (inputStream == null) {
             throw new FileNotFoundException("/" + entityClass.getName().replaceAll("\\.", "/") + ".sql");
         }
         return IOUtils.toStringAndClose(inputStream);
+    }
+
+    static String removeCommentsInStatement(String statement) {
+        return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 }

@@ -8,14 +8,15 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.InetSocketAddress;
-import java.net.Socket;
+import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -47,6 +48,16 @@ class HttpData {
         return Integer.parseInt(status[1]);
     }
 
+    private String getHttpMethod() {
+        String[] status = firstLine.split(" ", 3);
+        return status[0];
+    }
+
+    private String getUrl() {
+        String[] status = firstLine.split(" ", 3);
+        return status[1];
+    }
+
     static HttpData readFile(String resource) throws IOException {
         try (InputStream input = HttpData.class.getResourceAsStream(resource)) {
             return readData(input, resource);
@@ -54,39 +65,49 @@ class HttpData {
     }
 
     static HttpData send(URL baseURL, String resource) throws IOException {
-        try (Socket socket = new Socket()) {
-
-            int readTimeout = Integer.parseInt(System.getProperty("http.timeout.read"));
-            int connectTimeout = Integer.parseInt(System.getProperty("http.timeout.connect"));
-
-            socket.setSoTimeout(readTimeout);
-            socket.connect(new InetSocketAddress(baseURL.getHost(), baseURL.getPort()), connectTimeout);
-            OutputStream outputStream = socket.getOutputStream();
-            write(outputStream, resource);
-            InputStream input = socket.getInputStream();
-
-            return readData(input, resource);
-        }
-    }
-
-    private static void write(OutputStream output, String resource) throws IOException {
         HttpData httpData = readFile(resource);
-
         if (httpData == null) {
             throw new FileNotFoundException(resource);
         }
+        HttpURLConnection connection = openConnection(URI.create(baseURL.toString() + httpData.getUrl()).toURL(),
+            httpData.getHttpMethod());
+        write(connection, httpData);
+        return readData(connection, resource);
+    }
 
+    private static HttpURLConnection openConnection(URL url, String httpMethod) throws IOException {
+        URLConnection connection = url.openConnection();
+        if (!(connection instanceof HttpURLConnection)) {
+            throw new IllegalStateException("HttpURLConnection required for [" + url + "] but got: " + connection);
+        }
+        connection.setConnectTimeout(Integer.parseInt(System.getProperty("http.timeout.connect")));
+        connection.setReadTimeout(Integer.parseInt(System.getProperty("http.timeout.read")));
+        connection.setDoInput(true);
+        if ("GET".equals(httpMethod)) {
+            ((HttpURLConnection) connection).setInstanceFollowRedirects(true);
+        } else {
+            ((HttpURLConnection) connection).setInstanceFollowRedirects(false);
+        }
+        if ("POST".equals(httpMethod) || "PUT".equals(httpMethod) || "DELETE".equals(httpMethod) || "PATCH"
+            .equals(httpMethod)) {
+            connection.setDoOutput(true);
+        } else {
+            connection.setDoOutput(false);
+        }
+        ((HttpURLConnection) connection).setRequestMethod(httpMethod);
+        return (HttpURLConnection) connection;
+    }
+
+    private static void write(HttpURLConnection connection, HttpData httpData) throws IOException {
         httpData.headers.putIfAbsent("Content-Length", String.valueOf(httpData.body.length));
         httpData.headers.putIfAbsent("Host", "example.com");
-        OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.ISO_8859_1);
-        writer.append(httpData.firstLine).append('\r').append('\n');
-        for (Map.Entry<String, String> e : httpData.headers.entrySet()) {
-            writer.append(e.getKey()).append(": ").append(e.getValue()).append('\r').append('\n');
+        httpData.headers.forEach(connection::addRequestProperty);
+        connection.connect();
+        if (httpData.body.length != 0) {
+            try (OutputStream os = connection.getOutputStream()) {
+                os.write(httpData.body);
+            }
         }
-        writer.append('\r').append('\n');
-        writer.flush();
-        output.write(httpData.body);
-        output.flush();
     }
 
     void assertTo(HttpData expected) {
@@ -156,6 +177,34 @@ class HttpData {
             Files.write(responsePath, body);
         } catch (IOException ignored) {
             // Ignored
+        }
+    }
+
+    private static HttpData readData(HttpURLConnection connection, String resource) throws IOException {
+        connection.getResponseCode();
+        InputStream input = connection.getErrorStream();
+        if (input == null) {
+            try {
+                input = connection.getInputStream();
+            } catch (IOException ignored) {
+
+            }
+        }
+        try {
+            String firstLine = connection.getHeaderField(0);
+            Map<String, String> headers = new HashMap<>();
+            for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
+                if (entries.getKey() != null) {
+                    headers.put(entries.getKey(), String.join(", ", entries.getValue()));
+                }
+            }
+
+            byte[] body = input != null ? StreamUtils.copyToByteArray(input) : new byte[0];
+            return new HttpData(firstLine, headers, body, resource);
+        } finally {
+            if (input != null) {
+                input.close();
+            }
         }
     }
 

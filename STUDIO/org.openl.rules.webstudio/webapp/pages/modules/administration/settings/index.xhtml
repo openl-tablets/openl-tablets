@@ -446,7 +446,7 @@
                                                                 <h:panelGrid id="designInfoPanel" columns="2"
                                                                              columnClasses="titleColumn">
                                                                     <h:outputText value="Name:"/>
-                                                                    <h:inputText value="#{designRepository.name}" onchange="updateRepoTab('#{designRepository.id}', this)"/>
+                                                                    <h:inputText value="#{designRepository.name}" maxlength="20" onchange="updateRepoTab('#{designRepository.id}', this)"/>
                                                                     <h:outputText value="Type:"/>
                                                                     <h:selectOneMenu value="#{designRepository.type}">
                                                                         <f:ajax event="change"
@@ -548,7 +548,7 @@
                                                                     <h:outputText value="Name:"
                                                                                   rendered="#{not systemSettingsBean.useDesignRepo}"/>
                                                                     <h:inputText value="#{deployConfigRepo.name}"
-                                                                                 disabled="true"
+                                                                                 disabled="true" maxlength="20"
                                                                                  rendered="#{not systemSettingsBean.useDesignRepo}"/>
                                                                     <h:outputText value="Type:"
                                                                                   rendered="#{not systemSettingsBean.useDesignRepo}"/>
@@ -644,7 +644,7 @@
                                                                                  columnClasses="titleColumn">
                                                                         <h:outputText value="Name:"/>
                                                                         <h:inputText value="#{repository.name}"
-                                                                                     styleClass="no-autocomplete"
+                                                                                     styleClass="no-autocomplete" maxlength="20"
                                                                                      onchange="updateRepoTab('#{repository.id}', this)"/>
                                                                         <h:outputText value="Type:"/>
                                                                         <h:selectOneMenu value="#{repository.type}">

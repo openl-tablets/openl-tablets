@@ -37,6 +37,7 @@ import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInte
 import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.openl.rules.serialization.ProjectJacksonObjectMapperFactoryBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +61,6 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     private final Map<OpenLService, Server> runningServices = new ConcurrentHashMap<>();
     private final Set<String> noWadlServices = new ConcurrentSkipListSet<>();
 
-    private boolean storeLogDataEnabled = false;
     private boolean swaggerPrettyPrint = false;
 
     // false is for testing purposes, see org.openl.rules.ruleservice.servlet.SpringInitializer
@@ -92,20 +92,23 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
     @Qualifier("serviceDescriptionInProcess")
     private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
+    @Autowired
+    private StoreLogDataManager storeLogDataManager;
+
+    public StoreLogDataManager getStoreLogDataManager() {
+        return storeLogDataManager;
+    }
+
+    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
+        this.storeLogDataManager = storeLogDataManager;
+    }
+
     public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
         return serviceDescriptionObjectFactory;
     }
 
     public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
         this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
-    }
-
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
     }
 
     public ObjectFactory<ObjectMapper> getJaxrsSwaggerObjectMapper() {
@@ -178,7 +181,7 @@ public class JAXRSRuleServicePublisher implements RuleServicePublisher {
             JAXRSServerFactoryBean svrFactory = getServerFactoryBeanObjectFactory().getObject();
             String url = "/" + getUrl(service);
             svrFactory.setAddress(url);
-            if (isStoreLogDataEnabled()) {
+            if (getStoreLogDataManager().isEnabled()) {
                 svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
                 svrFactory.getInInterceptors()
                     .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));

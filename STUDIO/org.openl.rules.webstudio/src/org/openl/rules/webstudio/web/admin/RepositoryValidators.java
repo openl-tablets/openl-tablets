@@ -143,7 +143,8 @@ public final class RepositoryValidators {
             if (resultException == null) {
                 resultException = e;
             }
-            throw new RepositoryValidationException(resultException.getMessage(), resultException);
+            throw new RepositoryValidationException(String.format("Repository '%s' : %s", repoConfig.getName(),
+                    resultException.getMessage() != null ? resultException.getMessage() : e.getMessage()), resultException);
         }
     }
 
@@ -171,7 +172,7 @@ public final class RepositoryValidators {
             }
 
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s", repoConfig.getName(), resultException.getMessage()));
+                String.format("Repository '%s' : %s", repoConfig.getName(), e.getMessage()));
         }
     }
 

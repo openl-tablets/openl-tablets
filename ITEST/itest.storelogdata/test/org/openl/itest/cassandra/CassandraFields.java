@@ -13,7 +13,8 @@ public interface CassandraFields {
     String VALUE = "value";
     String HOUR = "hour";
     String RESULT = "result";
-    String OBJECT_SERIALIZER_FOUND = "object_serializer_found";
+    String AWARE_INSTANCES_FOUND = "aware_instances_found";
+    String CASSANDRA_SESSION_FOUND = "cassandra_session_found";
     String INT_VALUE1 = "int_value1";
     String INT_VALUE2 = "int_value2";
     String INT_VALUE3 = "int_value3";

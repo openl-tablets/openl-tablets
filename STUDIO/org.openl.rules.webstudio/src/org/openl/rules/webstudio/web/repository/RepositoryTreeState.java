@@ -239,6 +239,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                     // Initialize content of empty node
                     deploymentRepository.getElements();
                 }
+                List<String> exceptions = userWorkspace.getDesignTimeRepository().getExceptions();
+                if (!exceptions.isEmpty()) {
+                    errorMessage = exceptions.get(0);
+                }
             } catch (ProjectException e) {
                 log.error("Cannot get deployment projects", e);
             }
@@ -252,6 +256,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 updateSelectedNode();
             }
         } catch (Exception e) {
+            // Should never happen
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             String message = "Cannot build repository tree. " + (rootCause == null ? e.getMessage()
                                                                                    : rootCause.getMessage());

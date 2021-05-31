@@ -22,7 +22,6 @@ import org.openl.rules.ruleservice.core.RuleServiceOpenLCompilationException;
 import org.openl.rules.ruleservice.core.RuleServiceOpenLServiceInstantiationHelper;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.core.RuleServiceWrapperException;
-import org.openl.util.ArrayUtils;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethodHandler;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfterInterceptor;
@@ -33,6 +32,7 @@ import org.openl.runtime.ASMProxyHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.util.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
@@ -109,21 +109,37 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-    private void processAwareInterfaces(Object o, Method method) {
+    private void processAware(Object o, Method method) {
         if (o instanceof IOpenClassAware) {
             ((IOpenClassAware) o).setIOpenClass(openClass);
         }
+        try {
+            AnnotationUtils.inject(o, InjectOpenClass.class, () -> openClass);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", IOpenClass.class.getTypeName());
+        }
         if (o instanceof IOpenMemberAware) {
-            for (Class<?> interf : serviceTarget.getClass().getInterfaces()) {
-                try {
-                    Method m = interf.getMethod(method.getName(), method.getParameterTypes());
-                    IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
-                    ((IOpenMemberAware) o).setIOpenMember(openMember);
-                    return;
-                } catch (NoSuchMethodException ignored) {
-                }
+            IOpenMember openMember = findIOpenMember(method);
+            if (openMember != null) {
+                ((IOpenMemberAware) o).setIOpenMember(openMember);
             }
         }
+        try {
+            AnnotationUtils.inject(o, InjectOpenMember.class, () -> findIOpenMember(method));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
+        }
+    }
+
+    private IOpenMember findIOpenMember(Method method) {
+        for (Class<?> interf : serviceTarget.getClass().getInterfaces()) {
+            try {
+                Method m = interf.getMethod(method.getName(), method.getParameterTypes());
+                return RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+        return null;
     }
 
     private void checkForAroundInterceptor(Method method, Annotation annotation) {
@@ -132,7 +148,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 .value();
             try {
                 ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.newInstance();
-                processAwareInterfaces(aroundInterceptor, method);
+                processAware(aroundInterceptor, method);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
@@ -152,7 +168,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
-                    processAwareInterfaces(preInterceptor, method);
+                    processAware(preInterceptor, method);
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
@@ -170,7 +186,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
                 .value();
             try {
                 ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.newInstance();
-                processAwareInterfaces(serviceExtraMethodHandler, method);
+                processAware(serviceExtraMethodHandler, method);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
@@ -190,7 +206,7 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.newInstance();
-                    processAwareInterfaces(postInterceptor, method);
+                    processAware(postInterceptor, method);
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
@@ -275,7 +291,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
+                listener.afterServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -289,7 +310,12 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
             Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccurredException);
+                listener.beforeServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -390,11 +416,11 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
         }
     }
 
-
     private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterMethodInvocation(interfaceMethod, args, result, null);
+                listener
+                    .afterMethodInvocation(interfaceMethod, args, result, null, e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }
@@ -404,7 +430,8 @@ public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
     private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeMethodInvocation(interfaceMethod, args, null, null);
+                listener
+                    .beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
                 log.error("Exception occurred.", e1);
             }

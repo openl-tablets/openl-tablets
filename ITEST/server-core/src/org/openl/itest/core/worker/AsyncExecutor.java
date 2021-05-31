@@ -16,7 +16,7 @@ import java.util.stream.Stream;
  */
 public class AsyncExecutor {
 
-    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors() * 2;
+    private static final int MAX_THREADS = Math.min(Runtime.getRuntime().availableProcessors() * 2, 20);
 
     private final ExecutorService executor;
     private final List<Wrapper> workers;
