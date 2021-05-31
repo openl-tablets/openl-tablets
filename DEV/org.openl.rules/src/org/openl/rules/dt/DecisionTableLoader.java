@@ -111,7 +111,8 @@ public class DecisionTableLoader {
         int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
         int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
         int firstColumnForHCondition = DecisionTableHelper
-            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight)
+            .getLeft();
         if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
             .getCell(firstColumnForHCondition, 0)
             .getHeight()) {
@@ -135,6 +136,12 @@ public class DecisionTableLoader {
         if (isSmart(tableSyntaxNode)) {
             ILogicalTable tableBody = tableSyntaxNode.getTableBody();
             if (tableBody != null && isLookup(tableSyntaxNode)) {
+                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody)) {
+                    return Direction.NORMAL;
+                }
+                if (DecisionTableHelper.isLookupAndResultTitleInFirstRow(tableSyntaxNode, tableBody.transpose())) {
+                    return Direction.TRANSPOSED;
+                }
                 if (isLookupByHConditions(tableBody)) {
                     direction = Direction.NORMAL;
                 }
@@ -506,8 +513,9 @@ public class DecisionTableLoader {
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
         if (tableStructure.actions.isEmpty()) {
-            throw SyntaxNodeExceptionUtils
-                .createError("Invalid Decision Table headers: At least one return column header is required.", tableSyntaxNode);
+            throw SyntaxNodeExceptionUtils.createError(
+                "Invalid Decision Table headers: At least one return column header is required.",
+                tableSyntaxNode);
         }
         if (NullOpenClass.isAnyNull(decisionTable.getType())) {
             return;
