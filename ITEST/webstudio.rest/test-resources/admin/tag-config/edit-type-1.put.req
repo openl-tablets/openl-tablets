@@ -1,0 +1,8 @@
+PUT /web/admin/tag-config/types/1 HTTP/1.1
+Content-Type: application/json; charset=UTF-8
+
+{
+    "name": "Domain1",
+    "extensible": true,
+    "nullable": true
+}

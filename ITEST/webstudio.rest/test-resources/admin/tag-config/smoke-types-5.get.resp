@@ -3,7 +3,8 @@ Content-Type: application/json
 
 [{
     "id":1,
-    "name":"Domain",
+    "name":"Domain1",
     "extensible": true,
-    "tags": [{"id": 1, "name": "Policy"}]
+    "nullable": true,
+    "tags": [{"id": 1, "name": "Policy", "tagTypeId": 1}]
 }]

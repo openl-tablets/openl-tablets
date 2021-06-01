@@ -70,6 +70,7 @@ public class TagTypeService {
                 TagDTO tagDTO = new TagDTO();
                 tagDTO.setId(tag.getId());
                 tagDTO.setName(tag.getName());
+                tagDTO.setTagTypeId(tag.getType().getId());
                 tagDTOs.add(tagDTO);
             }
             typeDTO.setTags(tagDTOs);

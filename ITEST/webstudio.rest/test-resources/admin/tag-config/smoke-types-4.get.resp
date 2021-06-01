@@ -4,5 +4,5 @@ Content-Type: application/json
 [{
     "id":1,
     "name":"Domain",
-    "tags": [{"id": 2, "name": "my_finance"}, {"id": 1, "name": "Policy"}]
+    "tags": [{"id": 2, "name": "my_finance", "tagTypeId": 1}, {"id": 1, "name": "Policy", "tagTypeId": 1}]
 }]

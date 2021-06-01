@@ -166,9 +166,7 @@
 
                     $j.ajax({
                         type: "DELETE",
-                        contentType: 'text/plain',
-                        url: "#{contextPath}/web/admin/tag-config/type",
-                        data: '' + tagType.id,
+                        url: "#{contextPath}/web/admin/tag-config/types/" + tagType.id,
                         beforeSend: showLoader
                     }).done(
                         () => $tagType.remove()
@@ -191,7 +189,9 @@
                     if (name !== tagType.name) {
                         let obj = {
                             id: tagType.id,
-                            name: name
+                            name: name,
+                            extensible: tagType.extensible,
+                            nullable: tagType.nullable
                         }
                         updateTagType(obj, () => tagType.name = name, response => {
                             ws.ui.info(response.responseText);
@@ -217,7 +217,9 @@
                     let name = $tagTypeName.val();
                     if (name !== '') {
                         let obj = {
-                            name: name
+                            name: name,
+                            extensible: false,
+                            nullable: false
                         }
                         updateTagType(obj,
                             () => $j('#tag-types-list').trigger('refresh'),
@@ -247,9 +249,11 @@
                     let optional = $optional.prop("checked");
                     let obj = {
                         id: tagType.id,
+                        name: tagType.name,
+                        extensible: tagType.extensible,
                         nullable: optional
                     }
-                    updateTagType(obj, () => tagType.nulllable = optional);
+                    updateTagType(obj, () => tagType.nullable = optional);
                 });
                 return $optionalLabel;
             };
@@ -262,6 +266,8 @@
                     let extensible = $extensible.prop("checked");
                     let obj = {
                         id: tagType.id,
+                        name: tagType.name,
+                        nullable: tagType.nullable,
                         extensible: extensible
                     }
                     updateTagType(obj, () => tagType.extensible = extensible);
@@ -292,9 +298,7 @@
 
                     $j.ajax({
                         type: "DELETE",
-                        contentType: 'text/plain',
-                        url: "#{contextPath}/web/admin/tag-config/tag",
-                        data: '' + tag.id,
+                        url: "#{contextPath}/web/admin/tag-config/types/" + tag.tagTypeId + "/tags/" + tag.id,
                         beforeSend: showLoader
                     }).done(
                         () => $tag.remove()
@@ -381,6 +385,7 @@
                     if (name !== tag.name) {
                         let obj = {
                             tagId: tag.id,
+                            tagTypeId: tag.tagTypeId,
                             name: name
                         }
                         updateTag(obj,
@@ -422,11 +427,21 @@
                 return $tags;
             };
 
-            const updateTagType = function (patch, onDoneFunc, onFailFunc) {
+            const updateTagType = function (obj, onDoneFunc, onFailFunc) {
+                let method;
+                let url;
+                if (obj.id) {
+                    method = "PUT";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.id;
+                } else {
+                    method = "POST";
+                    url = "#{contextPath}/web/admin/tag-config/types";
+                }
                 $j.ajax({
-                    type: "PATCH",
-                    url: "#{contextPath}/web/admin/tag-config/type",
-                    data: patch,
+                    type: method,
+                    url: url,
+                    data: JSON.stringify(obj),
+                    contentType: 'application/json',
                     beforeSend: showLoader
                 }).done(
                     () => onDoneFunc()
@@ -437,11 +452,22 @@
                 );
             };
 
-            const updateTag = function (patch, onDoneFunc, onFailFunc) {
+            const updateTag = function (obj, onDoneFunc, onFailFunc) {
+                let method;
+                let url;
+
+                if (obj.tagId) {
+                    method = "PUT";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.tagTypeId + "/tags/" + obj.tagId;
+                } else {
+                    method = "POST";
+                    url = "#{contextPath}/web/admin/tag-config/types/" + obj.tagTypeId + "/tags";
+                }
                 $j.ajax({
-                    type: "PATCH",
-                    url: "#{contextPath}/web/admin/tag-config/tag",
-                    data: patch,
+                    type: method,
+                    url: url,
+                    data: obj.name,
+                    contentType: 'application/json',
                     beforeSend: showLoader
                 }).done(
                     () => onDoneFunc()

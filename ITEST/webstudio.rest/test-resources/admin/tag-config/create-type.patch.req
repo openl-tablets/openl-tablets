@@ -1,4 +1,0 @@
-PATCH /web/admin/tag-config/type HTTP/1.1
-Content-Type: application/x-www-form-urlencoded; charset=UTF-8
-
-name=Domain

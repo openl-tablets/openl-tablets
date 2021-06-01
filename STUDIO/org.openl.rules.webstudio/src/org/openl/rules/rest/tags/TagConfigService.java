@@ -1,13 +1,15 @@
 package org.openl.rules.rest.tags;
 
 import java.util.List;
+import java.util.Objects;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
-import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
-import javax.ws.rs.PATCH;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
@@ -43,28 +45,37 @@ public class TagConfigService {
     }
 
     @DELETE
-    @Path("/type")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public void deleteTagType(final Long id) {
+    @Path("/types/{id}")
+    public void deleteTagType(@PathParam("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         tagTypeService.delete(id);
     }
 
     @DELETE
-    @Path("/tag")
-    @Consumes(MediaType.TEXT_PLAIN)
-    public void deleteTag(final Long id) {
+    @Path("/types/{tagTypeId}/tags/{id}")
+    public void deleteTag(@PathParam("tagTypeId") final Long tagTypeId, @PathParam("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
+        final Tag tag = tagService.getById(id);
+        WebStudioUtils.validate(Objects.equals(tag.getType().getId(), tagTypeId), "Tag type doesn't contain tag with id " + id);
         tagService.delete(id);
     }
 
-    @PATCH
-    @Path("/type")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public void updateTagType(@FormParam("id") final Long id,
-            @FormParam("name") final String name,
-            @FormParam("nullable") final Boolean nullable,
-            @FormParam("extensible") final Boolean extensible) {
+    @POST
+    @Path("/types")
+    public void addTagType(TagTypeDTO typeDTO) {
+        addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
+    }
+
+    @PUT
+    @Path("/types/{id}")
+    public void updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
+        addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
+    }
+
+    private void addOrUpdateTagType(final Long id,
+            final String name,
+            final Boolean nullable,
+            final Boolean extensible) {
         SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
@@ -97,12 +108,21 @@ public class TagConfigService {
         }
     }
 
-    @PATCH
-    @Path("/tag")
-    @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-    public void updateTag(@FormParam("tagTypeId") final Long tagTypeId,
-            @FormParam("tagId") final Long tagId,
-            @FormParam("name") final String name) {
+    @POST
+    @Path("/types/{tagTypeId}/tags")
+    public void addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name) {
+        addOrUpdateTag(tagTypeId, null, name);
+    }
+
+    @PUT
+    @Path("/types/{tagTypeId}/tags/{tagId}")
+    public void updateTag(@PathParam("tagTypeId") final Long tagTypeId,
+            @PathParam("tagId") final Long tagId,
+            final String name) {
+        addOrUpdateTag(tagTypeId, tagId, name);
+    }
+
+    private void addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;

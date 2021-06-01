@@ -3,6 +3,7 @@ package org.openl.rules.rest.tags;
 public class TagDTO {
     private Long id;
     private String name;
+    private Long tagTypeId;
 
     public Long getId() {
         return id;
@@ -18,5 +19,13 @@ public class TagDTO {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Long getTagTypeId() {
+        return tagTypeId;
+    }
+
+    public void setTagTypeId(Long tagTypeId) {
+        this.tagTypeId = tagTypeId;
     }
 }
