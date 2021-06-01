@@ -1,6 +1,7 @@
 package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.openl.util.StringUtils;
 
@@ -55,7 +56,7 @@ public class ProjectGrouping implements Serializable {
 
         ProjectGrouping user = (ProjectGrouping) o;
 
-        return loginName != null ? loginName.equals(user.loginName) : user.loginName == null;
+        return Objects.equals(loginName, user.loginName);
     }
 
     @Override
