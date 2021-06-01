@@ -566,7 +566,7 @@
                     <h:panelGroup id="localUploadButtonPanel">
                         <footer>
                             <h:commandButton id="sbtWorkspace#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
-                                             onclick="createProjectTags('', function () {$j('#uploadWorkspaceProjectForm\\:sbtWorkspaceHidden').click();}); return false;"
+                                             onclick="createProjectTags('', function () {$j('#sbtWorkspaceHidden').click();}); return false;"
                                              rendered="#{hasTags}"/>
                             <a4j:commandButton id="sbtWorkspace#{hasTags ? 'Hidden' : ''}" action="#{localUpload.upload}"
                                                styleClass="button-primary #{hasTags ? 'hidden' : ''}"

@@ -49,7 +49,7 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void removeWorkspaceListener(UserWorkspaceListener listener);
 
-    void uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException;
+    RulesProject uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException;
 
     Optional<RulesProject> getProjectByPath(String repositoryId, String realPath);
 
