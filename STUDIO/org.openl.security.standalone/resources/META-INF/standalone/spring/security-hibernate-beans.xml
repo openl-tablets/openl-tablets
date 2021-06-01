@@ -68,10 +68,6 @@
         <property name="sessionFactory" ref="openlSessionFactory"/>
     </bean>
 
-    <bean id="projectGroupingDao" class="org.openl.rules.security.standalone.dao.ProjectGroupingDaoImpl">
-        <property name="sessionFactory" ref="openlSessionFactory"/>
-    </bean>
-
     <bean id="tagTemplateDao" class="org.openl.rules.security.standalone.dao.TagTemplateDaoImpl">
         <property name="sessionFactory" ref="openlSessionFactory"/>
     </bean>

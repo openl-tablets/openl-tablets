@@ -20,6 +20,7 @@ import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
+import org.openl.util.StringUtils;
 
 /**
  * Represents OpenL project in a tree.
@@ -95,8 +96,7 @@ public class TreeProjectGrouping extends AbstractTreeNode {
             Collection<RulesProject> projectsAtCurrentLevel = new ArrayList<>(projects);
             if (level < 3) {
                 String nextGroupingType = level == 1 ? projectGrouping.getGroup2() : projectGrouping.getGroup3();
-                if (nextGroupingType != null) {
-
+                if (StringUtils.isNotBlank(nextGroupingType)) {
                     if (GROUPING_REPOSITORY.equals(nextGroupingType)) {
                         projectsAtCurrentLevel.clear();
 

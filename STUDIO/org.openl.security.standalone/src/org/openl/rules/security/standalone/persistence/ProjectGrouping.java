@@ -2,13 +2,8 @@ package org.openl.rules.security.standalone.persistence;
 
 import java.io.Serializable;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import org.openl.util.StringUtils;
 
-@Entity
-@Table(name = "OpenL_Project_Grouping")
 public class ProjectGrouping implements Serializable {
     private static final long serialVersionUID = 1L;
     private String loginName;
@@ -19,8 +14,6 @@ public class ProjectGrouping implements Serializable {
     /**
      * Login name of user.
      */
-    @Id
-    @Column(name = "loginName")
     public String getLoginName() {
         return loginName;
     }
@@ -34,7 +27,7 @@ public class ProjectGrouping implements Serializable {
     }
 
     public void setGroup1(String group1) {
-        this.group1 = group1;
+        this.group1 = StringUtils.trimToEmpty(group1);
     }
 
     public String getGroup2() {
@@ -42,7 +35,7 @@ public class ProjectGrouping implements Serializable {
     }
 
     public void setGroup2(String group2) {
-        this.group2 = group2;
+        this.group2 = StringUtils.trimToEmpty(group2);
     }
 
     public String getGroup3() {
@@ -50,7 +43,7 @@ public class ProjectGrouping implements Serializable {
     }
 
     public void setGroup3(String group3) {
-        this.group3 = group3;
+        this.group3 = StringUtils.trimToEmpty(group3);
     }
 
     @Override

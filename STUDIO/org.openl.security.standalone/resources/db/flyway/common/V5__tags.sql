@@ -31,15 +31,6 @@ CREATE TABLE OpenL_Project_Tags (
     CONSTRAINT fk_OpenL_Project_Tags2 FOREIGN KEY (tag_id) REFERENCES OpenL_Tags(id) ON DELETE CASCADE
 );
 
-CREATE TABLE OpenL_Project_Grouping (
-    loginName ${varchar} not null,
-    group1 ${varchar}(255),
-    group2 ${varchar}(255),
-    group3 ${varchar}(255),
-    PRIMARY KEY (loginName),
-    CONSTRAINT fk_OpenL_Project_Grouping1 FOREIGN KEY (loginName) REFERENCES OpenL_Users(loginName) ON DELETE CASCADE
-);
-
 CREATE TABLE OpenL_Tag_Templates (
     template ${varchar} not null,
     priority int,

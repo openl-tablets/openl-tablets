@@ -31,7 +31,7 @@
     </bean>
 
     <bean id="projectGroupingService" class="org.openl.rules.webstudio.service.ProjectGroupingService">
-        <property name="projectGroupingDao" ref="projectGroupingDao" />
+        <property name="userSettingManagementService" ref="userSettingManagementService" />
     </bean>
 
     <bean id="tagTemplateService" class="org.openl.rules.webstudio.service.TagTemplateService">

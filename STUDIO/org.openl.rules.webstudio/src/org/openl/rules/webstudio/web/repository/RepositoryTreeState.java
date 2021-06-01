@@ -145,7 +145,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             IFilter<AProjectArtefact> filter = this.filter;
             final ProjectGrouping grouping = getProjectGrouping();
             final String group1 = grouping.getGroup1();
-            if (group1 == null) {
+            if (StringUtils.isBlank(group1)) {
                 for (RulesProject project : rulesProjects) {
                     if (!(filter.supports(RulesProject.class) && !filter.select(project))) {
                         addRulesProjectToTree(project);
@@ -954,6 +954,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         groupings.add(TreeProjectGrouping.GROUPING_REPOSITORY);
         groupings.add(TreeProjectGrouping.GROUPING_NONE);
         groupings.add(null);
+        groupings.add("");
         boolean changed = false;
         if (!groupings.contains(projectGrouping.getGroup3())) {
             projectGrouping.setGroup3(null);
