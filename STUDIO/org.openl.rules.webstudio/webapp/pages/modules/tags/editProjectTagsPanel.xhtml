@@ -84,7 +84,7 @@
                     let typeId = $j(this).parent().find('input[type=hidden][id$="tag-type"]').val();
                     let typeName = $j(this).parent().find('input[type=hidden][id$="tag-type-name"]').val();
                     let tagName = $j(this).val();
-                    let exist = $j(this).next('.es-list').find('li').filter(function () {
+                    let exist = $j(this).parent().find('.es-list > li').filter(function () {
                         return $j(this).text().toLowerCase() === tagName.toLowerCase();
                     }).length > 0;
 
