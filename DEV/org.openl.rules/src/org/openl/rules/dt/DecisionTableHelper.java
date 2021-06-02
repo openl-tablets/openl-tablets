@@ -805,9 +805,7 @@ public final class DecisionTableHelper {
             .stream()
             .filter(e -> e.getValue().size() > 1)
             .forEach(e -> bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(
-                String.format("More than one input parameter is matched to return '%s'. Matched input parameters: %s",
-                    e.getKey(),
-                    String.join(", ", e.getValue())),
+                String.format("More than one input parameter is set to return '%s'.", e.getKey()),
                 tableSyntaxNode)));
     }
 
