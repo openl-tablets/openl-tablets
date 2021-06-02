@@ -5,15 +5,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.security.standalone.persistence.OpenLProject;
 import org.openl.rules.security.standalone.persistence.Tag;
+import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTemplateService;
+import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.springframework.stereotype.Service;
@@ -26,17 +27,20 @@ public class ProjectsWithoutTagsBean {
     private final TagTemplateService tagTemplateService;
     private final DesignTimeRepository designTimeRepository;
     private final TagService tagService;
+    private final TagTypeService tagTypeService;
 
     private List<ProjectTags> projectsWithoutTags = Collections.emptyList();
 
     public ProjectsWithoutTagsBean(OpenLProjectService projectService,
             TagTemplateService tagTemplateService,
             DesignTimeRepository designTimeRepository,
-            TagService tagService) {
+            TagService tagService,
+            TagTypeService tagTypeService) {
         this.projectService = projectService;
         this.tagTemplateService = tagTemplateService;
         this.designTimeRepository = designTimeRepository;
         this.tagService = tagService;
+        this.tagTypeService = tagTypeService;
     }
 
     public void init() {
@@ -46,13 +50,15 @@ public class ProjectsWithoutTagsBean {
         projects.sort(
             Comparator.comparing((AProject o) -> o.getRepository().getId()).thenComparing(AProjectFolder::getRealPath));
 
+        final List<TagType> allTypes = tagTypeService.getAllTagTypes();
         for (AProject project : projects) {
             final String repoId = project.getRepository().getId();
             final String repoName = project.getRepository().getName();
             final String realPath = project.getRealPath();
             final OpenLProject existing = projectService.getProject(repoId, realPath);
 
-            if (existing == null || existing.getTags().isEmpty()) {
+            if (existing == null || existing.getTags().isEmpty() || allTypes.stream()
+                .anyMatch(type -> existing.getTags().stream().noneMatch(tag -> tag.getType().equals(type)))) {
                 final String projectName = project.getBusinessName();
                 final List<Tag> tags = tagTemplateService.getTags(projectName);
 
