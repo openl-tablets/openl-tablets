@@ -49,9 +49,11 @@
             if (pattern && pattern.length) {
                 $j(filterId).addClass('withClearButton');
                 $j(clearFilterId).removeClass('hidden');
+                $j('.filtered-mark').removeClass('hidden');
             } else {
                 $j(filterId).removeClass('withClearButton');
                 $j(clearFilterId).addClass('hidden');
+                $j('.filtered-mark').addClass('hidden');
             }
 
             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
@@ -64,6 +66,12 @@
             projects.each(function() {
                 let projectNode = $j(this).find(".rf-trn-lbl").first();
                 let projectName = projectNode.clone().children().children().remove().end().end().text();
+                $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+            });
+
+            let projectsInTable = $j(".filtered-table > tbody > tr");
+            projectsInTable.each(function() {
+                let projectName = $j(this).find(".project-name-column").text();
                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
             });
         }
@@ -94,14 +102,26 @@
             prodFilterProjects('');
         }
 
-        initFilter();
-
         var productionFlag = #{repositorySelectNodeStateHolder.isProductionRepository()};
-        if(productionFlag) {
-            goToRepo('production', 'design');
-        } else {
-            goToRepo('design', 'production')
+
+
+        function reInitRepoFilter() {
+            if (productionFlag) {
+                initProdFilter();
+            } else {
+                initFilter();
+            }
         }
+
+        $j(() => {
+            reInitRepoFilter();
+
+            if (productionFlag) {
+                goToRepo('production', 'design');
+            } else {
+                goToRepo('design', 'production')
+            }
+        });
 
       //]]>
     </script>

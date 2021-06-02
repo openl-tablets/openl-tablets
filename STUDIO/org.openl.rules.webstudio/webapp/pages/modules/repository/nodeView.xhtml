@@ -437,6 +437,11 @@
             }
         }
 
+        $j(() => {
+            // Reinitialize filters state when nodeView is re-rendered.
+            reInitRepoFilter();
+        });
+
         //]]>
     </script>
 
