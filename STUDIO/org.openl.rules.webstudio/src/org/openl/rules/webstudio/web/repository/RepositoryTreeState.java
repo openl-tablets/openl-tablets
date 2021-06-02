@@ -32,7 +32,6 @@ import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.filter.AllFilter;
 import org.openl.rules.webstudio.filter.IFilter;
-import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
@@ -103,10 +102,9 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private UserWorkspace userWorkspace;
 
-    private IFilter<AProjectArtefact> filter = ALL_FILTER;
+    // We can use it for filter on server-side in the future. Currently it's not used.
+    private final IFilter<AProjectArtefact> filter = ALL_FILTER;
     private boolean hideDeleted = true;
-    private String filterString;
-    private String filterRepositoryId;
 
     private final Object lock = new Object();
     private String errorMessage;
@@ -322,7 +320,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 .getName()
                 .equals(physicalName) && (repoId == null || repoId.equals(project.getData().getRepository().getId())));
     }
-    
+
     private TreeProject findProjectNode(List<TreeNode> nodes, Predicate<TreeProject> predicate) {
         for (TreeNode node : nodes) {
             if (node instanceof TreeProject) {
@@ -547,8 +545,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         refreshNode(getSelectedNode());
     }
 
-    public void setFilter(IFilter<AProjectArtefact> filter) {
-        this.filter = filter != null ? filter : ALL_FILTER;
+    private void onFilterChanged() {
         synchronized (lock) {
             root = null;
             errorMessage = null;
@@ -556,31 +553,8 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
     }
 
     public void filter() {
-        IFilter<AProjectArtefact> filter = null;
-        if (StringUtils.isNotBlank(filterString)) {
-            filter = new RepositoryFileExtensionFilter(filterString);
-        }
-        IFilter<AProjectArtefact> repositoryFilter = null;
-        if (StringUtils.isNotBlank(filterRepositoryId)) {
-            repositoryFilter = new RepositoryFilter(filterRepositoryId);
-        }
-        if (repositoryFilter != null) {
-            if (filter != null) {
-                filter = new AndFilterIfSupport(repositoryFilter, filter);
-            } else {
-                filter = repositoryFilter;
-            }
-        }
-        setFilter(filter);
+        onFilterChanged();
         setHideDeleted(hideDeleted);
-    }
-
-    public void setFilter(String filterString, String filterRepositoryId, boolean hideDeleted) {
-        this.filter = filter != null ? filter : ALL_FILTER;
-        synchronized (lock) {
-            root = null;
-            errorMessage = null;
-        }
     }
 
     public void setSelectedNode(TreeNode selectedNode) {
@@ -657,22 +631,6 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     public void setHideDeleted(boolean hideDeleted) {
         this.hideDeleted = hideDeleted;
-    }
-
-    public String getFilterString() {
-        return filterString;
-    }
-
-    public void setFilterString(String filterString) {
-        this.filterString = filterString;
-    }
-
-    public String getFilterRepositoryId() {
-        return filterRepositoryId;
-    }
-
-    public void setFilterRepositoryId(String filterRepositoryId) {
-        this.filterRepositoryId = filterRepositoryId;
     }
 
     public boolean getCanCreate() {

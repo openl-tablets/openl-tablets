@@ -1446,10 +1446,6 @@ public class RepositoryTreeController {
         return this.fileName;
     }
 
-    public String getFilterString() {
-        return repositoryTreeState.getFilterString();
-    }
-
     public String getFolderName() {
         return null;
     }
@@ -1795,10 +1791,6 @@ public class RepositoryTreeController {
 
     public void setFileName(String fileName) {
         this.fileName = StringUtils.trim(fileName);
-    }
-
-    public void setFilterString(String filterString) {
-        repositoryTreeState.setFilterString(filterString);
     }
 
     public void setFolderName(String folderName) {
@@ -2636,14 +2628,6 @@ public class RepositoryTreeController {
 
         projectName = null;
         projectFolder = "";
-    }
-
-    public String getFilterRepositoryId() {
-        return repositoryTreeState.getFilterRepositoryId();
-    }
-
-    public void setFilterRepositoryId(String filterRepositoryId) {
-        repositoryTreeState.setFilterRepositoryId(filterRepositoryId);
     }
 
     public void tryImportFromRepo() {

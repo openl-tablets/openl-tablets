@@ -16,33 +16,17 @@
     <h:form id="filterForm">
       <table>
         <tr>
-          <td>Filter files by extensions (semicolon-separated):</td>
-          <td>
-            <h:inputText id="filter" value="#{repositoryTreeController.filterString}" />
-          </td>
-        </tr>
-        <tr>
           <td>Hide deleted projects:</td>
           <td>
             <h:selectBooleanCheckbox id="hideDeleted" value="#{repositoryTreeController.hideDeleted}"
                 style="margin:0" />
           </td>
         </tr>
-        <tr>
-          <td>Repository:</td>
-          <td>
-            <h:selectOneMenu id="repository" value="#{repositoryTreeController.filterRepositoryId}">
-              <f:selectItem itemLabel="All repositories" itemValue="#{null}"/>
-              <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
-                             itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
-            </h:selectOneMenu>
-          </td>
-        </tr>
       </table>
 
       <footer>
         <h:commandButton value="Apply" action="#{repositoryTreeController.filter}" styleClass="button-primary" />
-        <input type="button" value="Cancel" onclick="#{rich:component('modalRepFilter')}.hide();" />
+        <input type="button" value="Cancel" onclick="RichFaces.$('modalRepFilter').hide();" />
       </footer>
     </h:form>
   </rich:popupPanel>
@@ -50,7 +34,6 @@
   <script>
     function showRepFilterDialog() {
         RichFaces.$('modalRepFilter').show();
-        focusElement('filterForm:filter');
     }
   </script>
 
