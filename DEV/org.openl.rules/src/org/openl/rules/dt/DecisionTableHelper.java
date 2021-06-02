@@ -748,6 +748,7 @@ public final class DecisionTableHelper {
                             for (Pair<IOpenField[], FuzzyResult> pair : resultList) {
                                 if (OpenLFuzzyUtils.isEqualsFieldsChains(pair.getKey(), fieldsChain)) {
                                     f = false;
+                                    break;
                                 }
                             }
                             if (f) {
