@@ -1,1 +1,2 @@
 WARN: More than one input parameter is set to return 'MyDatatype.myCode'.
+WARN: More than one input parameter is set to return 'MyDatatype.foo'.
