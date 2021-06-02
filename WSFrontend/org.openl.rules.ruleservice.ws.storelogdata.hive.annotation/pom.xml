@@ -3,7 +3,7 @@
     <parent>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
         <groupId>org.openl.rules</groupId>
-        <version>5.24.2</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
