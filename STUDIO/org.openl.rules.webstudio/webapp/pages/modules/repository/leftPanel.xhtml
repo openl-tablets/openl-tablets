@@ -37,9 +37,9 @@
         }
 
         function filterRepoProjects(repo, pattern) {
-            var filterId;
-            var clearFilterId;
-            if (repo == "design") {
+            let filterId;
+            let clearFilterId;
+            if (repo === "design") {
                 filterId = "#nameFilter";
                 clearFilterId = '#clearFilter';
             } else {
@@ -56,12 +56,14 @@
 
             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
 
-            var treeId = (repo == "design" ? "#projectTree" : "#prodTree");
-            var projects = $j(treeId + " > div > div.rf-tr-nd");
+            const treeId = (repo === "design" ? "#projectTree" : "#prodTree");
+            let projects = $j(treeId + " div.rf-tr-nd").filter(function () {
+                return $j(this).children().first().hasClass('filter-node');
+            });
 
             projects.each(function() {
-                var projectNode = $j(this).find(".rf-trn-lbl").first();
-                var projectName = projectNode.clone().children().children().remove().end().text();
+                let projectNode = $j(this).find(".rf-trn-lbl").first();
+                let projectName = projectNode.clone().children().children().remove().end().end().text();
                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
             });
         }
