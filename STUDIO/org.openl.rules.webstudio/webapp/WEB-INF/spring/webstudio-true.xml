@@ -63,6 +63,7 @@
                 <ref bean="notificationService"/>
                 <ref bean="projectHistoryService"/>
                 <ref bean="propertyService"/>
+                <ref bean="userService"/>
                 <ref bean="designTimeRepositoryService"/>
                 <ref bean="tagConfigService"/>
             </list>

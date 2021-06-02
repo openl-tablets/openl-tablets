@@ -26,6 +26,7 @@ public class User implements Serializable {
     private Set<Group> groups;
     private String firstName;
     private String surname;
+    private String email;
 
     /**
      * First name.
@@ -68,6 +69,16 @@ public class User implements Serializable {
     @Column(name = "surname", length = 50)
     public String getSurname() {
         return surname;
+    }
+
+
+    @Column(name = "email", length = 254)
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setFirstName(String firstName) {

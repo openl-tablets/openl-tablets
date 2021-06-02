@@ -99,10 +99,6 @@ public class UsersBean {
         }
     }
 
-    public List<User> getUsers() {
-        return userManagementService.getAllUsers();
-    }
-
     public String getGroups(Object objUser) {
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();

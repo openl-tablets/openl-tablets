@@ -9,6 +9,7 @@ public class SimpleUser implements User {
     private String firstName;
     private String lastName;
     private String username;
+    private String email;
     private String passwordHash;
     private Collection<Privilege> privileges;
 
@@ -16,15 +17,25 @@ public class SimpleUser implements User {
     }
 
     public SimpleUser(String firstName,
+                      String lastName,
+                      String username,
+                      String email,
+                      String passwordHash,
+                      Collection<Privilege> privileges) {
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.username = username;
+        this.email = email;
+        this.passwordHash = passwordHash;
+        this.privileges = privileges;
+    }
+
+    public SimpleUser(String firstName,
             String lastName,
             String username,
             String passwordHash,
             Collection<Privilege> privileges) {
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.username = username;
-        this.passwordHash = passwordHash;
-        this.privileges = privileges;
+        this(firstName, lastName, username, null, passwordHash, privileges);
     }
 
     @Override
@@ -39,6 +50,15 @@ public class SimpleUser implements User {
     @Override
     public String getLastName() {
         return lastName;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public void setLastName(String lastName) {

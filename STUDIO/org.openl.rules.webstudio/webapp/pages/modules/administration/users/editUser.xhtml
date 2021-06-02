@@ -22,40 +22,33 @@
                     <b>security.administrators</b> property.
                 </div>
                 <div class="problem-warning currentuser">It is your account. You cannot delete yourself or revoke Administrator privilege.</div>
-                <h:panelGrid columns="3" cellspacing="5">
+                <h:panelGrid id="editUserPanel" columns="3" cellspacing="5">
                     <label>Username:</label>
                     <h:outputText id="username" style="font-weight: bold"/>
-                    <h:inputHidden id="usernameHidden" value="#{usersBean.username}"/>
+                    <h:inputHidden id="usernameHidden"/>
 
                     <label>Password:</label>
-                    <h:inputSecret id="password" value="#{usersBean.changedPassword}" styleClass="internal-user"/>
+                    <h:inputSecret id="password" styleClass="internal-user"/>
                     <a4j:outputPanel ajaxRendered="true" id="passwordError">
                         <h:message for="password" styleClass="error"/>
                     </a4j:outputPanel>
 
                     <label>First Name:</label>
-                    <h:inputText id="firstName" value="#{usersBean.firstName}" styleClass="internal-user"/>
+                    <h:inputText id="firstName" styleClass="internal-user"/>
                     <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                         <h:message for="firstName" styleClass="error"/>
                     </a4j:outputPanel>
 
                     <label>Last Name:</label>
-                    <h:inputText id="lastName" value="#{usersBean.lastName}" styleClass="internal-user"/>
+                    <h:inputText id="lastName" styleClass="internal-user"/>
                     <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                         <h:message for="lastName" styleClass="error"/>
                     </a4j:outputPanel>
-
-                    <label>Groups:</label>
-                    <h:selectManyCheckbox id="editUserGroups" value="#{usersBean.groups}" layout="pageDirection">
-                        <f:selectItems value="#{usersBean.groupItems}"/>
-                    </h:selectManyCheckbox>
                 </h:panelGrid>
             </div>
 
             <footer>
-                <a4j:commandButton value="Save" action="#{usersBean.editUser}" data="#{facesContext.maximumSeverity}"
-                                   oncomplete="if(!event.data) hideEditUser()" render=":userList"
-                                   styleClass="button-primary"/>
+                <input id="editUserButton" type="button" title="Save" value="Save" class="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideEditUser()"/>
             </footer>
         </h:form>
@@ -64,28 +57,14 @@
 
     <script>
         //<![CDATA[
-        function editUser(username, firstName, lastName, internalUser, groups, onlyAdminGroups, isSuperuser, isCurrentUser) {
-            if (#{!usersBean.canCreateUsers}) {
-                return;
-            }
-            $j("#editUserForm .superuser").toggle(isSuperuser);
-            $j("#editUserForm .currentuser").toggle(!isSuperuser && isCurrentUser);
+        function editUser(username, firstName, lastName, internalUser, userGroups, isSuperuser, isCurrentUser) {
+            $j("#editUserForm .superuser").toggle(isSuperuser === "true");
+            $j("#editUserForm .currentuser").toggle(!(isSuperuser === "true") && isCurrentUser === "true");
 
             $j("#editUserForm\\:username").text(username);
             $j("#editUserForm\\:usernameHidden").val(username);
             $j("#editUserForm\\:firstName").val(firstName);
             $j("#editUserForm\\:lastName").val(lastName);
-
-            $j("input[id^='editUserForm\\:editUserGroups']").each(function () {
-                let box = $j(this);
-                let group = box.val();
-                let checked = $j.inArray(group, groups) !== -1;
-                box.attr("checked", checked);
-                let isAdminGroup = $j.inArray(group, onlyAdminGroups) !== -1;
-                box.parent().css("color", isAdminGroup ? "red" : "");
-                let shouldBeDisabled = isAdminGroup && (isSuperuser || isCurrentUser);
-                box.prop('disabled', shouldBeDisabled)
-            });
 
             $j(".external-user").remove();
             $j(".internal-user").toggle(internalUser);
@@ -97,8 +76,38 @@
                 });
             }
 
+            for (let i = 0; i < $j("#editUserForm :checkbox").size(); i++) {
+                if($j.inArray($j("#editUserForm :checkbox")[i].value, userGroups.split(',')) !== -1){
+                    $j("#editUserForm :checkbox")[i].checked = true;
+                }
+            }
+
             RichFaces.$("modalEditUser").show();
         }
+
+        $j(function () {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/admin/management/groups",
+                datatype: "json"
+            })
+                .done(function (data) {
+                    var groupListBlock = document.getElementById('editUserForm:editUserPanel');
+                    var el = document.createElement("TR");
+                    var html = '<td><label>Groups:</label></td><td><table><tbody>';
+                    $j.map(data, function (val, i) {
+                        html += '<tr><td><input value="' + i + '" type="checkbox"/>' +
+                            '<label class=""> ' + i + ' </label></td></tr>';
+                    });
+                    html += '</tbody></table></td>';
+                    el.innerHTML = html;
+                    groupListBlock.append(el);
+                });
+
+            $j("#editUserButton").on("click", function (e) {
+              //TODO
+            });
+        });
 
         function hideEditUser() {
             RichFaces.$("modalEditUser").hide();

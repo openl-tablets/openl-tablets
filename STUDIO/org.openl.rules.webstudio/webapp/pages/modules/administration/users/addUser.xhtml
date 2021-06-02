@@ -18,46 +18,45 @@
 
         <h:form id="addUserForm">
         <div style="max-height: 370px; overflow: auto;">
-            <h:panelGrid columns="3" cellspacing="5">
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"><label>Local user</label></h:panelGroup>
-                <h:selectBooleanCheckbox id="internalUser" rendered="#{usersBean.canSelectInternalOrExternal}" value="#{usersBean.internalUser}"/>
-                <h:panelGroup rendered="#{usersBean.canSelectInternalOrExternal}"> </h:panelGroup>
+            <h:panelGrid id="addUserGroupsDiv" columns="3" cellspacing="5">
+                <h:panelGroup><label>Local user</label></h:panelGroup>
+                <h:selectBooleanCheckbox id="internalUser"/>
+                <h:panelGroup/>
 
                 <label class="required">Username:</label>
-                <h:inputText id="username" value="#{usersBean.username}"
-                    validator="#{usersBean.validateUsername}" />
+                <h:inputText id="username"/>
                 <a4j:outputPanel ajaxRendered="true" id="nameError">
                     <h:message for="username" styleClass="error" />
                 </a4j:outputPanel>
 
-                <h:panelGroup rendered="#{usersBean.canCreateInternalUsers}"><label class="required">Password:</label></h:panelGroup>
-                <h:inputSecret id="password" value="#{usersBean.password}" rendered="#{usersBean.canCreateInternalUsers}"/>
-                <a4j:outputPanel ajaxRendered="true" id="passwordError" rendered="#{usersBean.canCreateInternalUsers}">
+                <h:panelGroup><label class="required">Password:</label></h:panelGroup>
+                <h:inputSecret id="password"/>
+                <a4j:outputPanel ajaxRendered="true" id="passwordError">
                     <h:message for="password" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>First Name:</label>
-                <h:inputText id="firstName" value="#{usersBean.firstName}" />
+                <label>Given Name:</label>
+                <h:inputText id="firstName" />
                 <a4j:outputPanel ajaxRendered="true" id="firstNameError">
                     <h:message for="firstName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>Last Name:</label>
-                <h:inputText id="lastName" value="#{usersBean.lastName}" />
+                <label>Family Name:</label>
+                <h:inputText id="lastName"/>
                 <a4j:outputPanel ajaxRendered="true" id="lastNameError">
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label>Groups:</label>
-                <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
-                    <f:selectItems value="#{usersBean.groupItems}" />
-                </h:selectManyCheckbox>
+                <label>Email:</label>
+                <h:inputText id="email"/>
+                <a4j:outputPanel ajaxRendered="true" id="emailError">
+                    <h:message for="email" styleClass="error" />
+                </a4j:outputPanel>
             </h:panelGrid>
             </div>
 
             <footer>
-                <a4j:commandButton value="Save" action="#{usersBean.addUser}" data="#{facesContext.maximumSeverity}"
-                    oncomplete="if(!event.data) hideAddUser()" render=":userList" styleClass="button-primary" />
+                <input id="saveUser" type="button" title="Save" value="Save" class="button-primary"/>
                 <input type="button" value="Cancel" onclick="hideAddUser()" />
             </footer>
         </h:form>
@@ -65,6 +64,73 @@
     </rich:popupPanel>
 
     <script>
+        //<![CDATA[
+        $j(function () {
+            initAddUserPage();
+        });
+
+        function initAddUserPage() {
+            $j("#saveUser").on("click", function (e) {
+                e.preventDefault();
+                var groupValues = [];
+                for (let i = 1; i < $j("#addUserForm :checked").size(); i++) {
+                    groupValues.push($j("#addUserForm :checked")[i].value);
+                }
+                $j.ajax({
+                    type: "POST",
+                    url: "#{contextPath}/web/user",
+                    data: JSON.stringify({
+                        username : $j("#addUserForm\\:username").val(),
+                        firstName : $j("#addUserForm\\:firstName").val(),
+                        lastName : $j("#addUserForm\\:lastName").val(),
+                        email : $j("#addUserForm\\:email").val(),
+                        password : $j("#addUserForm\\:password").val(),
+                        internalUser : $j("#addUserForm\\:internalUser").is(":checked"),
+                        groups : groupValues
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                })
+                    .done(function () {
+                        $j('#userListForm').trigger('refresh');
+                        location.reload();
+                        hideAddUser();
+                    });
+            });
+        }
+
+        $j(function () {
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/admin/management/groups",
+                datatype: "json"
+            })
+                .done(function (data) {
+                    var groupListBlock = document.getElementById('addUserForm:addUserGroupsDiv');
+                    var el = document.createElement("TR");
+                    var html = '<td><label>Groups:</label></td><td><table><tbody>';
+                    $j.map(data, function (val, i) {
+                        html += '<tr><td><input value="' + i + '" type="checkbox"/>' +
+                            '<label class=""> ' + i + ' </label></td></tr>';
+                    });
+                    html += '</tbody></table></td>';
+                    el.innerHTML = html;
+                    groupListBlock.append(el);
+                });
+
+            $j.ajax({
+                type: "GET",
+                url: "#{contextPath}/web/user/options",
+                datatype: "json"
+            })
+                .done(function (data) {
+                    $j("#addUserForm\\:password").closest('tr').toggle(data.canCreateInternalUsers);
+                    $j("#addUserForm\\:password").prop('disabled', !data.canCreateInternalUsers);
+                    $j("#addUserForm\\:internalUser").closest('tr').toggle(data.canCreateInternalUsers && data.canCreateExternalUsers);
+                    document.getElementById('addUserForm:internalUser').checked = data.canCreateInternalUsers;
+                });
+        });
+
         function hideAddUser() {
             RichFaces.$("modalAddUser").hide();
 
@@ -86,6 +152,7 @@
             // internalUser can be absent. jQuery in this case does nothing. Don't replace with direct function invocation.
             $j("#addUserForm\\:internalUser").change();
         })();
+        //]]>
     </script>
 
 </ui:composition>
