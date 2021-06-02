@@ -11,16 +11,19 @@
     
     <script>
         function toggleStacktrace(stacktrace, summary, a) {
-            var j1 = $j(a).find("div");
-            var f = j1.hasClass("stacktrace-hidden")
+            var arrow = $j(a).find("div");
+            var collapseOnlyArrow = $j(a).parent().parent().find(".stacktrace-collapse-only");
+            var isHidden = arrow.hasClass("stacktrace-hidden")
             $j(".summary-panels").show();
             $j(".stacktrace-panels").hide();
             $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
-            if (f) {
+            $j(".stacktrace-collapse-only").each(function(i, e) { $j(e).removeClass("stacktrace-hidden"); });
+            if (isHidden) {
                 $j(stacktrace).show();
                 $j(summary).hide();
-                j1.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
-            } 
+                arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
+                collapseOnlyArrow.addClass("stacktrace-showed");
+            }
         }
     </script>
     
@@ -30,6 +33,10 @@
 
         <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
         <div class="#{messageBoxClass}" style="#{messagesBean.hasStacktrace ? 'padding-bottom: 3px' : ''}">
+
+            <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
+                <h:outputLink onclick="toggleStacktrace(#{rich:element('stacktrace_panel')}, #{rich:element('summary_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-collapse-only"/></h:outputLink>
+            </h:panelGroup>
 
             <h:panelGroup id="summary_panel" styleClass="summary-panels">
                 <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space: pre-wrap;"/>
