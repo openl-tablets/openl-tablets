@@ -12,9 +12,10 @@
     </style>
 
     <div class="page">
-        <h1 class="page-header"><h:outputText value="Projects in #{node.name}" rendered="#{node.type == 'proddeployment'}" />
-            <h:outputText styleClass="filtered-mark hidden" value=" (filtered)" rendered="#{node.type == 'proddeployment'}"/>
-            <h:outputText value="Deployments" rendered="#{node.type == 'prodrepository'}" /></h1>
+        <h1 class="page-header"><h:outputText value="Projects in #{node.name}"
+                                              rendered="#{node.type == 'proddeployment'}"/>
+            <h:outputText value="Deployments" rendered="#{node.type == 'prodrepository'}"/><h:outputText
+                    styleClass="filtered-mark hidden" value=" (filtered)" rendered="#{node.type == 'prodrepository'}"/></h1>
 
         <div class="block">
 
