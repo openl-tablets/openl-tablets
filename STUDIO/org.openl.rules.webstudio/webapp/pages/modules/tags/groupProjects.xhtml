@@ -2,7 +2,8 @@
         xmlns:f="http://java.sun.com/jsf/core"
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:rich="http://richfaces.org/rich"
-        xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:a4j="http://richfaces.org/a4j">
 
     <rich:popupPanel id="modalGroupProjects" minWidth="300" autosized="true">
         <f:facet name="header">
@@ -65,11 +66,18 @@
                 <h:commandButton value="Group" action="#{repositoryTreeState.group}" styleClass="button-primary" id="save"/>
                 <input type="button" value="Cancel" onclick="hideGroupProjectsDialog();"/>
             </footer>
+
+            <a4j:jsFunction name="renderGroupProjectsForm" render="@form" oncomplete="showGroupProjectsDialog()"/>
+
         </h:form>
     </rich:popupPanel>
 
     <script>
         //<![CDATA[
+        function openGroupProjectsDialog() {
+            renderGroupProjectsForm();
+        }
+
         function showGroupProjectsDialog() {
             const noneValue = '[None]';
 
