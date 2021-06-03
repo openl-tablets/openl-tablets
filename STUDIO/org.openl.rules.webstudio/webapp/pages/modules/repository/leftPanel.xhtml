@@ -59,6 +59,13 @@
             sessionStorage.setItem(FILTER_PATTERN_ITEM, pattern);
 
             const treeId = (repo === "design" ? "#projectTree" : "#prodTree");
+
+            // Show all previously hidden elements
+            $j(treeId + " div.rf-tr-nd").each(function () {
+                $j(this).show();
+            });
+
+            // Filter out projects from tree
             let projects = $j(treeId + " div.rf-tr-nd").filter(function () {
                 return $j(this).children().first().hasClass('filter-node');
             });
@@ -69,10 +76,26 @@
                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
             });
 
+            // Filter out projects from table
             let projectsInTable = $j(".filtered-table > tbody > tr");
             projectsInTable.each(function() {
                 let projectName = $j(this).find(".project-name-column").text();
                 $j(this).toggle(projectName.toLowerCase().indexOf(pattern.toLowerCase()) > -1);
+            });
+
+            // Filter out empty groups from tree if they are expanded
+            let groups = $j(treeId + " div.rf-tr-nd.rf-tr-nd-exp").filter(function () {
+                return $j(this).children().first().hasClass('filter-node-container');
+            });
+
+            groups.each(function() {
+                let $visibleProjectsInside = $j(this).find("div.rf-tr-nd").filter(function () {
+                    return $j(this).is(":visible") && $j(this).children().first().hasClass('filter-node');
+                });
+                let $collapsedGroupsInside = $j(this).find("div.rf-tr-nd.rf-tr-nd-colps").filter(function () {
+                    return $j(this).children().first().hasClass('filter-node-container');
+                })
+                $j(this).toggle($visibleProjectsInside.length > 0 || $collapsedGroupsInside.length > 0);
             });
         }
 
