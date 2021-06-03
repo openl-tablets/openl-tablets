@@ -37,6 +37,7 @@ import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.ProjectGroupingService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
+import org.openl.rules.webstudio.web.repository.tree.AbstractTreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeFile;
 import org.openl.rules.webstudio.web.repository.tree.TreeFolder;
@@ -275,6 +276,29 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         synchronized (lock) {
             buildTree();
             return root;
+        }
+    }
+
+    public void expandAll() {
+        synchronized (lock) {
+            expandAll(this.root, true);
+        }
+    }
+
+    public void collapseAll() {
+        synchronized (lock) {
+            expandAll(this.root, false);
+        }
+    }
+
+    private void expandAll(TreeNode node, boolean expand) {
+        // Expand only Repository and Grouping (Tag) nodes up to project. Collapse all nodes without exception.
+        if (!expand || node instanceof TreeRepository || node instanceof TreeProjectGrouping) {
+            ((AbstractTreeNode) node).setExpanded(expand);
+
+            for (TreeNode child : node.getChildNodes()) {
+                expandAll(child, expand);
+            }
         }
     }
 
