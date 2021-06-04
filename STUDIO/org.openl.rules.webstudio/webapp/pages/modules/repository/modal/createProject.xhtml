@@ -609,7 +609,7 @@
                     </h:panelGrid>
 
                     <footer>
-                        <h:commandButton id="sbtRepo#{hasTags ? '' : 'Hidden'}" value="Create" styleClass="button-primary"
+                        <h:commandButton id="sbtRepo#{hasTags ? '' : 'Hidden'}" value="Import" styleClass="button-primary"
                                          onclick="createProjectTags('', function () {$j('#importFromRepoForm\\:sbtRepoHidden').click();}); return false;"
                                          rendered="#{hasTags}"/>
                         <h:commandButton id="sbtRepo#{hasTags ? 'Hidden' : ''}" value="Import" action="#{repositoryTreeController.importFromRepo}"
@@ -617,7 +617,7 @@
                                          styleClass="button-primary #{hasTags ? 'hidden' : ''}"/>
                         <input type="button" value="Cancel" onclick="hideNewProjectDialog()"/>
                     </footer>
-                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo"/>
+                    <a4j:jsFunction name="onProjectFolderImportChanged" execute="@form" render="sbtRepo#{hasTags ? 'Hidden' : ''}"/>
                 </h:form>
             </rich:tab>
 
