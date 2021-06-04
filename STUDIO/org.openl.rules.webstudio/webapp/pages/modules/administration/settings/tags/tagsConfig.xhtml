@@ -34,8 +34,23 @@
             background: lightgreen;
         }
 
-        .tag-cant-create {
+        .tag-cannot-create {
             background: orangered;
+        }
+
+        .tag-stay-unchanged {
+            background: gray;
+        }
+
+        .tag-replace {
+            border-style: dotted;
+            border-width: 2px;
+            padding: 5px 2px;
+            white-space: nowrap;
+        }
+
+        .tag-replace > .tag-value {
+            margin-right: 0;
         }
 
         .tag-type .delete-icon {
@@ -98,6 +113,7 @@
                     <td>Project name templates:</td>
                     <td>
                         <h:inputTextarea id="tagTemplates"
+                                         onblur="$j('#tagTemplateForm\\:saveTemplatesButton').click();"
                                          value="#{tagTemplateBean.templates}"
                                          validator="#{tagTemplateBean.templateValidator}"/>
 
@@ -110,7 +126,9 @@
                     </a4j:outputPanel></td>
                 </tr>
             </table>
-            <a4j:commandButton value="Save templates" action="#{tagTemplateBean.save}"
+            <a4j:commandButton id="saveTemplatesButton"
+                               value="Save templates"
+                               action="#{tagTemplateBean.save}"
                                render="commonProps repositoryProps javaProps restartMessage tags"
                                title="Apply changes"/>
             <input type="button" value="Fill tags for projects" onclick="openProjectsWithoutTags()"/>

@@ -7,6 +7,11 @@
         xmlns:rich="http://richfaces.org/rich">
 
     <rich:popupPanel id="modalProjectsWithoutTags" minWidth="530" autosized="true">
+        <style>
+            #projectsWithoutTagsForm\:projectsWithoutTagsList > tbody > tr > td:first-child {
+                text-align: center;
+            }
+        </style>
         <f:facet name="header">
             <h:outputText value="Projects without tags"/>
         </f:facet>
@@ -16,14 +21,14 @@
                             onclick="hideProjectsWithoutTags()" alt="Close"/>
         </f:facet>
 
-        <h:form>
+        <h:form id="projectsWithoutTagsForm">
             <div>
-                <h:dataTable value="#{projectsWithoutTagsBean.projectsWithoutTags}" var="project"  styleClass="table">
+                <h:dataTable id="projectsWithoutTagsList" value="#{projectsWithoutTagsBean.projectsWithoutTags}" var="project"  styleClass="table">
                     <h:column>
                         <f:facet name="header">
                             Apply tags
                         </f:facet>
-                        <h:selectBooleanCheckbox value="#{project.fillTags}"/>
+                        <h:selectBooleanCheckbox value="#{project.fillTags}" title="Uncheck if you do not want to apply tags to the project"/>
                     </h:column>
                     <h:column>
                         <f:facet name="header">
@@ -45,14 +50,29 @@
                     </h:column>
                     <h:column>
                         <f:facet name="header">
-                            Tags
+                            Tags to apply
                         </f:facet>
                         <div>
                             <ui:repeat value="#{project.tags}" var="tag" varStatus="status">
-                                <ui:param name="willCreate" value="#{tag.id == null and tag.type.extensible}"/>
-                                <ui:param name="cantCreate" value="#{tag.id == null and not tag.type.extensible}"/>
-                                <span title="#{tag.type.name}: #{tag.name}.#{willCreate ? ' Will be created.' :''}#{cantCreate ? ' Tag isn\'t extensible. Will not be created.' :''}"
-                                      class="tag-value #{willCreate ? 'tag-will-create' : ''} #{cantCreate ? 'tag-cant-create' : ''}"><h:outputText value="#{tag.name}"/></span>
+                                <h:panelGroup rendered="#{tag.addExistingTag}">
+                                    <span title="#{tag.type}: #{tag.name}." class="tag-value"><h:outputText value="#{tag.name}"/></span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{tag.willCreate}">
+                                    <span title="#{tag.type}: #{tag.name}. Tag will be created." class="tag-value tag-will-create"><h:outputText value="#{tag.name}"/></span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{tag.cannotCreate}">
+                                    <span title="#{tag.type}: #{tag.name}. Tag isn't extensible, so it will not be created." class="tag-value tag-cannot-create"><h:outputText value="#{tag.name}"/></span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{tag.willStayUnchanged}">
+                                    <span title="#{tag.type}: #{tag.name}. Already has this tag. Will stay unchanged." class="tag-value tag-stay-unchanged"><h:outputText value="#{tag.name}"/></span>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{tag.willReplace}">
+                                    <span title="#{tag.type}: '#{tag.existingName}' will be replaced with '#{tag.name}'." class="tag-replace">
+                                        <span class="tag-value"><h:outputText value="#{tag.existingName}"/></span>
+                                        🢂
+                                        <span class="tag-value"><h:outputText value="#{tag.name}"/></span>
+                                    </span>
+                                </h:panelGroup>
                             </ui:repeat>
                         </div>
                     </h:column>

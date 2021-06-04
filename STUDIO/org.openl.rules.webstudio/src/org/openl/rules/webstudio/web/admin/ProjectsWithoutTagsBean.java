@@ -72,7 +72,7 @@ public class ProjectsWithoutTagsBean {
                 openlProject.setProjectPath(realPath);
                 openlProject.setTags(tags);
 
-                ProjectTags projectTags = new ProjectTags(openlProject, projectName, repoName);
+                ProjectTags projectTags = new ProjectTags(openlProject, existing, projectName, repoName);
 
                 projectsWithoutTags.add(projectTags);
             }
@@ -133,18 +133,20 @@ public class ProjectsWithoutTagsBean {
 
     public static class ProjectTags {
         private final OpenLProject project;
+        private final OpenLProject existing;
         private final String projectName;
         private final String repoName;
         private boolean fillTags;
 
-        ProjectTags(OpenLProject project, String projectName, String repoName) {
+        ProjectTags(OpenLProject project, OpenLProject existing, String projectName, String repoName) {
             this.project = project;
+            this.existing = existing;
             this.projectName = projectName;
             this.repoName = repoName;
             fillTags = true;
         }
 
-        public OpenLProject getProject() {
+        private OpenLProject getProject() {
             return project;
         }
 
@@ -168,8 +170,64 @@ public class ProjectsWithoutTagsBean {
             this.fillTags = fillTags;
         }
 
-        public List<Tag> getTags() {
-            return project.getTags();
+        public List<TagDTO> getTags() {
+            List<TagDTO> dtoList = new ArrayList<>();
+            final List<Tag> tags = project.getTags();
+            for (Tag tag : tags) {
+                Tag existingTag = null;
+                if (existing != null) {
+                    existingTag = existing.getTags()
+                        .stream()
+                        .filter(e -> e.getType().equals(tag.getType()))
+                        .findAny()
+                        .orElse(null);
+                }
+                final TagDTO dto = new TagDTO(tag, existingTag);
+                dtoList.add(dto);
+            }
+            return dtoList;
+        }
+    }
+
+    public static class TagDTO {
+        private final Tag tag;
+        private final Tag existing;
+
+        TagDTO(Tag tag, Tag existing) {
+            this.tag = tag;
+            this.existing = existing;
+        }
+
+        public String getName() {
+            return tag.getName();
+        }
+
+        public String getExistingName() {
+            return existing.getName();
+        }
+
+        public String getType() {
+            return tag.getType().getName();
+        }
+
+        public boolean isAddExistingTag() {
+            return existing == null && tag.getId() != null;
+        }
+
+        public boolean isWillCreate() {
+            return existing == null && tag.getId() == null && tag.getType().isExtensible();
+        }
+
+        public boolean isCannotCreate() {
+            return existing == null && tag.getId() == null && !tag.getType().isExtensible();
+        }
+
+        public boolean isWillReplace() {
+            return existing != null && !existing.getName().equalsIgnoreCase(tag.getName());
+        }
+
+        public boolean isWillStayUnchanged() {
+            return existing != null && existing.getName().equalsIgnoreCase(tag.getName());
         }
     }
 }
