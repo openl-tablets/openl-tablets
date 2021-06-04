@@ -660,11 +660,7 @@ ul.enum li {
 }
 
 .title em {
-    display: none;
-}
-
-.title:hover em {
-    display: block;
+    visibility: hidden;
     position: absolute;
     z-index: 1;
     background-color: #000;
@@ -675,17 +671,16 @@ ul.enum li {
     text-decoration: none;
     padding: 3px 5px;
     bottom: 22px;
-    left: 0;
+    right: 0;
+}
+
+.title:hover em {
+    visibility: visible;
 }
 
 .title:hover.title-bottom em {
     bottom: inherit;
     top: 32px;
-}
-
-.title:hover.title-right em {
-    left: inherit;
-    right: 0;
 }
 
 .menuPanel a {

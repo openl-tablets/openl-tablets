@@ -17,9 +17,14 @@ import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
 
 public class RepositoryEditor {
+
+    private static final Logger LOG = LoggerFactory.getLogger(RepositoryEditor.class);
+
     private final RepositoryFactoryProxy repositoryFactoryProxy;
     private final String repoListConfig;
 
@@ -91,14 +96,19 @@ public class RepositoryEditor {
                 if (repoValue != null && repoValue.startsWith(value)) {
                     final String suffix = repoValue.substring(value.length());
                     if (suffix.matches("\\d+")) {
-                        int i = Integer.parseInt(suffix);
-                        if (i > max.get()) {
-                            max.set(i);
+                        try {
+                            int i = Integer.parseInt(suffix);
+                            if (i > max.get()) {
+                                max.set(i);
+                            }
+                        } catch (NumberFormatException e) {
+                            // Perhaps the number is greater than the Integer.MAX_VALUE, ignore this value
+                            LOG.debug("Ignored error while forming the config name: ", e);
                         }
                     }
                 }
             }));
-            return value + (max.incrementAndGet());
+            return max.get() != Integer.MAX_VALUE ? value + (max.incrementAndGet()) : value;
         };
     }
 

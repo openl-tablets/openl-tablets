@@ -128,13 +128,13 @@
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
                                 <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: #{!empty projectBean.propertiesFileNamePatterns ? 'inline-block' : 'none'}; ">
-                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom match">
+                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-bottom match">
                                         <em>
                                             Values from file name will be applied as business<br/>
                                             dimension properties to rules.
                                         </em>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom not-match">
+                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-bottom not-match">
                                         <em>
                                             Values from file name won't be applied as business<br/>
                                             dimension properties to rules. The file name doesn't<br/>
