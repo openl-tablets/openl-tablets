@@ -15,7 +15,6 @@ import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.OpenLProjectService;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTemplateService;
-import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.springframework.stereotype.Service;
