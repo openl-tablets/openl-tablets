@@ -64,11 +64,11 @@
                                     <span title="#{tag.type}: #{tag.name}. Tag isn't extensible, so it will not be created." class="tag-value tag-cannot-create"><h:outputText value="#{tag.name}"/></span>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{tag.willStayUnchanged}">
-                                    <span title="#{tag.type}: #{tag.name}. Already has this tag. Will stay unchanged." class="tag-value tag-stay-unchanged"><h:outputText value="#{tag.name}"/></span>
+                                    <span title="#{tag.type}: #{tag.name}. Already has this tag. Will stay unchanged." class="tag-value tag-current-value"><h:outputText value="#{tag.name}"/></span>
                                 </h:panelGroup>
                                 <h:panelGroup rendered="#{tag.willReplace}">
                                     <span title="#{tag.type}: '#{tag.existingName}' will be replaced with '#{tag.name}'." class="tag-replace">
-                                        <span class="tag-value"><h:outputText value="#{tag.existingName}"/></span>
+                                        <span class="tag-value tag-current-value"><h:outputText value="#{tag.existingName}"/></span>
                                         🢂
                                         <span class="tag-value"><h:outputText value="#{tag.name}"/></span>
                                     </span>
