@@ -210,24 +210,24 @@ public class ProjectsWithoutTagsBean {
             return tag.getType().getName();
         }
 
+        public boolean isAssigned() {
+            return existing != null;
+        }
+
         public boolean isAddExistingTag() {
-            return existing == null && tag.getId() != null;
+            return tag.getId() != null;
         }
 
         public boolean isWillCreate() {
-            return existing == null && tag.getId() == null && tag.getType().isExtensible();
+            return tag.getId() == null && tag.getType().isExtensible();
         }
 
         public boolean isCannotCreate() {
-            return existing == null && tag.getId() == null && !tag.getType().isExtensible();
+            return tag.getId() == null && !tag.getType().isExtensible();
         }
 
         public boolean isWillReplace() {
-            return existing != null && !existing.getName().equalsIgnoreCase(tag.getName());
-        }
-
-        public boolean isWillStayUnchanged() {
-            return existing != null && existing.getName().equalsIgnoreCase(tag.getName());
+            return existing != null && !existing.getName().equalsIgnoreCase(tag.getName()) && !isCannotCreate();
         }
     }
 }

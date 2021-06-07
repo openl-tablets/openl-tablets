@@ -4,6 +4,7 @@
         xmlns:h="http://java.sun.com/jsf/html"
         xmlns:f="http://java.sun.com/jsf/core"
         xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:p="http://xmlns.jcp.org/jsf/passthrough"
         xmlns:rich="http://richfaces.org/rich">
 
     <rich:popupPanel id="modalProjectsWithoutTags" minWidth="530" autosized="true">
@@ -54,24 +55,30 @@
                         </f:facet>
                         <div>
                             <ui:repeat value="#{project.tags}" var="tag" varStatus="status">
-                                <h:panelGroup rendered="#{tag.addExistingTag}">
-                                    <span title="#{tag.type}: #{tag.name}." class="tag-value"><h:outputText value="#{tag.name}"/></span>
+                                <h:panelGroup rendered="#{not tag.assigned}">
+                                    <h:panelGroup rendered="#{tag.addExistingTag}"><span title="#{tag.type}: #{tag.name}." class="tag-value"><h:outputText value="#{tag.name}"/></span></h:panelGroup>
+                                    <h:panelGroup rendered="#{tag.willCreate}"><span title="#{tag.type}: #{tag.name}. Tag will be created." class="tag-value tag-will-create"><h:outputText value="#{tag.name}"/></span></h:panelGroup>
+                                    <h:panelGroup rendered="#{tag.cannotCreate}"><span title="#{tag.type}: #{tag.name}. Tag isn't extensible, so it will not be created." class="tag-value tag-cannot-create"><h:outputText value="#{tag.name}"/></span></h:panelGroup>
                                 </h:panelGroup>
-                                <h:panelGroup rendered="#{tag.willCreate}">
-                                    <span title="#{tag.type}: #{tag.name}. Tag will be created." class="tag-value tag-will-create"><h:outputText value="#{tag.name}"/></span>
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{tag.cannotCreate}">
-                                    <span title="#{tag.type}: #{tag.name}. Tag isn't extensible, so it will not be created." class="tag-value tag-cannot-create"><h:outputText value="#{tag.name}"/></span>
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{tag.willStayUnchanged}">
-                                    <span title="#{tag.type}: #{tag.name}. Already has this tag. Will stay unchanged." class="tag-value tag-current-value"><h:outputText value="#{tag.name}"/></span>
-                                </h:panelGroup>
-                                <h:panelGroup rendered="#{tag.willReplace}">
-                                    <span title="#{tag.type}: '#{tag.existingName}' will be replaced with '#{tag.name}'." class="tag-replace">
-                                        <span class="tag-value tag-current-value"><h:outputText value="#{tag.existingName}"/></span>
-                                        🢂
-                                        <span class="tag-value"><h:outputText value="#{tag.name}"/></span>
-                                    </span>
+                                <h:panelGroup rendered="#{tag.assigned}">
+                                    <h:panelGroup rendered="#{not tag.willReplace}">
+                                        <h:panelGroup rendered="#{not tag.cannotCreate}"
+                                                      p:title="#{tag.type}: #{tag.name} is already assigned to this project and will stay unchanged."
+                                                      styleClass="tag-value tag-current-value"><h:outputText
+                                                value="#{tag.name}"/></h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.cannotCreate}"
+                                                      p:title="#{tag.type}: #{tag.existingName} is already assigned and will stay unchanged because '#{tag.type}' isn't extensible."
+                                                      styleClass="tag-value tag-current-value"><h:outputText
+                                                value="#{tag.existingName}"/></h:panelGroup>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{tag.willReplace}">
+                                        <ui:param name="title" value="#{tag.type}: '#{tag.existingName}' will be replaced with '#{tag.name}'.#{tag.willCreate ? ' Tag \''.concat(tag.name).concat('\' will be created.') : tag.cannotCreate ? ' Tag isn\'t extensible, so it will not be created.' : ''}"/>
+                                        <h:panelGroup p:title="#{title}" styleClass="tag-replace"><h:panelGroup styleClass="tag-value tag-current-value"><h:outputText value="#{tag.existingName}"/></h:panelGroup>
+                                            🢂
+                                            <h:panelGroup rendered="#{tag.addExistingTag}" styleClass="tag-value"><h:outputText value="#{tag.name}"/></h:panelGroup>
+                                            <h:panelGroup rendered="#{tag.willCreate}" styleClass="tag-value tag-will-create"><h:outputText value="#{tag.name}"/></h:panelGroup>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
                                 </h:panelGroup>
                             </ui:repeat>
                         </div>
