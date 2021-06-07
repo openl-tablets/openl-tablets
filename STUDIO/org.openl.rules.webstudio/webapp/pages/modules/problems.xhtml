@@ -3,57 +3,95 @@
         xmlns:c="http://java.sun.com/jsp/jstl/core"
         xmlns:ui="http://java.sun.com/jsf/facelets">
 
-    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
+    <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}"/>
 
     <style>
-        .messagePanel {
-            float: left;
-            margin-left:15px;
+        .panel-header {
+            padding-left: 24px
         }
 
-        .messagePanelHolder{
-            overflow: auto;
-            margin-bottom:15px;
+        .message-panel {
+            float: left;
+            padding-right: 10px;
         }
+
+        .info-panel {
+            padding-left: 25px
+        }
+
+        .message-block {
+            margin-bottom: 3px;
+            padding: 2px 3px;
+        }
+
+        .message-block:hover {
+            background-color: lightgrey;
+        }
+
+        .message-panel-text{
+            vertical-align: top;
+        }
+
+        .message-block-link{
+            color: black;
+            text-decoration:none;
+        }
+
+        .ui-layout-resizer-closed .layout-extractable-info{
+            padding-left: 25px
+        }
+
+        .ui-layout-resizer-south .layout-extractable-info{
+            line-height: 20px;
+        }
+
+        .ui-layout-resizer-south-closed {
+            height: 20px !important;
+            font-size: inherit !important;
+        }
+
     </style>
 
     <div class="panel">
-        <div class="panel-header container" style="padding-left: 24px">
-            <span>#{msg['ws.problems']}</span>
+        <div class="panel-header container">
+            <div class="info-panel layout-extractable-info">
+                <div id="errors-info-panel" class='message-panel'>
+                    <span class="message-panel-text">Errors:</span>
+                    <span id="errors-count" class='badge badge-error'/>
+                </div>
+                <div id="warnings-info-panel" class='message-panel'>
+                    <span class="message-panel-text">Warnings:</span>
+                    <span id="warnings-count" class='badge badge-warning'/>
+                </div>
+                <div id="progress-info-panel" class='messagePanel'/>
+            </div>
         </div>
 
         <div class="panel-body container">
-            <div class="messagePanelHolder">
-                <div id="progressInfoPanel" class='messagePanel'/>
-                <div id="errorsInfoPanel" class='messagePanel'>Errors:
-                    <span id="errorsCount" class='badge badge-error'/>
-                </div>
-                <div id="warningsInfoPanel" class='messagePanel'>Warnings:
-                    <span id="warningsCount" class='badge badge-warning'/>
-                </div>
-            </div>
-            <div id="errorsPanel"></div>
-            <div id="warningsPanel"></div>
+            <div id="errors-panel"></div>
+            <div id="warnings-panel"></div>
+        </div>
 
-            <script>
+        <script>
                 //<![CDATA[
                 var $jq = jQuery.noConflict();
                 var messageId = -1;
                 var messageIndex = -1;
 
-                $jq('#progressInfoPanel').bind('refresh', function () {
+                $jq('#progress-info-panel').bind('refresh', function () {
                     $jq.ajax({
                         url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
                         datatype: "text"
                     })
                         .done(function (data) {
-                            $jq('#progressInfoPanel').text(Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ") completed");
+                            $jq('#progress-info-panel')
+                            .text("Compiled " + Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
 
-                            $jq('#errorsInfoPanel').toggle(data.errorsCount !== 0);
-                            $jq('#errorsCount').text(data.errorsCount);
+                            $jq('#errors-info-panel').toggle(data.errorsCount !== 0);
+                            $jq('#errors-count').text(data.errorsCount);
 
-                            $jq('#warningsInfoPanel').toggle(data.warningsCount !== 0);
-                            $jq('#warningsCount').text(data.warningsCount);
+                            $jq('#warnings-info-panel').toggle(data.warningsCount !== 0);
+                            $jq('#warnings-count').text(data.warningsCount);
 
                             if (data.messageIndex !== -1 || data.messageId !== -1) {
                                 messageIndex = data.messageIndex;
@@ -61,18 +99,22 @@
                             }
 
                             if (data.messages.length !== 0) {
-                                var warningsPanel = document.getElementById("warningsPanel");
-                                var errorsPanel = document.getElementById("errorsPanel");
+                                var warningsPanel = document.getElementById("warnings-panel");
+                                var errorsPanel = document.getElementById("errors-panel");
                                 var warningsHtml = "";
                                 var errorsHtml = "";
 
                                 data.messages.forEach(function (item) {
                                     if (item.severity === 'WARN') {
                                         warningsHtml +=
-                                            "<div><a href = " + item.url + " title class='problem-warning problem-small' style='color: black; text-decoration:none;'>" + item.summary + "</a></div>";
+                                            "<div class='message-block problem-warning problem-small'>"
+                                                + "<a href = " + item.url + " class='message-block-link'>" + item.summary + "</a>"
+                                            + "</div>";
                                     } else if (item.severity === 'ERROR') {
                                         errorsHtml +=
-                                            "<div><a href = " + item.url + " title class='problem-error problem-small' style='color: black; text-decoration:none;'>" + item.summary + "</a></div>";
+                                            "<div class='message-block problem-error problem-small'>"
+                                                + "<a href = " + item.url + " class='message-block-link'>" + item.summary + "</a>"
+                                            + "</div>";
                                     }
                                 });
 
@@ -92,15 +134,15 @@
                                 warningsPanel.appendChild(warningsDiv);
                                 errorsPanel.appendChild(errorsDiv);
                             }
-                            setTimeout(function () {$jq('#progressInfoPanel').trigger('refresh')}, 1000);
+                            setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
                         });
                 });
 
-                $jq('#progressInfoPanel').trigger('refresh');
+                $jq('#progress-info-panel').trigger('refresh');
 
                 //]]>
-            </script>
-        </div>
+
+        </script>
     </div>
 
 </ui:composition>
