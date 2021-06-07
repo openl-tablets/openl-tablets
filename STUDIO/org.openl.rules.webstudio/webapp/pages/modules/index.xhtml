@@ -843,6 +843,26 @@
                     initPopupPanels();
                 })
 
+                callbacks.push(function(){
+                    $j('.layout-extractable-info').bind('DOMSubtreeModified', function(){
+                        var layoutPane = $j($j(this).parents(".ui-layout-pane")[0]);
+                        if (layoutPane) {
+                            var layoutDirection =
+                                layoutPane.attr("class")
+                                    .split(/\s+/)
+                                    .find(function(e){return e.startsWith("ui-layout-pane-");})
+                                    .split(/-/)[3];
+
+                            var layoutToggler = $j(layoutPane.siblings(".ui-layout-resizer-" + layoutDirection)[0]);
+                            var extractedLayoutInfo = layoutToggler.find(".layout-extractable-info");
+                            if (extractedLayoutInfo) {
+                                layoutToggler.find(".layout-extractable-info").remove();
+                            }
+                            $j(this).clone().appendTo(layoutToggler);
+                        }
+                    });
+                })
+
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
