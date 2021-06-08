@@ -4,4 +4,6 @@ public interface ObjectSerializer {
 
     String writeValueAsString(Object obj) throws ProcessingException;
 
+    <T> T readValue(String content, Class<T> type) throws ProcessingException;
+
 }

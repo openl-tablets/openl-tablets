@@ -1,0 +1,2 @@
+GET /deployment6/simple6/openapi.json HTTP/1.1
+

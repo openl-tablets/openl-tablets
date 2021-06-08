@@ -15,6 +15,15 @@ public class JacksonObjectSerializer implements ObjectSerializer {
     }
 
     @Override
+    public <T> T readValue(String content, Class<T> type) throws ProcessingException {
+        try {
+            return objectMapper.readValue(content, type);
+        } catch (JsonProcessingException e) {
+            throw new ProcessingException(e);
+        }
+    }
+
+    @Override
     public String writeValueAsString(Object obj) throws ProcessingException {
         if (obj instanceof String) {
             return (String) obj;
