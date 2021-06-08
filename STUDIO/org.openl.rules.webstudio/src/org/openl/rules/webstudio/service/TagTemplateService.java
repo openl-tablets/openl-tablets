@@ -77,7 +77,7 @@ public class TagTemplateService {
                 List<Tag> tags = new ArrayList<>();
                 for (int i = 0; i < tagTypes.size(); i++) {
                     TagType tagType = tagTypes.get(i);
-                    final String tagValue = matcher.group(i + 1);
+                    final String tagValue = matcher.group(i + 1).trim();
                     Tag tag = tagDao.getByTagTypeAndName(tagType.getName(), tagValue);
                     if (tag == null) {
                         tag = new Tag();
