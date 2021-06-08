@@ -100,7 +100,11 @@ public class ProjectsWithoutTagsBean {
                 if (existing == null) {
                     projectService.save(project);
                 } else {
-                    existing.setTags(project.getTags());
+                    final List<Tag> currentTags = existing.getTags();
+                    project.getTags().forEach(tag -> {
+                        currentTags.removeIf(currentTag -> tag.getType().equals(currentTag.getType()));
+                        currentTags.add(tag);
+                    });
                     projectService.update(existing);
                 }
 
