@@ -23,5 +23,5 @@ public interface TagDao extends Dao<Tag> {
     Tag getByTagTypeAndName(String tagType, String tagName);
 
     @Transactional
-    void deleteById(Long id);
+    boolean deleteById(Long id);
 }

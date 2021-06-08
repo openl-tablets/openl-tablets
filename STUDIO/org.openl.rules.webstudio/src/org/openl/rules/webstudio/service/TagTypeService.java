@@ -36,8 +36,8 @@ public class TagTypeService {
         tagTypeDao.update(tagType);
     }
 
-    public void delete(Long id) {
-        tagTypeDao.deleteById(id);
+    public boolean delete(Long id) {
+        return tagTypeDao.deleteById(id);
     }
 
     public void delete(String name) {
@@ -45,7 +45,7 @@ public class TagTypeService {
     }
 
     public TagType getById(Long id) {
-        return  tagTypeDao.getById(id);
+        return tagTypeDao.getById(id);
     }
 
     public TagType getByName(String name) {

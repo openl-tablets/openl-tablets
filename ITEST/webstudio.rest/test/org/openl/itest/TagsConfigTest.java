@@ -3,12 +3,9 @@ package org.openl.itest;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.OrderWith;
-import org.junit.runner.manipulation.Alphanumeric;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
-@OrderWith(Alphanumeric.class)
 public class TagsConfigTest {
     private static JettyServer server;
     private static HttpClient client;
@@ -25,12 +22,9 @@ public class TagsConfigTest {
     }
 
     @Test
-    public void getTypesOnEmptyServer() {
-        client.send("admin/tag-config/types.empty.json.get");
-    }
-
-    @Test
     public void smokeTest() {
+        client.send("admin/tag-config/types.empty.json.get");
+
         client.send("admin/tag-config/create-type.post");
         client.send("admin/tag-config/smoke-types-1.get");
 
@@ -51,5 +45,8 @@ public class TagsConfigTest {
 
         client.send("admin/tag-config/delete-type");
         client.send("admin/tag-config/types.empty.json.get");
+
+        client.send("admin/tag-config/delete-non-existent-tag");
+        client.send("admin/tag-config/delete-non-existent-type");
     }
 }

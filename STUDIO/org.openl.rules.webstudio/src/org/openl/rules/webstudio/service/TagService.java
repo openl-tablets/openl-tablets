@@ -25,8 +25,8 @@ public class TagService {
         tagDao.update(tag);
     }
 
-    public void delete(Long id) {
-        tagDao.deleteById(id);
+    public boolean delete(Long id) {
+        return tagDao.deleteById(id);
     }
 
     public Tag getById(Long id) {

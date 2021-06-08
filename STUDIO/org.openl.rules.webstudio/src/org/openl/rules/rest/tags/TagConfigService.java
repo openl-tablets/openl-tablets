@@ -1,17 +1,23 @@
 package org.openl.rules.rest.tags;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.security.Privileges;
@@ -46,24 +52,35 @@ public class TagConfigService {
 
     @DELETE
     @Path("/types/{id}")
-    public void deleteTagType(@PathParam("id") final Long id) {
+    public Response deleteTagType(@PathParam("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
-        tagTypeService.delete(id);
+        if (tagTypeService.delete(id)) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     @DELETE
     @Path("/types/{tagTypeId}/tags/{id}")
-    public void deleteTag(@PathParam("tagTypeId") final Long tagTypeId, @PathParam("id") final Long id) {
+    public Response deleteTag(@PathParam("tagTypeId") final Long tagTypeId, @PathParam("id") final Long id) {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
-        WebStudioUtils.validate(Objects.equals(tag.getType().getId(), tagTypeId), "Tag type doesn't contain tag with id " + id);
-        tagService.delete(id);
+        if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
+            throw new NotFoundException();
+        }
+        if (tagService.delete(id)) {
+            return Response.noContent().build();
+        } else {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
     }
 
     @POST
     @Path("/types")
-    public void addTagType(TagTypeDTO typeDTO) {
-        addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
+    public Response addTagType(TagTypeDTO typeDTO, @Context UriInfo uriInfo) {
+        return created(uriInfo,
+            addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible()));
     }
 
     @PUT
@@ -72,7 +89,7 @@ public class TagConfigService {
         addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
     }
 
-    private void addOrUpdateTagType(final Long id,
+    private Long addOrUpdateTagType(final Long id,
             final String name,
             final Boolean nullable,
             final Boolean extensible) {
@@ -83,6 +100,9 @@ public class TagConfigService {
             tagType = new TagType();
         } else {
             tagType = tagTypeService.getById(id);
+            if (tagType == null) {
+                throw new NotFoundException();
+            }
         }
 
         if (StringUtils.isNotBlank(name)) {
@@ -106,12 +126,14 @@ public class TagConfigService {
         } else {
             tagTypeService.update(tagType);
         }
+
+        return tagType.getId();
     }
 
     @POST
     @Path("/types/{tagTypeId}/tags")
-    public void addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name) {
-        addOrUpdateTag(tagTypeId, null, name);
+    public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
+        return created(uriInfo, addOrUpdateTag(tagTypeId, null, name));
     }
 
     @PUT
@@ -122,16 +144,23 @@ public class TagConfigService {
         addOrUpdateTag(tagTypeId, tagId, name);
     }
 
-    private void addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name) {
+    private Long addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;
 
         if (tagId == null) {
             tag = new Tag();
-            tag.setType(tagTypeService.getById(tagTypeId));
+            final TagType tagType = tagTypeService.getById(tagTypeId);
+            if (tagType == null) {
+                throw new NotFoundException();
+            }
+            tag.setType(tagType);
         } else {
             tag = tagService.getById(tagId);
+            if (tag == null) {
+                throw new NotFoundException();
+            }
         }
 
         WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
@@ -147,6 +176,16 @@ public class TagConfigService {
             tagService.save(tag);
         } else {
             tagService.update(tag);
+        }
+
+        return tag.getId();
+    }
+
+    private Response created(@Context UriInfo uriInfo, Long id) {
+        try {
+            return Response.created(new URI(uriInfo.getPath(false) + "/" + id)).build();
+        } catch (URISyntaxException e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         }
     }
 }

@@ -1,0 +1,2 @@
+DELETE /web/admin/tag-config/types/1/tags/2000 HTTP/1.1
+
