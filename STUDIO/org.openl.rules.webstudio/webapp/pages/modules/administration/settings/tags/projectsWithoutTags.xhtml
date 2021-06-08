@@ -12,6 +12,11 @@
             #projectsWithoutTagsForm\:projectsWithoutTagsList > tbody > tr > td:first-child {
                 text-align: center;
             }
+
+            #projectsWithoutTagsContent {
+                max-height: 75vh;
+                max-width: 90vw;
+            }
         </style>
         <f:facet name="header">
             <h:outputText value="Projects without tags"/>
@@ -23,7 +28,7 @@
         </f:facet>
 
         <h:form id="projectsWithoutTagsForm">
-            <div>
+            <div id="projectsWithoutTagsContent" class="scrollable">
                 <h:dataTable id="projectsWithoutTagsList" value="#{projectsWithoutTagsBean.projectsWithoutTags}" var="project"  styleClass="table">
                     <h:column>
                         <f:facet name="header">
