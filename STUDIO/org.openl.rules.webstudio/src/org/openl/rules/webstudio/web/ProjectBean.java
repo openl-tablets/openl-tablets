@@ -1157,7 +1157,7 @@ public class ProjectBean {
         return environmentModel;
     }
 
-    private void tryLockProject() {
+    public void tryLockProject() {
         RulesProject currentProject = studio.getCurrentProject();
         if (!currentProject.tryLock()) {
             throw new Message("Project is locked by other user");

@@ -163,6 +163,13 @@
                                title="Export module" value="Export"
                                rendered="#{!empty module}" />
             </a4j:ajax>
+            <a4j:ajax oncomplete="startEditingInExcel();">
+                <h:commandLink onclick="return canOverwriteRevision();" action="#{projectBean.tryLockProject}"
+                               id="lockModuleButton"
+                               title="Lock this project from modification by other users" value="Start Editing in Excel"
+                               rendered="#{!empty module and studio.model.editable}"/>
+            </a4j:ajax>
+
 
             <h:panelGroup rendered="#{!empty module and treeBean.canRun}">
             <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
@@ -364,6 +371,11 @@
         function canOverwriteRevision() {
             var confirmNeeded = #{studio.model.confirmOverwriteNewerRevision};
             return !confirmNeeded || confirm("#{msg['ws.project.warning.version.old']}");
+        }
+
+        function startEditingInExcel() {
+            openUpdateModuleDialog();
+            ws.ui.info("Use this dialog to upload file after editing in Excel");
         }
 
         function canOpenOtherBranch() {
