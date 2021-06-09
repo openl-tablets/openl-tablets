@@ -7,7 +7,7 @@
     <c:set var="contextPath" value="#{facesContext.externalContext.request.contextPath}" />
 
     <h:head>
-        <link href="#{contextPath}/css/common.css?6" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?7" rel="stylesheet" />
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
 
@@ -45,7 +45,10 @@
                         message(content, -1, true, "error");
                     },
                     info: function(content) {
-                        message(content, 8000, true);
+                        message(content, 8000, true, "info");
+                    },
+                    alert: function(content) {
+                        message(content, 8000, true, "alert");
                     },
                     showLoader: function () {
                         if (loadingPanel.is(":hidden")) {

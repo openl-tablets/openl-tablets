@@ -25,7 +25,7 @@
                                  onfilesubmit="ws.ui.showLoader();"
                                  oncomplete="disableUploadModuleButton(false);ws.ui.hideLoader();"
                                  onclear="clearUploadedFileForUpdateModule();"
-                                 ontyperejected="ws.ui.info('Only xls and xlsx files are accepted');"
+                                 ontyperejected="ws.ui.error('Only xls and xlsx files are accepted');"
                                  acceptedTypes="xls, xlsx, xlsm" maxFilesQuantity="1"/>
             </h:panelGrid>
 
