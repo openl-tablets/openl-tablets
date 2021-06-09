@@ -2,6 +2,7 @@ package org.openl.rules.webstudio.web.test;
 
 import javax.servlet.http.HttpSession;
 
+import org.openl.CompiledOpenClass;
 import org.openl.base.INamedThing;
 import org.openl.rules.data.IDataBase;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
@@ -10,6 +11,7 @@ import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
+import org.openl.rules.util.Arrays;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
@@ -35,12 +37,15 @@ public final class Utils {
         return builder.toString();
     }
 
-    static TestUnitsResults[] runTests(String id, String testRanges, HttpSession session) {
+    static TestUnitsResults[] runTests(String id, String testRanges, boolean currentOpenedModule, HttpSession session) {
         TestUnitsResults[] results;
         ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
 
         IOpenLTable table = model.getTableById(id);
-        if (table != null) {
+        if (currentOpenedModule) {
+            IOpenMethod[] tests = model.getOpenedModuleTestMethods();
+            results = runAllTests(model, tests, true);
+        } else if (table != null) {
             String uri = table.getUri();
             IOpenMethod method = model.getMethod(uri);
 
@@ -58,22 +63,22 @@ public final class Utils {
                 }
                 // Concrete test with cases
                 results = new TestUnitsResults[1];
-                results[0] = model.runTest(testSuite);
+                results[0] = model.runTest(testSuite, false);
             } else {
                 // All tests for table
-                IOpenMethod[] tests = model.getTestMethods(uri);
-                results = runAllTests(model, tests);
+                IOpenMethod[] tests = model.getTestMethods(uri, false);
+                results = runAllTests(model, tests, false);
             }
         } else {
             // All tests for project
             IOpenMethod[] tests = model.getAllTestMethods();
-            results = runAllTests(model, tests);
+            results = runAllTests(model, tests, false);
         }
         return results;
     }
 
-    private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests) {
-        if (tests != null) {
+    private static TestUnitsResults[] runAllTests(ProjectModel model, IOpenMethod[] tests, boolean currentOpenedModule) {
+        if (Arrays.isNotEmpty(tests)) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tests[i];
@@ -84,7 +89,7 @@ public final class Utils {
                 TestSuite testSuite = new TestSuite(testSuiteMethod);
                 TestUnitsResults testUnitsResults;
                 if (model.getErrorsByUri(sourceUrl).isEmpty()) {
-                    testUnitsResults = model.runTest(testSuite);
+                    testUnitsResults = model.runTest(testSuite, currentOpenedModule);
                 } else {
                     testUnitsResults = new TestUnitsResults(testSuite);
                     testUnitsResults.setTestedRulesHaveErrors(true);
@@ -96,12 +101,13 @@ public final class Utils {
         return new TestUnitsResults[0];
     }
 
-    public static IDataBase getDb(ProjectModel model) {
+    public static IDataBase getDb(ProjectModel model, boolean currentOpenedModule) {
         if (model == null) {
             return null;
         }
-
-        IOpenClass moduleClass = model.getCompiledOpenClass().getOpenClassWithErrors();
+        CompiledOpenClass compiledOpenClass = currentOpenedModule ? model.getOpenedModuleCompiledOpenClass()
+                                                         : model.getCompiledOpenClass();
+        IOpenClass moduleClass = compiledOpenClass.getOpenClassWithErrors();
         if (moduleClass instanceof XlsModuleOpenClass) {
             return ((XlsModuleOpenClass) moduleClass).getDataBase();
         }

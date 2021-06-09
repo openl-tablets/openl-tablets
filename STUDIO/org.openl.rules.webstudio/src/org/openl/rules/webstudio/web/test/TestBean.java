@@ -148,8 +148,9 @@ public class TestBean {
     private void testAll() {
         String id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
         String testRanges = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_TEST_RANGES);
+        String testOnlyModule = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE);
 
-        this.ranResults = Utils.runTests(id, testRanges, WebStudioUtils.getSession());
+        this.ranResults = Utils.runTests(id, testRanges, Boolean.parseBoolean(testOnlyModule), WebStudioUtils.getSession());
     }
 
     public TestUnitsResults[] getRanTests() {

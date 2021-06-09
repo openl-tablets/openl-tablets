@@ -28,6 +28,7 @@ import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.testmethod.ProjectHelper;
+import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
@@ -35,6 +36,7 @@ import org.openl.rules.webstudio.web.MessageHandler;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenMethod;
+import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.openl.validation.ValidatedCompiledOpenClass;
 import org.springframework.stereotype.Service;
@@ -48,7 +50,7 @@ public class WorkspaceCompileService {
 
     @GET
     @Path("progress/{messageId}/{messageIndex}")
-    public Response getCompile(@PathParam("messageId") final Long messageId,
+    public Map<String, Object> getCompile(@PathParam("messageId") final Long messageId,
             @PathParam("messageIndex") final Integer messageIndex) {
         Map<String, Object> compileModuleInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
@@ -134,19 +136,19 @@ public class WorkspaceCompileService {
                 compileModuleInfo.put("compilationCompleted", model.isProjectCompilationCompleted());
             }
         }
-        return Response.ok(compileModuleInfo).build();
+        return compileModuleInfo;
     }
 
     @GET
     @Path("tests/{tableId}")
-    public Response getCompile(@PathParam("tableId") final String tableId) {
+    public Map<String, Object> getCompile(@PathParam("tableId") final String tableId) {
         Map<String, Object> tableTestsInfo = new HashMap<>();
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         List<TableBean.TableDescription> tableDescriptions = new ArrayList<>();
         if (webStudio != null) {
             ProjectModel model = webStudio.getModel();
             IOpenLTable table = model.getTableById(tableId);
-            IOpenMethod[] allTests = model.getTestAndRunMethods(table.getUri());
+            IOpenMethod[] allTests = model.getTestAndRunMethods(table.getUri(), false);
 
             if (allTests != null) {
                 for (IOpenMethod test : allTests) {
@@ -159,9 +161,16 @@ public class WorkspaceCompileService {
             }
 
             tableTestsInfo.put("allTests", tableDescriptions);
-            tableTestsInfo.put("compiled", isModuleCompiled(model, webStudio));
+            tableTestsInfo.put("compiled", model.isProjectCompilationCompleted());
         }
-        return Response.ok(tableTestsInfo).build();
+        return tableTestsInfo;
+    }
+
+    @GET
+    @Path("module")
+    public boolean module() {
+        WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        return webStudio.getModel().isProjectCompilationCompleted();
     }
 
     private void processMessages(Collection<OpenLMessage> messages, MessageCounter counter,
@@ -179,21 +188,6 @@ public class WorkspaceCompileService {
             MessageDescription messageDescription = getMessageDescription(message, model);
             newMessages.add(messageDescription);
         }
-    }
-
-    private boolean isModuleCompiled(ProjectModel model, WebStudio webStudio) {
-        String currentProjectDependencyName = ProjectExternalDependenciesHelper
-            .buildDependencyNameForProject(model.getModuleInfo().getProject().getName());
-        WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager = webStudio.getModel()
-            .getWebStudioWorkspaceDependencyManager();
-        Collection<IDependencyLoader> dependencyLoadersForModule = webStudioWorkspaceDependencyManager
-            .findDependencyLoadersByName(currentProjectDependencyName);
-        for (IDependencyLoader dependencyLoader : dependencyLoadersForModule) {
-            if (dependencyLoader.getRefToCompiledDependency() != null) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private String getTestName(Object testMethod) {

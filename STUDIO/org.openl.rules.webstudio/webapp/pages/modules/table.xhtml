@@ -116,6 +116,13 @@
     <div id="unitsMenu" style="display: none; min-width: 175px">
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
         <h:form prependId="false">
+            <h:panelGroup id="runModuleOnlySetting" layout="block">
+                <div style="margin: 10px 15px 0" title="Run for the currently opened module only">
+                    <span style="margin-right: 10px">Run for the currently opened module only</span>
+                    <input id="runTestModuleOnly" name="currentOpenedModule" type="checkbox"
+                           value="true" style="vertical-align:-2px;margin:-4px"/>
+                </div>
+            </h:panelGroup>
             <h:panelGroup id="runCasesSettings" layout="block" rendered="#{tableBean.table.type != 'xls.run.method'}"
                           styleClass="hidden b-run b-test">
                 <div title="Show only failed test cases">
@@ -223,6 +230,7 @@
                                    styleClass="hidden b-benchmark"/>
             </div>
             <input type="hidden" name="testRanges" value="" id="testRangesHiddenInput"/>
+            <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyHiddenInput"/>
             <input type="hidden" name="id" value="#{tableBean.id}" />
         </h:form>
     </div>
@@ -289,7 +297,7 @@
                                 <td>
                                     <a4j:commandLink id="runLink" title="Run" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canRun}"
-                                        onclick=" return isAnyTestSelected();" oncomplete="runTestCases();"
+                                        onclick="onRun(); return false;"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                         style="padding-right: 1px">
@@ -299,7 +307,7 @@
                                                     <img src="#{contextPath}/webresource/images/run.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showUnitsMenu(event, 'b-run');return false;"
+                                                    onclick="onTestMenuOpen(event, 'b-run');return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -313,20 +321,20 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="traceLink" action="#{runTestHelper.initTrace}" title="Trace" styleClass="toolbarButton menuButton changes-listener"
+                                    <a4j:commandLink id="traceLink" title="Trace" styleClass="toolbarButton menuButton changes-listener"
                                                      rendered="#{tableBean.canTrace}"
-                                                     onclick="return isAnyTestSelected();" oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
+                                                     onclick="onTrace(); return false;"
                                                      onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                                      onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
                                                      style="padding-right: 1px">
-                                        <a4j:param name="id" value="#{tableBean.id}"/>
+                                        <a4j:jsFunction name="onTraceFunction" oncomplete="onTraceAction();" action="#{runTestHelper.initTrace}"/>
                                         <table>
                                             <tr>
                                                 <td>
                                                     <img src="#{contextPath}/webresource/images/trace.gif" />
                                                 </td>
                                                 <td rowspan="2" class="arrow"
-                                                    onclick="showUnitsMenu(event, 'b-trace');return false;"
+                                                    onclick="onTestMenuOpen(event, 'b-trace');return false;"
                                                     style="visibility: hidden;">
                                                     <f:verbatim>&amp;nbsp;&amp;nbsp;</f:verbatim>
                                                 </td>
@@ -340,14 +348,13 @@
                                     </a4j:commandLink>
                                 </td>
                                 <td>
-                                    <a4j:commandLink id="benchmarkLink" action="#{benchmarkBean.addLastBenchmark}" title="Benchmark" styleClass="toolbarButton menuButton"
+                                    <a4j:commandLink id="benchmarkLink" title="Benchmark" styleClass="toolbarButton menuButton"
                                         rendered="#{tableBean.canBenchmark}"
-                                        onclick="return isAnyTestSelected();"
+                                        onclick="onBenchmark(); return false;"
                                         onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                         onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
-                                        oncomplete="ws.nav.go('#{studio.url('test/benchmark')}')"
                                         style="padding-right: 1px">
-                                        <a4j:param name="id" value="#{tableBean.id}"/>
+                                        <a4j:jsFunction name="onBenchmarkFunction" oncomplete="ws.nav.go('#{studio.url('test/benchmark')}');" action="#{benchmarkBean.addLastBenchmark}"/>
                                         <table>
                                             <tr>
                                                 <td>
@@ -369,6 +376,8 @@
                                 </td>
                             </tr>
                         </table>
+                        <input type="hidden" name="currentOpenedModule" value="" id="testModuleHiddenInput"/>
+                        <input type="hidden" name="id" value="#{tableBean.id}"/>
                     </h:form>
                 </td>
                 </c:if>
@@ -396,6 +405,13 @@
                                     </a>
                                 </c:if>
                                 <div id="inputArgsMenu" style="display: none" >
+                                    <h:panelGroup layout="block">
+                                        <div style="margin: 10px" title="Run for the currently opened module only">
+                                            <span style="margin-right: 10px">Run for the currently opened module only</span>
+                                            <input id="runTestModuleOnlyInputArgs" name="currentOpenedModule" type="checkbox"
+                                                   value="true" style="vertical-align:-2px;margin:-4px"/>
+                                        </div>
+                                    </h:panelGroup>
                                     <h:panelGroup id="inputTestCasePanelWrapper">
                                         <h:selectOneRadio id="inputTestCaseType"
                                                           value="#{inputArgsBean.inputTestCaseType}">
@@ -421,18 +437,18 @@
                                     <div style="padding: 8px 5px 6px">
                                         <a4j:commandButton id="runButton" style="display: none" styleClass="manual-run"
                                             action="#{runTestHelper.catchParams}" value="Run" title="Launch the table"
-                                            oncomplete="ws.nav.go('#{runLink}')"/>
+                                            oncomplete="runManualTest();"/>
                                         <a4j:commandButton id="runToFileButton" style="display: none" styleClass="manual-run"
-                                            value="Run into File" title="Run into File"
+                                            value="Run into File" title="Run into File" onclick="moduleOnlyInputArgs()"
                                             action="#{runTestHelper.catchParamsToDownload}"
                                             oncomplete="downloadManualTest();"/>
                                         <a4j:commandButton id="traceButton" style="display: none"
                                             styleClass="changes-listener manual-trace"
-                                            action="#{runTestHelper.initTrace}"
+                                            action="#{runTestHelper.initTrace}" onclick="moduleOnlyInputArgs()"
                                             oncomplete="open_win('#{traceUrl}', 'trace_win');ws.nav.reload();"
                                             value="Trace" title="Launch the table and trace steps"/>
                                         <h:commandButton id="traceIntoFileButton" style="display: none" styleClass="manual-trace"
-                                            action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
+                                            onclick="moduleOnlyInputArgs()" action="#{traceIntoFileBean.traceIntoFile}" value="Trace into File"
                                             title="Trace into File" />
                                     </div>
                                 </div>
@@ -454,6 +470,7 @@
                                 </a4j:commandLink>
                             </c:if>
                             <input type="hidden" name="id" value="#{tableBean.id}" />
+                            <input type="hidden" name="currentOpenedModule" value="" id="testModuleOnlyInputArgs"/>
                         </h:form>
                     </td>
                 </c:if>
@@ -642,6 +659,14 @@
             var button = $j(event.target).parent(buttonElem);
             if (!button.length)
                 button = $j(event.target).closest(buttonElem);
+            if (popupId === "inputArgsMenu") {
+                compiled(function (data) {
+                    if (!data) {
+                        $j("#runTestModuleOnlyInputArgs").prop('checked', !data);
+                        $j("#runTestModuleOnlyInputArgs").prop('disabled', !data);
+                    }
+                });
+            }
             ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
         }
 
@@ -672,7 +697,75 @@
             ws.ui.info(data.message);
         }
 
+        function onRun() {
+            compiled(function (data) {
+                var currentOpenedModule = false;
+                if (!data) {
+                    if (!confirm("Can be run for the currently opened module only because the project is not compiled yet.")) {
+                        return false;
+                    }
+                    currentOpenedModule = true;
+                }
+                if (isAnyTestSelected()) {
+                    runTestCases(currentOpenedModule);
+                }
+            });
+        }
+
+        function onTrace() {
+            compiled(function (data) {
+                if (!data) {
+                    if (!confirm("Trace can be run for the currently opened module only because the project is not compiled yet.")) {
+                        return false;
+                    }
+                }
+                if (isAnyTestSelected()) {
+                    $j("#testModuleHiddenInput").val(!data).prop('disabled', false);
+                    onTraceFunction();
+                }
+            });
+        }
+
+        function onBenchmark() {
+            compiled(function (data) {
+                if (!data) {
+                    if (!confirm("Benchmark can be run for the currently opened module only because the project is not compiled yet.")) {
+                        return false;
+                    }
+                }
+                if (isAnyTestSelected()) {
+                    $j("#testModuleHiddenInput").val(!data).prop('disabled', false);
+                    onBenchmarkFunction();
+                }
+            });
+        }
+
+        function onTraceAction() {
+            open_win('#{traceUrl}', 'trace_win');
+            ws.nav.reload();
+        }
+
+        function moduleOnlyInputArgs() {
+            $j("#testModuleOnlyInputArgs")
+                .val($j("#inputArgsMenu").find('input[type=checkbox]')[0].checked)
+                .prop('disabled', false);
+        }
+
+        function compiled(callback) {
+            return $jq.ajax({
+                url: "#{contextPath}/web/compile/module",
+                datatype: "text"
+            })
+                .done(function (data) {
+                    callback(data);
+                });
+        }
+
         function isAnyTestSelected() {
+            $j("#testModuleOnlyHiddenInput")
+                .val($j("#runModuleOnlySetting").find('input[type=checkbox]')[0].checked)
+                .prop('disabled', false);
+
             var testRangesParam = getTestRangesParam();
 
             // undefined value means that the range is not used (default)
@@ -733,14 +826,29 @@
             return true;
         }
 
+        function onTestMenuOpen(event, block) {
+            showButtonMenu(event, 'unitsMenu', 'a');
+            $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
+            $j('#unitsMenu .' + block).show();
+            compiled(function (data) {
+                $j("#runTestModuleOnly").prop('checked', !data);
+                $j("#runTestModuleOnly").prop('disabled', !data);
+            });
+        }
+
         function showUnitsMenu(event, block) {
             showButtonMenu(event, 'unitsMenu', 'a');
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
+            compiled(function (data) {
+                $j("#runTestModuleOnly").prop('checked', !data);
+                $j("#runTestModuleOnly").prop('disabled', !data);
+            });
         }
 
-        function getTestQuery() {
-            var query="?id=#{tableBean.id}";
+        function getTestQuery(currentOpenedModule) {
+            var query = "?id=#{tableBean.id}";
+            query += '&currentOpenedModule=' + (currentOpenedModule === true ? 'true' : $j("#runModuleOnlySetting").find('input[type=checkbox]')[0].checked);
             if ($j("#unitsMenu").is(":hidden")) {
                 // No query for the hidden menu
                 return query;
@@ -773,18 +881,24 @@
             return ids;
         }
 
-        function runTestCases() {
+        function runTestCases(currentOpenedModule) {
             var link="#{tableBean.table.type == 'xls.run.method' ? studio.url('test/run') : studio.url('test/test')}";
-            ws.nav.go(link + getTestQuery());
+            ws.nav.go(link + getTestQuery(currentOpenedModule));
         }
 
-        function downloadTestCases() {
+        function downloadTestCases(currentOpenedModule) {
             var link="#{contextPath}/web/test/testcase";
-            ws.nav.download(link + getTestQuery());
+            ws.nav.download(link + getTestQuery(currentOpenedModule));
         }
 
         function downloadManualTest() {
-            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}");
+            var currentOpenedModule = $j("#inputArgsMenu").find('input[type=checkbox]')[0].checked;
+            ws.nav.download("#{contextPath}/web/test/rule?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule);
+        }
+
+        function runManualTest() {
+            var currentOpenedModule = $j("#inputArgsMenu").find('input[type=checkbox]')[0].checked;
+            ws.nav.go("#{studio.url('test/run')}?id=#{tableBean.id}&currentOpenedModule=" + currentOpenedModule);
         }
         
         function editTable() {

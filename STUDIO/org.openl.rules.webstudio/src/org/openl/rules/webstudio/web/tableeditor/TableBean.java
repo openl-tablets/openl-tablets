@@ -115,9 +115,9 @@ public class TableBean {
             uri = table.getUri();
             // Save URI because some actions don't provide table ID
             studio.setTableUri(uri);
-
-            method = model.getMethod(uri);
-
+            boolean currentOpenedModule = Boolean
+                .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
+            method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
             editable = model.isEditableTable(uri) && !isDispatcherValidationNode();
             canBeOpenInExcel = model.isEditable() && !isDispatcherValidationNode();
             copyable = editable && table.isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString()
@@ -126,7 +126,7 @@ public class TableBean {
             initTargetTables();
 
             initProblems();
-            initTests(model);
+            initTests(model, currentOpenedModule);
 
             // Save last visited table
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
@@ -179,11 +179,10 @@ public class TableBean {
         this.targetTables = targetTables;
     }
 
-    private void initTests(final ProjectModel model) {
+    private void initTests(final ProjectModel model, boolean currentOpenedModule) {
         initRunnableTestMethods();
-
-        allTests = model.getTestAndRunMethods(uri);
-        tests = model.getTestMethods(uri);
+        allTests = model.getTestAndRunMethods(uri, currentOpenedModule);
+        tests = model.getTestMethods(uri, currentOpenedModule);
     }
 
     private void initRunnableTestMethods() {
@@ -284,7 +283,7 @@ public class TableBean {
         if (testCase != null) {
             ParameterWithValueDeclaration[] contextParams = TestUtils
                 .getContextParams(new TestSuite((TestSuiteMethod) method), testCase);
-            Utils.getDb(WebStudioUtils.getProjectModel());
+            Utils.getDb(WebStudioUtils.getProjectModel(), false);
             ParameterWithValueDeclaration[] inputParams = testCase.getExecutionParams();
 
             params = new ParameterWithValueDeclaration[contextParams.length + inputParams.length];

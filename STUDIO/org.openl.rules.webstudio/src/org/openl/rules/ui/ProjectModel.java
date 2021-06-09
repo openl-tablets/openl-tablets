@@ -90,6 +90,7 @@ public class ProjectModel {
      * Compiled rules with errors. Representation of wrapper.
      */
     private volatile CompiledOpenClass compiledOpenClass;
+    private volatile CompiledOpenClass openedModuleCompiledOpenClass;
     private volatile boolean projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
@@ -251,12 +252,22 @@ public class ProjectModel {
     }
 
     public synchronized IOpenMethod getMethod(String tableUri) {
-        if (!isProjectCompiledSuccessfully()) {
+        if (!isCompiledSuccessfully()) {
             return null;
         }
-
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+        return getOpenClassMethod(tableUri, openClass);
+    }
 
+    public synchronized IOpenMethod getOpenedModuleMethod(String tableUri) {
+        if (!isOpenedModuleCompiledSuccessfully()) {
+            return null;
+        }
+        IOpenClass openClass = openedModuleCompiledOpenClass.getOpenClassWithErrors();
+        return getOpenClassMethod(tableUri, openClass);
+    }
+
+    public synchronized IOpenMethod getOpenClassMethod(String tableUri, IOpenClass openClass) {
         for (IOpenMethod method : openClass.getMethods()) {
             IOpenMethod resolvedMethod;
 
@@ -392,8 +403,8 @@ public class ProjectModel {
      * @param forTable uri for method table
      * @return test methods
      */
-    public IOpenMethod[] getTestMethods(String forTable) {
-        IOpenMethod method = getMethod(forTable);
+    public IOpenMethod[] getTestMethods(String forTable, boolean currentOpenedModule) {
+        IOpenMethod method = currentOpenedModule ? getOpenedModuleMethod(forTable) : getMethod(forTable);
         if (method != null) {
             return ProjectHelper.testers(method);
         }
@@ -407,12 +418,16 @@ public class ProjectModel {
      * @return all test methods, including tests with test cases, runs with filled runs, tests without cases(empty),
      *         runs without any parameters and tests without cases and runs.
      */
-    public IOpenMethod[] getTestAndRunMethods(String tableUri) {
+    public IOpenMethod[] getTestAndRunMethods(String tableUri, boolean currentOpenedModule) {
         IOpenMethod method = getMethod(tableUri);
         if (method != null) {
             List<IOpenMethod> res = new ArrayList<>();
-            Collection<IOpenMethod> methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
-
+            Collection<IOpenMethod> methods;
+            if (currentOpenedModule) {
+                methods = openedModuleCompiledOpenClass.getOpenClassWithErrors().getMethods();
+            } else {
+                methods = compiledOpenClass.getOpenClassWithErrors().getMethods();
+            }
             for (IOpenMethod tester : methods) {
                 if (ProjectHelper.isTestForMethod(tester, method)) {
                     res.add(tester);
@@ -424,14 +439,21 @@ public class ProjectModel {
     }
 
     public TestSuiteMethod[] getAllTestMethods() {
-        if (isProjectCompiledSuccessfully()) {
+        if (isCompiledSuccessfully()) {
             return ProjectHelper.allTesters(compiledOpenClass.getOpenClassWithErrors());
         }
         return null;
     }
 
+    public TestSuiteMethod[] getOpenedModuleTestMethods() {
+        if (isOpenedModuleCompiledSuccessfully()) {
+            return ProjectHelper.allTesters(openedModuleCompiledOpenClass.getOpenClassWithErrors());
+        }
+        return null;
+    }
+
     public WorkbookSyntaxNode[] getWorkbookNodes() {
-        if (!isProjectCompiledSuccessfully()) {
+        if (!isCompiledSuccessfully()) {
             return null;
         }
 
@@ -444,7 +466,7 @@ public class ProjectModel {
      * @return all workbooks
      */
     public WorkbookSyntaxNode[] getAllWorkbookNodes() {
-        if (!isProjectCompiledSuccessfully()) {
+        if (!isCompiledSuccessfully()) {
             return null;
         }
 
@@ -473,6 +495,10 @@ public class ProjectModel {
         return compiledOpenClass;
     }
 
+    public CompiledOpenClass getOpenedModuleCompiledOpenClass() {
+        return openedModuleCompiledOpenClass;
+    }
+
     public Collection<OpenLMessage> getModuleMessages() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
@@ -490,7 +516,7 @@ public class ProjectModel {
 
     public XlsModuleSyntaxNode getXlsModuleNode() {
 
-        if (!isProjectCompiledSuccessfully()) {
+        if (!isCompiledSuccessfully()) {
             return null;
         }
 
@@ -772,7 +798,7 @@ public class ProjectModel {
     }
 
     public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
-        if (isProjectCompiledSuccessfully()) {
+        if (isCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
@@ -782,7 +808,7 @@ public class ProjectModel {
 
     public synchronized Collection<TableSyntaxNode> getAllTableSyntaxNodes() {
         List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<>();
-        if (isProjectCompiledSuccessfully()) {
+        if (isCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
                 if (node != null) {
                     tableSyntaxNodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
@@ -863,14 +889,16 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public synchronized TestUnitsResults runTest(TestSuite test) {
+    public synchronized TestUnitsResults runTest(TestSuite test, boolean currentOpenedModule) {
         Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
         boolean isParallel = threads != null && threads > 1;
-        return runTest(test, isParallel);
+        return runTest(test,
+            isParallel,
+            currentOpenedModule ? openedModuleCompiledOpenClass.getOpenClassWithErrors()
+                       : compiledOpenClass.getOpenClassWithErrors());
     }
 
-    private TestUnitsResults runTest(TestSuite test, boolean isParallel) {
-        IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
+    private TestUnitsResults runTest(TestSuite test, boolean isParallel, IOpenClass openClass) {
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
@@ -986,6 +1014,7 @@ public class ProjectModel {
             addAllSyntaxNodes();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(thisModuleCompiledOpenClass);
+            openedModuleCompiledOpenClass = thisModuleCompiledOpenClass;
             compiledOpenClass = thisModuleCompiledOpenClass;
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
 
@@ -1042,6 +1071,7 @@ public class ProjectModel {
             }
 
             compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
+            openedModuleCompiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
 
             WorkbookLoaders.resetCurrentFactory();
         }
@@ -1099,10 +1129,17 @@ public class ProjectModel {
 
     public synchronized void traceElement(TestSuite testSuite) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
+        boolean currentOpenedModule = Boolean.parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         try {
-            Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
-            CachingArgumentsCloner.initInstance();
-            runTest(testSuite, false);
+            if (currentOpenedModule) {
+                Thread.currentThread().setContextClassLoader(openedModuleCompiledOpenClass.getClassLoader());
+                CachingArgumentsCloner.initInstance();
+                runTest(testSuite, false, openedModuleCompiledOpenClass.getOpenClassWithErrors());
+            } else {
+                Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
+                CachingArgumentsCloner.initInstance();
+                runTest(testSuite, false, compiledOpenClass.getOpenClassWithErrors());
+            }
         } finally {
             Thread.currentThread().setContextClassLoader(currentContextClassLoader);
             CachingArgumentsCloner.removeInstance();
@@ -1123,8 +1160,13 @@ public class ProjectModel {
         return new TableEditorModel(table, tableView, false);
     }
 
-    public synchronized boolean isProjectCompiledSuccessfully() {
+    public synchronized boolean isCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
+            .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
+    }
+
+    public synchronized boolean isOpenedModuleCompiledSuccessfully() {
+        return openedModuleCompiledOpenClass != null && openedModuleCompiledOpenClass.getOpenClassWithErrors() != null && !(openedModuleCompiledOpenClass
             .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
