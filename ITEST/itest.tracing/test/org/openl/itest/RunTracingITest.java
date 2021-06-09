@@ -77,7 +77,7 @@ public class RunTracingITest {
 
     @Test
     public void testRESTServiceSpans() {
-        client.post("/REST/deployment1/simple1/Hello", "/simple1_Hello.req.tracing.json", 200);
+        client.send("simple1.tracing.rest.post");
         List<MockSpan> mockSpans = tracer.finishedSpans();
         assertEquals(1, mockSpans.size());
         MockSpan span = mockSpans.iterator().next();
@@ -93,7 +93,7 @@ public class RunTracingITest {
 
     @Test
     public void testWSServiceSpans() {
-        client.post("/deployment1/simple1", "/simple1_Hello.tracing.req.xml", 200);
+        client.send("simple1.tracing.ws.post");
         List<MockSpan> mockSpans = tracer.finishedSpans();
 
         assertEquals(1, mockSpans.size());
@@ -192,7 +192,7 @@ public class RunTracingITest {
         List<MockSpan> mockSpans = tracer.finishedSpans();
         assertEquals(0, mockSpans.size());
 
-        client.post("/deployment1/simple2", "/simple2_Hello.tracing.req.xml", 200);
+        client.send("simple2.tracing.ws.post");
         List<MockSpan> mockSpansIgnored = tracer.finishedSpans();
         assertEquals(0, mockSpansIgnored.size());
     }

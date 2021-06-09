@@ -18,8 +18,8 @@ public class JaegerConfiguration implements ApplicationListener<ContextRefreshed
     private final Tracer tracer;
 
     public JaegerConfiguration(@Value("${jaeger.service.name:RuleServices}") String applicationName,
-            @Value("${jaeger.agent.host:localhost}") String jaegerHost,
-            @Value("${jaeger.agent.port:6831}") Integer jaegerPort) {
+            @Value("${jaeger.agent.host}") String jaegerHost,
+            @Value("${jaeger.agent.port}") Integer jaegerPort) {
         io.jaegertracing.Configuration.SamplerConfiguration samplerConfig = io.jaegertracing.Configuration.SamplerConfiguration
             .fromEnv()
             .withType(ConstSampler.TYPE)
