@@ -199,7 +199,7 @@
             };
 
             const createTagTypeName = function (tagType) {
-                let $tagTypeName = $j('<input type="text" placeholder="Enter Tag Type" title="Tag type">');
+                let $tagTypeName = $j('<input type="text" placeholder="Enter Tag Type" title="Tag type" maxlength="30">');
                 $tagTypeName.addClass('tag-type-name');
                 $tagTypeName.val(tagType.name);
 
@@ -229,7 +229,7 @@
             };
 
             const createNewTagTypeName = function () {
-                let $tagTypeName = $j('<input type="text" placeholder="New Tag Type">');
+                let $tagTypeName = $j('<input type="text" placeholder="New Tag Type" maxlength="30">');
                 $tagTypeName.addClass('tag-type-name');
 
                 const applyChanges = () => {
@@ -361,7 +361,7 @@
             };
 
             const createNewTagName = function (tagType) {
-                let $tagName = $j('<input type="text" placeholder="New Tag">');
+                let $tagName = $j('<input type="text" placeholder="New Tag" maxlength="30">');
                 $tagName.addClass('tag-name');
 
                 const triggerRefresh = () => $j('#tag-types-list').trigger('refresh');
@@ -392,7 +392,7 @@
             };
 
             const createEditTagName = function (tag) {
-                let $tagName = $j('<input type="text" placeholder="Enter Tag Name">');
+                let $tagName = $j('<input type="text" placeholder="Enter Tag Name" maxlength="30">');
                 $tagName.addClass('tag-name');
                 $tagName.val(tag.name);
 
