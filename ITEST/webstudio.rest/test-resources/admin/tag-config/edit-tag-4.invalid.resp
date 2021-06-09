@@ -1,0 +1,4 @@
+HTTP/1.1 400
+Content-Type: text/plain
+
+Name cannot contain forbidden characters (*), start with space, end with space or dot.

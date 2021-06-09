@@ -78,6 +78,7 @@ public class TagConfigService {
 
     @POST
     @Path("/types")
+    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTagType(TagTypeDTO typeDTO, @Context UriInfo uriInfo) {
         return created(uriInfo,
             addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible()));
@@ -85,6 +86,7 @@ public class TagConfigService {
 
     @PUT
     @Path("/types/{id}")
+    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public void updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
         addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
     }
@@ -132,12 +134,14 @@ public class TagConfigService {
 
     @POST
     @Path("/types/{tagTypeId}/tags")
+    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
         return created(uriInfo, addOrUpdateTag(tagTypeId, null, name));
     }
 
     @PUT
     @Path("/types/{tagTypeId}/tags/{tagId}")
+    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public void updateTag(@PathParam("tagTypeId") final Long tagTypeId,
             @PathParam("tagId") final Long tagId,
             final String name) {

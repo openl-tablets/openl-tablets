@@ -48,5 +48,18 @@ public class TagsConfigTest {
 
         client.send("admin/tag-config/delete-non-existent-tag");
         client.send("admin/tag-config/delete-non-existent-type");
+
+        client.send("admin/tag-config/create-type.invalid");
+        client.send("admin/tag-config/create-type.international");
+        client.send("admin/tag-config/create-type.international.same");
+        client.send("admin/tag-config/edit-type.invalid");
+
+        client.send("admin/tag-config/create-tag-3.invalid");
+        client.send("admin/tag-config/create-tag-4.international");
+        client.send("admin/tag-config/create-tag-5.international.same");
+        client.send("admin/tag-config/edit-tag-4.invalid");
+        client.send("admin/tag-config/delete-tag-4.international");
+
+        client.send("admin/tag-config/delete-type.international");
     }
 }
