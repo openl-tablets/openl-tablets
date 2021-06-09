@@ -17,9 +17,9 @@ public class FieldNotFoundException extends OpenLCompilationException {
 
     private static final long serialVersionUID = 1L;
 
-    private String fieldName;
+    private final String fieldName;
 
-    private IOpenClass type;
+    private final IOpenClass type;
 
     public FieldNotFoundException(String msg, String fieldName, IOpenClass type) {
         super(msg);
@@ -34,12 +34,12 @@ public class FieldNotFoundException extends OpenLCompilationException {
             sb.append(super.getMessage());
         }
 
-        sb.append("Field '").append(fieldName);
-        sb.append("' is not found");
+        sb.append(type != null && type.isStatic() ? "Static Field '" : "Field '");
+        sb.append(fieldName).append("' is not found");
         if (type != null) {
-            sb.append(" in type '").append(type.getName()).append("'.");
+            sb.append(" in type '").append(type.getName());
         }
+        sb.append("'.");
         return sb.toString();
     }
-
 }

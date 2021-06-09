@@ -9,8 +9,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String WORKSHEET_NAME = "worksheet";
-
     /**
      * {@inheritDoc}
      */
@@ -20,14 +18,6 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         XlsSheetSourceCodeModule sheet = (XlsSheetSourceCodeModule) nodeObject;
 
         return new String[] { sheet.getSheetName(), sheet.getSheetName(), sheet.getSheetName() };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return WORKSHEET_NAME;
     }
 
     /**
@@ -53,23 +43,7 @@ public class WorksheetTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      * {@inheritDoc}
      */
     @Override
-    public int getWeight(Object sorterObject) {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Object makeObject(TableSyntaxNode tableSyntaxNode) {
         return tableSyntaxNode.getModule();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        return null;
     }
 }

@@ -35,7 +35,7 @@ public enum Privileges implements Privilege {
 
     private final String displayName;
 
-    private Privileges(String displayName) {
+    Privileges(String displayName) {
         this.displayName = displayName;
     }
 

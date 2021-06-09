@@ -372,10 +372,9 @@ public final class FloatCalc {
      */
     public static double solve_pow(double y, double v) {
         // y=pow(x,v) -> pow(y,1/v)=pow(pow(x,v),1/v)=x
-        double x = Math.pow(y, 1 / v);
         // System.out.println(y+"=pow("+x+","+v+")["+Math.pow(x,v)+"]"); //
         // check
-        return x;
+        return Math.pow(y, 1 / v);
     }
 
     /**

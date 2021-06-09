@@ -59,7 +59,7 @@ public final class IntExpElementAt extends IntExpImpl {
      * Finds idx from the _index where _ary[idx] == value.
      */
     static class FindValueIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new FindValueIterator();
@@ -157,9 +157,9 @@ public final class IntExpElementAt extends IntExpImpl {
      * An Mapping that is one to one.
      */
     static final class OneToOneMapping implements Mapping {
-        IntExp _index;
-        IntExp _element;
-        IntArray _ary;
+        final IntExp _index;
+        final IntExp _element;
+        final IntArray _ary;
         int _element2index[];
         int _elementMin;
 
@@ -172,13 +172,10 @@ public final class IntExpElementAt extends IntExpImpl {
         }
 
         void createElement2Index() {
-            IntExp.IntDomainIterator it = new IntExp.IntDomainIterator() {
-                @Override
-                public boolean doSomethingOrStop(int idx) throws Failure {
-                    int elementValue = _ary.elementAt(idx);
-                    _element2index[elementValue - _elementMin] = idx;
-                    return true;
-                }
+            IntExp.IntDomainIterator it = idx -> {
+                int elementValue = _ary.elementAt(idx);
+                _element2index[elementValue - _elementMin] = idx;
+                return true;
             };
 
             _elementMin = _element.min();
@@ -191,7 +188,7 @@ public final class IntExpElementAt extends IntExpImpl {
 
             try {
                 _index.iterateDomain(it);
-            } catch (Failure f) {
+            } catch (Failure ignored) {
             }
         }
 
@@ -242,7 +239,7 @@ public final class IntExpElementAt extends IntExpImpl {
      * Remove all indexes from the _index where min <= _ary[idx] <= max.
      */
     static class RemoveFromElementIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new RemoveFromElementIterator();
@@ -279,7 +276,7 @@ public final class IntExpElementAt extends IntExpImpl {
      * Remove all indexes from the _index where _ary[idx] != value.
      */
     static class SetValueFromElementIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new SetValueFromElementIterator();
@@ -318,9 +315,9 @@ public final class IntExpElementAt extends IntExpImpl {
      * An Mapping that scan index for a value.
      */
     static final class SimpleMapping implements Mapping {
-        IntExp _index;
-        IntExp _element;
-        IntArray _ary;
+        final IntExp _index;
+        final IntExp _element;
+        final IntArray _ary;
 
         public SimpleMapping(IntExp index, IntExp element, IntArray ary) {
             _index = index;
@@ -381,9 +378,9 @@ public final class IntExpElementAt extends IntExpImpl {
 
     } // ~SimpleMapping
 
-    private IntArray _ary;
+    private final IntArray _ary;
 
-    private IntExp _indexExp;
+    private final IntExp _indexExp;
 
     private IntVar _index;
 
@@ -396,7 +393,7 @@ public final class IntExpElementAt extends IntExpImpl {
         FindValueIterator it = FindValueIterator.getIterator(index, ary, value);
         try {
             index.iterateDomain(it);
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         int foundIndex = it.foundIndex;

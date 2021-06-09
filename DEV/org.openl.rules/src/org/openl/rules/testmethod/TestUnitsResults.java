@@ -15,8 +15,10 @@ import org.openl.util.ClassUtils;
  */
 public class TestUnitsResults implements INamedThing {
 
-    private TestSuite testSuite;
-    private ArrayList<ITestUnit> testUnits = new ArrayList<>();
+    private final TestSuite testSuite;
+    private final ArrayList<ITestUnit> testUnits = new ArrayList<>();
+
+    private boolean testedRulesHaveErrors = false;
 
     public TestUnitsResults(TestSuite testSuite) {
         this.testSuite = testSuite;
@@ -71,6 +73,9 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public int getNumberOfFailures() {
+        if(testedRulesHaveErrors){
+            return getTestSuite().getTests().length;
+        }
         int cnt = 0;
         for (int i = 0; i < getNumberOfTestUnits(); i++) {
             if (testUnits.get(i).getResultStatus() != TestStatus.TR_OK) {
@@ -138,7 +143,7 @@ public class TestUnitsResults implements INamedThing {
     }
 
     public boolean isRunmethod() {
-        return testSuite.getTestSuiteMethod().isRunmethod();
+        return testSuite.getTestSuiteMethod().isRunMethod();
     }
 
     public String[] getTestDataColumnDisplayNames() {
@@ -161,13 +166,15 @@ public class TestUnitsResults implements INamedThing {
     private String[] getColumnDisplayNames(String type) {
         List<String> displayNames = new ArrayList<>();
         TestSuiteMethod test = testSuite.getTestSuiteMethod();
-        for (int i = 0; i < test.getColumnsCount(); i++) {
-            String columnName = test.getColumnName(i);
-            if (columnName != null && columnName.startsWith(type)) {
-                displayNames.add(test.getColumnDisplayName(columnName));
+        if (test != null) {
+            for (int i = 0; i < test.getColumnsCount(); i++) {
+                String columnName = test.getColumnName(i);
+                if (columnName != null && columnName.startsWith(type)) {
+                    displayNames.add(test.getColumnDisplayName(columnName));
+                }
             }
         }
-        return displayNames.toArray(new String[displayNames.size()]);
+        return displayNames.toArray(new String[0]);
     }
 
     public String[] getContextColumnDisplayNames() {
@@ -188,5 +195,13 @@ public class TestUnitsResults implements INamedThing {
             res[i] = testMethodSignature.getParameterName(i);
         }
         return res;
+    }
+
+    public boolean isTestedRulesHaveErrors() {
+        return testedRulesHaveErrors;
+    }
+
+    public void setTestedRulesHaveErrors(boolean testedRulesHaveErrors) {
+        this.testedRulesHaveErrors = testedRulesHaveErrors;
     }
 }

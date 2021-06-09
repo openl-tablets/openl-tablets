@@ -35,8 +35,8 @@ public class DispatcherTablesBuilder {
         return false;
     }
 
-    private XlsModuleOpenClass moduleOpenClass;
-    private RulesModuleBindingContext rulesModuleBindingContext;
+    private final XlsModuleOpenClass moduleOpenClass;
+    private final RulesModuleBindingContext rulesModuleBindingContext;
 
     public DispatcherTablesBuilder(XlsModuleOpenClass moduleOpenClass,
             RulesModuleBindingContext rulesModuleBindingContext) {

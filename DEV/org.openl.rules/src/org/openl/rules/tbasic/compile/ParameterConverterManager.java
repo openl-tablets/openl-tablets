@@ -4,11 +4,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 
@@ -18,14 +18,14 @@ import org.openl.types.IOpenClass;
  * Created by dl on 9/16/14.
  */
 public class ParameterConverterManager {
-    private AlgorithmCompiler compiler;
+    private final AlgorithmCompiler compiler;
 
     /** return type for some contexts that are represented as functions **/
-    private IOpenClass returnType;
+    private final IOpenClass returnType;
 
-    private LabelManager labelManager;
+    private final LabelManager labelManager;
 
-    private Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
+    private final Map<Class<?>, ParameterConverter> parameterConverters = new HashMap<>();
 
     {
         parameterConverters.put(String.class, new StringConverter());
@@ -41,7 +41,8 @@ public class ParameterConverterManager {
 
     public Object convertParam(List<AlgorithmTreeNode> nodesToCompile,
             Class<?> clazz,
-            String operationParam) throws SyntaxNodeException {
+            String operationParam,
+            IBindingContext bindingContext) {
 
         ParameterConverter converter = parameterConverters.get(clazz);
 
@@ -50,28 +51,29 @@ public class ParameterConverterManager {
                 .getAlgorithmRow()
                 .getOperation()
                 .asSourceCodeModule();
-            throw SyntaxNodeExceptionUtils
-                .createError(String.format("Compilation failure. Cannot convert parameter %s to type %s",
-                    operationParam,
-                    clazz.toString()), errorSource);
+            BindHelper.processError(String.format("Compilation failure. Cannot convert parameter %s to type %s",
+                operationParam,
+                clazz.toString()), errorSource, bindingContext);
         }
 
-        return converter.convert(nodesToCompile, operationParam);
+        return converter.convert(nodesToCompile, operationParam, bindingContext);
     }
 
     public interface ParameterConverter {
-        Object convert(List<AlgorithmTreeNode> nodesToCompile, String operationParam) throws SyntaxNodeException;
+        Object convert(List<AlgorithmTreeNode> nodesToCompile, String operationParam, IBindingContext bindingContext);
     }
 
     private final class StringConverter implements ParameterConverter {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam) throws SyntaxNodeException {
+                String operationParam,
+                IBindingContext bindingContext) {
             if (labelManager.isLabelInstruction(operationParam)) {
                 return labelManager.getLabelByInstruction(operationParam);
             } else if (AlgorithmCompilerTool.isOperationFieldInstruction(operationParam)) {
-                StringValue content = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
+                StringValue content = AlgorithmCompilerTool
+                    .getCellContent(nodesToCompile, operationParam, bindingContext);
 
                 return content.getValue();
             } else {
@@ -81,11 +83,12 @@ public class ParameterConverterManager {
         }
     }
 
-    private final class BooleanConverter implements ParameterConverter {
+    private static final class BooleanConverter implements ParameterConverter {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam) throws SyntaxNodeException {
+                String operationParam,
+                IBindingContext bindingContext) {
             return Boolean.parseBoolean(operationParam);
         }
     }
@@ -94,15 +97,17 @@ public class ParameterConverterManager {
 
         @Override
         public Object convert(List<AlgorithmTreeNode> nodesToCompile,
-                String operationParam) throws SyntaxNodeException {
+                String operationParam,
+                IBindingContext bindingContext) {
             if (operationParam == null) {
                 return null;
             }
 
-            StringValue cellContent = AlgorithmCompilerTool.getCellContent(nodesToCompile, operationParam);
+            StringValue cellContent = AlgorithmCompilerTool
+                .getCellContent(nodesToCompile, operationParam, bindingContext);
 
-            AlgorithmTreeNode executionNode = AlgorithmCompilerTool.extractOperationNode(nodesToCompile,
-                operationParam);
+            AlgorithmTreeNode executionNode = AlgorithmCompilerTool
+                .extractOperationNode(nodesToCompile, operationParam, bindingContext);
             String methodName = String
                 .format("%s_row_%s", operationParam.replace('.', '_'), executionNode.getAlgorithmRow().getRowNumber());
 

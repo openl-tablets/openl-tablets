@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan.
  */
 public final class ClassLoaderUtils {
+    private static final Logger LOG = LoggerFactory.getLogger(ClassLoaderUtils.class);
 
     private ClassLoaderUtils() {
     }
@@ -21,12 +22,10 @@ public final class ClassLoaderUtils {
             try {
                 ((Closeable) classLoader).close();
             } catch (Exception e) {
-                Logger log = LoggerFactory.getLogger(ClassLoaderUtils.class);
-                log.error("Failed on close ClassLoader '{}'", classLoader, e);
+                LOG.error("Failed on close ClassLoader '{}'", classLoader, e);
             }
         } else {
-            Logger log = LoggerFactory.getLogger(ClassLoaderUtils.class);
-            log.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
+            LOG.warn("Not possible to close ClassLoader '{}', because it does not implement Closeable interface.",
                 classLoader);
         }
     }

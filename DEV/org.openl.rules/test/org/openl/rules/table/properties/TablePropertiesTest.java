@@ -110,7 +110,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
 
     @Test
     public void testGetValueAsString() {
-        String result = null;
+        String result;
         String propertyNameValue = "MyName";
         result = getPropertyValueAsString(PROPERTY_NAME, propertyNameValue);
         assertEquals(propertyNameValue, result);
@@ -121,7 +121,7 @@ public class TablePropertiesTest extends BaseOpenlBuilderHelper {
             TablePropertyDefinitionUtils.getPropertyByName(PROPERTY_EFFECTIVE_DATE).getFormat());
         assertEquals(sDF.format(dateValue), result);
 
-        result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, new Boolean(true));
+        result = getPropertyValueAsString(PROPERTY_FAIL_ON_MISS, Boolean.TRUE);
         assertEquals("true", result);
     }
 

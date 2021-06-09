@@ -28,7 +28,7 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     @Override
     public void addTo(ModuleOpenClass openClass) {
         super.addTo(openClass);
-
+        testSuiteMethod.setModuleName(getModule().getModuleName());
         openClass.addMethod(testSuiteMethod);
     }
 
@@ -53,7 +53,6 @@ public class TestMethodBoundNode extends DataTableBoundNode {
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(
                     "Ambiguous expectation in the test case. Both expected result and expected error have been declared.",
                     cellSourceCodeModule);
-                getTableSyntaxNode().addError(error);
                 cxt.addError(error);
             }
         }
@@ -62,6 +61,6 @@ public class TestMethodBoundNode extends DataTableBoundNode {
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
         super.removeDebugInformation(cxt);
-        testSuiteMethod.setBoundNode(null);
+        testSuiteMethod.clearForExecutionMode();
     }
 }

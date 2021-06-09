@@ -7,10 +7,10 @@ package org.openl.rules.table;
  * @author snshor
  *
  */
-public class CellKey {
+public final class CellKey {
 
-    private int col;
-    private int row;
+    private final int col;
+    private final int row;
 
     private CellKey(int col, int row) {
         this.col = col;

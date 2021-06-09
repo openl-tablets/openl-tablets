@@ -4,29 +4,37 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.studio-pom</artifactId>
     <packaging>pom</packaging>
     <name>OpenL - STUDIO - POM</name>
     <description>OpenL WebStudio Pom Project</description>
     <modules>
+        <module>../WSFrontend/org.openl.rules.ruleservice.annotation</module>
+        <module>../WSFrontend/org.openl.rules.ruleservice.common</module>
+        <module>../WSFrontend/org.openl.rules.ruleservice.ws.common</module>
+        <!-- Tests -->
+        <module>org.openl.rules.test</module>
+        <!-- Modules -->
         <module>org.openl.rules.tableeditor</module>
         <module>org.openl.rules.repository</module>
         <module>org.openl.rules.repository.aws</module>
         <module>org.openl.rules.repository.git</module>
         <module>org.openl.rules.workspace</module>
+        <module>org.openl.rules.jackson.configuration</module>
         <module>org.openl.rules.jackson</module>
         <module>org.openl.rules.variation</module>
-        <module>org.openl.rules.webstudio</module>
         <module>org.openl.rules.project</module>
+        <module>org.openl.rules.project.validation</module>
+        <module>org.openl.rules.project.validation.openapi</module>
+        <module>org.openl.rules.webstudio.web</module>
+        <module>org.openl.rules.webstudio</module>
         <module>org.openl.rules.demo</module>
         <module>org.openl.security</module>
         <module>org.openl.security.standalone</module>
         <module>org.openl.security.saml</module>
         <module>org.openl.security.cas</module>
         <module>org.openl.rules.diff</module>
-        <!-- Tests -->
-        <module>org.openl.rules.test</module>
     </modules>
 </project>

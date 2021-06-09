@@ -10,7 +10,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 
 public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
-    private static Map<Character, Integer> multiplierSuffixes = new HashMap<>();
+    private static final Map<Character, Integer> multiplierSuffixes = new HashMap<>();
 
     static {
         multiplierSuffixes.put('K', 1000);
@@ -41,7 +41,7 @@ public abstract class BusinessNumberNodeBinder extends ANodeBinder {
 
         char lastCharacter = Character.toUpperCase(literal.charAt(literalLength - 1));
 
-        IBoundNode parsedNumber = null;
+        IBoundNode parsedNumber;
 
         if (multiplierSuffixes.containsKey(lastCharacter)) {
             String literalWithoutSuffix = literal.substring(0, literalLength - 1);

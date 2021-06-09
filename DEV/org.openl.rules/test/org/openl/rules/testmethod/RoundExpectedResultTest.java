@@ -16,7 +16,7 @@ public class RoundExpectedResultTest {
 
     private static final String FILE_NAME = "test/rules/testmethod/RoundExpectedResult.xls";
 
-    private Collection<String> successfulTests = Arrays.asList("MyM2Test",
+    private final Collection<String> successfulTests = Arrays.asList("MyM2Test",
         "MyM3Test",
         "MyM3Test2",
         "MyM3Test3",
@@ -34,7 +34,7 @@ public class RoundExpectedResultTest {
         "MyM8Test2",
         "MyM8Test3");
 
-    private Collection<String> failedTests = Arrays.asList("MyM2Test2",
+    private final Collection<String> failedTests = Arrays.asList("MyM2Test2",
         "MyM2Test3",
         "MyM5Test2",
         "MyM5Test3",
@@ -44,7 +44,7 @@ public class RoundExpectedResultTest {
         "MyM6_61Test3",
         "MyM7Test2");
 
-    private Map<String, Collection<Integer>> partialSuccessTests = new HashMap<String, Collection<Integer>>() {
+    private final Map<String, Collection<Integer>> partialSuccessTests = new HashMap<String, Collection<Integer>>() {
         {
             put("MyM4_2Test", Collections.singletonList(1));
             put("MyM7_2Test", Arrays.asList(1, 3));

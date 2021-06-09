@@ -4,7 +4,12 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 final class ClasspathLogger extends OpenLLogger {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ClasspathLogger.class);
 
     @Override
     protected String getName() {
@@ -30,12 +35,12 @@ final class ClasspathLogger extends OpenLLogger {
         }
     }
 
-    private String getClassLoaderName(ClassLoader classLoader) {
+    private static String getClassLoaderName(ClassLoader classLoader) {
         Class<?> clazz = classLoader.getClass();
         String name = clazz.getName();
         try {
             Class<?> cls = clazz.getMethod("toString").getDeclaringClass();
-            if (!cls.equals(Object.class)) {
+            if (cls != Object.class) {
                 name = classLoader.toString() + "  Class: " + name + " #" + System.identityHashCode(classLoader);
             }
         } catch (NoSuchMethodException e) {
@@ -48,7 +53,8 @@ final class ClasspathLogger extends OpenLLogger {
             if (getNameStr != null) {
                 name += "  Name: " + getNameStr.toString();
             }
-        } catch (Exception ex) {
+        } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             // Ignore
         }
         return name;

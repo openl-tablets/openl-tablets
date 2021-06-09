@@ -15,9 +15,10 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.datasource.deploy.clean.datasource=false",
-        "ruleservice.isProvideRuntimeContext=false",
-        "ruleservice.datasource.dir=test-resources/datasource" })
+@TestPropertySource(properties = { "ruleservice.isProvideRuntimeContext=false",
+        "ruleservice.instantiation.strategy.lazy = false",
+        "production-repository.uri=test-resources/datasource",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration(locations = { "classpath:activiti.cfg.xml" })
 public class SimpleOpenLEngineTest {
 

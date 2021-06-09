@@ -5,6 +5,5 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 
 @Mapper
 public interface HelloEntity1Mapper {
-    @DaoFactory
-    public HelloEntity1Dao getDao();
+    @DaoFactory HelloEntity1Dao getDao();
 }

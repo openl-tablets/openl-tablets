@@ -34,8 +34,7 @@ class String2DateConvertor implements IString2DataConvertor<Date> {
                 dateFormat.setLenient(false);
                 dateFormat.getCalendar().set(0, 0, 0, 0, 0, 0);
                 dateFormat.getCalendar().set(Calendar.MILLISECOND, 0);
-                Date date = dateFormat.parse(data);
-                return date;
+                return dateFormat.parse(data);
             } catch (ParseException e) {
                 // Loop on
             }

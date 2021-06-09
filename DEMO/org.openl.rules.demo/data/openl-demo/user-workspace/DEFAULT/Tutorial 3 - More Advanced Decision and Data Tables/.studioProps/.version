@@ -1,8 +1,11 @@
 #Project version
-#Wed Dec 04 16:32:32 MSK 2019
-version=d7bb871ae1a42bf0fe835015f862fccfeff1caa1
-size=-1
-branch=master
+#Wed Apr 07 19:49:53 GMT+03:00 2021
+modified-at=2021-04-07
 author=DEFAULT
-modified-at=2019-12-04
+repository-id=design
 comment=Project Tutorial 3 - More Advanced Decision and Data Tables is created.
+version=f3be7340ca3d6131c1c8046f27a9e6fe4fd17160
+modified-at-long=1617809702000
+branch=master
+path-in-repository=DESIGN/rules/Tutorial 3 - More Advanced Decision and Data Tables
+size=-1

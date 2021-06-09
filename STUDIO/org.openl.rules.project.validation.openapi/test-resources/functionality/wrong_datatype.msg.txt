@@ -1,0 +1,30 @@
+ERROR: Type 'OffsetDateTime' is not found.
+ERROR: Cannot load type 'org.openl.generated.beans.FinancialData'.
+ERROR: Type 'FinancialData' is defined with errors.
+ERROR: Method 'BankLimitIndex(Bank, RatingGroup)' is not found.
+ERROR: Type 'FinancialData' is defined with errors.
+ERROR: Type 'FinancialData' is defined with errors.
+ERROR: Type 'FinancialData' is defined with errors.
+ERROR: Type 'FinancialData' is defined with errors.
+ERROR: Cannot load type 'org.openl.generated.beans.FinancialData'.
+ERROR: Table 'BankLimitIndex' is not found.
+ERROR: Field 'totalAssets' is not found in type 'java.lang.Object'.
+ERROR: Table 'bankFinancialData' is not found.
+ERROR: Foreign table 'bankData' has errors.
+ERROR: Table 'bankFinancialData' is not found.
+ERROR: Table 'bankFinancialData' is not found.
+ERROR: Table 'bankFinancialData' is not found.
+ERROR: Foreign table 'bankData' has errors.
+ERROR: Foreign table 'bankData' has errors.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BalanceDynamicIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BalanceQualityIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BankLimitIndex'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BankQualitativeIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/BankRatingCalculation'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/IsAdequateNormativeIndexCalculation'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/SetNonZeroValues'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/getBankData'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/getBankFinancialData'.
+ERROR: OpenAPI Reconciliation: Expected non transient field for schema property 'isAdequateMaxCreditRisk' is not found in type 'QualityIndicators'.
+ERROR: OpenAPI Reconciliation: Expected non transient field for schema property 'missedInRulesField' is not found in type 'QualityIndicators'.
+ERROR: OpenAPI Reconciliation: Unexpected field 'missedInOpenApiField' is found in type 'QualityIndicators'.

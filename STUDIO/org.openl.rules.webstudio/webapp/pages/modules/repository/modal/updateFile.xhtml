@@ -5,7 +5,7 @@
   xmlns:rich="http://richfaces.org/rich"
   xmlns:ui="http://java.sun.com/jsf/facelets">
 
-  <rich:popupPanel id="modalUpdateFile" width="500" autosized="true">
+  <rich:popupPanel id="modalUpdateFile" minWidth="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Update File" />
     </f:facet>
@@ -19,11 +19,12 @@
       <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
         <h:outputLabel for="file" styleClass="required" value="File:" />
         <rich:fileUpload id="file" fileUploadListener="#{repositoryTreeController.uploadListener}"
-                         onfilesubmit="showLoader();" oncomplete="hideLoader();">
-          <a4j:ajax event="uploadcomplete" execute="@none"
-                    render="fileChangedFormData"
-                    oncomplete="disableUploadFileButton(false);" />
-        </rich:fileUpload>
+                         maxFilesQuantity="1"
+                         immediateUpload="true"
+                         render="fileChangedFormData"
+                         onfilesubmit="showLoader();"
+                         oncomplete="disableUploadFileButton(false);hideLoader();"
+                         onclear="clearUploadedUpdateFile();"/>
       </h:panelGrid>
 
       <footer>
@@ -32,10 +33,11 @@
       </footer>
       <a4j:jsFunction name="initUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" render="file" oncomplete="RichFaces.$('modalUpdateFile').show();" />
       <a4j:jsFunction name="closeUpdateFileDialog" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="RichFaces.$('modalUpdateFile').hide();" />
+      <a4j:jsFunction name="clearUploadedUpdateFile" action="#{repositoryTreeController.clearUploadedFiles}" oncomplete="disableUploadFileButton(true);"/>
     </h:form>
   </rich:popupPanel>
 
-  <rich:popupPanel id="fileChanged" width="500" autosized="true">
+  <rich:popupPanel id="fileChanged" minWidth="500" autosized="true">
     <f:facet name="header">
       <h:outputText value="Update file"/>
     </f:facet>

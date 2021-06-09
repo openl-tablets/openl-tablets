@@ -13,7 +13,8 @@ public final class IntExpMulExp extends IntExpImpl {
      * Calculation for general exp1 and exp2.
      */
     final class CalcGeneral extends IntExpMulExpCalc {
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcGeneral(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -70,7 +71,8 @@ public final class IntExpMulExp extends IntExpImpl {
      * Calculation for exp1 <= 0.
      */
     final class CalcN extends IntExpMulExpCalc {
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcN(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -131,7 +133,8 @@ public final class IntExpMulExp extends IntExpImpl {
      * Calculation for exp1 <= 0 && exp2 <= 0.
      */
     final class CalcNN extends IntExpMulExpCalc {
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcNN(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -166,7 +169,8 @@ public final class IntExpMulExp extends IntExpImpl {
      * Calculation for exp1 >= 0.
      */
     final class CalcP extends IntExpMulExpCalc {
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcP(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -227,7 +231,8 @@ public final class IntExpMulExp extends IntExpImpl {
      * Calculation for exp1 >= 0 && exp2 <= 0.
      */
     final class CalcPN extends IntExpMulExpCalc {
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcPN(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -263,7 +268,8 @@ public final class IntExpMulExp extends IntExpImpl {
      */
     final class CalcPP extends IntExpMulExpCalc {
 
-        private IntExp _exp1, _exp2;
+        private final IntExp _exp1;
+        private final IntExp _exp2;
 
         public CalcPP(IntExp exp1, IntExp exp2) {
             _exp1 = exp1;
@@ -343,9 +349,10 @@ public final class IntExpMulExp extends IntExpImpl {
 
     } // ~ IntExpMulExpObserver
 
-    private IntExp _exp1, _exp2;
+    private final IntExp _exp1;
+    private final IntExp _exp2;
 
-    private Observer _observer;
+    private final Observer _observer;
 
     private IntVar _product;
 

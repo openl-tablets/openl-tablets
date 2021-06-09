@@ -1,5 +1,6 @@
 package org.openl.rules.table.properties.def;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,10 +16,7 @@ public class DefaultPropertyDefinitionsTest {
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
                 InheritanceLevel[] inheritanceLevels = tablePropertyDefinition.getInheritanceLevel();
-                Set<InheritanceLevel> set = new HashSet<>();
-                for (InheritanceLevel inheritanceLevel : inheritanceLevels) {
-                    set.add(inheritanceLevel);
-                }
+                Set<InheritanceLevel> set = new HashSet<>(Arrays.asList(inheritanceLevels));
                 if (!set.contains(InheritanceLevel.CATEGORY)) {
                     Assert.fail("All dimensional properties must have CATEGORY inheritance level.");
                 }
@@ -44,10 +42,7 @@ public class DefaultPropertyDefinitionsTest {
         final String failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD, XLS_PROPERTIES only in table types.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if (tablePropertyDefinition.isDimensional()) {
-                Set<XlsNodeTypes> set = new HashSet<>();
-                for (XlsNodeTypes xlsNodeType : tablePropertyDefinition.getTableType()) {
-                    set.add(xlsNodeType);
-                }
+                Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     Assert.fail(failMessage);
@@ -106,10 +101,7 @@ public class DefaultPropertyDefinitionsTest {
         final String failMessage = "All dimensional properties must have XLS_DT, XLS_SPREADSHEET, XLS_TBASIC, XLS_COLUMN_MATCH, XLS_METHOD only in table types.";
         for (TablePropertyDefinition tablePropertyDefinition : DefaultPropertyDefinitions.getDefaultDefinitions()) {
             if ("Version".equalsIgnoreCase(tablePropertyDefinition.getGroup())) {
-                Set<XlsNodeTypes> set = new HashSet<>();
-                for (XlsNodeTypes xlsNodeType : tablePropertyDefinition.getTableType()) {
-                    set.add(xlsNodeType);
-                }
+                Set<XlsNodeTypes> set = new HashSet<>(Arrays.asList(tablePropertyDefinition.getTableType()));
                 set.retainAll(dimensionalPropertiesNodeTypes);
                 if (set.size() != dimensionalPropertiesNodeTypes.size()) {
                     Assert.fail(failMessage);

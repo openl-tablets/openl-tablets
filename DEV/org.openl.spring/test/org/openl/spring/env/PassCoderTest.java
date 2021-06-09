@@ -13,9 +13,9 @@ public class PassCoderTest {
 
     private static final String CIPHER = "AES/CBC/PKCS5Padding";
 
-    private String pass = "testPass";
-    private String key = "ksadbflkjsbadflk sdlfknlksajndflkjsnadf jsakidjbfl kjbsdlkfjb saljnd fs";
-    private String wrongKey = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
+    private static final String pass = "testPass";
+    private static final String key = "ksadbflkjsbadflk sdlfknlksajndflkjsnadf jsakidjbfl kjbsdlkfjb saljnd fs";
+    private static final String wrongKey = "fngnsgdlkjfngsdlk lsfng ljsdfk jndfgsljn gs";
 
     @Test
     public void testPassCodingEncoding() {

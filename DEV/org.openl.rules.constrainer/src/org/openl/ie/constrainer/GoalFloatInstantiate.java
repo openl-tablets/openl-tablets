@@ -24,7 +24,7 @@ package org.openl.ie.constrainer;
  * @see FloatVar
  */
 public class GoalFloatInstantiate extends GoalImpl {
-    private FloatVar _var;
+    private final FloatVar _var;
 
     public GoalFloatInstantiate(FloatVar var) {
         super(var.constrainer(), "Instantiate(" + var.name() + ")");
@@ -42,8 +42,7 @@ public class GoalFloatInstantiate extends GoalImpl {
         }
         double mid_value = (_var.min() + _var.max()) / 2;
         // Debug.on();Debug.print("Try "+mid_value);Debug.off();
-        Goal new_goal = new GoalOr(new GoalAnd(_var.lessOrEqual(mid_value), this),
+        return new GoalOr(new GoalAnd(_var.lessOrEqual(mid_value), this),
             new GoalAnd(_var.moreOrEqual(mid_value), this));
-        return new_goal;
     }
 }

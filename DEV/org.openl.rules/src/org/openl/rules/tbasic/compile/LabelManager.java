@@ -14,7 +14,7 @@ import org.openl.rules.tbasic.TBasicSpecificationKey;
  *
  */
 public class LabelManager {
-    private class LabelType {
+    private static class LabelType {
         private boolean loopLabel;
         private String name;
 
@@ -68,7 +68,7 @@ public class LabelManager {
 
     private Map<LabelType, String> currentLabels;
     private boolean isLoopOperationSet;
-    private Stack<Map<LabelType, String>> labelsStack = new Stack<>();
+    private final Stack<Map<LabelType, String>> labelsStack = new Stack<>();
 
     private int nextLabelNumber;
 
@@ -149,9 +149,7 @@ public class LabelManager {
             throw new RuntimeException("Smth wrong.........");
         }
 
-        LabelType labelType = getLabelTypeByInstruction(labelInstruction);
-
-        return labelType;
+        return getLabelTypeByInstruction(labelInstruction);
     }
 
     // TODO

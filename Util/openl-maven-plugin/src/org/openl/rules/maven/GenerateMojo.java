@@ -1,46 +1,29 @@
 package org.openl.rules.maven;
 
-/*
- * Copyright 2001-2005 The Apache Software Foundation.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.maven.model.Resource;
-import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.MojoFailureException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
-import org.openl.OpenL;
 import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
+import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
-import org.openl.rules.maven.decompiler.BytecodeDecompiler;
-import org.openl.rules.maven.gen.GenerateInterface;
 import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 import org.openl.util.CollectionUtils;
@@ -50,8 +33,8 @@ import org.openl.util.generation.GenUtils;
 
 import com.helger.jcodemodel.AbstractJClass;
 import com.helger.jcodemodel.EClassType;
-import com.helger.jcodemodel.JClassAlreadyExistsException;
 import com.helger.jcodemodel.JCodeModel;
+import com.helger.jcodemodel.JCodeModelException;
 import com.helger.jcodemodel.JDefinedClass;
 import com.helger.jcodemodel.JMethod;
 import com.helger.jcodemodel.JMod;
@@ -61,9 +44,10 @@ import net.sf.cglib.core.NamingPolicy;
 import net.sf.cglib.core.Predicate;
 
 /**
- * Generate OpenL interface, domain classes, project descriptor and unit tests
+ * Generates OpenL Tablets interface, domain classes, project descriptor, and unit tests.
  */
-@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE)
+@Mojo(name = "generate", defaultPhase = LifecyclePhase.GENERATE_SOURCES,
+        requiresDependencyResolution = ResolutionScope.COMPILE)
 public final class GenerateMojo extends BaseOpenLMojo {
 
     @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
@@ -76,13 +60,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String classesDirectory;
 
     /**
-     * An output directory of generated Java beans and OpenL java interface.
+     * Output directory of the generated Java beans and OpenL Tablets Java interface.
      */
     @Parameter(defaultValue = "${project.build.directory}/generated-sources/openl")
     private File outputDirectory;
 
     /**
-     * Comma-separated list of interfaces which are used for extending of the generated interface.
+     * Comma-separated list of interfaces used for extending the generated interface.
      *
      * @since 5.19.1
      */
@@ -90,7 +74,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String superInterface;
 
     /**
-     * A generated Java interface from an OpenL project. If it is empty then generation will be skipped.
+     * Generated Java interface from an OpenL Tablets project. If it is empty, generation is skipped.
      *
      * @since 5.19.1
      */
@@ -98,7 +82,16 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private String interfaceClass;
 
     /**
-     * Add IRulesRuntimeContext arguments to the generated interface.
+     * Rules module from which Java Beans and the interface are generated. Usually it corresponds to the Excel file name
+     * without an extension. If this parameter is not defined, the whole project is used for generating Java classes.
+     *
+     * @since 5.23.2
+     */
+    @Parameter
+    private String moduleName;
+
+    /**
+     * Parameter that adds the IRulesRuntimeContext arguments to the generated interface.
      *
      * @since 5.19.1
      */
@@ -106,7 +99,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideRuntimeContext;
 
     /**
-     * Add additional methods to the generated interface to support variations.
+     * Parameter that adds additional methods to the generated interface to support variations.
      *
      * @since 5.19.1
      */
@@ -114,7 +107,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean isProvideVariations;
 
     /**
-     * Generate custom spreadsheet result bean classes
+     * Parameter for generating custom spreadsheet result bean classes.
      *
      * @since 5.23.0
      */
@@ -122,150 +115,11 @@ public final class GenerateMojo extends BaseOpenLMojo {
     private boolean generateSpreadsheetResultBeans;
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for compilation defined externally, such as external dependencies and overridden system
+     * properties.
      */
     @Parameter
     private Map<String, Object> externalParameters;
-
-    /**
-     * Tasks that will generate classes or data type.
-     * <p>
-     * <b>Object Properties</b>
-     * <table border="1">
-     * <tr>
-     * <th>Name</th>
-     * <th>Type</th>
-     * <th>Required</th>
-     * <th>Description</th>
-     * </tr>
-     * <tr>
-     * <td>srcFile</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Reference to the Excel file for which an interface class must be generated.</td>
-     * </tr>
-     * <tr>
-     * <td>targetClass</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Full name of the interface class to be generated. Optional; if missed interface not generated. OpenL Tablets
-     * WebStudio recognizes modules in projects by interface classes and uses their names in the user interface. If
-     * there are multiple wrappers with identical names, only one of them is recognized as a module in OpenL Tablets
-     * WebStudio.</td>
-     * </tr>
-     * <tr>
-     * <td>isUsedRuleXmlForGenerate</td>
-     * <td>boolean (true/false)</td>
-     * <td>false</td>
-     * <td>*Should system generate class and datatypes from rules.xml. If yes srcFile ignored; targetClass is
-     * required.</td>
-     * </tr>
-     * <tr>
-     * <td>displayName</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*End user oriented title of the file that appears in OpenL Tablets WebStudio. Default value is Excel file
-     * name without extension.</td>
-     * </tr>
-     * <tr>
-     * <td>targetSrcDir</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Folder where the generated interface class must be placed. For example: "src/main/java". Default value is:
-     * "${project.build.sourceDirectory}"</td>
-     * </tr>
-     * <tr>
-     * <td>openlName</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*OpenL configuration to be used. For OpenL Tablets, the following value must always be used: org.openl.xls.
-     * Default value is: "org.openl.xls"</td>
-     * </tr>
-     * <tr>
-     * <td>userHome</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Location of user-defined resources relative to the current OpenL Tablets project. Default value is: "."</td>
-     * </tr>
-     * <tr>
-     * <td>userClassPath</td>
-     * <td>String</td>
-     * <td>false</td>
-     * <td>*Reference to the folder with additional compiled classes imported by the module when the interface is
-     * generated. Default value is: null.</td>
-     * </tr>
-     * <tr>
-     * <td>ignoreTestMethods</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>*If true, test methods will not be added to interface class. Used only in GenerateInterface. Default value
-     * is: true.</td>
-     * </tr>
-     * <tr>
-     * <td>generateDataType</td>
-     * <td>boolean</td>
-     * <td>false</td>
-     * <td>*Generate or not dataType for current task.</td>
-     * </tr>
-     * </table>
-     * <p>
-     *
-     * @deprecated Obsolete. Replaced with the smart generator. Use interfaceClass instead.
-     */
-    @Parameter
-    @Deprecated
-    private GenerateInterface[] generateInterfaces;
-
-    /**
-     * If true, rules.xml will be generated if it does not exist. If false, rules.xml will not be generated. Default
-     * value is "true".
-     *
-     * @see #overwriteProjectDescriptor
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
-     */
-    @Parameter(defaultValue = "true")
-    @Deprecated
-    private boolean createProjectDescriptor;
-
-    /**
-     * If true, rules.xml will be overwritten on each run. If false, rules.xml generation will be skipped if it exists.
-     * Makes sense only if {@link #createProjectDescriptor} == true. Default value is "true".
-     *
-     * @see #createProjectDescriptor
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
-     */
-    @Parameter(defaultValue = "true")
-    @Deprecated
-    private boolean overwriteProjectDescriptor;
-
-    /**
-     * Default project name in rules.xml. If omitted, the name of the first module in the project is used. Used only if
-     * createProjectDescriptor == true.
-     *
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
-     */
-    @Parameter
-    @Deprecated
-    private String projectName;
-
-    /**
-     * Default classpath entries in rules.xml. Default value is {"."} Used only if createProjectDescriptor == true.
-     *
-     * @deprecated Obsolete. No needs to generate rules.xml from Maven.
-     */
-    @Parameter
-    @Deprecated
-    private String[] classpaths = { "." };
-
-    @Override
-    @Deprecated
-    public void execute() throws MojoExecutionException, MojoFailureException {
-        if (generateInterfaces != null) {
-            useGenerateInterface();
-        } else {
-            super.execute();
-        }
-    }
 
     @Override
     public void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -277,9 +131,13 @@ public final class GenerateMojo extends BaseOpenLMojo {
         try {
             classLoader = composeClassLoader();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
+                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
+            }
+            if (StringUtils.isNotEmpty(moduleName)) {
+                builder.setModule(moduleName);
             }
             SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
                 .setClassLoader(classLoader)
@@ -296,6 +154,16 @@ public final class GenerateMojo extends BaseOpenLMojo {
 
             if (generateSpreadsheetResultBeans) {
                 writeCustomSpreadsheetResultBeans(openLRules.getTypes());
+                if (openLRules.getOpenClass() instanceof XlsModuleOpenClass) {
+                    XlsModuleOpenClass module = (XlsModuleOpenClass) openLRules.getOpenClass();
+                    //Check: custom spreadsheet is enabled
+                    if (module.getSpreadsheetResultOpenClassWithResolvedFieldTypes() != null) {
+                        CustomSpreadsheetResultOpenClass spreadsheetResultOpenClass = (module)
+                            .getSpreadsheetResultOpenClassWithResolvedFieldTypes()
+                            .toCustomSpreadsheetResultOpenClass();
+                        writeCustomSpreadsheetResultBeans(Collections.singleton(spreadsheetResultOpenClass));
+                    }
+                }
             }
 
             // Generate interface is optional.
@@ -303,16 +171,16 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 Class<?> interfaceClass = factory.getInterfaceClass();
                 IOpenClass openClass = openLRules.getOpenClass();
                 writeInterface(interfaceClass, openClass);
+                project.addCompileSourceRoot(outputDirectory.getPath());
             }
 
-            project.addCompileSourceRoot(outputDirectory.getPath());
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
     }
 
     private ClassLoader composeClassLoader() throws Exception {
-        info("Composing the classloader for the folloving sources:");
+        info("Composing the classloader for the following sources:");
         for (String dir : sourceRoots) {
             info("  # source roots > ", dir);
         }
@@ -348,115 +216,8 @@ public final class GenerateMojo extends BaseOpenLMojo {
         return "OPENL JAVA SOURCES GENERATION";
     }
 
-    @Deprecated
-    private void useGenerateInterface() throws MojoExecutionException {
-        if (getLog().isInfoEnabled()) {
-            getLog().info("Running OpenL GenerateMojo...");
-        }
-        boolean isUsedRuleXmlForGenerate = false;
-        for (GenerateInterface task : generateInterfaces) {
-            if (task.isUsedRuleXmlForGenerate()) {
-                isUsedRuleXmlForGenerate = true;
-                break;
-            }
-        }
-        for (GenerateInterface task : generateInterfaces) {
-            if (getLog().isInfoEnabled()) {
-                getLog().info(String.format("Generating classes for module '%s'...", task.getDisplayName()));
-            }
-            initDefaultValues(task, isUsedRuleXmlForGenerate);
-            try {
-                task.execute();
-            } catch (Exception e) {
-                throw new MojoExecutionException("Exception during generation: ", e);
-            }
-        }
-        project.addCompileSourceRoot(outputDirectory.getPath());
-    }
-
-    private void initDefaultValues(GenerateInterface task, boolean isUsedRuleXmlForGenerate) {
-        if (StringUtils.isBlank(task.getResourcesPath())) {
-            task.setResourcesPath(getSourceDirectory());
-        }
-        if (!task.isUsedRuleXmlForGenerate() && isUsedRuleXmlForGenerate) {
-            task.setGenerateDataType(false);
-        }
-        if (task.getOpenlName() == null) {
-            task.setOpenlName(OpenL.OPENL_JAVA_RULE_NAME);
-        }
-        if (task.getTargetSrcDir() == null) {
-            task.setTargetSrcDir(outputDirectory.getPath());
-        }
-
-        if (task.getDisplayName() == null) {
-            task.setDisplayName(FileUtils.getBaseName(task.getSrcFile()));
-        }
-
-        if (task.getSrcFile() != null) {
-            initResourcePath(task);
-        }
-
-        initCreateProjectDescriptorState(task);
-        task.setDefaultProjectName(projectName);
-        task.setDefaultClasspaths(classpaths);
-
-        task.setLog(getLog());
-    }
-
-    private void initCreateProjectDescriptorState(GenerateInterface task) {
-        if (createProjectDescriptor) {
-            if (new File(task.getResourcesPath(), "rules.xml").exists()) {
-                task.setCreateProjectDescriptor(overwriteProjectDescriptor);
-                return;
-            }
-        }
-        task.setCreateProjectDescriptor(createProjectDescriptor);
-    }
-
-    private void initResourcePath(GenerateInterface task) {
-        String srcFile = task.getSrcFile().replace("\\", "/");
-        String baseDir = project.getBasedir().getAbsolutePath();
-
-        String directory = getSubDirectory(baseDir, getSourceDirectory()).replace("\\", "/");
-        if (srcFile.startsWith(directory)) {
-            srcFile = getSubDirectory(directory, srcFile);
-            task.setResourcesPath(directory);
-            task.setSrcFile(srcFile);
-            return;
-        }
-
-        List<Resource> resources = project.getResources();
-        for (Resource resource : resources) {
-            String resourceDirectory = resource.getDirectory();
-            resourceDirectory = getSubDirectory(baseDir, resourceDirectory).replace("\\", "/");
-
-            if (srcFile.startsWith(resourceDirectory)) {
-                srcFile = getSubDirectory(resourceDirectory, srcFile);
-                task.setResourcesPath(resourceDirectory);
-                task.setSrcFile(srcFile);
-                break;
-            }
-        }
-    }
-
-    private String getSubDirectory(String baseDir, String resourceDirectory) {
-        if (resourceDirectory.startsWith(baseDir)) {
-            resourceDirectory = resourceDirectory.substring(resourceDirectory.lastIndexOf(baseDir) + baseDir.length());
-            resourceDirectory = removeSlashFromBeginning(resourceDirectory);
-        }
-        return resourceDirectory;
-    }
-
-    private String removeSlashFromBeginning(String resourceDirectory) {
-        if (resourceDirectory.startsWith("/") || resourceDirectory.startsWith("\\")) {
-            resourceDirectory = resourceDirectory.substring(1);
-        }
-        return resourceDirectory;
-    }
-
-    private void writeJavaBeans(Collection<IOpenClass> types) {
+    private void writeJavaBeans(Collection<IOpenClass> types) throws IOException {
         if (CollectionUtils.isNotEmpty(types)) {
-            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {
                 // Skip java code generation for types what is defined
                 // thru DomainOpenClass (skip java code generation for alias
@@ -465,29 +226,33 @@ public final class GenerateMojo extends BaseOpenLMojo {
                 if (openClass instanceof DatatypeOpenClass) {
                     Class<?> datatypeClass = openClass.getInstanceClass();
                     String dataType = datatypeClass.getName();
-                    info("Java Bean: " + dataType);
-                    decompiler.decompile(dataType, ((DatatypeOpenClass) openClass).getBytecode());
+                    info("Java Bean for Datatype: " + dataType);
+                    Path filePath = Paths.get(classesDirectory, dataType.replace('.', '/') + ".class");
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, ((DatatypeOpenClass) openClass).getBytecode());
                 }
             }
         }
     }
 
-    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) {
+    private void writeCustomSpreadsheetResultBeans(Collection<IOpenClass> types) throws IOException {
         if (CollectionUtils.isNotEmpty(types)) {
-            BytecodeDecompiler decompiler = new BytecodeDecompiler(getLog(), outputDirectory);
             for (IOpenClass openClass : types) {
                 // Skip java code generation for other types
                 if (openClass instanceof CustomSpreadsheetResultOpenClass) {
-                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = (CustomSpreadsheetResultOpenClass) openClass;
+                    CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass =
+                            (CustomSpreadsheetResultOpenClass) openClass;
                     Class<?> cls = customSpreadsheetResultOpenClass.getBeanClass();
-                    info("CSR Bean: " + cls.getName());
-                    decompiler.decompile(cls.getName(), customSpreadsheetResultOpenClass.getBeanClassByteCode());
+                    info("Java Bean for Spreadsheet Result: " + cls.getName());
+                    Path filePath = Paths.get(classesDirectory, cls.getName().replace('.', '/') + ".class");
+                    Files.createDirectories(filePath.getParent());
+                    Files.write(filePath, ((CustomSpreadsheetResultOpenClass) openClass).getBeanClassByteCode());
                 }
             }
         }
     }
 
-    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JClassAlreadyExistsException {
+    private void writeInterface(Class<?> clazz, IOpenClass openClass) throws IOException, JCodeModelException {
         info("Interface: " + interfaceClass);
         JCodeModel model = new JCodeModel();
         CodeHelper helper = new CodeHelper();
@@ -523,6 +288,7 @@ public final class GenerateMojo extends BaseOpenLMojo {
         }
 
         // Write the generated source code
+        outputDirectory.mkdirs();
         model.build(outputDirectory, (PrintStream) null);
     }
 
@@ -543,10 +309,10 @@ public final class GenerateMojo extends BaseOpenLMojo {
      * A utility class to convert Java classes in CodeModel class descriptors. It is required for managing generated
      * beans because of they have not a classloader.
      */
-    private class CodeHelper {
+    private static class CodeHelper {
         JCodeModel model = new JCodeModel();
 
-        AbstractJClass get(Class<?> clazz) throws JClassAlreadyExistsException {
+        AbstractJClass get(Class<?> clazz) throws JCodeModelException {
             if (clazz.isArray()) {
                 Class<?> componentType = clazz.getComponentType();
                 AbstractJClass arrayType = get(componentType);
@@ -557,11 +323,11 @@ public final class GenerateMojo extends BaseOpenLMojo {
             return get(clazzName, eClassType);
         }
 
-        AbstractJClass get(String clazzName) throws JClassAlreadyExistsException {
+        AbstractJClass get(String clazzName) throws JCodeModelException {
             return get(clazzName, EClassType.INTERFACE);
         }
 
-        private AbstractJClass get(String clazzName, EClassType eClassType) throws JClassAlreadyExistsException {
+        private AbstractJClass get(String clazzName, EClassType eClassType) throws JCodeModelException {
             AbstractJClass jArgType = model._getClass(clazzName);
             if (jArgType == null) {
                 jArgType = model._class(clazzName, eClassType);

@@ -24,7 +24,7 @@ package org.openl.ie.constrainer;
  * @see Goal#execute()
  */
 public class Failure extends Exception {
-    private String _msg;
+    private final String _msg;
     private ChoicePointLabel _label = null;
 
     /**

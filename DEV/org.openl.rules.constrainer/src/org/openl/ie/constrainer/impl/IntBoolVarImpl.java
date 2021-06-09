@@ -10,7 +10,7 @@ import org.openl.ie.tools.ReusableFactory;
 public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
     static final class IntEventBool extends IntEvent {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventBool();
@@ -190,7 +190,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
      */
     static final class UndoIntBoolVar extends UndoSubject {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntBoolVar();
@@ -239,7 +239,7 @@ public class IntBoolVarImpl extends IntBoolExpImpl implements IntBoolVar {
      */
     static final class UndoIntBoolVarValue extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntBoolVarValue();

@@ -3,9 +3,9 @@ package org.openl.rules.ruleservice.core;
 import java.util.concurrent.Semaphore;
 
 public final class MaxThreadsForCompileSemaphore {
-    private Semaphore limitCompilationThreadsSemaphore = new Semaphore(
+    private final Semaphore limitCompilationThreadsSemaphore = new Semaphore(
         RuleServiceStaticConfigurationUtil.getMaxThreadsForCompile());
-    private ThreadLocal<Object> threadsMarker = new ThreadLocal<>();
+    private final ThreadLocal<Object> threadsMarker = new ThreadLocal<>();
 
     private MaxThreadsForCompileSemaphore() {
     }

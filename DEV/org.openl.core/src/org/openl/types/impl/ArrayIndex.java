@@ -7,7 +7,7 @@ import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 
 public class ArrayIndex implements IOpenIndex {
-    private IOpenClass elementType;
+    private final IOpenClass elementType;
 
     public ArrayIndex(IOpenClass elementType) {
         this.elementType = elementType;

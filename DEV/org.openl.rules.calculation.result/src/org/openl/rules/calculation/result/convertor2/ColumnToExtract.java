@@ -20,11 +20,11 @@ import org.openl.rules.calc.SpreadsheetResult;
  */
 public class ColumnToExtract {
 
-    private String columnName;
+    private final String columnName;
 
-    private String[] propertyNames;
+    private final String[] propertyNames;
 
-    private Class<?>[] propertyTypes;
+    private final Class<?>[] propertyTypes;
 
     private int nestedPriority = Integer.MAX_VALUE - 1;
 
@@ -143,9 +143,9 @@ public class ColumnToExtract {
 
     @Override
     public int hashCode() {
-        final int prime = 31;
+        final int PRIME = 31;
         int result = 1;
-        result = prime * result + (columnName == null ? 0 : columnName.hashCode());
+        result = PRIME * result + (columnName == null ? 0 : columnName.hashCode());
         return result;
     }
 

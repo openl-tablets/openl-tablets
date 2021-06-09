@@ -1,0 +1,7 @@
+<rules-deploy>
+  <serviceName>EPBDS-10413</serviceName>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

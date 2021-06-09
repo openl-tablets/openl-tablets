@@ -1,6 +1,7 @@
 package org.openl.binding.impl;
 
 import java.lang.reflect.Method;
+import java.util.Objects;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
@@ -8,6 +9,8 @@ import org.openl.binding.MethodUtil;
 import org.openl.binding.exception.MethodNotFoundException;
 import org.openl.binding.impl.cast.AutoCastFactory;
 import org.openl.binding.impl.cast.AutoCastReturnType;
+import org.openl.binding.impl.cast.IOneElementArrayCast;
+import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.method.VarArgsOpenMethod;
 import org.openl.syntax.ISyntaxNode;
@@ -52,7 +55,7 @@ public class MethodNodeBinder extends ANodeBinder {
             method = (JavaOpenMethod) methodCaller;
         }
 
-        if (method instanceof JavaOpenMethod) {
+        if (method != null) {
             Method javaMethod = method.getJavaMethod();
             AutoCastReturnType autoCastReturnType = javaMethod.getAnnotation(AutoCastReturnType.class);
             if (autoCastReturnType != null) {
@@ -95,9 +98,9 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
         methodCaller = autoCastReturnTypeWrap(bindingContext, methodCaller, parameterTypes);
 
-        if (methodCaller != null) {
+        if (methodCaller != null && noArrayOneElementCast(methodCaller)) {
             log(methodName, parameterTypes, "entirely appropriate by signature method");
-            return new MethodBoundNode(node, children, methodCaller);
+            return new MethodBoundNode(node, methodCaller, children);
         }
 
         // can`t find directly the method with given name and parameters. so,
@@ -105,14 +108,68 @@ public class MethodNodeBinder extends ANodeBinder {
         // someMethod( parameter1, ... )
         //
         if (childrenCount > 1) {
-            return bindWithAdditionalBinders(node, bindingContext, methodName, parameterTypes, children, childrenCount);
+
+            // Try to bind method, that contains one of the arguments as array type.
+            // For this try to find method without
+            // array argument (but the component type of it on the same place). And
+            // call it several times on runtime
+            // for collecting results.
+            //
+            IBoundNode arrayArgumentsMethod = makeArrayArgumentsMethod(node,
+                bindingContext,
+                methodName,
+                parameterTypes,
+                children);
+
+            if (arrayArgumentsMethod != null) {
+                log(methodName, parameterTypes, "array argument method");
+                return arrayArgumentsMethod;
+            }
+
+            if (methodCaller != null) {
+                log(methodName, parameterTypes, "entirely appropriate by signature method");
+                return new MethodBoundNode(node, methodCaller, children);
+            }
+
+            // Get the root component type and dimension of the array.
+            IOpenClass argumentType = parameterTypes[0];
+            int dims = 0;
+            while (argumentType.isArray()) {
+                dims++;
+                argumentType = argumentType.getComponentClass();
+            }
+            IBoundNode field = bindAsFieldBoundNode(node,
+                methodName,
+                parameterTypes,
+                children,
+                childrenCount,
+                argumentType,
+                dims);
+            if (field != null) {
+                return field;
+            }
+
+            throw new MethodNotFoundException(methodName, parameterTypes);
         }
 
         // There are no other variants - so error.
         throw new MethodNotFoundException(methodName, parameterTypes);
     }
 
-    protected IBoundNode makeArrayParametersMethod(ISyntaxNode methodNode,
+    private boolean noArrayOneElementCast(IMethodCaller methodCaller) {
+        Objects.requireNonNull(methodCaller, "methodCaller cannot be null");
+        if (methodCaller instanceof CastingMethodCaller) {
+            CastingMethodCaller castingMethodCaller = (CastingMethodCaller) methodCaller;
+            for (IOpenCast openCast : castingMethodCaller.getCasts()) {
+                if (openCast instanceof IOneElementArrayCast) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    protected IBoundNode makeArrayArgumentsMethod(ISyntaxNode methodNode,
             IBindingContext bindingContext,
             String methodName,
             IOpenClass[] argumentTypes,
@@ -120,52 +177,26 @@ public class MethodNodeBinder extends ANodeBinder {
         return new ArrayArgumentsMethodBinder(methodName, argumentTypes, children).bind(methodNode, bindingContext);
     }
 
-    protected IBoundNode bindWithAdditionalBinders(ISyntaxNode methodNode,
-            IBindingContext bindingContext,
+    protected FieldBoundNode bindAsFieldBoundNode(ISyntaxNode methodNode,
             String methodName,
             IOpenClass[] argumentTypes,
             IBoundNode[] children,
-            int childrenCount) throws Exception {
-
-        // Try to bind method, that contains one of the arguments as array type.
-        // For this try to find method without
-        // array argument (but the component type of it on the same place). And
-        // call it several times on runtime
-        // for collecting results.
-        //
-        IBoundNode arrayParametersMethod = makeArrayParametersMethod(methodNode,
-            bindingContext,
-            methodName,
-            argumentTypes,
-            children);
-
-        if (arrayParametersMethod != null) {
-            log(methodName, argumentTypes, "array argument method");
-            return arrayParametersMethod;
-        }
-
-        // Get the root component type and dimension of the array.
-        IOpenClass argumentType = argumentTypes[0];
-        int dims = 0;
-        while (argumentType.isArray()) {
-            dims++;
-            argumentType = argumentType.getComponentClass();
-        }
-
+            int childrenCount,
+            IOpenClass argumentType,
+            int dims) throws Exception {
         // Try to bind method call Name(driver) as driver.Name;
         //
         if (childrenCount == 2) {
 
             // only one child, as there are 2 nodes, one of them is the function itself.
             //
-            IOpenField field = bindingContext.findFieldFor(argumentType, methodName, false);
+            IOpenField field = argumentType.getField(methodName, false);
             if (field != null) {
                 log(methodName, argumentTypes, "field access method");
                 return new FieldBoundNode(methodNode, field, children[0], dims);
             }
         }
-
-        throw new MethodNotFoundException(methodName, argumentTypes);
+        return null;
     }
 
     private void log(String methodName, IOpenClass[] argumentTypes, String bindingType) {
@@ -196,14 +227,14 @@ public class MethodNodeBinder extends ANodeBinder {
         BindHelper.checkOnDeprecation(node, bindingContext, methodCaller);
 
         if (methodCaller == null) {
-            throw new MethodNotFoundException(methodName, types);
+            throw new MethodNotFoundException(type, methodName, types);
         }
 
         errorNode = validateMethod(node, bindingContext, target, methodCaller);
         if (errorNode != null) {
             return errorNode;
         }
-        return new MethodBoundNode(node, children, methodCaller, target);
+        return new MethodBoundNode(node, target, methodCaller, children);
     }
 
     private IBoundNode validateMethod(ISyntaxNode node,
@@ -213,9 +244,11 @@ public class MethodNodeBinder extends ANodeBinder {
         boolean methodIsStatic = methodCaller.getMethod().isStatic();
         if (target.isStaticTarget() != methodIsStatic) {
             if (methodIsStatic) {
-                BindHelper.processWarn("Accessing to static method from non-static object.", node, bindingContext);
+                BindHelper.processWarn(String.format("Accessing to static method '%s' from non-static object of type '%s'.",
+                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
             } else {
-                return makeErrorNode("Accessing to non-static method from a static class.", node, bindingContext);
+                return makeErrorNode(String.format("Accessing to non-static method '%s' of static type '%s'.",
+                        methodCaller.getMethod().getName(), target.getType().getName()), node, bindingContext);
             }
         }
         return null;

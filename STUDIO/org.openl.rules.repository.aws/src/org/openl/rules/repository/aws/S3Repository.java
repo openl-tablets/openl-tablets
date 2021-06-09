@@ -8,11 +8,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.openl.rules.repository.RRepositoryFactory;
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.Listener;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.repository.common.ChangesMonitor;
 import org.openl.rules.repository.common.RevisionGetter;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +27,17 @@ import com.amazonaws.auth.DefaultAWSCredentialsProviderChain;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3ClientBuilder;
-import com.amazonaws.services.s3.model.*;
+import com.amazonaws.services.s3.model.BucketVersioningConfiguration;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.CopyObjectResult;
+import com.amazonaws.services.s3.model.GetObjectRequest;
+import com.amazonaws.services.s3.model.ObjectMetadata;
+import com.amazonaws.services.s3.model.S3Object;
+import com.amazonaws.services.s3.model.S3VersionSummary;
+import com.amazonaws.services.s3.model.SetBucketVersioningConfigurationRequest;
+import com.amazonaws.services.s3.model.VersionListing;
 
-public class S3Repository implements Repository, Closeable, RRepositoryFactory {
+public class S3Repository implements Repository, Closeable {
     private final Logger log = LoggerFactory.getLogger(S3Repository.class);
 
     private static final String MODIFICATION_FILE = ".openl-settings/.modification";
@@ -39,6 +50,8 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
 
     private AmazonS3 s3;
     private ChangesMonitor monitor;
+    private String id;
+    private String name;
 
     public void setBucketName(String bucketName) {
         this.bucketName = bucketName;
@@ -68,8 +81,7 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
         }
     }
 
-    @Override
-    public void initialize() throws RRepositoryException {
+    public void initialize() {
         AmazonS3ClientBuilder builder = AmazonS3ClientBuilder.standard();
         if (!StringUtils.isBlank(accessKey) && !StringUtils.isBlank(secretKey)) {
             builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)));
@@ -105,8 +117,26 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             list("");
             monitor = new ChangesMonitor(new S3RevisionGetter(), listenerTimerPeriod);
         } catch (SdkClientException | IOException e) {
-            throw new RRepositoryException(e.getMessage(), e);
+            throw new IllegalStateException("Failed to initialize a repository", e);
         }
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    @Override
+    public String getId() {
+        return id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getName() {
+        return name;
     }
 
     @Override
@@ -263,6 +293,23 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
     }
 
     @Override
+    public boolean delete(List<FileData> data) throws IOException {
+        if (data.isEmpty()) {
+            return false;
+        }
+        for (FileData f : data) {
+            try {
+                s3.deleteObject(bucketName, f.getName());
+            } catch (SdkClientException e) {
+                log.error(e.getMessage(), e);
+                throw new IOException(e.getMessage(), e);
+            }
+        }
+        onModified();
+        return true;
+    }
+
+    @Override
     public void setListener(final Listener callback) {
         if (monitor != null) {
             monitor.setListener(callback);
@@ -367,13 +414,11 @@ public class S3Repository implements Repository, Closeable, RRepositoryFactory {
             if (version == null) {
                 deleteAllVersions(name);
 
-                onModified();
-                return true;
             } else {
                 s3.deleteVersion(bucketName, name, version);
-                onModified();
-                return true;
             }
+            onModified();
+            return true;
         } catch (SdkClientException e) {
             log.error(e.getMessage(), e);
             throw new IOException(e.getMessage(), e);

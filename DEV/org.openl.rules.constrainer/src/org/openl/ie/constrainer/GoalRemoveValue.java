@@ -18,7 +18,7 @@ package org.openl.ie.constrainer;
  * An implementation of a {@link Goal} that removes the value from the domain of an integer variable.
  */
 public class GoalRemoveValue extends GoalImpl {
-    private IntExp _exp;
+    private final IntExp _exp;
     private int _value;
 
     // private UndoableInt _valueI;

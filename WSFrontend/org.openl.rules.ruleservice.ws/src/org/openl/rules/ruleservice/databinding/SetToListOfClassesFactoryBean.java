@@ -19,7 +19,7 @@ public class SetToListOfClassesFactoryBean extends AbstractFactoryBean<List<Clas
     }
 
     @Override
-    protected List<Class<?>> createInstance() throws Exception {
+    protected List<Class<?>> createInstance() {
         List<Class<?>> ret = new ArrayList<>();
         if (setOfClassNames != null) {
             for (String clsName : setOfClassNames) {

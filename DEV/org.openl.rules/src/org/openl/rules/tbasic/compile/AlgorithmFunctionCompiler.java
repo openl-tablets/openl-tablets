@@ -3,13 +3,13 @@ package org.openl.rules.tbasic.compile;
 import java.util.List;
 
 import org.openl.base.INamedThing;
+import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.meta.StringValue;
 import org.openl.rules.tbasic.AlgorithmFunction;
 import org.openl.rules.tbasic.AlgorithmTreeNode;
 import org.openl.rules.tbasic.TBasicSpecificationKey;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IOpenClass;
 
 /**
@@ -18,10 +18,10 @@ import org.openl.types.IOpenClass;
  */
 public class AlgorithmFunctionCompiler {
 
-    private List<AlgorithmTreeNode> functionBody;
-    private CompileContext compileContext;
-    private AlgorithmCompiler compiler;
-    private AlgorithmFunction method;
+    private final List<AlgorithmTreeNode> functionBody;
+    private final CompileContext compileContext;
+    private final AlgorithmCompiler compiler;
+    private final AlgorithmFunction method;
 
     /**
      * Create an instance of <code>AlgorithmFunctionCompiler</code>.
@@ -41,24 +41,25 @@ public class AlgorithmFunctionCompiler {
         this.compiler = compiler;
     }
 
-    private void analyzeReturnCorrectness() throws SyntaxNodeException {
+    private void analyzeReturnCorrectness(IBindingContext bindingContext) {
         if (!functionBody.isEmpty()) {
             int i = 0;
             for (AlgorithmTreeNode algorithmTreeNode : functionBody) {
                 StringValue operation = algorithmTreeNode.getAlgorithmRow().getOperation();
                 if (operation != null && TBasicSpecificationKey.RETURN.toString().equals(operation.toString())) {
                     SuitablityAsReturn status = new ReturnAnalyzer(getReturnType(), compiler)
-                        .analyze(functionBody.get(i).getChildren());
+                        .analyze(functionBody.get(i).getChildren(), bindingContext);
                     if (status == SuitablityAsReturn.NONE) {
                         IOpenSourceCodeModule errorSource = functionBody.get(i)
                             .getAlgorithmRow()
                             .getOperation()
                             .asSourceCodeModule();
-                        throw SyntaxNodeExceptionUtils
-                            .createError(
+                        BindHelper
+                            .processError(
                                 "The method must return value of type '" + getReturnType()
                                     .getDisplayName(INamedThing.REGULAR) + "'",
-                                errorSource);
+                                errorSource,
+                                bindingContext);
                     }
                 }
                 i++;
@@ -71,10 +72,10 @@ public class AlgorithmFunctionCompiler {
      *
      * @throws Exception If code of function has errors.
      */
-    public void compile() throws Exception {
-        compileContext.addOperations(
-            new AlgoritmNodesCompiler(getReturnType(), compileContext, compiler).compileNodes(functionBody));
-        analyzeReturnCorrectness();
+    public void compile(IBindingContext bindingContext) {
+        compileContext.addOperations(new AlgoritmNodesCompiler(getReturnType(), compileContext, compiler)
+            .compileNodes(functionBody, bindingContext));
+        analyzeReturnCorrectness(bindingContext);
     }
 
     public IOpenClass getReturnType() {

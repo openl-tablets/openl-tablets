@@ -28,7 +28,7 @@ public interface IntExp extends Expression {
      *
      * @see #iterateDomain
      */
-    public interface IntDomainIterator {
+    interface IntDomainIterator {
         /**
          * Processes each value contained within domain one by one (by convention from lowest to highest value).
          *

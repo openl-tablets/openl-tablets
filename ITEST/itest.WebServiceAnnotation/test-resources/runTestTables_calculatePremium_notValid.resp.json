@@ -1,1 +1,5 @@
-{"message":"Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]","type":"VALIDATION","details":null}
+{
+  "message": "Object 'Cov100' is outside of valid domain 'CoverageName'. Valid values: [Cov1, Cov2, Cov3, Cov4]",
+  "type": "VALIDATION",
+  "details": null
+}

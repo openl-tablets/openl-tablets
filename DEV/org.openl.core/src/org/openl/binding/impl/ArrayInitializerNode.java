@@ -15,9 +15,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ArrayInitializerNode extends ABoundNode {
 
-    IOpenClass type;
+    final IOpenClass type;
 
-    IOpenCast[] casts;
+    final IOpenCast[] casts;
 
     public ArrayInitializerNode(ISyntaxNode syntaxNode, IBoundNode[] children, IOpenClass type, IOpenCast[] casts) {
         super(syntaxNode, children);

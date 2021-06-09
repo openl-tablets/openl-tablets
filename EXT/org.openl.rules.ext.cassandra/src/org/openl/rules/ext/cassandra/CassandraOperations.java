@@ -1,15 +1,5 @@
 package org.openl.rules.ext.cassandra;
 
-/*-
- * #%L
- * OpenL - EXT - Cassandra
- * %%
- * Copyright (C) 2016 - 2019 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.util.Map;
 
 import com.datastax.oss.driver.api.core.CqlSession;

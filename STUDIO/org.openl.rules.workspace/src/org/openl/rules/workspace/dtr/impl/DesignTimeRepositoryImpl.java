@@ -1,35 +1,42 @@
 package org.openl.rules.workspace.dtr.impl;
 
-import java.io.Closeable;
 import java.io.IOException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.openl.config.ConfigNames;
-import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.RepositoryMode;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.Features;
 import org.openl.rules.repository.api.FeaturesBuilder;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Listener;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.workspace.ProjectKey;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.DesignTimeRepositoryListener;
 import org.openl.rules.workspace.dtr.RepositoryException;
+import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
@@ -38,17 +45,16 @@ import org.springframework.core.env.PropertyResolver;
  * @author Aleh Bykhavets
  */
 public class DesignTimeRepositoryImpl implements DesignTimeRepository {
-    private final Logger log = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DesignTimeRepositoryImpl.class);
 
-    public static final String USE_SEPARATE_DEPLOY_CONFIG_REPO = "repository.deploy-config.separate-repository";
+    private static final String DESIGN_REPOSITORIES = "design-repository-configs";
+    public static final String USE_REPOSITORY_FOR_DEPLOY_CONFIG = "repository.deploy-config.use-repository";
     private static final String RULES_LOCATION_CONFIG_NAME = "repository.design.base.path";
     private static final String DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME = "repository.deploy-config.base.path";
-    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.design.folder-structure.flat";
-    private static final String PROJECTS_NESTED_FOLDER_CONFIG = "repository.design.folder-structure.configuration";
+    private static final String PROJECTS_FLAT_FOLDER_STRUCTURE = "repository.%s.folder-structure.flat";
     private static final String DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE = "repository.deploy-config.folder-structure.flat";
-    private static final String DEPLOY_CONFIG_NESTED_FOLDER_CONFIG = "repository.deploy-config.folder-structure.configuration";
 
-    private volatile Repository repository;
+    private volatile List<Repository> repositories;
     private volatile Repository deployConfigRepository;
     private volatile String rulesLocation;
     private volatile String deploymentConfigurationLocation;
@@ -57,100 +63,123 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     /**
      * Project Cache
      */
-    private final HashMap<String, AProject> projects = new HashMap<>();
-    private final HashMap<String, AProject> projectsVersions = new HashMap<>();
+    private final HashMap<ProjectKey, AProject> projects = new HashMap<>();
+    private final HashMap<ProjectKey, AProject> projectsVersions = new HashMap<>();
 
     private final List<DesignTimeRepositoryListener> listeners = new ArrayList<>();
 
     private PropertyResolver propertyResolver;
+    private RepositorySettings repositorySettings;
+
+    private List<String> exceptions = new ArrayList<>();
 
     public void setPropertyResolver(PropertyResolver propertyResolver) {
         this.propertyResolver = propertyResolver;
     }
 
-    public void init() {
+    public void setRepositorySettings(RepositorySettings repositorySettings) {
+        this.repositorySettings = repositorySettings;
+    }
+
+    public void init() throws RepositoryException {
         synchronized (projects) {
-            if (repository != null) {
+            if (repositories != null) {
                 return;
             }
+
+            repositories = new ArrayList<>();
+            RepositoryListener callback = new RepositoryListener(listeners);
 
             rulesLocation = propertyResolver.getProperty(RULES_LOCATION_CONFIG_NAME);
             if (!rulesLocation.isEmpty() && !rulesLocation.endsWith("/")) {
                 rulesLocation += "/";
             }
+
+            String[] designRepositories =
+                    Objects.requireNonNull(propertyResolver.getProperty(DESIGN_REPOSITORIES)).split("\\s*,\\s*");
+            for (String designRepositoryId : designRepositories) {
+                boolean flatProjects = Boolean.parseBoolean(
+                        propertyResolver.getProperty(String.format(PROJECTS_FLAT_FOLDER_STRUCTURE, designRepositoryId))
+                );
+
+                Repository repository = createRepo(designRepositoryId, flatProjects, rulesLocation);
+
+                repositories.add(repository);
+
+                addListener(() -> {
+                    synchronized (projects) {
+                        projectsRefreshNeeded = true;
+                    }
+                });
+                repository.setListener(callback);
+            }
+            repositories = repositories
+                    .stream()
+                    .filter(r -> Objects.nonNull(r.getName()))
+                    .sorted(Comparator.comparing(Repository::getName, String.CASE_INSENSITIVE_ORDER))
+                    .collect(Collectors.toList());
+
             deploymentConfigurationLocation = propertyResolver
                 .getProperty(DEPLOYMENT_CONFIGURATION_LOCATION_CONFIG_NAME);
             if (!deploymentConfigurationLocation.isEmpty() && !deploymentConfigurationLocation.endsWith("/")) {
                 deploymentConfigurationLocation += "/";
             }
-            boolean separateDeployConfigRepo = Boolean
-                .parseBoolean(propertyResolver.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
-            boolean flatProjects = Boolean.parseBoolean(propertyResolver.getProperty(PROJECTS_FLAT_FOLDER_STRUCTURE));
+            String repositoryForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+            boolean separateDeployConfigRepo = StringUtils.isBlank(repositoryForDeployConfig);
             boolean flatDeployConfig = Boolean
                 .parseBoolean(propertyResolver.getProperty(DEPLOY_CONFIG_FLAT_FOLDER_STRUCTURE));
-
-            repository = createRepo(ConfigNames.DESIGN_CONFIG,
-                flatProjects,
-                PROJECTS_NESTED_FOLDER_CONFIG,
-                rulesLocation);
-
             if (!separateDeployConfigRepo) {
-                if (flatProjects || !(repository instanceof MappedRepository)) {
-                    deployConfigRepository = repository;
+                Repository repository = getRepository(repositoryForDeployConfig);
+                if (repository != null) {
+                    if (!(repository.supports().mappedFolders())) {
+                        deployConfigRepository = repository;
+                    } else {
+                        // Deploy config repository currently supports only flat folder structure.
+                        deployConfigRepository = ((FolderMapper) repository).getDelegate();
+                    }
                 } else {
-                    // Deploy config repository currently supports only flat folder structure.
-                    deployConfigRepository = ((MappedRepository) repository).getDelegate();
+                    throw new RepositoryException(String.format("Cannot read the deploy repository '%s'.", repositoryForDeployConfig));
                 }
             } else {
-                deployConfigRepository = createRepo(ConfigNames.DEPLOY_CONFIG,
-                    flatDeployConfig,
-                    DEPLOY_CONFIG_NESTED_FOLDER_CONFIG,
-                    deploymentConfigurationLocation);
+                deployConfigRepository = createRepo(RepositoryMode.DEPLOY_CONFIG.getId(),
+                    flatDeployConfig, deploymentConfigurationLocation);
             }
 
-            addListener(() -> {
-                synchronized (projects) {
-                    projectsRefreshNeeded = true;
-                }
-            });
-
-            RepositoryListener callback = new RepositoryListener(listeners);
-            repository.setListener(callback);
             if (separateDeployConfigRepo) {
                 deployConfigRepository.setListener(callback);
             }
         }
     }
 
-    private Repository createRepo(String configName, boolean flatStructure, String folderConfig, String baseFolder) {
+    private Repository createRepo(String configName, boolean flatStructure, String baseFolder) {
+        Repository repo = null;
         try {
-            Repository repo = RepositoryInstatiator.newRepository(configName, propertyResolver);
+            repo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + configName, propertyResolver::getProperty);
+            if (repositorySettings != null) {
+                String setter = "setRepositorySettings";
+                try {
+                    Method setMethod = repo.getClass().getMethod(setter, RepositorySettings.class);
+                    setMethod.invoke(repo, repositorySettings);
+                } catch (NoSuchMethodException e) {
+                    LOG.debug(e.getMessage(), e);
+                }
+            }
+
             if (!flatStructure && repo.supports().folders()) {
                 // Nested folder structure is supported for FolderRepository only
                 FolderRepository delegate = (FolderRepository) repo;
-                String configFile = propertyResolver.getProperty(folderConfig);
-
-                MappedRepository mappedRepository = new MappedRepository();
-                mappedRepository.setDelegate(delegate);
-                RepositoryMode repositoryMode = RepositoryMode.PRODUCTION;
-                switch (configName) {
-                    case ConfigNames.DEPLOY_CONFIG:
-                        repositoryMode = RepositoryMode.DEPLOY_CONFIG;
-                        break;
-                    case ConfigNames.DESIGN_CONFIG:
-                        repositoryMode = RepositoryMode.DESIGN;
-                        break;
-                }
-                mappedRepository.setRepositoryMode(repositoryMode);
-                mappedRepository.setConfigFile(configFile);
-                mappedRepository.setBaseFolder(baseFolder);
-                mappedRepository.initialize();
-                repo = mappedRepository;
+                repo = MappedRepository.create(delegate, baseFolder, repositorySettings);
             }
 
             return repo;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
+            // If exception is thrown, we must close repository in this method.
+            // If no exception, repository will be closed later.
+            if (repo != null) {
+                IOUtils.closeQuietly(repo);
+            }
+
             Throwable rootCause = ExceptionUtils.getRootCause(e);
             if (rootCause == null) {
                 rootCause = e;
@@ -165,26 +194,26 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             }
 
             return (Repository) Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class[] { Repository.class },
-                (proxy, method, args) -> {
-                    if (method.getName().startsWith("set") && method.getReturnType() == void.class) {
-                        return null;
-                    }
-                    if ("supports".equals(method.getName()) && method.getReturnType() == Features.class) {
-                        return new FeaturesBuilder(null).setVersions(false).build();
-                    }
-                    throw new IllegalStateException(message);
-                });
+                    new Class[]{Repository.class},
+                    (proxy, method, args) -> {
+                        final String methodName = method.getName();
+                        final Class<?> returnType = method.getReturnType();
+                        if (methodName.startsWith("set") && returnType == void.class) {
+                            return null;
+                        } else if ("supports".equals(methodName) && returnType == Features.class) {
+                            return new FeaturesBuilder(null).setVersions(false).build();
+                        } else if ("close".equals(methodName) && returnType == void.class && args == null) {
+                            return null;
+                        } else if ("getId".equals(methodName) && returnType == String.class) {
+                            return configName;
+                        }
+                        String repoName = propertyResolver.getProperty(Comments.REPOSITORY_PREFIX + configName + ".name");
+                        if ("getName".equals(methodName) && returnType == String.class) {
+                            return repoName;
+                        }
+                        throw new IllegalStateException(message);
+                    });
         }
-    }
-
-    @Override
-    public AProjectArtefact getArtefactByPath(ArtefactPath artefactPath) throws ProjectException {
-        String projectName = artefactPath.segment(0);
-        AProject ralProject = getProject(projectName);
-
-        ArtefactPath pathInProject = artefactPath.withoutFirstSegment();
-        return ralProject.getArtefactByPath(pathInProject);
     }
 
     @Override
@@ -215,47 +244,58 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public AProject getProject(String name) throws RepositoryException {
-        AProject project;
+    public AProject getProject(String repositoryId, String name) throws RepositoryException {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
 
-            if (!hasProject(name)) {
-                throw new RepositoryException("Project '{0}' is not found.", null, name);
-            }
+            ProjectKey projectKey = new ProjectKey(repositoryId, name.toLowerCase());
 
-            AProject cached = projects.get(name.toLowerCase());
+            AProject cached = projects.get(projectKey);
             if (cached != null) {
                 return cached;
+            } else {
+                Optional<AProject> project = projects.values()
+                    .stream()
+                    .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                    .findFirst();
+                if (project.isPresent()) {
+                    return project.get();
+                }
+                throw new RepositoryException("Project '{0}' is not found.", null, name);
             }
-
-            // TODO: Seems we never reach here. Is the code below really needed?
-            project = new AProject(getRepository(), rulesLocation + name);
-            projects.put(project.getName().toLowerCase(), project);
         }
-        return project;
     }
 
     @Override
-    public AProject getProject(String name, CommonVersion version) {
+    public AProject getProject(String repositoryId, String name, CommonVersion version) {
         String repoVersion = version.getVersionName();
-        String key = String.format("%s:%s", name, repoVersion);
+        ProjectKey key = new ProjectKey(repositoryId, String.format("%s:%s", name, repoVersion));
         AProject project = projectsVersions.get(key);
 
         if (project == null) {
-            Repository repository = getRepository();
+            Repository repository = getRepository(repositoryId);
             String projectPath = rulesLocation + name;
 
             if (repository.supports().branches()) {
                 try {
+                    if (repository.supports().mappedFolders()) {
+                        Optional<AProject> projectOptional = projects.values()
+                            .stream()
+                            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name))
+                            .findFirst();
+                        if (projectOptional.isPresent()) {
+                            String realPath = projectOptional.get().getRealPath();
+                            projectPath = ((MappedRepository) repository).findMappedName(realPath);
+                        }
+                    }
                     FileData fileData = repository.checkHistory(projectPath, repoVersion);
                     if (fileData != null) {
                         project = new AProject(repository, fileData);
                     } else {
                         BranchRepository branchRepository = (BranchRepository) repository;
-                        List<String> branches = branchRepository.getBranches(name);
+                        List<String> branches = branchRepository.getBranches(projectPath);
                         for (String branch : branches) {
                             BranchRepository secondaryBranch = branchRepository.forBranch(branch);
                             fileData = secondaryBranch.checkHistory(projectPath, repoVersion);
@@ -266,12 +306,12 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
                         }
 
                         if (project == null) {
-                            log.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
+                            LOG.warn("Project '{}' with version '{}' is not found.", name, repoVersion);
                             project = new AProject(repository, projectPath, repoVersion);
                         }
                     }
                 } catch (IOException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     project = new AProject(repository, projectPath, repoVersion);
                 }
             } else {
@@ -284,6 +324,23 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
+    public AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException {
+        Collection<AProject> projects = getProjects();
+        Optional<AProject> project = projects.stream()
+            .filter(p -> p.getRepository().getId().equals(repositoryId) && p.getRealPath().equals(path))
+            .findFirst();
+        if (project.isPresent()) {
+            Repository repository = project.get().getRepository();
+            if (branch != null && repository.supports().branches()) {
+                repository = ((BranchRepository) repository).forBranch(branch);
+            }
+            return new AProject(repository, project.get().getFolderPath(), version);
+        } else {
+            return null;
+        }
+    }
+
+    @Override
     public Collection<AProject> getProjects() {
         List<AProject> result;
 
@@ -293,31 +350,34 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
             result = new ArrayList<>(projects.values());
         }
 
-        result.sort((o1, o2) -> o1.getName().compareToIgnoreCase(o2.getName()));
+        result.sort(Comparator.comparing(AProjectFolder::getName, String.CASE_INSENSITIVE_ORDER));
 
         return result;
     }
 
     private void refreshProjects() {
-        Collection<FileData> fileDatas;
-        Repository repository = getRepository();
-        try {
-            String path = rulesLocation;
-            if (repository.supports().folders()) {
-                fileDatas = ((FolderRepository) repository).listFolders(path);
-            } else {
-                fileDatas = repository.list(path);
-            }
-        } catch (IOException ex) {
-            log.error(ex.getMessage(), ex);
-            fileDatas = Collections.emptyList();
-        }
         projects.clear();
         projectsVersions.clear();
-        for (FileData fileData : fileDatas) {
-            AProject project = new AProject(repository, fileData);
-            // get from the repository
-            projects.put(project.getName().toLowerCase(), project);
+        exceptions.clear();
+        for (Repository repository : getRepositories()) {
+            Collection<FileData> fileDatas = Collections.emptyList();
+            try {
+                String path = rulesLocation;
+                if (repository.supports().folders()) {
+                    fileDatas = ((FolderRepository) repository).listFolders(path);
+                } else {
+                    fileDatas = repository.list(path);
+                }
+            } catch (IOException ex) {
+                LOG.error(ex.getMessage(), ex);
+            } catch (Exception e) {
+                exceptions.add(String.format("Repository '%s' : %s", repository.getName(), e.getMessage()));
+            }
+            for (FileData fileData : fileDatas) {
+                AProject project = new AProject(repository, fileData);
+                // FIXME: use project path, not name
+                projects.put(new ProjectKey(repository.getId(), project.getName().toLowerCase()), project);
+            }
         }
 
         projectsRefreshNeeded = false;
@@ -333,12 +393,20 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public boolean hasProject(String name) {
+    public boolean hasProject(String repositoryId, String name) {
         synchronized (projects) {
             if (projectsRefreshNeeded) {
                 refreshProjects();
             }
-            return projects.containsKey(name.toLowerCase());
+            // Check full name for mapped repositories
+            if (projects.containsKey(new ProjectKey(repositoryId, name.toLowerCase()))) {
+                return true;
+            }
+
+            // Check business name
+            return projects.values()
+                .stream()
+                .anyMatch(p -> p.getRepository().getId().equals(repositoryId) && p.getBusinessName().equals(name));
         }
     }
 
@@ -346,17 +414,16 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
     @Override
     public void addListener(DesignTimeRepositoryListener listener) {
-        listeners.add(listener);
+        synchronized (listeners) {
+            listeners.add(listener);
+        }
     }
 
     @Override
     public void removeListener(DesignTimeRepositoryListener listener) {
-        listeners.remove(listener);
-    }
-
-    @Override
-    public List<DesignTimeRepositoryListener> getListeners() {
-        return listeners;
+        synchronized (listeners) {
+            listeners.remove(listener);
+        }
     }
 
     /**
@@ -364,21 +431,19 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
      */
     public void destroy() throws Exception {
         synchronized (projects) {
-            if (repository != null) {
-                repository.setListener(null);
-                if (repository instanceof Closeable) {
-                    ((Closeable) repository).close();
+            if (repositories != null) {
+                for (Repository repository : repositories) {
+                    repository.setListener(null);
+                    repository.close();
+                    if (deployConfigRepository == repository) {
+                        deployConfigRepository = null;
+                    }
                 }
-                if (deployConfigRepository == repository) {
-                    deployConfigRepository = null;
-                }
-                repository = null;
+                repositories = null;
             }
             if (deployConfigRepository != null) {
                 deployConfigRepository.setListener(null);
-                if (deployConfigRepository instanceof Closeable) {
-                    ((Closeable) deployConfigRepository).close();
-                }
+                deployConfigRepository.close();
             }
 
             projects.clear();
@@ -387,25 +452,27 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
     }
 
     @Override
-    public Repository getRepository() {
-        if (repository == null) {
-            // repository field can be cleared in Admin page during testing connection to a new repository
-            init();
-        }
-        return repository;
+    public Repository getRepository(String id) {
+        return getRepositories().stream().filter(repository -> id.equals(repository.getId())).findFirst().orElse(null);
+    }
+
+    @Override
+    public List<Repository> getRepositories() {
+        return repositories;
     }
 
     private Repository getDeployConfigRepository() {
-        if (deployConfigRepository == null) {
-            // deployConfigRepository field can be cleared in Admin page during testing connection to a new repository
-            init();
-        }
         return deployConfigRepository;
     }
 
     @Override
     public String getRulesLocation() {
         return rulesLocation;
+    }
+
+    @Override
+    public List<String> getExceptions() {
+        return exceptions;
     }
 
     private static class RepositoryListener implements Listener {
@@ -417,7 +484,11 @@ public class DesignTimeRepositoryImpl implements DesignTimeRepository {
 
         @Override
         public void onChange() {
-            for (DesignTimeRepositoryListener listener : listeners) {
+            List<DesignTimeRepositoryListener> localListeners;
+            synchronized (listeners) {
+                localListeners = new ArrayList<>(listeners);
+            }
+            for (DesignTimeRepositoryListener listener : localListeners) {
                 listener.onRepositoryModified();
             }
         }

@@ -16,7 +16,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      * Undo Class for attached Observers.
      */
     static final class UndoAttachObserver extends UndoImpl {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoAttachObserver();
@@ -56,7 +56,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      */
     static final class UndoDetachObserver extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoDetachObserver();
@@ -96,7 +96,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
      */
     public static class UndoSubject extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoSubject();
@@ -136,7 +136,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
 
     } // ~UndoSubject
 
-    protected FastVector _observers;
+    protected final FastVector _observers;
 
     protected boolean _in_process;
 
@@ -313,7 +313,7 @@ public abstract class SubjectImpl extends UndoableOnceImpl implements Subject {
     @Override
     public void trace(int event_type) {
         class ObserverTrace extends Observer {
-            private int _event_type;
+            private final int _event_type;
 
             ObserverTrace(int event_type) {
                 _event_type = event_type;

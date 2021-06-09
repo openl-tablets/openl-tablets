@@ -7,6 +7,7 @@
 package org.openl.types;
 
 import org.openl.base.INamedThing;
+import org.openl.source.IOpenSourceCodeModule;
 
 /**
  * @author snshor
@@ -14,5 +15,16 @@ import org.openl.base.INamedThing;
  */
 public interface IParameterDeclaration extends INamedThing {
 
+    IParameterDeclaration[] EMPTY = new IParameterDeclaration[0];
+
     IOpenClass getType();
+
+    default IOpenSourceCodeModule getModule() {
+        return null;
+    }
+
+    default void removeDebugInformation() {
+        // do nothing
+    }
+
 }

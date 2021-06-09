@@ -9,7 +9,7 @@ import org.openl.rules.table.properties.expressions.match.EQMatchingExpression;
 
 public class TablePropertyDefinitionWrappers {
 
-    private List<TablePropertyDefinitionWrapper> wrappers = new ArrayList<>();
+    private final List<TablePropertyDefinitionWrapper> wrappers = new ArrayList<>();
 
     public TablePropertyDefinitionWrappers(TablePropertyDefinition[] definitions) {
         init(definitions);
@@ -43,24 +43,18 @@ public class TablePropertyDefinitionWrappers {
 
     public List<TablePropertyDefinitionWrapper> getDimensionalPropertiesWithContextVar() {
 
-        return getDimensionalProperties(new Selector() {
-            @Override
-            public boolean suits(TablePropertyDefinitionWrapper wrapper) {
-                // The tablePropertyDefinition suits if the context variable is not empty
-                //
-                return wrapper.getContextVar() != null;
-            }
+        return getDimensionalProperties(wrapper -> {
+            // The tablePropertyDefinition suits if the context variable is not empty
+            //
+            return wrapper.getContextVar() != null;
         });
     }
 
     public List<TablePropertyDefinitionWrapper> getDimensionalPropertiesWithMatchExpression() {
-        return getDimensionalProperties(new Selector() {
-            @Override
-            public boolean suits(TablePropertyDefinitionWrapper wrapper) {
-                // The tablePropertyDefinition suits if the match expression is not empty
-                //
-                return wrapper.getDefinition().getExpression() != null;
-            }
+        return getDimensionalProperties(wrapper -> {
+            // The tablePropertyDefinition suits if the match expression is not empty
+            //
+            return wrapper.getDefinition().getExpression() != null;
         });
     }
 

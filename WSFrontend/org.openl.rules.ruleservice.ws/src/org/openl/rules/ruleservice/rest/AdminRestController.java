@@ -1,5 +1,6 @@
 package org.openl.rules.ruleservice.rest;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -11,22 +12,33 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.openl.rules.ruleservice.publish.RuleServiceManager;
+import org.openl.info.OpenLVersion;
+import org.openl.info.SysInfo;
+import org.openl.rules.ruleservice.publish.JAXRSRuleServicePublisher;
+import org.openl.rules.ruleservice.servlet.ServiceInfo;
+import org.openl.rules.ruleservice.servlet.ServiceInfoProvider;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Produces(MediaType.APPLICATION_JSON)
 public class AdminRestController {
 
-    private RuleServiceManager ruleServiceManager;
+    private ServiceInfoProvider serviceManager;
+    private JAXRSRuleServicePublisher jaxrsRuleServicePublisher;
     private Map<String, Object> uiConfig;
 
     @Resource
-    public void setRuleServiceManager(RuleServiceManager ruleServiceManager) {
-        this.ruleServiceManager = ruleServiceManager;
+    public void setServiceManager(ServiceInfoProvider serviceManager) {
+        this.serviceManager = serviceManager;
     }
 
     @Resource
     public void setUiConfig(Map<String, Object> uiConfig) {
         this.uiConfig = uiConfig;
+    }
+
+    @Autowired
+    public void setJaxrsRuleServicePublisher(JAXRSRuleServicePublisher jaxrsRuleServicePublisher) {
+        this.jaxrsRuleServicePublisher = jaxrsRuleServicePublisher;
     }
 
     /**
@@ -35,7 +47,7 @@ public class AdminRestController {
     @GET
     @Path("/services")
     public Response getServiceInfo() {
-        return Response.ok(ruleServiceManager.getServicesInfo()).build();
+        return Response.ok(serviceManager.getServicesInfo()).build();
     }
 
     /**
@@ -44,30 +56,71 @@ public class AdminRestController {
     @GET
     @Path("/ui/info")
     public Response getServiceInfoWithSettings() {
-        HashMap<String, Object> info = new HashMap<>(uiConfig);
-        info.put("services", ruleServiceManager.getServicesInfo());
+        Map<String, Object> info = new HashMap<>(uiConfig);
+        info.put("services", serviceManager.getServicesInfo());
+        info.put("noWadlServices", jaxrsRuleServicePublisher.listNoWadlServices());
         return Response.ok(info).build();
+    }
+
+    /**
+     * @return a list of JVM metrics for monitoring purposes.
+     */
+    @GET
+    @Path("/info/sys.json")
+    public Response getSysInfo() {
+        return Response.ok(SysInfo.get()).build();
+    }
+
+    /**
+     * @return a list of properties about the OpenL build.
+     */
+    @GET
+    @Path("/info/openl.json")
+    public Response getOpenLInfo() {
+        return Response.ok(OpenLVersion.get()).build();
     }
 
     /**
      * @return a list of method descriptors of the given OpenL service.
      */
     @GET
-    @Path("/services/{serviceName}/methods/")
-    public Response getServiceMethodNames(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(ruleServiceManager.getServiceMethods(serviceName));
+    @Path("/services/{deployPath:.+}/methods/")
+    public Response getServiceMethodNames(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getServiceMethods(deployPath));
     }
 
     /**
      * @return a list of messages of the given OpenL service.
      */
     @GET
-    @Path("/services/{serviceName}/errors/")
-    public Response getServiceErrors(@PathParam("serviceName") final String serviceName) {
-        return okOrNotFound(ruleServiceManager.getServiceErrors(serviceName));
+    @Path("/services/{deployPath:.+}/errors/")
+    public Response getServiceErrors(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getServiceErrors(deployPath));
     }
 
-    private Response okOrNotFound(Object entity) {
+    @GET
+    @Path("/services/{deployPath:.+}/MANIFEST.MF")
+    public Response getManifest(@PathParam("deployPath") final String deployPath) {
+        return okOrNotFound(serviceManager.getManifest(deployPath));
+    }
+
+    @GET
+    @Path("/healthcheck/readiness")
+    public Response readiness() {
+        Collection<ServiceInfo> servicesInfo = serviceManager.getServicesInfo();
+        boolean anyFailed = servicesInfo.stream()
+            .anyMatch(info -> ServiceInfo.ServiceStatus.FAILED.equals(info.getStatus()));
+
+        return anyFailed ? Response.status(Response.Status.SERVICE_UNAVAILABLE).build() : Response.ok().build();
+    }
+
+    @GET
+    @Path("/healthcheck/startup")
+    public Response startup() {
+        return Response.ok().build();
+    }
+
+    private static Response okOrNotFound(Object entity) {
         return Response.status(entity == null ? Response.Status.NOT_FOUND : Response.Status.OK).entity(entity).build();
     }
 }

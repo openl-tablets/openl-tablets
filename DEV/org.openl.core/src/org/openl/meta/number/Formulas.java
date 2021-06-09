@@ -7,8 +7,8 @@ public enum Formulas {
     DIVIDE("/", true),
     REM("%", true);
 
-    private String operand;
-    private boolean isMultiplicative;
+    private final String operand;
+    private final boolean isMultiplicative;
 
     Formulas(String operand, boolean isMultiplicative) {
         this.operand = operand;

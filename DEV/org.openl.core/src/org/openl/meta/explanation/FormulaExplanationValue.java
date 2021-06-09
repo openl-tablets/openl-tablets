@@ -1,6 +1,7 @@
 package org.openl.meta.explanation;
 
 import java.util.Arrays;
+import java.util.Collection;
 
 import org.openl.meta.number.Formulas;
 
@@ -12,10 +13,10 @@ import org.openl.meta.number.Formulas;
  */
 public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extends SingleValueExplanation<T> {
 
-    private Formulas operand;
+    private final Formulas operand;
 
-    private T v1;
-    private T v2;
+    private final T v1;
+    private final T v2;
 
     public FormulaExplanationValue(T v1, T v2, Formulas operand) {
         this.v1 = v1;
@@ -52,7 +53,7 @@ public class FormulaExplanationValue<T extends ExplanationNumberValue<T>> extend
     }
 
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return Arrays.asList(v1, v2);
     }
 

@@ -2,8 +2,6 @@ package org.openl.rules.ruleservice.storelogdata.cassandra.annotation;
 
 public class DaoCreationException extends Exception {
 
-    private static final long serialVersionUID = 1L;
-
     public DaoCreationException() {
         super();
     }

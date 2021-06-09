@@ -1,7 +1,6 @@
 package org.openl.rules.ruleservice.publish.lazy;
 
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
 
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -10,41 +9,34 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.context.RulesRuntimeContextFactory;
-import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.BeansException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/LazyCompilationTest",
-        "ruleservice.datasource.deploy.clean.datasource=false" })
+@TestPropertySource(properties = { "production-repository.uri=test-resources/LazyCompilationTest",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
 public class LazyCompilationTest {
+
+    private static final Logger log = LoggerFactory.getLogger(LazyCompilationTest.class);
 
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
 
     private static final String SERVICE_NAME = "LazyCompilationTest_multimodule";
 
-    private ApplicationContext applicationContext;
-
     private volatile boolean failed = false;
     private volatile boolean running = true;
 
     @Autowired
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
-    }
+    private RulesFrontend frontend;
 
     @Test
     public void lazyCompilationTest() throws Exception {
-        assertNotNull(applicationContext);
-        ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
-        assertNotNull(serviceManager);
-        RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
 
         Thread[] threads = new Thread[MAX_THREADS];
         CountDownLatch countDownLatch = new CountDownLatch(2000);
@@ -62,10 +54,10 @@ public class LazyCompilationTest {
     }
 
     public class LazyCompilationTestRunnable implements Runnable {
-        private RulesFrontend frontend;
-        private CountDownLatch countDownLatch;
+        private final RulesFrontend frontend;
+        private final CountDownLatch countDownLatch;
 
-        public LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
+        LazyCompilationTestRunnable(RulesFrontend frontend, CountDownLatch countDownLatch) {
             this.frontend = frontend;
             this.countDownLatch = countDownLatch;
         }
@@ -74,18 +66,29 @@ public class LazyCompilationTest {
         public void run() {
             Random rnd = new Random();
             while (running) {
-                int n = rnd.nextInt(9) + 1;
                 try {
-                    IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
-                    cxt.setLob("module" + n);
-                    if (!("module" + n).equals(frontend.execute(SERVICE_NAME, "hello", new Object[] { cxt }))) {
+                    int n = rnd.nextInt(9) + 1;
+                    String lob = "module" + n;
+                    try {
+                        IRulesRuntimeContext cxt = RulesRuntimeContextFactory.buildRulesRuntimeContext();
+
+                        cxt.setLob(lob);
+                        Object result = frontend.execute(SERVICE_NAME, "hello", cxt);
+                        if (!(lob).equals(result)) {
+                            failed = true;
+                            running = false;
+                        }
+                    } catch (Exception e) {
+                        log.error("Unexpected exception", e);
                         failed = true;
                         running = false;
                     }
-                } catch (Exception e) {
-                    failed = true;
-                    running = false;
+                } finally {
+                    countDownLatch.countDown();
                 }
+            }
+            while (countDownLatch.getCount() > 0) {
+                failed = true;
                 countDownLatch.countDown();
             }
         }

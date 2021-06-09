@@ -10,7 +10,6 @@ import org.openl.IOpenParser;
 import org.openl.OpenL;
 import org.openl.conf.BaseOpenLBuilder;
 import org.openl.rules.lang.xls.XlsBinder;
-import org.openl.rules.lang.xls.XlsParser;
 import org.openl.rules.lang.xls.XlsVM;
 
 /**
@@ -25,14 +24,13 @@ public class OpenLBuilder extends BaseOpenLBuilder {
         OpenL openl = new OpenL();
 
         openl.setParser(createParser());
-        openl.setBinder(new XlsBinder(getUserEnvironmentContext()));
+        openl.setBinder(new XlsBinder(new RulesCompileContext(), getUserEnvironmentContext()));
         openl.setVm(new XlsVM());
-        openl.setCompileContext(new RulesCompileContext());
 
         return openl;
     }
 
     protected IOpenParser createParser() {
-        return new XlsParser(getUserEnvironmentContext());
+        return new Parser(getUserEnvironmentContext());
     }
 }

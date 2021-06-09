@@ -7,29 +7,28 @@ import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
-import org.openl.rules.ruleservice.core.LazyRuleServiceDependencyLoader;
-import org.openl.rules.ruleservice.core.RuleServiceDeploymentRelatedDependencyManager;
+import org.openl.rules.ruleservice.core.RuleServiceDependencyManager;
 import org.openl.syntax.code.IDependency;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 
 public class LazyCompiledOpenClass extends CompiledOpenClass {
 
-    private LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
-    private RuleServiceDeploymentRelatedDependencyManager dependencyManager;
-    private IDependency dependency;
+    private final LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader;
+    private final RuleServiceDependencyManager dependencyManager;
+    private final IDependency dependency;
 
-    public LazyCompiledOpenClass(RuleServiceDeploymentRelatedDependencyManager dependencyManager,
+    LazyCompiledOpenClass(RuleServiceDependencyManager dependencyManager,
             LazyRuleServiceDependencyLoader lazyRuleServiceDependencyLoader,
             IDependency dependency) {
-        super(null, null, null, null);
+        super(NullOpenClass.the, null);
         this.dependencyManager = Objects.requireNonNull(dependencyManager, "dependencyManager cannot be null");
         this.lazyRuleServiceDependencyLoader = Objects.requireNonNull(lazyRuleServiceDependencyLoader,
             "lazyRuleServiceDependencyLoader cannot be null");
         this.dependency = Objects.requireNonNull(dependency, "dependency cannot be null");
     }
 
-    protected CompiledOpenClass getCompiledOpenClass() {
+    private CompiledOpenClass getCompiledOpenClass() {
         try {
             return lazyRuleServiceDependencyLoader.compile(dependency.getNode().getIdentifier(), dependencyManager);
         } catch (OpenLCompilationException e) {
@@ -38,10 +37,6 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
 
     }
 
-    @Override
-    public SyntaxNodeException[] getBindingErrors() {
-        return getCompiledOpenClass().getBindingErrors();
-    }
 
     @Override
     public IOpenClass getOpenClass() {
@@ -56,11 +51,6 @@ public class LazyCompiledOpenClass extends CompiledOpenClass {
     @Override
     public int hashCode() {
         return getCompiledOpenClass().hashCode();
-    }
-
-    @Override
-    public SyntaxNodeException[] getParsingErrors() {
-        return getCompiledOpenClass().getParsingErrors();
     }
 
     @Override

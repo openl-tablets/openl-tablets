@@ -20,9 +20,9 @@ import org.openl.util.ArrayOfNamedValues;
  */
 public class DecisionTableValidationResult implements IValidationResult {
 
-    private IDecisionTable decisionTable;
-    private DecisionTableOverlapping[] overlappings;
-    private DecisionTableUncovered[] uncovered;
+    private final IDecisionTable decisionTable;
+    private final DecisionTableOverlapping[] overlappings;
+    private final DecisionTableUncovered[] uncovered;
 
     public DecisionTableValidationResult(IDecisionTable decisionTable) {
         this.decisionTable = decisionTable;
@@ -132,9 +132,9 @@ public class DecisionTableValidationResult implements IValidationResult {
         if (overlappings == null) {
             return res;
         }
-        for (int i = 0; i < overlappings.length; i++) {
-            if (overlappings[i].getStatus() == status) {
-                res.add(overlappings[i]);
+        for (DecisionTableOverlapping overlapping : overlappings) {
+            if (overlapping.getStatus() == status) {
+                res.add(overlapping);
             }
         }
         return res;

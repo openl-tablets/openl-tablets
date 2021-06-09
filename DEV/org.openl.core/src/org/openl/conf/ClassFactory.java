@@ -20,14 +20,14 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class ClassFactory extends AConfigurationElement {
-
+    private static final Logger LOG = LoggerFactory.getLogger(ClassFactory.class);
     static final Class<?>[] NO_PARAMS = {};
     protected String className;
     protected String extendsClassName;
 
     protected boolean singleton;
 
-    Object cachedObject = null;
+    Object cachedObject;
 
     public static Class<?> forName(String name, ClassLoader cl) {
         try {
@@ -35,19 +35,16 @@ public class ClassFactory extends AConfigurationElement {
         } catch (ClassNotFoundException ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (NoClassDefFoundError ex) {
-            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
-            log.debug("Potential problem loading class: {0}", name, ex);
+            LOG.debug("Potential problem loading class: {}", name, ex);
             throw RuntimeExceptionWrapper.wrap(ex);
         } catch (UnsupportedClassVersionError e) {
-            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
-            log.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",
+            LOG.error("Cannot load class '{}' compiled using newer version of JDK than current JRE ({})",
                 name,
                 System.getProperty("java.version"),
                 e);
             throw RuntimeExceptionWrapper.wrap(e);
         } catch (Exception | LinkageError t) {
-            final Logger log = LoggerFactory.getLogger(ClassFactory.class);
-            log.error(String.format("Failed to load class '%s'.", name), t);
+            LOG.error(String.format("Failed to load class '%s'.", name), t);
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }
@@ -139,6 +136,7 @@ public class ClassFactory extends AConfigurationElement {
         } catch (OpenLConfigurationException ex) {
             throw ex;
         } catch (Exception | LinkageError t) {
+            LOG.debug("Error occurred: ", t);
             throw new OpenLConfigurationException(String.format("Default constructor is not found in class '%s'.",
                 clazz.getTypeName()), uri, null);
         }

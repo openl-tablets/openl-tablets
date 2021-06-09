@@ -27,7 +27,7 @@ import org.openl.ie.constrainer.impl.IntExpElementAt;
  */
 
 public final class IntArray extends ConstrainerObjectImpl {
-    private int[] _data;
+    private final int[] _data;
 
     /**
      * Constructor: known size, unknown elements values.
@@ -250,8 +250,7 @@ public final class IntArray extends ConstrainerObjectImpl {
      */
     public int max() {
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int maxi = _data[i];
+        for (int maxi : _data) {
             if (maxi > max) {
                 max = maxi;
             }
@@ -291,8 +290,7 @@ public final class IntArray extends ConstrainerObjectImpl {
      */
     public int min() {
         int min = Integer.MAX_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int mini = _data[i];
+        for (int mini : _data) {
             if (mini < min) {
                 min = mini;
             }

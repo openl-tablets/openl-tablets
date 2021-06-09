@@ -6,9 +6,9 @@ import org.openl.types.IParameterDeclaration;
 
 public class DecisionTableParamDescription {
 
-    private IParameterDeclaration parameterDeclaration;
-    private IDomain<?> domain;
-    private IOpenClass newType;
+    private final IParameterDeclaration parameterDeclaration;
+    private final IDomain<?> domain;
+    private final IOpenClass newType;
 
     public DecisionTableParamDescription(IParameterDeclaration parameterDeclaration, IOpenClass newType) {
         this.parameterDeclaration = parameterDeclaration;

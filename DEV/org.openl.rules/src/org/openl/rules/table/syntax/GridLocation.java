@@ -14,8 +14,8 @@ import org.openl.util.text.IPosition;
  */
 public class GridLocation implements ILocation {
 
-    private GridPosition start;
-    private GridPosition end;
+    private final GridPosition start;
+    private final GridPosition end;
 
     public GridLocation(IGridTable table) {
 
@@ -47,10 +47,10 @@ public class GridLocation implements ILocation {
     public String toString() {
 
         if (end == null) {
-            return XlsURLConstants.CELL + "=" + start;
+            return "cell=" + start;
         }
 
-        return XlsURLConstants.RANGE + "=" + start + ":" + end;
+        return "range=" + start + ":" + end;
     }
 
 }

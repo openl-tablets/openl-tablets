@@ -1,0 +1,2 @@
+GET /admin/services/rules-to-deploy/MANIFEST.MF HTTP/1.1
+

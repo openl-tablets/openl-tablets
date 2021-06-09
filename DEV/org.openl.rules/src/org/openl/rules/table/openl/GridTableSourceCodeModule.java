@@ -17,9 +17,10 @@ import org.openl.source.IOpenSourceCodeModule;
  * @author snshor
  *
  */
+@Deprecated
 public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
 
-    IGridTable table;
+    private final IGridTable table;
 
     private Map<String, Object> params;
 
@@ -62,10 +63,4 @@ public class GridTableSourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-
-    @Override
-    public boolean isModified() {
-        return false;
-    }
-
 }

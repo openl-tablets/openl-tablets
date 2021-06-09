@@ -2,6 +2,7 @@ package org.openl.rules.table.properties;
 
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -15,20 +16,23 @@ import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
 import org.openl.rules.table.properties.inherit.PropertiesChecker;
-import org.openl.types.IOpenClass;
-import org.openl.types.impl.DynamicObject;
-import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ArrayTool;
 import org.openl.util.EnumUtils;
 import org.openl.util.StringUtils;
+import org.openl.util.print.NicePrinter;
+import org.openl.util.print.NicePrinterAdaptor;
 
-public class TableProperties extends DynamicObject implements ITableProperties {
+public class TableProperties implements ITableProperties {
+
+    private final HashMap<String, Object> fieldValues = new HashMap<>();
 
     private String currentTableType;
     /**
      * Table section that contains properties in appropriate table in data source.
      */
     private ILogicalTable propertySection;
+
+    private TableSyntaxNode globalPropertiesTableSyntaxNode;
 
     private TableSyntaxNode modulePropertiesTableSyntaxNode;
 
@@ -39,6 +43,8 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     private Map<String, Object> externalModuleProperties = Collections.emptyMap();
 
     private Map<String, Object> moduleProperties = Collections.emptyMap();
+
+    private Map<String, Object> globalProperties = Collections.emptyMap();
 
     private Map<String, Object> defaultProperties = Collections.emptyMap();
 
@@ -53,31 +59,21 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     private Map<String, Object> mergeLevelProperties(Map<String, Object> downLevelProperties,
             Map<String, Object> upLevelProperties) {
-        Map<String, Object> resultProperties = downLevelProperties;
         for (Entry<String, Object> upLevelProperty : upLevelProperties.entrySet()) {
             String upLevelPropertyName = upLevelProperty.getKey();
             Object upLevelPropertyValue = upLevelProperty.getValue();
 
             if (PropertiesChecker.isPropertySuitableForTableType(upLevelPropertyName, currentTableType)) {
                 if (!downLevelProperties.containsKey(upLevelPropertyName)) {
-                    resultProperties.put(upLevelPropertyName, upLevelPropertyValue);
+                    downLevelProperties.put(upLevelPropertyName, upLevelPropertyValue);
                 }
             }
         }
-        return resultProperties;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        return JavaOpenClass.getOpenClass(getClass());
-    }
-
-    @Override
-    public void setType(IOpenClass type) {
-        throw new UnsupportedOperationException();
+        return downLevelProperties;
     }
 
     // <<< INSERT >>>
+
     @Override
     public java.lang.String getName() {
         return (java.lang.String) getPropertyValue("name");
@@ -398,6 +394,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public java.lang.Integer getPriority() {
+        return (java.lang.Integer) getPropertyValue("priority");
+    }
+
+    @Override
+    public void setPriority(java.lang.Integer priority) {
+        setFieldValue("priority", priority);
+        reset();
+    }
+
+    @Override
     public java.lang.String getDatatypePackage() {
         return (java.lang.String) getPropertyValue("datatypePackage");
     }
@@ -405,6 +412,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setDatatypePackage(java.lang.String datatypePackage) {
         setFieldValue("datatypePackage", datatypePackage);
+        reset();
+    }
+
+    @Override
+    public java.lang.String getSpreadsheetResultPackage() {
+        return (java.lang.String) getPropertyValue("spreadsheetResultPackage");
+    }
+
+    @Override
+    public void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage) {
+        setFieldValue("spreadsheetResultPackage", spreadsheetResultPackage);
         reset();
     }
 
@@ -431,6 +449,17 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing() {
+        return (org.openl.rules.enumeration.DTEmptyResultProcessingEnum) getPropertyValue("emptyResultProcessing");
+    }
+
+    @Override
+    public void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing) {
+        setFieldValue("emptyResultProcessing", emptyResultProcessing);
+        reset();
+    }
+
+    @Override
     public java.lang.String getPrecision() {
         return (java.lang.String) getPropertyValue("precision");
     }
@@ -442,13 +471,13 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
-    public java.lang.Boolean getDetailedPlainModel() {
-        return (java.lang.Boolean) getPropertyValue("detailedPlainModel");
+    public java.lang.Boolean getTableStructureDetails() {
+        return (java.lang.Boolean) getPropertyValue("tableStructureDetails");
     }
 
     @Override
-    public void setDetailedPlainModel(java.lang.Boolean detailedPlainModel) {
-        setFieldValue("detailedPlainModel", detailedPlainModel);
+    public void setTableStructureDetails(java.lang.Boolean tableStructureDetails) {
+        setFieldValue("tableStructureDetails", tableStructureDetails);
         reset();
     }
 
@@ -600,6 +629,16 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     }
 
     @Override
+    public TableSyntaxNode getGlobalPropertiesTableSyntaxNode() {
+        return globalPropertiesTableSyntaxNode;
+    }
+
+    @Override
+    public void setGlobalPropertiesTableSyntaxNode(TableSyntaxNode globalPropertiesTableSyntaxNode) {
+        this.globalPropertiesTableSyntaxNode = globalPropertiesTableSyntaxNode;
+    }
+
+    @Override
     public TableSyntaxNode getCategoryPropertiesTableSyntaxNode() {
         return categoryPropertiesTableSyntaxNode;
     }
@@ -631,36 +670,22 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         if (allProperties != null) {
             return allProperties;
         }
-        Map<String, Object> tableAndCategoryProp = mergeLevelProperties(super.getFieldValues(), categoryProperties);
+        Map<String, Object> tableAndCategoryProp = mergeLevelProperties(new HashMap<>(fieldValues), categoryProperties);
         Map<String, Object> tableAndCategoryAndModuleProp = mergeLevelProperties(tableAndCategoryProp,
             moduleProperties);
-        Map<String, Object> tableAndCategoryAndModuleAndExteranlProp = mergeLevelProperties(
-            tableAndCategoryAndModuleProp,
+        Map<String, Object> tableAndCategoryAndModuleAndGlobalProp = mergeLevelProperties(tableAndCategoryAndModuleProp,
+            globalProperties);
+        Map<String, Object> tableAndCategoryAndModuleAndGlobalAndExternalProp = mergeLevelProperties(
+            tableAndCategoryAndModuleAndGlobalProp,
             externalModuleProperties);
-        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndExteranlProp,
+        Map<String, Object> allTableProperties = mergeLevelProperties(tableAndCategoryAndModuleAndGlobalAndExternalProp,
             defaultProperties);
         allProperties = Collections.unmodifiableMap(allTableProperties);
         return allProperties;
     }
 
-    @Override
     public void setFieldValue(String name, Object value) {
-        super.setFieldValue(name, toPropertyValue(value));
-    }
-
-    private Object toPropertyValue(Object value) {
-        if (value == null) {
-            return null;
-        }
-        if (value.getClass().isArray()) {
-            Object[] value1 = ((Object[]) value).clone();
-            Arrays.sort(value1);
-            return value1;
-        }
-        if (value instanceof Date) {
-            return ((Date) value).clone();
-        }
-        return value;
+        fieldValues.put(name, preprocess(name, value));
     }
 
     /**
@@ -668,7 +693,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
      */
     @Override
     public Map<String, Object> getTableProperties() {
-        return super.getFieldValues();
+        return Collections.unmodifiableMap(fieldValues);
     }
 
     /**
@@ -724,12 +749,30 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
 
+    @Override
+    public void setGlobalProperties(Map<String, Object> globalProperties) {
+        if (globalProperties == null) {
+            this.globalProperties = Collections.emptyMap();
+        } else {
+            this.globalProperties = extractPropertiesMap(globalProperties);
+        }
+        reset();
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public Map<String, Object> getModuleProperties() {
         return moduleProperties;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Map<String, Object> getGlobalProperties() {
+        return globalProperties;
     }
 
     @Override
@@ -753,6 +796,7 @@ public class TableProperties extends DynamicObject implements ITableProperties {
     @Override
     public void setCurrentTableType(String currentTableType) {
         this.currentTableType = currentTableType;
+        reset();
     }
 
     @Override
@@ -775,10 +819,31 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         reset();
     }
 
+    private Object preprocess(String name, Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value.getClass().isArray()) {
+            Object[] array = ((Object[]) value).clone();
+            Arrays.sort(array);
+            return array;
+        }
+        if (("expirationDate".equals(name) || "endRequestDate".equals(name)) && value instanceof Date) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime((Date) value);
+            calendar.set(Calendar.HOUR_OF_DAY, 23);
+            calendar.set(Calendar.MINUTE, 59);
+            calendar.set(Calendar.SECOND, 59);
+            calendar.set(Calendar.MILLISECOND, 999);
+            return calendar.getTime();
+        }
+        return value;
+    }
+
     private Map<String, Object> extractPropertiesMap(Map<String, Object> externalProperties) {
         Map<String, Object> tmp = new HashMap<>();
         for (Entry<String, Object> entry : externalProperties.entrySet()) {
-            tmp.put(entry.getKey(), toPropertyValue(entry.getValue()));
+            tmp.put(entry.getKey(), preprocess(entry.getKey(), entry.getValue()));
         }
         return Collections.unmodifiableMap(tmp);
     }
@@ -797,4 +862,10 @@ public class TableProperties extends DynamicObject implements ITableProperties {
         return true;
     }
 
+    @Override
+    public String toString() {
+        NicePrinter printer = new NicePrinter();
+        printer.print(fieldValues, new NicePrinterAdaptor());
+        return printer.getBuffer().toString();
+    }
 }

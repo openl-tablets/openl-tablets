@@ -2,12 +2,14 @@ package org.openl.rules.webstudio.web.trace.node;
 
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.runtime.IRuntimeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ATableTracerNode extends SimpleTracerObject {
-
-    private Object params[];
-    private ExecutableRulesMethod method;
-    private String prefix;
+    private static final Logger LOG = LoggerFactory.getLogger(ATableTracerNode.class);
+    private final Object[] params;
+    private final ExecutableRulesMethod method;
+    private final String prefix;
     private final IRuntimeContext context;
 
     ATableTracerNode(String type, String prefix, ExecutableRulesMethod method, Object[] params) {
@@ -27,9 +29,9 @@ public class ATableTracerNode extends SimpleTracerObject {
             Object[] clonedParams;
             try {
                 clonedParams = cloner.deepClone(params);
-            } catch (Exception ex) {
+            } catch (Exception e) {
                 // ignore cloning exception if any, use params itself
-                //
+                LOG.debug("Ignored error: ", e);
                 clonedParams = params;
             }
             this.params = clonedParams;

@@ -2,11 +2,12 @@ package org.openl.rules.property;
 
 import static org.junit.Assert.*;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.junit.Test;
 import org.openl.CompiledOpenClass;
+import org.openl.message.Severity;
 import org.openl.rules.enumeration.RegionsEnum;
 import org.openl.rules.enumeration.UsRegionsEnum;
 import org.openl.rules.enumeration.ValidateDTEnum;
@@ -34,20 +35,21 @@ public class PropertiesTableInExecutionModeTest {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        IOpenMethod method = compiledOpenClass.getOpenClass()
+        assertEquals(1, compiledOpenClass.getMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());//FIXME validation issue for Ranges.
+        IOpenMethod method = compiledOpenClass.getOpenClassWithErrors()
             .getMethod("hello1", new IOpenClass[] { JavaOpenClass.INT });
         if (method != null) {
             ITableProperties tableProperties = PropertiesHelper.getTableProperties(method);
             assertNotNull(tableProperties);
 
             Map<String, Object> moduleProperties = tableProperties.getModuleProperties();
-            assertTrue(moduleProperties.size() == 3);
+            assertEquals(3, moduleProperties.size());
             assertEquals(InheritanceLevel.MODULE.getDisplayName(), moduleProperties.get("scope"));
             assertEquals("Any phase", moduleProperties.get("buildPhase"));
             assertEquals(ValidateDTEnum.ON, moduleProperties.get("validateDT"));
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
-            assertTrue(categoryProperties.size() == 4);
+            assertEquals(4, categoryProperties.size());
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), categoryProperties.get("scope"));
             assertEquals("newLob", ((String[]) categoryProperties.get("lob"))[0]);
             assertEquals(UsRegionsEnum.SE.name(), ((UsRegionsEnum[]) categoryProperties.get("usregion"))[0].name());
@@ -65,19 +67,20 @@ public class PropertiesTableInExecutionModeTest {
     }
 
     @Test
-    public void testFielsInOpenClass() {
+    public void testFieldsInOpenClass() {
         RulesEngineFactory<?> engineFactory = new RulesEngineFactory<>(SRC);
         engineFactory.setExecutionMode(true);
         CompiledOpenClass compiledOpenClass = engineFactory.getCompiledOpenClass();
-        Map<String, IOpenField> fields = compiledOpenClass.getOpenClass().getFields();
+        assertEquals(1, compiledOpenClass.getMessages().stream().filter(msg -> Severity.ERROR == msg.getSeverity()).count());//FIXME validation issue for Ranges.
+        Collection<IOpenField> fields = compiledOpenClass.getOpenClassWithErrors().getFields();
         // properties table with name will be represented as field
-        assertTrue(fields.containsKey("categoryProp"));
+        assertTrue(fields.stream().anyMatch(e -> "categoryProp".equals(e.getName())));
         // properties table without name will not be represented as field
         IRuntimeEnv env = engineFactory.getOpenL().getVm().getRuntimeEnv();
-        for (Entry<String, IOpenField> field : fields.entrySet()) {
-            if (field.getValue() instanceof PropertiesOpenField) {
-                ITableProperties properties = (ITableProperties) field.getValue()
-                    .get(compiledOpenClass.getOpenClass().newInstance(env), env);
+        for (IOpenField field : fields) {
+            if (field instanceof PropertiesOpenField) {
+                ITableProperties properties = (ITableProperties) field
+                    .get(compiledOpenClass.getOpenClassWithErrors().newInstance(env), env);
                 String scope = properties.getScope();
                 assertFalse(InheritanceLevel.MODULE.getDisplayName().equalsIgnoreCase(scope));
             }

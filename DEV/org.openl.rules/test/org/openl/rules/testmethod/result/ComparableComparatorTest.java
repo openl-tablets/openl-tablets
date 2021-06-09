@@ -12,10 +12,10 @@ public class ComparableComparatorTest {
 
         assertTrue(comp.isEqual(null, null));
 
-        assertFalse(comp.isEqual(Integer.valueOf(10), null));
+        assertFalse(comp.isEqual(10, null));
 
-        assertFalse(comp.isEqual(null, Integer.valueOf(10)));
+        assertFalse(comp.isEqual(null, 10));
 
-        assertTrue(comp.isEqual(Integer.valueOf(10), Integer.valueOf(10)));
+        assertTrue(comp.isEqual(10, 10));
     }
 }

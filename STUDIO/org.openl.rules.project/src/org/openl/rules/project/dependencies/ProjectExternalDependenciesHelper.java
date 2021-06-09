@@ -2,7 +2,7 @@ package org.openl.rules.project.dependencies;
 
 import java.util.*;
 
-import org.openl.engine.OpenLSourceManager;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -23,14 +23,14 @@ public final class ProjectExternalDependenciesHelper {
         return VIRTUAL_MODULE_PREFIX + projectName + VIRTUAL_MODULE_SUFFIX;
     }
 
-    public static Map<String, Object> getExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
+    public static Map<String, Object> buildExternalParamsWithProjectDependencies(Map<String, Object> externalParams,
             Collection<Module> modules) {
         Map<String, Object> parameters = new HashMap<>();
         if (externalParams != null) {
             parameters.putAll(externalParams);
         }
         if (modules == null) {
-            parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, null);
+            parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, null);
             return parameters;
         }
         Set<String> virtualModules = new HashSet<>();
@@ -45,12 +45,12 @@ public final class ProjectExternalDependenciesHelper {
             }
         }
         List<IDependency> externalDependencies = new ArrayList<>();
-        for (String virualModule : virtualModules) {
+        for (String virtualModule : virtualModules) {
             externalDependencies
-                .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virualModule, null)));
+                .add(new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, virtualModule, null)));
         }
 
-        parameters.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
+        parameters.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, externalDependencies);
 
         return parameters;
     }

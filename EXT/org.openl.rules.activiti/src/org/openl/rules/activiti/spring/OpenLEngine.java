@@ -13,10 +13,12 @@ import org.openl.rules.activiti.util.IRulesRuntimeContextUtils;
 import org.openl.rules.context.IRulesRuntimeContext;
 import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 import org.openl.rules.project.instantiation.ProjectEngineFactory;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
+import org.openl.rules.project.resolving.ProjectResolvingException;
 
 public class OpenLEngine {
 
-    public final static Object findAndInvokeMethod(String methodName,
+    public static Object findAndInvokeMethod(String methodName,
             Object target,
             Class<?> interfaceClass,
             Object... args) throws IllegalAccessException, InvocationTargetException {
@@ -34,7 +36,7 @@ public class OpenLEngine {
                 IOpenCast[] openCasts = new IOpenCast[args.length];
                 for (int i = 0; i < args.length; i++) {
                     if (args[i] != null) {
-                        IOpenCast openCast = convertor.getConvertor(method.getParameterTypes()[i], args[i].getClass());
+                        IOpenCast openCast = convertor.getConvertor(args[i].getClass(), method.getParameterTypes()[i]);
                         if (openCast == null) {
                             f = false;
                             break;
@@ -101,10 +103,12 @@ public class OpenLEngine {
         return IRulesRuntimeContextUtils.buildRuntimeContext(execution);
     }
 
-    public ResultValue execute(DelegateExecution execution,
-            String resource,
-            String methodName,
-            Object... args) throws Exception {
+    public ResultValue execute(DelegateExecution execution, String resource, String methodName, Object... args)
+            throws RulesInstantiationException,
+                    ProjectResolvingException,
+                    ClassNotFoundException,
+                    InvocationTargetException,
+                    IllegalAccessException {
         String processDefinitionId = execution.getProcessDefinitionId();
         RepositoryService repositoryService = execution.getEngineServices().getRepositoryService();
         ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
@@ -116,8 +120,7 @@ public class OpenLEngine {
         Class<?> interfaceClass = projectEngineFactory.getInterfaceClass();
         assert interfaceClass != null; // Always Non-null
 
-        Object result = org.openl.rules.activiti.spring.OpenLEngine
-            .findAndInvokeMethod(methodName, instance, interfaceClass, args);
+        Object result = OpenLEngine.findAndInvokeMethod(methodName, instance, interfaceClass, args);
 
         return new ResultValue(result);
 

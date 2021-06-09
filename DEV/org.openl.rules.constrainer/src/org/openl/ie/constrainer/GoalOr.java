@@ -19,8 +19,8 @@ package org.openl.ie.constrainer;
  * fails when all subgoals fail.
  */
 public class GoalOr extends GoalImpl {
-    private Goal _g1;
-    private Goal _g2;
+    private final Goal _g1;
+    private final Goal _g2;
     private ChoicePointLabel _label = null;
 
     /**

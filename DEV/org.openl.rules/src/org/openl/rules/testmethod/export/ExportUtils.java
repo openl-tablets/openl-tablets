@@ -45,9 +45,7 @@ final class ExportUtils {
                 result.add(null);
             } else {
                 if (element instanceof Collection) {
-                    for (Object o : (Collection<?>) element) {
-                        result.add(o);
-                    }
+                    result.addAll((Collection<?>) element);
                 } else if (!element.getClass().isArray()) {
                     result.add(element);
                 } else {

@@ -24,7 +24,7 @@ public class ActionsTableBinder extends ADtColumnsDefinitionTableBinder {
             XlsModuleOpenClass module,
             OpenL openl,
             IBindingContext bindingContext) {
-        return new ActionsTableBoundNode(tsn, openl);
+        return new ActionsTableBoundNode(tsn, openl, bindingContext);
     }
 
 }

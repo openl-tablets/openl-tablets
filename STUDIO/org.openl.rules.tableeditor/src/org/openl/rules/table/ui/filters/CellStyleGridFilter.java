@@ -1,5 +1,6 @@
 package org.openl.rules.table.ui.filters;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 import org.apache.poi.ss.usermodel.BorderStyle;
@@ -11,9 +12,9 @@ import org.openl.rules.table.ui.IGridSelector;
 public class CellStyleGridFilter extends AGridFilter {
     private static final int BORDER_SIDES_COUNT = 4;
 
-    private BorderStyle[] borderStyle;
+    private final BorderStyle[] borderStyle;
 
-    private short[][] borderRGB;
+    private final short[][] borderRGB;
 
     protected CellStyleGridFilter(IGridSelector selector, BorderStyle[] borderStyle, short[][] borderRGB) {
         super(selector);
@@ -114,19 +115,15 @@ public class CellStyleGridFilter extends AGridFilter {
             return new CellStyleGridFilter(this);
         }
 
-        private BorderStyle[] createBorderStyle(BorderStyle style) {
+        private static BorderStyle[] createBorderStyle(BorderStyle style) {
             BorderStyle[] colors = new BorderStyle[BORDER_SIDES_COUNT];
-            for (int i = 0; i < colors.length; i++) {
-                colors[i] = style;
-            }
+            Arrays.fill(colors, style);
             return colors;
         }
 
-        private short[][] createBorderRGB(short[] rgb) {
+        private static short[][] createBorderRGB(short[] rgb) {
             short[][] colors = new short[BORDER_SIDES_COUNT][];
-            for (int i = 0; i < colors.length; i++) {
-                colors[i] = rgb;
-            }
+            Arrays.fill(colors, rgb);
             return colors;
         }
     }

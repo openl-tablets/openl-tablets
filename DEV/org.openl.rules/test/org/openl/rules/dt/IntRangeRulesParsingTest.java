@@ -75,7 +75,7 @@ public class IntRangeRulesParsingTest {
 
     @Test
     public void testMaxInt1() {
-        assertEquals("rule1", invoke("testMaxInt1", true, 9223372036854775701l));
+        assertEquals("rule1", invoke("testMaxInt1", true, 9223372036854775701L));
     }
 
     @Test

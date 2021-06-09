@@ -20,6 +20,7 @@ import org.openl.rules.ruleservice.storelogdata.CollectOperationResourceInfoInte
 import org.openl.rules.ruleservice.storelogdata.CollectPublisherTypeInterceptor;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataFeature;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -35,8 +36,7 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
     private final Logger log = LoggerFactory.getLogger(JAXWSRuleServicePublisher.class);
 
-    private Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
-    private boolean storeLogDataEnabled = false;
+    private final Map<OpenLService, ServiceServer> runningServices = new HashMap<>();
 
     @Autowired
     private ObjectFactory<JAXWSOpenLServiceEnhancer> serviceEnhancerObjectFactory;
@@ -48,12 +48,15 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     @Autowired
     private ObjectFactory<StoreLogDataFeature> storeLoggingFeatureObjectFactory;
 
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
+    @Autowired
+    private StoreLogDataManager storeLogDataManager;
+
+    public StoreLogDataManager getStoreLogDataManager() {
+        return storeLogDataManager;
     }
 
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
+    public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
+        this.storeLogDataManager = storeLogDataManager;
     }
 
     public ObjectFactory<ServerFactoryBean> getServerFactoryBeanObjectFactory() {
@@ -104,9 +107,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
                     .createServiceProxy(proxyInterface, serviceClass, service);
                 svrFactory.setServiceBean(serviceProxy);
                 svrFactory.getBus().setExtension(service.getClassLoader(), ClassLoader.class);
-                if (isStoreLogDataEnabled()) {
+                if (getStoreLogDataManager().isEnabled()) {
                     svrFactory.getFeatures().add(getStoreLoggingFeatureObjectFactory().getObject());
-
                     svrFactory.getInInterceptors()
                         .add(new CollectObjectSerializerInterceptor(getObjectSerializer(svrFactory)));
                     svrFactory.getInInterceptors().add(new CollectOpenLServiceInterceptor(service));
@@ -125,22 +127,24 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
 
                 ServiceServer serviceServer = new ServiceServer(wsServer, svrFactory.getDataBinding());
                 runningServices.put(service, serviceServer);
-                log.info("Service '{}' has been exposed with URL '{}'.", service.getName(), serviceAddress);
+                log.info("Service '{}' has been exposed with URL '{}'.", service.getDeployPath(), serviceAddress);
             } finally {
                 svrFactory.getBus().setExtension(origClassLoader, ClassLoader.class);
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'", service.getName()), t);
+            throw new RuleServiceDeployException(
+                String.format("Failed to deploy service '%s'", service.getDeployPath()),
+                t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
     @Override
-    public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot be null");
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot be null");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (service.getDeployPath().equals(deployPath)) {
                 return service;
             }
         }
@@ -153,14 +157,15 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
         ServiceServer server = runningServices.get(service);
         if (server == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service '%s'.", service.getName()));
+                String.format("There is no running service '%s'.", service.getDeployPath()));
         }
         try {
             server.getServer().destroy();
             runningServices.remove(service);
-            log.info("Service '{}' has been undeployed successfully.", service.getName());
+            log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+            throw new RuleServiceUndeployException(
+                String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
 
@@ -172,8 +177,8 @@ public class JAXWSRuleServicePublisher implements RuleServicePublisher {
     }
 
     private static class ServiceServer {
-        private Server server;
-        private DataBinding databinding;
+        private final Server server;
+        private final DataBinding databinding;
 
         public ServiceServer(Server server, DataBinding dataBinding) {
             this.server = Objects.requireNonNull(server, "server cannot be null");

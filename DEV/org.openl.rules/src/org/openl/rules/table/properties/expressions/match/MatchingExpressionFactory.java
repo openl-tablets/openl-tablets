@@ -9,7 +9,7 @@ public final class MatchingExpressionFactory {
     }
 
     public static IMatchingExpression getMatchingExpression(String operationName, String contextAttribute) {
-        IMatchingExpression matchExpression = null;
+        IMatchingExpression matchExpression;
         operationName = operationName == null ? "" : operationName;
 
         if (StringUtils.isEmpty(contextAttribute)) {

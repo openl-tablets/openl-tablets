@@ -4,6 +4,10 @@ import java.net.URL;
 
 import org.openl.types.IModuleInfo;
 
+/**
+ * @deprecated use {@link URLSourceCodeModule}
+ */
+@Deprecated
 public class ModuleFileSourceCodeModule extends URLSourceCodeModule implements IModuleInfo {
     private final String moduleName;
 

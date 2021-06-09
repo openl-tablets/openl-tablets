@@ -1,10 +1,10 @@
 package org.openl.meta.explanation;
 
+import java.util.Collection;
 import java.util.Collections;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.ValueMetaInfo;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Explanation implementation for number values.
@@ -34,7 +34,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
             return printValue();
         } else {
             String name = metaInfo == null ? null : getMetaInfo().getDisplayName(mode);
-            return name == null ? printValue() : name + "(" + printValue() + ")";
+            return name == null ? printValue() : (name + "(" + printValue() + ")");
         }
     }
 
@@ -73,7 +73,7 @@ public class SingleValueExplanation<T extends ExplanationNumberValue<T>> impleme
     }
 
     @Override
-    public Iterable<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return Collections.emptyList();
     }
 

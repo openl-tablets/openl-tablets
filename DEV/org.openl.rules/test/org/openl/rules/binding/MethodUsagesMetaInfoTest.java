@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Objects;
 
 import org.junit.Test;
-import org.openl.binding.impl.MethodUsagesSearcher.MethodUsage;
+import org.openl.binding.impl.MethodUsage;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.DecisionTable;

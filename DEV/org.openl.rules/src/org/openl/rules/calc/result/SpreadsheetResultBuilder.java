@@ -25,7 +25,7 @@ public class SpreadsheetResultBuilder implements IResultBuilder {
             spreadsheet.getColumnNamesForResultModel(),
             spreadsheet.getFieldsCoordinates());
 
-        spreadsheetResult.setDetailedPlainModel(spreadsheet.isDetailedPlainModel());
+        spreadsheetResult.setTableStructureDetails(spreadsheet.isTableStructureDetails());
 
         if (spreadsheet.isCustomSpreadsheet()) {
             spreadsheetResult

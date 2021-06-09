@@ -12,15 +12,17 @@ public class Features {
     private final boolean versions;
     private final boolean mappedFolders;
     private final boolean uniqueFileId;
+    private final boolean local;
 
     /**
      * Don't use this constructor directly. Use {@link FeaturesBuilder} instead.
      */
-    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId) {
+    Features(Repository repository, boolean versions, boolean mappedFolders, boolean uniqueFileId, boolean local) {
         this.repository = repository;
         this.versions = versions;
         this.mappedFolders = mappedFolders;
         this.uniqueFileId = uniqueFileId;
+        this.local = local;
     }
 
     /**
@@ -58,5 +60,12 @@ public class Features {
      */
     public boolean uniqueFileId() {
         return uniqueFileId;
+    }
+
+    /**
+     * If true, repository located in local file system and doesn't support "/deploy" as base path
+     */
+    public boolean isLocal() {
+        return local;
     }
 }

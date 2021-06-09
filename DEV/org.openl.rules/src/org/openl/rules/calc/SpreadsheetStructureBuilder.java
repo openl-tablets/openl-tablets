@@ -4,13 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Stack;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.binding.impl.component.ComponentOpenClass;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.meta.DoubleValue;
 import org.openl.meta.IMetaHolder;
 import org.openl.meta.IMetaInfo;
@@ -31,8 +31,6 @@ import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodSignature;
@@ -43,6 +41,7 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.MessageUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 
@@ -50,13 +49,13 @@ public class SpreadsheetStructureBuilder {
 
     public static final String DOLLAR_SIGN = "$";
 
-    private SpreadsheetComponentsBuilder componentsBuilder;
+    private final SpreadsheetComponentsBuilder componentsBuilder;
 
     private IBindingContext spreadsheetBindingContext;
 
-    private IOpenMethodHeader spreadsheetHeader;
+    private final IOpenMethodHeader spreadsheetHeader;
 
-    private SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
+    private final SpreadsheetStructureBuilderHolder spreadsheetStructureBuilderHolder = new SpreadsheetStructureBuilderHolder(
         this);
 
     public SpreadsheetStructureBuilderHolder getSpreadsheetStructureBuilderHolder() {
@@ -69,13 +68,15 @@ public class SpreadsheetStructureBuilder {
         this.spreadsheetHeader = spreadsheetHeader;
     }
 
-    private Map<Integer, IBindingContext> rowContexts = new HashMap<>();
-    private Map<Integer, Map<Integer, IBindingContext>> colContexts = new HashMap<>();
+    private final Map<Integer, IBindingContext> rowContexts = new HashMap<>();
+    private final Map<Integer, ComponentOpenClass> colComponentOpenClasses = new HashMap<>();
+    private final Map<Integer, Map<Integer, IBindingContext>> spreadsheetResultContexts = new HashMap<>();
 
     private SpreadsheetCell[][] cells;
 
-    private List<SpreadsheetCell> processingCells = new ArrayList<>();
-    private List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+    private final List<SpreadsheetCell> extractedCellValues = new ArrayList<>();
+
+    public static final ThreadLocal<Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>>> preventCellsLoopingOnThis = new ThreadLocal<>();
 
     private volatile boolean cellsExtracted = false;
 
@@ -126,7 +127,7 @@ public class SpreadsheetStructureBuilder {
                 cells[rowIndex][columnIndex] = spreadsheetCell;
 
                 // create and add field of the cell to the spreadsheetType
-                addSpreadsheetFields(spreadsheetType, spreadsheetCell, rowIndex, columnIndex);
+                addSpreadsheetFields(spreadsheetType, rowIndex, columnIndex);
             }
         }
     }
@@ -162,16 +163,35 @@ public class SpreadsheetStructureBuilder {
             int columnIndex = cell.getColumnIndex();
 
             IBindingContext rowContext = getRowContext(rowIndex);
-            if (processingCells.contains(cell)) {
-                cell.setTypeUnknown(true);
-                throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + processingCells.toString());
-            }
+            Stack<Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>>> stack = preventCellsLoopingOnThis.get();
+            boolean f = stack == null;
             try {
-                processingCells.add(cell);
-                extractCellValue(rowContext, rowIndex, columnIndex);
-                extractedCellValues.add(cell);
+                if (f) {
+                    preventCellsLoopingOnThis.set(stack = new Stack<>());
+                }
+                Map<SpreadsheetStructureBuilder, List<SpreadsheetCell>> map;
+                if (stack.isEmpty()) {
+                    map = new HashMap<>();
+                    stack.push(map);
+                } else {
+                    map = stack.peek();
+                }
+                List<SpreadsheetCell> cellInChain = map.computeIfAbsent(this, (k) -> new ArrayList<>());
+                if (cellInChain.contains(cell)) {
+                    cell.setTypeUnknown(true);
+                    throw new SpreadsheetCellsLoopException("Spreadsheet Expression Loop: " + cellInChain.toString());
+                }
+                try {
+                    cellInChain.add(cell);
+                    extractCellValue(rowContext, rowIndex, columnIndex);
+                    extractedCellValues.add(cell);
+                } finally {
+                    cellInChain.remove(cell);
+                }
             } finally {
-                processingCells.remove(cell);
+                if (f) {
+                    preventCellsLoopingOnThis.remove();
+                }
             }
         }
         if (cell.isTypeUnknown()) {
@@ -231,7 +251,7 @@ public class SpreadsheetStructureBuilder {
             try {
                 IOpenMethod method;
                 if (header.getType() == null) {
-                    method = OpenLCellExpressionsCompiler.makeMethodWithUnknownType(openl,
+                    method = OpenLManager.makeMethodWithUnknownType(openl,
                         srcCode,
                         name,
                         signature,
@@ -239,17 +259,13 @@ public class SpreadsheetStructureBuilder {
                         columnBindingContext);
                     spreadsheetCell.setType(method.getType());
                 } else {
-                    method = OpenLCellExpressionsCompiler.makeMethod(openl, srcCode, header, columnBindingContext);
+                    method = OpenLManager.makeMethod(openl, srcCode, header, columnBindingContext);
                 }
                 spreadsheetCell.setValue(method);
-            } catch (CompositeSyntaxNodeException e) {
-                spreadsheetCell.setTypeUnknown(true);
-                componentsBuilder.getTableSyntaxNode().addError(e);
-                BindHelper.processError(e, spreadsheetBindingContext);
             } catch (Exception | LinkageError e) {
                 spreadsheetCell.setTypeUnknown(true);
-                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                addError(SyntaxNodeExceptionUtils
+                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils
                     .createError(message, e, LocationUtils.createTextInterval(source.getCode()), source));
             }
 
@@ -259,14 +275,14 @@ public class SpreadsheetStructureBuilder {
                 ConstantOpenField constOpenField = (ConstantOpenField) openField;
                 spreadsheetCell.setValue(constOpenField.getValue());
             } catch (Exception e) {
-                String message = "Cannot parse cell.";
-                addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
+                String message = "Cannot parse cell value.";
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, e, null, source));
             }
         } else {
             Class<?> instanceClass = type.getInstanceClass();
             if (instanceClass == null) {
-                String message = String.format("Type '%s' was loaded with errors", type.getName());
-                addError(SyntaxNodeExceptionUtils.createError(message, source));
+                String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, source));
             }
 
             try {
@@ -292,22 +308,16 @@ public class SpreadsheetStructureBuilder {
                 IOpenCast openCast = bindingContext.getCast(JavaOpenClass.getOpenClass(instanceClass), type);
                 spreadsheetCell.setValue(openCast.convert(result));
             } catch (Exception t) {
-                String message = String.format("Cannot parse cell value: [%s] to the necessary type", code);
-                addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
+                String message = String.format("Cannot parse cell value '%s' to the necessary type.", code);
+                spreadsheetBindingContext.addError(SyntaxNodeExceptionUtils.createError(message, t, null, source));
             }
         }
-    }
-
-    private void addError(SyntaxNodeException e) {
-        componentsBuilder.getTableSyntaxNode().addError(e);
-        spreadsheetBindingContext.addError(e);
     }
 
     /**
      * Creates a field from the spreadsheet cell and add it to the spreadsheetType
      */
     private void addSpreadsheetFields(SpreadsheetOpenClass spreadsheetType,
-            SpreadsheetCell spreadsheetCell,
             int rowIndex,
             int columnIndex) {
         SpreadsheetHeaderDefinition columnHeaders = componentsBuilder.getColumnHeaders().get(columnIndex);
@@ -332,25 +342,22 @@ public class SpreadsheetStructureBuilder {
         // create name of the field
         String fieldName = getSpreadsheetCellFieldName(columnName, rowName);
 
+        SpreadsheetCell spreadsheetCell = cells[rowIndex][columnIndex];
         // create spreadsheet cell field
-        SpreadsheetCellField field = createSpreadsheetCellField(spreadsheetType,
+        createSpreadsheetCellField(spreadsheetType,
             spreadsheetCell,
             fieldName,
             SpreadsheetCellRefType.ROW_AND_COLUMN);
-
-        // add spreadsheet cell field to its open class
-        spreadsheetType.addField(field);
 
         if (oneColumnSpreadsheet) {
             // add simplified field name
             String simplifiedFieldName = getSpreadsheetCellSimplifiedFieldName(rowName);
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
             if (field1 == null) {
-                SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
+                createSpreadsheetCellField(spreadsheetType,
                     spreadsheetCell,
                     simplifiedFieldName,
                     SpreadsheetCellRefType.SINGLE_COLUMN);
-                spreadsheetType.addField(simplifiedField);
             }
         } else if (oneRowSpreadsheet) {
             // add simplified field name
@@ -358,11 +365,10 @@ public class SpreadsheetStructureBuilder {
             IOpenField field1 = spreadsheetType.getField(simplifiedFieldName);
             if (field1 == null || field1 instanceof SpreadsheetCellField && ((SpreadsheetCellField) field1)
                 .isLastColumnRef()) {
-                SpreadsheetCellField simplifiedField = createSpreadsheetCellField(spreadsheetType,
+                createSpreadsheetCellField(spreadsheetType,
                     spreadsheetCell,
                     simplifiedFieldName,
                     SpreadsheetCellRefType.SINGLE_ROW);
-                spreadsheetType.addField(simplifiedField);
             }
         }
     }
@@ -472,11 +478,18 @@ public class SpreadsheetStructureBuilder {
     }
 
     private IBindingContext getColumnContext(int columnIndex, int rowIndex, IBindingContext rowBindingContext) {
-        Map<Integer, IBindingContext> contexts = colContexts.computeIfAbsent(columnIndex, e -> new HashMap<>());
-        return contexts.computeIfAbsent(rowIndex, e -> makeColumnContext(columnIndex, rowBindingContext));
+        Map<Integer, IBindingContext> contexts = spreadsheetResultContexts.computeIfAbsent(columnIndex,
+            e -> new HashMap<>());
+        return contexts.computeIfAbsent(rowIndex, e -> makeSpreadsheetResultContext(columnIndex, rowBindingContext));
     }
 
-    private IBindingContext makeColumnContext(int columnIndex, IBindingContext rowBindingContext) {
+    private IBindingContext makeSpreadsheetResultContext(int columnIndex, IBindingContext rowBindingContext) {
+        ComponentOpenClass columnOpenClass = colComponentOpenClasses.computeIfAbsent(columnIndex,
+            e -> makeColumnComponentOpenClass(columnIndex));
+        return new SpreadsheetContext(rowBindingContext, columnOpenClass);
+    }
+
+    private ComponentOpenClass makeColumnComponentOpenClass(int columnIndex) {
         // create name for the column open class
         String columnOpenClassName = String.format("%sColType%d", spreadsheetHeader.getName(), columnIndex);
 
@@ -494,15 +507,15 @@ public class SpreadsheetStructureBuilder {
 
             proc(rowIndex, columnOpenClass, columnIndex, headerDefinition);
         }
-        return new SpreadsheetContext(rowBindingContext, columnOpenClass);
+        return columnOpenClass;
     }
 
     private IBindingContext makeRowContext(int rowIndex) {
 
-        /** create name for the row open class */
+        /* create name for the row open class */
         String rowOpenClassName = String.format("%sRowType%d", spreadsheetHeader.getName(), rowIndex);
 
-        /** create row open class and populate it with fields **/
+        /* create row open class and populate it with fields **/
         IBindingContext generalBindingContext = componentsBuilder.getBindingContext();
         Map<Integer, SpreadsheetHeaderDefinition> headers = componentsBuilder.getColumnHeaders();
 
@@ -520,7 +533,7 @@ public class SpreadsheetStructureBuilder {
             proc(rowIndex, rowOpenClass, columnIndex, columnHeader);
         }
 
-        /** create row binding context **/
+        /* create row binding context */
         return new SpreadsheetContext(spreadsheetBindingContext, rowOpenClass);
     }
 
@@ -536,30 +549,27 @@ public class SpreadsheetStructureBuilder {
 
         SymbolicTypeDefinition typeDefinition = columnHeader.getDefinition();
         String fieldName = (DOLLAR_SIGN + typeDefinition.getName().getIdentifier()).intern();
-        SpreadsheetCellField field = createSpreadsheetCellField(rowOpenClass,
-            cell,
-            fieldName,
-            SpreadsheetCellRefType.LOCAL);
-
-        rowOpenClass.addField(field);
+        createSpreadsheetCellField(rowOpenClass, cell, fieldName, SpreadsheetCellRefType.LOCAL);
     }
 
-    private SpreadsheetCellField createSpreadsheetCellField(IOpenClass rowOpenClass,
+    private void createSpreadsheetCellField(ComponentOpenClass rowOpenClass,
             SpreadsheetCell cell,
             String fieldName,
             SpreadsheetCellRefType spreadsheetCellRefType) {
         SpreadsheetStructureBuilderHolder structureBuilderContainer = getSpreadsheetStructureBuilderHolder();
+        SpreadsheetCellField field;
         if (cell.getSpreadsheetCellType() == SpreadsheetCellType.METHOD) {
-            return new SpreadsheetCellField(structureBuilderContainer,
-                rowOpenClass,
-                fieldName,
-                cell,
-                spreadsheetCellRefType);
+            field = new SpreadsheetCellField(structureBuilderContainer,
+                    rowOpenClass,
+                    fieldName,
+                    cell,
+                    spreadsheetCellRefType);
         } else {
-            return new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
-                rowOpenClass,
-                fieldName,
-                cell);
+            field = new SpreadsheetCellField.ConstSpreadsheetCellField(structureBuilderContainer,
+                    rowOpenClass,
+                    fieldName,
+                    cell);
         }
+        rowOpenClass.addField(field);
     }
 }

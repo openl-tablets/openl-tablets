@@ -9,13 +9,12 @@
     <!-- ======================== DB Services ========================== -->
 
     <bean id="userManagementService" class="org.openl.rules.webstudio.service.UserManagementService">
-        <property name="userDao" ref="openlUserDao" />
-        <property name="groupDao" ref="groupDao" />
+        <constructor-arg name="userDao" ref="openlUserDao" />
+        <constructor-arg name="groupDao" ref="groupDao" />
     </bean>
 
-    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementServiceImpl">
-        <property name="groupDao" ref="groupDao" />
-        <property name="userDao" ref="openlUserDao" />
+    <bean id="groupManagementService" class="org.openl.rules.webstudio.service.GroupManagementService">
+        <constructor-arg name="groupDao" ref="groupDao" />
     </bean>
 
     <bean id="userSettingManagementService" class="org.openl.rules.webstudio.service.UserSettingManagementService">
@@ -23,4 +22,30 @@
         <constructor-arg name="propertyResolver" ref="environment"/>
     </bean>
 
+    <bean id="adminUsersInitializer" class="org.openl.rules.webstudio.service.AdminUsers" init-method="init"/>
+
+    <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder">
+        <constructor-arg value="${webstudio.bcrypt.strength}"/>
+    </bean>
+
+    <!-- ========================== Internal users authentication =============================== -->
+    <bean id="daoAuthenticationProvider"
+          class="org.springframework.security.authentication.dao.DaoAuthenticationProvider">
+        <property name="passwordEncoder" ref="passwordEncoder"/>
+        <property name="userDetailsService">
+            <bean class="org.openl.rules.webstudio.service.UserInfoUserDetailsServiceImpl">
+                <constructor-arg name="userDao" ref="openlUserDao"/>
+                <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                <constructor-arg name="authoritiesMapper">
+                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                        <constructor-arg name="userManagementService" ref="userManagementService"/>
+                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                        <constructor-arg name="groupsAreManagedInStudio" value="true"/>
+                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                    </bean>
+                </constructor-arg>
+            </bean>
+        </property>
+        <property name="hideUserNotFoundExceptions" value="false"/>
+    </bean>
 </beans>

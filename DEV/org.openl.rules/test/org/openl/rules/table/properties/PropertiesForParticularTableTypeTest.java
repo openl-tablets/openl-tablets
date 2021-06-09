@@ -13,7 +13,7 @@ import org.openl.rules.table.properties.inherit.InheritanceLevel;
 
 public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper {
 
-    private static String __src = "test/rules/PropertiesForParticularTableType.xls";
+    private static final String __src = "test/rules/PropertiesForParticularTableType.xls";
 
     public PropertiesForParticularTableTypeTest() {
         super(__src);
@@ -27,7 +27,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
 
-            assertEquals(6, tableProperties.getAllProperties().size());
+            assertEquals(7, tableProperties.getAllProperties().size());
 
         } else {
             fail();
@@ -43,7 +43,7 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
             assertNotNull(tableProperties);
 
             Map<String, Object> categoryProperties = tableProperties.getCategoryProperties();
-            assertTrue(categoryProperties.size() == 5);
+            assertEquals(5, categoryProperties.size());
             // check that we have all properties from category level
             assertEquals(InheritanceLevel.CATEGORY.getDisplayName(), categoryProperties.get("scope"));
             assertEquals("My Category", categoryProperties.get("category"));
@@ -53,11 +53,11 @@ public class PropertiesForParticularTableTypeTest extends BaseOpenlBuilderHelper
 
             Map<String, Object> allProperties = tableProperties.getAllProperties();
             assertEquals("AllProperties size is 10, ignore property 'scope' and including default properties",
-                9,
+                10,
                 allProperties.size());
-            assertTrue(
-                "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
-                !allProperties.containsKey("scope"));
+            assertFalse(
+                    "There is no property 'scope' applied for this table, as it cannot be defined in such table type",
+                    allProperties.containsKey("scope"));
 
         } else {
             fail();

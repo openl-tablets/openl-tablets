@@ -11,7 +11,7 @@
     <ui:param name="isDesignRepo" value="#{repoType eq 'DESIGN'}" />
 
     <h:panelGrid id="#{prependId}repoSettings" columns="2" columnClasses="titleColumn">
-        <h:outputText value="#{repository.type eq 'local' ? 'Directory' : 'URL'}:" styleClass="required" />
+        <h:outputText value="#{repository.type eq 'LOCAL' ? 'Directory' : 'URL'}:" styleClass="required" />
         <h:inputText value="#{settings.path}" id="#{prependId}uri" validator="#{validators.url}"/>
         <h:outputText value=""/>
         <h:message for="#{prependId}uri" styleClass="error"/>
@@ -24,10 +24,6 @@
         <h:inputText value="#{settings.login}" rendered="#{settings.secure}"/>
         <h:outputText value="Password:" rendered="#{settings.secure}"/>
         <h:inputSecret value="#{settings.password}" rendered="#{settings.secure}" redisplay="true"/>
-
-        <h:outputLabel value="Version in deployment name:" rendered="#{isProductionRepo}" for="#{prependId}includeVersionInDeploymentName"/>
-        <h:selectBooleanCheckbox value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo}" disabled="#{isEditing}" id="#{prependId}includeVersionInDeploymentName"/>
-        <h:inputHidden value="#{settings.includeVersionInDeploymentName}" rendered="#{isProductionRepo and isEditing}"/>
     </h:panelGrid>
 
     <h:panelGroup rendered="#{isDesignRepo}">

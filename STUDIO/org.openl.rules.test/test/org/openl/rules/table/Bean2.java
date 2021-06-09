@@ -6,6 +6,8 @@
 
 package org.openl.rules.table;
 
+import java.util.Arrays;
+
 /**
  * @author snshor
  *
@@ -52,6 +54,6 @@ public class Bean2 {
 
     @Override
     public String toString() {
-        return key + ":" + name + ":" + intvalue + ":" + (bref == null ? "n/a" : bref.key);
+        return key + ":" + name + ":" + Arrays.toString(intvalue) + ":" + (bref == null ? "n/a" : bref.key);
     }
 }

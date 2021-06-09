@@ -6,33 +6,40 @@ import static org.openl.rules.security.Privileges.EDIT_PROJECTS;
 import static org.openl.rules.security.Privileges.EDIT_TABLES;
 
 import java.io.File;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.base.INamedThing;
+import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
+import org.openl.meta.IMetaHolder;
 import org.openl.rules.dependency.graph.DependencyRulesGraph;
 import org.openl.rules.lang.xls.OverloadedMethodsDictionary;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.XlsWorkbookListener;
 import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule;
-import org.openl.rules.lang.xls.XlsWorkbookSourceCodeModule.ModificationChecker;
-import org.openl.rules.lang.xls.XlsWorkbookSourceHistoryListener;
 import org.openl.rules.lang.xls.binding.XlsMetaInfo;
 import org.openl.rules.lang.xls.load.LazyWorkbookLoaderFactory;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
@@ -40,25 +47,27 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.lang.xls.syntax.WorkbookSyntaxNode;
 import org.openl.rules.lang.xls.syntax.XlsModuleSyntaxNode;
+import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.impl.local.LocalRepository;
-import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.instantiation.ReloadType;
+import org.openl.rules.project.instantiation.RulesInstantiationException;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategy;
 import org.openl.rules.project.instantiation.RulesInstantiationStrategyFactory;
-import org.openl.rules.project.instantiation.SimpleDependencyLoader;
 import org.openl.rules.project.instantiation.SimpleMultiModuleInstantiationStrategy;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
+import org.openl.rules.project.validation.openapi.OpenApiProjectValidator;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.rules.table.CompositeGrid;
 import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuite;
@@ -68,26 +77,25 @@ import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.tree.OpenMethodsGroupTreeNodeBuilder;
 import org.openl.rules.ui.tree.ProjectTreeNode;
-import org.openl.rules.ui.tree.TreeBuilder;
 import org.openl.rules.ui.tree.TreeNodeBuilder;
+import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceDependencyManagerFactory;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
+import org.openl.rules.webstudio.web.Props;
+import org.openl.rules.webstudio.web.SearchScope;
+import org.openl.rules.webstudio.web.admin.AdministrationSettings;
 import org.openl.rules.webstudio.web.trace.node.CachingArgumentsCloner;
+import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.source.SourceHistoryManager;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.NullOpenClass;
 import org.openl.util.FileUtils;
-import org.openl.util.ISelector;
-import org.openl.util.tree.ITreeElement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -95,36 +103,38 @@ public class ProjectModel {
 
     private final Logger log = LoggerFactory.getLogger(ProjectModel.class);
 
+    private static final Comparator<TableSyntaxNode> DEFAULT_NODE_CMP = Comparator.comparing(
+        node -> Optional.ofNullable(node.getMember()).map(INamedThing::getName).orElse(null),
+        Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER));
+
     /**
      * Compiled rules with errors. Representation of wrapper.
      */
     private CompiledOpenClass compiledOpenClass;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> currentProjectXlsModuleSyntaxNodes = new HashSet<>();
+    private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
+    private long moduleLastModified;
 
     private boolean openedInSingleModuleMode;
 
-    private WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
+    private final WebStudioWorkspaceDependencyManagerFactory webStudioWorkspaceDependencyManagerFactory;
     private WebStudioWorkspaceRelatedDependencyManager webStudioWorkspaceDependencyManager;
 
-    private WebStudio studio;
+    private final WebStudio studio;
 
-    private ColorFilterHolder filterHolder = new ColorFilterHolder();
+    private final ColorFilterHolder filterHolder = new ColorFilterHolder();
 
-    private ProjectTreeNode projectRoot = null;
-
-    // TODO Fix performance
-    private Map<String, TableSyntaxNode> uriTableCache = new HashMap<>();
-    private Map<String, TableSyntaxNode> idTableCache = new HashMap<>();
+    private TreeNode projectRoot = null;
 
     private DependencyRulesGraph dependencyGraph;
+    private String historyStoragePath;
 
-    private SourceHistoryManager<File> historyManager;
-
-    private RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
+    private final RecentlyVisitedTables recentlyVisitedTables = new RecentlyVisitedTables();
     private final TestSuiteExecutor testSuiteExecutor;
 
     /**
@@ -141,29 +151,14 @@ public class ProjectModel {
         this.testSuiteExecutor = testSuiteExecutor;
     }
 
-    public RulesProject getProject() {
+    public synchronized RulesProject getProject() {
         return studio.getCurrentProject();
     }
 
-    public TableSyntaxNode findNode(String url) {
-        XlsUrlParser parsedUrl = new XlsUrlParser();
-        parsedUrl.parse(url);
-
-        if (parsedUrl.getRange() == null) {
-            return null;
-        }
+    public synchronized TableSyntaxNode findNode(String url) {
+        XlsUrlParser parsedUrl = new XlsUrlParser(url);
 
         return findNode(parsedUrl);
-    }
-
-    public String findTableUri(String partialUri) {
-        TableSyntaxNode tableSyntaxNode = findNode(partialUri);
-
-        if (tableSyntaxNode != null) {
-            return tableSyntaxNode.getUri();
-        }
-
-        return null;
     }
 
     private boolean findInCompositeGrid(CompositeGrid compositeGrid, XlsUrlParser p1) {
@@ -173,7 +168,7 @@ public class ProjectModel {
                     return true;
                 }
             } else {
-                if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
+                if (p1.intersects(gridTable.getUriParser())) {
                     return true;
                 }
             }
@@ -182,11 +177,9 @@ public class ProjectModel {
     }
 
     private TableSyntaxNode findNode(XlsUrlParser p1) {
-        // TableSyntaxNode[] nodes = getTableSyntaxNodes();
-        TableSyntaxNode[] nodes = getAllTableSyntaxNodes();
-
+        Collection<TableSyntaxNode> nodes = getAllTableSyntaxNodes();
         for (TableSyntaxNode node : nodes) {
-            if (XlsUrlUtils.intersects(p1, node.getGridTable().getUriParser())) {
+            if (p1.intersects(node.getGridTable().getUriParser())) {
                 if (XlsNodeTypes.XLS_TABLEPART.equals(node.getNodeType())) {
                     for (TableSyntaxNode tableSyntaxNode : nodes) {
                         IGridTable table = tableSyntaxNode.getGridTable();
@@ -205,84 +198,83 @@ public class ProjectModel {
         return null;
     }
 
-    // TODO Cache it
-    public int getErrorNodesNumber() {
+    public synchronized int getErrorNodesNumber() {
         int count = 0;
-        if (compiledOpenClass != null) {
-            TableSyntaxNode[] nodes = getTableSyntaxNodes();
-            for (TableSyntaxNode tsn : nodes) {
-                if (tsn.hasErrors()) {
-                    count++;
+        Collection<Pair<OpenLMessage, XlsUrlParser>> messages = getModuleMessages().stream()
+            .map(e -> Pair.of(e, e.getSourceLocation() != null ? new XlsUrlParser(e.getSourceLocation()) : null))
+            .collect(Collectors.toList());
+        for (TableSyntaxNode tsn : getTableSyntaxNodes()) {
+            for (Pair<OpenLMessage, XlsUrlParser> pair : messages) {
+                if (pair.getRight() != null && pair.getLeft().getSeverity() == Severity.ERROR) {
+                    if (pair.getRight().intersects(tsn.getUriParser())) {
+                        count++;
+                        break;
+                    }
                 }
             }
         }
         return count;
     }
 
-    public Map<String, TableSyntaxNode> getAllTableNodes() {
-        return uriTableCache;
-    }
-
-    public TableSyntaxNode getTableByUri(String uri) {
-        return uriTableCache.get(uri);
-    }
-
-    public TableSyntaxNode getNodeById(String id) {
-        return idTableCache.get(id);
-    }
-
-    public ColorFilterHolder getFilterHolder() {
-        return filterHolder;
-    }
-
-    public IOpenMethod getMethod(String tableUri) {
-        TableSyntaxNode tsn = getNode(tableUri);
-        if (tsn == null) {
-            return null;
-        }
-
-        return getMethod(tsn);
-    }
-
-    public List<IOpenMethod> getTargetMethods(String testOrRunUri) {
-        List<IOpenMethod> targetMethods = new ArrayList<>();
-        IOpenMethod testMethod = getMethod(testOrRunUri);
-
-        if (testMethod instanceof TestSuiteMethod) {
-            IOpenMethod targetMethod = ((TestSuiteMethod) testMethod).getTestedMethod();
-
-            // Overloaded methods
-            if (targetMethod instanceof OpenMethodDispatcher) {
-                List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) targetMethod).getCandidates();
-                targetMethods.addAll(overloadedMethods);
-            } else {
-                targetMethods.add(targetMethod);
+    public synchronized TableSyntaxNode getTableByUri(String uri) {
+        for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
+            if (Objects.equals(uri, tableSyntaxNode.getUri())) {
+                return tableSyntaxNode;
             }
         }
-
-        return targetMethods;
+        for (TableSyntaxNode tableSyntaxNode : getAllTableSyntaxNodes()) {
+            if (Objects.equals(uri, tableSyntaxNode.getUri())) {
+                return tableSyntaxNode;
+            }
+        }
+        return null;
     }
 
-    public List<IOpenLTable> getTargetTables(String testOrRunUri) {
-        List<IOpenLTable> targetTables = new ArrayList<>();
-        List<IOpenMethod> targetMethods = getTargetMethods(testOrRunUri);
+    public synchronized TableSyntaxNode getNodeById(String id) {
+        for (TableSyntaxNode tableSyntaxNode : getTableSyntaxNodes()) {
+            if (Objects.equals(id, tableSyntaxNode.getId())) {
+                return tableSyntaxNode;
+            }
+        }
+        for (TableSyntaxNode tableSyntaxNode : getAllTableSyntaxNodes()) {
+            if (Objects.equals(id, tableSyntaxNode.getId())) {
+                return tableSyntaxNode;
+            }
+        }
+        return null;
+    }
 
-        for (IOpenMethod targetMethod : targetMethods) {
-            if (targetMethod != null) {
-                IMemberMetaInfo methodInfo = targetMethod.getInfo();
-                if (methodInfo != null) {
-                    TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
-                    IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
-                    targetTables.add(targetTable);
+    public synchronized List<OpenLMessage> getWarnsByUri(String uri) {
+        return getMessagesByTsn(uri, Severity.WARN);
+    }
+
+    private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode, Severity severity) {
+        List<OpenLMessage> messages = new ArrayList<>();
+        for (OpenLMessage openLMessage : getModuleMessages()) {
+            if (openLMessage.getSourceLocation() != null && openLMessage.getSeverity() == severity) {
+                XlsUrlParser xlsUrlParser = new XlsUrlParser(openLMessage.getSourceLocation());
+                if (tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
+                    messages.add(openLMessage);
                 }
             }
         }
-
-        return targetTables;
+        return messages;
     }
 
-    public IOpenMethod getMethod(TableSyntaxNode tsn) {
+    private List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
+        TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
+        return getMessagesByTsn(tableSyntaxNode, severity);
+    }
 
+    public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
+        return getMessagesByTsn(uri, Severity.ERROR);
+    }
+
+    public synchronized ColorFilterHolder getFilterHolder() {
+        return filterHolder;
+    }
+
+    public synchronized IOpenMethod getMethod(String tableUri) {
         if (!isProjectCompiledSuccessfully()) {
             return null;
         }
@@ -290,12 +282,12 @@ public class ProjectModel {
         IOpenClass openClass = compiledOpenClass.getOpenClassWithErrors();
 
         for (IOpenMethod method : openClass.getMethods()) {
-            IOpenMethod resolvedMethod = null;
+            IOpenMethod resolvedMethod;
 
             if (method instanceof OpenMethodDispatcher) {
-                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tsn);
+                resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
             } else {
-                resolvedMethod = resolveMethod(method, tsn);
+                resolvedMethod = resolveMethod(method, tableUri);
             }
 
             if (resolvedMethod != null) {
@@ -306,18 +298,19 @@ public class ProjectModel {
         // for methods that exist in module but not included in
         // CompiledOpenClass
         // e.g. elder inactive versions of methods
-        if (tsn.getMember() instanceof IOpenMethod) {
+        TableSyntaxNode tsn = getNode(tableUri);
+        if (tsn != null && tsn.getMember() instanceof IOpenMethod) {
             return (IOpenMethod) tsn.getMember();
         }
 
         return null;
     }
 
-    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethodDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -327,11 +320,11 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod getMethodFromDispatcher(OpenMethodDispatcher method, String uri) {
         List<IOpenMethod> candidates = method.getCandidates();
 
         for (IOpenMethod candidate : candidates) {
-            IOpenMethod resolvedMethod = resolveMethod(candidate, syntaxNode);
+            IOpenMethod resolvedMethod = resolveMethod(candidate, uri);
 
             if (resolvedMethod != null) {
                 return resolvedMethod;
@@ -341,9 +334,9 @@ public class ProjectModel {
         return null;
     }
 
-    private IOpenMethod resolveMethod(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private IOpenMethod resolveMethod(IOpenMethod method, String uri) {
 
-        if (isInstanceOfTable(method, syntaxNode)) {
+        if (isInstanceOfTable(method, uri)) {
             return method;
         }
 
@@ -356,18 +349,17 @@ public class ProjectModel {
      * {@link OpenMethodDispatcher} <code>false</code> value will be returned.
      *
      * @param method method to check
-     * @param syntaxNode syntax node
      * @return <code>true</code> if {@link IOpenMethod} object represents the given table syntax node;
      *         <code>false</code> - otherwise
      */
-    private boolean isInstanceOfTable(IOpenMethod method, TableSyntaxNode syntaxNode) {
+    private boolean isInstanceOfTable(IOpenMethod method, String uri) {
 
         IMemberMetaInfo metaInfo = method.getInfo();
 
-        return metaInfo != null && metaInfo.getSyntaxNode() == syntaxNode;
+        return metaInfo != null && uri.equals(metaInfo.getSourceUrl());
     }
 
-    public TableSyntaxNode getNode(String tableUri) {
+    public synchronized TableSyntaxNode getNode(String tableUri) {
         TableSyntaxNode tsn = null;
         if (tableUri != null) {
             tsn = getTableByUri(tableUri);
@@ -378,23 +370,18 @@ public class ProjectModel {
         return tsn;
     }
 
-    public synchronized ITreeElement<?> getProjectTree() {
+    public synchronized TreeNode getProjectTree() {
         if (projectRoot == null) {
             buildProjectTree();
         }
         return projectRoot;
     }
 
-    public synchronized void resetProjectTree() {
-        projectRoot = null;
-    }
-
-    public IOpenLTable getTable(String tableUri) {
+    public synchronized IOpenLTable getTable(String tableUri) {
         TableSyntaxNode tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
-        updateCacheTree();
         tsn = getNode(tableUri);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -403,7 +390,7 @@ public class ProjectModel {
 
     }
 
-    public IOpenLTable getTableById(String id) {
+    public synchronized IOpenLTable getTableById(String id) {
         if (projectRoot == null) {
             buildProjectTree();
         }
@@ -411,7 +398,6 @@ public class ProjectModel {
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
         }
-        updateCacheTree();
         tsn = getNodeById(id);
         if (tsn != null) {
             return new TableSyntaxNodeAdapter(tsn);
@@ -456,7 +442,7 @@ public class ProjectModel {
                     res.add(tester);
                 }
             }
-            return res.toArray(new IOpenMethod[0]);
+            return res.toArray(IOpenMethod.EMPTY_ARRAY);
         }
         return null;
     }
@@ -476,6 +462,19 @@ public class ProjectModel {
         return getXlsModuleNode().getWorkbookSyntaxNodes();
     }
 
+    /**
+     * Get all workbooks of all modules
+     * 
+     * @return all workbooks
+     */
+    public WorkbookSyntaxNode[] getAllWorkbookNodes() {
+        if (!isProjectCompiledSuccessfully()) {
+            return null;
+        }
+
+        return workbookSyntaxNodes;
+    }
+
     public boolean isSourceModified() {
         RulesProject project = getProject();
         if (project != null && studio.isProjectFrozen(project.getName())) {
@@ -483,27 +482,15 @@ public class ProjectModel {
             return false;
         }
 
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                XlsWorkbookSourceCodeModule workbookSourceCodeModule = node.getWorkbookSourceCodeModule();
-                if (workbookSourceCodeModule.isModified()) {
-                    getLocalRepository().getProjectState(workbookSourceCodeModule.getSourceFile().getPath())
-                        .notifyModified();
-                    return true;
-                }
-            }
+        if (isModified()) {
+            getLocalRepository().getProjectState(moduleInfo.getRulesPath().toString()).notifyModified();
+            return true;
         }
         return false;
     }
 
     public void resetSourceModified() {
-        WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
-        if (workbookNodes != null) {
-            for (WorkbookSyntaxNode node : workbookNodes) {
-                node.getWorkbookSourceCodeModule().resetModified();
-            }
-        }
+        isModified();
     }
 
     public CompiledOpenClass getCompiledOpenClass() {
@@ -582,13 +569,8 @@ public class ProjectModel {
         return grid != null && grid.getGrid() instanceof CompositeGrid;
     }
 
-    public boolean isCurrentModuleLoadedByExtension() {
-        Module moduleInfo = getModuleInfo();
-        return moduleInfo != null && moduleInfo.getExtension() != null;
-    }
-
     public boolean isCanCreateTable() {
-        return isEditable() && isGranted(CREATE_TABLES) && !isCurrentModuleLoadedByExtension();
+        return isEditable() && isGranted(CREATE_TABLES);
     }
 
     public boolean isCanEditTable(String uri) {
@@ -603,8 +585,8 @@ public class ProjectModel {
         return compiledOpenClass != null;
     }
 
-    public boolean isTestable(TableSyntaxNode tsn) {
-        IOpenMethod m = getMethod(tsn);
+    public boolean isTestable(String uri) {
+        IOpenMethod m = getMethod(uri);
         if (m == null) {
             return false;
         }
@@ -622,8 +604,6 @@ public class ProjectModel {
         TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
 
         OverloadedMethodsDictionary methodNodesDictionary = makeMethodNodesDictionary(tableSyntaxNodes);
-
-        TreeBuilder<Object> treeBuilder = new TreeBuilder<>();
 
         TreeNodeBuilder<Object>[] treeSorters = studio.getTreeView().getBuilders();
 
@@ -643,19 +623,166 @@ public class ProjectModel {
             }
         }
 
-        for (int i = 0; i < tableSyntaxNodes.length; i++) {
-            treeBuilder.addToNode(root, tableSyntaxNodes[i], treeSorters);
+        for (TableSyntaxNode tableSyntaxNode : tableSyntaxNodes) {
+            ProjectTreeNode element = root;
+            for (TreeNodeBuilder treeSorter : treeSorters) {
+                element = addToNode(element, tableSyntaxNode, treeSorter);
+            }
         }
-
-        projectRoot = root;
-        uriTableCache.clear();
-        idTableCache.clear();
-        cacheTree(projectRoot);
-
         dependencyGraph = null;
 
-        historyManager = null;
+        projectRoot = build(root);
+
         initProjectHistory();
+    }
+
+    /**
+     * Adds new object to target tree node.
+     *
+     * The algorithm of adding new object to tree is following: the new object is passed to each tree node builder using
+     * order in which they are appear in builders array. Tree node builder makes appropriate tree node or nothing if it
+     * is not necessary (e.g. builder that makes folder nodes). The new node is added to tree.
+     *
+     * @param targetNode target node to which will be added new object
+     * @param object object to add
+     */
+    private ProjectTreeNode addToNode(ProjectTreeNode targetNode, Object object, TreeNodeBuilder treeNodeBuilder) {
+
+        // Create key for adding object. It used to check that the same node
+        // exists.
+        //
+        Comparable<?> key = treeNodeBuilder.makeKey(object);
+
+        ProjectTreeNode element = null;
+
+        // If key is null the rest of building node process should be skipped.
+        //
+        if (treeNodeBuilder.isBuilderApplicableForObject(object) && key != null) {
+
+            // Try to find child node with the same object.
+            //
+            element = targetNode.getChild(key);
+
+            // If element is null the node with same object is absent.
+            //
+            if (element == null) {
+
+                // Build new node for the object.
+                //
+                element = treeNodeBuilder.makeNode(object, 0);
+
+                // If element is null then builder has not created the new
+                // element
+                // and this builder should be skipped.
+                // author: Alexey Gamanovich
+                //
+                if (element != null) {
+                    targetNode.addChild(key, element);
+                } else {
+                    element = targetNode;
+                }
+            }
+
+            // ///////
+            // ???????????????????
+            // //////
+            else if (treeNodeBuilder.isUnique(object)) {
+
+                for (int i = 2; i < 100; ++i) {
+
+                    Comparable<?> key2 = treeNodeBuilder.makeKey(object, i);
+                    element = targetNode.getChild(key2);
+
+                    if (element == null) {
+
+                        element = treeNodeBuilder.makeNode(object, i);
+
+                        // If element is null then sorter has not created the
+                        // new
+                        // element and this sorter should be skipped.
+                        // author: Alexey Gamanovich
+                        //
+                        if (element != null) {
+                            targetNode.addChild(key2, element);
+                        } else {
+                            element = targetNode;
+                        }
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        // If node is null skip the current builder: set the targetNode to
+        // current element.
+        //
+        if (element == null) {
+            element = targetNode;
+        }
+
+        return element;
+    }
+
+    private TreeNode build(ProjectTreeNode root) {
+        TreeNode node = createNode(root);
+        Iterable<ProjectTreeNode> children = root.getChildren();
+        int errors = 0;
+        for (ProjectTreeNode child : children) {
+            TreeNode rfChild = build(child);
+            if (IProjectTypes.PT_WORKSHEET.equals(rfChild.getType()) || IProjectTypes.PT_WORKBOOK
+                .equals(rfChild.getType())) {
+                // skip workbook or worksheet node if it has no children nodes
+                if (!rfChild.getChildrenKeysIterator().hasNext()) {
+                    continue;
+                }
+            }
+            errors += rfChild.getNumErrors();
+            node.addChild(rfChild, rfChild);
+        }
+        node.setNumErrors(node.getNumErrors() + errors);
+        return node;
+    }
+
+    private TreeNode createNode(ProjectTreeNode element) {
+
+        boolean leaf = element.getChildren().isEmpty();
+        String name = element.getDisplayName(INamedThing.SHORT);
+        String title = element.getDisplayName(INamedThing.REGULAR);
+
+        String type = element.getType();
+        String url = null;
+        int state = 0;
+        int numErrors = 0;
+        boolean active = true;
+
+        if (type.startsWith(IProjectTypes.PT_TABLE + ".")) {
+            TableSyntaxNode tsn = element.getTableSyntaxNode();
+            url = WebStudioUtils.getWebStudio().url("table?" + Constants.REQUEST_PARAM_ID + "=" + tsn.getId());
+            if (WebStudioUtils.getProjectModel().isTestable(element.getTableSyntaxNode().getUri())) {
+                state = 2; // has tests
+            }
+
+            String uri = tsn.getUri();
+            numErrors = getErrorsByUri(uri).size();
+            ITableProperties tableProperties = tsn.getTableProperties();
+            if (tableProperties != null) {
+                Boolean act = tableProperties.getActive();
+                if (act != null) {
+                    active = act;
+                }
+            }
+        }
+        TreeNode node = new TreeNode(leaf);
+        node.setName(name);
+        node.setTitle(title);
+        node.setType(type);
+        node.setUrl(url);
+        node.setState(state);
+        node.setNumErrors(numErrors);
+        node.setActive(active);
+
+        return node;
     }
 
     private void initProjectHistory() {
@@ -668,47 +795,55 @@ public class ProjectModel {
 
                 Collection<XlsWorkbookListener> listeners = sourceCodeModule.getListeners();
                 for (XlsWorkbookListener listener : listeners) {
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         return;
                     }
                 }
 
-                XlsWorkbookListener historyListener = new XlsWorkbookSourceHistoryListener(getHistoryManager());
-                sourceCodeModule.addListener(historyListener);
-                sourceCodeModule.addListener(new XlsModificationListener(repository));
+                sourceCodeModule.addListener(new XlsModificationListener(repository, getHistoryStoragePath()));
             }
         }
     }
 
     private LocalRepository getLocalRepository() {
         UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
-        return userWorkspace.getLocalWorkspace().getRepository();
+        return userWorkspace.getLocalWorkspace().getRepository(studio.getCurrentRepositoryId());
     }
 
-    public TableSyntaxNode[] getTableSyntaxNodes() {
+    public synchronized TableSyntaxNode[] getTableSyntaxNodes() {
         if (isProjectCompiledSuccessfully()) {
             XlsModuleSyntaxNode moduleSyntaxNode = getXlsModuleNode();
             return moduleSyntaxNode.getXlsTableSyntaxNodes();
         }
 
-        return new TableSyntaxNode[0];
+        return TableSyntaxNode.EMPTY_ARRAY;
     }
 
-    public TableSyntaxNode[] getAllTableSyntaxNodes() {
-        List<TableSyntaxNode> nodes = new ArrayList<>();
-
+    public synchronized List<TableSyntaxNode> getAllTableSyntaxNodes() {
+        List<TableSyntaxNode> tableSyntaxNodes = new ArrayList<>();
         if (isProjectCompiledSuccessfully()) {
             for (XlsModuleSyntaxNode node : allXlsModuleSyntaxNodes) {
                 if (node != null) {
-                    nodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
+                    tableSyntaxNodes.addAll(Arrays.asList(node.getXlsTableSyntaxNodes()));
                 }
             }
         }
-
-        return nodes.toArray(new TableSyntaxNode[0]);
+        return tableSyntaxNodes;
     }
 
-    public int getNumberOfTables() {
+    private synchronized List<TableSyntaxNode> getCurrentProjectTableSyntaxNodes() {
+        if (isProjectCompiledSuccessfully()) {
+            return currentProjectXlsModuleSyntaxNodes.stream()
+                .filter(Objects::nonNull)
+                .map(XlsModuleSyntaxNode::getXlsTableSyntaxNodes)
+                .map(Arrays::asList)
+                .flatMap(Collection::stream)
+                .collect(Collectors.toList());
+        }
+        return Collections.emptyList();
+    }
+
+    public synchronized int getNumberOfTables() {
         int count = 0;
         TableSyntaxNode[] tables = getTableSyntaxNodes();
 
@@ -718,34 +853,6 @@ public class ProjectModel {
             }
         }
         return count;
-    }
-
-    private void cacheTree(ProjectTreeNode treeNode) {
-        Iterable<? extends ITreeElement<Object>> children = treeNode.getChildren();
-        for (ITreeElement<Object> item : children) {
-            // TODO: Remove class casting
-            ProjectTreeNode child = (ProjectTreeNode) item;
-            if (child.getType().startsWith(IProjectTypes.PT_TABLE + ".")) {
-                TableSyntaxNode tsn = child.getTableSyntaxNode();
-                uriTableCache.put(child.getUri(), tsn);
-                idTableCache.put(tsn.getId(), tsn);
-            }
-            cacheTree(child);
-        }
-    }
-
-    private void updateCacheTree() {
-        TableSyntaxNode[] tableSyntaxNodes = getTableSyntaxNodes();
-        for (TableSyntaxNode tsn : tableSyntaxNodes) {
-            if (tsn.getType().startsWith(XlsNodeTypes.XLS_DT.toString())) {
-                if (!uriTableCache.containsKey(tsn.getUri())) {
-                    uriTableCache.put(tsn.getUri(), tsn);
-                }
-                if (!idTableCache.containsKey(tsn.getId())) {
-                    idTableCache.put(tsn.getId(), tsn);
-                }
-            }
-        }
     }
 
     private OverloadedMethodsDictionary makeMethodNodesDictionary(TableSyntaxNode[] tableSyntaxNodes) {
@@ -764,7 +871,7 @@ public class ProjectModel {
     }
 
     private ProjectTreeNode makeProjectTreeRoot() {
-        return new ProjectTreeNode(new String[] { null, null, null }, "root", null, null, 0, null);
+        return new ProjectTreeNode(new String[] { null, null, null }, "root", null);
     }
 
     private List<TableSyntaxNode> getAllExecutableTables(TableSyntaxNode[] nodes) {
@@ -777,7 +884,7 @@ public class ProjectModel {
         return executableNodes;
     }
 
-    public void redraw() {
+    public synchronized void redraw() {
         projectRoot = null;
     }
 
@@ -785,7 +892,7 @@ public class ProjectModel {
         reset(reloadType, moduleInfo);
     }
 
-    public void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
+    public synchronized void reset(ReloadType reloadType, Module moduleToOpen) throws Exception {
         switch (reloadType) {
             case FORCED:
                 moduleToOpen = studio.getCurrentModule();
@@ -806,8 +913,9 @@ public class ProjectModel {
         projectRoot = null;
     }
 
-    public TestUnitsResults runTest(TestSuite test) {
-        boolean isParallel = Boolean.parseBoolean(PropertyResolverProvider.getProperty("test.run.parallel"));
+    public synchronized TestUnitsResults runTest(TestSuite test) {
+        Integer threads = Props.integer(AdministrationSettings.TEST_RUN_THREAD_COUNT_PROPERTY);
+        boolean isParallel = threads != null && threads > 1;
         return runTest(test, isParallel);
     }
 
@@ -826,28 +934,40 @@ public class ProjectModel {
         }
     }
 
-    public List<IOpenLTable> search(ISelector<TableSyntaxNode> selectors) {
-        XlsModuleSyntaxNode xsn = getXlsModuleNode();
-        List<IOpenLTable> searchResults = new ArrayList<>();
+    public synchronized List<IOpenLTable> search(Predicate<TableSyntaxNode> selectors, SearchScope searchScope) {
+        return getSearchScopeData(searchScope).stream()
+            .filter(tableSyntaxNode -> !XlsNodeTypes.XLS_TABLEPART.toString().equals(tableSyntaxNode.getType()))
+            .filter(selectors)
+            .map(TableSyntaxNodeAdapter::new)
+            .collect(Collectors.toList());
+    }
 
-        TableSyntaxNode[] tables = xsn.getXlsTableSyntaxNodes();
-        for (TableSyntaxNode table : tables) {
-            if (!XlsNodeTypes.XLS_TABLEPART.toString().equals(table.getType()) // Exclude
-                    // TablePart
-                    // tables
-                    && selectors.select(table)) {
-                searchResults.add(new TableSyntaxNodeAdapter(table));
-            }
+    private Collection<TableSyntaxNode> getSearchScopeData(SearchScope searchScope) {
+        if (searchScope == SearchScope.ALL_WITH_EXTRA_PROJECTS) {
+            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_PROJECT);
+            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
+            final Predicate<TableSyntaxNode> contains = unique::contains;
+            getAllTableSyntaxNodes().stream().filter(contains.negate()).sorted(DEFAULT_NODE_CMP).forEach(nodes::add);
+            return nodes;
+        } else if (searchScope == SearchScope.CURRENT_PROJECT) {
+            Collection<TableSyntaxNode> nodes = getSearchScopeData(SearchScope.CURRENT_MODULE);
+            Set<TableSyntaxNode> unique = new HashSet<>(nodes);
+            final Predicate<TableSyntaxNode> contains = unique::contains;
+            getCurrentProjectTableSyntaxNodes().stream()
+                .filter(contains.negate())
+                .sorted(DEFAULT_NODE_CMP)
+                .forEach(nodes::add);
+            return nodes;
+        } else if (searchScope == SearchScope.CURRENT_MODULE) {
+            List<TableSyntaxNode> nodes = new ArrayList<>(Arrays.asList(getXlsModuleNode().getXlsTableSyntaxNodes()));
+            nodes.sort(DEFAULT_NODE_CMP);
+            return nodes;
+        } else {
+            throw new UnsupportedOperationException();
         }
-
-        return searchResults;
     }
 
-    public void setProjectTree(ProjectTreeNode projectRoot) {
-        this.projectRoot = projectRoot;
-    }
-
-    public void clearModuleInfo() {
+    public synchronized void clearModuleInfo() {
         this.moduleInfo = null;
 
         clearModuleResources(); // prevent memory leak
@@ -861,7 +981,9 @@ public class ProjectModel {
         webStudioWorkspaceDependencyManager = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        currentProjectXlsModuleSyntaxNodes.clear();
         projectRoot = null;
+        workbookSyntaxNodes = null;
     }
 
     private void resetWebStudioWorkspaceDependencyManagerForSingleMode(Module moduleInfo, Module previousModuleInfo) {
@@ -884,6 +1006,27 @@ public class ProjectModel {
         setModuleInfo(moduleInfo, reloadType, shouldOpenInSingleMode(moduleInfo));
     }
 
+    private void collectSyntaxNodes() {
+        String projectName = Optional.ofNullable(studio.getCurrentProject()).map(AProjectFolder::getName).orElse(null);
+        webStudioWorkspaceDependencyManager.getDependencyLoaders()
+            .values()
+            .stream()
+            .flatMap(Collection::stream)
+            .forEach(dependencyLoader -> Optional.ofNullable(dependencyLoader.getRefToCompiledDependency())
+                .map(CompiledDependency::getCompiledOpenClass)
+                .map(CompiledOpenClass::getOpenClassWithErrors)
+                .map(IMetaHolder::getMetaInfo)
+                .filter(XlsMetaInfo.class::isInstance)
+                .map(XlsMetaInfo.class::cast)
+                .map(XlsMetaInfo::getXlsModuleNode)
+                .ifPresent(xlsModuleSyntaxNode -> {
+                    if (dependencyLoader.getProject().getName().equals(projectName)) {
+                        currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                    }
+                    allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+                }));
+    }
+
     public synchronized void setModuleInfo(Module moduleInfo,
             ReloadType reloadType,
             boolean singleModuleMode) throws Exception {
@@ -893,12 +1036,7 @@ public class ProjectModel {
 
         Module previousModuleInfo = this.moduleInfo;
 
-        if (reloadType != ReloadType.NO) {
-            uriTableCache.clear();
-            idTableCache.clear();
-        }
-
-        File projectFolder = moduleInfo.getProject().getProjectFolder();
+        File projectFolder = moduleInfo.getProject().getProjectFolder().toFile();
         if (reloadType == ReloadType.FORCED) {
             ProjectResolver projectResolver = studio.getProjectResolver();
             ProjectDescriptor projectDescriptor = projectResolver.resolve(projectFolder);
@@ -914,6 +1052,7 @@ public class ProjectModel {
             this.moduleInfo = moduleInfo;
         }
 
+        isModified();
         clearModuleResources(); // prevent memory leak
         if (openedInSingleModuleMode) {
             OpenClassUtil.release(compiledOpenClass);
@@ -922,6 +1061,8 @@ public class ProjectModel {
         projectRoot = null;
         xlsModuleSyntaxNode = null;
         allXlsModuleSyntaxNodes.clear();
+        currentProjectXlsModuleSyntaxNodes.clear();
+        workbookSyntaxNodes = null;
 
         prepareWebstudioWorkspaceDependencyManager(singleModuleMode, previousModuleInfo);
 
@@ -940,11 +1081,10 @@ public class ProjectModel {
                 false);
 
             externalParameters = ProjectExternalDependenciesHelper
-                .getExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
+                .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
 
         }
         instantiationStrategy.setExternalParameters(externalParameters);
-        instantiationStrategy.setServiceClass(SimpleDependencyLoader.EmptyInterface.class);
 
         // If autoCompile is false we cannot unload workbook during editing because we must show to a user latest edited
         // data (not parsed and compiled data).
@@ -955,40 +1095,36 @@ public class ProjectModel {
             WorkbookLoaders.setCurrentFactory(factory);
 
             // Find all dependent XlsModuleSyntaxNode-s
-            final String moduleName = moduleInfo.getName();
-
             compiledOpenClass = instantiationStrategy.compile();
-            Collection<IDependencyLoader> dependencyLoaders = webStudioWorkspaceDependencyManager.getDependencyLoaders()
-                .get(moduleName);
-            IDependencyLoader dependencyLoader = null;
-            for (IDependencyLoader dl : dependencyLoaders) {
-                if (Objects.equals(dl.getProject().getName(), moduleInfo.getProject().getName())) {
-                    dependencyLoader = dl;
-                }
-            }
-            if (dependencyLoader == null) {
-                throw new IllegalStateException(String.format("Module '%s' is not found!", moduleName));
-            }
-            XlsMetaInfo metaInfo = (XlsMetaInfo) dependencyLoader.getCompiledDependency()
-                .getCompiledOpenClass()
-                .getOpenClassWithErrors()
-                .getMetaInfo();
 
-            if (metaInfo != null) {
-                allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+            if (!singleModuleMode) {
+                compiledOpenClass = validate(instantiationStrategy);
             }
+
+            collectSyntaxNodes();
 
             xlsModuleSyntaxNode = findXlsModuleSyntaxNode(webStudioWorkspaceDependencyManager);
+
             allXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
+            currentProjectXlsModuleSyntaxNodes.add(xlsModuleSyntaxNode);
             if (!isSingleModuleMode()) {
+                List<WorkbookSyntaxNode> workbookSyntaxNodes = new ArrayList<>();
+                for (XlsModuleSyntaxNode xlsSyntaxNode : allXlsModuleSyntaxNodes) {
+                    if (!(xlsSyntaxNode.getModule() instanceof VirtualSourceCodeModule)) {
+                        workbookSyntaxNodes.addAll(Arrays.asList(xlsSyntaxNode.getWorkbookSyntaxNodes()));
+                    }
+                }
+                this.workbookSyntaxNodes = workbookSyntaxNodes.toArray(new WorkbookSyntaxNode[0]);
                 // EPBDS-7629: In multimodule mode xlsModuleSyntaxNode does not contain Virtual Module with dispatcher
                 // table syntax nodes.
                 // Such dispatcher syntax nodes are needed to show dispatcher tables in Trace.
                 // That's why we should add virtual module to allXlsModuleSyntaxNodes.
                 XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
                 allXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+                currentProjectXlsModuleSyntaxNodes.add(xmi.getXlsModuleNode());
+            } else {
+                workbookSyntaxNodes = xlsModuleSyntaxNode.getWorkbookSyntaxNodes();
             }
-
             WorkbookLoaders.resetCurrentFactory();
         } catch (Throwable t) {
             log.error("Failed to load.", t);
@@ -998,14 +1134,25 @@ public class ProjectModel {
                 messages.add(new OpenLMessage(message, Severity.ERROR));
             }
 
-            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the,
-                messages,
-                new SyntaxNodeException[0],
-                new SyntaxNodeException[0]);
+            compiledOpenClass = new CompiledOpenClass(NullOpenClass.the, messages);
 
             WorkbookLoaders.resetCurrentFactory();
         }
+    }
 
+    private boolean isModified() {
+        if (moduleInfo == null) {
+            return false;
+        }
+        long modificationTime = moduleLastModified;
+        moduleLastModified = moduleInfo.getRulesPath().toFile().lastModified();
+        return modificationTime != moduleLastModified;
+    }
+
+    private CompiledOpenClass validate(
+            RulesInstantiationStrategy rulesInstantiationStrategy) throws RulesInstantiationException {
+        OpenApiProjectValidator openApiProjectValidator = new OpenApiProjectValidator();
+        return openApiProjectValidator.validate(moduleInfo.getProject(), rulesInstantiationStrategy);
     }
 
     private void prepareWebstudioWorkspaceDependencyManager(boolean singleModuleMode, Module previousModuleInfo) {
@@ -1041,7 +1188,7 @@ public class ProjectModel {
         }
     }
 
-    public void traceElement(TestSuite testSuite) {
+    public synchronized void traceElement(TestSuite testSuite) {
         ClassLoader currentContextClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(compiledOpenClass.getClassLoader());
@@ -1053,22 +1200,22 @@ public class ProjectModel {
         }
     }
 
-    public TableEditorModel getTableEditorModel(String tableUri) {
+    public synchronized TableEditorModel getTableEditorModel(String tableUri) {
         IOpenLTable table = getTable(tableUri);
         return getTableEditorModel(table);
     }
 
-    public TableEditorModel getTableEditorModel(IOpenLTable table) {
+    public synchronized TableEditorModel getTableEditorModel(IOpenLTable table) {
         String tableView = studio.getTableView();
         return new TableEditorModel(table, tableView, false);
     }
 
-    public boolean isProjectCompiledSuccessfully() {
+    public synchronized boolean isProjectCompiledSuccessfully() {
         return compiledOpenClass != null && compiledOpenClass.getOpenClassWithErrors() != null && !(compiledOpenClass
             .getOpenClassWithErrors() instanceof NullOpenClass) && xlsModuleSyntaxNode != null;
     }
 
-    public DependencyRulesGraph getDependencyGraph() {
+    public synchronized DependencyRulesGraph getDependencyGraph() {
         if (dependencyGraph == null) {
             Collection<IOpenMethod> rulesMethods = compiledOpenClass.getOpenClassWithErrors().getMethods();
             dependencyGraph = DependencyRulesGraph.filterAndCreateGraph(rulesMethods);
@@ -1076,7 +1223,7 @@ public class ProjectModel {
         return dependencyGraph;
     }
 
-    public List<File> getSources() {
+    public synchronized List<File> getSources() {
         List<File> sourceFiles = new ArrayList<>();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
@@ -1093,7 +1240,7 @@ public class ProjectModel {
         return sourceFiles;
     }
 
-    public String[] getModuleSourceNames() {
+    public synchronized String[] getModuleSourceNames() {
         List<File> moduleSources = getSources();
         String[] moduleSourceNames = new String[moduleSources.size()];
         int i = 0;
@@ -1104,7 +1251,7 @@ public class ProjectModel {
         return moduleSourceNames;
     }
 
-    public File getSourceByName(String fileName) {
+    public synchronized File getSourceByName(String fileName) {
         List<File> sourceFiles = getSources();
 
         for (File file : sourceFiles) {
@@ -1116,52 +1263,22 @@ public class ProjectModel {
         return null;
     }
 
-    public SourceHistoryManager<File> getHistoryManager() {
-        if (historyManager == null) {
-            String projectHistoryHome = PropertyResolverProvider.getProperty("project.history.home");
-            String projectHistoryCount = PropertyResolverProvider.getProperty("project.history.count");
-            Integer maxFilesInStorage = Integer.valueOf(Objects.requireNonNull(projectHistoryCount));
-            boolean unlimitedStorage = Boolean
-                .parseBoolean(PropertyResolverProvider.getProperty("project.history.unlimited"));
-            String storagePath = projectHistoryHome + File.separator + getProject().getName();
-            historyManager = new FileBasedProjectHistoryManager(this, storagePath, maxFilesInStorage, unlimitedStorage);
+    public synchronized String getHistoryStoragePath() {
+        if (historyStoragePath == null) {
+            File location = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession())
+                .getLocalWorkspace()
+                .getLocation();
+            return Paths.get(location.getPath(), getProject().getName(), ".history", getModuleInfo().getName())
+                .toString();
         }
-        return historyManager;
+        return historyStoragePath;
     }
 
-    public RecentlyVisitedTables getRecentlyVisitedTables() {
+    public synchronized RecentlyVisitedTables getRecentlyVisitedTables() {
         return recentlyVisitedTables;
     }
 
-    public void openWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                module.setModificationChecker(new EditXlsModificationChecker(module));
-                break;
-            }
-        }
-
-    }
-
-    public void afterOpenWorkbookForEdit(String workBookName) {
-        for (WorkbookSyntaxNode workbookSyntaxNode : getWorkbookNodes()) {
-            XlsWorkbookSourceCodeModule module = workbookSyntaxNode.getWorkbookSourceCodeModule();
-            if (module.getSourceFile().getName().equals(workBookName)) {
-                ModificationChecker checker = module.getModificationChecker();
-
-                if (checker instanceof EditXlsModificationChecker) {
-                    ((EditXlsModificationChecker) checker).afterXlsOpened();
-                }
-
-                break;
-            }
-        }
-
-    }
-
-    public XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
+    public synchronized XlsWorkbookSourceCodeModule getCurrentModuleWorkbook() {
         PathEntry rulesRootPath = studio.getCurrentModule().getRulesRootPath();
 
         WorkbookSyntaxNode[] workbookNodes = getWorkbookNodes();
@@ -1180,20 +1297,20 @@ public class ProjectModel {
         return null;
     }
 
-    public boolean isSingleModuleMode() {
+    public synchronized boolean isSingleModuleMode() {
         if (!isProjectCompiledSuccessfully()) {
             return shouldOpenInSingleMode(moduleInfo);
         }
         return !isVirtualWorkbook();
     }
 
-    public void useSingleModuleMode() throws Exception {
+    public synchronized void useSingleModuleMode() throws Exception {
         if (studio.isChangeableModuleMode()) {
             setModuleInfo(moduleInfo, ReloadType.SINGLE, true);
         }
     }
 
-    public void useMultiModuleMode() throws Exception {
+    public synchronized void useMultiModuleMode() throws Exception {
         if (studio.isChangeableModuleMode()) {
             setModuleInfo(moduleInfo, ReloadType.SINGLE, false);
         }
@@ -1204,55 +1321,9 @@ public class ProjectModel {
      *
      * Otherwise return false
      */
-    public boolean isConfirmOverwriteNewerRevision() {
+    public synchronized boolean isConfirmOverwriteNewerRevision() {
         RulesProject project = getProject();
         return project != null && project.isOpenedOtherVersion() && !project.isModified();
-    }
-
-    private static class EditXlsModificationChecker implements ModificationChecker {
-        private final XlsWorkbookSourceCodeModule module;
-        private final File sourceFile;
-
-        private final long beforeOpenFileSize;
-        private final long beforeOpenModifiedTime;
-        private long afterOpenModifiedTime;
-
-        private boolean initializing = true;
-
-        public EditXlsModificationChecker(XlsWorkbookSourceCodeModule module) {
-            this.module = module;
-            this.sourceFile = module.getSourceFile();
-            this.beforeOpenFileSize = sourceFile.length();
-            this.beforeOpenModifiedTime = sourceFile.lastModified();
-        }
-
-        public void afterXlsOpened() {
-            if (module.DEFAULT_MODIDFICATION_CHECKER.isModified() && sourceFile.length() == beforeOpenFileSize) {
-                // workaround for xls
-                afterOpenModifiedTime = sourceFile.lastModified();
-                initializing = false;
-            } else {
-                // not xls or file is changed. There is no need for a workaround
-                module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            }
-        }
-
-        @Override
-        public boolean isModified() {
-            if (initializing) {
-                // assume that during opening file for edit it is not changed
-                return false;
-            }
-
-            if (sourceFile.lastModified() == afterOpenModifiedTime && sourceFile.length() == beforeOpenFileSize) {
-                return false;
-            }
-
-            // file is modified or closed (modification time is reverted to
-            // original state)
-            module.setModificationChecker(module.DEFAULT_MODIDFICATION_CHECKER);
-            return !(sourceFile.lastModified() == beforeOpenModifiedTime && sourceFile.length() == beforeOpenFileSize);
-        }
     }
 
     public void destroy() {
@@ -1275,7 +1346,7 @@ public class ProjectModel {
                 Iterator<XlsWorkbookListener> iterator = sourceCodeModule.getListeners().iterator();
                 while (iterator.hasNext()) {
                     XlsWorkbookListener listener = iterator.next();
-                    if (listener instanceof XlsWorkbookSourceHistoryListener) {
+                    if (listener instanceof XlsModificationListener) {
                         iterator.remove();
                         break;
                     }
@@ -1284,9 +1355,8 @@ public class ProjectModel {
         }
     }
 
-    public IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
-        TableSyntaxNode tsn = getNode(uri);
-        return getMethodFromDispatcher((OpenMethodDispatcher) method, tsn);
+    public synchronized IOpenMethod getCurrentDispatcherMethod(IOpenMethod method, String uri) {
+        return getMethodFromDispatcher((OpenMethodDispatcher) method, uri);
     }
 
     private boolean isVirtualWorkbook() {
@@ -1311,22 +1381,39 @@ public class ProjectModel {
         return studio.isSingleModuleModeByDefault();
     }
 
-    private static class XlsModificationListener implements XlsWorkbookListener {
+    public synchronized String getMessageNodeId(OpenLMessage message) {
+        XlsUrlParser xlsUrlParser = message.getSourceLocation() != null ? new XlsUrlParser(message.getSourceLocation())
+                                                                        : null;
+        for (TableSyntaxNode tsn : getAllTableSyntaxNodes()) { // for all modules
+            if (xlsUrlParser != null && xlsUrlParser.intersects(tsn.getUriParser())) {
+                return tsn.getId();
+            }
+        }
+        return null;
+    }
+
+    private class XlsModificationListener implements XlsWorkbookListener {
 
         private final LocalRepository repository;
+        private final String historyStoragePath;
 
-        private XlsModificationListener(LocalRepository repository) {
+        private XlsModificationListener(LocalRepository repository, String historyStoragePath) {
             this.repository = repository;
+            this.historyStoragePath = historyStoragePath;
         }
 
         @Override
         public void beforeSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            ProjectHistoryService.init(historyStoragePath, sourceFile);
         }
 
         @Override
         public void afterSave(XlsWorkbookSourceCodeModule workbookSourceCodeModule) {
-            repository.getProjectState(workbookSourceCodeModule.getSourceFile().getPath()).notifyModified();
+            isModified();
+            File sourceFile = workbookSourceCodeModule.getSourceFile();
+            repository.getProjectState(sourceFile.getPath()).notifyModified();
+            ProjectHistoryService.save(historyStoragePath, sourceFile);
         }
     }
 }

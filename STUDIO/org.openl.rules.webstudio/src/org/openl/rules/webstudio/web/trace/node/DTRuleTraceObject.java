@@ -7,9 +7,9 @@ import org.openl.util.CollectionUtils;
 public class DTRuleTraceObject extends ATableTracerNode {
     protected final IBaseCondition condition;
     protected boolean successful;
-    private String conditionName;
+    private final String conditionName;
     private final int[] rules;
-    private boolean indexed;
+    private final boolean indexed;
 
     DTRuleTraceObject(IBaseCondition condition, int[] rules, boolean successful, boolean indexed) {
         super("dtRule", null, null, null);

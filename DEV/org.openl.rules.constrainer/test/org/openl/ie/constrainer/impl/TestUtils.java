@@ -1,5 +1,6 @@
 package org.openl.ie.constrainer.impl;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import org.openl.ie.constrainer.EventOfInterest;
@@ -28,8 +29,8 @@ import org.openl.ie.tools.FastVector;
 
 public class TestUtils {
     public static boolean contains(int[] sub, int n) {
-        for (int i = 0; i < sub.length; ++i) {
-            if (sub[i] == n) {
+        for (int j : sub) {
+            if (j == n) {
                 return true;
             }
         }
@@ -37,9 +38,10 @@ public class TestUtils {
     }
 
     static public class Finder {
-        private int[] _array;
-        private int _start, _end;
-        private IntFindPredicate _predicate = null;
+        private final int[] _array;
+        private final int _start;
+        private final int _end;
+        private IntFindPredicate _predicate;
 
         public Finder(int[] array, int start, int end, IntFindPredicate predicate) {
             _array = array;
@@ -98,7 +100,7 @@ public class TestUtils {
     } // end of Fider
 
     static public class IntEqualsTo implements IntFindPredicate {
-        private int _value;
+        private final int _value;
 
         public IntEqualsTo(int value) {
             _value = value;
@@ -115,7 +117,7 @@ public class TestUtils {
     }
 
     static public class IntGreaterThan implements IntFindPredicate {
-        private int _value;
+        private final int _value;
 
         public IntGreaterThan(int value) {
             _value = value;
@@ -153,17 +155,13 @@ public class TestUtils {
     static public boolean contains(FastVector vec, Object obj) {
         Object[] objs = vec.data();
         HashSet set = new HashSet(objs.length + 10);
-        for (int i = 0; i < objs.length; i++) {
-            set.add(objs[i]);
-        }
+        set.addAll(Arrays.asList(objs));
         return set.contains(obj);
     }
 
     static public boolean contains(Object[] objs, Object obj) {
         HashSet set = new HashSet(objs.length + 10);
-        for (int i = 0; i < objs.length; i++) {
-            set.add(objs[i]);
-        }
+        set.addAll(Arrays.asList(objs));
         return set.contains(obj);
     }
 
@@ -187,9 +185,9 @@ public class TestUtils {
             throw new IllegalArgumentException();
         }
         int max = -Integer.MAX_VALUE;
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] > max) {
-                max = arr[i];
+        for (int j : arr) {
+            if (j > max) {
+                max = j;
             }
         }
         return max;
@@ -200,9 +198,9 @@ public class TestUtils {
             throw new IllegalArgumentException();
         }
         int min = Integer.MAX_VALUE;
-        for (int i = 0; i < arr.length; i++) {
-            if (arr[i] < min) {
-                min = arr[i];
+        for (int j : arr) {
+            if (j < min) {
+                min = j;
             }
         }
         return min;
@@ -210,9 +208,9 @@ public class TestUtils {
 
     static public int minGreaterThan(int[] array, int val) {
         int min = Integer.MAX_VALUE;
-        for (int i = 0; i < array.length; i++) {
-            if (array[i] < min && array[i] > val) {
-                min = array[i];
+        for (int j : array) {
+            if (j < min && j > val) {
+                min = j;
             }
         }
         return min;

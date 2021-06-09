@@ -1,1 +1,1 @@
-ERROR: Method 'sum(java.lang.Object[])' is not found.
+Field '$Formula$BlaBla' is not found in type 'SpreadsheetResultmySpr'

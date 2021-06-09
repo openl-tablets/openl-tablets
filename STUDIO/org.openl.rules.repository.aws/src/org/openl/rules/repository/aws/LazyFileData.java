@@ -19,7 +19,7 @@ class LazyFileData extends FileData {
     static final String METADATA_COMMENT = "comment";
 
     private AmazonS3 s3;
-    private String bucketName;
+    private final String bucketName;
 
     public LazyFileData(AmazonS3 s3, String bucketName) {
         this.s3 = s3;

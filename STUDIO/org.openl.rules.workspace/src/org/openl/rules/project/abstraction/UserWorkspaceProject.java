@@ -3,7 +3,7 @@ package org.openl.rules.project.abstraction;
 import java.io.IOException;
 
 import org.openl.rules.common.CommonUser;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
@@ -97,7 +97,12 @@ public abstract class UserWorkspaceProject extends AProject {
         } else if (isOpenedOtherVersion()) {
             return ProjectStatus.VIEWING_VERSION;
         } else if (isOpened()) {
-            return ProjectStatus.VIEWING;
+            if (isLocked() && !isLockedByMe()) {
+                return ProjectStatus.VIEWING_VERSION;
+            } else {
+                return ProjectStatus.VIEWING;
+            }
+
         } else {
             return ProjectStatus.CLOSED;
         }
@@ -116,6 +121,9 @@ public abstract class UserWorkspaceProject extends AProject {
     }
 
     public void setBranch(String newBranch) throws ProjectException {
+        if (isLocalOnly()) {
+            return;
+        }
         BranchRepository branchRepository = (BranchRepository) getDesignRepository();
         String currentBranch = branchRepository.getBranch();
         if (!newBranch.equals(currentBranch)) {

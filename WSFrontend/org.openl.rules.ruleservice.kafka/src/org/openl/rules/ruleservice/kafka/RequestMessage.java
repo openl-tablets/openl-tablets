@@ -8,7 +8,7 @@ public class RequestMessage {
     private Object[] parameters;
     private Exception exception;
     private Method method;
-    private byte[] rawData;
+    private final byte[] rawData;
     private String encoding = "UTF8";
 
     public RequestMessage(Method method, Object[] parameters, byte[] rawData, String encoding) {

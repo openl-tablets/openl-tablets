@@ -62,7 +62,7 @@ public class WholeNumberDivideOperators {
         if (y == null) {
             return x;
         } else if (x == null) {
-            x = 1l;
+            x = 1L;
         }
         return x / y;
     }

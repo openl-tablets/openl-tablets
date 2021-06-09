@@ -1,0 +1,16 @@
+<project>
+    <name>OpenL Rules Simple Project</name>
+    <modules>
+        <module>
+            <name>Main</name>
+            <rules-root path="rules/Main.xlsx"/>
+        </module>
+        <module>
+            <name>Secondary</name>
+            <rules-root path="rules/Secondary.xlsx"/>
+        </module>
+    </modules>
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

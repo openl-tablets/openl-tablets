@@ -40,7 +40,7 @@ public class AlgorithmBoundNode extends AMethodBasedNode implements IMemberBound
         AlgorithmBuilder builder = new AlgorithmBuilder(cxt, getAlgorithm(), getTableSyntaxNode());
 
         ILogicalTable tableBody = getTableSyntaxNode().getTableBody();
-        builder.build(tableBody);
+        builder.build(cxt, tableBody);
 
         getTableSyntaxNode().getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody.getRows(1));
     }

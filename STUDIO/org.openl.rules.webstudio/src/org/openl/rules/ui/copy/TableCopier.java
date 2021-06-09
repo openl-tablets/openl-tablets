@@ -6,7 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.validation.constraints.Pattern;
+import javax.validation.GroupSequence;
 
 import org.hibernate.validator.constraints.NotBlank;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
@@ -36,6 +36,10 @@ import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tablewizard.PropertiesBean;
 import org.openl.rules.ui.tablewizard.TableCreationWizard;
+import org.openl.rules.ui.validation.StringPresentedGroup;
+import org.openl.rules.ui.validation.StringValidGroup;
+import org.openl.rules.ui.validation.TableNameConstraint;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.conf.Version;
@@ -48,25 +52,26 @@ import org.slf4j.LoggerFactory;
  *
  * @author Andrei Astrouski.
  */
+@GroupSequence({ TableCopier.class, StringPresentedGroup.class, StringValidGroup.class })
 public class TableCopier extends TableCreationWizard {
 
     private final Logger log = LoggerFactory.getLogger(TableCopier.class);
 
     public static final String INIT_VERSION = "0.0.1";
 
-    private IOpenLTable table = null;
+    private IOpenLTable table;
 
     /**
      * Table technical name
      */
-    @NotBlank(message = "Cannot be empty")
-    @Pattern(regexp = "([a-zA-Z_][a-zA-Z_0-9]*)?", message = INVALID_NAME_MESSAGE)
+    @NotBlank(message = "Cannot be empty", groups = StringPresentedGroup.class)
+    @TableNameConstraint(groups = StringValidGroup.class)
     private String tableTechnicalName;
 
     /**
      * Bean - container of all properties for new copy of the original table.
      */
-    private PropertiesBean propertiesManager;
+    private final PropertiesBean propertiesManager;
 
     private UIRepeat propsTable;
 
@@ -94,8 +99,7 @@ public class TableCopier extends TableCreationWizard {
             TablePropertyDefinition propDefinition = TablePropertyDefinitionUtils
                 .getPropertyByName(possiblePropertyName);
             if (propDefinition != null && !propDefinition.isSystem() && propDefinition.getDeprecation() == null) {
-                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName) != null ? tableProperties
-                    .getPropertyValue(possiblePropertyName) : null;
+                Object propertyValue = tableProperties.getPropertyValue(possiblePropertyName);
 
                 if (tableProperties.getTableProperties().containsKey(possiblePropertyName)) {
                     Class<?> propertyType = null;
@@ -109,7 +113,8 @@ public class TableCopier extends TableCreationWizard {
                     boolean dimensional = propDefinition.isDimensional();
 
                     TableProperty tableProperty = new TableProperty.TablePropertyBuilder(possiblePropertyName,
-                        propertyType).value(propertyValue)
+                        propertyType,
+                        WebStudioFormats.getInstance()).value(propertyValue)
                             .displayName(displayName)
                             .format(format)
                             .dimensional(dimensional)
@@ -180,7 +185,7 @@ public class TableCopier extends TableCreationWizard {
         ProjectModel model = studio.getModel();
         XlsSheetSourceCodeModule sheetSourceModule = getDestinationSheet();
         String newTableUri = buildTable(sheetSourceModule, model);
-        setNewTableId(newTableUri);
+        setNewTableURI(newTableUri);
         getModifiedWorkbooks().add(sheetSourceModule.getWorkbookSource());
     }
 

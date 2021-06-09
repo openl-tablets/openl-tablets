@@ -10,7 +10,8 @@ import org.openl.rules.table.*;
  */
 public class UndoableShiftValueAction extends AUndoableCellAction {
 
-    private int colFrom, rowFrom;
+    private final int colFrom;
+    private final int rowFrom;
 
     private IGridRegion toRestore;
     private IGridRegion toRemove;
@@ -33,7 +34,10 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
-        setPrevComment(cell.getComment());
+        if (cell.getComment() != null) {
+            setPrevComment(cell.getComment().getText());
+            setPrevCommentAuthor(cell.getComment().getAuthor());
+        }
         setPrevMetaInfo(metaInfoWriter.getMetaInfo(rowFrom, colFrom));
 
         if (rrFrom != null) {
@@ -50,7 +54,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellFormula(getCol(), getRow(), getPrevFormula());
         grid.setCellValue(getCol(), getRow(), getPrevValue());
         grid.setCellStyle(getCol(), getRow(), getPrevStyle());
-        grid.setCellComment(getCol(), getRow(), getPrevComment());
+        grid.setCellComment(getCol(), getRow(), getPrevComment(), getPrevCommentAuthor());
         metaInfoWriter.setMetaInfo(getRow(), getCol(), getPrevMetaInfo());
 
         ICell newCell = grid.getCell(getCol(), getRow());
@@ -70,7 +74,10 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
-        setPrevComment(cell.getComment());
+        if (cell.getComment() != null) {
+            setPrevComment(cell.getComment().getText());
+            setPrevCommentAuthor(cell.getComment().getAuthor());
+        }
 
         if (toRemove != null) {
             grid.removeMergedRegion(toRemove);
@@ -80,7 +87,7 @@ public class UndoableShiftValueAction extends AUndoableCellAction {
         grid.setCellFormula(colFrom, rowFrom, getPrevFormula());
         grid.setCellValue(colFrom, rowFrom, getPrevValue());
         grid.setCellStyle(colFrom, rowFrom, getPrevStyle());
-        grid.setCellComment(colFrom, rowFrom, getPrevComment());
+        grid.setCellComment(colFrom, rowFrom, getPrevComment(), getPrevCommentAuthor());
         metaInfoWriter.setMetaInfo(rowFrom, colFrom, getPrevMetaInfo());
     }
 

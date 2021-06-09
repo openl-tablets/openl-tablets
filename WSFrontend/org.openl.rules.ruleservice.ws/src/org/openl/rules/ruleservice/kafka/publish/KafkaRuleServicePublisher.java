@@ -28,7 +28,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceDeployException;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceUndeployException;
-import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.ruleservice.core.ServiceDescription;
 import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 import org.openl.rules.ruleservice.kafka.conf.ClientIDGenerator;
@@ -38,11 +38,11 @@ import org.openl.rules.ruleservice.kafka.conf.KafkaMethodConfig;
 import org.openl.rules.ruleservice.kafka.conf.KafkaServiceConfig;
 import org.openl.rules.ruleservice.kafka.conf.YamlObjectMapperBuilder;
 import org.openl.rules.ruleservice.kafka.databinding.KafkaConfigHolder;
-import org.openl.rules.ruleservice.management.ServiceDescriptionHolder;
 import org.openl.rules.ruleservice.publish.RuleServicePublisher;
 import org.openl.rules.ruleservice.publish.jaxrs.storelogdata.JacksonObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
+import org.openl.rules.serialization.JacksonObjectMapperFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectFactory;
@@ -65,12 +65,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     private static final String GROUP_ID = "group.id";
     private static final String CLIENT_ID = "client.id";
 
-    private static final String[] CLEAN_UP_PROPERTIES = { "jacksondatabinding.defaultTypingMode",
+    private static final String[] CLEAN_UP_PROPERTIES = { "jackson.defaultTypingMode",
             "rootClassNamesBinding",
-            "jacksondatabinding.enableDefaultTyping",
             CLIENT_ID_GENERATOR };
 
-    private Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
+    private final Map<OpenLService, Triple<Collection<KafkaService>, Collection<KafkaProducer<?, ?>>, Collection<KafkaConsumer<?, ?>>>> runningServices = new HashMap<>();
 
     private ResourceLoader resourceLoader;
 
@@ -80,11 +79,14 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
     private String defaultBootstrapServers;
     private String defaultGroupId;
 
-    private Cloner cloner = new Cloner();
+    private final Cloner cloner = new Cloner();
 
+    @Autowired
     private StoreLogDataManager storeLogDataManager;
 
-    private boolean storeLogDataEnabled = false;
+    @Autowired
+    @Qualifier("serviceDescriptionInProcess")
+    private ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory;
 
     public void setStoreLogDataManager(StoreLogDataManager storeLogDataManager) {
         this.storeLogDataManager = storeLogDataManager;
@@ -94,38 +96,38 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         return storeLogDataManager;
     }
 
-    public boolean isStoreLogDataEnabled() {
-        return storeLogDataEnabled;
-    }
-
-    public void setStoreLogDataEnabled(boolean storeLogDataEnabled) {
-        this.storeLogDataEnabled = storeLogDataEnabled;
-    }
+    @Autowired
+    @Qualifier("kafkaServiceProducerJacksonObjectMapperFactoryBean")
+    private ObjectFactory<JacksonObjectMapperFactory> kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
 
     @Autowired
-    @Qualifier("kafkaConsumerJacksonDatabindingFactoryBean")
-    private ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanObjectFactory;
+    @Qualifier("kafkaServiceConsumerJacksonObjectMapperFactoryBean")
+    private ObjectFactory<JacksonObjectMapperFactory> kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
 
-    @Autowired
-    @Qualifier("kafkaProducerJacksonDatabindingFactoryBean")
-    private ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanObjectFactory;
-
-    public ObjectFactory<JacksonObjectMapperFactoryBean> getConsumerJacksonObjectMapperFactoryBeanObjectFactory() {
-        return consumerJacksonObjectMapperFactoryBeanObjectFactory;
+    public ObjectFactory<JacksonObjectMapperFactory> getKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory() {
+        return kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
     }
 
-    public void setConsumerJacksonObjectMapperFactoryBeanObjectFactory(
-            ObjectFactory<JacksonObjectMapperFactoryBean> consumerJacksonObjectMapperFactoryBeanObjectFactory) {
-        this.consumerJacksonObjectMapperFactoryBeanObjectFactory = consumerJacksonObjectMapperFactoryBeanObjectFactory;
+    public void setKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory(
+            ObjectFactory<JacksonObjectMapperFactory> kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory) {
+        this.kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory = kafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory;
     }
 
-    public ObjectFactory<JacksonObjectMapperFactoryBean> getProducerJacksonObjectMapperFactoryBeanObjectFactory() {
-        return producerJacksonObjectMapperFactoryBeanObjectFactory;
+    public ObjectFactory<JacksonObjectMapperFactory> getKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory() {
+        return kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
     }
 
-    public void setProducerJacksonObjectMapperFactoryBeanObjectFactory(
-            ObjectFactory<JacksonObjectMapperFactoryBean> producerJacksonObjectMapperFactoryBeanObjectFactory) {
-        this.producerJacksonObjectMapperFactoryBeanObjectFactory = producerJacksonObjectMapperFactoryBeanObjectFactory;
+    public void setKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory(
+            ObjectFactory<JacksonObjectMapperFactory> kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory) {
+        this.kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory = kafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory;
+    }
+
+    public ObjectFactory<ServiceDescription> getServiceDescriptionObjectFactory() {
+        return serviceDescriptionObjectFactory;
+    }
+
+    public void setServiceDescriptionObjectFactory(ObjectFactory<ServiceDescription> serviceDescriptionObjectFactory) {
+        this.serviceDescriptionObjectFactory = serviceDescriptionObjectFactory;
     }
 
     private KafkaDeploy getDefaultKafkaDeploy() throws IOException {
@@ -170,13 +172,13 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                 log.warn("{} '{}' property is overridden in service '{}' for method '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
-                    service.getName(),
+                    service.getDeployPath(),
                     kafkaMethodConfig.getMethodName());
             } else {
                 log.warn("{} '{}' property is overridden in service '{}'.",
                     logPrefix,
                     BOOTSTRAP_SERVERS,
-                    service.getName());
+                    service.getDeployPath());
             }
         } else {
             configs.setProperty(BOOTSTRAP_SERVERS, getDefaultBootstrapServers());
@@ -419,14 +421,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             T mergedKafkaConfig,
             T config,
             Method method) throws KafkaServiceException {
-        final JacksonObjectMapperFactoryBean consumerJacksonObjectMapperFactoryBean = createConsumerJacksonObjectMapperFactoryBeanFactory(
-            mergedKafkaConfig);
-        final JacksonObjectMapperFactoryBean producerJacksonObjectMapperFactoryBean = createProducerJacksonObjectMapperFactoryBeanFactory(
-            mergedKafkaConfig);
-
-        // Build Method Kafka Consumer
+        // Build Kafka Consumer
+        final ObjectMapper consumerObjectMapper = createConsumerJacksonObjectMapper(mergedKafkaConfig);
         final KafkaConsumer<String, RequestMessage> consumer = buildConsumer(service,
-            consumerJacksonObjectMapperFactoryBean.createJacksonObjectMapper(),
+            consumerObjectMapper,
             method,
             cleanupConfigs(mergedKafkaConfig.getConsumerConfigs()));
         kafkaConsumers.add(consumer);
@@ -440,9 +438,11 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             objectSerializer = context.getObjectSerializer();
         }
         if (producer == null) {
-            ObjectMapper objectMapper = producerJacksonObjectMapperFactoryBean.createJacksonObjectMapper();
-            objectSerializer = new JacksonObjectSerializer(objectMapper);
-            producer = buildProducer(service, objectMapper, cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
+            ObjectMapper producerObjectMapper = createProducerJacksonObjectMapper(mergedKafkaConfig);
+            objectSerializer = new JacksonObjectSerializer(producerObjectMapper);
+            producer = buildProducer(service,
+                producerObjectMapper,
+                cleanupConfigs(mergedKafkaConfig.getProducerConfigs()));
             if (possibleToReuseShared) {
                 context.setProducerAndObjectSerializer(producer, objectSerializer);
             }
@@ -471,7 +471,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             dltProducer,
             objectSerializer,
             getStoreLogDataManager(),
-            isStoreLogDataEnabled());
+            getStoreLogDataManager().isEnabled());
         kafkaServices.add(kafkaService);
 
         kafkaService.start();
@@ -486,7 +486,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
         ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(service.getClassLoader());
-            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(ServiceDescriptionHolder.getInstance().get());
+            KafkaDeploy kafkaDeploy = KafkaDeployUtils.getKafkaDeploy(getServiceDescriptionObjectFactory().getObject());
             List<KafkaMethodConfig> kafkaMethodConfigs = kafkaDeploy.getMethodConfigs() == null ? Collections
                 .emptyList() : kafkaDeploy.getMethodConfigs();
             Collection<KafkaService> kafkaServices = new HashSet<>();
@@ -543,32 +543,46 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
 
             if (!kafkaServices.isEmpty()) {
                 runningServices.put(service, Triple.of(kafkaServices, kafkaProducers, kafkaConsumers));
-                log.info("Service '{}' has been successfully deployed.", service.getName());
+                log.info("Service '{}' has been successfully deployed.", service.getDeployPath());
             } else {
                 throw new KafkaServiceConfigurationException(String.format(
                     "Failed to deploy service '%s'. Kafka method configs are not found in the configuration.",
-                    service.getName()));
+                    service.getDeployPath()));
             }
         } catch (Exception t) {
-            throw new RuleServiceDeployException(String.format("Failed to deploy service '%s'.", service.getName()), t);
+            throw new RuleServiceDeployException(
+                String.format("Failed to deploy service '%s'.", service.getDeployPath()),
+                t);
         } finally {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
 
-    private JacksonObjectMapperFactoryBean createConsumerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
+    private ObjectMapper createConsumerJacksonObjectMapper(BaseKafkaConfig config) throws KafkaServiceException {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getConsumerJacksonObjectMapperFactoryBeanObjectFactory().getObject();
+            JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceConsumerJacksonObjectMapperFactoryBeanObjectFactory()
+                .getObject();
+            try {
+                return jacksonObjectMapperFactory.createJacksonObjectMapper();
+            } catch (Exception e) {
+                throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
+            }
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
     }
 
-    private JacksonObjectMapperFactoryBean createProducerJacksonObjectMapperFactoryBeanFactory(BaseKafkaConfig config) {
+    private ObjectMapper createProducerJacksonObjectMapper(BaseKafkaConfig config) throws KafkaServiceException {
         try {
             KafkaConfigHolder.getInstance().setKafkaConfig(config);
-            return getProducerJacksonObjectMapperFactoryBeanObjectFactory().getObject();
+            JacksonObjectMapperFactory jacksonObjectMapperFactory = getKafkaServiceProducerJacksonObjectMapperFactoryBeanObjectFactory()
+                .getObject();
+            try {
+                return jacksonObjectMapperFactory.createJacksonObjectMapper();
+            } catch (Exception e) {
+                throw new KafkaServiceException("Failed to build 'ObjectMapper' for kafka consumer.", e);
+            }
         } finally {
             KafkaConfigHolder.getInstance().remove();
         }
@@ -618,7 +632,7 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
                     if (t == 1 && log.isWarnEnabled()) {
                         log.warn(
                             "Service '{}' uses the input topic name '{}' and group id '{}' for different methods {}.",
-                            service.getName(),
+                            service.getDeployPath(),
                             p.getLeft(),
                             p.getRight(),
                             w1.get(p).stream().collect(Collectors.joining(",", "[", "]")));
@@ -636,17 +650,18 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
             .get(service);
         if (triple == null) {
             throw new RuleServiceUndeployException(
-                String.format("There is no running service with name '%s'", service.getName()));
+                String.format("There is no running service with name '%s'", service.getDeployPath()));
         }
         try {
             if (stopAndClose(triple)) {
-                log.info("Service '{}' has been undeployed successfully.", service.getName());
+                log.info("Service '{}' has been undeployed successfully.", service.getDeployPath());
             } else {
-                log.info("Service '{}' has been undeployed with errors.", service.getName());
+                log.info("Service '{}' has been undeployed with errors.", service.getDeployPath());
             }
             runningServices.remove(service);
         } catch (Exception t) {
-            throw new RuleServiceUndeployException(String.format("Failed to undeploy service '%s'.", service.getName()),
+            throw new RuleServiceUndeployException(
+                String.format("Failed to undeploy service '%s'.", service.getDeployPath()),
                 t);
         }
     }
@@ -655,10 +670,10 @@ public class KafkaRuleServicePublisher implements RuleServicePublisher, Resource
      * {@inheritDoc}
      */
     @Override
-    public OpenLService getServiceByName(String serviceName) {
-        Objects.requireNonNull(serviceName, "serviceName cannot null.");
+    public OpenLService getServiceByDeploy(String deployPath) {
+        Objects.requireNonNull(deployPath, "deployPath cannot null.");
         for (OpenLService service : runningServices.keySet()) {
-            if (service.getName().equals(serviceName)) {
+            if (service.getDeployPath().equals(deployPath)) {
                 return service;
             }
         }

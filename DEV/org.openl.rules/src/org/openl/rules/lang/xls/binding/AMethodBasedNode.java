@@ -1,29 +1,25 @@
 package org.openl.rules.lang.xls.binding;
 
-import java.util.Map;
-
 import org.openl.OpenL;
-import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.meta.IMetaInfo;
+import org.openl.rules.lang.xls.binding.wrapper.AliasWrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.SubTextSourceCodeModule;
-import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.IOpenMethodHeader;
-import org.openl.types.impl.MethodDelegator;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.OpenMethodHeader;
 import org.openl.util.MessageUtils;
+import org.openl.util.OpenClassUtils;
 import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
@@ -31,10 +27,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public abstract class AMethodBasedNode extends ATableBoundNode implements IMemberBoundNode {
 
-    private OpenL openl;
-    private IOpenMethodHeader header;
+    private final OpenL openl;
+    private final IOpenMethodHeader header;
     private ExecutableRulesMethod method;
-    private ModuleOpenClass module;
+    private final ModuleOpenClass module;
 
     public AMethodBasedNode(TableSyntaxNode methodNode, OpenL openl, IOpenMethodHeader header, ModuleOpenClass module) {
         super(methodNode);
@@ -72,127 +68,76 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
     @Override
     public void addTo(ModuleOpenClass openClass) {
         method = createMethodShell();
+        method.setModuleName(module.getModuleName());
         openClass.addMethod(method);
         getTableSyntaxNode().setMember(method);
-        if (hasServiceName()) {
-            openClass.addMethod(getServiceMethod(method));
+        if (hasAliasName()) {
+            openClass.addMethod(getAliasMethod(method));
         }
     }
 
     /**
      * Is method has an "id" property that will be used to generate additional method with name specified in property
-     * sutable for direct call of rule avoiding the method dispatching mechanism.
+     * suitable for direct call of rule avoiding the method dispatching mechanism.
      *
      * @return <code>true</code> if "id" property is specified.
      */
-    protected boolean hasServiceName() {
+    protected boolean hasAliasName() {
         return StringUtils.isNotBlank(getTableSyntaxNode().getTableProperties().getId());
     }
 
-    protected IOpenMethod getServiceMethod(ExecutableRulesMethod originalMethod) {
-        final String serviceMethodName = getTableSyntaxNode().getTableProperties().getId();
-        return new AMethodBasedNodeServiceMethod(originalMethod, serviceMethodName);
-    }
-
-    private static final class AMethodBasedNodeServiceMethod extends MethodDelegator implements IMemberMetaInfo {
-        private String serviceMethodName;
-
-        public AMethodBasedNodeServiceMethod(ExecutableRulesMethod originalMethod, String serviceMethodName) {
-            super(originalMethod);
-            this.serviceMethodName = serviceMethodName;
-        }
-
-        @Override
-        public String getName() {
-            return serviceMethodName;
-        }
-
-        @Override
-        public String getDisplayName(int mode) {
-            return serviceMethodName;
-        }
-
-        @Override
-        public BindingDependencies getDependencies() {
-            return ((ExecutableRulesMethod) methodCaller).getDependencies();
-        }
-
-        @Override
-        public ISyntaxNode getSyntaxNode() {
-            return ((ExecutableRulesMethod) methodCaller).getSyntaxNode();
-        }
-
-        @Override
-        public Map<String, Object> getProperties() {
-            return ((ExecutableRulesMethod) methodCaller).getProperties();
-        }
-
-        @Override
-        public String getSourceUrl() {
-            return ((ExecutableRulesMethod) methodCaller).getSourceUrl();
-        }
+    protected IOpenMethod getAliasMethod(ExecutableRulesMethod originalMethod) {
+        final String aliasMethodName = getTableSyntaxNode().getTableProperties().getId();
+        return AliasWrapperLogic.wrapOpenMethod(originalMethod, aliasMethodName);
     }
 
     protected abstract ExecutableRulesMethod createMethodShell();
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        if (cxt.isExecutionMode()) {
-            getMethod().setBoundNode(null);
-            getMethod().getMethodProperties().setModulePropertiesTableSyntaxNode(null);
-            getMethod().getMethodProperties().setCategoryPropertiesTableSyntaxNode(null);
-            getMethod().getMethodProperties().setPropertiesSection(null);
+        if (cxt.isExecutionMode() && header instanceof OpenMethodHeader) {
+            OpenMethodHeader tableHeader = (OpenMethodHeader) header;
+            tableHeader.setTypeLocation(null);
+            tableHeader.setParamTypeLocations(null);
         }
     }
 
     @Override
     public void finalizeBind(IBindingContext bindingContext) throws Exception {
-        if (!bindingContext.isExecutionMode() && header instanceof OpenMethodHeader) {
+        if (header instanceof OpenMethodHeader) {
             // Validate that there are no errors in dependent types.
             OpenMethodHeader tableHeader = (OpenMethodHeader) header;
 
-            int startPosition = getSignatureStartIndex();
+            IOpenSourceCodeModule headerSyntaxNode = null;
             // Return type
-            IOpenClass type = tableHeader.getType();
-            IMetaInfo metaInfo = type.getMetaInfo();
-            while (metaInfo == null && type.isArray()) {
-                type = type.getComponentClass();
-                metaInfo = type.getMetaInfo();
-            }
-
-            IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(),
-                bindingContext);
-            SubTextSourceCodeModule headerSyntaxNode = new SubTextSourceCodeModule(src,
-                startPosition,
-                src.getCode().length());
-
-            ILocation typeLocation = tableHeader.getTypeLocation();
-            if (metaInfo != null && typeLocation != null) {
-                if (type.getInstanceClass() == null) {
-                    addTypeError(bindingContext, type, typeLocation, headerSyntaxNode);
-                }
+            IOpenClass type = OpenClassUtils.getRootComponentClass(tableHeader.getType());
+            if (!NullOpenClass.isAnyNull(type) && type.getInstanceClass() == null) {
+                headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
+                addTypeError(bindingContext, type, tableHeader.getTypeLocation(), headerSyntaxNode);
             }
 
             // Input parameters
             ILocation[] paramTypeLocations = tableHeader.getParamTypeLocations();
-            if (paramTypeLocations != null) {
-                for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
-                    IOpenClass parameterType = header.getSignature().getParameterType(i);
-                    metaInfo = parameterType.getMetaInfo();
-                    while (metaInfo == null && parameterType.isArray()) {
-                        parameterType = parameterType.getComponentClass();
-                        metaInfo = parameterType.getMetaInfo();
-                    }
+            for (int i = 0; i < header.getSignature().getNumberOfParameters(); i++) {
+                IOpenClass parameterType = OpenClassUtils
+                    .getRootComponentClass(header.getSignature().getParameterType(i));
 
-                    if (metaInfo != null) {
-                        ILocation sourceLocation = paramTypeLocations[i];
-                        if (parameterType.getInstanceClass() == null) {
-                            addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
-                        }
+                ILocation sourceLocation = paramTypeLocations == null ? null : paramTypeLocations[i];
+                if (!NullOpenClass.isAnyNull(parameterType) && parameterType.getInstanceClass() == null) {
+                    if (headerSyntaxNode == null) {
+                        headerSyntaxNode = getHeaderSyntaxNode(bindingContext);
                     }
+                    addTypeError(bindingContext, parameterType, sourceLocation, headerSyntaxNode);
                 }
             }
         }
+    }
+
+    private IOpenSourceCodeModule getHeaderSyntaxNode(IBindingContext bindingContext) {
+        IOpenSourceCodeModule src = new GridCellSourceCodeModule(getTableSyntaxNode().getGridTable(), bindingContext);
+
+        int startPosition = getSignatureStartIndex();
+        return new SubTextSourceCodeModule(src, startPosition, src.getCode().length());
     }
 
     protected void addTypeError(IBindingContext bindingContext,
@@ -201,7 +146,6 @@ public abstract class AMethodBasedNode extends ATableBoundNode implements IMembe
             IOpenSourceCodeModule syntaxNode) {
         String message = MessageUtils.getTypeDefinedErrorMessage(type.getName());
         SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, null, location, syntaxNode);
-        getTableSyntaxNode().addError(error);
         bindingContext.addError(error);
     }
 

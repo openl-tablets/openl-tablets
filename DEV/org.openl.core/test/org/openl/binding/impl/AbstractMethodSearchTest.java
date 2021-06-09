@@ -43,8 +43,8 @@ public abstract class AbstractMethodSearchTest {
 
         TypeCastFactory typecast = openLConfiguration.createTypeCastFactory();
         for (String libName : CAST_LIBRARY_NAMES) {
-            TypeCastFactory.JavaCastComponent javacast = typecast.new JavaCastComponent(libName, org.openl.binding.impl.cast.CastFactory.class.getName());
-            typecast.addJavaCast(javacast);
+            TypeCastFactory.JavaCastComponent javaCast = typecast.new JavaCastComponent(libName, org.openl.binding.impl.cast.CastFactory.class.getName());
+            typecast.addJavaCast(javaCast);
         }
 
         openLConfiguration.setConfigurationContext(new ConfigurableResourceContext(null));
@@ -112,10 +112,10 @@ public abstract class AbstractMethodSearchTest {
     final void assertMethod(Class<?> target,
             String methodName,
             Class<?>[] classes,
-            Object... expectes) throws AmbiguousMethodException {
-        assertEquals(classes.length, expectes.length);
+            Object... expects) throws AmbiguousMethodException {
+        assertEquals(classes.length, expects.length);
         for (int i = 0; i < classes.length; i++) {
-            Object expected = expectes[i];
+            Object expected = expects[i];
             assertMethod(expected, target, methodName, classes[i]);
         }
     }
@@ -124,10 +124,10 @@ public abstract class AbstractMethodSearchTest {
             String methodName,
             Class<?> class1,
             Class<?>[] classes,
-            Object... expectes) throws AmbiguousMethodException {
-        assertEquals(classes.length, expectes.length);
+            Object... expects) throws AmbiguousMethodException {
+        assertEquals(classes.length, expects.length);
         for (int i = 0; i < classes.length; i++) {
-            Object expected = expectes[i];
+            Object expected = expects[i];
             assertMethod(expected, target, methodName, class1, classes[i]);
         }
     }

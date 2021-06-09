@@ -17,7 +17,6 @@ import org.openl.base.INamedThing;
 import org.openl.binding.impl.NodeType;
 import org.openl.binding.impl.NodeUsage;
 import org.openl.binding.impl.SimpleNodeUsage;
-import org.openl.engine.OpenLCellExpressionsCompiler;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.meta.IMetaInfo;
 import org.openl.rules.dt.DecisionTable;
@@ -84,6 +83,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
 
         private final List<CellKey> unmatchedColumns = new ArrayList<>();
 
+        private final List<CellKey> ruleColumns = new ArrayList<>();
+
         public Map<CellKey, HeaderMetaInfo> getSimpleRulesConditionMap() {
             return simpleRulesConditionMap;
         }
@@ -104,6 +105,10 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             return unmatchedColumns;
         }
 
+        public List<CellKey> getRuleColumns() {
+            return ruleColumns;
+        }
+
         public void merge(MetaInfoHolder metaInfoHolder) {
             if (metaInfoHolder == null) {
                 return;
@@ -113,6 +118,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
             simpleRulesReturnMap.putAll(metaInfoHolder.simpleRulesReturnMap);
             inputParametersToReturn.addAll(metaInfoHolder.inputParametersToReturn);
             unmatchedColumns.addAll(metaInfoHolder.unmatchedColumns);
+            ruleColumns.addAll(metaInfoHolder.ruleColumns);
         }
     }
 
@@ -290,7 +296,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 sb.append(", ");
             }
             sb.append(type.getDisplayName(INamedThing.SHORT));
-            if (parameterNames != null && parameterNames[i] != null) {
+            if (parameterNames != null && i < parameterNames.length && parameterNames[i] != null) {
                 sb.append(StringUtils.SPACE).append(parameterNames[i]);
             }
             i++;
@@ -331,18 +337,18 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         }
         final List<CellKey> unmatchedColumns = getMetaInfos().getUnmatchedColumns();
         for (CellKey cellKey : unmatchedColumns) {
-            setMetaInfoForUnmatchedColumn(cellKey);
+            setMetaInfoForColumn(cellKey, "Unmatched column");
+        }
+        final List<CellKey> ruleColumns = getMetaInfos().getRuleColumns();
+        for (CellKey cellKey : ruleColumns) {
+            setMetaInfoForColumn(cellKey, "Rule column");
         }
     }
 
-    private void setMetaInfoForUnmatchedColumn(CellKey cellKey) {
+    private void setMetaInfoForColumn(CellKey cellKey, String description) {
         IGrid grid = getTableSyntaxNode().getGridTable().getGrid();
         String cellValue = grid.getCell(cellKey.getColumn(), cellKey.getRow()).getStringValue();
-        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0,
-            cellValue.length() - 1,
-            "Unmatched column",
-            null,
-            NodeType.OTHER);
+        SimpleNodeUsage nodeUsage = new SimpleNodeUsage(0, cellValue.length() - 1, description, null, NodeType.OTHER);
         setPreparedMetaInfo(cellKey.getRow(),
             cellKey.getColumn(),
             new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage)));
@@ -390,8 +396,12 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                 new HeaderMetaInfo(header, parameterNames, statement, columnTypes, url, additionalDetails));
     }
 
-    public void addDescription(int row, int col) {
+    public void addUnmatchedDescription(int row, int col) {
         getMetaInfos().getUnmatchedColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
+    }
+
+    public void addRuleDescription(int row, int col) {
+        getMetaInfos().getRuleColumns().add(CellKey.CellKeyFactory.getCellKey(col, row));
     }
 
     public void addSimpleRulesAction(int row,
@@ -440,7 +450,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
                     // Some expression
                     String stringValue = cell.getStringValue();
                     int startIndex = stringValue.indexOf('=') + 1;
-                    List<NodeUsage> nodeUsages = OpenLCellExpressionsCompiler
+                    List<NodeUsage> nodeUsages = MetaInfoReaderUtils
                         .getNodeUsages((CompositeMethod) storageValue, stringValue.substring(startIndex), startIndex);
                     setPreparedMetaInfo(row, col, new CellMetaInfo(JavaOpenClass.STRING, false, nodeUsages));
                     continue;
@@ -467,7 +477,7 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
         int row = codeCell.getAbsoluteRow();
         int col = codeCell.getAbsoluteColumn();
         if (IGridRegion.Tool.contains(region, col, row)) {
-            List<CellMetaInfo> metaInfoList = OpenLCellExpressionsCompiler.getMetaInfo(funcRow.getSourceCodeModule(),
+            List<CellMetaInfo> metaInfoList = MetaInfoReaderUtils.getMetaInfo(funcRow.getSourceCodeModule(),
                 funcRow.getMethod());
             // Decision table always contains 1 meta info
             setPreparedMetaInfo(row, col, metaInfoList.get(0));
@@ -554,8 +564,8 @@ public class DecisionTableMetaInfoReader extends AMethodMetaInfoReader<DecisionT
     }
 
     private static class ReturnMetaInfo {
-        String details;
-        String uri;
+        final String details;
+        final String uri;
 
         public ReturnMetaInfo(String details, String uri) {
             super();

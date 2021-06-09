@@ -20,7 +20,7 @@ public class MultiNestedSpreadsheetResultTest {
 
     private static final String CODE_COLUMN = "Code";
 
-    public static NestedSpreadsheetConfiguration<CodeStep, CompoundStep> conf;
+    public static final NestedSpreadsheetConfiguration<CodeStep, CompoundStep> conf;
     static {
         ColumnToExtract c1 = new ColumnToExtract(CODE_COLUMN, String.class);
         ColumnToExtract c2 = new ColumnToExtract(RES_COLUMN);

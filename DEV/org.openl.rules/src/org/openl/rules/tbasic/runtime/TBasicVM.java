@@ -15,10 +15,10 @@ import org.openl.vm.Tracer;
  *
  */
 public class TBasicVM {
-    private TBasicVMDataContext mainContext;
+    private final TBasicVMDataContext mainContext;
     private TBasicVMDataContext currentContext;
 
-    private IOpenClass tbasicType;
+    private final IOpenClass tbasicType;
 
     /**
      * Create an instance of <code>TBasicVM</code> initialized with main Algorithm method operations and labels
@@ -121,7 +121,7 @@ public class TBasicVM {
         } catch (ControlSignal signal) {
             // pass through all other OpenL signals
             throw signal;
-        } catch (Throwable error) {
+        } catch (Exception error) {
             if (currentContext.isMainMethodContext()) {
                 returnResult = AlgorithmErrorHelper.processError(error, environment);
                 errorOccured = true;

@@ -122,8 +122,10 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
 
         // jgit
         permission java.io.FilePermission "${user.home}/.gitconfig", "read";
+        permission java.io.FilePermission "${user.home}/.gitattributes", "read";
         permission java.io.FilePermission "${user.home}/.config", "read,write";
         permission java.io.FilePermission "${user.home}/.config/-", "read,write";
+        permission java.io.FilePermission "${user.home}/.gitignore_global", "read";
         permission java.net.NetPermission "getProxySelector";
         permission java.security.SecurityPermission "insertProvider.BC";
         permission java.security.SecurityPermission "putProviderProperty.BC";
@@ -219,9 +221,14 @@ grant codeBase "file:${catalina.home}/webapps/webservice/-" {
         //tomcat
         permission java.net.NetPermission "specifyStreamHandler";
 
-        //javassist
-        permission java.lang.RuntimePermission "createSecurityManager";
-
         //log4j
         permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
+
+        //openapi
+        permission java.lang.management.ManagementPermission "monitor";
+        permission java.lang.RuntimePermission "createSecurityManager";
+        permission java.lang.RuntimePermission "shutdownHooks";
+
+        //ZipFileSystem for JDK 8 issue
+        permission java.io.FilePermission "${catalina.base}/lib/Example3-datasource.jar", "read,write";
 };

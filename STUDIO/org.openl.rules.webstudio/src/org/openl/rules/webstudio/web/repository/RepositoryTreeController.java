@@ -5,7 +5,7 @@ import static org.openl.rules.security.Privileges.DELETE_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.DELETE_PROJECTS;
 import static org.openl.rules.security.Privileges.UNLOCK_DEPLOYMENT;
 import static org.openl.rules.security.Privileges.UNLOCK_PROJECTS;
-import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_SEPARATE_DEPLOY_CONFIG_REPO;
+import static org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl.USE_REPOSITORY_FOR_DEPLOY_CONFIG;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -14,17 +14,23 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
+import javax.annotation.PreDestroy;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AjaxBehaviorEvent;
@@ -36,8 +42,8 @@ import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.project.IProjectDescriptorSerializer;
+import org.openl.rules.project.ProjectDescriptorManager;
 import org.openl.rules.project.abstraction.ADeploymentProject;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
@@ -48,7 +54,9 @@ import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.abstraction.UserWorkspaceProject;
 import org.openl.rules.project.impl.local.LocalRepository;
 import org.openl.rules.project.impl.local.LockEngineImpl;
+import org.openl.rules.project.impl.local.ProjectState;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
@@ -57,16 +65,17 @@ import org.openl.rules.project.resolving.ProjectDescriptorBasedResolvingStrategy
 import org.openl.rules.project.xml.ProjectDescriptorSerializerFactory;
 import org.openl.rules.repository.api.BranchRepository;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FolderMapper;
+import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
+import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
-import org.openl.rules.ui.tablewizard.WizardUtils;
-import org.openl.rules.webstudio.filter.IFilter;
-import org.openl.rules.webstudio.filter.RepositoryFileExtensionFilter;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.util.PreferencesManager;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
 import org.openl.rules.webstudio.web.repository.merge.MergeConflictInfo;
 import org.openl.rules.webstudio.web.repository.project.CustomTemplatesResolver;
@@ -75,6 +84,7 @@ import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResol
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
@@ -82,10 +92,16 @@ import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
 import org.openl.rules.webstudio.web.repository.upload.ZipProjectDescriptorExtractor;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipFromProjectFile;
+import org.openl.rules.webstudio.web.util.OpenAPIEditorService;
+import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.rules.workspace.MultiUserWorkspaceManager;
+import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.filter.PathFilter;
+import org.openl.rules.workspace.lw.LocalWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.FileTypeHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -93,7 +109,10 @@ import org.openl.util.StringUtils;
 import org.richfaces.event.FileUploadEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 import com.thoughtworks.xstream.XStreamException;
 import com.thoughtworks.xstream.io.StreamException;
@@ -104,77 +123,96 @@ import com.thoughtworks.xstream.io.StreamException;
  * @author Aleh Bykhavets
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class RepositoryTreeController {
 
-    private static final String PROJECT_HISTORY_HOME = "project.history.home";
     private static final String CUSTOM_TEMPLATE_TYPE = "custom";
+    private static final String OPENED_OTHER_PROJECT = "WebStudio can't open two projects with the same name. Please close another project and open it again.";
+    private static final String NONE_REPO = "none";
+    public static final String OPENAPI_DEFAULT_DATA_MODULE_PATH = "openapi.default.data.module.path";
+    public static final String OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH = "openapi.default.algorithm.module.path";
 
     private final Logger log = LoggerFactory.getLogger(RepositoryTreeController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{rulesUserSession.userWorkspace}")
-    private volatile UserWorkspace userWorkspace;
+    @Autowired
+    private MultiUserWorkspaceManager workspaceManager;
 
-    @ManagedProperty(value = "#{zipFilter}")
+    private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+
+    @Autowired
+    @Qualifier("zipFilter")
     private PathFilter zipFilter;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty(value = "#{projectDescriptorSerializerFactory}")
+    @Autowired
     private ProjectDescriptorSerializerFactory projectDescriptorSerializerFactory;
 
-    @ManagedProperty(value = "#{zipCharsetDetector}")
+    @Autowired
     private ZipCharsetDetector zipCharsetDetector;
 
-    @ManagedProperty(value = "#{designRepositoryComments}")
-    private Comments designRepoComments;
-
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
-    private WebStudio studio = WebStudioUtils.getWebStudio(true);
+    @Autowired
+    private ProjectVersionCacheManager projectVersionCacheManager;
 
-    @ManagedProperty(value = "#{environment}")
+    private final WebStudio studio = WebStudioUtils.getWebStudio(true);
+
+    @Autowired
     private PropertyResolver propertyResolver;
 
+    @Autowired
+    private Utils utils;
+
+    @Autowired
+    private LocalWorkspaceManager localWorkspaceManager;
+
+    @Autowired
+    private LocalUploadController localUploadController;
+
+    @Autowired
+    private OpenAPIEditorService openAPIEditorService;
+
+    private String repositoryId;
     private String projectName;
     private String projectFolder = "";
     private String newProjectTemplate;
     private String folderName;
-    private List<ProjectFile> uploadedFiles = new ArrayList<>();
+    private final List<ProjectFile> uploadedFiles = new ArrayList<>();
     private String fileName;
     private String uploadFrom;
     private String newProjectName;
     private String version;
 
-    private String filterString;
-    private boolean hideDeleted;
-
     private boolean openDependencies = true;
     private AProject currentProject;
 
-    private TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
+    private final TemplatesResolver predefinedTemplatesResolver = new PredefinedTemplatesResolver();
     private TemplatesResolver customTemplatesResolver;
-
-    public PathFilter getZipFilter() {
-        return zipFilter;
-    }
 
     private TreeNode activeProjectNode;
 
-    private boolean projectUseCustomComment;
-    private CommentValidator designCommentValidator;
     private CommentValidator deployConfigCommentValidator;
 
     private String createProjectComment;
     private String archiveProjectComment;
     private String restoreProjectComment;
     private String eraseProjectComment;
+    private boolean eraseFromRepository;
+
+    private String modelsModuleName;
+    private String algorithmsModuleName;
+    private String modelsPath;
+    private String algorithmsPath;
+    private boolean editModelsPath = false;
+    private boolean editAlgorithmsPath = false;
 
     public void setZipFilter(PathFilter zipFilter) {
         this.zipFilter = zipFilter;
@@ -220,7 +258,6 @@ public class RepositoryTreeController {
                         try {
                             AProjectFolder addedFolder = folder.addFolder(folderName);
                             repositoryTreeState.addNodeToTree(repositoryTreeState.getSelectedNode(), addedFolder);
-                            resetStudioModel();
                         } catch (Exception e) {
                             log.error("Failed to create folder '{}'.", folderName, e);
                             errorMessage = e.getMessage();
@@ -290,6 +327,7 @@ public class RepositoryTreeController {
     public String closeProject() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            ProjectHistoryService.deleteHistory(repositoryProject.getBusinessName());
             closeProjectAndReleaseResources(repositoryProject);
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -338,12 +376,14 @@ public class RepositoryTreeController {
             return false;
         }
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (selectedProject instanceof ADeploymentProject) {
                 return false;
             }
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             return !getDependencies(newVersion, false).isEmpty();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -372,9 +412,11 @@ public class RepositoryTreeController {
             return Collections.emptyList();
         }
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject newVersion = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             List<String> dependencies = new ArrayList<>(getDependencies(newVersion, true));
             Collections.sort(dependencies);
             return dependencies;
@@ -385,14 +427,29 @@ public class RepositoryTreeController {
     }
 
     private Collection<String> getDependencies(AProject project, boolean recursive) {
+        Collection<String> processedProjects = new HashSet<>();
         Collection<String> dependencies = new HashSet<>();
         if (project != null) {
-            calcDependencies(dependencies, project, recursive);
+            processedProjects.add(project.getBusinessName());
+            calcDependencies(project, recursive, processedProjects, dependencies);
         }
         return dependencies;
     }
 
-    private void calcDependencies(Collection<String> result, AProject project, boolean recursive) {
+    /**
+     * Calc project dependencies. Only closed projects will be included in the result.
+     * 
+     * @param project inspecting project
+     * @param recursive if false, only direct dependencies will be included. If true, dependencies of dependent projects
+     *            will be included
+     * @param processedProjects collections with already checked projects. Includes every checked for dependencies
+     *            project name. Needed to avoid stack overflow.
+     * @param result calculated project names for dependencies. Doesn't include closed/archived/not existing projects.
+     */
+    private void calcDependencies(AProject project,
+            boolean recursive,
+            Collection<String> processedProjects,
+            Collection<String> result) {
         List<ProjectDependencyDescriptor> dependencies;
         try {
             dependencies = projectDescriptorResolver.getDependencies(project);
@@ -405,20 +462,31 @@ public class RepositoryTreeController {
             return;
         }
 
+        String repoId = project.getRepository().getId();
         for (ProjectDependencyDescriptor dependency : dependencies) {
             try {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency.getName());
+                final String dependencyName = dependency.getName();
+                if (processedProjects.contains(dependencyName)) {
+                    continue;
+                } else {
+                    processedProjects.add(dependencyName);
+                }
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId, dependencyName);
+                if (projectNode == null) {
+                    projectNode = repositoryTreeState.getProjectNodeByBusinessName(null, dependencyName);
+                }
                 if (projectNode == null) {
                     continue;
                 }
-                String physicalName = projectNode.getName();
-                AProject dependentProject = userWorkspace.getProject(physicalName, false);
+                AProjectArtefact projectArtefact = projectNode.getData();
+                AProject dependentProject = userWorkspace
+                    .getProject(projectArtefact.getRepository().getId(), projectArtefact.getName(), false);
                 if (canOpen(dependentProject)) {
-                    result.add(dependency.getName());
+                    result.add(dependencyName);
                 }
 
                 if (recursive) {
-                    calcDependencies(result, dependentProject, true);
+                    calcDependencies(dependentProject, true, processedProjects, result);
                 }
             } catch (ProjectException e) {
                 log.error(e.getMessage(), e);
@@ -452,7 +520,7 @@ public class RepositoryTreeController {
         } else if (StringUtils.isBlank(newProjectName)) {
             errorMessage = "Project name is empty.";
         } else if (!NameChecker.checkName(newProjectName)) {
-            errorMessage = String.format("Project name '%s' is invalid. %s", projectName, NameChecker.BAD_NAME_MSG);
+            errorMessage = String.format("Project name '%s' is invalid. %s", newProjectName, NameChecker.BAD_NAME_MSG);
         } else if (userWorkspace.hasDDProject(newProjectName)) {
             errorMessage = String.format("Deployment project '%s' already exists.", newProjectName);
         }
@@ -485,6 +553,10 @@ public class RepositoryTreeController {
             if (!NameChecker.checkName(projectName)) {
                 WebStudioUtils.addErrorMessage(
                     "Specified name is not a valid Deploy Configuration name. " + NameChecker.BAD_NAME_MSG);
+                return null;
+            }
+            if (NameChecker.isReservedName(projectName)) {
+                WebStudioUtils.addErrorMessage("Specified deploy configuration name is a reserved word.");
                 return null;
             }
             if (userWorkspace.hasDDProject(projectName)) {
@@ -523,7 +595,7 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
-            comment = designRepoComments.createProject(projectName);
+            comment = getDesignRepoComments().createProject(projectName);
         }
         String msg = validateCreateProjectParams(comment);
 
@@ -544,52 +616,63 @@ public class RepositoryTreeController {
             return null;
         }
 
-        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(projectName,
+        ExcelFilesProjectCreator projectCreator = new ExcelFilesProjectCreator(repositoryId,
+            projectName,
             projectFolder,
             userWorkspace,
             comment,
             zipFilter,
             templateFiles);
-        String creationMessage = projectCreator.createRulesProject();
-        if (creationMessage == null) {
-            try {
-                AProject createdProject = userWorkspace.getProject(projectName);
+        try {
+            String creationMessage = projectCreator.createRulesProject();
+            if (creationMessage == null) {
+                try {
+                    String technicalName = projectCreator.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
 
-                repositoryTreeState.addRulesProjectToTree(createdProject);
-                selectProject(projectName, repositoryTreeState.getRulesRepository());
+                    if (!userWorkspace.isOpenedOtherProject(createdProject)) {
+                        createdProject.open();
+                    }
 
-                resetStudioModel();
+                    repositoryTreeState.addRulesProjectToTree(createdProject);
+                    selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
 
-                WebStudioUtils.addInfoMessage("Project was created successfully.");
-                /* Clear the load form */
-                this.clearForm();
-            } catch (Exception e) {
-                creationMessage = e.getMessage();
+                    resetStudioModel();
+
+                    WebStudioUtils.addInfoMessage("Project was created successfully.");
+                    /* Clear the load form */
+                    this.clearForm();
+                } catch (Exception e) {
+                    creationMessage = e.getMessage();
+                    log.warn(creationMessage, e);
+                    WebStudioUtils.addErrorMessage(creationMessage);
+                }
+            } else {
+                WebStudioUtils.addErrorMessage(creationMessage);
             }
-        } else {
-            WebStudioUtils.addErrorMessage(creationMessage);
-        }
 
-        return creationMessage;
+            return creationMessage;
+        } finally {
+            projectCreator.destroy();
+        }
     }
 
     private String validateCreateProjectParams(String comment) {
-        String msg = validateProjectName();
-        if (msg != null) {
-            return msg;
-        }
+        return Stream.<Supplier<String>> of(this::validateRepositoryId,
+                this::validateProjectName,
+                this::validateProjectFolder,
+                () -> validateCreateProjectComment(comment))
+            .map(Supplier::get)
+            .filter(Objects::nonNull)
+            .findFirst()
+            .orElse(null);
+    }
 
-        msg = validateProjectFolder();
-        if (msg != null) {
-            return msg;
+    private String validateRepositoryId() {
+        if (StringUtils.isBlank(repositoryId)) {
+            return "Repository must be selected.";
         }
-
-        msg = validateCreateProjectComment(comment);
-        if (msg != null) {
-            return msg;
-        }
-
-        return msg;
+        return null;
     }
 
     private String validateProjectName() {
@@ -599,8 +682,32 @@ public class RepositoryTreeController {
                 msg = "Project name must not be empty.";
             } else if (!NameChecker.checkName(projectName)) {
                 msg = "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG;
-            } else if (userWorkspace.hasProject(projectName)) {
+            }else if (NameChecker.isReservedName(projectName)) {
+                msg = "Specified project name is a reserved word.";
+            } else if (userWorkspace.getDesignTimeRepository().hasProject(repositoryId, projectName)) {
                 msg = "Cannot create project because project with such name already exists.";
+            } else {
+                Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+                if (repository.supports().mappedFolders()) {
+                    String projectPath = StringUtils.isEmpty(projectFolder) ? projectName : projectFolder + projectName;
+                    if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
+                        return "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.";
+                    }
+                    msg = validateProjectFolder();
+                    if (msg != null) {
+                        return msg;
+                    }
+                    final Path currentPath = Paths.get(projectPath);
+                    if (userWorkspace.getDesignTimeRepository()
+                        .getProjects()
+                        .stream()
+                        .filter(proj -> proj.getRepository().getId().equals(repositoryId))
+                        .map(AProjectFolder::getRealPath)
+                        .map(Paths::get)
+                        .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+                        return "Cannot create the project because a path conflicts with an existed project.";
+                    }
+                }
             }
             return msg;
         } catch (Exception e) {
@@ -610,22 +717,53 @@ public class RepositoryTreeController {
     }
 
     private String validateProjectFolder() {
-        if (isSupportsBranches()) {
-            try {
-                FolderStructureValidators.validatePathInRepository(projectFolder);
-            } catch (ValidatorException e) {
-                return e.getMessage();
-            }
+        try {
+            FolderStructureValidators.validatePathInRepository(projectFolder);
+        } catch (ValidatorException e) {
+            return e.getMessage();
         }
         return null;
     }
 
     private String validateCreateProjectComment(String comment) {
         try {
-            designCommentValidator.validate(comment);
+            getDesignCommentValidator(repositoryId).validate(comment);
             return null;
         } catch (Exception e) {
             return e.getMessage();
+        }
+    }
+
+    public boolean isOpenLProjectInFolder() {
+        if (StringUtils.isEmpty(repositoryId) || StringUtils.isEmpty(projectFolder)) {
+            return false;
+        }
+
+        Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+        if (!repository.supports().mappedFolders()) {
+            return false;
+        }
+
+        try {
+            String projectPath = projectFolder;
+
+            List<FileData> files = ((FolderMapper) repository).getDelegate().list(projectPath);
+            if (files.isEmpty()) {
+                return false;
+            }
+            return files.stream().anyMatch(fileData -> {
+                String name = fileData.getName();
+                if (name.equals(projectPath + "rules.xml")) {
+                    return true;
+                }
+                if (name.endsWith(".xls") || name.endsWith(".xlsx")) {
+                    return name.startsWith(projectPath) && !name.substring(projectPath.length()).contains("/");
+                }
+                return false;
+            });
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
         }
     }
 
@@ -639,7 +777,7 @@ public class RepositoryTreeController {
             ADeploymentProject project = userWorkspace.getDDProject(projectName);
             // projectInTree must be initialized before project was deleted
             TreeNode projectInTree = repositoryTreeState.getDeploymentRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(project.getName()));
+                .getChild(RepositoryUtils.getTreeNodeId(project));
             String comment = deployConfigRepoComments.archiveProject(project.getName());
             project.delete(userWorkspace.getUser(), comment);
             if (repositoryTreeState.isHideDeleted()) {
@@ -714,9 +852,36 @@ public class RepositoryTreeController {
             } finally {
                 IOUtils.closeQuietly(content);
             }
+            List<String> removedModuleNames = new ArrayList<>();
             for (String modulePath : modulePaths) {
-                projectDescriptor.getModules()
-                    .removeIf(module -> modulePath.equals(module.getRulesRootPath().getPath()));
+                projectDescriptor.getModules().removeIf(module -> {
+                    boolean contains = modulePath.equals(module.getRulesRootPath().getPath());
+                    if (contains) {
+                        removedModuleNames.add(module.getName());
+                    }
+                    return contains;
+                });
+            }
+
+            OpenAPI openAPI = projectDescriptor.getOpenapi();
+            final FileData fileData = aProjectArtefact.getFileData();
+            if (openAPI != null) {
+                final String algorithmModuleName = openAPI.getAlgorithmModuleName();
+                final String projectModelsModuleName = openAPI.getModelModuleName();
+                if (removedModuleNames.contains(algorithmModuleName)) {
+                    openAPI.setAlgorithmModuleName(null);
+                }
+                if (removedModuleNames.contains(projectModelsModuleName)) {
+                    openAPI.setModelModuleName(null);
+                }
+                if (fileData != null) {
+                    final String name = fileData.getName();
+                    final String rootName = projectDescriptor.getName();
+                    String filePath = name.substring(name.lastIndexOf(rootName) + rootName.length() + 1);
+                    if (openAPI.getPath() != null && filePath.equals(openAPI.getPath())) {
+                        projectDescriptor.setOpenapi(null);
+                    }
+                }
             }
             String xmlString = serializer.serialize(projectDescriptor);
             InputStream newContent = IOUtils.toInputStream(xmlString);
@@ -725,10 +890,10 @@ public class RepositoryTreeController {
     }
 
     public String deleteElement() {
-        repositoryTreeState.getSelectedNode().getData();
+        AProjectArtefact artefact = repositoryTreeState.getSelectedNode().getData();
         String childName = WebStudioUtils.getRequestParameter("element");
         AProjectArtefact childArtefact = ((TreeNode) repositoryTreeState.getSelectedNode()
-            .getChild(RepositoryUtils.getTreeNodeId(childName))).getData();
+            .getChild(RepositoryUtils.getTreeNodeId(artefact.getRepository().getId(), childName))).getData();
 
         try {
             studio.getModel().clearModuleInfo(); // Release resources like jars
@@ -755,7 +920,8 @@ public class RepositoryTreeController {
         }
         AProject p = projectArtefact.getProject();
         boolean localOnly = p instanceof UserWorkspaceProject && ((UserWorkspaceProject) p).isLocalOnly();
-        if (isSupportsBranches() && projectArtefact.getVersion() == null && !localOnly) {
+        String repositoryId = p.getRepository().getId();
+        if (isSupportsBranches(repositoryId) && projectArtefact.getVersion() == null && !localOnly) {
             activeProjectNode = null;
             WebStudioUtils.addErrorMessage("Failed to delete the node. Project does not exist in the branch.");
             return null;
@@ -765,17 +931,20 @@ public class RepositoryTreeController {
             String nodeType = selectedNode.getType();
             unregisterSelectedNodeInProjectDescriptor();
             if (projectArtefact instanceof RulesProject) {
+                RulesProject project = (RulesProject) projectArtefact;
+                if (!userWorkspace.hasProject(project.getRepository().getId(), project.getName())) {
+                    WebStudioUtils.addInfoMessage("Project was already deleted before.");
+                    return null;
+                }
                 if (projectArtefact.isLocked() && !((RulesProject) projectArtefact).isLockedByMe()) {
                     WebStudioUtils.addErrorMessage("Project is locked by other user. Cannot archive it.");
                     return null;
                 }
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                String branch = ((RulesProject) projectArtefact).getBranch();
-                closeProjectForAllUsers(workspacesRoot, selectedNode.getName(), branch);
+                closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
             if (projectArtefact instanceof UserWorkspaceProject) {
                 UserWorkspaceProject project = (UserWorkspaceProject) projectArtefact;
-
                 String comment;
                 if (project instanceof RulesProject && isUseCustomCommentForProject()) {
                     comment = archiveProjectComment;
@@ -803,7 +972,7 @@ public class RepositoryTreeController {
                         repositoryTreeState.deleteNode(selectedNode);
                         repositoryTreeState.invalidateSelection();
                     }
-                    if (isSupportsBranches()) {
+                    if (isSupportsBranches(repositoryId)) {
                         repositoryTreeState.invalidateTree();
                     }
                 } else {
@@ -814,6 +983,9 @@ public class RepositoryTreeController {
             }
 
             activeProjectNode = null;
+            if (projectArtefact instanceof UserWorkspaceProject) {
+                workspaceManager.refreshWorkspaces();
+            }
             resetStudioModel();
 
             String nodeTypeName;
@@ -836,7 +1008,7 @@ public class RepositoryTreeController {
     }
 
     private boolean isValidComment(UserWorkspaceProject project, String comment) {
-        CommentValidator commentValidator = project instanceof RulesProject ? designCommentValidator
+        CommentValidator commentValidator = project instanceof RulesProject ? getDesignCommentValidator(project)
                                                                             : deployConfigCommentValidator;
 
         try {
@@ -868,8 +1040,7 @@ public class RepositoryTreeController {
             repositoryTreeState.refreshSelectedNode();
             if (projectArtefact instanceof RulesProject) {
                 File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-                String branch = ((RulesProject) projectArtefact).getBranch();
-                closeProjectForAllUsers(workspacesRoot, projectArtefact.getName(), branch);
+                closeProjectForAllUsers(workspacesRoot, (RulesProject) projectArtefact);
             }
             resetStudioModel();
 
@@ -883,18 +1054,18 @@ public class RepositoryTreeController {
     }
 
     public String unlockProject() {
-        String projectName = WebStudioUtils.getRequestParameter("projectName");
-
         try {
-            RulesProject project = userWorkspace.getProject(projectName);
+            RulesProject project = userWorkspace.getProject(repositoryId, projectName);
             if (project == null) {
                 // It was deleted by other user
                 return null;
             }
-            project.unlock();
+            project.forceUnlock();
             File workspacesRoot = userWorkspace.getLocalWorkspace().getLocation().getParentFile();
-            closeProjectForAllUsers(workspacesRoot, projectName, project.getBranch());
+            closeProjectForAllUsers(workspacesRoot, project);
             resetStudioModel();
+
+            WebStudioUtils.addInfoMessage("Project was unlocked successfully.");
         } catch (Exception e) {
             log.error("Cannot unlock rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to unlock rules project.", e.getMessage());
@@ -905,16 +1076,24 @@ public class RepositoryTreeController {
     /**
      * Closes unlocked project for all users. All unsaved changes will be lost.
      */
-    private void closeProjectForAllUsers(File workspacesRoot,
-            String projectName,
-            String branch) throws ProjectException {
+    private void closeProjectForAllUsers(File workspacesRoot, RulesProject project) throws ProjectException {
+        String projectName = project.getName();
+        String businessName = project.getBusinessName();
+        String branch = project.getBranch();
+        String repoId = project.getRepository().getId();
+
         // Needed to update UI of current user
-        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(projectName);
-        if (projectNode != null) {
-            AProjectArtefact artefact = projectNode.getData();
-            if (artefact instanceof RulesProject) {
-                ((RulesProject) artefact).close();
+        TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(repoId, projectName);
+        try {
+            ProjectHistoryService.deleteHistory(businessName);
+            if (projectNode != null) {
+                AProjectArtefact artefact = projectNode.getData();
+                if (artefact instanceof RulesProject) {
+                    ((RulesProject) artefact).close();
+                }
             }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
         }
 
         // List all folders. Those folders - workspaces for each user (except for reserved .locks folder)
@@ -925,16 +1104,24 @@ public class RepositoryTreeController {
                     String userName = file.getName();
                     // Check for reserved folder name
                     if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
-                        try (LocalRepository repository = new LocalRepository(file)) {
+                        try {
+                            LocalRepository repository = localWorkspaceManager
+                                .getWorkspace(new WorkspaceUserImpl(userName))
+                                .getRepository(repoId);
                             repository.initialize();
 
-                            FileData savedData = repository.getProjectState(projectName).getFileData();
+                            ProjectState projectState = repository.getProjectState(businessName);
+                            String savedRepoId = projectState.getRepositoryId();
+                            FileData savedData = projectState.getFileData();
                             String savedBranch = savedData == null ? null : savedData.getBranch();
 
-                            if (branch == null && savedBranch == null || branch != null && branch.equals(savedBranch)) {
-                                FileData fileData = new FileData();
-                                fileData.setName(projectName);
-                                repository.delete(fileData);
+                            if (savedRepoId != null && savedRepoId.equals(repoId)) {
+                                if (branch == null && savedBranch == null || branch != null && branch
+                                    .equals(savedBranch)) {
+                                    FileData fileData = new FileData();
+                                    fileData.setName(businessName);
+                                    repository.delete(fileData);
+                                }
                             }
                         } catch (Exception e) {
                             // Log exception and skip current user
@@ -947,18 +1134,18 @@ public class RepositoryTreeController {
     }
 
     public String unlockDeploymentConfiguration() {
-        String deploymentProjectName = WebStudioUtils.getRequestParameter("deploymentProjectName");
-
         try {
-            ADeploymentProject deploymentProject = userWorkspace.getDDProject(deploymentProjectName);
+            ADeploymentProject deploymentProject = userWorkspace.getDDProject(projectName);
             if (deploymentProject == null) {
                 // It was deleted by other user
                 return null;
             }
             deploymentProject.unlock();
             resetStudioModel();
+
+            WebStudioUtils.addInfoMessage("Deploy configuration was unlocked successfully.");
         } catch (Exception e) {
-            log.error("Cannot unlock deployment project '{}'.", deploymentProjectName, e);
+            log.error("Cannot unlock deployment project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to unlock deployment project.", e.getMessage());
         }
         return null;
@@ -971,87 +1158,99 @@ public class RepositoryTreeController {
             return null;
         }
 
+        String nodeType = getSelectedNode().getType();
         if (!project.isDeleted()) {
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
             WebStudioUtils.addErrorMessage(
-                "Cannot erase project '" + project.getName() + "'. It must be marked for deletion first.");
+                "Cannot erase project '" + project.getBusinessName() + "'. It must be marked for deletion first.");
             return null;
         }
 
         try {
             projectDescriptorResolver.deleteRevisionsFromCache(project);
             synchronized (userWorkspace) {
-                Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
-                if (project instanceof RulesProject && isDeleteBranch(project)) {
-                    // Delete secondary branch
-                    ((BranchRepository) mainRepo).deleteBranch(null, project.getBranch());
-                } else {
-                    String comment;
-                    if (project instanceof RulesProject && isUseCustomCommentForProject()) {
-                        comment = eraseProjectComment;
-                        if (!isValidComment(project, comment)) {
-                            return null;
-                        }
-                    } else {
-                        Comments comments = getComments(project);
-                        comment = comments.eraseProject(project.getName());
+                String comment;
+                if (project instanceof RulesProject && isUseCustomCommentForProject()) {
+                    comment = eraseProjectComment;
+                    if (!isValidComment(project, comment)) {
+                        return null;
                     }
-                    try {
+                } else {
+                    Comments comments = getComments(project);
+                    comment = comments.eraseProject(project.getBusinessName());
+                }
+                try {
+                    Repository designRepository = project.getDesignRepository();
+                    boolean mappedFolders = designRepository.supports().mappedFolders();
+                    if (!mappedFolders || eraseFromRepository) {
                         project.erase(userWorkspace.getUser(), comment);
-                    } catch (ProjectException e) {
-                        Throwable cause = e.getCause();
-                        if (cause instanceof MergeConflictException) {
-                            log.debug("Failed to erase the project because of merge conflict.", cause);
-                            // Try to erase second time. It should resolve the issue if conflict in
-                            // openl-projects.properties file.
-                            project.erase(userWorkspace.getUser(), comment);
-                        } else {
-                            throw e;
-                        }
+                    } else {
+                        ((FolderMapper) designRepository).removeMapping(project.getFolderPath());
+                    }
+                } catch (ProjectException e) {
+                    Throwable cause = e.getCause();
+                    if (cause instanceof MergeConflictException) {
+                        log.debug("Failed to erase the project because of merge conflict.", cause);
+                        // Try to erase second time. It should resolve the issue if conflict in
+                        // openl-projects.properties file.
+                        project.erase(userWorkspace.getUser(), comment);
+                    } else {
+                        throw e;
                     }
                 }
             }
-            deleteProjectHistory(project.getName());
-            userWorkspace.refresh();
+            workspaceManager.refreshWorkspaces();
 
             repositoryTreeState.deleteSelectedNodeFromTree();
             repositoryTreeState.invalidateTree();
             repositoryTreeState.invalidateSelection();
 
             resetStudioModel();
-            WebStudioUtils.addInfoMessage("Project was erased successfully.");
+            if (UiConst.TYPE_DEPLOYMENT_PROJECT.equals(nodeType)) {
+                WebStudioUtils.addInfoMessage("Deploy configuration was erased successfully.");
+            } else {
+                WebStudioUtils.addInfoMessage("Project was erased successfully.");
+            }
         } catch (Exception e) {
             repositoryTreeState.invalidateTree();
-            String msg = "Cannot erase project '" + project.getName() + "'.";
+            String msg = e.getCause() instanceof IOException ? e
+                .getMessage() : "Cannot erase project '" + project.getBusinessName() + "'.";
             log.error(msg, e);
             WebStudioUtils.addErrorMessage(msg);
         }
         return null;
     }
 
-    public boolean isDeleteBranch(UserWorkspaceProject project) {
-        if (project == null) {
-            return false;
+    public void deleteBranch() {
+        UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (!(project instanceof RulesProject)) {
+            return;
         }
-
-        Repository mainRepo = userWorkspace.getDesignTimeRepository().getRepository();
-        return mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch().equals(project.getBranch());
-    }
-
-    public void deleteProjectHistory(String projectName) {
         try {
-            String projectHistoryPath = propertyResolver
-                .getProperty(PROJECT_HISTORY_HOME) + File.separator + projectName;
-            File dir = new File(projectHistoryPath);
-            // Project can contain no history
-            if (dir.exists()) {
-                FileUtils.delete(dir);
+            String branch = project.getBranch();
+
+            Repository mainRepo = userWorkspace.getDesignTimeRepository()
+                .getRepository(project.getRepository().getId());
+            if (mainRepo != null && mainRepo.supports().branches() && !((BranchRepository) mainRepo).getBranch()
+                .equals(branch)) {
+                ProjectHistoryService.deleteHistory(project.getBusinessName());
+                closeProjectAndReleaseResources(project);
+
+                // Delete secondary branch
+                ((BranchRepository) mainRepo).deleteBranch(null, branch);
+                workspaceManager.refreshWorkspaces();
+
+                repositoryTreeState.invalidateTree();
+                repositoryTreeState.invalidateSelection();
+
+                resetStudioModel();
+                WebStudioUtils.addInfoMessage("Branch '" + branch + "' was deleted successfully.");
             }
         } catch (Exception e) {
-            String msg = "Failed to clean history of project '" + projectName + "'.";
+            String msg = "Cannot delete the branch '" + project.getBranch() + "'.";
             log.error(msg, e);
-            WebStudioUtils.addErrorMessage(msg, e.getMessage());
+            WebStudioUtils.addErrorMessage(msg);
         }
     }
 
@@ -1059,11 +1258,14 @@ public class RepositoryTreeController {
         File zipFile = null;
         String zipFileName = null;
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             zipFile = ProjectExportHelper.export(userWorkspace.getUser(), forExport);
-            zipFileName = String.format("%s-%s.zip", selectedProject.getName(), version);
+            String suffix = RepositoryUtils.buildProjectVersion(forExport.getFileData());
+            zipFileName = String.format("%s-%s.zip", selectedProject.getBusinessName(), suffix);
         } catch (Exception e) {
             String msg = "Failed to export project version.";
             log.error(msg, e);
@@ -1089,12 +1291,14 @@ public class RepositoryTreeController {
         InputStream is = null;
         OutputStream os = null;
         try {
-            AProject selectedProject = repositoryTreeState.getSelectedProject();
+            UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            Repository repository = selectedProject.getDesignRepository();
+            String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
             AProject forExport = userWorkspace.getDesignTimeRepository()
-                .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+                .getProjectByPath(repository.getId(), branch, selectedProject.getRealPath(), version);
             TreeNode selectedNode = repositoryTreeState.getSelectedNode();
             fileName = selectedNode.getName();
-            ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+            ArtefactPath selectedNodePath = selectedNode.getInternalArtifactPath();
 
             is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             file = File.createTempFile("export-", "-file");
@@ -1132,7 +1336,7 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage("Path should not be empty");
             return null;
         }
-        AProject selectedProject = repositoryTreeState.getSelectedProject();
+        UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
         ArtefactPath artefactPath = new ArtefactPathImpl(path);
         try {
             selectedProject.getArtefactByPath(artefactPath);
@@ -1160,24 +1364,32 @@ public class RepositoryTreeController {
             }
 
             AProject forExport;
+            String repositoryId = selectedProject.getRepository().getId();
             if (hasVersions && currentRevision == null) {
+                Repository repository = selectedProject.getDesignRepository();
+                String branch = repository.supports().branches() ? ((BranchRepository) repository).getBranch() : null;
                 forExport = userWorkspace.getDesignTimeRepository()
-                    .getProject(selectedProject.getName(), new CommonVersionImpl(version));
+                    .getProjectByPath(repositoryId, branch, selectedProject.getRealPath(), version);
 
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-                ArtefactPath selectedNodePath = selectedNode.getData().getArtefactPath().withoutFirstSegment();
+                ArtefactPath selectedNodePath = selectedNode.getInternalArtifactPath();
                 is = ((AProjectResource) forExport.getArtefactByPath(selectedNodePath)).getContent();
             } else {
                 TreeNode selectedNode = repositoryTreeState.getSelectedNode();
-                is = ((AProjectResource) userWorkspace.getArtefactByPath(selectedNode.getData().getArtefactPath()))
-                    .getContent();
+                ArtefactPath pathForSelection = selectedNode.getData().getArtefactPath();
+                String projectName = pathForSelection.segment(0);
+                AProject uwp = userWorkspace.getProject(repositoryId, projectName);
+
+                ArtefactPath pathInProject = pathForSelection.withoutFirstSegment();
+
+                is = ((AProjectResource) uwp.getArtefactByPath(pathInProject)).getContent();
             }
 
             AProjectResource addedFileResource = folder
                 .addResource(artefactPath.segment(artefactPath.segmentCount() - 1), is);
             fileName = addedFileResource.getName();
             repositoryTreeState
-                .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(selectedProject.getName()));
+                .refreshNode(repositoryTreeState.getProjectNodeByPhysicalName(repositoryId, selectedProject.getName()));
             registerInProjectDescriptor(addedFileResource);
             resetStudioModel();
             is.close();
@@ -1193,22 +1405,15 @@ public class RepositoryTreeController {
     }
 
     public boolean isHideDeleted() {
-        hideDeleted = repositoryTreeState.isHideDeleted();
-        return hideDeleted;
+        return repositoryTreeState.isHideDeleted();
     }
 
     public void setHideDeleted(boolean hideDeleted) {
-        this.hideDeleted = hideDeleted;
+        repositoryTreeState.setHideDeleted(hideDeleted);
     }
 
-    public String filter() {
-        IFilter<AProjectArtefact> filter = null;
-        if (StringUtils.isNotBlank(filterString)) {
-            filter = new RepositoryFileExtensionFilter(filterString);
-        }
-        repositoryTreeState.setFilter(filter);
-        repositoryTreeState.setHideDeleted(hideDeleted);
-        return null;
+    public void filter() {
+        repositoryTreeState.filter();
     }
 
     public String getDeploymentProjectName() {
@@ -1230,7 +1435,7 @@ public class RepositoryTreeController {
     }
 
     public String getFilterString() {
-        return filterString;
+        return repositoryTreeState.getFilterString();
     }
 
     public String getFolderName() {
@@ -1242,14 +1447,22 @@ public class RepositoryTreeController {
         Comments comments = getComments(project);
 
         if (project != null && project.isOpenedOtherVersion()) {
-            return comments.restoredFrom(project.getHistoryVersion());
+            FileData fileData = project.getFileData();
+            return comments.restoredFrom(fileData.getVersion(), fileData.getAuthor(), fileData.getModifiedAt());
         }
 
-        return comments.saveProject(project == null ? StringUtils.EMPTY : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.saveProject(project.getBusinessName());
     }
 
     private Comments getComments(UserWorkspaceProject project) {
-        return project instanceof ADeploymentProject ? deployConfigRepoComments : designRepoComments;
+        if (project == null || project.getDesignRepository() == null) {
+            return new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID);
+        }
+        if (project instanceof ADeploymentProject) {
+            return deployConfigRepoComments;
+        }
+        repositoryId = project.getDesignRepository().getId();
+        return getDesignRepoComments();
     }
 
     public String getNewProjectName() {
@@ -1264,7 +1477,11 @@ public class RepositoryTreeController {
     }
 
     public String getProjectFolder() {
-        return projectFolder;
+        String folderToShow = this.projectFolder;
+        if (!folderToShow.startsWith("/")) {
+            folderToShow = "/" + folderToShow;
+        }
+        return folderToShow;
     }
 
     private ProjectVersion getProjectVersion() {
@@ -1296,10 +1513,17 @@ public class RepositoryTreeController {
     public SelectItem[] getSelectedProjectVersions() {
         Collection<ProjectVersion> versions = repositoryTreeState.getSelectedNode().getVersions();
 
+        return toSelectItems(versions);
+    }
+
+    public SelectItem[] toSelectItems(Collection<ProjectVersion> versions) {
+        if (versions == null) {
+            return new SelectItem[0];
+        }
         List<SelectItem> selectItems = new ArrayList<>();
         for (ProjectVersion version : versions) {
             if (!version.isDeleted()) {
-                selectItems.add(new SelectItem(version.getVersionName()));
+                selectItems.add(new SelectItem(version.getVersionName(), utils.getDescriptiveVersion(version)));
             }
         }
         return selectItems.toArray(new SelectItem[0]);
@@ -1315,7 +1539,14 @@ public class RepositoryTreeController {
 
     public String openProject() {
         try {
-            repositoryTreeState.getSelectedProject().open();
+            UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+            if (userWorkspace.isOpenedOtherProject(project)) {
+                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
+                return null;
+            }
+            project.open();
+            // User workspace is changed when the project was opened, so we must refresh it to calc dependencies.
+            userWorkspace.refresh();
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
@@ -1329,14 +1560,26 @@ public class RepositoryTreeController {
 
     private void openDependenciesIfNeeded() throws ProjectException {
         if (openDependencies) {
-            for (String dependency : getDependencies(getSelectedProject(), true)) {
-                TreeProject projectNode = repositoryTreeState.getProjectNodeByPhysicalName(dependency);
+            AProject selectedProject = getSelectedProject();
+            if (selectedProject == null) {
+                return;
+            }
+            String repoId = selectedProject.getRepository().getId();
+            for (String dependency : getDependencies(selectedProject, true)) {
+                TreeProject projectNode = repositoryTreeState.getProjectNodeByBusinessName(repoId, dependency);
+                if (projectNode == null) {
+                    projectNode = repositoryTreeState.getProjectNodeByBusinessName(null, dependency);
+                }
                 if (projectNode == null) {
                     log.error("Cannot find dependency {}", dependency);
                     continue;
                 }
-                String physicalName = projectNode.getName();
-                userWorkspace.getProject(physicalName).open();
+                AProjectArtefact projectArtefact = projectNode.getData();
+                RulesProject project = userWorkspace.getProject(projectArtefact.getRepository().getId(),
+                    projectArtefact.getName());
+                if (!userWorkspace.isOpenedOtherProject(project)) {
+                    project.open();
+                }
             }
         }
     }
@@ -1344,6 +1587,19 @@ public class RepositoryTreeController {
     public String openProjectVersion() {
         try {
             UserWorkspaceProject repositoryProject = repositoryTreeState.getSelectedProject();
+            boolean openedSimilarToHistoric = false;
+            if (repositoryProject instanceof RulesProject) {
+                RulesProject project = (RulesProject) repositoryProject;
+                AProject historic = new AProject(project.getDesignRepository(), project.getDesignFolderName(), version);
+                openedSimilarToHistoric = userWorkspace.isOpenedOtherProject(historic);
+            }
+            if (userWorkspace.isOpenedOtherProject(repositoryProject) || openedSimilarToHistoric) {
+                WebStudioUtils.addErrorMessage(OPENED_OTHER_PROJECT);
+                // To avoid unnecessary request for the version when it's not needed (from
+                // getHasDependenciesForVersion())
+                version = null;
+                return null;
+            }
 
             if (repositoryProject.isOpened()) {
                 studio.getModel().clearModuleInfo();
@@ -1354,6 +1610,8 @@ public class RepositoryTreeController {
             openDependenciesIfNeeded();
             repositoryTreeState.refreshSelectedNode();
             resetStudioModel();
+            // To avoid unnecessary request for the version when it's not needed (from getHasDependenciesForVersion())
+            version = null;
         } catch (Exception e) {
             String msg = "Failed to open project version.";
             log.error(msg, e);
@@ -1371,12 +1629,10 @@ public class RepositoryTreeController {
         repositoryProject.close();
     }
 
-    public String openProjectVersion(String version) {
+    public void setProjectVersion(String version) {
         this.version = version;
         openDependencies = true;
         openProjectVersion();
-
-        return null;
     }
 
     public String refreshTree() {
@@ -1387,14 +1643,17 @@ public class RepositoryTreeController {
     }
 
     public String selectDeploymentProject() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String projectName = WebStudioUtils.getRequestParameter("projectName");
+        setRepositoryId(repositoryId);
         selectProject(projectName, repositoryTreeState.getDeploymentRepository());
         return null;
     }
 
     private void selectProject(String projectName, TreeRepository root) {
         for (TreeNode node : root.getChildNodes()) {
-            if (node.getName().equals(projectName)) {
+            if (node.getData().getName().equals(projectName) && repositoryId
+                .equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 break;
             }
@@ -1402,38 +1661,80 @@ public class RepositoryTreeController {
     }
 
     public String selectRulesProject() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String projectName = WebStudioUtils.getRequestParameter("projectName");
+        setRepositoryId(repositoryId);
         selectProject(projectName, repositoryTreeState.getRulesRepository());
         return null;
     }
 
-    public void uploadListener(FileUploadEvent event) {
-        ProjectFile file = new ProjectFile(event.getUploadedFile());
-        uploadedFiles.add(file);
-        String fileName = file.getName();
-
-        setFileName(fileName);
-
-        if (fileName.contains(".")) {
-            setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
-
-            if (FileTypeHelper.isZipFile(fileName)) {
-                Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
-
-                if (charset == null) {
-                    log.warn("Cannot detect a charset for the zip file");
-                    charset = StandardCharsets.UTF_8;
-                }
-
-                ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
-                    .getProjectDescriptorOrNull(file, zipFilter, charset);
-                if (projectDescriptor != null) {
-                    setProjectName(projectDescriptor.getName());
-                }
-                setCreateProjectComment(designRepoComments.createProject(getProjectName()));
+    public void setRulesProject(String businessName) {
+        // Find first found project with a given business name in current repository in any path.
+        for (TreeNode node : repositoryTreeState.getRulesRepository().getChildNodes()) {
+            RulesProject project = (RulesProject) node.getData();
+            if (project.getBusinessName().equals(businessName) && repositoryId
+                .equals(project.getRepository().getId())) {
+                repositoryTreeState.setSelectedNode(node);
+                break;
             }
+        }
+    }
+
+    public void uploadListener(FileUploadEvent event) {
+        try {
+            ProjectFile file = new ProjectFile(event.getUploadedFile());
+            uploadedFiles.add(file);
+            String fileName = file.getName();
+
+            setFileName(fileName);
+
+            if (fileName.contains(".")) {
+                if (!FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                    setProjectName(fileName.substring(0, fileName.lastIndexOf('.')));
+                } else {
+                    setProjectName("");
+                }
+                if (FileTypeHelper.isZipFile(fileName)) {
+                    Charset charset = zipCharsetDetector.detectCharset(new ZipFromProjectFile(file));
+
+                    if (charset == null) {
+                        log.warn("Cannot detect a charset for the zip file");
+                        charset = StandardCharsets.UTF_8;
+                    }
+
+                    ProjectDescriptor projectDescriptor = ZipProjectDescriptorExtractor
+                        .getProjectDescriptorOrNull(file, zipFilter, charset);
+                    if (projectDescriptor != null) {
+                        setProjectName(projectDescriptor.getName());
+                    }
+                    setCreateProjectComment(getDesignRepoComments().createProject(getProjectName()));
+                }
+            } else {
+                setProjectName(fileName);
+            }
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Error occurred during uploading file.", e.getMessage());
+        }
+    }
+
+    /**
+     * Remove uploaded files.
+     *
+     * @param fileNames file names split by '\n' symbol. If empty, all files will be removed.
+     */
+    public void setFileNamesToRemove(String fileNames) {
+        if (fileNames.isEmpty()) {
+            clearUploadedFiles();
         } else {
-            setProjectName(fileName);
+            List<String> toRemove = Arrays.asList(fileNames.split("\n"));
+            for (Iterator<ProjectFile> iterator = uploadedFiles.iterator(); iterator.hasNext();) {
+                ProjectFile file = iterator.next();
+                if (toRemove.contains(file.getName())) {
+                    file.destroy();
+                    iterator.remove();
+                }
+            }
         }
     }
 
@@ -1456,7 +1757,7 @@ public class RepositoryTreeController {
     }
 
     public void setFilterString(String filterString) {
-        this.filterString = filterString;
+        repositoryTreeState.setFilterString(filterString);
     }
 
     public void setFolderName(String folderName) {
@@ -1470,6 +1771,30 @@ public class RepositoryTreeController {
         }
     }
 
+    public String getRepositoryId() {
+        return StringUtils.isBlank(repositoryId) ? NONE_REPO : repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = NONE_REPO.equals(repositoryId) ? null : repositoryId;
+    }
+
+    private CommentValidator getDesignCommentValidator(UserWorkspaceProject project) {
+        Repository designRepository = project.getDesignRepository();
+        String repositoryId = designRepository == null ? null : designRepository.getId();
+        return getDesignCommentValidator(repositoryId);
+    }
+
+    private CommentValidator getDesignCommentValidator(String repositoryId) {
+        return StringUtils.isEmpty(repositoryId) ? CommentValidator.forRepo("")
+                                                 : CommentValidator.forRepo(repositoryId);
+    }
+
+    private Comments getDesignRepoComments() {
+        return StringUtils.isEmpty(repositoryId) ? new Comments(propertyResolver, Comments.DESIGN_CONFIG_REPO_ID)
+                                                 : new Comments(propertyResolver, repositoryId);
+    }
+
     public void setNewProjectName(String newProjectName) {
         this.newProjectName = StringUtils.trim(newProjectName);
     }
@@ -1480,6 +1805,9 @@ public class RepositoryTreeController {
 
     public void setProjectFolder(String projectFolder) {
         String folder = StringUtils.trimToEmpty(projectFolder).replace('\\', '/');
+        if (folder.startsWith("/")) {
+            folder = folder.substring(1);
+        }
         if (!folder.isEmpty() && !folder.endsWith("/")) {
             folder += '/';
         }
@@ -1505,7 +1833,7 @@ public class RepositoryTreeController {
     public String undeleteProject() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (!project.isDeleted()) {
-            WebStudioUtils.addErrorMessage("Cannot undelete project '" + project.getName() + "'.",
+            WebStudioUtils.addErrorMessage("Cannot undelete project '" + project.getBusinessName() + "'.",
                 "Project is not marked for deletion.");
             return null;
         }
@@ -1519,13 +1847,14 @@ public class RepositoryTreeController {
                 }
             } else {
                 Comments comments = getComments(project);
-                comment = comments.restoreProject(project.getName());
+                comment = comments.restoreProject(project.getBusinessName());
             }
             project.undelete(userWorkspace.getUser(), comment);
             repositoryTreeState.refreshSelectedNode();
+            workspaceManager.refreshWorkspaces();
             resetStudioModel();
         } catch (Exception e) {
-            String msg = "Cannot undelete project '" + project.getName() + "'.";
+            String msg = "Cannot undelete project '" + project.getBusinessName() + "'.";
             log.error(msg, e);
             WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
@@ -1541,7 +1870,7 @@ public class RepositoryTreeController {
             resetStudioModel();
             WebStudioUtils.addInfoMessage("File was successfully updated.");
         } else {
-            WebStudioUtils.addErrorMessage(errorMessage, "Error occured during uploading file. " + errorMessage);
+            WebStudioUtils.addErrorMessage(errorMessage, "Error occurred during uploading file. " + errorMessage);
         }
 
         /* Clear the load form */
@@ -1554,8 +1883,9 @@ public class RepositoryTreeController {
         String errorMessage = uploadProject();
         if (errorMessage == null) {
             try {
-                AProject createdProject = userWorkspace.getProject(projectName);
+                RulesProject createdProject = userWorkspace.getProject(repositoryId, projectName);
                 repositoryTreeState.addRulesProjectToTree(createdProject);
+                selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
@@ -1574,27 +1904,35 @@ public class RepositoryTreeController {
         if (StringUtils.isNotBlank(createProjectComment)) {
             comment = createProjectComment;
         } else {
-            comment = designRepoComments.createProject(projectName);
+            comment = getDesignRepoComments().createProject(projectName);
         }
         String errorMessage = validateCreateProjectParams(comment);
         if (errorMessage != null) {
             WebStudioUtils.addErrorMessage(errorMessage);
-        } else if (uploadedFiles == null || uploadedFiles.isEmpty()) {
+        } else if (uploadedFiles.isEmpty()) {
             WebStudioUtils.addErrorMessage("There are no uploaded files.");
         } else {
-            errorMessage = new ProjectUploader(uploadedFiles,
+            final ProjectUploader uploader = new ProjectUploader(repositoryId,
+                uploadedFiles,
                 projectName,
                 projectFolder,
                 userWorkspace,
                 comment,
                 zipFilter,
-                zipCharsetDetector).uploadProject();
+                zipCharsetDetector,
+                modelsPath,
+                algorithmsPath,
+                modelsModuleName,
+                algorithmsModuleName);
+            errorMessage = uploader.uploadProject();
             if (errorMessage != null) {
                 WebStudioUtils.addErrorMessage(errorMessage);
             } else {
                 try {
-                    AProject createdProject = userWorkspace.getProject(projectName);
+                    final String technicalName = uploader.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, technicalName);
                     repositoryTreeState.addRulesProjectToTree(createdProject);
+                    selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                     resetStudioModel();
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                 } catch (Exception e) {
@@ -1614,7 +1952,7 @@ public class RepositoryTreeController {
         this.setProjectName(null);
         this.setProjectFolder("");
         this.setCreateProjectComment(null);
-        this.uploadedFiles.clear();
+        clearUploadedFiles();
     }
 
     private String uploadAndAddFile() {
@@ -1641,7 +1979,7 @@ public class RepositoryTreeController {
              * If an error is IOException then an error will not be written to the console. This error throw when upload
              * file is exist in the upload folder
              */
-            if (e.getCause() == null || !e.getCause().getClass().equals(java.io.IOException.class)) {
+            if (e.getCause() == null || e.getCause().getClass() != IOException.class) {
                 log.error("Error adding file to user workspace.", e);
             }
 
@@ -1673,7 +2011,10 @@ public class RepositoryTreeController {
                     Module module = new Module();
                     module.setName(fileName.substring(0, fileName.lastIndexOf('.')));
                     module.setRulesRootPath(new PathEntry(modulePath));
-                    projectDescriptor.getModules().add(module);
+                    ProjectDescriptorManager descriptorManager = new ProjectDescriptorManager();
+                    if (!descriptorManager.isCoveredByWildcardModule(projectDescriptor, module)) {
+                        projectDescriptor.getModules().add(module);
+                    }
                     String xmlString = serializer.serialize(projectDescriptor);
                     InputStream newContent = IOUtils.toInputStream(xmlString);
                     resource.setContent(newContent);
@@ -1714,6 +2055,11 @@ public class RepositoryTreeController {
         return null;
     }
 
+    enum OpenAPIModule {
+        MODEL,
+        ALGORITHM
+    }
+
     private String uploadProject() {
         String errorMessage;
 
@@ -1724,19 +2070,28 @@ public class RepositoryTreeController {
                 if (StringUtils.isNotBlank(createProjectComment)) {
                     comment = createProjectComment;
                 } else {
-                    comment = designRepoComments.createProject(projectName);
+                    comment = getDesignRepoComments().createProject(projectName);
                 }
-
-                ProjectUploader projectUploader = new ProjectUploader(uploadedItem,
+                String pathForModels = extractPath(editModelsPath, modelsPath, OpenAPIModule.MODEL);
+                String pathForAlgorithms = extractPath(editAlgorithmsPath, algorithmsPath, OpenAPIModule.ALGORITHM);
+                ProjectUploader projectUploader = new ProjectUploader(repositoryId,
+                    uploadedItem,
                     projectName,
                     projectFolder,
                     userWorkspace,
                     comment,
                     zipFilter,
-                    zipCharsetDetector);
+                    zipCharsetDetector,
+                    pathForModels,
+                    pathForAlgorithms,
+                    modelsModuleName,
+                    algorithmsModuleName);
                 errorMessage = validateCreateProjectParams(comment);
                 if (errorMessage == null) {
                     errorMessage = projectUploader.uploadProject();
+                    if (errorMessage == null) {
+                        projectName = projectUploader.getCreatedProjectName();
+                    }
                 }
             } else {
                 errorMessage = "There are no uploaded files.";
@@ -1768,6 +2123,7 @@ public class RepositoryTreeController {
 
         if (errorMessage == null) {
             clearUploadedFiles();
+            clearOpenAPIFields();
         } else {
             WebStudioUtils.addErrorMessage(errorMessage);
         }
@@ -1775,7 +2131,32 @@ public class RepositoryTreeController {
         return errorMessage;
     }
 
+    private String extractPath(boolean editorWasEnabled, String current, OpenAPIModule moduleType) {
+        String pathForModels;
+        if (!editorWasEnabled) {
+            if (moduleType == OpenAPIModule.MODEL) {
+                if (StringUtils.isNotBlank(modelsModuleName)) {
+                    pathForModels = openAPIEditorService.generateModulePath(modelsModuleName);
+                } else {
+                    pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH);
+                }
+            } else {
+                if (StringUtils.isNotBlank(algorithmsModuleName)) {
+                    pathForModels = openAPIEditorService.generateModulePath(algorithmsModuleName);
+                } else {
+                    pathForModels = propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH);
+                }
+            }
+        } else {
+            pathForModels = current;
+        }
+        return pathForModels;
+    }
+
     public void clearUploadedFiles() {
+        for (ProjectFile uploadedFile : uploadedFiles) {
+            uploadedFile.destroy();
+        }
         uploadedFiles.clear();
     }
 
@@ -1795,6 +2176,15 @@ public class RepositoryTreeController {
             WebStudioUtils.addErrorMessage(msg, e.getMessage());
         }
         return null;
+    }
+
+    public void clearOpenAPIFields() {
+        setEditModelsPath(false);
+        setEditAlgorithmsPath(false);
+        setAlgorithmsModuleName(propertyResolver.getProperty("openapi.default.algorithm.module.name"));
+        setModelsModuleName(propertyResolver.getProperty("openapi.default.data.module.name"));
+        setAlgorithmsPath(propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH));
+        setModelsPath(propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH));
     }
 
     public String getNewProjectTemplate() {
@@ -1849,10 +2239,10 @@ public class RepositoryTreeController {
         this.openDependencies = openDependencies;
     }
 
-    private AProject getSelectedProject() {
+    public UserWorkspaceProject getSelectedProject() {
         AProjectArtefact artefact = getSelectedNode().getData();
-        if (artefact instanceof AProject) {
-            return (AProject) artefact;
+        if (artefact instanceof UserWorkspaceProject) {
+            return (UserWorkspaceProject) artefact;
         }
         return null;
     }
@@ -1861,13 +2251,14 @@ public class RepositoryTreeController {
      * Determine show or not current project content is some page (Open Version dialog or Rules Deploy Configuration
      * tab).
      *
-     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen(AjaxBehaviorEvent)}
-     *         is invoked
+     * @return false if selected project is changed or true if {@link #selectCurrentProjectForOpen()} is invoked
      */
     public boolean isCurrentProjectSelected() {
-        if (currentProject != getSelectedProject()) {
+        AProject selectedProject = getSelectedProject();
+        if (currentProject == null || selectedProject == null || currentProject != selectedProject && !currentProject
+            .getName()
+            .equals(selectedProject.getName())) {
             currentProject = null;
-            version = null;
             return false;
         }
         return currentProject != null;
@@ -1876,7 +2267,7 @@ public class RepositoryTreeController {
     /**
      * Mark (select) current project for open in some page (Open Version dialog or Rules Deploy Configuration tab)
      */
-    public void selectCurrentProjectForOpen(AjaxBehaviorEvent event) {
+    public void selectCurrentProjectForOpen() {
         currentProject = getSelectedProject();
         if (currentProject == null || currentProject.getVersion() == null || currentProject.isLastVersion()) {
             version = null;
@@ -1886,11 +2277,12 @@ public class RepositoryTreeController {
     }
 
     public void deleteRulesProjectListener(AjaxBehaviorEvent event) {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         final String projectName = WebStudioUtils.getRequestParameter("projectName");
 
         try {
             activeProjectNode = repositoryTreeState.getRulesRepository()
-                .getChild(RepositoryUtils.getTreeNodeId(projectName));
+                .getChild(RepositoryUtils.getTreeNodeId(repositoryId, projectName));
         } catch (Exception e) {
             log.error("Cannot delete rules project '{}'.", projectName, e);
             WebStudioUtils.addErrorMessage("Failed to delete rules project.", e.getMessage());
@@ -1900,18 +2292,40 @@ public class RepositoryTreeController {
     /**
      * Checks if design repository supports branches
      */
-    public boolean isSupportsBranches() {
+    public boolean isAnySupportsBranches() {
+        return userWorkspace.getDesignTimeRepository()
+            .getRepositories()
+            .stream()
+            .anyMatch(repository -> repository.supports().branches());
+    }
+
+    public boolean isSupportsBranches(String repositoryId) {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository().supports().branches();
+            Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            return repository != null && repository.supports().branches();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
     }
 
+    public List<Repository> getNonFlatRepositories() {
+        return userWorkspace.getDesignTimeRepository()
+            .getRepositories()
+            .stream()
+            .filter(r -> r.supports().mappedFolders())
+            .collect(Collectors.toList());
+    }
+
+    @Deprecated
     public boolean isSupportsMappedFolders() {
+        return repositoryId != null && isSupportsMappedFolders(repositoryId);
+    }
+
+    public boolean isSupportsMappedFolders(String repositoryId) {
         try {
-            return userWorkspace.getDesignTimeRepository().getRepository().supports().mappedFolders();
+            Repository repository = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            return repository != null && repository.supports().mappedFolders();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
@@ -1941,8 +2355,10 @@ public class RepositoryTreeController {
                 selectedProject.releaseMyLock();
             }
 
+            String businessNameBeforeSwitch = selectedProject.getBusinessName();
+
             selectedProject.setBranch(branch);
-            if (selectedProject.getVersion() == null) {
+            if (selectedProject.getLastHistoryVersion() == null) {
                 // move back to previous branch! Because the project is not present in new branch
                 selectedProject.setBranch(previousBranch);
                 log.warn(
@@ -1955,7 +2371,10 @@ public class RepositoryTreeController {
                     selectedProject.close();
                 } else {
                     // Update files
-                    selectedProject.open();
+                    ProjectHistoryService.deleteHistory(businessNameBeforeSwitch);
+                    if (!userWorkspace.isOpenedOtherProject(selectedProject)) {
+                        selectedProject.open();
+                    }
                 }
             }
 
@@ -1969,7 +2388,8 @@ public class RepositoryTreeController {
 
     public void validateProjectForBranch(FacesContext context, UIComponent toValidate, Object value) {
         UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
-        if (!isSupportsBranches() || !(selectedProject instanceof RulesProject)) {
+        if (!(selectedProject instanceof RulesProject) || !isSupportsBranches(
+            selectedProject.getRepository().getId())) {
             return;
         }
         String branch = (String) value;
@@ -1984,21 +2404,24 @@ public class RepositoryTreeController {
         }
     }
 
-    public List<SelectItem> getProjectBranches() {
+    public List<String> getProjectBranches() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
+            if (!(selectedProject instanceof RulesProject)) {
+                return Collections.emptyList();
+            }
 
-            List<String> branches = new ArrayList<>(
-                ((BranchRepository) userWorkspace.getDesignTimeRepository().getRepository())
-                    .getBranches(selectedProject.getName()));
+            List<String> branches = new ArrayList<>(((BranchRepository) userWorkspace.getDesignTimeRepository()
+                .getRepository(selectedProject.getRepository().getId()))
+                    .getBranches(((RulesProject) selectedProject).getDesignFolderName()));
             String projectBranch = getProjectBranch();
             if (projectBranch != null && !branches.contains(projectBranch)) {
                 branches.add(projectBranch);
                 branches.sort(String.CASE_INSENSITIVE_ORDER);
             }
 
-            return Arrays.asList(WizardUtils.createSelectItems(branches));
-        } catch (IOException e) {
+            return branches;
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             return Collections.emptyList();
         }
@@ -2022,7 +2445,7 @@ public class RepositoryTreeController {
 
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
         if (project instanceof RulesProject) {
-            designCommentValidator.validate(comment);
+            getDesignCommentValidator(project).validate(comment);
         } else if (project instanceof ADeploymentProject) {
             deployConfigCommentValidator.validate(comment);
         }
@@ -2031,10 +2454,11 @@ public class RepositoryTreeController {
     public List<String> getCommentParts(AProjectArtefact artefact, ProjectVersion version) {
         String comment = version.getVersionComment();
         if (artefact instanceof RulesProject) {
-            List<String> commentParts = designRepoComments.getCommentParts(comment);
+            repositoryId = ((RulesProject) artefact).getDesignRepository().getId();
+            List<String> commentParts = getDesignRepoComments().getCommentParts(comment);
             if (commentParts.size() == 3) {
                 String name = commentParts.get(1);
-                if (repositoryTreeState.getProjectNodeByPhysicalName(name) != null) {
+                if (repositoryTreeState.getProjectNodeByBusinessName(repositoryId, name) != null) {
                     return new ArrayList<>(commentParts);
                 }
             }
@@ -2048,7 +2472,11 @@ public class RepositoryTreeController {
      * Used when create a project.
      */
     public boolean isUseCustomComment() {
-        return projectUseCustomComment;
+        if (StringUtils.isEmpty(repositoryId)) {
+            return false;
+        }
+        return Boolean.parseBoolean(propertyResolver
+            .getProperty(Comments.REPOSITORY_PREFIX + repositoryId + ".comment-template.use-custom-comments"));
     }
 
     /**
@@ -2056,11 +2484,17 @@ public class RepositoryTreeController {
      */
     public boolean isUseCustomCommentForProject() {
         // Only projects are supported for now. Deploy configs can be supported in future.
-        return repositoryTreeState.getSelectedProject() != null
-                                                                ? projectUseCustomComment && !repositoryTreeState
-                                                                    .getSelectedProject()
-                                                                    .isLocalOnly()
-                                                                : projectUseCustomComment;
+        UserWorkspaceProject selectedProject = getSelectedProject();
+        if (selectedProject == null) {
+            return false;
+        }
+        Repository repository = selectedProject.getDesignRepository();
+        if (repository == null) {
+            return false;
+        }
+        repositoryId = repository.getId();
+        boolean projectUseCustomComment = isUseCustomComment();
+        return projectUseCustomComment && !selectedProject.isLocalOnly();
     }
 
     public String getCreateProjectComment() {
@@ -2068,7 +2502,7 @@ public class RepositoryTreeController {
     }
 
     public String retrieveCreateProjectCommentTemplate() {
-        return projectUseCustomComment ? designRepoComments.getCreateProjectTemplate() : null;
+        return isUseCustomComment() ? getDesignRepoComments().getCreateProjectTemplate() : null;
     }
 
     public void setCreateProjectComment(String createProjectComment) {
@@ -2077,8 +2511,11 @@ public class RepositoryTreeController {
 
     public String getArchiveProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.archiveProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.archiveProject(project.getBusinessName());
     }
 
     public void setArchiveProjectComment(String archiveProjectComment) {
@@ -2087,8 +2524,11 @@ public class RepositoryTreeController {
 
     public String getRestoreProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.restoreProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.restoreProject(project.getBusinessName());
     }
 
     public void setRestoreProjectComment(String restoreProjectComment) {
@@ -2097,8 +2537,26 @@ public class RepositoryTreeController {
 
     public String getEraseProjectComment() {
         UserWorkspaceProject project = repositoryTreeState.getSelectedProject();
+        if (project == null && activeProjectNode.getData() instanceof UserWorkspaceProject) {
+            project = (UserWorkspaceProject) activeProjectNode.getData();
+        }
         Comments comments = getComments(project);
-        return comments.eraseProject(project == null ? activeProjectNode.getName() : project.getName());
+        return project == null ? StringUtils.EMPTY : comments.eraseProject(project.getBusinessName());
+    }
+
+    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        this.projectVersionCacheManager = projectVersionCacheManager;
+    }
+
+    public String getBusinessVersion(TreeProductProject version) {
+        try {
+            String businessVersion = projectVersionCacheManager
+                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+            return businessVersion != null ? businessVersion : version.getVersionName();
+        } catch (IOException e) {
+            log.error("Error during getting project design version", e);
+            return version.getVersionName();
+        }
     }
 
     public void setEraseProjectComment(String eraseProjectComment) {
@@ -2114,10 +2572,6 @@ public class RepositoryTreeController {
         this.zipCharsetDetector = zipCharsetDetector;
     }
 
-    public void setDesignRepoComments(Comments designRepoComments) {
-        this.designRepoComments = designRepoComments;
-    }
-
     public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
         this.deployConfigRepoComments = deployConfigRepoComments;
     }
@@ -2129,16 +2583,214 @@ public class RepositoryTreeController {
     @PostConstruct
     public void init() {
         customTemplatesResolver = new CustomTemplatesResolver(
-            propertyResolver.getProperty(PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY));
-        this.projectUseCustomComment = Boolean
-            .parseBoolean(propertyResolver.getProperty("repository.design.comment-template.use-custom-comments"));
-        designCommentValidator = CommentValidator.forDesignRepo();
-        boolean separateDeployConfigRepo = Boolean
-            .parseBoolean(propertyResolver.getProperty(USE_SEPARATE_DEPLOY_CONFIG_REPO));
-        if (separateDeployConfigRepo) {
-            deployConfigCommentValidator = CommentValidator.forDeployConfigRepo();
+            propertyResolver.getProperty(DynamicPropertySource.OPENL_HOME));
+        String designRepoForDeployConfig = propertyResolver.getProperty(USE_REPOSITORY_FOR_DEPLOY_CONFIG);
+        if (StringUtils.isBlank(designRepoForDeployConfig)) {
+            deployConfigCommentValidator = CommentValidator.forRepo(Comments.DEPLOY_CONFIG_REPO_ID);
         } else {
-            deployConfigCommentValidator = designCommentValidator;
+            deployConfigCommentValidator = CommentValidator.forRepo(designRepoForDeployConfig);
         }
+        eraseFromRepository = false;
+    }
+
+    @PreDestroy
+    public void destroy() {
+        clearUploadedFiles();
+    }
+
+    public void openNewProjectDialog() {
+        clearUploadedFiles();
+
+        List<Repository> repositories = userWorkspace.getDesignTimeRepository().getRepositories();
+        if (repositories.size() == 1) {
+            repositoryId = repositories.get(0).getId();
+        } else {
+            repositoryId = null;
+        }
+        localUploadController.setRepositoryId(repositoryId);
+
+        projectName = null;
+        projectFolder = "";
+    }
+
+    public String getFilterRepositoryId() {
+        return repositoryTreeState.getFilterRepositoryId();
+    }
+
+    public void setFilterRepositoryId(String filterRepositoryId) {
+        repositoryTreeState.setFilterRepositoryId(filterRepositoryId);
+    }
+
+    public void tryImportFromRepo() {
+        if (isOpenLProjectInFolder()) {
+            importFromRepo();
+        }
+    }
+
+    public void importFromRepo() {
+        String msg = validateImportFromRepoParams();
+        if (msg != null) {
+            WebStudioUtils.addErrorMessage(msg);
+            clearForm();
+            return;
+        }
+
+        try {
+            Repository mappedRepo = userWorkspace.getDesignTimeRepository().getRepository(repositoryId);
+            if (!mappedRepo.supports().mappedFolders()) {
+                throw new IllegalArgumentException("Repository " + repositoryId + " has flat folder structure.");
+            }
+            FolderRepository repository = ((FolderMapper) mappedRepo).getDelegate();
+            FileData fileData = repository.check(projectFolder);
+            if (fileData == null) {
+                WebStudioUtils.addErrorMessage("Project doesn't exist in the path " + projectFolder + ".");
+                clearForm();
+                return;
+            }
+
+            ((FolderMapper) mappedRepo).addMapping(projectFolder);
+
+            workspaceManager.refreshWorkspaces();
+            repositoryTreeState.invalidateTree();
+            Optional<RulesProject> importedProject = userWorkspace.getProjectByPath(repositoryId, projectFolder);
+            importedProject
+                .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
+
+            resetStudioModel();
+
+            WebStudioUtils.addInfoMessage("Project was imported successfully.");
+            clearForm();
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            WebStudioUtils.addErrorMessage("Can't import the project: " + e.getMessage());
+            clearForm();
+        }
+    }
+
+    public String validateImportFromRepoParams() {
+        String msg = validateRepositoryId();
+        if (msg != null) {
+            return msg;
+        }
+
+        if (StringUtils.isBlank(projectFolder)) {
+            WebStudioUtils.addErrorMessage("Path must not be empty.");
+        }
+
+        msg = validateProjectFolder();
+        return msg;
+    }
+
+    public void changeModelsFilePathInputState() {
+        setEditModelsPath(!editModelsPath);
+        setModelsPath(editModelsPath ? openAPIEditorService.generateModulePath(modelsModuleName)
+                                     : propertyResolver.getProperty(OPENAPI_DEFAULT_DATA_MODULE_PATH));
+        setAlgorithmsPath(openAPIEditorService.generateModulePath(algorithmsModuleName));
+    }
+
+    public void changeAlgorithmsFilePathInputState() {
+        setEditAlgorithmsPath(!editAlgorithmsPath);
+        setAlgorithmsPath(editAlgorithmsPath ? openAPIEditorService.generateModulePath(algorithmsModuleName)
+                                             : propertyResolver.getProperty(OPENAPI_DEFAULT_ALGORITHM_MODULE_PATH));
+        setModelsPath(openAPIEditorService.generateModulePath(modelsModuleName));
+    }
+
+    public boolean getEraseFromRepository() {
+        return eraseFromRepository;
+    }
+
+    public void setEraseFromRepository(boolean eraseFromRepository) {
+        this.eraseFromRepository = eraseFromRepository;
+    }
+
+    public void setModelsModuleName(String modelsModuleName) {
+        this.modelsModuleName = modelsModuleName;
+    }
+
+    public String getModelsModuleName() {
+        return modelsModuleName;
+    }
+
+    public String getAlgorithmsModuleName() {
+        return algorithmsModuleName;
+    }
+
+    public void setAlgorithmsModuleName(String algorithmsModuleName) {
+        this.algorithmsModuleName = algorithmsModuleName;
+    }
+
+    public String getModelsPath() {
+        return openAPIEditorService.generateModulePath(modelsModuleName);
+    }
+
+    public void setModelsPath(String modelsPath) {
+        this.modelsPath = modelsPath;
+    }
+
+    public String getAlgorithmsPath() {
+        return openAPIEditorService.generateModulePath(algorithmsModuleName);
+    }
+
+    public void setAlgorithmsPath(String algorithmsPath) {
+        this.algorithmsPath = algorithmsPath;
+    }
+
+    public boolean isEditModelsPath() {
+        return editModelsPath;
+    }
+
+    public void setEditModelsPath(boolean editModelsPath) {
+        this.editModelsPath = editModelsPath;
+    }
+
+    public boolean isEditAlgorithmsPath() {
+        return editAlgorithmsPath;
+    }
+
+    public void setEditAlgorithmsPath(boolean editAlgorithmsPath) {
+        this.editAlgorithmsPath = editAlgorithmsPath;
+    }
+
+    public boolean isMergedIntoMain(UserWorkspaceProject project) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
+            .supports()
+            .branches()) {
+            return false;
+        }
+
+        try {
+            BranchRepository repository = ((BranchRepository) project.getDesignRepository());
+            return repository.isMergedInto(project.getBranch(), repository.getBaseBranch());
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+
+    public String getMainBranch(UserWorkspaceProject project) {
+        if (project == null || project.getDesignRepository() == null || !project.getDesignRepository()
+            .supports()
+            .branches()) {
+            return null;
+        }
+        return ((BranchRepository) project.getDesignRepository()).getBaseBranch();
+    }
+
+    public void checkBranchIsDeletable() {
+        UserWorkspaceProject project = getSelectedProject();
+        String message = "Branch can't be deleted: ";
+
+        if (project == null) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is absent.");
+        } else if (project.isLocalOnly()) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is local.");
+        } else if (project.isDeleted()) {
+            WebStudioUtils.addErrorMessage(message + " project for the branch is archived.");
+        }
+    }
+
+    public boolean isBranchDeletable() {
+        UserWorkspaceProject project = getSelectedProject();
+        return project != null && !project.isLocalOnly() && !project.isDeleted();
     }
 }

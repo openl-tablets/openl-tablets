@@ -15,7 +15,7 @@ public final class UndoableFloatImpl extends UndoableOnceImpl implements Undoabl
      */
     static class UndoUndoableFloat extends UndoImpl {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoUndoableFloat();

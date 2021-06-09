@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.io.ObjectStreamClass;
 import java.io.Serializable;
 import java.lang.reflect.Array;
+import java.lang.reflect.Field;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -1610,7 +1611,7 @@ public final class RulesUtils {
     }
 
     public static void out(Object output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(byte output) {
@@ -1622,27 +1623,27 @@ public final class RulesUtils {
     }
 
     public static void out(int output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(long output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(float output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(double output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(char output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     public static void out(boolean output) {
-        System.out.println(String.valueOf(output));
+        System.out.println(output);
     }
 
     /**
@@ -3555,7 +3556,7 @@ public final class RulesUtils {
 
     // <<< replace functions for Strings >>>
 
-    @AutoCastReturnType
+    @AutoCastReturnType(FlattenAutoCastFactory.class)
     public static Object[] flatten(@ReturnType Object... data) {
         if (data == null) {
             return null;
@@ -3626,6 +3627,25 @@ public final class RulesUtils {
             return false;
         }
         return clazz.isAssignableFrom(o.getClass());
+    }
+
+    public static Object staticField(Object instance, String fieldName) {
+        try {
+            Class<?> aClass = instance != null ? instance.getClass() : null;
+            while (aClass != null) {
+                Field[] declaredFields = aClass.getDeclaredFields();
+                for (Field field : declaredFields) {
+                    if (field.getName().equals(fieldName) && java.lang.reflect.Modifier.isPublic(field.getModifiers())
+                            && java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                        return field.get(null);
+                    }
+                }
+                aClass = aClass.getSuperclass();
+            }
+        } catch (IllegalAccessException e) {
+            throw new OpenLRuntimeException(String.format("%s '%s'.", instance, fieldName));
+        }
+        return null;
     }
 
     @SuppressWarnings("unchecked")

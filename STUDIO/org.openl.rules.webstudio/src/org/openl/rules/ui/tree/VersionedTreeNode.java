@@ -20,13 +20,8 @@ public class VersionedTreeNode extends ProjectTreeNode {
 
     private TableSyntaxNode linkedChild;
 
-    public VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
-        super(displayName,
-            String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(),
-            null,
-            null,
-            0,
-            null);
+    VersionedTreeNode(String[] displayName, TableSyntaxNode table) {
+        super(displayName, String.format("%s.%s", IProjectTypes.PT_TABLE, table.getType()).intern(), null);
     }
 
     @Override
@@ -35,28 +30,13 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
-    public String getUri() {
-        return linkedChild.getUri();
-    }
-
-    @Override
-    public Object getProblems() {
-        return linkedChild.getErrors() != null ? linkedChild.getErrors() : linkedChild.getValidationResult();
-    }
-
-    @Override
-    public boolean hasProblems() {
-        return getProblems() != null;
-    }
-
-    @Override
     public TableSyntaxNode getTableSyntaxNode() {
         return linkedChild;
     }
 
     @Override
-    public Map<Object, ITreeNode<Object>> getElements() {
-        Map<Object, ITreeNode<Object>> elements = super.getElements();
+    public Map<Object, ProjectTreeNode> getElements() {
+        Map<Object, ProjectTreeNode> elements = super.getElements();
         if (elements.size() < 2) {
             return new TreeMap<>();
         }
@@ -64,29 +44,19 @@ public class VersionedTreeNode extends ProjectTreeNode {
     }
 
     @Override
-    public boolean isLeaf() {
-        return getElements().size() < 1;
-    }
-
-    @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement<Object>> getChildren() {
-        return getElements().values();
-    }
-
-    @Override
-    public void addChild(Object key, ITreeNode<Object> child) {
+    public void addChild(Object key, ProjectTreeNode child) {
         super.addChild(key, child);
-        ProjectTreeNode newChild = (ProjectTreeNode) child;
+        TableSyntaxNode childTableSyntaxNode = child.getTableSyntaxNode();
         if (linkedChild == null) {
-            linkedChild = newChild.getTableSyntaxNode();
+            linkedChild = childTableSyntaxNode;
         } else {
-            if (findLaterTable(linkedChild, newChild.getTableSyntaxNode()) > 0) {
-                linkedChild = newChild.getTableSyntaxNode();
+            if (findLaterTable(linkedChild, childTableSyntaxNode) > 0) {
+                linkedChild = childTableSyntaxNode;
             }
         }
     }
 
-    public static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
+    static int findLaterTable(TableSyntaxNode first, TableSyntaxNode second) {
         return TableVersionComparator.getInstance().compare(first, second);
     }
 }

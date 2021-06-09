@@ -2,18 +2,20 @@ package org.openl.rules.project.instantiation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
 import org.openl.CompiledOpenClass;
 import org.openl.OpenClassUtil;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLValidationManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
+import org.openl.validation.ValidationManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,28 +25,30 @@ public class SimpleDependencyLoader implements IDependencyLoader {
 
     private final AbstractDependencyManager dependencyManager;
     private final String dependencyName;
-    private CompiledDependency compiledDependency;
+    private volatile CompiledDependency compiledDependency;
     private final boolean executionMode;
     private final boolean singleModuleMode;
     private final ProjectDescriptor project;
     private final Module module;
 
-    protected Map<String, Object> configureParameters(IDependencyManager dependencyManager) {
-        Map<String, Object> params = dependencyManager.getExternalParameters();
+    protected Map<String, Object> configureExternalParameters(IDependencyManager dependencyManager) {
+        Map<String, Object> params;
         if (!singleModuleMode) {
-            params = ProjectExternalDependenciesHelper.getExternalParamsWithProjectDependencies(params, getModules());
-            return params;
+            params = ProjectExternalDependenciesHelper
+                .buildExternalParamsWithProjectDependencies(dependencyManager.getExternalParameters(), getModules());
+        } else {
+            params = new HashMap<>(dependencyManager.getExternalParameters());
         }
         return params;
     }
 
-    private Collection<Module> getModules() {
-        return module != null ? Collections.singleton(module) : project.getModules();
+    @Override
+    public CompiledDependency getRefToCompiledDependency() {
+        return compiledDependency;
     }
 
-    @Override
-    public boolean isCompiled() {
-        return compiledDependency != null;
+    private Collection<Module> getModules() {
+        return module != null ? Collections.singleton(module) : project.getModules();
     }
 
     @Override
@@ -88,7 +92,10 @@ public class SimpleDependencyLoader implements IDependencyLoader {
     }
 
     protected ClassLoader buildClassLoader(AbstractDependencyManager dependencyManager) {
-        return dependencyManager.getClassLoader(getProject());
+        ClassLoader projectClassLoader = dependencyManager.getExternalJarsClassLoader(getProject());
+        OpenLClassLoader openLClassLoader = new OpenLClassLoader(null);
+        openLClassLoader.addClassLoader(projectClassLoader);
+        return openLClassLoader;
     }
 
     protected CompiledDependency compileDependency(String dependencyName,
@@ -109,15 +116,15 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                 executionMode);
         }
 
-        Map<String, Object> parameters = configureParameters(dependencyManager);
+        Map<String, Object> parameters = configureExternalParameters(dependencyManager);
 
         rulesInstantiationStrategy.setExternalParameters(parameters);
         rulesInstantiationStrategy.setServiceClass(EmptyInterface.class); // Prevent
         // interface
         // generation
-        boolean oldValidationState = OpenLValidationManager.isValidationEnabled();
+        boolean oldValidationState = ValidationManager.isValidationEnabled();
         try {
-            OpenLValidationManager.turnOffValidation();
+            ValidationManager.turnOffValidation();
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             log.debug("Dependency '{}' is saved in cache.", dependencyName);
@@ -127,7 +134,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             return onCompilationFailure(ex, dependencyManager);
         } finally {
             if (oldValidationState) {
-                OpenLValidationManager.turnOnValidation();
+                ValidationManager.turnOnValidation();
             }
         }
     }

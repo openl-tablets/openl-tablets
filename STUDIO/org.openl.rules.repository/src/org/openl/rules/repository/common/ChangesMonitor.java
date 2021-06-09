@@ -16,9 +16,9 @@ import org.slf4j.LoggerFactory;
  * @author Yury Molchan
  */
 public class ChangesMonitor implements Runnable {
-    private final Logger log = LoggerFactory.getLogger(ChangesMonitor.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ChangesMonitor.class);
     private RevisionGetter getter;
-    private int period;
+    private final int period;
 
     private ScheduledExecutorService scheduledPool;
     private ScheduledFuture<?> scheduled;
@@ -74,8 +74,8 @@ public class ChangesMonitor implements Runnable {
             lastChange = currentChange;
 
             fireOnChange();
-        } catch (Throwable th) {
-            log.warn("An exception has occurred during checking the repository", th);
+        } catch (Exception e) {
+            LOG.warn("An exception has occurred during checking the repository.", e);
         }
     }
 
@@ -88,37 +88,47 @@ public class ChangesMonitor implements Runnable {
             if (listener != null) {
                 listener.onChange();
             }
-        } catch (Throwable th) {
-            log.warn("An exception has occurred in onChange() method in '{}' listener", listener, th);
+        } catch (Exception e) {
+            LOG.warn("An exception is occurred in onChange() method in '{}' listener.", listener, e);
         }
     }
 
     /**
      * Stop the monitor.
+     *
+     * @see <a href="https://docs.oracle.com/javase/7/docs/api/java/util/concurrent/ExecutorService.html">ExecutorService</a>
      */
     public synchronized void release() {
         getter = null;
-        if (scheduledPool != null) {
-            scheduledPool.shutdownNow();
+        scheduled = null;
+        if (scheduledPool == null) {
+            return;
         }
-        if (scheduled != null) {
-            scheduled.cancel(true);
-            scheduled = null;
-        }
-        if (scheduledPool != null) {
-            try {
-                scheduledPool.awaitTermination(period, TimeUnit.SECONDS);
-            } catch (InterruptedException ignored) {
+        scheduledPool.shutdown(); // Disable new tasks from being submitted
+        try {
+            // Wait a while for existing tasks to terminate
+            if (!scheduledPool.awaitTermination(period * 3L, TimeUnit.SECONDS)) {
+                scheduledPool.shutdownNow(); // Cancel currently executing tasks
+                // Wait a while for tasks to respond to being cancelled
+                if (!scheduledPool.awaitTermination(period * 3L, TimeUnit.SECONDS)) {
+                    throw new IllegalStateException("Unable to terminate changes monitor task.");
+                }
             }
-            scheduledPool = null;
+        } catch (InterruptedException e) {
+            LOG.debug("Ignored error: ", e);
+            // (Re-)Cancel if current thread also interrupted
+            scheduledPool.shutdownNow();
+            // Preserve interrupt status
+            Thread.currentThread().interrupt();
         }
+        scheduledPool = null;
     }
 
     private Object getRevision() {
         try {
             return getter.getRevision();
-        } catch (Throwable th) {
-            log.warn("An exception has occurred during retrieving the last change set from the repository", th);
+        } catch (Exception e) {
+            LOG.warn("An exception is occurred during retrieving the last change set from the repository.", e);
             return null;
         }
     }

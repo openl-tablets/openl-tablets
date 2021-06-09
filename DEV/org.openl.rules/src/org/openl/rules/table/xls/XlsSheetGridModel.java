@@ -33,11 +33,11 @@ import org.openl.util.StringUtils;
  */
 public class XlsSheetGridModel extends AGrid implements IWritableGrid {
 
-    private XlsSheetSourceCodeModule sheetSource;
+    private final XlsSheetSourceCodeModule sheetSource;
 
     private RegionsPool mergedRegionsPool;
 
-    private Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
+    private final Map<String, AXlsCellWriter> cellWriters = new HashMap<>();
 
     public XlsSheetGridModel(XlsSheetSourceCodeModule sheetSource) {
         this.sheetSource = sheetSource;
@@ -122,14 +122,14 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void createCell(int col, int row, Object value, String formula, ICellStyle style, ICellComment comment) {
+    public void createCell(int col, int row, Object value, String formula, ICellStyle style, String comment, String prevCommentAuthor) {
         if (StringUtils.isNotBlank(formula)) {
             setCellFormula(col, row, formula);
         } else {
             setCellValue(col, row, value);
         }
         setCellStyle(col, row, style);
-        setCellComment(col, row, comment);
+        setCellComment(col, row, comment, prevCommentAuthor);
     }
 
     protected void copyCell(Cell cellFrom, int colTo, int rowTo) {
@@ -154,7 +154,8 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     @Override
     public IGridRegion findEmptyRect(int width, int height) {
         int lastRow = PoiExcelHelper.getLastRowNum(getSheet());
-        int top = lastRow + 2, left = 1;
+        int top = lastRow + 2;
+        int left = 1;
 
         GridRegion newRegion = new GridRegion(top, left, top + height - 1, left + width - 1);
         if (IGridRegion.Tool.isValidRegion(newRegion, getSpreadsheetConstants())) {
@@ -279,7 +280,7 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
             cellWriter.setValueToWrite(value);
             cellWriter.writeCellValue();
         } else {
-            poiCell.setCellType(CellType.BLANK);
+            poiCell.setBlank();
         }
     }
 
@@ -489,12 +490,24 @@ public class XlsSheetGridModel extends AGrid implements IWritableGrid {
     }
 
     @Override
-    public void setCellComment(int col, int row, ICellComment comment) {
-        Comment poiComment = null;
+    public void setCellComment(int col, int row, String comment, String prevCommentAuthor) {
         Cell poiCell = PoiExcelHelper.getOrCreateCell(col, row, getSheet());
-
+        Comment poiComment = null;
         if (comment != null) {
-            poiComment = ((XlsCellComment) comment).getXlxComment();
+            Sheet sheet = getSheet();
+            CreationHelper factory = sheet.getWorkbook().getCreationHelper();
+            ClientAnchor anchor = factory.createClientAnchor();
+            anchor.setCol1(poiCell.getColumnIndex());
+            anchor.setCol2(poiCell.getColumnIndex());
+            anchor.setRow1(poiCell.getRowIndex());
+            anchor.setRow2(poiCell.getRowIndex());
+            if (poiCell.getCellComment() == null) {
+                poiComment = sheet.createDrawingPatriarch().createCellComment(anchor);
+            } else {
+                poiComment = poiCell.getCellComment();
+            }
+            poiComment.setString(factory.createRichTextString(comment));
+            poiComment.setAuthor(prevCommentAuthor);
         }
         poiCell.setCellComment(poiComment);
     }

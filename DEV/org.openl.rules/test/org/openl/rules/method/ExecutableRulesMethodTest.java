@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ExecutableRulesMethodTest {
 
-    private static String __src = "test/rules/MethodArgumentsCacheTest.xls";
+    private static final String __src = "test/rules/MethodArgumentsCacheTest.xls";
 
     private RulesEngineFactory<A1> engineFactory;
     private A1 instance;
@@ -42,11 +42,11 @@ public class ExecutableRulesMethodTest {
         SimpleRulesRuntimeEnvUtils.setMethodArgumentsCacheEnable(instance, false);
         String value3 = instance.Random(Boolean.TRUE);
         Assert.assertNotNull(value1);
-        Assert.assertFalse(value1.equals(value3));
+        Assert.assertNotEquals(value1, value3);
     }
 
     private static class MyRunnable implements Runnable {
-        private A1 instance;
+        private final A1 instance;
 
         public MyRunnable(A1 instance) {
             this.instance = instance;
@@ -70,7 +70,7 @@ public class ExecutableRulesMethodTest {
         t.join();
         String value1 = instance.Random(Boolean.TRUE);
         String value2 = instance.Random(Boolean.TRUE);
-        Assert.assertFalse(value1.equals(value2));
+        Assert.assertNotEquals(value1, value2);
         Thread t2 = new Thread(new MyRunnable(instance));
         t2.start();
         t2.join();
@@ -87,7 +87,7 @@ public class ExecutableRulesMethodTest {
         SimpleRulesRuntimeEnvUtils.setMethodArgumentsCacheMode(instance, CacheMode.READ_WRITE);
         String value1 = instance.Random2(Boolean.TRUE);
         String value2 = instance.Random2(Boolean.TRUE);
-        Assert.assertFalse(value1.equals(value2));
+        Assert.assertNotEquals(value1, value2);
     }
 
     final static class SimpleRulesRuntimeEnvUtils {

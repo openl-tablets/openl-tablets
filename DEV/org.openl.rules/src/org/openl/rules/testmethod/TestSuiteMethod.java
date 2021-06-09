@@ -1,6 +1,11 @@
 package org.openl.rules.testmethod;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.ArrayUtils;
@@ -9,9 +14,13 @@ import org.openl.rules.binding.RulesBindingDependencies;
 import org.openl.rules.calc.Spreadsheet;
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.calc.SpreadsheetStructureBuilder;
-import org.openl.rules.data.*;
+import org.openl.rules.data.ColumnDescriptor;
+import org.openl.rules.data.DataTableBindHelper;
+import org.openl.rules.data.FieldChain;
+import org.openl.rules.data.IDataBase;
+import org.openl.rules.data.ITableModel;
+import org.openl.rules.data.PrecisionFieldChain;
 import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.method.ExecutableRulesMethod;
 import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.syntax.impl.IdentifierNode;
@@ -34,37 +43,41 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
     private static final Pattern DASH_SEPARATOR = Pattern.compile("\\s[-]\\s");
     private IOpenMethod testedMethod;
     private TestDescription[] tests;
-    private Map<String, Integer> indeces;
-    private final boolean runmethod;
+    private Map<String, Integer> indexes;
+    private final boolean runMethod;
     private DynamicObject[] testObjects;
     private final IDataBase db;
     private ITableModel dataModel;
+    private TestSuiteMethod originalTestSuiteMethod;
 
     public TestSuiteMethod(IOpenMethod testedMethod, IOpenMethodHeader header, TestMethodBoundNode boundNode) {
         super(header, boundNode);
 
-        db = boundNode.getDataBase();
+        this.db = boundNode.getDataBase();
         this.testedMethod = testedMethod;
         initProperties(getSyntaxNode().getTableProperties());
-        runmethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
+        runMethod = XlsNodeTypes.XLS_RUN_METHOD.toString().equals(getSyntaxNode().getType());
     }
 
-    public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod copy) {
-        super(copy.getHeader(), copy.getBoundNode());
-
-        db = copy.db;
+    public TestSuiteMethod(IOpenMethod testedMethod, TestSuiteMethod target) {
+        super(target.getHeader(), target.getBoundNode());
+        this.db = target.db;
         this.testedMethod = testedMethod;
-        initProperties(copy.getMethodProperties());
-        this.runmethod = copy.isRunmethod();
-        this.testObjects = copy.getTestObjects();
-        this.dataModel = copy.getDataModel();
-        this.setUri(copy.getUri());
+        initProperties(target.getMethodProperties());
+        this.runMethod = target.isRunMethod();
+        this.testObjects = target.getTestObjects();
+        this.dataModel = target.getDataModel();
+        this.originalTestSuiteMethod = target.originalTestSuiteMethod != null ? target.originalTestSuiteMethod : target;
+    }
+
+    public TestSuiteMethod getOriginalTestSuiteMethod() {
+        return originalTestSuiteMethod != null ? originalTestSuiteMethod : this;
     }
 
     private TestDescription[] initTestsAndIndexes() {
         DynamicObject[] testObjects = getTestObjects();
         TestDescription[] tests = new TestDescription[testObjects.length];
-        indeces = new HashMap<>(tests.length);
+        indexes = new HashMap<>(tests.length);
         Map<String, Object> properties = getProperties();
         Integer precision = null;
         if (properties != null && properties.containsKey(PRECISION_PARAM)) {
@@ -76,7 +89,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         for (int i = 0; i < tests.length; i++) {
             tests[i] = new TestDescription(testedMethod, testObjects[i], fields, getDataModel(), db);
             tests[i].setIndex(i);
-            indeces.put(tests[i].getId(), i);
+            indexes.put(tests[i].getId(), i);
         }
         return tests;
     }
@@ -89,13 +102,13 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
 
         String[] ranges = StringUtils.split(ids.trim(), ',');
         for (String range : ranges) {
-            if (range.isEmpty() && indeces.containsKey(",")) {
-                result.add(indeces.get(","));
+            if (range.isEmpty() && indexes.containsKey(",")) {
+                result.add(indexes.get(","));
                 continue;
             }
             String v = range.trim();
-            if (indeces.containsKey(v)) {
-                result.add(indeces.get(v));
+            if (indexes.containsKey(v)) {
+                result.add(indexes.get(v));
                 continue;
             }
             String[] edges = StringUtils.split(v, '-');
@@ -103,15 +116,15 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                 edges = DASH_SEPARATOR.split(v);
             }
             if (edges.length == 0) {
-                if (indeces.containsKey("-")) {
-                    result.add(indeces.get("-"));
+                if (indexes.containsKey("-")) {
+                    result.add(indexes.get("-"));
                 }
             } else {
                 String startIdValue = edges[0].trim();
                 String endIdValue = edges[edges.length - 1].trim();
 
-                int startIndex = indeces.get(startIdValue);
-                int endIndex = indeces.get(endIdValue);
+                int startIndex = indexes.get(startIdValue);
+                int endIndex = indexes.get(endIdValue);
 
                 for (int i = startIndex; i <= endIndex; i++) {
                     result.add(i);
@@ -227,8 +240,8 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         return new TestSuite(this).invoke(target, env);
     }
 
-    public boolean isRunmethod() {
-        return runmethod;
+    public boolean isRunMethod() {
+        return runMethod;
     }
 
     /**
@@ -258,17 +271,6 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
             }
         }
         return false;
-    }
-
-    @Override
-    public void setBoundNode(ATableBoundNode node) {
-        if (node == null) {
-            // removeDebugInformation() is invoked.
-            // Initialize data needed to run tests before removing debug info
-            initializeTestData();
-        }
-
-        super.setBoundNode(node);
     }
 
     public ITableModel getDataModel() {
@@ -395,7 +397,7 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
                             if (resultType.isSimple() || resultType.isArray()) {
                                 fieldsToTest.add(new ThisField(resultType));
                             } else {
-                                fieldsToTest.addAll(resultType.getFields().values());
+                                fieldsToTest.addAll(resultType.getFields());
                             }
                             continue;
                         } else {
@@ -443,5 +445,12 @@ public class TestSuiteMethod extends ExecutableRulesMethod {
         } else {
             return CollectionType.ARRAY;
         }
+    }
+
+    @Override
+    public void clearForExecutionMode() {
+        // Initialize data needed to run tests before removing debug info
+        initializeTestData();
+        super.clearForExecutionMode();
     }
 }

@@ -11,7 +11,7 @@ package org.openl.util.text;
  *
  */
 public class AbsolutePosition implements IPosition {
-    int pos;
+    final int pos;
 
     public AbsolutePosition(int pos) {
         this.pos = pos;

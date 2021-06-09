@@ -9,6 +9,7 @@ import java.util.Objects;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.table.constraints.Constraints;
+import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.table.formatters.FormattersManager;
 import org.openl.rules.table.properties.def.TablePropertyDefinition;
 import org.openl.rules.table.properties.inherit.InheritanceLevel;
@@ -38,8 +39,9 @@ public class TableProperty {
     private InheritanceLevel inheritanceLevel;
     private String inheritedTableId;
     private String inheritedTableName;
+    private final Formats formats;
 
-    public TableProperty(TablePropertyDefinition propDefinition) {
+    public TableProperty(TablePropertyDefinition propDefinition, Formats formats) {
         this.name = propDefinition.getName();
         this.displayName = propDefinition.getDisplayName();
         this.type = Objects.requireNonNull(
@@ -52,6 +54,7 @@ public class TableProperty {
         this.description = propDefinition.getDescription();
         this.system = propDefinition.isSystem();
         this.dimensional = propDefinition.isDimensional();
+        this.formats = Objects.requireNonNull(formats);
     }
 
     private TableProperty(TablePropertyBuilder builder) {
@@ -68,6 +71,7 @@ public class TableProperty {
         this.dimensional = builder.dimensional;
         this.inheritanceLevel = builder.inheritanceLevel;
         this.inheritedTableId = builder.inheritedTableId;
+        this.formats = builder.formats;
     }
 
     public String getFormat() {
@@ -98,7 +102,7 @@ public class TableProperty {
      *
      * @return <code>TRUE</code> if property value can be overriden on TABLE level.
      */
-    public boolean isCanBeOverridenInTable() {
+    public boolean isCanBeOverriddenInTable() {
         return PropertiesChecker.isPropertySuitableForLevel(InheritanceLevel.TABLE, name);
     }
 
@@ -118,12 +122,16 @@ public class TableProperty {
         return InheritanceLevel.CATEGORY.equals(inheritanceLevel);
     }
 
+    public boolean isGlobalLevelProperty() {
+        return InheritanceLevel.GLOBAL.equals(inheritanceLevel);
+    }
+
     public boolean isExternalProperty() {
         return InheritanceLevel.EXTERNAL.equals(inheritanceLevel);
     }
 
     public boolean isInheritedProperty() {
-        return isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalProperty();
+        return isGlobalLevelProperty() || isModuleLevelProperty() || isCategoryLevelProperty() || isFolderLevelProperty() || isProjectLevelProperty() || isExternalProperty();
     }
 
     public String getDisplayName() {
@@ -141,10 +149,14 @@ public class TableProperty {
     /**
      * This method must be used for all the cases when you need to display property on UI. It converts its value from
      * any type to string.
-     *
-     * @return
      */
     public String getDisplayValue() {
+        if (value instanceof Date) {
+            if ("expirationDate".equals(name) || "endRequestDate".equals(name)) {
+                return formats.formatDate((Date) value);
+            }
+            return formats.formatDateOrDateTime((Date) value);
+        }
         return getStringValue();
     }
 
@@ -333,8 +345,9 @@ public class TableProperty {
      */
     public static class TablePropertyBuilder {
         // Required parameters
-        private String name;
-        private Class<?> type;
+        private final String name;
+        private final Class<?> type;
+        private final Formats formats;
 
         // Optional parameters
         private String displayName;
@@ -349,9 +362,10 @@ public class TableProperty {
         private InheritanceLevel inheritanceLevel;
         private String inheritedTableId;
 
-        public TablePropertyBuilder(String name, Class<?> type) {
+        public TablePropertyBuilder(String name, Class<?> type, Formats formats) {
             this.name = name;
             this.type = type;
+            this.formats = Objects.requireNonNull(formats);
         }
 
         public TablePropertyBuilder value(Object val) {

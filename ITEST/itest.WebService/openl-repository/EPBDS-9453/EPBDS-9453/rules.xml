@@ -1,0 +1,13 @@
+<project>
+    <name>EPBDS-9453</name>
+
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+
+    <classpath>
+        <entry path="lib/*.jar"/>
+    </classpath>
+</project>

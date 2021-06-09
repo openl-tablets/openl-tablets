@@ -1,0 +1,2 @@
+DELETE /admin/deploy/my_deployment HTTP/1.1
+

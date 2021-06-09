@@ -65,7 +65,7 @@ public final class RulesUtilsAdditional {
                         } else {
                             fill(fieldValue, notNullsForSimpleTypes, stack);
                         }
-                    } catch (IllegalAccessException | InstantiationException e) {
+                    } catch (IllegalAccessException | InstantiationException ignored) {
                     }
                 }
             }
@@ -126,7 +126,7 @@ public final class RulesUtilsAdditional {
         if (value == null) {
             return null;
         }
-        fill(value, notNullsForSimpleTypes, new ArrayDeque<Class<?>>());
+        fill(value, notNullsForSimpleTypes, new ArrayDeque<>());
         return value;
     }
 }

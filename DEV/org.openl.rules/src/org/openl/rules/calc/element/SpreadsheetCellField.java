@@ -9,10 +9,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescriptionHolder {
 
-    protected SpreadsheetCell cell;
-    private SpreadsheetStructureBuilderHolder structureBuilderContainer;
-    private SpreadsheetCellRefType refType;
-    private volatile IOpenClass type;
+    protected final SpreadsheetCell cell;
+    private final SpreadsheetStructureBuilderHolder structureBuilderContainer;
+    private final SpreadsheetCellRefType refType;
+    private IOpenClass type;
 
     public SpreadsheetCellField(SpreadsheetStructureBuilderHolder structureBuilderContainer,
             IOpenClass declaringClass,
@@ -36,13 +36,13 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        SpreadsheetResultCalculator result = (SpreadsheetResultCalculator) target;
+        SpreadsheetResultCalculator spreadsheetResultCalculator = (SpreadsheetResultCalculator) target;
 
-        if (result == null) {
+        if (spreadsheetResultCalculator == null) {
             return getType().nullObject();
         }
 
-        return result.getValue(cell.getRowIndex(), cell.getColumnIndex());
+        return spreadsheetResultCalculator.getValue(cell.getRowIndex(), cell.getColumnIndex());
     }
 
     public SpreadsheetCell getCell() {
@@ -52,15 +52,14 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
     @Override
     public IOpenClass getType() {
         if (this.type == null) {
-            synchronized (this) {
-                if (this.type == null) {
-                    IOpenClass t = cell.getType();
-                    if (t == null) {
-                        t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
-                    }
-                    this.type = t;
+            IOpenClass t = cell.getType();
+            if (t == null) {
+                if (structureBuilderContainer.getSpreadsheetStructureBuilder() == null) {
+                    throw new IllegalStateException("Spreadsheet cell type is not resolved at compile time");
                 }
+                t = structureBuilderContainer.getSpreadsheetStructureBuilder().makeType(cell);
             }
+            this.type = t;
         }
         return this.type;
     }
@@ -72,7 +71,7 @@ public class SpreadsheetCellField extends ASpreadsheetField implements NodeDescr
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        throw new UnsupportedOperationException("Cannot write to spreadsheet cell result");
+        throw new UnsupportedOperationException("Can not write to spreadsheet cell result");
     }
 
     @Override

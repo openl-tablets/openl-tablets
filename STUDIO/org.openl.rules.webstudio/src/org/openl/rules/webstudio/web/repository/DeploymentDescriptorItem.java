@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.util.Objects;
+
 import org.openl.rules.common.CommonVersion;
 
 /**
@@ -8,23 +10,17 @@ import org.openl.rules.common.CommonVersion;
 public class DeploymentDescriptorItem extends AbstractItem {
     private static final long serialVersionUID = -3870494832804679843L;
 
+    private final String repositoryId;
+    private final String path;
     /** Project version. */
-    private CommonVersion version;
+    private final CommonVersion version;
 
-    private String versionName;
-
-    public DeploymentDescriptorItem() {
-    }
-
-    public DeploymentDescriptorItem(String name, CommonVersion version) {
-        this(name, version, null);
-    }
-
-    public DeploymentDescriptorItem(String name, CommonVersion version, String messages) {
+    DeploymentDescriptorItem(String repositoryId, String name, String path, CommonVersion version) {
+        this.repositoryId = repositoryId;
+        this.path = path;
         setName(name);
         this.version = version;
-        versionName = version.getVersionName();
-        setMessages(messages);
+        setMessages(null);
     }
 
     @Override
@@ -38,30 +34,26 @@ public class DeploymentDescriptorItem extends AbstractItem {
 
         DeploymentDescriptorItem that = (DeploymentDescriptorItem) o;
 
-        return getName().equals(that.getName()) && version.equals(that.version);
+        return Objects.equals(getRepositoryId(), that.getRepositoryId())
+                && Objects.equals(getName(), that.getName())
+                && Objects.equals(getPath(), that.getPath())
+                && Objects.equals(getVersion(), that.getVersion());
+    }
+
+    public String getRepositoryId() {
+        return repositoryId;
     }
 
     public CommonVersion getVersion() {
         return version;
     }
 
-    public String getVersionName() {
-        return versionName;
+    public String getPath() {
+        return path;
     }
 
     @Override
     public int hashCode() {
-        int result;
-        result = getName().hashCode();
-        result = 31 * result + version.hashCode();
-        return result;
-    }
-
-    public void setVersion(CommonVersion version) {
-        this.version = version;
-    }
-
-    public void setVersionName(String version) {
-        versionName = version;
+        return Objects.hash(getName(), repositoryId, path, version);
     }
 }

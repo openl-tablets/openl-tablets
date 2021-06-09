@@ -26,7 +26,7 @@ package org.openl.ie.constrainer;
  * @see GoalGenerate
  */
 public class FloatVarSelectorMinSizeMin implements FloatVarSelector {
-    private FloatExpArray _vars;
+    private final FloatExpArray _vars;
 
     /**
      * Constructor from the FloatExpArray.

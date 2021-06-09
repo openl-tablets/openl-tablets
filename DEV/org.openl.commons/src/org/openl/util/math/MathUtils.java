@@ -514,7 +514,7 @@ public class MathUtils {
 
     public static Long mod(Long number, Long divisor) {
         if (number == null || divisor == null) {
-            return 0l;
+            return 0L;
         }
         return mod((long) number, (long) divisor);
     }

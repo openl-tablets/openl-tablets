@@ -18,7 +18,7 @@ package org.openl.ie.constrainer;
  * An implementation of a {@link Goal} that sets the minimal value of the integer variable.
  */
 public class GoalSetMin extends GoalImpl {
-    private IntExp _exp;
+    private final IntExp _exp;
     private int _min;
 
     // private UndoableInt _minI;

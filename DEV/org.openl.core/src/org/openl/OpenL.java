@@ -26,9 +26,7 @@ public class OpenL {
     public static final String OPENL_J_NAME = "org.openl.j";
     public static final String OPENL_JAVA_NAME = "org.openl.rules.java";
     public static final String OPENL_JAVA_CE_NAME = "org.openl.rules.java.ce";
-    // TODO: Merge org.openl.xls and org.openl.xls.sequential implementations
-    // and rename OpenL name back to "org.openl.xls".
-    public static final String OPENL_JAVA_RULE_NAME = "org.openl.xls.sequential";
+    public static final String OPENL_JAVA_RULE_NAME = "org.openl.xls";
 
     private static final String DEFAULT_USER_HOME = ".";
 
@@ -39,8 +37,6 @@ public class OpenL {
     private IOpenBinder binder;
 
     private IOpenVM vm;
-
-    private ICompileContext compileContext;
 
     private String name;
 
@@ -176,24 +172,6 @@ public class OpenL {
      */
     public void setBinder(IOpenBinder binder) {
         this.binder = binder;
-    }
-
-    /**
-     * Gets compilation context.
-     *
-     * @return {@link ICompileContext} instance
-     */
-    public ICompileContext getCompileContext() {
-        return compileContext;
-    }
-
-    /**
-     * Sets compilation context.
-     *
-     * @param compileContext {@link ICompileContext} instance
-     */
-    public void setCompileContext(ICompileContext compileContext) {
-        this.compileContext = compileContext;
     }
 
     @Override

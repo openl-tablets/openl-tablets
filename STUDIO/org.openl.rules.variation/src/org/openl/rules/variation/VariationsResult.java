@@ -1,15 +1,5 @@
 package org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -145,15 +135,10 @@ public class VariationsResult<T> {
                 variationResults = (Map<String, T>) input.readObject();
                 input.completeMessage();
                 input.close();
-            } catch (IOException e) {
-                throw e;
             } finally {
-                if (byteInputStream != null) {
-                    try {
-                        byteInputStream.close();
-                    } catch (IOException e) {
-
-                    }
+                try {
+                    byteInputStream.close();
+                } catch (IOException ignored) {
                 }
             }
 
@@ -177,12 +162,9 @@ public class VariationsResult<T> {
             // something is broken.
             throw new IllegalStateException(e);
         } finally {
-            if (byteArrayOutputStream != null) {
-                try {
-                    byteArrayOutputStream.close();
-                } catch (IOException e) {
-
-                }
+            try {
+                byteArrayOutputStream.close();
+            } catch (IOException ignored) {
             }
         }
     }

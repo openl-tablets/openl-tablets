@@ -5,6 +5,7 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.validator.ValidatorException;
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.openl.rules.ui.ProjectModel;
@@ -14,10 +15,12 @@ import org.openl.rules.webstudio.security.CurrentUserInfo;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
 import org.openl.rules.workspace.uw.UserWorkspace;
-import org.openl.spring.env.PropertySourcesLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.request.RequestAttributes;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.context.support.WebApplicationContextUtils;
 
 /**
@@ -29,6 +32,10 @@ public abstract class WebStudioUtils {
 
     private static final String STUDIO_ATTR = "studio";
     private static final String TRACER_NAME = "tracer";
+
+    public static RulesUserSession getRulesUserSession() {
+        return getRulesUserSession(getSession());
+    }
 
     public static RulesUserSession getRulesUserSession(HttpSession session) {
         if (session == null) {
@@ -119,10 +126,6 @@ public abstract class WebStudioUtils {
         return appContext.getBean(name, clazz);
     }
 
-    public static String getApplicationName(ServletContext context) {
-        return PropertySourcesLoader.normalizeAppName(context.getContextPath());
-    }
-
     @Deprecated
     public static Object getBackingBean(String beanName) {
         // workaround. Needs to find other architecture solution
@@ -131,8 +134,14 @@ public abstract class WebStudioUtils {
     }
 
     public static HttpSession getSession() {
-        return (HttpSession) getExternalContext().getSession(false);
+        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
+        if (requestAttributes instanceof ServletRequestAttributes) {
+            HttpServletRequest request = ((ServletRequestAttributes)requestAttributes).getRequest();
+            return request.getSession(false);
+        }
+        return null;
     }
+
 
     public static void throwValidationError(String message) {
         throw new ValidatorException(new FacesMessage(message));

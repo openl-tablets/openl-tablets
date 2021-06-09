@@ -12,15 +12,15 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class CastNode extends ABoundNode {
 
-    IOpenCast cast;
-    IOpenClass castedType;
+    final IOpenCast cast;
+    final IOpenClass castedType;
 
     /**
      * @param syntaxNode
      * @param children
      */
     public CastNode(ISyntaxNode castSyntaxNode, IBoundNode bnode, IOpenCast cast, IOpenClass castedType) {
-        super(castSyntaxNode == null ? bnode.getSyntaxNode() : castSyntaxNode, new IBoundNode[] { bnode });
+        super(castSyntaxNode == null ? bnode.getSyntaxNode() : castSyntaxNode, bnode);
         this.cast = cast;
         this.castedType = castedType;
     }

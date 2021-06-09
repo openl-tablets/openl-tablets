@@ -9,7 +9,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class DecisionRuleIdField implements IOpenField {
 
-    private DecisionTableDataType decisionTableDataType;
+    private final DecisionTableDataType decisionTableDataType;
 
     DecisionRuleIdField(DecisionTableDataType decisionTableDataType) {
         this.decisionTableDataType = decisionTableDataType;

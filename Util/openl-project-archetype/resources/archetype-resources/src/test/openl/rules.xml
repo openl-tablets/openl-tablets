@@ -1,0 +1,14 @@
+<project>
+    <name>${project-name} Test</name>
+    <modules>
+        <module>
+            <rules-root path="rules/*.xlsx"/>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>${project-name}</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

@@ -64,15 +64,15 @@ public class RoundingOperator {
 
     public static final IRoundingOperator[] OPERATORS = { OP_UP, OP_DOWN, OP_ROUND };
 
-    IRoundingOperator operator;
+    final IRoundingOperator operator;
 
     static IRoundingOperator findOperator(String op) {
         Objects.requireNonNull(op, "RoundingOperator's name must not be null.");
-        for (int i = 0; i < OPERATORS.length; i++) {
+        for (IRoundingOperator iRoundingOperator : OPERATORS) {
 
-            for (int j = 0; j < OPERATORS[i].getNames().length; j++) {
-                if (OPERATORS[i].getNames()[j].equalsIgnoreCase(op)) {
-                    return OPERATORS[i];
+            for (int j = 0; j < iRoundingOperator.getNames().length; j++) {
+                if (iRoundingOperator.getNames()[j].equalsIgnoreCase(op)) {
+                    return iRoundingOperator;
                 }
             }
         }

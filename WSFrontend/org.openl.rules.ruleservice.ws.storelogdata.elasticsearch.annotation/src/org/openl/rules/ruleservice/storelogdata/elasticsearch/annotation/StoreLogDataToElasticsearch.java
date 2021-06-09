@@ -10,6 +10,8 @@ import java.lang.annotation.Target;
 public @interface StoreLogDataToElasticsearch {
     Class<?>[] value() default DEFAULT.class;
 
-    public static interface DEFAULT {
+    boolean sync() default false;
+
+    interface DEFAULT {
     }
 }

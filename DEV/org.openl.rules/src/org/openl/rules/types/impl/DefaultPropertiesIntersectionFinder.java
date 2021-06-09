@@ -7,23 +7,23 @@ import org.openl.rules.table.properties.ITableProperties;
 
 public class DefaultPropertiesIntersectionFinder {
 
-    private Map<String, IntersectionConstraint<?>> constraints = new HashMap<>();
+    private final Map<String, IntersectionConstraint<?>> constraints = new HashMap<>();
 
     public DefaultPropertiesIntersectionFinder() {
-        initilaize();
+        initialize();
     }
 
     public IntersectionType match(String propName, ITableProperties props1, ITableProperties props2) {
         IntersectionConstraint<?> mc = constraints.get(propName);
 
         if (mc == null) {
-            return IntersectionType.EQUALS;
+            return IntersectionType.UNKNOWN;
         }
 
         return mc.match(props1, props2);
     }
 
-    protected void initilaize() {
+    protected void initialize() {
         // <<< INSERT >>>
         constraints.put("caRegions", new IntersectionConstraint<org.openl.rules.enumeration.CaRegionsEnum[]>() {
 
@@ -33,8 +33,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] firstValue,
-                    org.openl.rules.enumeration.CaRegionsEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaRegionsEnum[] firstValue, org.openl.rules.enumeration.CaRegionsEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -46,8 +45,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] firstValue,
-                    org.openl.rules.enumeration.CaProvincesEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CaProvincesEnum[] firstValue, org.openl.rules.enumeration.CaProvincesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -59,8 +57,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] firstValue,
-                    org.openl.rules.enumeration.CountriesEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CountriesEnum[] firstValue, org.openl.rules.enumeration.CountriesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -72,8 +69,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] firstValue,
-                    org.openl.rules.enumeration.RegionsEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.RegionsEnum[] firstValue, org.openl.rules.enumeration.RegionsEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -85,8 +81,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CurrenciesEnum[] firstValue,
-                    org.openl.rules.enumeration.CurrenciesEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.CurrenciesEnum[] firstValue, org.openl.rules.enumeration.CurrenciesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -98,8 +93,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.LanguagesEnum[] firstValue,
-                    org.openl.rules.enumeration.LanguagesEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.LanguagesEnum[] firstValue, org.openl.rules.enumeration.LanguagesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -123,8 +117,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] firstValue,
-                    org.openl.rules.enumeration.UsRegionsEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsRegionsEnum[] firstValue, org.openl.rules.enumeration.UsRegionsEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });
@@ -136,8 +129,7 @@ public class DefaultPropertiesIntersectionFinder {
             }
 
             @Override
-            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsStatesEnum[] firstValue,
-                    org.openl.rules.enumeration.UsStatesEnum[] secondValue) {
+            protected IntersectionType matchNotNulls(org.openl.rules.enumeration.UsStatesEnum[] firstValue, org.openl.rules.enumeration.UsStatesEnum[] secondValue) {
                 return intersectionForCONTAINS(firstValue, secondValue);
             }
         });

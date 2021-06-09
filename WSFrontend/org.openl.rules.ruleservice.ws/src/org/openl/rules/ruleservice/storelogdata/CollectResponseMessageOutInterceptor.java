@@ -12,6 +12,8 @@ import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.Phase;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * CXF interceptor for collecting response data for logging to external source feature.
@@ -21,8 +23,9 @@ import org.apache.cxf.phase.Phase;
  */
 @NoJSR250Annotations
 public class CollectResponseMessageOutInterceptor extends AbstractProcessLoggingMessageInterceptor {
+    private static final Logger LOG = LoggerFactory.getLogger(CollectResponseMessageOutInterceptor.class);
 
-    private StoreLogDataManager storeLoggingManager;
+    private final StoreLogDataManager storeLoggingManager;
 
     public StoreLogDataManager getStoreLoggingManager() {
         return storeLoggingManager;
@@ -76,7 +79,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         }
     }
 
-    private LoggingMessage setupBuffer(Message message) {
+    private static LoggingMessage setupBuffer(Message message) {
         String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
         if (id == null) {
             id = LoggingMessage.nextId();
@@ -165,7 +168,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
         public void close() throws IOException {
             LoggingMessage buffer = setupBuffer(message);
             if (count >= lim) {
-                buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
             }
             StringWriter w2 = out2;
             if (w2 == null) {
@@ -174,8 +177,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             String ct = (String) message.get(Message.CONTENT_TYPE);
             try {
                 writePayload(buffer.getPayload(), w2, ct);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception e) {
+                LOG.debug("Ignored error: ", e);
             }
             String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
             LoggingMessage loggingMessage = new LoggingMessage(null, id);
@@ -217,7 +220,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
         @Override
         public void onFlush(CachedOutputStream cos) {
-
+            //nothing to do
         }
 
         @Override
@@ -234,20 +237,20 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             if (cos.getTempFile() == null) {
                 // buffer.append("Outbound Message:\n");
                 if (cos.size() >= lim) {
-                    buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
                 }
             } else {
                 buffer.getMessage().append("Outbound Message (saved to tmp file):\n");
-                buffer.getMessage().append("Filename: " + cos.getTempFile().getAbsolutePath() + "\n");
+                buffer.getMessage().append("Filename: ").append(cos.getTempFile().getAbsolutePath()).append("\n");
                 if (cos.size() >= lim) {
-                    buffer.getMessage().append("(message truncated to " + lim + " bytes)\n");
+                    buffer.getMessage().append("(message truncated to ").append(lim).append(" bytes)\n");
                 }
             }
             try {
                 String encoding = (String) message.get(Message.ENCODING);
                 writePayload(buffer.getPayload(), cos, encoding, ct);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception e) {
+                LOG.debug("Error occurred: ", e);
             }
 
             handleMessage(buffer);
@@ -255,8 +258,8 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
                 // empty out the cache
                 cos.lockOutputStream();
                 cos.resetOut(null, false);
-            } catch (Exception ex) {
-                // ignore
+            } catch (Exception e) {
+                LOG.debug("Ignored error: ", e);
             }
             message.setContent(OutputStream.class, origStream);
         }

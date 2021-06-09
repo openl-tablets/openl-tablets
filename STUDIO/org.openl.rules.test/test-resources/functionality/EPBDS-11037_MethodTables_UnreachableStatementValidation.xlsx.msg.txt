@@ -1,0 +1,8 @@
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement
+WARN: Unreachable statement

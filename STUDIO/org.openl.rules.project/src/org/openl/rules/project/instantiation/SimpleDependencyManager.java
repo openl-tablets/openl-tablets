@@ -11,8 +11,8 @@ import org.openl.rules.project.model.ProjectDescriptor;
 
 public class SimpleDependencyManager extends AbstractDependencyManager {
 
-    private Collection<ProjectDescriptor> projects;
-    private boolean singleModuleMode = false;
+    private final Collection<ProjectDescriptor> projects;
+    private boolean singleModuleMode;
 
     public SimpleDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,

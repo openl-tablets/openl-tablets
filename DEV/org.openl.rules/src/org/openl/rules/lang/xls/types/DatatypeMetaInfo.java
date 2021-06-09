@@ -12,8 +12,8 @@ import org.openl.meta.IMetaInfo;
  */
 public class DatatypeMetaInfo implements IMetaInfo {
 
-    private String displayName;
-    private String sourceUrl;
+    private final String displayName;
+    private final String sourceUrl;
 
     public DatatypeMetaInfo(String displayName, String sourceUrl) {
         this.displayName = displayName;

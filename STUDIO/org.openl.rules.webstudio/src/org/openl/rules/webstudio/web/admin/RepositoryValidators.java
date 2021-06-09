@@ -1,27 +1,27 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.Closeable;
 import java.net.ConnectException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.security.auth.login.FailedLoginException;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.install.DelegatedPropertySource;
-import org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy;
-import org.openl.rules.workspace.dtr.DesignTimeRepository;
-import org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl;
-import org.openl.util.IOUtils;
+import org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy;
 import org.openl.util.StringUtils;
 import org.springframework.core.env.PropertyResolver;
 
 public final class RepositoryValidators {
-    private static final Pattern PROHIBITED_CHARACTERS = Pattern.compile("[\\p{Punct}]+");
 
     private RepositoryValidators() {
     }
@@ -50,7 +50,7 @@ public final class RepositoryValidators {
             String msg = "Repository name is empty. Please, enter repository name.";
             throw new RepositoryValidationException(msg);
         }
-        if (PROHIBITED_CHARACTERS.matcher(prodConfig.getName()).find()) {
+        if (!NameChecker.checkName(prodConfig.getName())) {
             String msg = String.format(
                 "Repository name '%s' contains illegal characters. Please, correct repository name.",
                 prodConfig.getName());
@@ -66,6 +66,31 @@ public final class RepositoryValidators {
                     throw new RepositoryValidationException(msg);
                 }
             }
+        }
+
+        // Check for path uniqueness. only for git
+        if (RepositoryType.GIT.equals(prodConfig.getRepositoryType())) {
+            Path path = Paths.get(((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath());
+            for (RepositoryConfiguration other : productionRepositoryConfigurations) {
+                if (other != prodConfig && RepositoryType.GIT.equals(other.getRepositoryType())) {
+                    Path otherPath = Paths.get(((GitRepositorySettings) other.getSettings()).getLocalRepositoryPath());
+                    if (path.equals(otherPath)) {
+                        String msg = String.format(
+                            "Repository local path '%s' already exists. Please, insert a new one.",
+                            path.toString());
+                        throw new RepositoryValidationException(msg);
+                    }
+                }
+            }
+        }
+
+        List<String> names = new ArrayList<>();
+        if (prodConfig.getType().equalsIgnoreCase("git")) {
+            String localRepositoryPath = ((GitRepositorySettings) prodConfig.getSettings()).getLocalRepositoryPath();
+            if (names.contains(localRepositoryPath)) {
+                throw new RepositoryValidationException("ALARMA!!!");
+            }
+            names.add(localRepositoryPath);
         }
 
         RepositorySettings settings = prodConfig.getSettings();
@@ -110,42 +135,27 @@ public final class RepositoryValidators {
         }
     }
 
-    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig,
-            DesignTimeRepository designTimeRepository) throws RepositoryValidationException {
+    static void validateConnectionForDesignRepository(RepositoryConfiguration repoConfig) throws RepositoryValidationException {
         try {
-            DesignTimeRepositoryImpl dtr = (DesignTimeRepositoryImpl) designTimeRepository;
-            // Close connection to repository before checking connection
-            dtr.destroy();
-
-            PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
-            if (repository instanceof Closeable) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
+            validateInstantiation(repoConfig);
         } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
                 resultException = e;
             }
-            throw new RepositoryValidationException(resultException.getMessage(), resultException);
+            throw new RepositoryValidationException(String.format("Repository '%s' : %s", repoConfig.getName(),
+                    resultException.getMessage() != null ? resultException.getMessage() : e.getMessage()), resultException);
         }
     }
 
     static void validateConnection(RepositoryConfiguration repoConfig,
-            ProductionRepositoryFactoryProxy productionRepositoryFactoryProxy) throws RepositoryValidationException {
+            RepositoryFactoryProxy repositoryFactoryProxy) throws RepositoryValidationException {
         try {
             /* Close connection to repository before checking connection */
-            productionRepositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
-            PropertyResolver propertiesResolver = DelegatedPropertySource
-                .createPropertiesResolver(repoConfig.getPropertiesToValidate());
-            Repository repository = RepositoryInstatiator.newRepository(repoConfig.getConfigName(), propertiesResolver);
-            if (repository instanceof Closeable) {
-                // Close repo connection after validation
-                IOUtils.closeQuietly((Closeable) repository);
-            }
-        } catch (RRepositoryException e) {
+            repositoryFactoryProxy.releaseRepository(repoConfig.getConfigName());
+
+            validateInstantiation(repoConfig);
+        } catch (Exception e) {
             Throwable resultException = ExceptionUtils.getRootCause(e);
             if (resultException == null) {
                 resultException = e;
@@ -162,7 +172,16 @@ public final class RepositoryValidators {
             }
 
             throw new RepositoryValidationException(
-                String.format("Repository '%s' : %s.", repoConfig.getName(), resultException.getMessage()));
+                String.format("Repository '%s' : %s", repoConfig.getName(), e.getMessage()));
+        }
+    }
+
+    public static void validateInstantiation(RepositoryConfiguration repoConfig) throws Exception {
+        PropertyResolver propertiesResolver = DelegatedPropertySource
+            .createPropertiesResolver(repoConfig.getPropertiesToValidate());
+        try (Repository repository = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + repoConfig.getConfigName(), propertiesResolver::getProperty)) {
+            // Validate instantiation
+            Objects.requireNonNull(repository);
         }
     }
 }

@@ -4,11 +4,11 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.ruleservice-pom</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice.ws</artifactId>
     <packaging>war</packaging>
-    <name>OpenL - Ruleservice - Web Services WAR</name>
+    <name>OpenL - Ruleservice - Rule Services WAR</name>
     <description>OpenL Rules Webservice(war)</description>
     <url>https://openl-tablets.org</url>
     <organization>
@@ -16,10 +16,26 @@
         <url>https://openl-tablets.org</url>
     </organization>
     <properties>
-        <generate-application.properties>process-resources</generate-application.properties>
+        <generate-application.properties>prepare-package</generate-application.properties>
     </properties>
     <build>
         <finalName>webservice</finalName>
+        <resources>
+            <resource>
+                <directory>resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>banner.txt</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>banner.txt</exclude>
+                </excludes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <groupId>org.basepom.maven</groupId>
@@ -38,12 +54,6 @@
                     <checkTestClasspath>false</checkTestClasspath>
                     <failBuildInCaseOfConflict>true</failBuildInCaseOfConflict>
                     <useResultFile>false</useResultFile>
-                    <ignoredDependencies>
-                        <dependency> <!-- IBM Java library ignore -->
-                            <groupId>jakarta-regexp</groupId>
-                            <artifactId>jakarta-regexp</artifactId>
-                        </dependency>
-                    </ignoredDependencies>
                     <exceptions>
                         <exception>
                             <conflictingDependencies>
@@ -61,18 +71,63 @@
                                 <class>org.xmlpull.v1.XmlPullParserException</class>
                             </classes>
                         </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-core</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>com.github.java-json-tools</groupId>
+                                    <artifactId>json-schema-validator</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <resources>
+                                <resource>draftv3/schema</resource>
+                                <resource>draftv4/schema</resource>
+                            </resources>
+                        </exception>
+                        <exception>
+                            <conflictingDependencies>
+                                <dependency>
+                                    <groupId>io.github.classgraph</groupId>
+                                    <artifactId>classgraph</artifactId>
+                                </dependency>
+                                <dependency>
+                                    <groupId>org.apache.logging.log4j</groupId>
+                                    <artifactId>log4j-api</artifactId>
+                                </dependency>
+                            </conflictingDependencies>
+                            <classes>
+                                <class>META-INF.versions.9.module-info</class>
+                            </classes>
+                        </exception>
                     </exceptions>
                     <ignoredResourcePatterns>
-                        <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb</ignoredResourcePattern>
-                        <ignoredResourcePattern>openl-ruleservice-property-placeholder.xml</ignoredResourcePattern>
+                        <ignoredResourcePattern>org/apache/cxf/endpoint/dynamic/simple-binding.xjb
+                        </ignoredResourcePattern>
                         <ignoredResourcePattern>openl-ruleservice-publisher-beans.xml</ignoredResourcePattern>
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
-                        <ignoredResourcePattern>mozilla/public-suffix-list.txt</ignoredResourcePattern>
-                        <ignoredResourcePattern>.gitkeep</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/webservice/WEB-INF/lib</outputDirectory>
+                            <includeArtifactIds>log4j-api,log4j-core,log4j-slf4j-impl</includeArtifactIds>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -84,26 +139,9 @@
                             <goal>single</goal>
                         </goals>
                         <configuration>
-                            <ignoreDirFormatExtensions>true</ignoreDirFormatExtensions>
                             <descriptors>
                                 <descriptor>assembly/assembly-jar.xml</descriptor>
                             </descriptors>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                        <configuration>
-                            <includes>
-                                <include>org/openl/rules/ruleservice/publish/test/*</include>
-                            </includes>
                         </configuration>
                     </execution>
                 </executions>
@@ -125,6 +163,10 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.ruleservice</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice.ws.common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.openl.rules</groupId>
@@ -172,6 +214,16 @@
             <artifactId>cxf-rt-rs-service-description</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.cxf</groupId>
+            <artifactId>cxf-rt-rs-service-description-openapi-v3</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>io.github.classgraph</groupId>
+                    <artifactId>classgraph</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
             <groupId>org.webjars</groupId>
             <artifactId>swagger-ui</artifactId>
         </dependency>
@@ -188,14 +240,8 @@
             <artifactId>jackson-databind</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.ehcache</groupId>
-            <artifactId>ehcache</artifactId>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.glassfish.jaxb</groupId>
-                    <artifactId>jaxb-runtime</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.cache2k</groupId>
+            <artifactId>cache2k-jcache</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -203,19 +249,10 @@
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
-            <artifactId>spring-web</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework</groupId>
             <artifactId>spring-test</artifactId>
-            <scope>compile</scope>
+            <scope>test</scope>
         </dependency>
         <!-- Logging -->
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-slf4j-impl</artifactId>
-            <scope>runtime</scope>
-        </dependency>
         <dependency>
             <groupId>com.sun.istack</groupId>
             <artifactId>istack-commons-runtime</artifactId>
@@ -239,7 +276,7 @@
     </dependencies>
     <profiles>
         <profile>
-            <id>java11</id> <!-- Additional libs for java 11 if it is compiled from java 8 -->
+            <id>qsgvosavun</id>
             <activation>
                 <jdk>[1.8,9)</jdk>
             </activation>
@@ -247,7 +284,6 @@
                 <dependency>
                     <groupId>com.sun.activation</groupId>
                     <artifactId>jakarta.activation</artifactId>
-                    <version>1.2.1</version>
                 </dependency>
                 <dependency>
                     <groupId>org.apache.geronimo.specs</groupId>
@@ -258,6 +294,20 @@
                     <groupId>jakarta.xml.ws</groupId>
                     <artifactId>jakarta.xml.ws-api</artifactId>
                     <version>2.3.2</version>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>slf4j-log4j</id>
+            <activation>
+                <property>
+                    <name>!noSlf4j-log4j</name>
+                </property>
+            </activation>
+            <dependencies>
+                <dependency>
+                    <groupId>org.apache.logging.log4j</groupId>
+                    <artifactId>log4j-slf4j-impl</artifactId>
                 </dependency>
             </dependencies>
         </profile>

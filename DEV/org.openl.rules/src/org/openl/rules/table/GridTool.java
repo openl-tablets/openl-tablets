@@ -111,7 +111,7 @@ public class GridTool {
         actions.addAll(shiftColumns(colTo, nCols, INSERT, region, grid, metaInfoWriter));
         actions.addAll(copyCells(firstToMove, top, colTo, top, nCols, h, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, beforeColumns, nCols, INSERT, COLUMNS, region, metaInfoWriter));
-        actions.addAll(emptyCells(firstToMove, top, nCols, h, grid, metaInfoWriter));
+        actions.addAll(emptyCells(firstToMove, top, colTo, top, nCols, h, grid, true, COLUMNS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
     }
@@ -143,9 +143,7 @@ public class GridTool {
         actions.addAll(shiftRows(rowTo, nRows, INSERT, region, grid, metaInfoWriter));
         actions.addAll(copyCells(left, firstToMove, left, rowTo, w, nRows, grid, metaInfoWriter));
         actions.addAll(resizeMergedRegions(grid, row, nRows, INSERT, ROWS, region, metaInfoWriter));
-
-        int rowFrom = before ? firstToMove : rowTo;
-        actions.addAll(emptyCells(left, rowFrom, w, nRows, grid, metaInfoWriter));
+        actions.addAll(emptyCells(left, firstToMove, left, rowTo, w, nRows, grid, before, ROWS, metaInfoWriter));
 
         return new UndoableCompositeAction(actions);
     }
@@ -175,26 +173,47 @@ public class GridTool {
 
     private static List<IUndoableGridTableAction> emptyCells(int colFrom,
             int rowFrom,
+            int colTo,
+            int rowTo,
             int nCols,
             int nRows,
             IGrid grid,
+            boolean before,
+            boolean isColumns,
             MetaInfoWriter metaInfoWriter) {
         List<IUndoableGridTableAction> actions = new ArrayList<>();
         for (int i = nCols - 1; i >= 0; i--) {
             for (int j = nRows - 1; j >= 0; j--) {
                 int cFrom = colFrom + i;
                 int rFrom = rowFrom + j;
-                if (grid.isTopLeftCellInMergedRegion(cFrom, rFrom)) {
-                    ICell cell = grid.getCell(cFrom, rFrom);
-                    if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
-                        // Don't clear merged cells which are bigger than the cleaned region.
+                if (isColumns) {
+                    if (grid.isTopLeftCellInMergedRegion(cFrom, rFrom)) {
+                        ICell cell = grid.getCell(cFrom, rFrom);
+                        if (cell.getHeight() > nRows || cell.getWidth() > nCols) {
+                            // Don't clear merged cells which are bigger than the cleaned region.
+                            continue;
+                        }
+                    } else if (grid.isPartOfTheMergedRegion(cFrom, rFrom)) {
+                        // Don't clear middle of the merged cells.
                         continue;
                     }
-                } else if (grid.isPartOfTheMergedRegion(cFrom, rFrom)) {
-                    // Don't clear middle of the merged cells.
-                    continue;
+                    actions.add(new UndoableSetValueAction(cFrom, rFrom, null, metaInfoWriter));
+                } else {
+                    int cTo = colTo + i;
+                    int rTo = rowTo + j;
+                    if (!grid.isInOneMergedRegion(cFrom, rFrom, cTo, rTo)) {
+                        int col;
+                        int row;
+                        if (before) {
+                            col = cFrom;
+                            row = rFrom;
+                        } else {
+                            col = cTo;
+                            row = rTo;
+                        }
+                        actions.add(new UndoableSetValueAction(col, row, null, metaInfoWriter));
+                    }
                 }
-                actions.add(new UndoableSetValueAction(cFrom, rFrom, null, metaInfoWriter));
             }
         }
         return actions;

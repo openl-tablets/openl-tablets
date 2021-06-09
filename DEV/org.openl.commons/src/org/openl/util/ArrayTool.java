@@ -4,13 +4,17 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
-public class ArrayTool {
+public final class ArrayTool {
+
+    private ArrayTool() {
+    }
 
     static class ArrayIterator<T> implements Iterator<T> {
-        int _index = 0;
-        int _size;
-        T[] _array;
+        int _index;
+        final int _size;
+        final T[] _array;
 
         ArrayIterator(T[] array) {
             _size = Array.getLength(array);
@@ -39,7 +43,8 @@ public class ArrayTool {
     public static boolean contains(Object array, Object test) {
         int size = Array.getLength(array);
         for (int i = 0; i < size; ++i) {
-            if (ASelector.selectObject(test).select(Array.get(array, i))) {
+            Object obj = Array.get(array, i);
+            if (Objects.equals(test, obj)) {
                 return true;
             }
         }
@@ -205,12 +210,12 @@ public class ArrayTool {
 
     public static String[] intersection(String[] ary1, String[] ary2) {
         List<String> v = new ArrayList<>();
-        for (int j = 0; j < ary2.length; ++j) {
-            if (contains(ary1, ary2[j])) {
-                v.add(ary2[j]);
+        for (String s : ary2) {
+            if (contains(ary1, s)) {
+                v.add(s);
             }
         }
-        return v.toArray(new String[v.size()]);
+        return v.toArray(new String[0]);
     }
 
     /**

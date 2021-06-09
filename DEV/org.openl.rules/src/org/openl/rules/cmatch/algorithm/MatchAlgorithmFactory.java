@@ -34,7 +34,7 @@ public class MatchAlgorithmFactory {
      * @throws IllegalArgumentException if no algorithm is registered for that name
      */
     public static IMatchAlgorithmCompiler getAlgorithm(String nameOfAlgorithm) {
-        IMatchAlgorithmCompilerBuilder builder = null;
+        IMatchAlgorithmCompilerBuilder builder;
         if (nameOfAlgorithm == null) {
             if (defaultBuilder == null) {
                 throw new IllegalArgumentException("Default algorithm builder is not defined.");

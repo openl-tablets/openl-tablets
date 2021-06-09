@@ -95,6 +95,25 @@ function fixTabIndexesInRichPopupPanels() {
     };
 }
 
+/**
+ * Add 'popup-panel' class to a parent div of every rich:popupPanel because that div adds 'display: inline-block;'
+ * and it adds unnecessary line break even if "visibility:hidden" is set. We override the style of every .popup-panel
+ * to remove that unnecessary line breaks.
+ */
+function initPopupPanels() {
+    if (!$j) {
+        return;
+    }
+    const popupPanels = $j('.rf-pp-cntr').parent();
+    popupPanels.addClass('popup-panel');
+
+    // EPBDS-10407. By default Popup Panels are rendered with style="visibility:hidden; display: inline-block;" and
+    // because of this child div with z-index==100 causes in chrome resize icon for textarea appearing despite that it's
+    // hidden.
+    // Fix it by forcing display:none with jQuery.
+    popupPanels.hide();
+}
+
 function updateSubmitListener(listener) {
     if (!$j) {
         return;
@@ -149,4 +168,98 @@ function fixInputNumberSpinner(id) {
             }
         }
     };
+}
+
+function initExpandableLinks() {
+    if (!$j) {
+        return;
+    }
+
+    $j('.expandable').off().click(function () {
+        $j(this).next().show();
+        $j(this).hide();
+    })
+}
+
+/**
+ * Resize the panel when it's content is changed. Works only for panels with autosized="true".
+ *
+ * @param panelName panel name to resize
+ */
+function resizePopupPanel(panelName) {
+    const panel = RichFaces.$(panelName);
+    panel.hide();
+    panel.show();
+}
+
+/**
+ * To fix EPBDS-9950: if clear uploaded file in the pop-up, it can't be uploaded again.
+ */
+function fixFileUpload() {
+    if (!RichFaces.ui.FileUpload) {
+        return;
+    }
+
+    const delegate = RichFaces.ui.FileUpload.prototype.__addFiles;
+    RichFaces.ui.FileUpload.prototype.__addFiles = function(files) {
+        delegate.call(this, files);
+
+        // EPBDS-9950
+        this.input.val("")
+    };
+}
+
+/**
+ * Dynamically change PopupPanel size if it's content changes.
+ */
+function makePopupPanelsReallyResizable() {
+    if (!RichFaces.ui.PopupPanel) {
+        return;
+    }
+
+    const showDelegate = RichFaces.ui.PopupPanel.prototype.show;
+    RichFaces.ui.PopupPanel.prototype.show = function (event, opts) {
+        showDelegate.call(this, event, opts);
+        const self = this;
+
+        if ($j.browser.msie) {
+            // ResizeObserver isn't supported by IE 11, so we use MutationObserver instead.
+            const observer = new MutationObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0), {
+                attributes: true,
+                childList: true,
+                subtree: true
+            });
+            this['__observer'] = observer;
+        } else {
+            const observer = new ResizeObserver(function () {
+                self.doResizeOrMove(RichFaces.ui.PopupPanel.Sizer.Diff.EMPTY);
+            });
+            observer.observe(this.contentDiv.get(0));
+            this['__observer'] = observer;
+        }
+    };
+
+    const hideDelegate = RichFaces.ui.PopupPanel.prototype.hide;
+    RichFaces.ui.PopupPanel.prototype.hide = function (event, opts) {
+        hideDelegate.call(this, event, opts);
+        const observer = this['__observer'];
+        observer && observer.disconnect();
+    };
+}
+
+/**
+ * Fix all RichFaces issues.
+ */
+function fixRichFaces() {
+    if (!RichFaces) {
+        return;
+    }
+
+    fixTabIndexesInRichPopupPanels();
+    fixFileUpload();
+    initPopupPanels();
+    makePopupPanelsReallyResizable();
 }

@@ -30,13 +30,8 @@ public abstract class BaseParser implements IOpenParser {
     }
 
     @Override
-    public IParsedCode parseAsIntegerRange(IOpenSourceCodeModule source) {
-        return getNotSupportedCode(source, "an integer range");
-    }
-
-    @Override
-    public IParsedCode parseAsFloatRange(IOpenSourceCodeModule source) {
-        return getNotSupportedCode(source, "a float range");
+    public IParsedCode parseAsParameterDeclaration(IOpenSourceCodeModule source) {
+        return getNotSupportedCode(source, "a param declaration");
     }
 
     protected IParsedCode getNotSupportedCode(IOpenSourceCodeModule source, String sourceType) {

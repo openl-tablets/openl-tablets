@@ -126,7 +126,7 @@ public class MulDivNullToOneOperators {
         } else if (y == null) {
             return (double) x;
         } else if (x == null) {
-            x = 1l;
+            x = 1L;
         }
         return (double) x / y;
     }
@@ -357,7 +357,7 @@ public class MulDivNullToOneOperators {
             if (value2 != null && value2.doubleValue() != 0) {
                 return new org.openl.meta.DoubleValue(null,
                     new DoubleValue(value2.doubleValue()),
-                    divide(1l, value2.getValue()),
+                    divide(1L, value2.getValue()),
                     Formulas.DIVIDE);
             }
         }

@@ -25,13 +25,6 @@ public final class NumberUtils {
         return false;
     }
 
-    public static boolean isObjectNonFloatPointNumber(Object value) {
-        if (value != null) {
-            return isNonFloatPointType(value.getClass());
-        }
-        return false;
-    }
-
     public static boolean isFloatPointType(Class<?> cls) {
         return cls != null && (float.class == cls || double.class == cls || Float.class == cls || FloatValue.class
             .isAssignableFrom(cls) || Double.class == cls || DoubleValue.class.isAssignableFrom(cls) || BigDecimal.class
@@ -82,22 +75,6 @@ public final class NumberUtils {
         } else {
             return null;
         }
-    }
-
-    public static DoubleValue convertToDoubleValue(Object object) {
-
-        if (FloatValue.class.isAssignableFrom(object.getClass())) {
-            return FloatValue.autocast((FloatValue) object, (DoubleValue) null);
-        }
-        if (DoubleValue.class.isAssignableFrom(object.getClass())) {
-            return (DoubleValue) object;
-        }
-
-        if (BigDecimalValue.class.isAssignableFrom(object.getClass())) {
-            return BigDecimalValue.cast((BigDecimalValue) object, (DoubleValue) null);
-        }
-
-        return new DoubleValue(convertToDouble(object));
     }
 
     public static Double roundValue(Double value, int scale) {
@@ -167,23 +144,6 @@ public final class NumberUtils {
 
     public static int getScale(float value) {
         return getScale(Double.parseDouble(Float.toString(value)));
-    }
-
-    public static Class<?> getNumericPrimitive(Class<?> wrapperClass) {
-        if (Byte.class == wrapperClass) {
-            return byte.class;
-        } else if (Short.class == wrapperClass) {
-            return short.class;
-        } else if (Integer.class == wrapperClass) {
-            return int.class;
-        } else if (Long.class == wrapperClass) {
-            return long.class;
-        } else if (Float.class == wrapperClass) {
-            return float.class;
-        } else if (Double.class == wrapperClass) {
-            return double.class;
-        }
-        return null;
     }
 
     public static boolean isNumberType(Class<?> cls) {

@@ -7,6 +7,7 @@
 package org.openl.util;
 
 import java.lang.reflect.Array;
+import java.util.Iterator;
 
 /**
  * @author snshor
@@ -14,16 +15,19 @@ import java.lang.reflect.Array;
 
 public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
+    public static Iterator<Object> fromArrayObj(Object ary) {
+        if (ary == null) {
+            return empty();
+        }
+
+        return new AnyArrayIterator(ary);
+    }
+
     static class AnyArrayIterator extends AIndexedIterator<Object> {
-        Object ary;
+        final Object ary;
 
         AnyArrayIterator(Object ary) {
             super(0, Array.getLength(ary), 1);
-            this.ary = ary;
-        }
-
-        AnyArrayIterator(Object ary, int from, int to, int step) {
-            super(from, to, step);
             this.ary = ary;
         }
 
@@ -37,43 +41,9 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
             return Array.get(ary, i);
         }
 
-        @Override
-        public IOpenIterator<Object> reverse() {
-            AnyArrayIterator it = new AnyArrayIterator(ary, from, to, step);
-            it.reverseIndexes();
-            return it;
-        }
-
     }
 
-    static class ArrayIterator<T> extends AIndexedIterator<T> {
-        T[] ary;
-
-        ArrayIterator(T[] ary) {
-            super(0, ary.length, 1);
-            this.ary = ary;
-        }
-
-        ArrayIterator(T[] ary, int from, int to, int step) {
-            super(from, to, step);
-            this.ary = ary;
-        }
-
-        @Override
-        protected T indexedElement(int i) {
-            return ary[i];
-        }
-
-        @Override
-        public IOpenIterator<T> reverse() {
-            ArrayIterator<T> it = new ArrayIterator<>(ary, from, to, step);
-            it.reverseIndexes();
-            return it;
-        }
-
-    }
-
-    int from = 0;
+    final int from;
     int current;
 
     int step = 1;
@@ -89,7 +59,7 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
 
     @Override
     public final boolean hasNext() {
-        return step > 0 ? current < to : current > to;
+        return step > 0 ? (current < to) : (current > to);
     }
 
     protected abstract T indexedElement(int i);
@@ -101,22 +71,9 @@ public abstract class AIndexedIterator<T> extends AOpenIterator<T> {
         return indexedElement(idx);
     }
 
-    protected void reverseIndexes() {
-        int s = size();
-        if (s <= 0) {
-            return;
-        }
-
-        int newFrom = from + (s - 1) * step;
-
-        step = -step;
-        to = newFrom + s * step;
-        current = from = newFrom;
-    }
-
     @Override
     public final int size() {
-        return step > 0 ? (to - from) / step : (from - to) / -step;
+        return step > 0 ? ((to - from) / step) : ((from - to) / -step);
     }
 
 }

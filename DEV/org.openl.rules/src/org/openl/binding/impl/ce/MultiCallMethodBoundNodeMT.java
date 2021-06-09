@@ -53,11 +53,11 @@ public class MultiCallMethodBoundNodeMT extends MultiCallMethodBoundNode {
     }
 
     private static final class InvokeMethodAndSetResultToArrayRunnable implements Runnable {
-        private IMethodCaller methodCaller;
-        private Object target;
-        private Object[] callParameters;
-        private Object results;
-        private int index;
+        private final IMethodCaller methodCaller;
+        private final Object target;
+        private final Object[] callParameters;
+        private final Object results;
+        private final int index;
 
         public InvokeMethodAndSetResultToArrayRunnable(IMethodCaller methodCaller,
                 Object target,

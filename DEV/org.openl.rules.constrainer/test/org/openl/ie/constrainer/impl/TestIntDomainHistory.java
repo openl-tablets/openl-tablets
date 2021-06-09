@@ -27,7 +27,7 @@ import junit.textui.TestRunner;
  */
 
 public class TestIntDomainHistory extends TestCase {
-    private Constrainer C = new Constrainer("TestIntDomainHistory");
+    private final Constrainer C = new Constrainer("TestIntDomainHistory");
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntDomainHistory.class));
@@ -116,7 +116,7 @@ public class TestIntDomainHistory extends TestCase {
                     assertTrue("code2:" + i + ": " + j, intvar.contains(i));
                 }
                 for (int i = removeStart[j]; i <= removeEnd[j]; i++) {
-                    assertTrue("code3:" + i + ": " + j, !intvar.contains(i));
+                    assertFalse("code3:" + i + ": " + j, intvar.contains(i));
                 }
             }
         } catch (Failure f) {
@@ -141,8 +141,8 @@ public class TestIntDomainHistory extends TestCase {
 
                 intvar.setMax(maxVals[i]);
                 intvar.setMin(minVals[i]);
-                assertTrue("incorrect work of IntVar.setMax(int)", intvar.max() == maxVals[i]);
-                assertTrue("incorrect work of IntVar.setMin(int)", intvar.min() == minVals[i]);
+                assertEquals("incorrect work of IntVar.setMax(int)", intvar.max(), maxVals[i]);
+                assertEquals("incorrect work of IntVar.setMin(int)", intvar.min(), minVals[i]);
                 sizes[i] = intvar.size();
 
                 // save current state

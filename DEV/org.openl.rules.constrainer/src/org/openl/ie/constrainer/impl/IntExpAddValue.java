@@ -15,7 +15,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public final class IntExpAddValue extends IntExpImpl {
     class ExpAddValueObserver extends ExpressionObserver {
-        IntExp _exp_this;
+        final IntExp _exp_this;
 
         ExpAddValueObserver(IntExp exp_this) {
             _exp_this = exp_this;
@@ -46,7 +46,7 @@ public final class IntExpAddValue extends IntExpImpl {
 
     static final class IntEventAddValue extends IntEvent {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventAddValue();
@@ -111,11 +111,11 @@ public final class IntExpAddValue extends IntExpImpl {
 
     } // ~IntEventAddValue
 
-    private IntExp _exp;
+    private final IntExp _exp;
 
-    private int _value;
+    private final int _value;
 
-    private ExpressionObserver _observer;
+    private final ExpressionObserver _observer;
 
     public IntExpAddValue(IntExp exp, int value) {
         super(exp.constrainer());

@@ -9,7 +9,7 @@ import org.openl.rules.table.ui.ICellStyle;
 public class SetIndentAction extends AUndoableCellAction {
 
     private int prevIndent;
-    private int newIndent;
+    private final int newIndent;
 
     public SetIndentAction(int col, int row, int indent, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

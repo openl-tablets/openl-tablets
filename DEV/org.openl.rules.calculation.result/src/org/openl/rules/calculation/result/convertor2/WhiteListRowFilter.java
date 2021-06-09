@@ -16,7 +16,7 @@ import java.util.Set;
 
 public final class WhiteListRowFilter implements RowFilter {
 
-    private Set<String> whiteList;
+    private final Set<String> whiteList;
 
     private WhiteListRowFilter(Set<String> whiteList) {
         this.whiteList = whiteList;

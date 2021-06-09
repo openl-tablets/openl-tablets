@@ -1,13 +1,8 @@
-/*
- * Created on Jun 23, 2004
- *
- * Developed by OpenRules Inc 2003-2004
- */
 package org.openl.rules;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
-import org.openl.engine.OpenLCellExpressionsCompiler;
+import org.openl.engine.OpenLManager;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.types.IOpenMethodHeader;
@@ -22,10 +17,10 @@ import org.openl.types.impl.CompositeMethod;
  */
 public class OpenlToolAdaptor {
 
-    private OpenL openl;
+    private final OpenL openl;
     private IOpenMethodHeader header;
-    private IBindingContext bindingContext;
-    private TableSyntaxNode tableSyntaxNode;
+    private final IBindingContext bindingContext;
+    private final TableSyntaxNode tableSyntaxNode;
 
     public OpenlToolAdaptor(OpenL openl, IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode) {
         this.openl = openl;
@@ -54,11 +49,6 @@ public class OpenlToolAdaptor {
     }
 
     public CompositeMethod makeMethod(IOpenSourceCodeModule src) {
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, header, bindingContext);
+        return OpenLManager.makeMethod(openl, src, header, bindingContext);
     }
-
-    public CompositeMethod makeMethod(IOpenSourceCodeModule src, IOpenMethodHeader h2) {
-        return OpenLCellExpressionsCompiler.makeMethod(openl, src, h2, bindingContext);
-    }
-
 }

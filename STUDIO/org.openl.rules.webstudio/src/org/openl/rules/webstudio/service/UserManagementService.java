@@ -1,25 +1,48 @@
 package org.openl.rules.webstudio.service;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
+import org.openl.rules.security.SimpleGroup;
 import org.openl.rules.security.SimpleUser;
 import org.openl.rules.security.standalone.dao.GroupDao;
+import org.openl.rules.security.standalone.dao.UserDao;
 import org.openl.rules.security.standalone.persistence.Group;
 import org.openl.rules.security.standalone.persistence.User;
-import org.openl.rules.security.standalone.service.PrivilegesEvaluator;
-import org.openl.rules.security.standalone.service.UserInfoUserDetailsServiceImpl;
-import org.springframework.security.core.GrantedAuthority;
 
 /**
  * @author Andrei Astrouski
  */
-public class UserManagementService extends UserInfoUserDetailsServiceImpl {
+public class UserManagementService {
 
-    private GroupDao groupDao;
+    private final UserDao userDao;
+    private final GroupDao groupDao;
+
+    public UserManagementService(UserDao userDao, GroupDao groupDao) {
+        this.userDao = userDao;
+        this.groupDao = groupDao;
+    }
+
+    public org.openl.rules.security.User loadUserByUsername(String name) {
+        User user = userDao.getUserByName(name);
+
+        if (user == null) {
+            return null;
+        }
+
+        Collection<Privilege> privileges = PrivilegesEvaluator.createPrivileges(user);
+        String firstName = user.getFirstName();
+        String lastName = user.getSurname();
+        String username = user.getLoginName();
+        String passwordHash = user.getPasswordHash();
+
+        return new SimpleUser(firstName, lastName, username, passwordHash, privileges);
+    }
 
     public List<org.openl.rules.security.User> getAllUsers() {
         List<User> users = userDao.getAllUsers();
@@ -35,61 +58,66 @@ public class UserManagementService extends UserInfoUserDetailsServiceImpl {
         return resultUsers;
     }
 
-    public List<org.openl.rules.security.User> getUsersByPrivilege(String privilege) {
-        List<User> users = userDao.getAllUsers();
-        List<org.openl.rules.security.User> resultUsers = new ArrayList<>();
-        for (User user : users) {
-            org.openl.rules.security.User resultUser = new SimpleUser(user.getFirstName(),
-                user.getSurname(),
-                user.getLoginName(),
-                user.getPasswordHash(),
-                PrivilegesEvaluator.createPrivileges(user));
-            if (resultUser.hasPrivilege(Privileges.ADMIN.name()) || resultUser.hasPrivilege(privilege)) {
-                resultUsers.add(resultUser);
-            }
-        }
-        return resultUsers;
-    }
-
-    public void addUser(org.openl.rules.security.User user) {
+    public void addUser(String user, String firstName, String lastName, String passwordHash) {
         User persistUser = new User();
-        persistUser.setLoginName(user.getUsername());
-        persistUser.setPasswordHash(user.getPassword());
-        persistUser.setFirstName(user.getFirstName());
-        persistUser.setSurname(user.getLastName());
-
-        Set<Group> groups = new HashSet<>();
-        for (GrantedAuthority auth : user.getAuthorities()) {
-            groups.add(groupDao.getGroupByName(auth.getAuthority()));
-        }
-        persistUser.setGroups(groups);
+        persistUser.setLoginName(user);
+        persistUser.setPasswordHash(passwordHash);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
 
         userDao.save(persistUser);
     }
 
-    public void updateUser(org.openl.rules.security.User user) {
-        User persistUser = userDao.getUserByName(user.getUsername());
+    public void updateUserData(String user,
+            String firstName,
+            String lastName,
+            String passwordHash,
+            boolean updatePassword) {
+        User persistUser = userDao.getUserByName(user);
+        persistUser.setFirstName(firstName);
+        persistUser.setSurname(lastName);
+        if (updatePassword) {
+            persistUser.setPasswordHash(passwordHash);
+        }
+        userDao.update(persistUser);
+    }
 
-        persistUser.setFirstName(user.getFirstName());
-        persistUser.setSurname(user.getLastName());
-
+    public void updateAuthorities(String user, Set<String> authorities) {
+        User persistUser = userDao.getUserByName(user);
         Set<Group> groups = new HashSet<>();
-        for (GrantedAuthority auth : user.getAuthorities()) {
-            groups.add(groupDao.getGroupByName(auth.getAuthority()));
+        for (String auth : authorities) {
+            groups.add(groupDao.getGroupByName(auth));
         }
         persistUser.setGroups(groups);
-        if (user.getPassword() != null) {
-            persistUser.setPasswordHash(user.getPassword());
-        }
 
         userDao.update(persistUser);
     }
 
-    public void deleteUser(String username) {
-        userDao.deleteUserByName(username);
+    public void updateAuthorities(final String user, final Set<String> authorities, final boolean leaveAdminGroups) {
+        Set<String> fullAuthorities = new HashSet<>(authorities);
+        if (leaveAdminGroups) {
+            User persistUser = userDao.getUserByName(user);
+            Set<Group> currentGroups = persistUser.getGroups();
+            Set<String> currentAdminGroups = getCurrentAdminGroups(currentGroups);
+            fullAuthorities.addAll(currentAdminGroups);
+        }
+        updateAuthorities(user, fullAuthorities);
     }
 
-    public void setGroupDao(GroupDao groupDao) {
-        this.groupDao = groupDao;
+    public Set<String> getCurrentAdminGroups(final Set<Group> groups) {
+        Set<String> groupNames = new HashSet<>();
+
+        for (Group group : groups) {
+            SimpleGroup simpleGroup = PrivilegesEvaluator.wrap(group);
+            if (simpleGroup.hasPrivilege(Privileges.ADMIN.getAuthority())) {
+                groupNames.add(group.getName());
+            }
+        }
+
+        return groupNames;
+    }
+
+    public void deleteUser(String username) {
+        userDao.deleteUserByName(username);
     }
 }

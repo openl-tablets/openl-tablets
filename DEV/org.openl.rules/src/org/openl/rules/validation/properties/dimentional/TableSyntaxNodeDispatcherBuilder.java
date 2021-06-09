@@ -65,9 +65,9 @@ class TableSyntaxNodeDispatcherBuilder {
         }
     }
 
-    private RulesModuleBindingContext rulesModuleBindingContext;
-    private XlsModuleOpenClass moduleOpenClass;
-    private MatchingOpenMethodDispatcher dispatcher;
+    private final RulesModuleBindingContext rulesModuleBindingContext;
+    private final XlsModuleOpenClass moduleOpenClass;
+    private final MatchingOpenMethodDispatcher dispatcher;
 
     TableSyntaxNodeDispatcherBuilder(RulesModuleBindingContext rulesModuleBindingContext,
             XlsModuleOpenClass moduleOpenClass,
@@ -159,10 +159,10 @@ class TableSyntaxNodeDispatcherBuilder {
             IMethodSignature signature = new MethodSignature(params);
             OpenMethodHeader header = new OpenMethodHeader(tableName, originalReturnType, signature, moduleOpenClass);
 
-            DecisionTableBoundNode boundNode = null;
-            if (moduleOpenClass != null) {
-                boundNode = new DecisionTableBoundNode(tsn, moduleOpenClass.getOpenl(), header, moduleOpenClass);
-            }
+            DecisionTableBoundNode boundNode = new DecisionTableBoundNode(tsn,
+                moduleOpenClass.getOpenl(),
+                header,
+                moduleOpenClass);
             DecisionTable decisionTable = new DecisionTable(header, boundNode);
             // Dispatcher tables are shown in Trace
             tsn.setMetaInfoReader(
@@ -171,6 +171,11 @@ class TableSyntaxNodeDispatcherBuilder {
             loadCreatedTable(decisionTable, tsn);
 
             dispatcher.setDecisionTableOpenMethod(decisionTable);
+
+            IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
+            if (algorithm != null) {
+                algorithm.cleanParamValuesForIndexedConditions();
+            }
 
             if (rulesModuleBindingContext.isExecutionMode()) {
                 removeDebugInformation(decisionTable, tsn);
@@ -181,11 +186,6 @@ class TableSyntaxNodeDispatcherBuilder {
 
     private void removeDebugInformation(DecisionTable decisionTable, TableSyntaxNode tsn) {
         decisionTable.setBoundNode(null);
-
-        IDecisionTableAlgorithm algorithm = decisionTable.getAlgorithm();
-        if (algorithm != null) {
-            algorithm.removeParamValuesForIndexedConditions();
-        }
 
         clearCompositeMethods(decisionTable);
 
@@ -388,7 +388,7 @@ class TableSyntaxNodeDispatcherBuilder {
     }
 
     private static class InternalMethodDelegator extends MethodDelegator {
-        String auxiliaryMethodName;
+        final String auxiliaryMethodName;
 
         InternalMethodDelegator(IMethodCaller methodCaller, String auxiliaryMethodName) {
             super(methodCaller);
@@ -403,7 +403,7 @@ class TableSyntaxNodeDispatcherBuilder {
 
     private static class InternalBindingContextDelegator extends BindingContextDelegator {
 
-        private Map<MethodKey, IOpenMethod> auxiliaryMethods;
+        private final Map<MethodKey, IOpenMethod> auxiliaryMethods;
 
         InternalBindingContextDelegator(RulesModuleBindingContext context,
                 Map<MethodKey, IOpenMethod> auxiliaryMethods) {

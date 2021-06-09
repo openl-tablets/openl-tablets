@@ -1,0 +1,139 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "Test",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/Watch": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Watch"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MyLovelySpreadsheet"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/Party": {
+      "post": {
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PartyRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/MyLovelySpreadsheet"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "MyLovelySpreadsheet": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "string"
+          },
+          "b": {
+            "type": "string"
+          },
+          "c": {
+            "type": "string"
+          },
+          "d": {
+            "type": "boolean"
+          }
+        }
+      },
+      "Diver": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "watches": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Watch"
+            }
+          }
+        }
+      },
+      "Watch": {
+        "type": "object",
+        "properties": {
+          "size": {
+            "type": "integer"
+          }
+        }
+      },
+      "Party": {
+        "type": "object",
+        "properties": {
+          "driver": {
+            "$ref": "#/components/schemas/Diver"
+          }
+        }
+      },
+      "Pizza": {
+        "type": "object",
+        "properties": {
+          "deliveryDate": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "PartyRequest": {
+        "type": "object",
+        "properties": {
+          "pizza": {
+            "$ref": "#/components/schemas/Pizza"
+          },
+          "party": {
+            "$ref": "#/components/schemas/Party"
+          }
+        }
+      }
+    }
+  }
+}

@@ -8,7 +8,7 @@ public final class WorkbookLoaders {
     }
 
     private static final WorkbookLoaderFactory DEFAULT_FACTORY = new LazyWorkbookLoaderFactory(true);
-    private static ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = ThreadLocal
+    private static final ThreadLocal<WorkbookLoaderFactory> workbookLoaderFactoryHolder = ThreadLocal
         .withInitial(() -> DEFAULT_FACTORY);
 
     public static void setCurrentFactory(WorkbookLoaderFactory factory) {

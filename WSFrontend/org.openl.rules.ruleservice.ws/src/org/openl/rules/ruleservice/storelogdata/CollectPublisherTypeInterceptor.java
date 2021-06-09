@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -9,7 +8,7 @@ import org.openl.rules.project.model.RulesDeploy.PublisherType;
 
 public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private PublisherType publisherType;
+    private final PublisherType publisherType;
 
     public CollectPublisherTypeInterceptor(String phase, PublisherType publisherType) {
         super(phase);
@@ -22,7 +21,7 @@ public class CollectPublisherTypeInterceptor extends AbstractPhaseInterceptor<Me
     }
 
     @Override
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         injectPublisherType(message);
     }
 

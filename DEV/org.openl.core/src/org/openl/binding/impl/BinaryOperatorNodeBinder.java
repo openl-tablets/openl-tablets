@@ -48,7 +48,7 @@ public class BinaryOperatorNodeBinder extends ANodeBinder {
             return makeErrorNode(message, node, bindingContext);
         }
 
-        return new BinaryOpNode(node, new IBoundNode[] { b1, b2 }, methodCaller);
+        return new BinaryOpNode(node, b1, b2, methodCaller);
     }
 
     public static String errorMsg(String methodName, IOpenClass t1, IOpenClass t2) {

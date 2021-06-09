@@ -1,15 +1,5 @@
 package org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import com.rits.cloning.Cloner;
@@ -60,22 +50,16 @@ public class DeepCloningVariation extends Variation {
 
     @Override
     public Object[] applyModification(Object[] originalArguments) {
-        Object[] clonedParams = null;
-        if (originalArguments != null) {
-            try {
-                clonedParams = cloner.deepClone(originalArguments);
-            } catch (Exception ex) {
-                throw new VariationRuntimeException("Original arguments deep cloning is failed.", ex);
-            }
-        } else {
-            clonedParams = new Object[0];
-        }
-        return variation.applyModification(clonedParams);
+        return variation.applyModification(clone(originalArguments));
     }
 
     @Override
     public Object currentValue(Object[] originalArguments) {
-        Object[] clonedParams = null;
+        return variation.currentValue(clone(originalArguments));
+    }
+
+    private Object[] clone(Object[] originalArguments) {
+        Object[] clonedParams;
         if (originalArguments != null) {
             try {
                 clonedParams = cloner.deepClone(originalArguments);
@@ -85,7 +69,7 @@ public class DeepCloningVariation extends Variation {
         } else {
             clonedParams = new Object[0];
         }
-        return variation.currentValue(clonedParams);
+        return clonedParams;
     }
 
     @Override

@@ -77,4 +77,9 @@ public class TableMethod extends ExecutableRulesMethod {
         return method;
     }
 
+    @Override
+    public void clearForExecutionMode() {
+        super.clearForExecutionMode();
+        getCompositeMethod().removeDebugInformation();
+    }
 }

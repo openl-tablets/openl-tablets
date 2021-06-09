@@ -19,16 +19,16 @@ public class FormattedCell implements ICell {
 
     private final Logger log = LoggerFactory.getLogger(FormattedCell.class);
 
-    private ICell delegate;
+    private final ICell delegate;
 
     @Override
     public ICell getTopLeftCellFromRegion() {
         return delegate.getTopLeftCellFromRegion();
     }
 
-    private ICellFont font;
+    private final ICellFont font;
 
-    private ICellStyle style;
+    private final ICellStyle style;
 
     private IGridFilter filter;
 
@@ -39,7 +39,7 @@ public class FormattedCell implements ICell {
     public FormattedCell(ICell delegate, CellMetaInfo cellMetaInfo) {
         this.delegate = delegate;
         this.objectValue = this.delegate.getObjectValue();
-        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo);
+        this.formattedValue = XlsDataFormatterFactory.getFormattedValue(delegate, cellMetaInfo, false);
 
         this.font = new CellFont(delegate.getFont());
         this.style = new CellStyle(delegate.getStyle());

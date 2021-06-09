@@ -28,14 +28,14 @@ import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAfte
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallAroundInterceptor;
 import org.openl.rules.ruleservice.core.interceptors.annotations.ServiceCallBeforeInterceptor;
 import org.openl.rules.testmethod.OpenLUserRuntimeException;
+import org.openl.runtime.ASMProxyHandler;
 import org.openl.runtime.IEngineWrapper;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMember;
+import org.openl.util.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.Ordered;
-
-import javassist.util.proxy.MethodHandler;
 
 /**
  * Advice for processing method intercepting. Exception wrapping. And fix memory leaks.
@@ -44,22 +44,22 @@ import javassist.util.proxy.MethodHandler;
  *
  * @author Marat Kamalov
  */
-public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
+public final class ServiceInvocationAdvice implements ASMProxyHandler, Ordered {
 
     private final Logger log = LoggerFactory.getLogger(ServiceInvocationAdvice.class);
 
     private static final String MSG_SEPARATOR = "; ";
 
-    private Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
-    private Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
-    private Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<>();
-    private Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
+    private final Map<Method, List<ServiceMethodBeforeAdvice>> beforeInterceptors = new HashMap<>();
+    private final Map<Method, List<ServiceMethodAfterAdvice<?>>> afterInterceptors = new HashMap<>();
+    private final Map<Method, ServiceMethodAroundAdvice<?>> aroundInterceptors = new HashMap<>();
+    private final Map<Method, ServiceExtraMethodHandler<?>> serviceExtraMethodAnnotations = new HashMap<>();
 
-    private Object serviceTarget;
-    private Class<?> serviceClass;
-    private ClassLoader serviceClassLoader;
-    private IOpenClass openClass;
-    private Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
+    private final Object serviceTarget;
+    private final Class<?> serviceClass;
+    private final ClassLoader serviceClassLoader;
+    private final IOpenClass openClass;
+    private final Collection<ServiceInvocationAdviceListener> serviceMethodAdviceListeners;
 
     public ServiceInvocationAdvice(IOpenClass openClass,
             Object serviceTarget,
@@ -109,14 +109,37 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         }
     }
 
-    private void processAwareInterfaces(Object o, Method method) {
+    private void processAware(Object o, Method method) {
         if (o instanceof IOpenClassAware) {
             ((IOpenClassAware) o).setIOpenClass(openClass);
         }
-        if (o instanceof IOpenMemberAware) {
-            IOpenMember openMember = RuleServiceOpenLServiceInstantiationHelper.getOpenMember(method, serviceTarget);
-            ((IOpenMemberAware) o).setIOpenMember(openMember);
+        try {
+            AnnotationUtils.inject(o, InjectOpenClass.class, () -> openClass);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", IOpenClass.class.getTypeName());
         }
+        if (o instanceof IOpenMemberAware) {
+            IOpenMember openMember = findIOpenMember(method);
+            if (openMember != null) {
+                ((IOpenMemberAware) o).setIOpenMember(openMember);
+            }
+        }
+        try {
+            AnnotationUtils.inject(o, InjectOpenMember.class, () -> findIOpenMember(method));
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            log.error("Failed to inject '{}' class instance.", IOpenMember.class.getTypeName());
+        }
+    }
+
+    private IOpenMember findIOpenMember(Method method) {
+        for (Class<?> interf : serviceTarget.getClass().getInterfaces()) {
+            try {
+                Method m = interf.getMethod(method.getName(), method.getParameterTypes());
+                return RuleServiceOpenLServiceInstantiationHelper.getOpenMember(m, serviceTarget);
+            } catch (NoSuchMethodException ignored) {
+            }
+        }
+        return null;
     }
 
     private void checkForAroundInterceptor(Method method, Annotation annotation) {
@@ -125,11 +148,11 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                 .value();
             try {
                 ServiceMethodAroundAdvice<?> aroundInterceptor = interceptorClass.newInstance();
-                processAwareInterfaces(aroundInterceptor, method);
+                processAware(aroundInterceptor, method);
                 aroundInterceptors.put(method, aroundInterceptor);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                    "Failed to instantiate 'around' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     interceptorClass.getTypeName()), e);
             }
@@ -145,11 +168,11 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
             for (Class<? extends ServiceMethodBeforeAdvice> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodBeforeAdvice preInterceptor = interceptorClass.newInstance();
-                    processAwareInterfaces(preInterceptor, method);
+                    processAware(preInterceptor, method);
                     interceptors.add(preInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "Failed to instantiate 'before' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -163,11 +186,11 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                 .value();
             try {
                 ServiceExtraMethodHandler<?> serviceExtraMethodHandler = serviceExtraMethodHandlerClass.newInstance();
-                processAwareInterfaces(serviceExtraMethodHandler, method);
+                processAware(serviceExtraMethodHandler, method);
                 serviceExtraMethodAnnotations.put(method, serviceExtraMethodHandler);
             } catch (Exception e) {
                 throw new RuleServiceRuntimeException(String.format(
-                    "Failed to instante service method handler for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                    "Failed to instantiate service method handler for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                     MethodUtil.printQualifiedMethodName(method),
                     serviceExtraMethodHandlerClass.getTypeName()), e);
             }
@@ -183,11 +206,11 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
             for (Class<? extends ServiceMethodAfterAdvice<?>> interceptorClass : interceptorClasses) {
                 try {
                     ServiceMethodAfterAdvice<?> postInterceptor = interceptorClass.newInstance();
-                    processAwareInterfaces(postInterceptor, method);
+                    processAware(postInterceptor, method);
                     interceptors.add(postInterceptor);
                 } catch (Exception e) {
                     throw new RuleServiceRuntimeException(String.format(
-                        "Failed to instante 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstact and has a default constructor.",
+                        "Failed to instantiate 'afterReturning' interceptor for method '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
                         MethodUtil.printQualifiedMethodName(method),
                         interceptorClass.getTypeName()), e);
                 }
@@ -223,32 +246,32 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         List<ServiceMethodAfterAdvice<?>> postInterceptors = afterInterceptors.get(interfaceMethod);
         if (postInterceptors != null && !postInterceptors.isEmpty()) {
             Object ret = result;
-            Exception lastOccuredException = t;
+            Exception lastOccurredException = t;
             for (ServiceMethodAfterAdvice<?> interceptor : postInterceptors) {
                 invokeBeforeServiceMethodAdviceOnListeners(interceptor,
                     interfaceMethod,
                     args,
                     ret,
-                    lastOccuredException);
+                    lastOccurredException);
                 try {
-                    if (lastOccuredException == null) {
+                    if (lastOccurredException == null) {
                         ret = interceptor.afterReturning(interfaceMethod, ret, args);
                     } else {
-                        ret = interceptor.afterThrowing(interfaceMethod, lastOccuredException, args);
+                        ret = interceptor.afterThrowing(interfaceMethod, lastOccurredException, args);
                     }
-                    lastOccuredException = null;
+                    lastOccurredException = null;
                 } catch (Exception e) {
-                    lastOccuredException = e;
+                    lastOccurredException = e;
                     ret = null;
                 }
                 invokeAfterServiceMethodAdviceOnListeners(interceptor,
                     interfaceMethod,
                     args,
                     ret,
-                    lastOccuredException);
+                    lastOccurredException);
             }
-            if (lastOccuredException != null) {
-                throw lastOccuredException;
+            if (lastOccurredException != null) {
+                throw lastOccurredException;
             } else {
                 return ret;
             }
@@ -265,12 +288,17 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccuredException) {
+            Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+                listener.afterServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
@@ -279,18 +307,23 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
             Method interfaceMethod,
             Object[] args,
             Object ret,
-            Exception lastOccuredException) {
+            Exception lastOccurredException) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeServiceMethodAdvice(interceptor, interfaceMethod, args, ret, lastOccuredException);
+                listener.beforeServiceMethodAdvice(interceptor,
+                    interfaceMethod,
+                    args,
+                    ret,
+                    lastOccurredException,
+                    e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
 
     @Override
-    public Object invoke(Object o, Method calledMethod, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Method calledMethod, Object[] args) {
         String methodName = calledMethod.getName();
         Class<?>[] parameterTypes = calledMethod.getParameterTypes();
         Method interfaceMethod = MethodUtil.getMatchingAccessibleMethod(serviceClass, methodName, parameterTypes);
@@ -341,6 +374,10 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                         invokeAfterMethodInvocationOnListeners(interfaceMethod, args, result);
                     }
                     result = afterInvocation(interfaceMethod, result, null, args);
+                    // repack result if arrays inside it doesn't have the returnType as interfaceMethod
+                    if (interfaceMethod.getReturnType().isArray()) {
+                        result = ArrayUtils.repackArray(result, interfaceMethod.getReturnType());
+                    }
                 } finally {
                     Thread.currentThread().setContextClassLoader(oldClassLoader);
                 }
@@ -348,11 +385,17 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
                 Throwable t = extractInvocationTargetException(e);
                 if (t instanceof Exception) {
                     result = afterInvocation(interfaceMethod, null, (Exception) t, args);
+                } else if (t instanceof Error) {
+                    throw (Error) t;
                 } else {
-                    throw t;
+                    throw new Exception(t);
                 }
             } catch (Exception e) {
                 result = afterInvocation(interfaceMethod, null, e, args);
+            } catch (Error e) {
+                throw e;
+            } catch (Throwable t) {
+                throw new Exception(t);
             }
             return result;
         } catch (Exception t) {
@@ -373,25 +416,24 @@ public final class ServiceInvocationAdvice implements MethodHandler, Ordered {
         }
     }
 
-    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args,
-            Object result) {
+    private void invokeAfterMethodInvocationOnListeners(Method interfaceMethod, Object[] args, Object result) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.afterMethodInvocation(interfaceMethod, args, result, null);
+                listener
+                    .afterMethodInvocation(interfaceMethod, args, result, null, e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }
 
-    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod,
-            Object[] args) {
+    private void invokeBeforeMethodInvocationOnListeners(Method interfaceMethod, Object[] args) {
         for (ServiceInvocationAdviceListener listener : serviceMethodAdviceListeners) {
             try {
-                listener.beforeMethodInvocation(interfaceMethod, args, null, null);
+                listener
+                    .beforeMethodInvocation(interfaceMethod, args, null, null, e -> processAware(e, interfaceMethod));
             } catch (Exception e1) {
-                log.error("Exception occured.", e1);
+                log.error("Exception occurred.", e1);
             }
         }
     }

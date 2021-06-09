@@ -60,6 +60,7 @@ public class SimpleWorkbookLoader implements WorkbookLoader {
      */
     @Override
     public void setCanUnload(boolean canUnload) {
+        //nothing to do
     }
 
     @Override

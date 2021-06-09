@@ -4,12 +4,9 @@
 
 package org.openl.generated.test.beans;
 
-import java.lang.String;
-import org.apache.commons.lang3.builder.EqualsBuilder;
-import org.openl.generated.test.beans.Driver;
-import org.openl.generated.test.beans.Vehicle;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Policy {
     protected java.lang.String name;
@@ -48,7 +45,6 @@ public class Policy {
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Policy)) {
-            ;
             return false;
         }
         Policy another = (Policy) obj;
@@ -65,20 +61,8 @@ public class Policy {
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Policy {");
-        builder.append(" name=");
-        builder.append(getName());
-        builder.append(" clientTier=");
-        builder.append(getClientTier());
-        builder.append(" clientTerm=");
-        builder.append(getClientTerm());
-        builder.append(" drivers=");
-        builder.append(ArrayUtils.toString(getDrivers()));
-        builder.append(" vehicles=");
-        builder.append(ArrayUtils.toString(getVehicles()));
-        builder.append(" }");
-        return builder.toString();
+        return "Policy {" + " name=" + getName() + " clientTier=" + getClientTier() + " clientTerm=" + getClientTerm() + " drivers=" + ArrayUtils
+                .toString(getDrivers()) + " vehicles=" + ArrayUtils.toString(getVehicles()) + " }";
     }
 
     public void setName(java.lang.String name) {

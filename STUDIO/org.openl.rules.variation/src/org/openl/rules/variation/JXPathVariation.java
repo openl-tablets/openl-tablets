@@ -1,15 +1,5 @@
 package org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.commons.jxpath.CompiledExpression;
@@ -61,7 +51,7 @@ public class JXPathVariation extends Variation {
     public Object currentValue(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
                 getVariationID(),
                 updatedArgumentIndex,
                 originalArguments.length));
@@ -75,7 +65,7 @@ public class JXPathVariation extends Variation {
     public Object[] applyModification(Object[] originalArguments) {
         if (updatedArgumentIndex >= originalArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
                 getVariationID(),
                 updatedArgumentIndex,
                 originalArguments.length));
@@ -90,7 +80,7 @@ public class JXPathVariation extends Variation {
     public void revertModifications(Object[] modifiedArguments, Object previousValue) {
         if (updatedArgumentIndex >= modifiedArguments.length) {
             throw new VariationRuntimeException(String.format(
-                "Failed to apply variaion '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
+                "Failed to apply variation '%s'. Index of argument to modify is [%s] but arguments array length is %s.",
                 getVariationID(),
                 updatedArgumentIndex,
                 modifiedArguments.length));

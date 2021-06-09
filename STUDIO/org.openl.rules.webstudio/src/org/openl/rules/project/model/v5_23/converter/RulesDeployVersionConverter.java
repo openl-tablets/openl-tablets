@@ -23,7 +23,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                 Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
                 e -> e == null ? null : new RulesDeploy.WildcardPattern(e.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
+                .toArray(new RulesDeploy.WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
@@ -49,7 +49,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[0]));
         }
 
         rulesDeploy.setRmiServiceClass(oldVersion.getRmiServiceClass());
@@ -74,7 +74,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                 Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
                 oldVersion -> oldVersion == null ? null : new RulesDeploy_v5_23.WildcardPattern(oldVersion.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy_v5_23.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
+                .toArray(new RulesDeploy_v5_23.WildcardPattern[0]));
         }
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
         rulesDeploy.setProvideVariations(currentVersion.isProvideVariations());
@@ -98,7 +98,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_23.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_23.PublisherType[0]));
         }
 
         rulesDeploy.setRmiServiceClass(currentVersion.getRmiServiceClass());

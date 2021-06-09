@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.openl.domain.DateRangeDomain;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IntRangeDomain;
-import org.openl.domain.StringDomain;
 import org.openl.rules.BaseOpenlBuilderHelper;
 import org.openl.rules.dt.IDecisionTable;
 import org.openl.rules.dt.type.domains.DateRangeDomainAdaptor;
@@ -98,8 +97,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         if (resultTsn != null) {
             ITableProperties tableProperties = resultTsn.getTableProperties();
             assertNotNull(tableProperties);
-            assertTrue(getCompiledOpenClass().getBindingErrors().length == 0);
-            assertTrue(getCompiledOpenClass().getParsingErrors().length == 0);
+            assertFalse(getCompiledOpenClass().hasErrors());
 
             IDecisionTable dt = (IDecisionTable) resultTsn.getMember();
             try {
@@ -137,7 +135,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
     public void testString() {
         String tableName = "Rules void helloString(String stringValue)";
         Map<String, IDomainAdaptor> domains = new HashMap<>();
-        StringDomain stringDomain = new StringDomain(new String[] { "value1", "value2", "value3" });
+        EnumDomain<String> stringDomain = new EnumDomain<>(new String[] { "value1", "value2", "value3" });
         EnumDomainAdaptor enumDomainStrAdaptor = new EnumDomainAdaptor(stringDomain);
 
         domains.put("stringValue", enumDomainStrAdaptor);
@@ -170,7 +168,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         domains.put("max", adaptor);
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, domains);
-        assertTrue(!dtValidResult.hasProblems());
+        assertFalse(dtValidResult.hasProblems());
 
         Date newEndDate = null;
         try {
@@ -180,7 +178,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
         }
         dateRangeDomain.setMax(newEndDate);
         dtValidResult = testTable(tableName, domains);
-        assertTrue(dtValidResult.getUncovered().length == 1);
+        assertEquals(1, dtValidResult.getUncovered().length);
     }
 
     @Test
@@ -197,7 +195,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertFalse(dtValidResult.hasProblems());
-        assertTrue(dtValidResult.getOverlappings().length == 1);
+        assertEquals(1, dtValidResult.getOverlappings().length);
         DecisionTableOverlapping overlap = dtValidResult.getOverlappings()[0];
         assertEquals("value = V2", overlap.getValues().toString());
     }
@@ -208,7 +206,7 @@ public class ValidatorTest extends BaseOpenlBuilderHelper {
 
         DecisionTableValidationResult dtValidResult = testTable(tableName, null);
         assertTrue(dtValidResult.hasProblems());
-        assertTrue(dtValidResult.getUncovered().length == 1);
+        assertEquals(1, dtValidResult.getUncovered().length);
         DecisionTableUncovered gap = dtValidResult.getUncovered()[0];
         assertEquals("value = V4", gap.getValues().toString());
     }

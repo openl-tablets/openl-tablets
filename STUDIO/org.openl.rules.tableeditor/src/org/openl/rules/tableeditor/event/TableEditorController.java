@@ -177,7 +177,7 @@ public class TableEditorController extends BaseTableEditorController {
     private int getCol() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         int numberOfNonShownColumns = editorModel.getNumberOfNonShownCols();
-        return getRequestIntParam(Constants.REQUEST_PARAM_COL) - 1 + numberOfNonShownColumns;
+        return getRequestIntParam("col") - 1 + numberOfNonShownColumns;
     }
 
     private String getEditorId() {
@@ -213,7 +213,7 @@ public class TableEditorController extends BaseTableEditorController {
     private int getRow() {
         TableEditorModel editorModel = getEditorModel(getEditorId());
         int numberOfNonShownRows = editorModel.getNumberOfNonShownRows();
-        return getRequestIntParam(Constants.REQUEST_PARAM_ROW) - 1 + numberOfNonShownRows;
+        return getRequestIntParam("row") - 1 + numberOfNonShownRows;
     }
 
     public String removeRow() {
@@ -303,7 +303,7 @@ public class TableEditorController extends BaseTableEditorController {
             ICell cell = editorModel.getOriginalGridTable().getCell(col, row);
 
             CellMetaInfo meta = getMetaInfo(editorModel, row, col);
-            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta);
+            IFormatter currentFormatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
             IFormatter formulaResultFormatter = null;
             if (!(currentFormatter instanceof FormulaFormatter)) {
                 formulaResultFormatter = currentFormatter;
@@ -596,7 +596,7 @@ public class TableEditorController extends BaseTableEditorController {
         int height = gridTable.getHeight();
         for (int i = 0; i < height; i++) {
             IGridTable row = gridTable.getRow(i);
-            if (isEmptyRow(row)) {
+            if (row != null && isEmptyRow(row)) {
                 return true;
             }
         }
@@ -689,7 +689,7 @@ public class TableEditorController extends BaseTableEditorController {
         private String html;
         private String message;
         private String id;
-        private TableEditorModel model;
+        private final TableEditorModel model;
 
         public TableModificationResponse(String html, String message, TableEditorModel model) {
             this.html = html;

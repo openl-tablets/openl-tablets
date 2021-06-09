@@ -7,11 +7,11 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.apache.poi.ooxml.util.SAXHelper;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.exceptions.OpenXML4JException;
 import org.apache.poi.openxml4j.opc.*;
 import org.apache.poi.ss.util.CellAddress;
+import org.apache.poi.util.XMLHelper;
 import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.model.CommentsTable;
 import org.apache.poi.xssf.usermodel.XSSFRelation;
@@ -52,7 +52,7 @@ public class SAXReader implements ExcelReader {
         if (sheets == null) {
             try (OPCPackage pkg = OPCPackage.open(fileName, PackageAccess.READ)) {
 
-                XMLReader parser = SAXHelper.newXMLReader();
+                XMLReader parser = XMLHelper.newXMLReader();
                 WorkbookHandler handler = new WorkbookHandler();
                 parser.setContentHandler(handler);
 
@@ -81,7 +81,7 @@ public class SAXReader implements ExcelReader {
 
             initializeNeededData(r, pkg);
 
-            XMLReader parser = SAXHelper.newXMLReader();
+            XMLReader parser = XMLHelper.newXMLReader();
             SheetHandler handler = new SheetHandler(r.getSharedStringsTable(),
                 use1904Windowing,
                 styleTable,
@@ -121,7 +121,7 @@ public class SAXReader implements ExcelReader {
 
             initializeNeededData(r, pkg);
 
-            XMLReader parser = SAXHelper.newXMLReader();
+            XMLReader parser = XMLHelper.newXMLReader();
             StyleIndexHandler styleIndexHandler = new StyleIndexHandler(tableRegion, saxSheet.getIndex());
             parser.setContentHandler(styleIndexHandler);
 
@@ -168,7 +168,7 @@ public class SAXReader implements ExcelReader {
         }
 
         try (InputStream stylesData = r.getStylesData()) {
-            XMLReader styleParser = SAXHelper.newXMLReader();
+            XMLReader styleParser = XMLHelper.newXMLReader();
             StyleHandler styleHandler = new StyleHandler();
             styleParser.setContentHandler(styleHandler);
             styleParser.parse(new InputSource(stylesData));

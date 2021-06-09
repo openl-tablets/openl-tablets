@@ -22,8 +22,8 @@ public class TableVersionComparatorTest {
     @Test
     public void testCompareEqualProperties() {
         // two different instances
-        first.setActive(new Boolean(true));
-        second.setActive(new Boolean(true));
+        first.setActive(Boolean.TRUE);
+        second.setActive(Boolean.TRUE);
         assertEquals(0, comparator.compare(first, second));
 
         first.setActive(Boolean.TRUE);
@@ -31,7 +31,7 @@ public class TableVersionComparatorTest {
         assertEquals(0, comparator.compare(first, second));
 
         first.setActive(Boolean.FALSE);
-        second.setActive(new Boolean(false));
+        second.setActive(Boolean.FALSE);
         assertEquals(0, comparator.compare(first, second));
     }
 

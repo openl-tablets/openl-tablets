@@ -12,8 +12,7 @@ package org.openl.binding.impl;
  */
 public class ControlSignalReturn extends ControlSignal {
 
-    private static final long serialVersionUID = -7100992392698726034L;
-    Object returnValue;
+    final Object returnValue;
 
     public ControlSignalReturn(Object returnValue) {
         this.returnValue = returnValue;

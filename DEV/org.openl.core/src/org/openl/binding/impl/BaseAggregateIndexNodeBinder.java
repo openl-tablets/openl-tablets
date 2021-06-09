@@ -56,7 +56,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         }
         int numberOfChildren = node.getNumberOfChildren();
         if (numberOfChildren < 1 || numberOfChildren > 2) {
-            return makeErrorNode("Aggregate node can have either 1 or 2 childen nodes.", node, bindingContext);
+            return makeErrorNode("Aggregate node can have either 1 or 2 children nodes.", node, bindingContext);
         }
 
         // there could be 1 or 2 syntax nodes as children
@@ -95,7 +95,7 @@ public abstract class BaseAggregateIndexNodeBinder extends ANodeBinder {
         try {
             bindingContext.pushLocalVarContext();
             ILocalVar localVar = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, varName, varType);
-            TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar);
+            TypeBindingContext varBindingContext = TypeBindingContext.create(bindingContext, localVar, 1);
             IBoundNode boundExpressionNode = bindChildNode(expressionNode, varBindingContext);
             if (boundExpressionNode instanceof TypeBoundNode) {
                 String message = "Type definition cannot be used as expression for array index operator.";

@@ -34,7 +34,7 @@ public class BeanOpenFieldTest {
         assertTrue(fieldsMap.containsKey("Flag"));
     }
 
-    class BeanJavaSpecification {
+    static class BeanJavaSpecification {
         private String fieldName;
         private boolean flag;
 
@@ -55,7 +55,7 @@ public class BeanOpenFieldTest {
         }
     }
 
-    class BeanNONJavaSpecification {
+    static class BeanNONJavaSpecification {
         // The name starts from the upper case
         // it is against java bean specification
         // See http://www.oracle.com/technetwork/java/javase/documentation/spec-136004.html

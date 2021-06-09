@@ -4,7 +4,6 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.openl.exception.OpenLRuntimeException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.AOpenField;
@@ -12,11 +11,11 @@ import org.openl.types.impl.CollectionType;
 import org.openl.vm.IRuntimeEnv;
 
 public class CollectionElementWithMultiRowField extends AOpenField {
-    private IOpenField field;
-    private String fieldPathFromRoot;
-    private boolean pkField = false;
-    private CollectionType collectionType;
-    private IOpenClass arrayType;
+    private final IOpenField field;
+    private final String fieldPathFromRoot;
+    private final boolean pkField;
+    private final CollectionType collectionType;
+    private final IOpenClass arrayType;
 
     public CollectionElementWithMultiRowField(IOpenField field,
             String fieldPathFromRoot,
@@ -41,7 +40,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     @Override
     public Object get(Object target, IRuntimeEnv env) {
         if (target == null) {
-            return null;
+            return getType().nullObject();
         }
 
         DatatypeArrayMultiRowElementContext context = (DatatypeArrayMultiRowElementContext) env.getLocalFrame()[0];
@@ -79,7 +78,7 @@ public class CollectionElementWithMultiRowField extends AOpenField {
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
         if (target == null) {
-            throw new OpenLRuntimeException(String.format("Cannot set [%s] field to 'null' object", this.getName()));
+            return;
         }
 
         Object v = field.get(target, env);

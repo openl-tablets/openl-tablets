@@ -1,6 +1,5 @@
 package org.openl.rules.table.xls.builder;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -11,7 +10,7 @@ import java.util.List;
  * @author NSamatov
  */
 public final class DataTablePredefinedTypeVariable extends DataTableField {
-    private List<DataTableField> availableFields;
+    private final List<DataTableField> availableFields;
 
     /**
      * Create a variable of a given type
@@ -20,7 +19,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
      */
     public DataTablePredefinedTypeVariable(String typeName) {
         super(typeName, typeName.toUpperCase());
-        availableFields = Collections.<DataTableField> unmodifiableList(Arrays.asList(new ThisField()));
+        availableFields = Collections.unmodifiableList(Collections.singletonList(new ThisField()));
     }
 
     /**
@@ -52,7 +51,7 @@ public final class DataTablePredefinedTypeVariable extends DataTableField {
      *
      * @author NSamatov
      */
-    private class ThisField extends DataTableField {
+    private final class ThisField extends DataTableField {
         private static final String PREDEFINED_TYPE_FIELD_NAME = "this";
         private static final String PREDEFINED_TYPE_FIELD_VALUE = "Value";
 

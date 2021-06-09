@@ -1,0 +1,140 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "API V1",
+    "version": "v1"
+  },
+  "paths": {
+    "/api/Todo": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmth",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    },
+    "/api/Bla": {
+      "post": {
+        "summary": "TodoSmth",
+        "description": "test",
+        "operationId": "TodoSmthBla",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DriverRisk"
+                }
+              }
+            },
+            "description": ""
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ToDoItem": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCompleted": {
+            "type": "boolean"
+          },
+          "someStep": {
+            "$ref": "#/components/schemas/DriverRisk"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DriverRisk": {
+        "type": "object",
+        "properties": {
+          "numDUI": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "numAccidents": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AnotherDatatype"
+            }
+          },
+          "numMovingViolations": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AnotherDatatype": {
+        "type": "object",
+        "properties": {
+          "numDUI": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DriverRisk"
+            }
+          },
+          "numAccidents": {
+            "type": "number",
+            "format": "float"
+          },
+          "numAccidentsOne": {
+            "type": "number",
+            "format": "float"
+          },
+          "numAccidentsTwo": {
+            "type": "number",
+            "format": "float"
+          },
+          "numAccidentsThree": {
+            "type": "number",
+            "format": "float"
+          },
+          "numMovingViolations": {
+            "type": "boolean"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,6 +1,12 @@
 package org.openl.rules.runtime;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.objectweb.asm.ClassWriter;
@@ -8,11 +14,15 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.impl.component.ComponentOpenClass.GetOpenClass;
 import org.openl.binding.impl.component.ComponentOpenClass.ThisField;
+import org.openl.rules.data.DataOpenField;
+import org.openl.rules.lang.xls.XlsNodeTypes;
+import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMember;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.MethodKey;
 import org.openl.types.java.JavaOpenConstructor;
 import org.openl.util.ClassUtils;
@@ -26,7 +36,6 @@ public class InterfaceGenerator {
     public static final int PUBLIC_ABSTRACT_INTERFACE = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT + Opcodes.ACC_INTERFACE;
     public static final int PUBLIC_ABSTRACT = Opcodes.ACC_PUBLIC + Opcodes.ACC_ABSTRACT;
     public static final String JAVA_LANG_OBJECT = "java/lang/Object";
-    private static final RuleInfo[] EMPTY_RULES = new RuleInfo[0];
 
     /**
      * Generates interface class using collection of rules.
@@ -48,7 +57,6 @@ public class InterfaceGenerator {
         classWriter.visit(Opcodes.V1_8, PUBLIC_ABSTRACT_INTERFACE, name, null, JAVA_LANG_OBJECT, null);
 
         for (RuleInfo ruleInfo : rules) {
-
             String ruleName = ruleInfo.getName();
             classWriter.visitMethod(PUBLIC_ABSTRACT, ruleName, getMethodTypes(ruleInfo), null, null);
         }
@@ -74,18 +82,22 @@ public class InterfaceGenerator {
             ClassLoader classLoader,
             String[] includes,
             String[] excludes) throws Exception {
-
+        if (!className.contains(".")) {
+            className = "org.openl.generated.interfaces." + className;
+        }
         if (openClass == null) {
-            return generateInterface(className, EMPTY_RULES, classLoader);
+            return generateInterface(className, RuleInfo.EMPTY_RULES, classLoader);
         }
 
         List<RuleInfo> rules = new ArrayList<>();
 
         Set<MethodKey> methodsInClass = new HashSet<>();
 
+        Map<IOpenClass, Boolean> validationMap = new HashMap<>();
+
         final Collection<IOpenMethod> methods = openClass.getMethods();
         for (IOpenMethod method : methods) {
-            if (!isIgnoredMember(method)) {
+            if (!isIgnoredMember(method, validationMap)) {
                 RuleInfo ruleInfo = getRuleInfoForMethod(method);
                 boolean isMember = isMember(ruleInfo, includes, excludes);
                 if (isMember) {
@@ -95,9 +107,8 @@ public class InterfaceGenerator {
             }
         }
 
-        final Collection<IOpenField> fields = openClass.getFields().values();
-        for (IOpenField field : fields) {
-            if (!isIgnoredMember(field) && field.isReadable()) {
+        for (IOpenField field : openClass.getFields()) {
+            if (!isIgnoredMember(field, validationMap) && field.isReadable()) {
                 RuleInfo ruleInfo = getRuleInfoForField(field);
                 boolean isMember = isMember(ruleInfo, includes, excludes);
                 if (isMember) {
@@ -111,7 +122,7 @@ public class InterfaceGenerator {
             }
         }
 
-        return generateInterface(className, rules.toArray(new RuleInfo[0]), classLoader);
+        return generateInterface(className, rules.toArray(RuleInfo.EMPTY_RULES), classLoader);
     }
 
     private static boolean isMember(RuleInfo ruleInfo, String[] includes, String[] excludes) {
@@ -155,21 +166,6 @@ public class InterfaceGenerator {
     }
 
     /**
-     * Generates interface class using methods and fields of given IOpenClass instance.
-     *
-     * @param className name of result class
-     * @param openClass IOpenClass instance
-     * @param classLoader class loader what will be used to load generated interface
-     * @return generated interface
-     * @throws Exception if an error has occurred
-     */
-    public static Class<?> generateInterface(String className,
-            IOpenClass openClass,
-            ClassLoader classLoader) throws Exception {
-        return generateInterface(className, openClass, classLoader, null, null);
-    }
-
-    /**
      * Gets rule information of IOpenField instance.
      *
      * @param field IOpenField instance
@@ -195,9 +191,10 @@ public class InterfaceGenerator {
         String methodName = method.getName();
         IOpenClass[] paramClasses = method.getSignature().getParameterTypes();
         Class<?> returnType = method.getType().getInstanceClass();
-
+        if (returnType == null) {
+            returnType = Object.class;
+        }
         Class<?>[] paramTypes = getInstanceClasses(paramClasses);
-
         return createRuleInfo(methodName, paramTypes, returnType);
     }
 
@@ -226,8 +223,56 @@ public class InterfaceGenerator {
      * @return <code>true</code> - if member should be ignored (will be skipped due interface generation phase),
      *         <code>false</code> - otherwise
      */
-    private static boolean isIgnoredMember(IOpenMember member) {
+    private static boolean isIgnoredMember(IOpenMember member, Map<IOpenClass, Boolean> validationMap) {
+        if (member instanceof DataOpenField) {
+            DataOpenField dataOpenField = (DataOpenField) member;
+            if (XlsNodeTypes.XLS_RUN_METHOD.equals(dataOpenField.getNodeType()) || XlsNodeTypes.XLS_TEST_METHOD
+                .equals(dataOpenField.getNodeType())) {
+                return true;
+            }
+        }
+        if (isInvalidType(member.getType(), validationMap)) {
+            return true;
+        }
+        if (member instanceof IOpenMethod) {
+            IOpenMethod openMethod = (IOpenMethod) member;
+            for (IOpenClass parameterType : openMethod.getSignature().getParameterTypes()) {
+                if (isInvalidType(parameterType, validationMap)) {
+                    return true;
+                }
+            }
+        }
         return member instanceof JavaOpenConstructor || member instanceof ThisField || member instanceof GetOpenClass || member instanceof TestSuiteMethod;
+    }
+
+    private static boolean isInvalidType(IOpenClass openClass, Map<IOpenClass, Boolean> invalidTypeMap) {
+        Boolean v = invalidTypeMap.get(openClass);
+        if (v != null) {
+            return v;
+        }
+        invalidTypeMap.put(openClass, Boolean.FALSE);
+        if (openClass.isArray()) {
+            boolean isInvalidComponentType = isInvalidType(openClass.getComponentClass(), invalidTypeMap);
+            invalidTypeMap.put(openClass, isInvalidComponentType);
+            return isInvalidComponentType;
+        }
+        if (openClass instanceof DatatypeOpenClass) {
+            if (openClass.getInstanceClass() == null) {
+                invalidTypeMap.put(openClass, Boolean.TRUE);
+                return true;
+            }
+            for (IOpenField openField : openClass.getFields()) {
+                if (isInvalidType(openField.getType(), invalidTypeMap)) {
+                    invalidTypeMap.put(openClass, Boolean.TRUE);
+                    return true;
+                }
+            }
+        }
+        if (NullOpenClass.isAnyNull(openClass)) {
+            invalidTypeMap.put(openClass, Boolean.TRUE);
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -243,8 +288,8 @@ public class InterfaceGenerator {
 
         StringBuilder builder = new StringBuilder("(");
 
-        for (int i = 0; i < paramTypes.length; i++) {
-            builder.append(Type.getType(paramTypes[i]));
+        for (Class<?> paramType : paramTypes) {
+            builder.append(Type.getType(paramType));
         }
 
         builder.append(")");
@@ -265,12 +310,15 @@ public class InterfaceGenerator {
 
         if (openClasses != null) {
             for (IOpenClass openClass : openClasses) {
-
                 Class<?> clazz = openClass.getInstanceClass();
-                classes.add(clazz);
+                if (clazz != null) {
+                    classes.add(clazz);
+                } else {
+                    throw new IllegalStateException("Instance class cannot be null");
+                }
             }
         }
 
-        return classes.toArray(new Class<?>[classes.size()]);
+        return classes.toArray(new Class<?>[0]);
     }
 }

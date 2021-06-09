@@ -21,7 +21,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                 Arrays.asList(oldVersion.getLazyModulesForCompilationPatterns()),
                 e -> e == null ? null : new RulesDeploy.WildcardPattern(e.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
+                .toArray(new RulesDeploy.WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(oldVersion.isProvideRuntimeContext());
@@ -43,7 +43,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[0]));
         }
 
         rulesDeploy.setServiceClass(oldVersion.getServiceClass());
@@ -65,7 +65,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                 Arrays.asList(currentVersion.getLazyModulesForCompilationPatterns()),
                 version -> version == null ? null : new RulesDeploy_v5_15.WildcardPattern(version.getValue()));
             rulesDeploy.setLazyModulesForCompilationPatterns(lazyModulesForCompilationPatterns
-                .toArray(new RulesDeploy_v5_15.WildcardPattern[lazyModulesForCompilationPatterns.size()]));
+                .toArray(new RulesDeploy_v5_15.WildcardPattern[0]));
         }
 
         rulesDeploy.setProvideRuntimeContext(currentVersion.isProvideRuntimeContext());
@@ -91,7 +91,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_15.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_15.PublisherType[0]));
         }
 
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());

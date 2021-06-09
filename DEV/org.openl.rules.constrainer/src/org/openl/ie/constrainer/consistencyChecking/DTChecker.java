@@ -5,7 +5,7 @@ import java.util.List;
 import org.openl.ie.constrainer.IntExpArray;
 
 public interface DTChecker {
-    static class Utils {
+    class Utils {
 
         /**
          * @param solution

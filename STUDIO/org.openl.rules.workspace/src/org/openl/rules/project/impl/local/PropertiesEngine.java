@@ -6,7 +6,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.openl.rules.workspace.lw.impl.FolderHelper;
-import org.openl.util.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -49,27 +48,6 @@ class PropertiesEngine {
 
     public File getPropertiesFile(String pathInProject, String propertiesFileName) {
         return new File(getPropertiesFolder(pathInProject), propertiesFileName);
-    }
-
-    public boolean isEmptyProject(String pathInProject) {
-        File propertiesFolder = getPropertiesFolder(pathInProject);
-        File projectFolder = propertiesFolder.getParentFile();
-        File[] files = projectFolder.listFiles();
-        return files == null || files.length == 0 || files.length == 1 && files[0].equals(propertiesFolder);
-    }
-
-    public void deleteAllProperties(String pathInProject) {
-        File propertiesFolder = getPropertiesFolder(pathInProject);
-        FileUtils.deleteQuietly(propertiesFolder);
-
-        File folder = propertiesFolder.getParentFile();
-        while (!folder.equals(root) && folder.delete()) {
-            folder = folder.getParentFile();
-        }
-    }
-
-    public boolean isPropertyFile(String path) {
-        return path.replace(File.separatorChar, '/').contains("/" + FolderHelper.PROPERTIES_FOLDER + "/");
     }
 
     File getProjectFolder(String path) {

@@ -2,9 +2,6 @@ package org.openl.rules.webstudio.web;
 
 import java.util.Collection;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.message.Severity;
@@ -13,14 +10,16 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.ui.tree.richfaces.TreeNode;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for problems tree page of OpenL Studio.
  *
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class ProblemsBean {
 
     public static final String ERRORS_ROOT_NAME = "Errors";
@@ -29,7 +28,8 @@ public class ProblemsBean {
     public static final String ERROR_NODE_NAME = "error";
     public static final String WARNING_NODE_NAME = "warning";
 
-    private static MessageHandler messageHandler = new MessageHandler();
+    private static final int MAX_PROBLEMS = 100;
+    private static final MessageHandler messageHandler = new MessageHandler();
 
     public TreeNode getTree() {
         int nodeCount = 1;
@@ -90,6 +90,18 @@ public class ProblemsBean {
                 nodeName.toLowerCase(),
                 true);
             parent.addChild(nodeCount++, messageNode);
+            if (nodeCount > MAX_PROBLEMS) {
+                parent.addChild(nodeCount,
+                    new TreeNode(true,
+                        "Only first " + MAX_PROBLEMS + " " + nodeName + "s are shown. Fix them first.",
+                        "",
+                        url,
+                        0,
+                        0,
+                        nodeName.toLowerCase(),
+                        true));
+                break;
+            }
         }
     }
 

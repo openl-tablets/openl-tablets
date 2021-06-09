@@ -10,7 +10,7 @@ import org.openl.rules.table.ui.ICellStyle;
 public class SetAlignmentAction extends AUndoableCellAction {
 
     private HorizontalAlignment prevAlignment;
-    private HorizontalAlignment newAlignment;
+    private final HorizontalAlignment newAlignment;
 
     public SetAlignmentAction(int col, int row, HorizontalAlignment alignment, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

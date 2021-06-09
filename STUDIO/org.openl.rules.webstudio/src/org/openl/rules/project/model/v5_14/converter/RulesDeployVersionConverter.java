@@ -35,7 +35,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy.PublisherType[0]));
         }
 
         rulesDeploy.setServiceClass(oldVersion.getServiceClass());
@@ -74,7 +74,7 @@ public class RulesDeployVersionConverter implements ObjectVersionConverter<Rules
                             throw new IllegalArgumentException();
                     }
                 });
-            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_14.PublisherType[publishers.size()]));
+            rulesDeploy.setPublishers(publishers.toArray(new RulesDeploy_v5_14.PublisherType[0]));
         }
 
         rulesDeploy.setServiceClass(currentVersion.getServiceClass());

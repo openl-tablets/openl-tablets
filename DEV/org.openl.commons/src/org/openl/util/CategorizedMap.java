@@ -17,11 +17,11 @@ import java.util.Objects;
 public class CategorizedMap {
 
     private static class Category {
-        private Category parent = null;
+        private Category parent;
 
-        int parentDistance = 0;
+        int parentDistance;
 
-        private String category;
+        private final String category;
 
         Category(String category) {
             this.category = category;
@@ -65,9 +65,9 @@ public class CategorizedMap {
 
     }
 
-    private HashMap<String, Category> categories = new HashMap<>();
+    private final HashMap<String, Category> categories = new HashMap<>();
 
-    protected HashMap<String, Object> all = new HashMap<>();
+    protected final HashMap<String, Object> all = new HashMap<>();
 
     private Object findByCategory(String str) {
         Category c = getCategory(str);

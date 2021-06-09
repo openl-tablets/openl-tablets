@@ -1,6 +1,6 @@
 ERROR: Operator 'negative(int[])' is not found.
-ERROR: Accessing to non-static field from a static class.
-ERROR: Accessing to non-static method from a static class.
+ERROR: Static field 'name' is not found in type 'org.openl.generated.beans.Person'.
+ERROR: Static method 'get(int)' is not found in type 'java.util.Calendar'.
 ERROR: Expected boolean type for condition.
 ERROR: Operator 'add(int[], int)' is not found.
 ERROR: Operator 'and(int, int)' is not found.

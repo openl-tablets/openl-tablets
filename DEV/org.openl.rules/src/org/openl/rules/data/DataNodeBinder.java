@@ -6,14 +6,23 @@
 
 package org.openl.rules.data;
 
+import static org.openl.util.TableNameChecker.NAME_ERROR_MESSAGE;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
+import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.OpenLWarnMessage;
 import org.openl.rules.OpenlToolAdaptor;
-import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
@@ -24,11 +33,16 @@ import org.openl.rules.lang.xls.types.meta.DataTableMetaInfoReader;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
+import org.openl.rules.testmethod.TestMethodHelper;
+import org.openl.rules.testmethod.TestMethodOpenClass;
+import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
 import org.openl.util.MessageUtils;
 import org.openl.util.text.TextInterval;
 
@@ -75,7 +89,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
         }
 
-        parsedHeader = mergeArraySimbols(parsedHeader);
+        parsedHeader = mergeArraySymbols(parsedHeader);
 
         if (parsedHeader.length > 3) {
             throw SyntaxNodeExceptionUtils.createError("Data table format: Data <typename> <tablename>", source);
@@ -83,7 +97,14 @@ public class DataNodeBinder extends AXlsTableBinder {
 
         String typeName = parsedHeader[TYPE_INDEX].getText();
         String tableName = parsedHeader[TABLE_NAME_INDEX].getText();
-        IOpenClass tableType = RuleRowHelper.getType(typeName, parsedHeader[TYPE_INDEX], bindingContext);
+        if (TableNameChecker.isInvalidJavaIdentifier(tableName)) {
+            String message = "Data table " + tableName + NAME_ERROR_MESSAGE;
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TABLE_NAME_INDEX]));
+        }
+        IOpenClass tableType = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                typeName,
+                source,
+                bindingContext);
 
         // Check that table type loaded properly.
         //
@@ -98,7 +119,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         return dataNode;
     }
 
-    private IdentifierNode[] mergeArraySimbols(IdentifierNode[] parsedHeader) {
+    private static IdentifierNode[] mergeArraySymbols(IdentifierNode[] parsedHeader) {
         List<IdentifierNode> parsedHeader1 = new ArrayList<>();
         parsedHeader1.add(parsedHeader[0]);
         int i = 2;
@@ -116,9 +137,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             new TextInterval(parsedHeader[1].getLocation().getStart(), parsedHeader[i - 1].getLocation().getEnd()),
             parsedHeader[1].getIdentifier() + sb.toString(),
             parsedHeader[1].getModule()));
-        for (int j = i; j < parsedHeader.length; j++) {
-            parsedHeader1.add(parsedHeader[j]);
-        }
+        parsedHeader1.addAll(Arrays.asList(parsedHeader).subList(i, parsedHeader.length));
         return parsedHeader1.toArray(new IdentifierNode[] {});
     }
 
@@ -145,7 +164,7 @@ public class DataNodeBinder extends AXlsTableBinder {
             boolean hasColumnTitleRow) throws Exception {
 
         if (tableBody == null) {
-            String message = "There is no body in Data table.";
+            String message = "There is no body in 'Data' table.";
             throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
         } else {
             ILogicalTable horizDataTableBody = DataTableBindHelper.getHorizontalTable(tableBody, tableType);
@@ -165,6 +184,10 @@ public class DataNodeBinder extends AXlsTableBinder {
                     descriptorRows,
                     dataWithTitleRows);
 
+                if (tableType instanceof TestMethodOpenClass) {
+                    validateTestTableDescriptors(descriptors, tableToProcess, bindingContext);
+                }
+
                 OpenlBasedDataTableModel dataModel = new OpenlBasedDataTableModel(tableName,
                     tableType,
                     openl,
@@ -178,6 +201,49 @@ public class DataNodeBinder extends AXlsTableBinder {
                 String message = "Invalid table structure: data table body should contain key and value columns.";
                 throw SyntaxNodeExceptionUtils.createError(message, tableToProcess.getTableSyntaxNode());
             }
+        }
+    }
+
+    private static void validateTestTableDescriptors(ColumnDescriptor[] descriptors,
+            ITable tableToProcess,
+            IBindingContext bindingContext) throws SyntaxNodeException {
+        Set<String> runtimeContextProps = new HashSet<>();
+        Set<String> testRuntimeContextProps = new HashSet<>();
+        Map<String, String> duplicatedRuntimeContextProps = new HashMap<>();
+        for (ColumnDescriptor descriptor : descriptors) {
+            if (descriptor != null) {
+                IOpenField field = descriptor.getField();
+                if (field instanceof FieldChain) {
+                    IOpenField[] fields = ((FieldChain) field).getFields();
+                    // for fields with a context property, the length must be 2
+                    if (fields.length != 2) {
+                        continue;
+                    }
+                    if (fields[1].isContextProperty()) {
+                        String contextProperty = fields[1].getContextProperty();
+                        if (runtimeContextProps.contains(contextProperty)) {
+                            duplicatedRuntimeContextProps.put(contextProperty, fields[0].getName());
+                        }
+                        if (testRuntimeContextProps.contains(contextProperty)) {
+                            throw SyntaxNodeExceptionUtils.createError(String.format(
+                                "'%s' is redundant since this field is already defined in '%s' parameter.",
+                                TestMethodHelper.CONTEXT_NAME + "." + contextProperty,
+                                fields[0].getName()), tableToProcess.getTableSyntaxNode());
+                        }
+                        runtimeContextProps.add(contextProperty);
+                    } else if (fields[0].getName().equals(TestMethodHelper.CONTEXT_NAME)) {
+                        testRuntimeContextProps.add(fields[1].getName());
+                    }
+                }
+            }
+        }
+        for (String prop : duplicatedRuntimeContextProps.keySet()) {
+            bindingContext.addMessage(new OpenLWarnMessage(
+                String.format("Multiple fields refer to the same context property '%s'. '%s.%s' will be applied.",
+                    prop,
+                    duplicatedRuntimeContextProps.get(prop),
+                    prop),
+                tableToProcess.getTableSyntaxNode()));
         }
     }
 
@@ -201,12 +267,12 @@ public class DataNodeBinder extends AXlsTableBinder {
     }
 
     /**
-     * Adds sub table for displaying on bussiness view.
+     * Adds sub table for displaying on business view.
      *
      * @param tableSyntaxNode <code>TableSyntaxNode</code> representing table.
      * @param tableType Type of the data in table.
      */
-    public static void putSubTableForBussinesView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
+    public static void putSubTableForBusinessView(TableSyntaxNode tableSyntaxNode, IOpenClass tableType) {
 
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
         ILogicalTable dataWithTitle = DataTableBindHelper.getSubTableForBusinessView(tableBody, tableType);
@@ -245,7 +311,7 @@ public class DataNodeBinder extends AXlsTableBinder {
         ILogicalTable tableBody = DataTableBindHelper.getTableBody(tableSyntaxNode);
 
         processTable(xlsOpenClass, resultTable, tableBody, tableName, tableType, bindingContext, openl, true);
-        putSubTableForBussinesView(tableSyntaxNode, tableType);
+        putSubTableForBusinessView(tableSyntaxNode, tableType);
 
         return resultTable;
     }

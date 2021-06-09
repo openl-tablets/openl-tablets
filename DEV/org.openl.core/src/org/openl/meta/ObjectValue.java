@@ -10,7 +10,7 @@ import org.openl.util.ArrayTool;
 public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
 
     private IMetaInfo metaInfo;
-    private Object value;
+    private final Object value;
 
     public ObjectValue(Object value) {
         this.value = Objects.requireNonNull(value,
@@ -58,7 +58,7 @@ public class ObjectValue implements IMetaHolder, Comparable<ObjectValue> {
             ObjectValue v = (ObjectValue) obj;
             return value.equals(v.value);
         }
-        return obj != null && value.equals(obj);
+        return value.equals(obj);
     }
 
     /**

@@ -14,13 +14,13 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
     private static final int HCONDITION_HEADERS_HEIGHT = 3;
 
     // width of simple(vertical) conditions in columns
-    private int conditionsWidth;
-    private int hConditionsCount;
-    private int lookupValuesTableHeight;
-    private int lookupValuesTableWidth;
-    private int retTableWidth;
+    private final int conditionsWidth;
+    private final int hConditionsCount;
+    private final int lookupValuesTableHeight;
+    private final int lookupValuesTableWidth;
+    private final int retTableWidth;
 
-    private int dtHeaderHeight;
+    private final int dtHeaderHeight;
 
     /**
      * @param entireTable The entire table with two dimensions(WITHOUT a header).
@@ -56,23 +56,17 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      */
     @Override
     public int getColumn(int col, int row) {
-        int res;
         if (row < dtHeaderHeight) {
-            // getCoordinatesFromConditionHeaders
-            res = col;
+            return col;
         } else if (col < conditionsWidth) {
-            // getCoordinatesFromConditionValues(
-            res = col;
+            return col;
         } else if (col < conditionsWidth + hConditionsCount) {
-            // getCoordinatesFromHConditionValues
             int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
-            res = conditionsWidth + hConditionValueIndex;
+            return conditionsWidth + hConditionValueIndex;
         } else {
-            // getCoordinatesFromLookupValues
             int hConditionValueIndex = (row - dtHeaderHeight) / lookupValuesTableHeight * retTableWidth;
-            res = conditionsWidth + hConditionValueIndex + col - conditionsWidth - hConditionsCount;
+            return conditionsWidth + hConditionValueIndex + col - conditionsWidth - hConditionsCount;
         }
-        return res;
     }
 
     /**
@@ -82,23 +76,20 @@ public class TwoDimensionDecisionTableTranformer implements CoordinatesTransform
      */
     @Override
     public int getRow(int col, int row) {
-        int res;
         if (row < dtHeaderHeight) {
-            // getCoordinatesFromConditionHeaders
-            res = row;
+            return row;
         } else if (col < conditionsWidth) {
             // getCoordinatesFromConditionValues
             int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
-            res = dtHeaderHeight + conditionValueIndex;
+            return dtHeaderHeight + conditionValueIndex;
         } else if (col < conditionsWidth + hConditionsCount) {
             // getCoordinatesFromHConditionValues
             int hConditionIndex = col - conditionsWidth;
-            res = HCONDITION_HEADERS_HEIGHT + hConditionIndex;
+            return HCONDITION_HEADERS_HEIGHT + hConditionIndex;
         } else {
             // getCoordinatesFromLookupValues
             int conditionValueIndex = (row - dtHeaderHeight) % lookupValuesTableHeight;
-            res = HCONDITION_HEADERS_HEIGHT + hConditionsCount + conditionValueIndex;
+            return HCONDITION_HEADERS_HEIGHT + hConditionsCount + conditionValueIndex;
         }
-        return res;
     }
 }

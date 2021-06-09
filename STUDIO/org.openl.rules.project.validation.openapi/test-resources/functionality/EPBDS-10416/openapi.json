@@ -1,0 +1,99 @@
+{
+	"openapi": "3.0.1",
+	"info": {
+		"title": "API V1",
+		"version": "v1"
+	},
+	"paths": {
+		"/helloKitty": {
+			"post": {
+				"summary": "TodoSmth",
+				"description": "test",
+				"operationId": "TodoSmth",
+				"requestBody": {
+				"content": {
+					"text/plain": {
+						"schema": {
+							"type": "string"
+							}
+						}
+					}
+				},
+				"responses": {
+					"200": {
+						"content": {
+							"application/json": {
+								"schema": {
+										"$ref": "#/components/schemas/Pokemon"
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+	"components": {
+		"schemas": {
+			"toDoItem": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"name": {
+						"type": "string",
+						"nullable": true
+					},
+					"isCompleted": {
+						"type": "boolean"
+					},
+					"someStep": {
+						"type": "boolean"
+					}
+				},
+				"additionalProperties": false
+			},
+			"DriverRisk": {
+				"type": "object",
+				"properties": {
+					"numDUI": {
+						"type": "integer",
+						"format": "int64"
+					},
+					"numAccidents": {
+							"$ref": "#/components/schemas/Pokemon"
+					},
+					"numMovingViolations": {
+						"type": "boolean"
+					}
+				}
+			},
+			"Pokemon": {
+				"type": "object",
+				"properties": {
+					"numDUI": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"numAccidents": {
+							"type": "boolean"
+					},
+					"numAccidents": {
+							"$ref": "#/components/schemas/Pokemon"
+					},
+					"numAccidents2": {
+						"type": "array",
+						"items": {
+							"type": "boolean"
+						}
+					},
+					"someField": {
+						"type": "boolean"
+					}
+				}
+			}
+		}
+	}
+}

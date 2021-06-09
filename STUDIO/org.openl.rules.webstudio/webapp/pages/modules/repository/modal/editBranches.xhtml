@@ -12,7 +12,7 @@
         }
     </style>
 
-    <rich:popupPanel id="modalEditBranches" width="530" autosized="true">
+    <rich:popupPanel id="modalEditBranches" minWidth="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Manage branches"/>
         </f:facet>
@@ -24,17 +24,8 @@
 
         <h:form id="editBranchesForm">
             <h:panelGroup id="modalEditBranchesData">
-                <h:panelGroup styleClass="messages" layout="block"
-                              rendered="#{!empty facesContext.maximumSeverity}">
-                    <h:messages infoClass="success" errorClass="error" showDetail="true"
-                                showSummary="false" tooltip="true" globalOnly="true"/>
-                </h:panelGroup>
-
-
-                <h:inputHidden id="hiddenProjectName" value="#{branchesBean.currentProjectName}"/>
-
                 <p>
-                    <h:outputText value="Branches where the project #{branchesBean.currentProjectName} is used:"/>
+                    <h:outputText value="Branches where the project #{branchesBean.businessName} is used:"/>
                 </p>
 
                 <div id="projectBranchesList">
@@ -52,7 +43,9 @@
 
             <a4j:jsFunction name="renderEditBranchesForm" render="editBranchesForm"
                             oncomplete="showEditBranchesDialog('#{branchesBean.currentBranch}')">
+                <a4j:param name="repositoryId" assignTo="#{branchesBean.currentRepositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
+                <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
             </a4j:jsFunction>
 
         </h:form>
@@ -62,8 +55,8 @@
     <script>
         //<![CDATA[
 
-        function openEditBranchesDialog(projectName) {
-            renderEditBranchesForm(projectName);
+        function openEditBranchesDialog(repositoryId, projectName) {
+            renderEditBranchesForm(repositoryId, projectName, false);
         }
 
         function showEditBranchesDialog(currentBranchName) {

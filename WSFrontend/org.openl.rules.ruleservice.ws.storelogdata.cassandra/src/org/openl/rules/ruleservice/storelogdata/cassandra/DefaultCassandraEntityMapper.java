@@ -5,6 +5,5 @@ import com.datastax.oss.driver.api.mapper.annotations.Mapper;
 
 @Mapper
 public interface DefaultCassandraEntityMapper {
-    @DaoFactory
-    public DefaultCassandraEntityDao getDao();
+    @DaoFactory DefaultCassandraEntityDao getDao();
 }

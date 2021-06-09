@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 class ByteExtMappedStorage extends MappedStorage {
 
-    private byte[] bmap;
+    private final byte[] bmap;
 
     ByteExtMappedStorage(int[] map, Object[] uniqueValues, StorageInfo info) {
         super(uniqueValues, info);

@@ -1,0 +1,12 @@
+<project>
+  <name>EPBDS-11106</name>
+  <modules>
+    <module>
+      <name>Rules</name>
+      <rules-root path="rules/Rules.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="bin"/>
+  </classpath>
+</project>

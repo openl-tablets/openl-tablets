@@ -14,7 +14,7 @@ public final class FloatExpAddValue extends FloatExpImpl {
      */
     static final class FloatEventAddValue extends FloatEvent {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new FloatEventAddValue();
@@ -97,11 +97,11 @@ public final class FloatExpAddValue extends FloatExpImpl {
 
     } // ~ FloatExpAddValueObserver
 
-    private FloatExp _exp;
+    private final FloatExp _exp;
 
-    private double _value;
+    private final double _value;
 
-    private ExpressionObserver _observer;
+    private final ExpressionObserver _observer;
 
     public FloatExpAddValue(FloatExp exp, double value) {
         super(exp.constrainer(), "");// exp.name()+"+"+value);

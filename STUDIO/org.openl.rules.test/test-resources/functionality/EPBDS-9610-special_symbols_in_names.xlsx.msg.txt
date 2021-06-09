@@ -1,0 +1,11 @@
+WARN: Property table Fa/rgus name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Constants table some/Name? name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Datatype table 2m?a name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Datatype table Ab?cde name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Data table da/?tat name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Test table mySpr/Test name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Returns table returnsTransponsed??? name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Conditions table trasponsedCon????ditions name error. Name can only have letters, digits, _, $ and should not start with a digit.
+WARN: Actions table trasp//onsedActions name error. Name can only have letters, digits, _, $ and should not start with a digit.
+ERROR: Encountered " <INTEGER_LITERAL> "2 "" at line 1, column 1.
+ERROR: Type '2m?a' is defined with errors.

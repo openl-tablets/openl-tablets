@@ -7,7 +7,7 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedTypeException;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.method.MethodSearch;
@@ -29,9 +29,9 @@ import org.openl.types.IOpenField;
  */
 public class ComponentBindingContext extends BindingContextDelegator {
 
-    private ComponentOpenClass componentOpenClass;
+    private final ComponentOpenClass componentOpenClass;
 
-    private Map<String, IOpenClass> internalTypes = null;
+    private Map<String, IOpenClass> internalTypes;
 
     public ComponentBindingContext(IBindingContext delegate, ComponentOpenClass componentOpenClass) {
         super(delegate);
@@ -45,9 +45,8 @@ public class ComponentBindingContext extends BindingContextDelegator {
      * @param typeName
      * @return namespace::typeName
      */
-    private String buildTypeName(String namespace, String typeName) {
-        final StringBuilder builder = new StringBuilder(64);
-        return builder.append(namespace).append("::").append(typeName).toString();
+    private static String buildTypeName(String namespace, String typeName) {
+        return namespace + "::" + typeName;
     }
 
     public ComponentOpenClass getComponentOpenClass() {
@@ -112,7 +111,7 @@ public class ComponentBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = componentOpenClass.getField(name, strictMatch);

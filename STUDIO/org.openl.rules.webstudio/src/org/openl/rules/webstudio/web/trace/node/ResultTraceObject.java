@@ -6,7 +6,7 @@ import org.openl.rules.cmatch.algorithm.MatchAlgorithmCompiler;
 import org.openl.rules.table.IGridRegion;
 
 public class ResultTraceObject extends ATableTracerNode {
-    private IGridRegion gridRegion;
+    private final IGridRegion gridRegion;
 
     ResultTraceObject(ColumnMatch columnMatch, IGridRegion gridRegion) {
         super("cmResult", null, columnMatch, null);

@@ -9,7 +9,7 @@ import org.openl.rules.table.ui.ICellStyle;
 public class SetFillColorAction extends AUndoableCellAction {
 
     private short[] prevColor;
-    private short[] newColor;
+    private final short[] newColor;
 
     public SetFillColorAction(int col, int row, short[] color, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

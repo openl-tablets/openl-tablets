@@ -1,0 +1,12 @@
+<project>
+  <name>ws-serviceclass-negative</name>
+  <modules>
+    <module>
+      <name>Main</name>
+      <rules-root path="main.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+</project>

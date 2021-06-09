@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.upload.zip.ZipCharsetDetector;
@@ -12,21 +13,33 @@ import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.FileTypeHelper;
 
 public class ProjectUploader {
-    private String projectName;
-    private String projectFolder;
-    private UserWorkspace userWorkspace;
-    private PathFilter zipFilter;
-    private List<ProjectFile> uploadedFiles;
+    private final String projectName;
+    private final String projectFolder;
+    private final UserWorkspace userWorkspace;
+    private final PathFilter zipFilter;
+    private final List<ProjectFile> uploadedFiles;
     private final ZipCharsetDetector zipCharsetDetector;
     private final String comment;
+    private final String repositoryId;
+    private final String modelsPath;
+    private final String algorithmsPath;
+    private final String modelsModuleName;
+    private final String algorithmsModuleName;
+    private String createdProjectName;
 
-    public ProjectUploader(ProjectFile uploadedFile,
+    public ProjectUploader(String repositoryId,
+            ProjectFile uploadedFile,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
             String comment,
             PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) {
+            ZipCharsetDetector zipCharsetDetector,
+            String modelsPath,
+            String algorithmsPath,
+            String modelsModuleName,
+            String algorithmsModuleName) {
+        this.repositoryId = repositoryId;
         this.projectFolder = projectFolder;
         this.comment = comment;
         this.zipCharsetDetector = zipCharsetDetector;
@@ -36,15 +49,25 @@ public class ProjectUploader {
         this.projectName = projectName;
         this.userWorkspace = userWorkspace;
         this.zipFilter = zipFilter;
+        this.modelsPath = modelsPath;
+        this.algorithmsPath = algorithmsPath;
+        this.modelsModuleName = modelsModuleName;
+        this.algorithmsModuleName = algorithmsModuleName;
     }
 
-    public ProjectUploader(List<ProjectFile> uploadedFiles,
+    public ProjectUploader(String repositoryId,
+            List<ProjectFile> uploadedFiles,
             String projectName,
             String projectFolder,
             UserWorkspace userWorkspace,
             String comment,
             PathFilter zipFilter,
-            ZipCharsetDetector zipCharsetDetector) {
+            ZipCharsetDetector zipCharsetDetector,
+            String modelsPath,
+            String algorithmsPath,
+            String modelsModuleName,
+            String algorithmsModuleName) {
+        this.repositoryId = repositoryId;
         this.uploadedFiles = uploadedFiles;
         this.projectName = projectName;
         this.projectFolder = projectFolder;
@@ -52,6 +75,10 @@ public class ProjectUploader {
         this.comment = comment;
         this.zipFilter = zipFilter;
         this.zipCharsetDetector = zipCharsetDetector;
+        this.modelsPath = modelsPath;
+        this.algorithmsPath = algorithmsPath;
+        this.modelsModuleName = modelsModuleName;
+        this.algorithmsModuleName = algorithmsModuleName;
     }
 
     public String uploadProject() {
@@ -64,9 +91,21 @@ public class ProjectUploader {
                 // Get the last file
                 ProjectFile file = uploadedFiles.get(uploadedFiles.size() - 1);
                 String fileName = file.getName();
-                if (FileTypeHelper.isZipFile(fileName)) {
+                if (FileTypeHelper.isPossibleOpenAPIFile(fileName)) {
+                    projectCreator = new OpenAPIProjectCreator(file,
+                        repositoryId,
+                        projectName,
+                        projectFolder,
+                        userWorkspace,
+                        comment,
+                        modelsPath,
+                        algorithmsPath,
+                        modelsModuleName,
+                        algorithmsModuleName);
+                } else if (FileTypeHelper.isZipFile(fileName)) {
                     // Create project creator for the single zip file
-                    projectCreator = new ZipFileProjectCreator(fileName,
+                    projectCreator = new ZipFileProjectCreator(repositoryId,
+                        fileName,
                         file.getInput(),
                         projectName,
                         projectFolder,
@@ -75,7 +114,8 @@ public class ProjectUploader {
                         zipFilter,
                         zipCharsetDetector);
                 } else {
-                    projectCreator = new ExcelFilesProjectCreator(projectName,
+                    projectCreator = new ExcelFilesProjectCreator(repositoryId,
+                        projectName,
                         projectFolder,
                         userWorkspace,
                         comment,
@@ -84,8 +124,18 @@ public class ProjectUploader {
                     uploadedFiles.toArray(new ProjectFile[0]);
                 }
                 errorMessage = projectCreator.createRulesProject();
+                if (errorMessage == null) {
+                    createdProjectName = projectCreator.getCreatedProjectName();
+                    RulesProject createdProject = userWorkspace.getProject(repositoryId, createdProjectName);
+                    if (!userWorkspace.isOpenedOtherProject(createdProject)) {
+                        createdProject.open();
+                        createdProjectName = createdProject.getName();
+                    }
+                }
             } catch (IOException e) {
                 errorMessage = e.getMessage();
+            } catch (OpenAPIProjectException e) {
+                errorMessage = "Error creating the project, " + e.getMessage();
             } catch (Exception e) {
                 errorMessage = "Cannot create project. Error: " + e.getMessage();
             } finally {
@@ -95,5 +145,9 @@ public class ProjectUploader {
             }
         }
         return errorMessage;
+    }
+
+    public String getCreatedProjectName() {
+        return createdProjectName;
     }
 }

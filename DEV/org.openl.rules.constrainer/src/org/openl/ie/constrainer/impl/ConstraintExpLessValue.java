@@ -51,10 +51,10 @@ public final class ConstraintExpLessValue extends ConstraintImpl {
     } // ~ ObserverLessValue
       // PRIVATE MEMBERS
 
-    private IntExp _exp;
+    private final IntExp _exp;
     private int _value;
 
-    private Constraint _opposite;
+    private final Constraint _opposite;
 
     public ConstraintExpLessValue(IntExp exp, int value) {
         super(exp.constrainer());

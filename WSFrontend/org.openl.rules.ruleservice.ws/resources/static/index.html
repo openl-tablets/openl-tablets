@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8"/>
+    <title>OpenL Tablets Rule Services</title>
+    <script type="text/javascript">
+        var path = location.pathname;
+        if (path.lastIndexOf('/') !== (path.length - 1)) { /* endWith does not work under IE 10 */
+            document.write("<base href='" + path + "/' />");
+            history.replaceState(null, null, path + '/');
+        }
+    </script>
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon"/>
+    <style>
+        body {
+            margin: 0;
+            color: #444;
+            font-family: verdana, helvetica, arial, sans-serif;
+            font-size: 12px;
+        }
+
+        h2 {
+            font-weight: normal;
+            font-size: 16px;
+            color: #28b;
+            margin: 29px 0 16px;
+        }
+
+        h3 {
+            font-weight: normal;
+            font-size: 14px;
+            display: inline;
+        }
+
+        a {
+            color: #0078D0;
+        }
+
+        #header {
+            border-bottom: 1px solid #ccc;
+            font-family: georgia, verdana, helvetica, arial, sans-serif;
+            font-size: 20px;
+            color: #777;
+            padding: 11px 15px;
+        }
+
+        #main {
+            padding: 0 20px 40px;
+            color: #444;
+            white-space: nowrap;
+        }
+
+        #main a {
+            margin-right: 10px;
+        }
+
+        #footer {
+            border-top: 1px solid #ccc;
+            font-size: 11px;
+            color: #666;
+            padding: 11px;
+            text-align: center;
+            background: #fff;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+        }
+
+        #footer .site {
+            text-decoration: none;
+            color: #666;
+        }
+
+        #footer .email {
+            text-decoration: none;
+        }
+
+        #footer .email:before {
+            color: #666;
+            content: "  |  ";
+            cursor: default;
+        }
+
+        #footer .version {
+            font-style: italic;
+            float: right;
+        }
+
+        .note {
+            color: #9a9a9a;
+            font-size: 10px;
+            margin: 3px 0;
+        }
+
+        #main > div {
+            border-bottom: #cccccc dotted 1px;
+            padding: 10px 0;
+
+        }
+
+        #main > div:last-child {
+            border: 0;
+        }
+
+        .download-button {
+            float: right;
+        }
+
+        .delete-button {
+            float: right;
+            margin-left: 5px;
+        }
+
+        .deploy-button {
+            width: 100px;
+            height: 100px;
+            border-radius: 50px;
+            margin: 0 auto;
+            display: block;
+        }
+
+        .icon {
+            cursor: pointer;
+            font-size: 16px;
+            padding-right: 5px;
+        }
+
+        .deployed:before {
+            content: "✔";
+            color: #00C000;
+        }
+
+        .failed:before {
+            content: "✘";
+            color: #C00000;
+        }
+
+        .expand ~ .info {
+            display: block;
+        }
+
+        .info {
+            margin-top: 2px;
+            display: none;
+        }
+
+        .info > li {
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+
+    </style>
+</head>
+
+<body>
+<div id="header">OpenL Tablets Rule Services</div>
+<div id="main"></div>
+<div id="footer" style="display: none;">
+    <span class="copyright">© ${year}</span>
+    <a class="site" href="${url}" target="_blank">OpenL Tablets</a>
+    <a class="email" href="mailto:${email}?subject=OpenL Tablets v${version} Feedback">Report a problem</a>
+    <span class="version" title="Built on ${buildDate}">v${version}</span>
+</div>
+<script>
+    // <![CDATA[
+    "use strict";
+
+    // Get JSON of available services
+    var xmlhttp = new XMLHttpRequest();
+    var url = "admin/ui/info";
+
+    xmlhttp.onload = function () {
+        var servicesResponse = JSON.parse(this.response);
+        renderVersion(servicesResponse);
+        renderServices(servicesResponse);
+    };
+
+    xmlhttp.open("GET", url, true);
+    xmlhttp.send();
+    addMainBlockEventListener();
+
+    function addMainBlockEventListener() {
+        var mainBlock = document.getElementById("main");
+        mainBlock.addEventListener('click', function (event) {
+            var button = event.target || event.srcElement;
+            var serviceData = button.parentElement.dataset;
+            //Tomcat does not Accept %2F in URLs: http://tomcat.apache.org/security-6.html.
+            //SEE: CVE-2007-0450 http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0450
+            var serviceName = encodeURI(serviceData.serviceName);
+            if (button.classList.contains("collapse")) {
+                // Expand the node
+                var childArray = button.parentElement.childNodes
+                var target = childArray[2];
+                var fun;
+                var data;
+                if (serviceData.serviceStatus === "FAILED") {
+                    fun = function (error) {
+                        return "<pre>" + error + "</pre>";
+                    };
+                    data = "/errors";
+                } else {
+                    fun = function (method) {
+                        return "<li>" + method.returnType + " <b>" + method.name + "</b> (" + method.paramTypes.join(", ") + ")</li>";
+                    };
+                    data = "/methods";
+                }
+
+                var xmlHttpMethods = new XMLHttpRequest();
+                xmlHttpMethods.onload = function () {
+                    var methods = JSON.parse(this.response);
+                    target.innerHTML = methods.map(fun).join("");
+                };
+                xmlHttpMethods.open("GET", "admin/services/" + serviceName + data, true);
+                xmlHttpMethods.send();
+
+                button.classList.replace("collapse", "expand");
+            } else if (button.classList.contains("expand")) {
+                button.classList.replace("expand", "collapse");
+                // Collapse the node
+            } else if (button.className === "delete-button") {
+                deleteProject(serviceData.deploymentName);
+            }
+        })
+    }
+
+    function isNoWadlService(noWadlServices, service) {
+        for (var i = 0; i < noWadlServices.length; i++) {
+            if (noWadlServices[i] === service.servicePath) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function renderServices(servicesResponse) {
+        // The block for rendering of the available services
+        var mainBlock = document.getElementById("main");
+        var services = servicesResponse.services;
+        var noWadlServices = servicesResponse.noWadlServices;
+        var deployerEnabled = servicesResponse.deployerEnabled;
+        if (Array.isArray(services) && services.length > 0) {
+            mainBlock.innerHTML = "<h2>Available services:</h2>";
+            services.forEach(function (service) {
+                var html = createServiceHtml(service, isNoWadlService(noWadlServices, service), deployerEnabled);
+                var el = document.createElement("DIV");
+                el.dataset.serviceName = service.servicePath;
+                el.dataset.serviceStatus = service.status;
+                el.dataset.servicePath = service.servicePath;
+                el.dataset.deploymentName = encodeURI(service.deploymentName);
+                el.innerHTML = html;
+                mainBlock.appendChild(el);
+            });
+        } else {
+            mainBlock.innerHTML = "<h2>There are no available services</h2>";
+        }
+        if (deployerEnabled) {
+            var el = document.createElement("DIV");
+            var html = createServiceButtons();
+            el.innerHTML = html;
+            mainBlock.appendChild(el);
+        }
+    }
+
+    function renderVersion(servicesResponse) {
+        var buildDate = servicesResponse.buildDate;
+        var footerBlock = document.getElementById("footer");
+        var html = footerBlock.innerHTML
+            .replaceAll("${url}", servicesResponse.url)
+            .replaceAll("${email}", servicesResponse.email)
+            .replaceAll("${buildDate}", buildDate)
+            .replaceAll("${year}", buildDate.substr(0,4))
+            .replaceAll("${version}", servicesResponse.version)
+            .replaceAll("SNAPSHOT", servicesResponse.buildNumber);
+        footerBlock.innerHTML = html;
+        footerBlock.style.display = "";
+    }
+
+    function deleteProject(servicePath) {
+        if (confirm("Are you sure you want to delete this project?")) {
+            var xhr = new XMLHttpRequest();
+            xhr.onload = function () {
+                xmlhttp.open("GET", url, true);
+                xmlhttp.send();
+            }
+            xhr.open("DELETE", "admin/deploy/" + servicePath, true);
+            xhr.send();
+        }
+    }
+
+    function uploadProject() {
+        document.getElementById('file-input').onchange = function () {
+            var fileToUpload = this.files[0];
+            var fileNameParts = fileToUpload.name.split('.');
+            var fileExtension = fileNameParts.pop();
+            if (fileExtension === "zip" || fileExtension === "jar") {
+                var xhr = new XMLHttpRequest();
+                xhr.onload = function () {
+                    if (this.status === 400) {
+                        alert(this.responseText);
+                    }
+                    document.getElementById("file-input").value = "";
+                    xmlhttp.open("GET", url, true);
+                    xmlhttp.send();
+                }
+                xhr.open("POST", "admin/deploy/" + encodeURI(fileNameParts.pop()), true);
+                xhr.setRequestHeader("Content-type", "application/zip")
+                xhr.send(fileToUpload);
+            } else {
+                alert("only zip or jar files can be uploaded")
+            }
+        }
+        document.getElementById('file-input').click();
+    }
+
+    // Creating innerHTML of one service
+    function createServiceHtml(service, noWadl, deployerEnabled) {
+        var html = "";
+        // Name
+        html += "<span class='icon collapse " + service.status.toLowerCase() + "'></span><h3>" + service.servicePath + "</h3>";
+
+        // Some useful info
+        html += "<ul class='info'></ul>";
+
+        // Date and time
+        html += "<div class='note'>Started time: " + new Date(service.startedTime).toLocaleString() + "</div>";
+        // URLs
+        var urls = service.urls;
+        Object.keys(urls).forEach(function (name) {
+            var url = urls[name];
+            if (name === "WEBSERVICE") {
+                html += "<a href='" + url + "?wsdl'\>WSDL</a>";
+            } else if (name === "RESTFUL") {
+                if (!noWadl) {
+                    html += "<a href='" + url + "?_wadl'\>WADL</a>";
+                }
+                html += "<a href='" + url + "/api-docs?url=openapi.json'\>Swagger UI</a>";
+                html += "<a href='" + url + "/openapi.json'\>OpenAPI.JSON</a>";
+                html += "<a href='" + url + "/openapi.yaml'\>OpenAPI.YAML</a>";
+            } else if (url == null) {
+                html += "<span>" + name + "&nbsp;&nbsp;</span>";
+            } else {
+                html += "<a href='" + url + "'\>" + name + "</a>";
+            }
+        });
+        if (service.hasManifest) {
+            html += "<a href='admin/services/" + encodeURI(service.servicePath) + "/MANIFEST.MF'\>MANIFEST.MF</a>";
+        }
+        if (deployerEnabled) {
+            html += "&nbsp";
+            html += "<button type='button' class='delete-button'>Delete</button>";
+            html += "<a href='admin/deploy/" + encodeURI(service.deploymentName) + ".zip' class='download-button'\>Download</a>";
+        }
+
+        return html;
+    }
+
+    function createServiceButtons() {
+        var html = "";
+        html += "<input id='file-input' type='file' name='name' style='display: none;'/>";
+        html += "<button type='button' onclick='uploadProject()' class='deploy-button'>Deploy</button>";
+        return html;
+    }
+
+    // ]]>
+</script>
+</body>
+</html>

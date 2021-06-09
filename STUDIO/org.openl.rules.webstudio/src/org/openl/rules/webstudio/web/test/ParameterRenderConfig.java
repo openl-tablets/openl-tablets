@@ -94,8 +94,8 @@ public class ParameterRenderConfig {
     }
 
     public static class Builder {
-        private IOpenClass type;
-        private Object value;
+        private final IOpenClass type;
+        private final Object value;
         private IOpenField keyField;
         private ParameterDeclarationTreeNode parent;
         private String fieldNameInParent;

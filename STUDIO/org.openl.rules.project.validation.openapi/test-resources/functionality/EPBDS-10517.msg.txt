@@ -1,0 +1,10 @@
+WARN: Field 'testField' is already declared in parent class 'childDatatype2'.
+ERROR: OpenAPI Reconciliation: Type of field 'field28' in type 'MyDatatype' must be compatible with OpenAPI type 'integer(int32)' that incompatible with actual schema 'object'.
+ERROR: OpenAPI Reconciliation: Type of field 'field1' in type 'MyDatatype' must be compatible with OpenAPI type 'integer(int32)' that incompatible with actual type 'integer(int64)'.
+ERROR: OpenAPI Reconciliation: Type of field 'field10' in type 'MyDatatype' must be compatible with OpenAPI type 'integer(int64)' that incompatible with actual type 'boolean'.
+ERROR: OpenAPI Reconciliation: Type of field 'field16' in type 'MyDatatype' must be compatible with OpenAPI type 'string' that incompatible with actual schema 'MyDatatype1'.
+ERROR: OpenAPI Reconciliation: Type of field 'field7' in type 'MyDatatype' must be compatible with OpenAPI type 'string(byte)' that incompatible with actual schema 'array[] of string(byte)'.
+ERROR: OpenAPI Reconciliation: Type of field 'field9' in type 'MyDatatype' must be compatible with OpenAPI type 'boolean' that incompatible with actual type 'integer(int32)'.
+ERROR: OpenAPI Reconciliation: Type of field 'field3' in type 'MyDatatype' must be compatible with OpenAPI type 'number(float)' that incompatible with actual type 'string(date-time)'.
+ERROR: OpenAPI Reconciliation: Type of field 'field2' in type 'MyDatatypeArr' must be compatible with OpenAPI schema 'array[] of number(double)' that incompatible with actual schema 'array[] of string(date-time)'.
+ERROR: OpenAPI Reconciliation: Parent 'MyDatatype3' of type 'childDatatype2' mismatches to declared schema:

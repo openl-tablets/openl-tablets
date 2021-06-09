@@ -1,9 +1,6 @@
 package org.openl.rules.repository.git;
 
-import java.io.File;
 import java.io.IOException;
-import java.text.MessageFormat;
-import java.text.ParseException;
 import java.util.Date;
 
 import org.eclipse.jgit.api.Git;
@@ -15,6 +12,7 @@ import org.eclipse.jgit.lib.ObjectLoader;
 import org.eclipse.jgit.lib.PersonIdent;
 import org.eclipse.jgit.revwalk.RevCommit;
 import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.git.CommitMessageParser.CommitMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,20 +20,21 @@ class LazyFileData extends FileData {
     private final Logger log = LoggerFactory.getLogger(GitRepository.class);
 
     private final String fullPath;
-    private final File repoFolder;
+    private final GitRepository gitRepo;
     private ObjectId fromCommit;
     private RevCommit fileCommit;
     private ObjectId fileId;
-    private final String commentTemplate;
+    private final CommitMessageParser commitMessageParser;
 
     private boolean loaded = false;
+    private boolean deleteStatusLoaded = false;
 
     LazyFileData(String branch,
             String fullPath,
-            File repoFolder,
+            GitRepository gitRepo,
             ObjectId fromCommit,
             ObjectId fileId,
-            String commentTemplate) {
+            CommitMessageParser commitMessageParser) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -43,18 +42,18 @@ class LazyFileData extends FileData {
         }
 
         this.fullPath = fullPath;
-        this.repoFolder = repoFolder;
-        this.commentTemplate = commentTemplate;
+        this.gitRepo = gitRepo;
+        this.commitMessageParser = commitMessageParser;
         this.fromCommit = fromCommit;
         this.fileId = fileId;
     }
 
     LazyFileData(String branch,
             String fullPath,
-            File repoFolder,
+            GitRepository gitRepo,
             RevCommit fileCommit,
             ObjectId fileId,
-            String commentTemplate) {
+            CommitMessageParser commitMessageParser) {
         setBranch(branch);
         setName(fullPath);
         if (fileId != null) {
@@ -62,8 +61,8 @@ class LazyFileData extends FileData {
         }
 
         this.fullPath = fullPath;
-        this.repoFolder = repoFolder;
-        this.commentTemplate = commentTemplate;
+        this.gitRepo = gitRepo;
+        this.commitMessageParser = commitMessageParser;
         this.fileCommit = fileCommit;
         this.fileId = fileId;
     }
@@ -71,7 +70,7 @@ class LazyFileData extends FileData {
     @Override
     public long getSize() {
         if (fileId != null) {
-            try (Git git = Git.open(repoFolder)) {
+            try (Git git = gitRepo.getClosableGit()) {
                 ObjectLoader loader = git.getRepository().open(fileId);
                 super.setSize(loader.getSize());
                 fileId = null;
@@ -140,14 +139,14 @@ class LazyFileData extends FileData {
 
     @Override
     public boolean isDeleted() {
-        verifyLoaded();
+        verifyDeleteStatusLoaded();
         return super.isDeleted();
     }
 
     @Override
     public void setDeleted(boolean deleted) {
-        verifyLoaded();
         super.setDeleted(deleted);
+        deleteStatusLoaded = true;
     }
 
     private void verifyLoaded() {
@@ -155,7 +154,7 @@ class LazyFileData extends FileData {
             return;
         }
 
-        try (Git git = Git.open(repoFolder)) {
+        try (Git git = gitRepo.getClosableGit()) {
             if (fileCommit == null) {
                 try {
                     fileCommit = GitRepository.findFirstCommit(git, fromCommit, fullPath);
@@ -174,19 +173,20 @@ class LazyFileData extends FileData {
             super.setAuthor(committerIdent.getName());
             super.setModifiedAt(committerIdent.getWhen());
             String message = fileCommit.getFullMessage();
-            try {
-                Object[] parse = new MessageFormat(commentTemplate).parse(message);
-                if (parse.length >= 2) {
-                    CommitType commitType = CommitType.valueOf(String.valueOf(parse[0]));
-                    if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
-                        super.setDeleted(true);
-                    }
-                    message = String.valueOf(parse[1]);
-                    if (parse.length > 2) {
-                        super.setAuthor(String.valueOf(parse[2]));
-                    }
+
+            CommitMessage commitMessage = commitMessageParser.parse(message);
+            if (commitMessage != null) {
+                CommitType commitType = commitMessage.getCommitType();
+                if (commitType == CommitType.ARCHIVE || commitType == CommitType.ERASE) {
+                    super.setDeleted(true);
+                    deleteStatusLoaded = true;
                 }
-            } catch (ParseException | IllegalArgumentException ignored) {
+                if (commitMessage.getMessage() != null) {
+                    message = commitMessage.getMessage();
+                }
+                if (commitMessage.getAuthor() != null) {
+                    super.setAuthor(commitMessage.getAuthor());
+                }
             }
             super.setComment(message);
 
@@ -202,6 +202,29 @@ class LazyFileData extends FileData {
 
             loaded = true;
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * For non-flat folder structure this method shouldn't be invoked because in that case another algorithm is used.
+     */
+    private void verifyDeleteStatusLoaded() {
+        verifyLoaded();
+        if (deleteStatusLoaded) {
+            return;
+        }
+
+        try {
+            if (fileId == null && getSize() == UNDEFINED_SIZE) {
+                // Deleted status for folder is got from main branch.
+                if (!gitRepo.getBranch().equals(gitRepo.getBaseBranch())) {
+                    FileData data = gitRepo.forBranch(gitRepo.getBaseBranch()).check(fullPath);
+                    super.setDeleted(data.isDeleted());
+                }
+            }
+            deleteStatusLoaded = true;
+        } catch (IOException e) {
             log.error(e.getMessage(), e);
         }
     }

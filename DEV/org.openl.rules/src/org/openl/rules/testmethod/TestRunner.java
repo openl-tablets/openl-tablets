@@ -39,7 +39,7 @@ public class TestRunner {
                     res = testedMethod.invoke(target, args, env);
                 }
                 end = System.nanoTime();
-            } catch (Throwable t) {
+            } catch (Exception | LinkageError | StackOverflowError t) {
                 end = System.nanoTime();
                 exception = t;
             } finally {

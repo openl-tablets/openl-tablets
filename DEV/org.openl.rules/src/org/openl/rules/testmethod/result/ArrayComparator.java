@@ -7,10 +7,10 @@ import java.lang.reflect.Array;
  */
 class ArrayComparator extends GenericComparator<Object> {
 
-    private final TestResultComparator elementComporator;
+    private final TestResultComparator elementComparator;
 
     ArrayComparator(Class<?> clazz, Double delta) {
-        this.elementComporator = TestResultComparatorFactory.getComparator(clazz, delta);
+        this.elementComparator = TestResultComparatorFactory.getComparator(clazz, delta);
     }
 
     @Override
@@ -34,7 +34,7 @@ class ArrayComparator extends GenericComparator<Object> {
             Object actualArrayResult = Array.get(actual, i);
             Object expectedArrayResult = Array.get(expected, i);
 
-            if (!elementComporator.isEqual(expectedArrayResult, actualArrayResult)) {
+            if (!elementComparator.isEqual(expectedArrayResult, actualArrayResult)) {
                 return false;
             }
         }

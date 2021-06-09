@@ -8,9 +8,9 @@ import org.openl.rules.table.IGridRegion;
 
 public class MatchTraceObject extends ATableTracerNode {
 
-    private IGridRegion gridRegion;
-    private String checkValue;
-    private String operation;
+    private final IGridRegion gridRegion;
+    private final String checkValue;
+    private final String operation;
 
     MatchTraceObject(ColumnMatch columnMatch, String checkValue, String operation, IGridRegion gridRegion) {
         super("cmMatch", null, columnMatch, null);

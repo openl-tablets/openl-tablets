@@ -13,26 +13,19 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * {@inheritDoc}
      */
     @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
 
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
 
-        ProjectTreeNode projectTreeNode = null;
+        ProjectTreeNode projectTreeNode;
 
         String type = getType(nodeObject);
         if (type.equals(IProjectTypes.PT_FOLDER)) {
-            projectTreeNode = new ProjectTreeNode(displayNames, type, null, getProblems(nodeObject), i, null);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, null);
         } else {
-            projectTreeNode = new ProjectTreeNode(displayNames,
-                type,
-                getUrl(nodeObject),
-                getProblems(nodeObject),
-                i,
-                tableSyntaxNode);
+            projectTreeNode = new ProjectTreeNode(displayNames, type, tableSyntaxNode);
         }
-
-        projectTreeNode.setObject(nodeObject);
 
         return projectTreeNode;
     }
@@ -78,7 +71,9 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @param tableSyntaxNode table syntax node
      * @return node object
      */
-    protected abstract Object makeObject(TableSyntaxNode tableSyntaxNode);
+    protected Object makeObject(TableSyntaxNode tableSyntaxNode) {
+        return tableSyntaxNode;
+    }
 
     /**
      * Gets display value (triple of possible names) of node object.
@@ -88,13 +83,6 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @return display value
      */
     public abstract String[] getDisplayValue(Object nodeObject, int i);
-
-    /**
-     * Gets name of node.
-     *
-     * @return name of node
-     */
-    public abstract String getName();
 
     /**
      * Gets type of node.
@@ -118,13 +106,7 @@ public abstract class BaseTableTreeNodeBuilder implements TreeNodeBuilder<TableS
      * @param nodeObject node object
      * @return string that represent node weight
      */
-    public abstract int getWeight(Object nodeObject);
-
-    /**
-     * Gets problems of node.
-     *
-     * @param nodeObject node object
-     * @return object that represent node problems
-     */
-    public abstract Object getProblems(Object nodeObject);
+    public int getWeight(Object nodeObject) {
+        return 0;
+    }
 }

@@ -12,9 +12,9 @@ import org.openl.util.StringUtils;
  *
  */
 public class RootFolderExtractor {
-    private Set<String> folderNames;
+    private final Set<String> folderNames;
     private String rootName;
-    private PathFilter filter;
+    private final PathFilter filter;
 
     public RootFolderExtractor(Set<String> folderNames, PathFilter filter) {
         this.folderNames = folderNames;

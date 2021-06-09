@@ -4,7 +4,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
 public class StyleHandler extends DefaultHandler {
-    private MinimalStyleTable styleTable = new MinimalStyleTable();
+    private final MinimalStyleTable styleTable = new MinimalStyleTable();
 
     private boolean startCellXfs = false;
 

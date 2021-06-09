@@ -11,10 +11,10 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  */
 public class UndoableRemoveRowsAction extends UndoableRemoveAction {
 
-    private int nRows;
-    private int startRow;
-    private int col;
-    private MetaInfoWriter metaInfoWriter;
+    private final int nRows;
+    private final int startRow;
+    private final int col;
+    private final MetaInfoWriter metaInfoWriter;
 
     public UndoableRemoveRowsAction(int nRows, int startRow, int col, MetaInfoWriter metaInfoWriter) {
         this.nRows = nRows;

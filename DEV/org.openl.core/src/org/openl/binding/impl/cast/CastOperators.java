@@ -3,7 +3,11 @@ package org.openl.binding.impl.cast;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-public class CastOperators {
+public final class CastOperators {
+
+    private CastOperators() {
+    }
+
     // Autocast
 
     // Widening primitive conversions:
@@ -127,7 +131,7 @@ public class CastOperators {
     }
 
     public static double autocast(float x, double y) {
-        return Double.valueOf(Float.toString(x));
+        return Double.parseDouble(Float.toString(x));
     }
 
     public static BigDecimal autocast(float x, BigDecimal y) {

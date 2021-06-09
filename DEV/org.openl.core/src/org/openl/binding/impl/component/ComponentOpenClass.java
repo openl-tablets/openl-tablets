@@ -23,9 +23,9 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ComponentOpenClass extends ADynamicClass {
 
-    private DefaultInitializer init;
+    private final DefaultInitializer init;
 
-    private OpenL openl;
+    private final OpenL openl;
 
     public ComponentOpenClass(String name, OpenL openl) {
         super(name, DynamicObject.class);
@@ -43,7 +43,7 @@ public class ComponentOpenClass extends ADynamicClass {
     /**
      * Clears all unnecessary data for "Execution Mode"
      */
-    public void clearOddDataForExecutionMode() {
+    public void clearForExecutionMode() {
         setMetaInfo(null);
     }
 
@@ -68,7 +68,7 @@ public class ComponentOpenClass extends ADynamicClass {
     }
 
     private class DefaultInitializer implements IOpenMethod {
-        List<IBoundNode> boundNodes = new ArrayList<>();
+        final List<IBoundNode> boundNodes = new ArrayList<>();
 
         public void addNode(IBoundNode node) {
             boundNodes.add(node);
@@ -113,8 +113,7 @@ public class ComponentOpenClass extends ADynamicClass {
         public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
             try {
                 env.pushThis(target);
-                for (int i = 0; i < boundNodes.size(); i++) {
-                    IBoundNode node = boundNodes.get(i);
+                for (IBoundNode node : boundNodes) {
                     node.evaluate(env);
                 }
 

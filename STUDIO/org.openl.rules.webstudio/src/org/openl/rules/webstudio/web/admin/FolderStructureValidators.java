@@ -18,12 +18,6 @@ public class FolderStructureValidators {
         validatePathInRepository(path);
     }
 
-    public void folderConfigFile(FacesContext context, UIComponent toValidate, Object value) {
-        String filePath = (String) value;
-        WebStudioUtils.validate(StringUtils.isNotBlank(filePath), "Folder config file cannot be empty");
-        validateGitPath(filePath);
-    }
-
     public static void validatePathInRepository(String path) {
         if (StringUtils.isEmpty(path)) {
             return;

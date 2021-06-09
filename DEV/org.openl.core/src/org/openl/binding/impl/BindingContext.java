@@ -23,19 +23,20 @@ import org.openl.types.impl.MethodKey;
  *
  */
 public class BindingContext implements IBindingContext {
+    private static final Object NOT_FOUND = "NOT_FOUND";
 
     private IOpenBinder binder;
     private IOpenClass returnType;
     private OpenL openl;
 
-    private LocalFrameBuilder localFrame = new LocalFrameBuilder();
+    private final LocalFrameBuilder localFrame = new LocalFrameBuilder();
     private List<SyntaxNodeException> errors = new ArrayList<>();
-    private LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
+    private final LinkedList<List<SyntaxNodeException>> errorStack = new LinkedList<>();
 
     private Map<String, Object> externalParams = new HashMap<>();
 
     private Collection<OpenLMessage> messages = new LinkedHashSet<>();
-    private LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
+    private final LinkedList<Collection<OpenLMessage>> messagesStack = new LinkedList<>();
 
     private boolean executionMode = false;
 
@@ -86,19 +87,10 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public IOpenField findFieldFor(IOpenClass type,
-            String fieldName,
-            boolean strictMatch) throws AmbiguousVarException {
-        return type.getField(fieldName, strictMatch);
-    }
-
-    private static final Object NOT_FOUND = "NOT_FOUND";
-
-    @Override
     public IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
-        MethodKey key = new MethodKey(namespace + ':' + name, parTypes, false, true);
+        MethodKey key = new MethodKey(namespace + ':' + name, parTypes, true);
         Map<MethodKey, Object> methodCache = ((Binder) binder).methodCache;
 
         synchronized (methodCache) {
@@ -127,7 +119,7 @@ public class BindingContext implements IBindingContext {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         ILocalVar var = localFrame.findLocalVar(namespace, name);
         if (var != null) {
             return var;
@@ -153,16 +145,19 @@ public class BindingContext implements IBindingContext {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-
         return binder.getCastFactory().findClosestClass(openClass1, openClass2);
+    }
 
+    @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return binder.getCastFactory().findParentClass(openClass1, openClass2);
     }
 
     private static final SyntaxNodeException[] NO_ERRORS = {};
 
     @Override
     public SyntaxNodeException[] getErrors() {
-        return errors.isEmpty() ? NO_ERRORS : errors.toArray(new SyntaxNodeException[0]);
+        return errors.isEmpty() ? NO_ERRORS : errors.toArray(SyntaxNodeException.EMPTY_ARRAY);
     }
 
     @Override

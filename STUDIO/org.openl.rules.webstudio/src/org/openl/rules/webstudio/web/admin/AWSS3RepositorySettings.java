@@ -1,5 +1,7 @@
 package org.openl.rules.webstudio.web.admin;
 
+import java.util.Optional;
+
 import org.openl.config.PropertiesHolder;
 
 public class AWSS3RepositorySettings extends RepositorySettings {
@@ -9,29 +11,32 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     private String secretKey;
     private int listenerTimerPeriod;
 
-    private final String BUCKET_NAME;
-    private final String REGION_NAME;
-    private final String ACCESS_KEY;
-    private final String SECRET_KEY;
-    private final String LISTENER_TIMER_PERIOD;
+    private final String bucketNamePath;
+    private final String regionNamePath;
+    private final String accessKeyPath;
+    private final String secretKeyPath;
+    private final String listenerTimerPeriodPath;
 
     AWSS3RepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
-        BUCKET_NAME = configPrefix + ".bucket-name";
-        REGION_NAME = configPrefix + ".region-name";
-        ACCESS_KEY = configPrefix + ".access-key";
-        SECRET_KEY = configPrefix + ".secret-key";
-        LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
+        bucketNamePath = configPrefix + ".bucket-name";
+        regionNamePath = configPrefix + ".region-name";
+        accessKeyPath = configPrefix + ".access-key";
+        secretKeyPath = configPrefix + ".secret-key";
+        listenerTimerPeriodPath = configPrefix + ".listener-timer-period";
 
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
-        bucketName = properties.getProperty(BUCKET_NAME);
-        regionName = properties.getProperty(REGION_NAME);
-        accessKey = properties.getProperty(ACCESS_KEY);
-        secretKey = properties.getProperty(SECRET_KEY);
-        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
+        bucketName = properties.getProperty(bucketNamePath);
+        regionName = properties.getProperty(regionNamePath);
+        accessKey = properties.getProperty(accessKeyPath);
+        secretKey = properties.getProperty(secretKeyPath);
+        listenerTimerPeriod = Integer.parseInt(
+                Optional.ofNullable(properties.getProperty(listenerTimerPeriodPath))
+                        .orElse(properties.getProperty("repo-aws-s3.listener-timer-period"))
+        );
     }
 
     public String getBucketName() {
@@ -80,18 +85,24 @@ public class AWSS3RepositorySettings extends RepositorySettings {
     protected void store(PropertiesHolder propertiesHolder) {
         super.store(propertiesHolder);
 
-        propertiesHolder.setProperty(BUCKET_NAME, bucketName);
-        propertiesHolder.setProperty(REGION_NAME, regionName);
-        propertiesHolder.setProperty(ACCESS_KEY, accessKey);
-        propertiesHolder.setProperty(SECRET_KEY, secretKey);
-        propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
+        propertiesHolder.setProperty(bucketNamePath, bucketName);
+        propertiesHolder.setProperty(regionNamePath, regionName);
+        propertiesHolder.setProperty(accessKeyPath, accessKey);
+        propertiesHolder.setProperty(secretKeyPath, secretKey);
+        propertiesHolder.setProperty(listenerTimerPeriodPath, listenerTimerPeriod);
     }
 
     @Override
     protected void revert(PropertiesHolder properties) {
         super.revert(properties);
 
-        properties.revertProperties(BUCKET_NAME, REGION_NAME, ACCESS_KEY, SECRET_KEY, LISTENER_TIMER_PERIOD);
+        properties.revertProperties(
+                bucketNamePath,
+                regionNamePath,
+                accessKeyPath,
+                secretKeyPath,
+                listenerTimerPeriodPath
+        );
         load(properties);
     }
 

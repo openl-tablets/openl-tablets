@@ -1,6 +1,12 @@
 package org.openl.rules.lang.xls;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Reader;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -16,35 +22,24 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.openl.rules.lang.xls.load.WorkbookLoader;
 import org.openl.rules.lang.xls.load.WorkbookLoaders;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ASourceCodeModule;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@Deprecated
 public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
 
     private final Logger log = LoggerFactory.getLogger(XlsWorkbookSourceCodeModule.class);
 
-    /**
-     * Delegates modification checking to parent
-     */
-    public final ModificationChecker DEFAULT_MODIDFICATION_CHECKER = new ModificationChecker() {
-        @Override
-        public boolean isModified() {
-            return src.isModified();
-        }
-    };
-    protected IOpenSourceCodeModule src;
+    protected final IOpenSourceCodeModule src;
 
-    private WorkbookLoader workbookLoader;
+    private final WorkbookLoader workbookLoader;
 
-    private Set<Short> wbColors = new TreeSet<>();
+    private final Set<Short> wbColors = new TreeSet<>();
 
-    private Collection<XlsWorkbookListener> listeners = new ArrayList<>();
-
-    private ModificationChecker modificationChecker = DEFAULT_MODIDFICATION_CHECKER;
+    private final Collection<XlsWorkbookListener> listeners = new ArrayList<>();
 
     private Map<String, Object> params;
 
@@ -130,45 +125,17 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
         File sourceFile = getSourceFile();
         String fileName = sourceFile.getCanonicalPath();
         synchronized (fileAccessLock) {
-            saveAs(fileName);
-            resetModified();
-        }
-    }
-
-    public ModificationChecker getModificationChecker() {
-        return modificationChecker;
-    }
-
-    public void setModificationChecker(ModificationChecker modificationChecker) {
-        this.modificationChecker = modificationChecker;
-    }
-
-    @Override
-    public boolean isModified() {
-        synchronized (fileAccessLock) {
-            return modificationChecker.isModified();
-        }
-    }
-
-    public void resetModified() {
-        synchronized (fileAccessLock) {
-            if (getSource() instanceof ASourceCodeModule) {
-                ((ASourceCodeModule) getSource()).resetModified();
+            for (XlsWorkbookListener wl : listeners) {
+                wl.beforeSave(this);
             }
-        }
-    }
 
-    public void saveAs(String fileName) throws IOException {
-        for (XlsWorkbookListener wl : listeners) {
-            wl.beforeSave(this);
-        }
+            OutputStream fileOut = new DeferredCreateFileOutputStream(fileName);
+            getWorkbook().write(fileOut);
+            fileOut.close();
 
-        OutputStream fileOut = new DeferredCreateFileOutputStream(fileName);
-        getWorkbook().write(fileOut);
-        fileOut.close();
-
-        for (XlsWorkbookListener wl : listeners) {
-            wl.afterSave(this);
+            for (XlsWorkbookListener wl : listeners) {
+                wl.afterSave(this);
+            }
         }
     }
 
@@ -211,20 +178,6 @@ public class XlsWorkbookSourceCodeModule implements IOpenSourceCodeModule {
     @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
-    }
-
-    /**
-     * Interface that provides modification checking
-     *
-     * @author NSamatov
-     */
-    public interface ModificationChecker {
-        /**
-         * Returns a modification status
-         *
-         * @return true if a workbook is modified
-         */
-        boolean isModified();
     }
 
     /**

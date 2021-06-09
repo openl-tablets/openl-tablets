@@ -38,7 +38,7 @@ public class DiffTreeBuilder2 extends DiffTreeBuilderImpl {
         return n;
     }
 
-    private Map<String, List<DiffPair>> sheetMap = new LinkedHashMap<>();
+    private final Map<String, List<DiffPair>> sheetMap = new LinkedHashMap<>();
 
     public void add(DiffPair diff) {
         String sheetName = diff.getTable1() != null ? diff.getTable1().getSheetName() : diff.getTable2().getSheetName();

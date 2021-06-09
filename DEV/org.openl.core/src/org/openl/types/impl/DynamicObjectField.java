@@ -29,8 +29,9 @@ public class DynamicObjectField extends AOpenField {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
-        // return ((IDynamicObject)env.getThis()).getFieldValue(name);
-
+        if (target == null) {
+            return getType().nullObject();
+        }
         Object res = ((IDynamicObject) target).getFieldValue(getName());
 
         return res != null ? res : getType().nullObject();
@@ -48,7 +49,9 @@ public class DynamicObjectField extends AOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        ((IDynamicObject) target).setFieldValue(getName(), value);
+        if (target != null) {
+            ((IDynamicObject) target).setFieldValue(getName(), value);
+        }
     }
 
     public void setDeclaringClass(IOpenClass declaringClass) {

@@ -159,14 +159,14 @@ public class String2NumberConverterTest {
     public void testParseEmpty() {
         String2NumberConverter<Number> converter = getNumberConverter();
         // skip using a String Pool in runtime
-        converter.parse(new String(""), null);
+        converter.parse("", null);
     }
 
     @Test(expected = NumberFormatException.class)
     public void testParsePercentSign() {
         String2NumberConverter<Number> converter = getNumberConverter();
         // skip using a String Pool in runtime
-        converter.parse(new String("%"), null);
+        converter.parse("%", null);
     }
 
     @Test(expected = NumberFormatException.class)

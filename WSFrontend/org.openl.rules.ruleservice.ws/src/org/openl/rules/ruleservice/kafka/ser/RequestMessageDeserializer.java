@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -63,7 +64,8 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private Entry generateWrapperClass(Method m) throws Exception {
-        String[] parameterNames = MethodUtils.getParameterNames(m, service);
+        String[] parameterNames = MethodUtils.getParameterNames(service
+            .getOpenClass(), m, service.isProvideRuntimeContext(), service.isProvideVariations());
         String beanName = "org.openl.rules.ruleservice.publish.kafka.ser.KafkaRequestDeserializer$" + m
             .getName() + "$" + RandomStringUtils.random(16, true, false);
 
@@ -93,7 +95,7 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     private String getStringFromHeaders(Headers headers, String key) throws UnsupportedEncodingException {
         Header header = headers.lastHeader(key);
         if (header != null) {
-            return new String(header.value(), UTF8);
+            return new String(header.value(), StandardCharsets.UTF_8);
         }
         return null;
     }
@@ -179,9 +181,9 @@ public class RequestMessageDeserializer implements Deserializer<RequestMessage> 
     }
 
     private static final class Entry {
-        private Method method;
-        private Class<?> wrapperClass;
-        private Field[] wrapperClassFields;
+        private final Method method;
+        private final Class<?> wrapperClass;
+        private final Field[] wrapperClassFields;
 
         public Entry(Method method, Class<?> wrapperClass, Field[] wrapperClassFields) {
             this.method = Objects.requireNonNull(method);

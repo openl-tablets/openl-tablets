@@ -4,31 +4,42 @@ import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
-import org.openl.rules.ruleservice.storelogdata.StoreLogDataService;
+import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.annotation.StoreLogDataToElasticsearch;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.core.query.IndexQuery;
 import org.springframework.data.elasticsearch.core.query.IndexQueryBuilder;
+import org.springframework.stereotype.Component;
 
-public class ElasticSearchStoreLogDataService implements StoreLogDataService {
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.elasticsearch.enabled")
+public class ElasticSearchStoreLogDataService extends AbstractStoreLogDataService {
 
     private final Logger log = LoggerFactory.getLogger(ElasticSearchStoreLogDataService.class);
 
-    private boolean enabled = true;
-
+    @Autowired
     private ElasticsearchOperations elasticsearchOperations;
 
-    private StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+    private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
+
+    private volatile Collection<Inject<?>> supportedInjects;
 
     public ElasticsearchOperations getElasticsearchOperations() {
         return elasticsearchOperations;
@@ -39,16 +50,31 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
     }
 
     @Override
-    public boolean isEnabled() {
-        return enabled;
-    }
-
-    public void setEnabled(boolean enabled) {
-        this.enabled = enabled;
+    protected boolean isSync(StoreLogData storeLogData) {
+        StoreLogDataToElasticsearch storeLogDataToElasticsearch = AnnotationUtils
+            .getAnnotationInServiceClassOrServiceMethod(storeLogData, StoreLogDataToElasticsearch.class);
+        if (storeLogDataToElasticsearch != null) {
+            return storeLogDataToElasticsearch.sync();
+        }
+        return false;
     }
 
     @Override
-    public void save(StoreLogData storeLogData) {
+    public Collection<Inject<?>> additionalInjects() {
+        if (supportedInjects == null) {
+            synchronized (this) {
+                if (supportedInjects == null) {
+                    Collection<Inject<?>> injects = new ArrayList<>();
+                    injects.add(new Inject<>(InjectElasticsearchOperations.class, this::getElasticsearchOperations));
+                    supportedInjects = Collections.unmodifiableCollection(injects);
+                }
+            }
+        }
+        return supportedInjects;
+    }
+
+    @Override
+    protected void save(StoreLogData storeLogData, boolean sync) {
         Object[] entities;
 
         StoreLogDataToElasticsearch storeLogDataToElasticsearchAnnotation = storeLogData.getServiceClass()
@@ -68,7 +94,7 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             entities = new Object[storeLogDataToElasticsearchAnnotation.value().length];
             int i = 0;
             for (Class<?> entityClass : storeLogDataToElasticsearchAnnotation.value()) {
-                if (StoreLogDataToElasticsearch.DEFAULT.class.equals(entityClass)) {
+                if (StoreLogDataToElasticsearch.DEFAULT.class == entityClass) {
                     entities[i] = new DefaultElasticEntity();
                 } else {
                     try {
@@ -97,11 +123,14 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
             } catch (Exception e) {
                 if (log.isErrorEnabled()) {
                     if (serviceMethod != null) {
-                        log.error(String.format("Failed to map '%s' Elasticsearch index for method '%s'.",
+                        log.error("Failed to populate Elasticsearch index related to method '{}' in class '{}'.",
+                            MethodUtil.printQualifiedMethodName(serviceMethod),
                             entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod)), e);
+                            e);
                     } else {
-                        log.error(String.format("Failed to map '%s'.", entity.getClass().getTypeName()), e);
+                        log.error("Failed to populate Elasticsearch index related to class '{}'.",
+                            entity.getClass().getTypeName(),
+                            e);
                     }
                 }
                 return;
@@ -138,12 +167,14 @@ public class ElasticSearchStoreLogDataService implements StoreLogDataService {
 
         for (Field f : entity.getClass().getDeclaredFields()) {
             Id[] annotationsByType = f.getAnnotationsByType(Id.class);
-            if (annotationsByType != null && annotationsByType.length != 0) {
+            if (annotationsByType.length != 0) {
                 try {
                     f.setAccessible(true);
                     existingId = (String) f.get(entity);
                 } catch (IllegalAccessException e) {
-                    log.error("Failed on ElasticSearch entity extract ID operation.", e);
+                    log.error("Failed on ElasticSearch entity '{}' extract ID operation.",
+                        entity.getClass().getTypeName(),
+                        e);
                 }
             }
         }

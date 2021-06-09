@@ -1,6 +1,7 @@
 package org.openl.rules.project.resolving;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
@@ -19,7 +20,7 @@ public class ProjectResolver {
     private static final ProjectResolver INSTANCE = new ProjectResolver();
     private final Logger log = LoggerFactory.getLogger(ProjectResolver.class);
 
-    public static ProjectResolver instance() {
+    public static ProjectResolver getInstance() {
         return INSTANCE;
     }
 
@@ -27,7 +28,7 @@ public class ProjectResolver {
      * @param folder Folder to check
      * @return <code>null</code> if it is not OpenL project and {@link ResolvingStrategy} for this project otherwise.
      */
-    public ResolvingStrategy isRulesProject(File folder) {
+    public ResolvingStrategy isRulesProject(Path folder) {
         ServiceLoader<ResolvingStrategy> strategies = ServiceLoader.load(ResolvingStrategy.class);
 
         for (ResolvingStrategy strategy : strategies) {
@@ -38,7 +39,11 @@ public class ProjectResolver {
         return null;
     }
 
-    public ProjectDescriptor resolve(File file) throws ProjectResolvingException {
+    public ResolvingStrategy isRulesProject(File folder) {
+        return isRulesProject(folder.toPath());
+    }
+
+    public ProjectDescriptor resolve(Path file) throws ProjectResolvingException {
         ResolvingStrategy strategy = isRulesProject(file);
         if (strategy != null) {
             return strategy.resolveProject(file);
@@ -46,8 +51,12 @@ public class ProjectResolver {
         return null;
     }
 
+    public ProjectDescriptor resolve(File file) throws ProjectResolvingException {
+        return resolve(file.toPath());
+    }
+
     public List<ProjectDescriptor> resolve(File... files) {
-        ArrayList<ProjectDescriptor> projectDescriptors = new ArrayList<>();
+        List<ProjectDescriptor> projectDescriptors = new ArrayList<>();
         for (File file : files) {
             try {
                 ProjectDescriptor project = resolve(file);

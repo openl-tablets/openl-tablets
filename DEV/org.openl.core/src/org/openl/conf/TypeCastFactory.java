@@ -28,7 +28,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         this.configuration = configuration;
     }
 
-    private IOpenLConfiguration configuration;
+    private final IOpenLConfiguration configuration;
 
     public class JavaCastComponent extends AConfigurationElement {
         private final String libraryClassName;
@@ -37,8 +37,8 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
         private volatile CastFactory factory = null;
 
         public JavaCastComponent(String libraryClassName, String className) {
-            this.libraryClassName = Objects.requireNonNull(libraryClassName, "className can not be null");
-            this.className = Objects.requireNonNull(className, "className can not be null");
+            this.libraryClassName = Objects.requireNonNull(libraryClassName, "className cannot be null");
+            this.className = Objects.requireNonNull(className, "className cannot be null");
         }
 
         CastFactory getCastFactory(IConfigurableResourceContext cxt) {
@@ -82,7 +82,7 @@ public class TypeCastFactory extends AConfigurationElement implements IConfigura
 
     }
 
-    private List<JavaCastComponent> components = new ArrayList<>();
+    private final List<JavaCastComponent> components = new ArrayList<>();
 
     public void addJavaCast(JavaCastComponent cmp) {
         components.add(cmp);

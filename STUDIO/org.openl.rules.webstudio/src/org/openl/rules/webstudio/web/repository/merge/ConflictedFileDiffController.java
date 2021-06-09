@@ -6,9 +6,6 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.validation.ValidationException;
 
@@ -27,15 +24,20 @@ import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class ConflictedFileDiffController extends ExcelDiffController {
-    private final Logger log = LoggerFactory.getLogger(ConflictedFileDiffController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConflictedFileDiffController.class);
 
-    @ManagedProperty(value = "#{workspaceManager}")
-    private MultiUserWorkspaceManager workspaceManager;
+    private final MultiUserWorkspaceManager workspaceManager;
     private String conflictedFile;
+
+    public ConflictedFileDiffController(MultiUserWorkspaceManager workspaceManager) {
+        this.workspaceManager = workspaceManager;
+    }
 
     public void setConflictedFile(String conflictedFile) {
         try {
@@ -61,27 +63,35 @@ public class ConflictedFileDiffController extends ExcelDiffController {
                     SecurityContextHolder.getContext().getAuthentication().getName());
                 UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(user);
 
+                String repositoryId = mergeConflict.getRepositoryId();
                 FileItem their = userWorkspace.getDesignTimeRepository()
-                    .getRepository()
+                    .getRepository(repositoryId)
                     .readHistory(conflictedFile, exception.getTheirCommit());
                 File theirFile = createTempFile(their, conflictedFile);
+                File ourFile;
 
                 FileItem our;
                 if (mergeConflict.isMerging()) {
                     our = userWorkspace.getDesignTimeRepository()
-                        .getRepository()
+                        .getRepository(repositoryId)
                         .readHistory(conflictedFile, exception.getYourCommit());
+                    ourFile = createTempFile(our, conflictedFile);
+                    if (mergeConflict.isExportOperation()) {
+                        File tmp = ourFile;
+                        ourFile = theirFile;
+                        theirFile = tmp;
+                    }
                 } else {
                     String rulesLocation = userWorkspace.getDesignTimeRepository().getRulesLocation();
                     String localName = conflictedFile.substring(rulesLocation.length());
-                    our = userWorkspace.getLocalWorkspace().getRepository().read(localName);
+                    our = userWorkspace.getLocalWorkspace().getRepository(repositoryId).read(localName);
+                    ourFile = createTempFile(our, conflictedFile);
                 }
-                File ourFile = createTempFile(our, conflictedFile);
 
                 compare(Arrays.asList(theirFile, ourFile));
             }
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
             throw new ValidationException(e.getMessage(), e);
         }
     }
@@ -93,7 +103,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         setDiffTree(getRichDiffTree().getDiffTreeNode());
     }
 
-    private void clearTreeSelection() {
+    private static void clearTreeSelection() {
         UIComponent treeComponent = RichFunction.findComponent("newTree");
         if (treeComponent instanceof UITree) {
             ((UITree) treeComponent).setSelection(Collections.emptyList());
@@ -126,10 +136,6 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         super.setShowEqualElements(false);
     }
 
-    public void setWorkspaceManager(MultiUserWorkspaceManager workspaceManager) {
-        this.workspaceManager = workspaceManager;
-    }
-
     public String getDiff() {
         if (StringUtils.isBlank(conflictedFile) || isExcelFile(conflictedFile)) {
             return null;
@@ -144,7 +150,7 @@ public class ConflictedFileDiffController extends ExcelDiffController {
         return null;
     }
 
-    private boolean isExcelFile(String conflictedFile) {
+    private static boolean isExcelFile(String conflictedFile) {
         return conflictedFile.endsWith(".xls") || conflictedFile.endsWith(".xlsx");
     }
 }

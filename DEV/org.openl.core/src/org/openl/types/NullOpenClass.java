@@ -9,13 +9,12 @@ package org.openl.types;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.openl.domain.IDomain;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaInfo;
 import org.openl.types.java.JavaOpenClass;
-import org.openl.util.OpenIterator;
+import org.openl.util.AIndexedIterator;
 import org.openl.vm.IRuntimeEnv;
 
 /**
@@ -23,6 +22,8 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public final class NullOpenClass implements IOpenClass {
+
+    private final StaticOpenClass staticOpenClass = new StaticOpenClass(this);
 
     public static final NullOpenClass the = new NullOpenClass();
 
@@ -49,7 +50,7 @@ public final class NullOpenClass implements IOpenClass {
 
         @Override
         public Iterator<Object> getIterator(Object aggregate) {
-            return OpenIterator.fromArrayObj(aggregate);
+            return AIndexedIterator.fromArrayObj(aggregate);
         }
 
         @Override
@@ -161,11 +162,6 @@ public final class NullOpenClass implements IOpenClass {
         return null;
     }
 
-    @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        return true;
-    }
-
     /*
      * (non-Javadoc)
      *
@@ -211,12 +207,12 @@ public final class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
 
     @Override
-    public void addType(IOpenClass type) throws Exception {
+    public void addType(IOpenClass type) {
     }
 
     @Override
@@ -232,15 +228,14 @@ public final class NullOpenClass implements IOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
-        // Default implementation
-        return Collections.emptyMap();
+    public Collection<IOpenField> getFields() {
+        return Collections.emptyList();
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
+    public Collection<IOpenField> getDeclaredFields() {
         // Default implementation
-        return Collections.emptyMap();
+        return Collections.emptyList();
     }
 
     @Override
@@ -272,6 +267,31 @@ public final class NullOpenClass implements IOpenClass {
 
     @Override
     public boolean isInterface() {
+        return false;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name) {
+        return null;
+    }
+
+    @Override
+    public IOpenField getStaticField(String name, boolean strictMatch) {
+        return null;
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        return null;
+    }
+
+    @Override
+    public IOpenClass toStaticClass() {
+        return staticOpenClass;
+    }
+
+    @Override
+    public boolean isStatic() {
         return false;
     }
 }

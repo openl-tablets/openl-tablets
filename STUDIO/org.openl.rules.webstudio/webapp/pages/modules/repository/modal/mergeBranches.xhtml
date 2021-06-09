@@ -7,7 +7,7 @@
 
     <rich:popupPanel id="modalMergeBranches" autosized="true">
         <f:facet name="header">
-            <h:outputText value="Sync changes"/>
+            <h:outputText value="Sync updates"/>
         </f:facet>
 
         <f:facet name="controls">
@@ -17,43 +17,77 @@
 
         <h:form id="mergeBranchesForm">
             <h:panelGroup id="modalMergeBranchesData">
-                <h:inputHidden id="hiddenProjectName" value="#{branchesBean.currentProjectName}"/>
-
                 <p>
                     <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-                        <h:outputText value="Current branch:"/>
+                        <h:outputText value="Your branch:"/>
                         <h:outputText value="#{branchesBean.currentBranch}"/>
 
-                        <h:outputText value="Merge with:"/>
+                        <h:outputText value="Their branch:"/>
                         <h:selectOneMenu id="branchToMerge" value="#{branchesBean.branchToMerge}">
+                            <f:ajax event="change"
+                                    render="importButton exportButton cannotImportMessage cannotExportMessage cannotExportToLockedMessage"/>
                             <f:selectItems value="#{branchesBean.branchesToMerge}"/>
                         </h:selectOneMenu>
                     </h:panelGrid>
                 </p>
+
+                <ui:param name="theirBranchMerged" value="#{branchesBean.theirBranchMerged}"/>
+                <ui:param name="yourBranchMerged" value="#{branchesBean.yourBranchMerged}"/>
+                <ui:param name="mergedOrLocked" value="#{branchesBean.mergedOrLocked}"/>
+                <ui:param name="locked" value="#{branchesBean.locked}"/>
+                <ui:param name="projectLockedInAnotherBranch" value="#{branchesBean.projectLockedInAnotherBranch}"/>
+                <ui:param name="confirmExportMessage" value="There were updates in `#{branchesBean.branchToMerge}` after the last `Receive their updates` action. Are you sure it will not impact the project and everything will work?
+If not, please use `Receive their updates` button and test that everything works."/>
+
+                <h:panelGroup id="cannotImportMessage" layout="block">
+                    <h:outputText rendered="#{theirBranchMerged}"
+                                  value="You have all their updates. Nothing to receive from '#{branchesBean.branchToMerge}'."
+                                  styleClass="success"/>
+                </h:panelGroup>
+                <h:panelGroup id="cannotExportToLockedMessage" layout="block">
+                    <h:outputText rendered="#{projectLockedInAnotherBranch}"
+                                  value="The project is currently in editing in '#{branchesBean.branchToMerge}' branch and merge can't be done ."
+                                  styleClass="success"/>
+                </h:panelGroup>
+                <h:panelGroup id="cannotExportMessage" layout="block">
+                    <h:outputText rendered="#{yourBranchMerged}"
+                                  value="They have all your updates. Nothing to send to '#{branchesBean.branchToMerge}'."
+                                  styleClass="success"/>
+                </h:panelGroup>
+
+                <input id="newUrlAfterMerge" type="hidden" value="#{studio.url()}"/>
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton value="Import their changes"
-                                   title="Get the latest changes from the chosen branch to #{branchesBean.currentBranch}"
+
+                <a4j:commandButton id="importButton"
+                                   value="Receive their updates"
+                                   title="Receive the latest updates from '#{branchesBean.branchToMerge}' to '#{branchesBean.currentBranch}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeImport}" styleClass="button-primary"
+                                   disabled="#{theirBranchMerged}"
                                    oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
-                <a4j:commandButton value="Export your changes"
-                                   title="Apply changes from #{branchesBean.currentBranch} to chosen branch"
+                <a4j:commandButton id="exportButton"
+                                   value="Send your updates"
+                                   title="Send updates from '#{branchesBean.currentBranch}' to '#{branchesBean.branchToMerge}'"
                                    render="projectTree nodeView @form"
                                    data="#{studio.mergeConflict}"
                                    action="#{branchesBean.mergeExport}" styleClass="button-primary"
-                                   oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed});"/>
+                                   disabled="#{mergedOrLocked}"
+                                   onclick="if (!#{theirBranchMerged}) return confirm('#{confirmExportMessage}'); else return true;"
+                                   oncomplete="onMergeComplete(event.data, #{!facesContext.validationFailed and !locked});"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalMergeBranches').hide();"/>
             </footer>
 
-            <a4j:jsFunction name="renderMergeBranchesForm" render="mergeBranchesForm"
-                            oncomplete="showMergeBranchesDialog()">
+            <a4j:jsFunction name="renderMergeBranchesForm" render="@form" oncomplete="showMergeBranchesDialog()">
+                <a4j:param name="repositoryId" assignTo="#{branchesBean.currentRepositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{branchesBean.initProject}"/>
+                <a4j:param name="editorMode" assignTo="#{branchesBean.editorMode}"/>
             </a4j:jsFunction>
 
-            <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView">
+            <a4j:jsFunction name="refreshRepositoryAfterMerge" render="projectTree nodeView"
+                            rendered="#{menu != 'rules'}">
                 <a4j:param name="wasMerged" assignTo="#{branchesBean.wasMerged}"/>
             </a4j:jsFunction>
         </h:form>
@@ -63,19 +97,29 @@
     <script>
         //<![CDATA[
 
-        function openMergeBranchesDialog(projectName) {
-            renderMergeBranchesForm(projectName);
+        function openMergeBranchesDialog(repositoryId, projectName) {
+            renderMergeBranchesForm(repositoryId, projectName, #{menu == 'rules'});
         }
 
         function showMergeBranchesDialog() {
             RichFaces.$("modalMergeBranches").show();
         }
 
+        function showMessageAfterMerge(wasMerged) {
+            if (wasMerged) {
+                let newUrl = $j("#newUrlAfterMerge").val();
+                ws.nav.go(newUrl, true);
+                ws.ui.success('Branches were merged successfully.');
+            }
+        }
+
         function onMergeComplete(mergeConflict, successful) {
             if (mergeConflict) {
                 RichFaces.$('modalMergeBranches').hide();
-                openResolveConflictDialog(refreshRepositoryAfterMerge);
+                let afterResolveFunction = #{menu == 'rules' ? 'showMessageAfterMerge' : 'refreshRepositoryAfterMerge'};
+                openResolveConflictDialog(afterResolveFunction);
             } else if (successful) {
+                #{menu == 'rules' ? 'showMessageAfterMerge(successful);' : ''}
                 RichFaces.$('modalMergeBranches').hide();
             }
         }

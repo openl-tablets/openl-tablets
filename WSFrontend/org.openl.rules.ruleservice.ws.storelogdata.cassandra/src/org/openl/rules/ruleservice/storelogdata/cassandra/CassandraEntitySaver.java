@@ -1,16 +1,17 @@
 package org.openl.rules.ruleservice.storelogdata.cassandra;
 
 import java.util.Objects;
+import java.util.concurrent.CompletionStage;
 
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class CassandraEntitySaver {
-    private final Logger log = LoggerFactory.getLogger(CassandraEntitySaver.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraEntitySaver.class);
 
-    private Object dao;
-    private EntityOperations<Object, Object> entityOperations;
+    private final Object dao;
+    private final EntityOperations<Object, Object> entityOperations;
 
     public CassandraEntitySaver(EntityOperations<Object, Object> entityOperations, Object dao) {
         super();
@@ -18,11 +19,10 @@ public class CassandraEntitySaver {
         this.entityOperations = Objects.requireNonNull(entityOperations, "entityOperations cannot be null");
     }
 
-    public void insert(Object entity) {
-        entityOperations.insert(dao, entity).exceptionally(e -> {
-            log.error("Failed to save cassandra entity.", e);
+    public CompletionStage<Void> insert(Object entity) {
+        return entityOperations.insert(dao, entity).exceptionally(e -> {
+            LOG.error("Failed to save cassandra entity.", e);
             return null;
         });
     }
-
 }

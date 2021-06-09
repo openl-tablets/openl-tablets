@@ -6,10 +6,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.ViewScoped;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.common.ProjectDescriptor;
@@ -23,46 +21,55 @@ import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.admin.RepositoryConfiguration;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.deploy.DeployID;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
 
 /**
  * Deployment controller.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class DeploymentController {
-    private final Logger log = LoggerFactory.getLogger(DeploymentController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DeploymentController.class);
     private List<DeploymentDescriptorItem> items;
+    private String repositoryId;
     private String projectName;
+    private String projectBranch;
     private String version;
     private String cachedForProject;
     private String repositoryConfigName;
     private boolean canDeploy;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeController}")
+    @Autowired
     private ProductionRepositoriesTreeController productionRepositoriesTreeController;
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
+    @Autowired
     private RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{deploymentManager}")
+    @Autowired
     private DeploymentManager deploymentManager;
 
-    @ManagedProperty("#{projectDescriptorArtefactResolver}")
+    @Autowired
     private volatile ProjectDescriptorArtefactResolver projectDescriptorResolver;
 
-    @ManagedProperty("#{environment}")
+    @Autowired
     private PropertyResolver propertyResolver;
 
-    @ManagedProperty(value = "#{deployConfigRepositoryComments}")
+    @Autowired
+    @Qualifier("deployConfigRepositoryComments")
     private Comments deployConfigRepoComments;
 
     public void onPageLoad() {
@@ -76,7 +83,9 @@ public class DeploymentController {
         } else {
             DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
             ADeploymentProject project = getSelectedProject();
-            checker.addProjects(project);
+            synchronized (project) {
+                checker.addProjects(project);
+            }
             canDeploy = checker.check();
         }
     }
@@ -85,35 +94,35 @@ public class DeploymentController {
         this.propertyResolver = propertyResolver;
     }
 
-    public synchronized String addItem() {
-        ADeploymentProject project = getSelectedProject();
-
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(projectName, new CommonVersionImpl(version));
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
-
-        try {
-            project.setProjectDescriptors(newDescriptors);
-        } catch (ProjectException e) {
-            log.error("Failed to add project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
-        }
-
-        return null;
-    }
-
-    public synchronized String addItem(String version) {
+    public String addItem(String version) {
         this.version = version;
         ADeploymentProject project = getSelectedProject();
-
-        ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(projectName, new CommonVersionImpl(version));
-        List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, newItem);
+        if (project == null) {
+            return null;
+        }
 
         try {
-            project.setProjectDescriptors(newDescriptors);
-        } catch (ProjectException e) {
-            log.error("Failed to add project descriptor.", e);
-            WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
-        }
+            UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+            AProject projectToAdd = workspace.getDesignTimeRepository().getProject(repositoryId, projectName);
+            String businessName = projectToAdd.getBusinessName();
+            String path = projectToAdd.getRealPath();
+
+                ProjectDescriptorImpl newItem = new ProjectDescriptorImpl(
+                        repositoryId,
+                        businessName,
+                        path,
+                        projectBranch,
+                        new CommonVersionImpl(version)
+                );
+                List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, businessName, newItem);
+                synchronized (project) {
+                    items = null;
+                    project.setProjectDescriptors(newDescriptors);
+                }
+            } catch (ProjectException e) {
+                LOG.error("Failed to add project descriptor.", e);
+                WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
+            }
 
         return null;
     }
@@ -125,7 +134,9 @@ public class DeploymentController {
 
         DependencyChecker checker = new DependencyChecker(projectDescriptorResolver);
         ADeploymentProject project = getSelectedProject();
-        checker.addProjects(project);
+        synchronized (project) {
+            checker.addProjects(project);
+        }
         checker.check(items);
     }
 
@@ -140,13 +151,14 @@ public class DeploymentController {
                 WebStudioUtils.addErrorMessage("Deployment configuration isn't selected");
                 return null;
             }
-
-            String comment = deployConfigRepoComments.saveProject(selectedProject.getName());
-            selectedProject.getFileData().setComment(comment);
-            selectedProject.save();
+            synchronized (selectedProject) {
+                String comment = deployConfigRepoComments.saveProject(selectedProject.getName());
+                selectedProject.getFileData().setComment(comment);
+                selectedProject.save();
+            }
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to save changes", e);
+            LOG.error("Failed to save changes", e);
             WebStudioUtils.addErrorMessage("Failed to save changes", e.getMessage());
         }
 
@@ -158,7 +170,7 @@ public class DeploymentController {
             getSelectedProject().open();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to open", e);
+            LOG.error("Failed to open", e);
             WebStudioUtils.addErrorMessage("Failed to open", e.getMessage());
         }
 
@@ -170,7 +182,7 @@ public class DeploymentController {
             getSelectedProject().close();
             items = null;
         } catch (ProjectException e) {
-            log.error("Failed to close.", e);
+            LOG.error("Failed to close.", e);
             WebStudioUtils.addErrorMessage("failed to close deployment project", e.getMessage());
         }
 
@@ -182,9 +194,13 @@ public class DeploymentController {
         ADeploymentProject project = getSelectedProject();
 
         try {
-            project.setProjectDescriptors(replaceDescriptor(project, projectName, null));
+            List<ProjectDescriptor> newDescriptors = replaceDescriptor(project, projectName, null);
+            synchronized (project) {
+                items = null;
+                project.setProjectDescriptors(newDescriptors);
+            }
         } catch (ProjectException e) {
-            log.error("Failed to delete project descriptor.", e);
+            LOG.error("Failed to delete project descriptor.", e);
             WebStudioUtils.addErrorMessage("failed to add project descriptor", e.getMessage());
         }
         return null;
@@ -193,6 +209,15 @@ public class DeploymentController {
     public String deploy() {
         ADeploymentProject project = getSelectedProject();
         if (project != null) {
+            if (project.getProjectDescriptors().isEmpty()){
+                WebStudioUtils.addErrorMessage(
+                    String.format(
+                            "Configuration '%s' should contain at least one project to be deployed",
+                            project.getName()
+                    )
+                );
+                return null;
+            }
             RepositoryConfiguration repo = new RepositoryConfiguration(repositoryConfigName, propertyResolver);
 
             try {
@@ -208,14 +233,14 @@ public class DeploymentController {
             } catch (Exception e) {
                 String msg = String
                     .format("Failed to deploy '%s' to repository '%s'", project.getName(), repo.getName());
-                log.error(msg, e);
+                LOG.error(msg, e);
                 WebStudioUtils.addErrorMessage(msg, e.getMessage());
             }
         }
         return null;
     }
 
-    public synchronized List<DeploymentDescriptorItem> getItems() {
+    public List<DeploymentDescriptorItem> getItems() {
         ADeploymentProject project = getSelectedProject();
         if (project == null) {
             return null;
@@ -227,13 +252,19 @@ public class DeploymentController {
         }
 
         cachedForProject = projectNameWithVersion;
-        Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
-        items = new ArrayList<>();
+        synchronized (project) {
+            Collection<ProjectDescriptor> descriptors = project.getProjectDescriptors();
+            items = new ArrayList<>();
 
-        for (ProjectDescriptor descriptor : descriptors) {
-            DeploymentDescriptorItem item = new DeploymentDescriptorItem(descriptor.getProjectName(),
-                descriptor.getProjectVersion());
-            items.add(item);
+            for (ProjectDescriptor descriptor : descriptors) {
+                DeploymentDescriptorItem item = new DeploymentDescriptorItem(
+                        descriptor.getRepositoryId(),
+                        descriptor.getProjectName(),
+                        descriptor.getPath(),
+                        descriptor.getProjectVersion()
+                );
+                items.add(item);
+            }
         }
 
         checkConflicts(items);
@@ -246,10 +277,16 @@ public class DeploymentController {
     }
 
     public SelectItem[] getProjects() {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+        if (repositoryId == null) {
+            return new SelectItem[0];
+        }
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         // Because of JSF this method can be invoked up to 24 times during 1 HTTP request.
         // That's why we must not refresh projects list every time, instead get cached projects only.
-        Collection<RulesProject> workspaceProjects = workspace.getProjects(false);
+        Collection<RulesProject> workspaceProjects = workspace.getProjects(false)
+            .stream()
+            .filter(p -> repositoryId.equals(p.getRepository().getId()))
+            .collect(Collectors.toCollection(ArrayList::new));
         List<SelectItem> selectItems = new ArrayList<>();
 
         List<DeploymentDescriptorItem> existingItems = getItems();
@@ -261,12 +298,12 @@ public class DeploymentController {
         }
 
         for (RulesProject project : workspaceProjects) {
-            if (!(existing.contains(project.getName()) || project.isLocalOnly() || project.isDeleted())) {
-                selectItems.add(new SelectItem(project.getName()));
+            if (!(existing.contains(project.getBusinessName()) || project.isLocalOnly() || project.isDeleted())) {
+                selectItems.add(new SelectItem(project.getName(), project.getBusinessName()));
             }
         }
 
-        return selectItems.toArray(new SelectItem[selectItems.size()]);
+        return selectItems.toArray(new SelectItem[0]);
     }
 
     /*
@@ -282,18 +319,25 @@ public class DeploymentController {
      * } } return new SelectItem[0]; }
      */
     public List<ProjectVersion> getProjectVersions() {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
 
         if (projectName != null) {
             try {
-                AProject project = workspace.getProject(projectName, false);
+                AProject project = workspace.getDesignTimeRepository().getProject(repositoryId, projectName);
+                Repository repository = project.getRepository();
+                if (repository.supports().branches()) {
+                    BranchRepository branchRepository = (BranchRepository) repository;
+                    if (projectBranch != null && !projectBranch.equals(branchRepository.getBranch())) {
+                        project = new AProject(branchRepository.forBranch(projectBranch), project.getFolderPath());
+                    }
+                }
                 // sort project versions in descending order (1.1 -> 0.0)
                 List<ProjectVersion> versions = new ArrayList<>(project.getVersions());
                 Collections.reverse(versions);
 
                 return versions;
-            } catch (ProjectException e) {
-                log.error("Failed to get project versions.", e);
+            } catch (Exception e) {
+                LOG.error("Failed to get project versions.", e);
             }
         }
 
@@ -313,23 +357,24 @@ public class DeploymentController {
     }
 
     public String openSelectedProjects() {
-        UserWorkspace workspace = RepositoryUtils.getWorkspace();
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
         for (DeploymentDescriptorItem item : items) {
             if (item.isSelected()) {
                 String projectName = item.getName();
                 try {
-                    RulesProject project = workspace.getProject(projectName, false);
+                    RulesProject project = workspace.getProject(item.getRepositoryId(), projectName, false);
                     if (!project.isModified()) {
                         project.openVersion(item.getVersion().getVersionName());
                     }
                     repositoryTreeState.refreshNode(
-                        repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(projectName)));
+                        repositoryTreeState.getRulesRepository().getChild(RepositoryUtils.getTreeNodeId(project)));
                 } catch (Exception e) {
-                    log.error("Failed to open project '{}'.", projectName, e);
+                    LOG.error("Failed to open project '{}'.", projectName, e);
                     WebStudioUtils.addErrorMessage("Failed to open project '" + projectName + "': " + e.getMessage());
                 }
             }
             item.setSelected(false);
+            WebStudioUtils.getWebStudio().reset();
         }
         return null;
     }
@@ -352,7 +397,6 @@ public class DeploymentController {
         if (newItem != null) {
             newDescriptors.add(newItem);
         }
-        items = null;
         return newDescriptors;
     }
 
@@ -366,6 +410,16 @@ public class DeploymentController {
 
     public void setProjectName(String projectName) {
         this.projectName = projectName;
+
+        initBranch();
+    }
+
+    private void initBranch() {
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        Repository repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+        if (repository.supports().branches()) {
+            projectBranch = ((BranchRepository) repository).getBranch();
+        }
     }
 
     public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
@@ -388,6 +442,21 @@ public class DeploymentController {
         this.repositoryConfigName = repositoryConfigName;
     }
 
+    public String getRepositoryId() {
+        return repositoryId;
+    }
+
+    public void setRepositoryId(String repositoryId) {
+        this.repositoryId = repositoryId;
+        SelectItem[] projects = getProjects();
+        if (projects.length > 0) {
+            this.projectName = (String) projects[0].getValue();
+        } else {
+            this.projectName = null;
+        }
+        initBranch();
+    }
+
     public Collection<RepositoryConfiguration> getRepositories() {
         List<RepositoryConfiguration> repos = new ArrayList<>();
         Collection<String> repositoryConfigNames = deploymentManager.getRepositoryConfigNames();
@@ -398,6 +467,12 @@ public class DeploymentController {
 
         repos.sort(RepositoryConfiguration.COMPARATOR);
         return repos;
+    }
+
+    public void initAddDeployItemDialog() {
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        List<Repository> repositories = workspace.getDesignTimeRepository().getRepositories();
+        setRepositoryId(repositories.isEmpty() ? null : repositories.get(0).getId());
     }
 
     public ProductionRepositoriesTreeController getProductionRepositoriesTreeController() {
@@ -411,5 +486,45 @@ public class DeploymentController {
 
     public void setDeployConfigRepoComments(Comments deployConfigRepoComments) {
         this.deployConfigRepoComments = deployConfigRepoComments;
+    }
+
+    public boolean isRepoSupportsBranches() {
+        if (repositoryId == null) {
+            return false;
+        }
+        UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+        Repository repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+        return repository != null && repository.supports().branches();
+    }
+
+    public String getProjectBranch() {
+        return projectBranch;
+    }
+
+    public void setProjectBranch(String projectBranch) {
+        this.projectBranch = projectBranch;
+    }
+
+    public List<String> getProjectBranches() {
+        try {
+            UserWorkspace workspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
+
+            Repository repository = workspace.getDesignTimeRepository().getRepository(repositoryId);
+            if (!repository.supports().branches()) {
+                return Collections.emptyList();
+            }
+
+            String rulesPath = workspace.getDesignTimeRepository().getRulesLocation();
+            List<String> branches = new ArrayList<>(((BranchRepository) repository).getBranches(rulesPath + projectName));
+            if (projectBranch != null && !branches.contains(projectBranch)) {
+                branches.add(projectBranch);
+                branches.sort(String.CASE_INSENSITIVE_ORDER);
+            }
+
+            return branches;
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            return Collections.emptyList();
+        }
     }
 }

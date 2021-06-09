@@ -1,0 +1,197 @@
+{
+    "components": {
+        "schemas": {
+            "GetNewForUsedRate1Request": {
+                "properties": {
+                    "a": {
+                        "type": "string"
+                    },
+                    "param": {
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            },
+            "JAXRSErrorResponse": {
+                "properties": {
+                    "details": {
+                        "items": {
+                            "type": "string"
+                        },
+                        "type": "array"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "type": {
+                        "enum": [
+                            "USER_ERROR",
+                            "RULES_RUNTIME",
+                            "COMPILATION",
+                            "SYSTEM",
+                            "BAD_REQUEST",
+                            "VALIDATION"
+                        ],
+                        "type": "string"
+                    }
+                },
+                "type": "object"
+            }
+        }
+    },
+    "info": {
+        "title": "TwoMethods_TwoMethods",
+        "version": "1.0.0"
+    },
+    "openapi": "3.0.1",
+    "paths": {
+        "/getNewForUsedRate": {
+            "post": {
+                "description": "Rules method: double getNewForUsedRate(java.lang.String b)",
+                "operationId": "getNewForUsedRate",
+                "requestBody": {
+                    "content": {
+                        "text/plain": {
+                            "schema": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "double getNewForUsedRate(String)"
+            }
+        },
+        "/getNewForUsedRate1": {
+            "post": {
+                "description": "Rules method: double getNewForUsedRate1(java.lang.String param, java.lang.String a)",
+                "operationId": "getNewForUsedRate1",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/GetNewForUsedRate1Request"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        },
+                        "description": "Successful operation"
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "#/components/schemas/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "double getNewForUsedRate1(String, String)"
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "/webservice/REST/TwoMethods/TwoMethods",
+            "variables": {}
+        }
+    ]
+}

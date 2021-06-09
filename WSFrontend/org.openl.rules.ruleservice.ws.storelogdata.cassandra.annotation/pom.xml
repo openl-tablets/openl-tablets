@@ -4,11 +4,11 @@
 	<parent>
 		<groupId>org.openl.rules</groupId>
 		<artifactId>org.openl.rules.ruleservice-pom</artifactId>
-		<version>5.23.1-SNAPSHOT</version>
+		<version>5.24.3-SNAPSHOT</version>
 	</parent>
 	<artifactId>org.openl.rules.ruleservice.ws.storelogdata.cassandra.annotation</artifactId>
 	<packaging>jar</packaging>
-	<name>OpenL - RuleService - Web Services - Store Log Data Cassandra Annotation</name>
+	<name>OpenL - RuleService - Rule Services - Store Log Data Cassandra Annotation</name>
 	<description>OpenL Rules Webservice Store Log Data Cassandra</description>
 	<url>https://openl-tablets.org</url>
 	<dependencies>

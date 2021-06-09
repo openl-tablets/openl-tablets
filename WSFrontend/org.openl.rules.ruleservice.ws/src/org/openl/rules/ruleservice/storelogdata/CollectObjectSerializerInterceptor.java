@@ -1,6 +1,5 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
 import org.apache.cxf.message.Message;
 import org.apache.cxf.phase.AbstractPhaseInterceptor;
@@ -14,7 +13,7 @@ import org.apache.cxf.phase.Phase;
  */
 public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor<Message> {
 
-    private ObjectSerializer objectSerializer;
+    private final ObjectSerializer objectSerializer;
 
     public CollectObjectSerializerInterceptor(String phase, ObjectSerializer objectSerializer) {
         super(phase);
@@ -27,7 +26,7 @@ public class CollectObjectSerializerInterceptor extends AbstractPhaseInterceptor
     }
 
     @Override
-    public void handleMessage(Message message) throws Fault {
+    public void handleMessage(Message message) {
         injectObjectSerializer(message);
     }
 

@@ -6,7 +6,7 @@
         xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
-    <rich:popupPanel id="modalCopyProject" width="550" autosized="true">
+    <rich:popupPanel id="modalCopyProject" minWidth="550" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy project"/>
         </f:facet>
@@ -20,7 +20,7 @@
             <h:panelGroup id="modalCopyProjectData">
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel value="Project Name:"/>
-                    <h:outputText id="currentProjectName" value="#{copyBean.currentProjectName}" />
+                    <h:outputText id="currentProjectName" value="#{copyBean.businessName}" />
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{copyBean.supportsBranches}">
@@ -28,11 +28,13 @@
                     <h:selectBooleanCheckbox id="separateProjectCheckbox" value="#{copyBean.separateProject}"
                                              onclick="updateSeparateProjectState()">
                     </h:selectBooleanCheckbox>
+                    <h:outputLabel for="currentBranchName" value="Current Branch:"/>
+                    <h:outputText id="currentBranchName" value="#{copyBean.currentBranchName}" />
                     <h:outputLabel for="newBranchName" styleClass="required" value="New Branch Name:"/>
                     <h:inputText id="newBranchName" value="#{copyBean.newBranchName}"
                                  validator="#{copyBean.newBranchNameValidator}"/>
                     <h:outputText value=""/>
-                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error"/>
+                    <h:message id="newBranchNameMessage" for="newBranchName" styleClass="error" style="white-space: pre-wrap;"/>
                 </h:panelGrid>
                 <h:panelGrid id="newProject" columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
                     <h:outputLabel for="newProjectName" styleClass="required" value="New Project Name:"/>
@@ -41,8 +43,22 @@
                     <h:outputText value=""/>
                     <h:message for="newProjectName" styleClass="error"/>
 
-                    <h:outputLabel for="projectFolder" value="Path in repository:" rendered="#{copyBean.supportsMappedFolders}"/>
-                    <h:inputText id="projectFolder" value="#{copyBean.projectFolder}" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
+                    <h:selectOneMenu id="repository" value="#{copyBean.toRepositoryId}">
+                        <f:ajax event="change" execute="@form" render="newProject" onevent="onRepositoryChange"/>
+                        <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                                       itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
+                    </h:selectOneMenu>
+
+                    <h:outputLabel id="projectFolderLabel" for="projectFolder" value="Path:" rendered="#{copyBean.supportsMappedFolders}"/>
+                    <h:panelGroup rendered="#{copyBean.supportsMappedFolders}" style="display: inline-block; white-space: nowrap;">
+                        <h:inputText id="projectFolder" value="#{copyBean.projectFolder}"
+                                     validator="#{copyBean.projectPathValidator}"
+                                     styleClass="with-button-select"/>
+                        <input type="button" value="..." class="button-select"
+                               onclick="openSelectFolderDialog('#{copyBean.toRepositoryId}', 'copyProjectForm:projectFolder')"/>
+                        <h:message for="projectFolder" styleClass="error" style="display: block; white-space: break-spaces;"/>
+                    </h:panelGroup>
 
                     <h:outputText value="Comment:"/>
                     <h:inputTextarea id="comment" value="#{copyBean.comment}" type="text" size="35" readonly="false"
@@ -52,7 +68,7 @@
 
                     <ui:param name="hasRevisions" value="#{copyBean.maxRevisionsCount > 0}"/>
 
-                    <h:outputText value="Copy old revisions:" rendered="#{hasRevisions}"/>
+                    <h:outputText id="copyOldRevisionsLabel" value="Copy old revisions:" rendered="#{hasRevisions}"/>
                     <h:selectBooleanCheckbox id="copyOldRevisions" value="#{copyBean.copyOldRevisions}"
                                              onclick="updateRevisionsCountState()"
                                              rendered="#{hasRevisions}">
@@ -67,18 +83,15 @@
                     <h:outputText value=""/>
                     <h:message for="revisionsCount" styleClass="error"/>
 
-                    <h:outputText value=""/>
+                    <h:outputText value="" rendered="#{hasRevisions}"/>
                     <h:outputText id="copyCanBeSlowWarning" value="Copying too many revisions can be slow"
-                                  styleClass="warning"/>
+                                  styleClass="warning" rendered="#{hasRevisions}"/>
                 </h:panelGrid>
                 <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,"
                              rendered="#{not empty copyBean.errorMessage}">
                     <h:outputText value=""/>
                     <h:outputText value="#{copyBean.errorMessage}" styleClass="error"/>
                 </h:panelGrid>
-
-                <h:inputHidden id="hiddenProjectName" value="#{copyBean.currentProjectName}"/>
-
             </h:panelGroup>
 
             <footer>
@@ -89,6 +102,7 @@
             </footer>
 
             <a4j:jsFunction name="renderCopyProjectForm" render="copyProjectForm" oncomplete="showCopyProjectDialog()">
+                <a4j:param name="repositoryId" assignTo="#{copyBean.repositoryId}"/>
                 <a4j:param name="projectName" assignTo="#{copyBean.initProject}"/>
             </a4j:jsFunction>
 
@@ -104,18 +118,23 @@
             location.reload();
         };
 
-        function openCopyProjectDialog(projectName, refreshPageFunc) {
-            renderCopyProjectForm(projectName);
+        function openCopyProjectDialog(repositoryId, projectName, refreshPageFunc) {
+            renderCopyProjectForm(repositoryId, projectName);
             if (refreshPageFunc) {
                 refreshPage = refreshPageFunc;
             }
         }
 
         function showCopyProjectDialog() {
-            $j('#copyProjectForm\\:hiddenProjectName').val($j('#copyProjectForm\\:currentProjectName').text());
             fixInputNumberSpinner('copyProjectForm:revisionsCount');
             updateStates();
             $j('#copyProjectForm\\:copy').prop('disabled', true);
+            addCopyListener();
+            RichFaces.$("modalCopyProject").show();
+            focusElement('copyProjectForm:newProjectName');
+        }
+        
+        function addCopyListener() {
             var copyListener = function () {
                 var shouldSeparateProject = true;
                 var branchName = '';
@@ -124,7 +143,6 @@
                     shouldSeparateProject = $separateProjectCheckbox.is(':checked');
                     branchName = $j('#copyProjectForm\\:newBranchName').val().trim();
                 }
-
                 var $projectName = $j('#copyProjectForm\\:newProjectName');
                 var projectName = $projectName.val().trim();
                 var disableCopy = !shouldSeparateProject && branchName.length === 0 || shouldSeparateProject && projectName.length === 0;
@@ -137,10 +155,12 @@
                     copyListener();
                 }, 0);
             });
-
             copyListener();
-            RichFaces.$("modalCopyProject").show();
-            focusElement('copyProjectForm:newProjectName');
+        }
+
+        function onRepositoryChange() {
+            updateRevisionsCountState();
+            addCopyListener();
         }
 
         function updateStates() {
@@ -158,6 +178,7 @@
                 $row.hide();
             }
             updateCopyCanBeSlowWarning();
+            resizePopupPanel('modalCopyProject');
         }
 
         function updateCopyCanBeSlowWarning() {
@@ -190,10 +211,12 @@
                 $newBranchNameMessage.show();
                 $newProject.hide();
             }
+            resizePopupPanel('modalCopyProject');
         }
 
         var confirmSwitchingToNewBranch = function (required) {
-            if (!required) {
+            var $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+            if (!required || $separateProjectCheckbox.is(':checked')) {
                 return true;
             }
             return confirm("#{msg['ws.project.warning.other.branch']}");

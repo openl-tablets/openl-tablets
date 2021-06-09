@@ -28,7 +28,7 @@ public final class TableSyntaxNodeHelper {
             }
             tokens = notEmptyTokens.toArray(new String[] {});
         }
-        if (tokens != null && tokens.length > 1) {
+        if (tokens.length > 1) {
             return tokens[1];
         }
         return null;

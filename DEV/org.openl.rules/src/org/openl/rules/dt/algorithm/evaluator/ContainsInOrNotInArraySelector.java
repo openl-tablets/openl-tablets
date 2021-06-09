@@ -8,12 +8,12 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ContainsInOrNotInArraySelector implements IIntSelector {
 
-    private ICondition condition;
-    private Object value;
-    private Object target;
-    private Object[] params;
-    private IRuntimeEnv env;
-    private BooleanTypeAdaptor adaptor;
+    private final ICondition condition;
+    private final Object value;
+    private final Object target;
+    private final Object[] params;
+    private final IRuntimeEnv env;
+    private final BooleanTypeAdaptor adaptor;
 
     ContainsInOrNotInArraySelector(ICondition condition,
             Object value,

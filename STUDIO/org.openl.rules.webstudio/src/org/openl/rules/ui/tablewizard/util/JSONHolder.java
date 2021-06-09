@@ -8,7 +8,7 @@ import org.richfaces.json.JSONException;
 import org.richfaces.json.JSONObject;
 
 public class JSONHolder {
-    private JSONObject table;
+    private final JSONObject table;
 
     public JSONHolder(String json) throws JSONException {
         this.table = new JSONObject(json);

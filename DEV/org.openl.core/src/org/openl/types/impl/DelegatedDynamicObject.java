@@ -13,7 +13,7 @@ import org.openl.types.IOpenClass;
  */
 public class DelegatedDynamicObject extends DynamicObject {
 
-    private IDynamicObject parent;
+    private final IDynamicObject parent;
 
     /**
      * Create an instance by its type and other instance to be wrapped. All the fields of other

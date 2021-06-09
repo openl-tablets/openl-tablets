@@ -33,13 +33,13 @@ public class FieldBoundNode extends ATargetBoundNode {
     FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field) {
         super(syntaxNode, null);
         this.dims = 0;
-        boundField = field;
+        this.boundField = field;
     }
 
     FieldBoundNode(ISyntaxNode syntaxNode, IOpenField field, IBoundNode target, int dims) {
         super(syntaxNode, target);
         this.dims = dims;
-        boundField = field;
+        this.boundField = field;
     }
 
     @Override

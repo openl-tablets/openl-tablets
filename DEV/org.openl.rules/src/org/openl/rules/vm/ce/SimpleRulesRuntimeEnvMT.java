@@ -7,7 +7,7 @@ import org.openl.types.IOpenClass;
 import org.openl.vm.IRuntimeEnv;
 
 public class SimpleRulesRuntimeEnvMT extends SimpleRulesRuntimeEnv {
-    private SimpleRulesRuntimeEnv delegate;
+    private final SimpleRulesRuntimeEnv delegate;
 
     public SimpleRulesRuntimeEnvMT(SimpleRulesRuntimeEnv delegate) {
         this.delegate = delegate;

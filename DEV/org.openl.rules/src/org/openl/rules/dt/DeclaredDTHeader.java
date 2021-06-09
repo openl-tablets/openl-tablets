@@ -4,9 +4,9 @@ import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
 class DeclaredDTHeader extends DTHeader {
-    private IParameterDeclaration[][] columnParameters;
-    private CompositeMethod compositeMethod;
-    private MatchedDefinition matchedDefinition;
+    private final IParameterDeclaration[][] columnParameters;
+    private final CompositeMethod compositeMethod;
+    private final MatchedDefinition matchedDefinition;
 
     DeclaredDTHeader(int[] methodParameterIndexes,
             CompositeMethod compositeMethod,
@@ -40,13 +40,18 @@ class DeclaredDTHeader extends DTHeader {
         return matchedDefinition.getDtColumnsDefinition().isAction();
     }
 
+    @Override
+    boolean isRule() {
+        return false;
+    }
+
     CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }
 
     @Override
     String getStatement() {
-        return matchedDefinition.getStatement();
+        return matchedDefinition.getStatementWithReplacedIdentifiers();
     }
 
     IParameterDeclaration[][] getColumnParameters() {

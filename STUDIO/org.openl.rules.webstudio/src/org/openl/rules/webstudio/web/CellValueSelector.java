@@ -1,23 +1,23 @@
 package org.openl.rules.webstudio.web;
 
 import java.lang.reflect.Array;
+import java.util.function.Predicate;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.IGridTable;
-import org.openl.util.ASelector;
 import org.openl.util.StringUtils;
 
-class CellValueSelector extends ASelector<TableSyntaxNode> {
+class CellValueSelector implements Predicate<TableSyntaxNode> {
 
     private final String value;
 
-    public CellValueSelector(String value) {
+    CellValueSelector(String value) {
         this.value = value;
     }
 
     @Override
-    public boolean select(TableSyntaxNode node) {
+    public boolean test(TableSyntaxNode node) {
         if (StringUtils.isBlank(value)) {
             return true;
         }
@@ -34,7 +34,7 @@ class CellValueSelector extends ASelector<TableSyntaxNode> {
         return false;
     }
 
-    public boolean selectValue(Object cellValue) {
+    private boolean selectValue(Object cellValue) {
         if (cellValue == null) {
             return false;
         }

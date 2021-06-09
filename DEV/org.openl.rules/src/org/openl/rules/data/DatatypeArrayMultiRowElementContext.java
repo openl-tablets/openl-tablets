@@ -7,18 +7,14 @@ import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 
 public class DatatypeArrayMultiRowElementContext {
-    private Map<String, Map<Integer, Pair<Integer, Object>>> arrayIndexes = new HashMap<>();
+    private final Map<String, Map<Integer, Pair<Integer, Object>>> arrayIndexes = new HashMap<>();
 
     private int row;
 
     private boolean rowValueIsTheSameAsPrevious;
 
     public int getIndex(String array, Object target) {
-        Map<Integer, Pair<Integer, Object>> a = arrayIndexes.get(array);
-        if (a == null) {
-            a = new HashMap<>();
-            arrayIndexes.put(array, a);
-        }
+        Map<Integer, Pair<Integer, Object>> a = arrayIndexes.computeIfAbsent(array, k -> new HashMap<>());
         Pair<Integer, Object> index = a.get(getRow());
         if (index != null) {
             return index.getLeft();

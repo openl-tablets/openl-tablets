@@ -6,7 +6,7 @@ public class ArrayCellEditor implements ICellEditor {
 
     public static final String DEFAULT_SEPARATOR = ",";
 
-    private ArrayEditorParams params = new ArrayEditorParams();
+    private final ArrayEditorParams params = new ArrayEditorParams();
 
     public ArrayCellEditor(String separator, String entryEditor, boolean intOnly) {
         this.params.setSeparator(separator);

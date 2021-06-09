@@ -10,7 +10,7 @@ import org.openl.util.StringUtils;
 public class DoubleRangeParser {
     private static final DoubleRangeParser INSTANCE = new DoubleRangeParser();
 
-    private static final String DOUBLE_PATTERN = "\\$?(-?(?:\\d{1,30},){0,30}\\d{1,30}\\.?\\d*)([KMB]?)";
+    private static final String DOUBLE_PATTERN = "\\$?(-?(?:(?:\\d{1,30},?){0,30})?\\.?\\d{1,30})([KMB]?)";
 
     protected static final RangeParser[] PARSERS = { new SimpleRangeParser(),
             new RangeWithBracketsParser(),

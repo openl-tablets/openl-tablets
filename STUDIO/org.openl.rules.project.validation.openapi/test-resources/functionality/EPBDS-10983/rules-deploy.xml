@@ -1,0 +1,7 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <publishers>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+  <serviceClass>org.openl.rules.project.validation.openapi.test.EPBDS10983Service</serviceClass>
+</rules-deploy>

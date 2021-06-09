@@ -10,6 +10,8 @@ import java.util.Set;
 
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.EnumerablePropertySource;
 import org.springframework.core.env.PropertyResolver;
 import org.springframework.core.env.PropertySource;
@@ -71,11 +73,14 @@ import org.springframework.core.io.support.ResourcePropertySource;
  * </ol>
  *
  * @see <a href=
- *      "https://docs.spring.io/spring-boot/docs/current/reference/html/spring-boot-features.html#boot-features-external-config">Spring
+ *      "https://docs.spring.io/spring-boot/docs/current/reference
+ *          /html/spring-boot-features.html#boot-features-external-config">Spring
  *      Boot. Externalized Configuration.</a>
  * @author Yury Molchan
  */
 public class ApplicationPropertySource extends EnumerablePropertySource<Deque<PropertySource<?>>> {
+    private static final Logger LOG = LoggerFactory.getLogger(ApplicationPropertySource.class);
+
     public static final String PROPS_NAME = "OpenL application properties";
     private static final String APP_NAME_TAG = "{appName}";
     private static final String PROFILE_TAG = "{profile}";
@@ -97,6 +102,7 @@ public class ApplicationPropertySource extends EnumerablePropertySource<Deque<Pr
         try {
             return resource.getURL();
         } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             return resource;
         }
     }

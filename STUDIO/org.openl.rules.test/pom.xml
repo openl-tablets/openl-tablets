@@ -4,12 +4,12 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.studio-pom</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
-    <artifactId>test</artifactId>
+    <artifactId>org.openl.rules.test</artifactId>
     <packaging>jar</packaging>
     <name>OpenL - TEST</name>
-    <description>OpenL functionality tests</description>
+    <description>OpenL Functionality Tests</description>
     <url>https://openl-tablets.org</url>
     <properties>
         <maven.deploy.skip>true</maven.deploy.skip>
@@ -20,6 +20,18 @@
         <dependency>
             <groupId>org.openl.rules</groupId>
             <artifactId>org.openl.rules.project</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.jackson</artifactId>
+        </dependency>
+        <!-- Required for Java11 -->
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+            <scope>test</scope>
+            <!-- Annotation classes are used in generated from Datatype Table classes.
+            To compile them without adding extra dependency in client's project "compile" scope is used -->
         </dependency>
     </dependencies>
 </project>

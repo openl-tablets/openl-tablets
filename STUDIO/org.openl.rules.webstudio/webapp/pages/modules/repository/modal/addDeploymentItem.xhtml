@@ -1,12 +1,12 @@
 <ui:composition
-  xmlns:f="http://java.sun.com/jsf/core"
-  xmlns:h="http://java.sun.com/jsf/html"
-  xmlns:a4j="http://richfaces.org/a4j"
-  xmlns:rich="http://richfaces.org/rich"
-  xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
 >
 
-  <rich:popupPanel id="addDeployEntry" autosized="true">
+  <rich:popupPanel id="addDeployEntry" minWidth="580" autosized="true">
     <f:facet name="header">
         <h:outputText value="Add project" />
     </f:facet>
@@ -16,22 +16,42 @@
     <h:form id="addDeployEntryForm">
         <ui:param name="availableProjects" value="#{deploymentController.projects}"/>
 
-        <h:panelGrid columns="2" rendered="#{not empty availableProjects}">
-            <h:outputLabel for="projectName" styleClass="required" value="Name" />
-            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" style="width:250px;">
-                <f:selectItems value="#{availableProjects}" />
-                <f:ajax event="change" render="projectVersion" execute="@this" />
+        <h:panelGrid columns="2">
+            <h:outputLabel for="repository" value="Repository:" styleClass="required"/>
+            <h:selectOneMenu id="repository" value="#{deploymentController.repositoryId}">
+                <f:ajax event="change" execute="@this" render="@form" onevent="onProjectNameChange"/>
+                <f:selectItems value="#{designTimeRepository.repositories}" var="repository"
+                               itemValue="#{repository.id}" itemLabel="#{repository.name}"/>
             </h:selectOneMenu>
+
+            <h:outputLabel for="projectName" styleClass="required" value="Name:" rendered="#{not empty availableProjects}"/>
+            <h:selectOneMenu id="projectName" value="#{deploymentController.projectName}" rendered="#{not empty availableProjects}">
+                <f:selectItems value="#{availableProjects}" />
+                <f:ajax event="change" render="branchSelector projectVersion" execute="@this" onevent="onProjectNameChange"/>
+            </h:selectOneMenu>
+
+            <h:outputLabel for="branchSelector" value="Branch:" styleClass="required" rendered="#{deploymentController.repoSupportsBranches}"/>
+            <h:selectOneMenu value="#{deploymentController.projectBranch}" id="branchSelector" rendered="#{deploymentController.repoSupportsBranches}">
+                <f:selectItems value="#{deploymentController.projectBranches}"/>
+                <f:ajax event="change" execute="@this" render="projectVersion" onevent="onProjectNameChange"/>
+            </h:selectOneMenu>
+
         </h:panelGrid>
 
-        <div style="margin-top: 13px; max-height: 270px; overflow: auto;">
+        <div style="margin-top: 13px; max-height: 280px; overflow: auto;">
             <h:panelGrid styleClass="formfields" rendered="#{not empty availableProjects}" >
                 <rich:dataTable id="projectVersion" value="#{deploymentController.projectVersions}" var="version" styleClass="table"
             	    columnClasses="padding" style="width: 100%">
             	    <f:facet name="header">
             	      <rich:columnGroup>
-            	        <rich:column>
-            	          <h:outputText value="Revision" />
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Revision ID" />
+            	        </rich:column>
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Modified By"/>
+            	        </rich:column>
+            	        <rich:column style="min-width: 70px">
+            	          <h:outputText value="Modified At"/>
             	        </rich:column>
             	        <rich:column>
             	          <h:outputText value="Comment" />
@@ -42,7 +62,24 @@
             	      </rich:columnGroup>
             	    </f:facet>
                   <rich:column style="text-align: center;">
-                    <h:outputText value="#{version.versionName}" />
+                      <ui:param name="revisionNo" value="#{version.versionName}" />
+                      <ui:param name="shortRevisionNo" value="#{version.shortVersion}" />
+
+                      <h:panelGroup rendered="#{revisionNo eq shortRevisionNo}">
+                          <h:outputText value="#{revisionNo}"/>
+                      </h:panelGroup>
+                      <h:panelGroup rendered="#{not (revisionNo eq shortRevisionNo)}">
+                          <h:outputText value="#{shortRevisionNo}" styleClass="expandable" />
+                          <h:outputText value="#{revisionNo}" styleClass="hidden"/>
+                      </h:panelGroup>
+                  </rich:column>
+                  <rich:column>
+                    <h:outputText value="#{version.versionInfo.createdBy}" />
+                  </rich:column>
+                  <rich:column>
+                    <h:outputText value="#{version.versionInfo.createdAt}">
+                        <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}" />
+                    </h:outputText>
                   </rich:column>
                   <rich:column>
                     <h:outputText value="#{version.versionComment}" />
@@ -71,13 +108,15 @@
             <input type="button" value="OK" onclick="#{rich:component('addDeployEntry')}.hide();" />
         </h:panelGroup>
 
-            <a4j:jsFunction name="initAddDeployEntry" oncomplete="afterFormInitialized()" />
+            <a4j:jsFunction name="initAddDeployEntry" action="#{deploymentController.initAddDeployItemDialog}"
+                            render="@form" oncomplete="afterFormInitialized()"/>
         </footer>
    </h:form>
 
   </rich:popupPanel>
 
   <script>
+      //<![CDATA[
       function showAddDeployEntry() {
           initAddDeployEntry();
       }
@@ -88,6 +127,13 @@
               projectSelector.onchange();
           }
           RichFaces.$('addDeployEntry').show();
+          focusElement('addDeployEntryForm:projectName');
       }
+
+      function onProjectNameChange(data) {
+          resizePopupPanel('addDeployEntry');
+          if (data.status === 'success') initExpandableLinks();
+      }
+      //]]>
   </script>
 </ui:composition>

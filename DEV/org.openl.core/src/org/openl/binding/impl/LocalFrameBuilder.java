@@ -22,10 +22,10 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class LocalFrameBuilder {
     static class LocalVar implements ILocalVar {
-        String namespace;
-        String name;
-        int indexInLocalFrame;
-        IOpenClass type;
+        final String namespace;
+        final String name;
+        final int indexInLocalFrame;
+        final IOpenClass type;
 
         LocalVar(String namespace, String name, int indexInLocalFrame, IOpenClass type) {
             this.namespace = namespace;
@@ -168,7 +168,7 @@ public class LocalFrameBuilder {
     static public class LocalVarFrameElement extends ArrayList<ILocalVar> {
     }
 
-    LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
+    final LinkedList<LocalVarFrameElement> localFrames = new LinkedList<>();
 
     int localVarFrameSize = 0;
 

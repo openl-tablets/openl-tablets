@@ -5,12 +5,13 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 
-import org.apache.commons.lang3.ObjectUtils;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.engine.OpenLManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.binding.RulesModuleBindingContext;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.IGridTable;
@@ -65,7 +66,11 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         try {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(true);
             IOpenSourceCodeModule headerSource = createHeaderSource(tableSyntaxNode, bindingContext);
-            return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+            try {
+                return (OpenMethodHeader) OpenLManager.makeMethodHeader(openl, headerSource, bindingContext);
+            } catch (OpenLCompilationException e) {
+                throw new SyntaxNodeException(e.getMessage(), e.getOriginalCause(), tableSyntaxNode);
+            }
         } finally {
             bindingContext.setIgnoreCustomSpreadsheetResultCompilation(false);
         }
@@ -82,7 +87,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
 
         String key = makeKey(tableSyntaxNode, header);
 
-        if (!bindingContext.isTableSyntaxNodeExist(key)) {
+        if (!bindingContext.isTableSyntaxNodePresented(key)) {
             bindingContext.registerTableSyntaxNode(key, tableSyntaxNode);
         } else {
             throw new DuplicatedTableException(tableSyntaxNode.getDisplayName(), tableSyntaxNode);
@@ -119,12 +124,12 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
             values.add(tableProperties.getPropertyValue(property));
         }
 
-        builder.append("[").append(join(values, ", ")).append(tableProperties.getVersion()).append("]");
+        builder.append("[").append(join(values)).append(tableProperties.getVersion()).append("]");
 
         return builder.toString();
     }
 
-    static String join(Collection<?> collection, String separator) {
+    static String join(Collection<?> collection) {
 
         // handle null, zero and one elements before building a buffer
         if (collection == null) {
@@ -137,7 +142,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
         Object first = iterator.next();
         if (!iterator.hasNext()) {
-            return ObjectUtils.toString(first);
+            return Objects.toString(first);
         }
 
         // two or more elements
@@ -148,9 +153,7 @@ public abstract class AExecutableNodeBinder extends AXlsTableBinder {
         }
 
         while (iterator.hasNext()) {
-            if (separator != null) {
-                buf.append(separator);
-            }
+            buf.append(", ");
             Object obj = iterator.next();
             if (obj != null) {
                 if (obj.getClass().isArray()) {

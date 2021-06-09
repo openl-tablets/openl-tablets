@@ -38,10 +38,12 @@ public class JavaListAggregateInfo extends AAggregateInfo {
         @Override
         @SuppressWarnings("unchecked")
         public Object getValue(Object container, Object index) {
-            if (container == null || index == null) {
+            Integer idx = (Integer) index;
+            List<Object> list = (List<Object>) container;
+            if (list == null || idx == null || idx >= list.size()) {
                 return null;
             }
-            return ((List<Object>) container).get((Integer) index);
+            return list.get(idx);
         }
 
         @Override
@@ -65,7 +67,7 @@ public class JavaListAggregateInfo extends AAggregateInfo {
 
     @Override
     public IOpenIndex getIndex(IOpenClass aggregateType, IOpenClass indexType) {
-        if (!JavaOpenClass.INT.equals(indexType) && !Integer.class.equals(indexType.getInstanceClass())) {
+        if (JavaOpenClass.INT != indexType && Integer.class != indexType.getInstanceClass()) {
             return null;
         }
 

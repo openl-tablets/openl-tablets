@@ -1,11 +1,13 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import org.openl.binding.impl.module.DeferredMethod;
+import org.openl.engine.OpenLSystemProperties;
 import org.openl.rules.calc.Spreadsheet;
+import org.openl.rules.calc.SpreadsheetResultOpenClass;
 import org.openl.rules.cmatch.ColumnMatch;
 import org.openl.rules.dt.DecisionTable;
+import org.openl.rules.lang.xls.binding.ModuleSpecificType;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
+import org.openl.rules.lang.xls.prebind.ILazyMethod;
 import org.openl.rules.method.table.TableMethod;
 import org.openl.rules.tbasic.Algorithm;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
@@ -14,35 +16,22 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.types.impl.MatchingOpenMethodDispatcher;
 import org.openl.rules.types.impl.OverloadedMethodsDispatcherTable;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
+import org.openl.runtime.ASMProxyFactory;
+import org.openl.runtime.ASMProxyHandler;
 import org.openl.runtime.OpenLMethodHandler;
 import org.openl.types.IDynamicObject;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
-import org.openl.types.impl.CompositeMethod;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.MethodDelegator;
+import org.openl.types.impl.MethodSignature;
+import org.openl.types.impl.ParameterDeclaration;
 import org.openl.vm.IRuntimeEnv;
-
-import javassist.util.proxy.MethodHandler;
-import javassist.util.proxy.ProxyObject;
 
 public final class WrapperLogic {
 
     private WrapperLogic() {
-    }
-
-    public static IOpenMethod getTopClassMethod(IOpenMethodWrapper wrapper, IRuntimeEnv env) {
-        SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
-        IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
-        if (topClass != null && topClass != wrapper.getXlsModuleOpenClass()) {
-            IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
-            if (method != null) {
-                method = extractMethod(simpleRulesRuntimeEnv, method);
-                if (method != wrapper) {
-                    return method;
-                }
-            }
-        }
-        return wrapper.getDelegate();
     }
 
     private static SimpleRulesRuntimeEnv extractSimpleRulesRuntimeEnv(IRuntimeEnv env) {
@@ -58,12 +47,17 @@ public final class WrapperLogic {
         return (SimpleRulesRuntimeEnv) env1;
     }
 
-    private static IOpenMethod extractMethod(SimpleRulesRuntimeEnv simpleRulesRuntimeEnv, IOpenMethod method) {
-        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
-            if (method instanceof LazyMethodWrapper) {
-                method = ((LazyMethodWrapper) method).getCompiledMethod(simpleRulesRuntimeEnv);
+    public static IOpenMethod extractMethod(IOpenMethod method) {
+        if (method instanceof IRulesMethodWrapper) {
+            IRulesMethodWrapper rulesMethodWrapper = (IRulesMethodWrapper) method;
+            if (rulesMethodWrapper.getDelegate() instanceof ILazyMethod) {
+                method = rulesMethodWrapper.getDelegate();
             }
-            if (method instanceof MethodDelegator) {
+        }
+        while (method instanceof ILazyMethod || method instanceof MethodDelegator) {
+            if (method instanceof ILazyMethod) {
+                method = ((ILazyMethod) method).getMember();
+            } else {
                 MethodDelegator methodDelegator = (MethodDelegator) method;
                 method = methodDelegator.getMethod();
             }
@@ -71,55 +65,100 @@ public final class WrapperLogic {
         return method;
     }
 
-    public static IOpenMethod wrapOpenMethod(final IOpenMethod openMethod, final XlsModuleOpenClass module) {
-        if (openMethod instanceof IOpenMethodWrapper || openMethod instanceof TestSuiteMethod) {
+    public static IOpenMethod unwrapOpenMethod(IOpenMethod method) {
+        if (method instanceof IRulesMethodWrapper) {
+            IRulesMethodWrapper wrapper = (IRulesMethodWrapper) method;
+            return wrapper.getDelegate();
+        }
+        return method;
+    }
+
+    public static IOpenClass buildMethodReturnType(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
+        if (openMethod.getType() instanceof ModuleSpecificType) {
+            IOpenClass type = xlsModuleOpenClass.findType(openMethod.getType().getName());
+            return type != null ? type : openMethod.getType();
+        } else if (openMethod.getType() instanceof SpreadsheetResultOpenClass && xlsModuleOpenClass
+            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
+                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams())) {
+            return xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+        } else {
+            return openMethod.getType();
+        }
+    }
+
+    public static IMethodSignature buildMethodSignature(IOpenMethod openMethod, XlsModuleOpenClass xlsModuleOpenClass) {
+        IOpenClass[] parameterTypes = openMethod.getSignature().getParameterTypes();
+        IParameterDeclaration[] parameterDeclarations = new IParameterDeclaration[parameterTypes.length];
+        final boolean isCustomSpreadsheetTypesSupported = xlsModuleOpenClass
+            .getRulesModuleBindingContext() != null && OpenLSystemProperties.isCustomSpreadsheetTypesSupported(
+                xlsModuleOpenClass.getRulesModuleBindingContext().getExternalParams());
+        for (int i = 0; i < parameterTypes.length; i++) {
+            IOpenClass t;
+            if (parameterTypes[i] instanceof ModuleSpecificType) {
+                t = xlsModuleOpenClass.findType(parameterTypes[i].getName());
+                t = t != null ? t : parameterTypes[i];
+            } else if (isCustomSpreadsheetTypesSupported && parameterTypes[i] instanceof SpreadsheetResultOpenClass) {
+                t = xlsModuleOpenClass.getSpreadsheetResultOpenClassWithResolvedFieldTypes();
+            } else {
+                t = parameterTypes[i];
+            }
+            parameterDeclarations[i] = new ParameterDeclaration(t, openMethod.getSignature().getParameterName(i));
+        }
+        return new MethodSignature(parameterDeclarations);
+    }
+
+    public static IOpenMethod wrapOpenMethod(IOpenMethod openMethod, final XlsModuleOpenClass xlsModuleOpenClass) {
+        if (openMethod instanceof IRulesMethodWrapper) {
+            openMethod = ((IRulesMethodWrapper) openMethod).getDelegate();
+        }
+        if (openMethod instanceof TestSuiteMethod) {
             return openMethod;
         }
 
-        ContextPropertiesInjector contextPropertiesInjector = new ContextPropertiesInjector(
-            openMethod.getSignature().getParameterTypes(),
-            module.getRulesModuleBindingContext());
+        ContextPropertiesInjector contextPropertiesInjector = null;
+        if (!(openMethod instanceof ILazyMethod)) {
+            contextPropertiesInjector = new ContextPropertiesInjector(openMethod.getSignature().getParameterTypes(),
+                xlsModuleOpenClass.getRulesModuleBindingContext());
+        }
 
         if (openMethod instanceof OverloadedMethodsDispatcherTable) {
-            return new OverloadedMethodsDispatcherTableWrapper(module,
+            return new OverloadedMethodsDispatcherTableWrapper(xlsModuleOpenClass,
                 (OverloadedMethodsDispatcherTable) openMethod,
                 contextPropertiesInjector);
         }
         if (openMethod instanceof MatchingOpenMethodDispatcher) {
-            return new MatchingOpenMethodDispatcherWrapper(module,
+            return new MatchingOpenMethodDispatcherWrapper(xlsModuleOpenClass,
                 (MatchingOpenMethodDispatcher) openMethod,
                 contextPropertiesInjector);
         }
-        if (openMethod instanceof DeferredMethod) {
-            return new DeferredMethodWrapper(module, (DeferredMethod) openMethod, contextPropertiesInjector);
-        }
-        if (openMethod instanceof CompositeMethod) {
-            return new CompositeMethodWrapper(module, (CompositeMethod) openMethod, contextPropertiesInjector);
-        }
         if (openMethod instanceof Algorithm) {
-            return new AlgorithmWrapper(module, (Algorithm) openMethod, contextPropertiesInjector);
+            return new AlgorithmWrapper(xlsModuleOpenClass, (Algorithm) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof AlgorithmSubroutineMethod) {
-            return new AlgorithmSubroutineMethodWrapper(module,
+            return new AlgorithmSubroutineMethodWrapper(xlsModuleOpenClass,
                 (AlgorithmSubroutineMethod) openMethod,
                 contextPropertiesInjector);
         }
         if (openMethod instanceof DecisionTable) {
-            return new DecisionTable2Wrapper(module, (DecisionTable) openMethod, contextPropertiesInjector);
+            return new DecisionTableWrapper(xlsModuleOpenClass, (DecisionTable) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof ColumnMatch) {
-            return new ColumnMatchWrapper(module, (ColumnMatch) openMethod, contextPropertiesInjector);
+            return new ColumnMatchWrapper(xlsModuleOpenClass, (ColumnMatch) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof Spreadsheet) {
-            return new SpreadsheetWrapper(module, (Spreadsheet) openMethod, contextPropertiesInjector);
+            return new SpreadsheetWrapper(xlsModuleOpenClass, (Spreadsheet) openMethod, contextPropertiesInjector);
         }
         if (openMethod instanceof TableMethod) {
-            return new TableMethodWrapper(module, (TableMethod) openMethod, contextPropertiesInjector);
+            return new TableMethodWrapper(xlsModuleOpenClass, (TableMethod) openMethod, contextPropertiesInjector);
         }
+
         return openMethod;
     }
 
-    public static Object invoke(IOpenMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
+    public static Object invoke(IRulesMethodWrapper wrapper, Object target, Object[] params, IRuntimeEnv env) {
+        if (wrapper.getDelegate() instanceof ILazyMethod) {
+            return wrapper.getDelegate().invoke(target, params, env);
+        }
         SimpleRulesRuntimeEnv simpleRulesRuntimeEnv = extractSimpleRulesRuntimeEnv(env);
         IOpenClass topClass = simpleRulesRuntimeEnv.getTopClass();
         if (topClass == null) {
@@ -129,8 +168,8 @@ public final class WrapperLogic {
                 if (target instanceof IDynamicObject) {
                     IDynamicObject dynamicObject = (IDynamicObject) target;
                     typeClass = dynamicObject.getType();
-                } else if (target instanceof ProxyObject) {
-                    MethodHandler invocationHandler = ((ProxyObject) target).getHandler();
+                } else if (ASMProxyFactory.isProxy(target)) {
+                    ASMProxyHandler invocationHandler = ASMProxyFactory.getProxyHandler(target);
                     if (invocationHandler instanceof OpenLMethodHandler) {
                         OpenLMethodHandler openLMethodHandler = (OpenLMethodHandler) invocationHandler;
                         Object openlInstance = openLMethodHandler.getInstance();
@@ -138,17 +177,17 @@ public final class WrapperLogic {
                             IDynamicObject dynamicObject = (IDynamicObject) openlInstance;
                             typeClass = dynamicObject.getType();
                         } else {
-                            throw new IllegalStateException("Cannot define openl class from target object.");
+                            throw new IllegalStateException("Cannot define OpenL class from target object.");
                         }
                     } else {
-                        throw new IllegalStateException("Cannot define openl class from target object.");
+                        throw new IllegalStateException("Cannot define OpenL class from target object.");
                     }
                 } else {
-                    throw new IllegalStateException("Cannot define openl class from target object.");
+                    throw new IllegalStateException("Cannot define OpenL class from target object.");
                 }
                 simpleRulesRuntimeEnv.setTopClass(typeClass);
                 Thread.currentThread().setContextClassLoader(wrapper.getXlsModuleOpenClass().getClassLoader());
-                return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
+                return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
             } finally {
                 Thread.currentThread().setContextClassLoader(oldClassLoader);
                 simpleRulesRuntimeEnv.setTopClass(null);
@@ -157,13 +196,13 @@ public final class WrapperLogic {
             if (topClass != wrapper.getXlsModuleOpenClass()) {
                 IOpenMethod method = wrapper.getTopOpenClassMethod(topClass);
                 if (method != null) {
-                    method = extractMethod(simpleRulesRuntimeEnv, method);
+                    method = extractMethod(method);
                     if (method != wrapper) {
                         return method.invoke(target, params, env);
                     }
                 }
             }
         }
-        return wrapper.invokeDelegate(target, params, env, simpleRulesRuntimeEnv);
+        return wrapper.invokeDelegateWithContextPropertiesInjector(target, params, env, simpleRulesRuntimeEnv);
     }
 }

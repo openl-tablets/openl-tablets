@@ -7,7 +7,6 @@ import java.util.Properties;
 
 import org.openl.OpenL;
 import org.openl.binding.impl.Binder;
-import org.openl.impl.DefaultCompileContext;
 import org.openl.syntax.impl.Parser;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.vm.SimpleVM;
@@ -16,7 +15,11 @@ import org.slf4j.LoggerFactory;
 
 public abstract class AOpenLBuilder extends BaseOpenLBuilder {
 
-    private final Logger log = LoggerFactory.getLogger(AOpenLBuilder.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AOpenLBuilder.class);
+
+    protected SimpleVM createVM() {
+        return new SimpleVM();
+    }
 
     @Override
     public OpenL build(String openl) {
@@ -32,9 +35,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
             op.setParser(new Parser(conf));
 
             op.setBinder(new Binder(conf, conf, conf, conf, conf, op));
-            op.setVm(new SimpleVM());
-
-            op.setCompileContext(new DefaultCompileContext());
+            op.setVm(createVM());
         } catch (Exception ex) {
             throw RuntimeExceptionWrapper.wrap(ex);
         }
@@ -62,7 +63,7 @@ public abstract class AOpenLBuilder extends BaseOpenLBuilder {
                     is.close();
                 }
             } catch (Exception t) {
-                log.error("Failed to close an input stream.", t);
+                LOG.error("Failed to close an input stream.", t);
             }
         }
 

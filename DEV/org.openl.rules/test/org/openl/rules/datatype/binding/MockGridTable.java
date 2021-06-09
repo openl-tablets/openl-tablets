@@ -14,9 +14,9 @@ import org.openl.rules.table.*;
  * @author Denis Levchuk
  */
 public class MockGridTable extends AGridTable {
-    private Object[][] values;
+    private final Object[][] values;
 
-    private IGrid grid;
+    private final IGrid grid;
 
     public MockGridTable(Object[][] cells) {
         // Flag indicating that previously there was a
@@ -183,9 +183,9 @@ public class MockGridTable extends AGridTable {
     /**
      * Stub implementation for the IGrid just getCell is implemented to avoid NPE
      */
-    private class TestGrid extends AGrid {
+    private static class TestGrid extends AGrid {
 
-        private IGridTable table;
+        private final IGridTable table;
 
         public TestGrid(IGridTable table) {
             this.table = table;

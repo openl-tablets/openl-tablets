@@ -1,31 +1,39 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 
-import org.openl.binding.BindingDependencies;
-import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.table.IGridRegion;
-import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.lang.xls.binding.wrapper.base.AbstractAlgorithmSubroutineMethodWrapper;
 import org.openl.rules.tbasic.AlgorithmSubroutineMethod;
-import org.openl.rules.tbasic.runtime.operations.RuntimeOperation;
-import org.openl.types.*;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
-public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod implements IOpenMethodWrapper {
-    AlgorithmSubroutineMethod delegate;
-    XlsModuleOpenClass xlsModuleOpenClass;
-    ContextPropertiesInjector contextPropertiesInjector;
+public final class AlgorithmSubroutineMethodWrapper
+        extends AbstractAlgorithmSubroutineMethodWrapper
+        implements IRulesMethodWrapper {
+
+    private final XlsModuleOpenClass xlsModuleOpenClass;
+    private final ContextPropertiesInjector contextPropertiesInjector;
+    private final IOpenClass type;
+    private final IMethodSignature methodSignature;
+    private final TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(
+        this);
 
     public AlgorithmSubroutineMethodWrapper(XlsModuleOpenClass xlsModuleOpenClass,
             AlgorithmSubroutineMethod delegate,
             ContextPropertiesInjector contextPropertiesInjector) {
-        super(null);
-        this.delegate = delegate;
-        this.xlsModuleOpenClass = xlsModuleOpenClass;
+        super(delegate);
+        this.xlsModuleOpenClass = Objects.requireNonNull(xlsModuleOpenClass, "xlsModuleOpenClass cannot be null");
         this.contextPropertiesInjector = contextPropertiesInjector;
+        this.type = WrapperLogic.buildMethodReturnType(delegate, xlsModuleOpenClass);
+        this.methodSignature = WrapperLogic.buildMethodSignature(delegate, xlsModuleOpenClass);
+    }
+
+    @Override
+    public IOpenMethod getDelegate() {
+        return delegate;
     }
 
     @Override
@@ -39,136 +47,14 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     }
 
     @Override
-    public String toString() {
-        return delegate.toString();
-    }
-
-    @Override
-    public IOpenClass getDeclaringClass() {
-        return delegate.getDeclaringClass();
-    }
-
-    @Override
-    public IOpenMethod getDelegate() {
-        return delegate;
-    }
-
-    @Override
-    public String getDisplayName(int mode) {
-        return delegate.getDisplayName(mode);
-    }
-
-    @Override
-    public IOpenMethodHeader getHeader() {
-        return delegate.getHeader();
-    }
-
-    @Override
-    public String getUri() {
-        return delegate.getUri();
-    }
-
-    @Override
-    public IOpenMethod getMethod() {
-        return delegate.getMethod();
-    }
-
-    @Override
-    public String getName() {
-        return delegate.getName();
-    }
-
-    @Override
     public IMethodSignature getSignature() {
-        return delegate.getSignature();
+        return methodSignature;
     }
 
     @Override
     public IOpenClass getType() {
-        return delegate.getType();
+        return type;
     }
-
-    @Override
-    public IGridRegion getGridRegion() {
-        return delegate.getGridRegion();
-    }
-
-    @Override
-    public boolean isStatic() {
-        return delegate.isStatic();
-    }
-
-    @Override
-    public String getSourceUrl() {
-        return delegate.getSourceUrl();
-    }
-
-    @Override
-    public void setAlgorithmSteps(List<RuntimeOperation> operations) {
-        delegate.setAlgorithmSteps(operations);
-    }
-
-    @Override
-    public List<RuntimeOperation> getAlgorithmSteps() {
-        return delegate.getAlgorithmSteps();
-    }
-
-    @Override
-    public void setLabels(Map<String, RuntimeOperation> localLabelsRegister) {
-        delegate.setLabels(localLabelsRegister);
-    }
-
-    @Override
-    public BindingDependencies getDependencies() {
-        return delegate.getDependencies();
-    }
-
-    @Override
-    public Map<String, Object> getProperties() {
-        return delegate.getProperties();
-    }
-
-    @Override
-    public TableSyntaxNode getSyntaxNode() {
-        return delegate.getSyntaxNode();
-    }
-
-    @Override
-    public void setBoundNode(ATableBoundNode node) {
-        delegate.setBoundNode(node);
-    }
-
-    @Override
-    public ATableBoundNode getBoundNode() {
-        return delegate.getBoundNode();
-    }
-
-    @Override
-    public ITableProperties getMethodProperties() {
-        return delegate.getMethodProperties();
-    }
-
-    @Override
-    public IMemberMetaInfo getInfo() {
-        return delegate.getInfo();
-    }
-
-    @Override
-    public String getModuleName() {
-        return delegate.getModuleName();
-    }
-
-    @Override
-    public void setModuleName(String dependencyName) {
-        delegate.setModuleName(dependencyName);
-    }
-
-    @Override
-    public boolean isConstructor() {
-        return delegate.isConstructor();
-    }
-
-    private TopClassOpenMethodWrapperCache topClassOpenMethodWrapperCache = new TopClassOpenMethodWrapperCache(this);
 
     @Override
     public IOpenMethod getTopOpenClassMethod(IOpenClass openClass) {
@@ -178,6 +64,23 @@ public class AlgorithmSubroutineMethodWrapper extends AlgorithmSubroutineMethod 
     @Override
     public ContextPropertiesInjector getContextPropertiesInjector() {
         return contextPropertiesInjector;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        AlgorithmSubroutineMethodWrapper that = (AlgorithmSubroutineMethodWrapper) o;
+        return delegate.equals(that.delegate);
+    }
+
+    @Override
+    public int hashCode() {
+        return delegate.hashCode();
     }
 
 }

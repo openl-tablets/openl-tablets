@@ -35,7 +35,7 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
             descriptor.setDependencies(dependencies);
         }
 
-        descriptor.setPropertiesFileNamePattern(oldVersion.getPropertiesFileNamePattern());
+        descriptor.setPropertiesFileNamePatterns(new String[]{oldVersion.getPropertiesFileNamePattern()});
         descriptor.setPropertiesFileNameProcessor(oldVersion.getPropertiesFileNameProcessor());
 
         return descriptor;
@@ -50,26 +50,19 @@ public class ProjectDescriptorVersionConverter implements ObjectVersionConverter
         descriptor.setClasspath(currentVersion.getClasspath());
 
         List<Module_v5_16> modules = CollectionUtils.map(currentVersion.getModules(),
-            new CollectionUtils.Mapper<Module, Module_v5_16>() {
-                @Override
-                public Module_v5_16 map(Module input) {
-                    return moduleVersionConverter.toOldVersion(input);
-                }
-            });
+                moduleVersionConverter::toOldVersion);
         descriptor.setModules(modules);
 
         List<ProjectDependencyDescriptor_v5_12> dependencies = CollectionUtils.map(currentVersion.getDependencies(),
-            new CollectionUtils.Mapper<ProjectDependencyDescriptor, ProjectDependencyDescriptor_v5_12>() {
-                @Override
-                public ProjectDependencyDescriptor_v5_12 map(ProjectDependencyDescriptor input) {
-                    return dependencyConverter.toOldVersion(input);
-                }
-            });
+                dependencyConverter::toOldVersion);
         if (CollectionUtils.isNotEmpty(dependencies)) {
             descriptor.setDependencies(dependencies);
         }
 
-        descriptor.setPropertiesFileNamePattern(currentVersion.getPropertiesFileNamePattern());
+        String[] patterns = currentVersion.getPropertiesFileNamePatterns();
+        if (CollectionUtils.isNotEmpty(patterns)) {
+            descriptor.setPropertiesFileNamePattern(patterns[0]);
+        }
         descriptor.setPropertiesFileNameProcessor(currentVersion.getPropertiesFileNameProcessor());
 
         return descriptor;

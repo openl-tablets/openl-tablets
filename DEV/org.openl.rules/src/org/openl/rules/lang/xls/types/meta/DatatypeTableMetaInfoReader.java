@@ -1,7 +1,6 @@
 package org.openl.rules.lang.xls.types.meta;
 
 import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getCellSource;
-import static org.openl.rules.datatype.binding.DatatypeTableBoundNode.getIdentifierNode;
 
 import java.util.Collections;
 
@@ -17,7 +16,7 @@ import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.ParserUtils;
+import org.openl.util.ParserUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
@@ -27,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTableBoundNode> {
-    private final Logger log = LoggerFactory.getLogger(DatatypeTableMetaInfoReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DatatypeTableMetaInfoReader.class);
 
     public DatatypeTableMetaInfoReader(DatatypeTableBoundNode boundNode) {
         super(boundNode);
@@ -78,7 +77,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
 
                     return new CellMetaInfo(type, multiValue);
                 } catch (OpenLCompilationException e) {
-                    log.error(e.getMessage(), e);
+                    LOG.error(e.getMessage(), e);
                     return null;
                 }
             }
@@ -99,7 +98,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
                 IdentifierNode[] idn = Tokenizer.tokenize(typeCellSource, "[]\n\r");
                 return createMetaInfo(idn[0], fieldMetaInfo);
             } catch (OpenLCompilationException e) {
-                log.error(e.getMessage(), e);
+                LOG.error(e.getMessage(), e);
                 return null;
             }
         }
@@ -121,7 +120,7 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         return field;
     }
 
-    private CellMetaInfo createMetaInfo(IdentifierNode identifier, IMetaInfo typeMeta) {
+    private static CellMetaInfo createMetaInfo(IdentifierNode identifier, IMetaInfo typeMeta) {
         if (typeMeta == null) {
             return null;
         }
@@ -133,9 +132,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         return new CellMetaInfo(JavaOpenClass.STRING, false, Collections.singletonList(nodeUsage));
     }
 
-    private String getName(ILogicalTable row) throws OpenLCompilationException {
+    private static String getName(ILogicalTable row) throws OpenLCompilationException {
         GridCellSourceCodeModule nameCellSource = getCellSource(row, null, 1);
-        IdentifierNode[] idn = getIdentifierNode(nameCellSource);
+        IdentifierNode[] idn = Tokenizer.tokenize(nameCellSource, " \r\n");
         if (idn.length != 1) {
             // Table with error. Skip it
             return null;

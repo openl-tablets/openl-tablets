@@ -24,7 +24,7 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
         String name = getName();
 
         if (!spreadsheetResult.hasField(name)) {
-            throw new OpenLRuntimeException(String.format("Field '%s' does not exist in SpreadsheetResult", name));
+            return getType().nullObject();
         }
 
         Object res = spreadsheetResult.getFieldValue(name);
@@ -38,6 +38,9 @@ public class SpreadsheetResultField extends AOpenField implements NodeDescriptio
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
+        if (target == null) {
+            return;
+        }
         SpreadsheetResult spreadsheetResult = (SpreadsheetResult) target;
         String name = getName();
 

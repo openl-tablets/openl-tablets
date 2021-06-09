@@ -6,11 +6,6 @@
     xmlns:rich="http://richfaces.org/rich">
 
     <style>
-        .expandable-link {
-            cursor: pointer;
-            border-bottom: 1px dashed #777777;
-        }
-
         .disabled-link {
             cursor: default;
             border-bottom: none;
@@ -59,7 +54,7 @@
 
     </style>
 
-    <rich:popupPanel id="copyModulePopup" width="470" autosized="true">
+    <rich:popupPanel id="copyModulePopup" minWidth="470" autosized="true">
         <f:facet name="header">
             <h:outputText value="Copy Module" />
         </f:facet>
@@ -132,14 +127,14 @@
                             <td>New Module Name:</td>
                             <td>
                                 <h:inputText id="moduleName" validator="#{projectBean.validateModuleNameForCopy}" />
-                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: #{!empty projectBean.propertiesFileNamePattern ? 'inline-block' : 'none'}; ">
-                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-right title-bottom match">
+                                <h:panelGroup id="validationIcon" style="height: 16px; width: 16px; padding: 5px; display: #{!empty projectBean.propertiesFileNamePatterns ? 'inline-block' : 'none'}; ">
+                                    <h:panelGroup rendered="#{projectBean.fileNameMatched}" styleClass="title title-bottom match">
                                         <em>
                                             Values from file name will be applied as business<br/>
                                             dimension properties to rules.
                                         </em>
                                     </h:panelGroup>
-                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-right title-bottom not-match">
+                                    <h:panelGroup rendered="#{!projectBean.fileNameMatched}" styleClass="title title-bottom not-match">
                                         <em>
                                             Values from file name won't be applied as business<br/>
                                             dimension properties to rules. The file name doesn't<br/>
@@ -196,8 +191,8 @@
                         <tr class="project-with-properties-pattern info">
                             <td>Properties pattern for a file name:</td>
                             <td>
-                                <h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePattern}"
-                                              styleClass="with-button" style="display: inline-block" />
+                                <h:outputText id="propertiesFileNamePattern" value="#{projectBean.propertiesFileNamePatterns}"
+                                              styleClass="with-button" style="display: inline-block; overflow-wrap: break-word; white-space: pre-wrap;" />
                                 <a id="patternInfo" onclick="showPatternInfo('#{projectBean.currentPropertiesFileNameProcessor}');"
                                    title="Description" class="imageButton"
                                    style="background:url('webresource/images/info.png');display: inline-block;" />
@@ -500,6 +495,8 @@
                     if (!$j(this).hasClass('disabled-link')) {
                         $j(divToShow).show();
                         $j(divWithLink).hide();
+
+                        resizePopupPanel('copyModulePopup');
                     }
                 })
             }

@@ -17,7 +17,7 @@
 
     <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
     <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-    <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+    <link href="#{contextPath}/css/common.css?6" rel="stylesheet" />
     <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
     <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
     <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
@@ -25,7 +25,7 @@
 
     <link href="#{contextPath}/webresource/css/tableeditor.min.css" rel="stylesheet" />
 
-    <script src="#{contextPath}/javascript/common.js?2"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+    <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
     <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
     <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
@@ -36,8 +36,9 @@
     <script src="#{contextPath}/javascript/jquery.popup.js"></script>
     <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
     <script src="#{contextPath}/javascript/bomjs.js"></script>
-    <script src="#{contextPath}/javascript/vendor/jsf-2.1.19-customized.min.js"></script>
     <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
+
+    <h:outputScript name="jsf.js" library="javax.faces" />
 
     <script>
         //<![CDATA[
@@ -72,6 +73,7 @@
             var WS_PREVIOUS_PAGE_STATE_VAR = "WS_PREVIOUS_PAGE_STATE";
 
             var current  = {
+                repositoryId: 0,
                 project: 0,
                 module: 0,
                 branch: 0
@@ -519,7 +521,7 @@
                     beforeSend: api.ui.showLoader,
                     // Handle jQuery AJAX errors
                     error: function(response, message, error) {
-                        handleError(response.status);
+                        handleError(response.status, response.responseText);
                     },
                     complete: api.ui.hideLoader
                 });
@@ -580,7 +582,6 @@
                         }
                         return;
                     }
-
                     handleError(data.responseCode);
                 });
 
@@ -614,16 +615,20 @@
             })();
 
             (function initRouter() {
-                var determineIfModuleChanged = function (project, module) {
+                var determineIfModuleChanged = function (repositoryId, project, module) {
                     var previousPageState = ws.storage.get(WS_PREVIOUS_PAGE_STATE_VAR);
                     if (!previousPageState) {
                         previousPageState = {
+                            repositoryId: "",
                             project: "",
                             module: ""
                         };
                     }
-                    projectPageChanged = previousPageState.project != project || previousPageState.module != module;
+                    projectPageChanged = previousPageState.repositoryId !== repositoryId
+                        || previousPageState.project !== project
+                        || previousPageState.module !== module;
                     var pageState = {
+                        repositoryId: repositoryId,
                         project: project,
                         module: module
                     };
@@ -636,61 +641,74 @@
                 crossroads.addRoute("/", function(reload) {
                     var toReload = { top: 1, left: 1, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged("", "");
+                    determineIfModuleChanged("", "", "");
                     render("home.xhtml", 0, toReload, toOpen);
                 });
                 // Project page
-                crossroads.addRoute("{project}", function(reload, project) {
-                    var url = "project.xhtml?name=" + project;
-                    setModule(project);
+                crossroads.addRoute("{repositoryId}/{project}", function(reload, repositoryId, project) {
+                    var url = "project.xhtml?repositoryId=" + repositoryId + "&name=" + project;
+                    setModule(repositoryId, project);
                     var leftReload = reload == "true" || !$("#projects-tree").length;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged(project, "");
-                    render(url, { project: project }, toReload, toOpen, openProjectNode);
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
+                });
+                // Project-specific additional info pages
+                crossroads.addRoute("{repositoryId}/{project}?page={page}&:{query}:", function(reload, repositoryId, project, page, query) {
+                    let url = page + ".xhtml";
+                    if (query) {
+                        url += "?" + query;
+                    }
+                    setModule(repositoryId, project);
+                    let leftReload = reload === "true" || !$("#projects-tree").length;
+                    let toReload = {top: 1, left: leftReload, bottom: 0, right: 0};
+                    let toOpen = {bottom: 0, right: 0};
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Project with branch page
-                crossroads.addRoute("{project}/[{branch}]", function(reload, project, branch) {
-                    var url = "project.xhtml?name=" + project;
+                crossroads.addRoute("{repositoryId}/{project}/[{branch}]", function(reload, repositoryId, project, branch) {
+                    var url = "project.xhtml?repositoryId=" + repositoryId + "&name=" + project;
                     var branchChanged = current.branch !== branch;
-                    setModule(project, undefined, branch);
+                    setModule(repositoryId, project, undefined, branch);
                     var leftReload = reload == "true" || !$("#projects-tree").length || branchChanged;
                     var toReload = { top: 1, left: leftReload, bottom: 0, right: 0 };
                     var toOpen = { bottom: 0, right: 0 };
-                    determineIfModuleChanged(project, "");
-                    render(url, { branch: branch, project: project }, toReload, toOpen, openProjectNode);
+                    determineIfModuleChanged(repositoryId, project, "");
+                    render(url, { repositoryId: repositoryId, branch: branch, project: project }, toReload, toOpen, openProjectNode);
                 });
                 // Module page
-                crossroads.addRoute("{project}/{module}", function(reload, project, module) {
-                    var url = "module.xhtml?project=" + project + "&name=" + module;
-                    var newModule = setModule(project, module);
+                crossroads.addRoute("{repositoryId}/{project}/{module}", function(reload, repositoryId, project, module) {
+                    var url = "module.xhtml?repositoryId=" + repositoryId + "&project=" + project + "&name=" + module;
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen);
                 });
                 // Table page
-                crossroads.addRoute("{project}/{module}/table?{query}", function(reload, project, module, query) {
+                crossroads.addRoute("{repositoryId}/{project}/{module}/table?{query}", function(reload, repositoryId, project, module, query) {
                     var url = [
                         { url: "table.xhtml?" + query },
                         { url: "tableDetailsData.xhtml?" + query, target: "#tableProperties" }
                     ];
 
                     //var toReload = !current.module || setModule(project, module);
-                    var newModule = setModule(project, module);
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 1 };
                     var toOpen = { bottom: 1, right: 1 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen, openTreeNode);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen, openTreeNode);
                 });
                 // Other pages
-                crossroads.addRoute("{project}/{module}/{page*}", function(reload, project, module, page) {
+                crossroads.addRoute("{repositoryId}/{project}/{module}/{page*}", function(reload, repositoryId, project, module, page) {
                     var query;
                     if (page.indexOf("?") > -1) {
                         var parts = page.split("?");
@@ -698,26 +716,30 @@
                         query = parts[1];
                     }
                     var url = page + ".xhtml" + (query ? ("?" + query) : "");
-                    var newModule = setModule(project, module);
+                    var newModule = setModule(repositoryId, project, module);
                     var topReload =  reload == "true" || !$("#breadcrumbs-module").length || newModule;
                     var leftReload = reload == "true" || !$("#rulesTree").length || newModule;
                     var bottomReload = reload == "true" || !$("#bottomPanel").length || newModule;
                     var toReload = { top: topReload, left: leftReload, bottom: bottomReload, right: 0 };
                     var toOpen = { bottom: 1, right: 0 };
-                    determineIfModuleChanged(project, module);
-                    render(url, { project: project, module: module }, toReload, toOpen);
+                    determineIfModuleChanged(repositoryId, project, module);
+                    render(url, { repositoryId: repositoryId, project: project, module: module }, toReload, toOpen);
                 });
             })();
 
 
             // Private API
 
-            var handleError = function(code) {
+            var handleError = function(code, error) {
                 if (code == 399) { // Session Timeout
                     location.href = "#{contextPath}/faces/pages/sessionExpired.xhtml";
-                } else if (code != 404) {
+                } else if (code != 404 && code != 0) { // 0 - timeout/abort
                     // 404 error is handled in other place. Other errors are unexpected errors
-                    api.ui.info("#{msg['ws.common.error.500']}");
+                    if (error && code >= 400 && code < 500) {
+                        api.ui.info(error);
+                    } else {
+                        api.ui.info("#{msg['ws.common.error.500']}");
+                    }
                 }
             };
 
@@ -747,11 +769,12 @@
                 crossroads.parse(page, params);
             };
 
-            var setModule = function(project, module, branch) {
-                var newModule = project && module
-                        && (!current.module || (current.project && current.module
-                        && (current.project != project || current.module != module)));
+            var setModule = function(repositoryId, project, module, branch) {
+                var newModule = repositoryId && project && module
+                        && (!current.module || (current.repositoryId && current.project && current.module
+                        && (current.repositoryId !== repositoryId || current.project !== project || current.module !== module)));
 
+                current.repositoryId = repositoryId || 0;
                 current.project = project || 0;
                 current.module = module || 0;
                 current.branch = branch || 0;
@@ -816,9 +839,14 @@
                     }).toggleClass("restore-changed-state restore-changed-state-added");
                 });
 
+                callbacks.push(function () {
+                    initPopupPanels();
+                })
+
                 var initUrl = urlRewrite.prefix + "init.xhtml";
                 if (init && init.project) {
                     initUrl += ("?project=" + init.project);
+                    initUrl += ("&repositoryId=" + init.repositoryId);
                     if (init.module) {
                         initUrl += "&module=" + init.module;
                     }
@@ -863,6 +891,7 @@
                                 }
 
                                 centerLayout.hide("south");
+                                fixRichFaces();
                             });
                         }
                     }
@@ -903,16 +932,24 @@
             };
 
             var openProjectNode = function(pageToOpen) {
-                var page = pageToOpen || getCurrentPage();
+                let page = pageToOpen || getCurrentPage();
 
                 if (page && page.indexOf("modules/") > -1) {
-                    var projectName = page.split("modules/")[1];
+                    let projectName = page.split("modules/")[1];
+                    let queryIndex = projectName.indexOf("?");
+                    if (queryIndex > -1) {
+                        projectName = projectName.substring(0, queryIndex);
+                    }
+                    let repoEndIdx = projectName.indexOf("/");
+                    let repoId = projectName.substring(0, repoEndIdx);
+                    projectName = projectName.substring(repoEndIdx + 1);
+
                     //remove branch from project name. To re-render project tree in correct way
-                    var branchStartIdx = projectName.indexOf("/[");
+                    let branchStartIdx = projectName.indexOf("/[");
                     if (branchStartIdx > -1) {
                         projectName = projectName.substring(0, branchStartIdx);
                     }
-                    var projectLink = $("#projects-tree a[href = '#" + projectName + "']");
+                    let projectLink = $("#projects-tree a[href = '#" + repoId + "/" + projectName + "']");
                     if (projectLink.length) { // Firefox has bug with decoding url after refresh
                         // Select node
                         filterSpecificProject(decodeURIComponent(projectName));
@@ -926,8 +963,30 @@
         var ws = new WebStudio();
 
         $j(function () {
-            fixTabIndexesInRichPopupPanels();
+            fixRichFaces();
+            const needRedirect = #{studio.needRedirect};
+            if (needRedirect) {
+                ws.nav.go("#{studio.url()}", true);
+            }
         });
+
+        function checkModification() {
+            $j.ajax({
+                url: "#{contextPath}/web/module/isModified",
+                datatype: "text",
+                timeout: 5000
+            })
+                .done(function (data) {
+                    if (data === "true" && confirm('Project source file was modified.\nClick \'OK\' to reload WebStudio with changes, and \'Cancel\' to ignore changes.')) {
+                        forceReload(); // from the topPanel.xhtml
+                    }
+                })
+                .complete(function () {
+                    setTimeout(checkModification, 5000)
+                });
+        }
+
+        setTimeout(checkModification, 10000);//time in milliseconds
     //]]>
     </script>
 
@@ -975,7 +1034,6 @@
     <div style="display: none">
         <a4j:status onstart="ws.ui.showLoader()" onstop="ws.ui.hideLoader()" />
 
-        <iframe src="#{contextPath}/faces/pages/modules/sourceModified.xhtml" width="0" height="0" />
         <iframe name="hidden" width="0" height="0" />
 
         <!-- Init RichFaces resources -->
@@ -994,12 +1052,5 @@
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
-
-    <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
-        <ui:include src="/pages/common/analytics.xhtml">
-            <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
-        </ui:include>
-    </c:if>
-
 </h:body>
 </html>

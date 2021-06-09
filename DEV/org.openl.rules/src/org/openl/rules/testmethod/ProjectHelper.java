@@ -41,12 +41,11 @@ public final class ProjectHelper {
      * @param tester instance of method that is considered to be a test.
      * @return true if tester is valid {@link TestSuiteMethod}.
      */
-    public static boolean isTester(IOpenMethod tester) {
+    private static boolean isTester(IOpenMethod tester) {
         if (tester instanceof TestSuiteMethod) {
             try {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tester;
-                return !testSuiteMethod.isRunmethod() && testSuiteMethod.isRunmethodTestable() && (testSuiteMethod
-                    .getSyntaxNode() == null || !testSuiteMethod.getSyntaxNode().hasErrors());
+                return !testSuiteMethod.isRunMethod() && testSuiteMethod.isRunmethodTestable();
             } catch (Exception e) {
                 Logger log = LoggerFactory.getLogger(ProjectHelper.class);
                 log.error(e.getMessage(), e);
@@ -72,7 +71,7 @@ public final class ProjectHelper {
 
         }
 
-        return res.toArray(new IOpenMethod[res.size()]);
+        return res.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
     /**
@@ -84,7 +83,7 @@ public final class ProjectHelper {
             return false;
         }
         IOpenMethod toTest = ((TestSuiteMethod) tester).getTestedMethod();
-        if (toTest == tested) {
+        if (toTest.equals(tested)) {
             return true;
         }
         if (toTest instanceof OpenMethodDispatcher && ((OpenMethodDispatcher) toTest).getCandidates()
@@ -117,7 +116,7 @@ public final class ProjectHelper {
 
         if (testMethod instanceof TestSuiteMethod) {
             TestSuiteMethod testSuite = (TestSuiteMethod) testMethod;
-            if (testSuite.isRunmethod()) {
+            if (testSuite.isRunMethod()) {
                 if (numberOfTests < 1) {
                     info = "No runs";
                 } else if (numberOfTests == 1) {

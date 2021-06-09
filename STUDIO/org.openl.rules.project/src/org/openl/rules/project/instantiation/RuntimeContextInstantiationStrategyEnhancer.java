@@ -8,10 +8,9 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.context.IRulesRuntimeContext;
+import org.openl.runtime.ASMProxyHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import javassist.util.proxy.MethodHandler;
 
 /**
  * Auxiliary class which enhances rule service with ability to use rule service method with rules runtime context during
@@ -76,7 +75,7 @@ public class RuntimeContextInstantiationStrategyEnhancer extends AbstractService
      * @throws Exception
      */
     @Override
-    protected MethodHandler makeMethodHandler(Object instanceObject) throws Exception {
+    protected ASMProxyHandler makeMethodHandler(Object instanceObject) throws Exception {
         Map<Method, Method> methodsMap = makeMethodMap(getServiceClass(),
             getOriginalInstantiationStrategy().getInstanceClass());
         return new RuntimeContextInstantiationStrategyEnhancerInvocationHandler(methodsMap, instanceObject);

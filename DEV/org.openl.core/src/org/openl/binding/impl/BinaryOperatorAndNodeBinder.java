@@ -1,7 +1,3 @@
-/*
- * Created on May 19, 2003 Developed by Intelligent ChoicePoint Inc. 2003
- */
-
 package org.openl.binding.impl;
 
 import org.openl.binding.IBindingContext;
@@ -9,10 +5,6 @@ import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
-
-/**
- * @author snshor
- */
 
 public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
 
@@ -24,24 +16,30 @@ public class BinaryOperatorAndNodeBinder extends BinaryOperatorNodeBinder {
         }
 
         IBoundNode[] children = bindChildren(node, bindingContext);
-        IOpenClass[] types = getTypes(children);
+        IBoundNode left = children[0];
+        IBoundNode right = children[1];
 
-        if ((types[0].getInstanceClass() == boolean.class || types[0].getInstanceClass() == Boolean.class) && (types[1]
-            .getInstanceClass() == boolean.class || types[1].getInstanceClass() == Boolean.class)) {
+        IOpenClass leftType = left.getType();
+        IOpenClass rightType = right.getType();
 
-            return new BinaryOpNodeAnd(node, children);
+        if ((leftType.getInstanceClass() == boolean.class || leftType.getInstanceClass() == Boolean.class) && (rightType
+            .getInstanceClass() == boolean.class || rightType.getInstanceClass() == Boolean.class)) {
+
+            return new BinaryOpNodeAnd(node, left, right);
         }
 
         int index = node.getType().lastIndexOf('.');
         String methodName = node.getType().substring(index + 1);
-        IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName, types, bindingContext);
+        IMethodCaller methodCaller = findBinaryOperatorMethodCaller(methodName,
+            new IOpenClass[] { leftType, rightType },
+            bindingContext);
 
         if (methodCaller == null) {
-            String message = errorMsg(methodName, types[0], types[1]);
+            String message = errorMsg(methodName, leftType, rightType);
             return makeErrorNode(message, node, bindingContext);
         }
 
-        return new BinaryOpNode(node, children, methodCaller);
+        return new BinaryOpNode(node, left, right, methodCaller);
     }
 
 }

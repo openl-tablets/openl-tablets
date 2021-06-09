@@ -2,16 +2,6 @@ package org.openl.rules.variation;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 /**
  * Complex variation combines multiple variations that all will be applied to arguments sequentially.
  *
@@ -76,8 +66,8 @@ public class ComplexVariation extends Variation {
     @Override
     public Object[] applyModification(Object[] originalArguments) {
         Object[] arguments = originalArguments;
-        for (int i = 0; i < variations.length; i++) {
-            arguments = variations[i].applyModification(arguments);
+        for (Variation variation : variations) {
+            arguments = variation.applyModification(arguments);
         }
         return arguments;
     }

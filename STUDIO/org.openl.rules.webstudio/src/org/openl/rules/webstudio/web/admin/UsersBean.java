@@ -1,12 +1,12 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+import java.util.StringJoiner;
 
 import javax.faces.application.FacesMessage;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -15,25 +15,33 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 import org.hibernate.validator.constraints.NotBlank;
-import org.hibernate.validator.constraints.NotEmpty;
-import org.openl.rules.security.*;
+import org.openl.rules.security.Group;
+import org.openl.rules.security.Privilege;
+import org.openl.rules.security.Privileges;
+import org.openl.rules.security.User;
+import org.openl.rules.webstudio.security.CurrentUserInfo;
+import org.openl.rules.webstudio.service.AdminUsers;
 import org.openl.rules.webstudio.service.GroupManagementService;
 import org.openl.rules.webstudio.service.UserManagementService;
 import org.openl.util.StringUtils;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * @author Andrei Astrouski
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class UsersBean {
 
     public static final String VALIDATION_EMPTY = "Cannot be empty";
     public static final String VALIDATION_MAX = "Must be less than 25";
-    public static final String VALIDATION_USERNAME = "Invalid characters (valid: latin letters, numbers, _ and -)";
-    public static final String VALIDATION_GROUPS = "Please select at least one group";
+    public static final String VALIDATION_USERNAME_CHARACTERS = "The name must not contain the following characters: / \\ : * ? \" < > | { } ~ ^";
+    public static final String VALIDATION_USERNAME_BEGIN_END = "The name should not end or begin with '.' or a whitespace.";
+    public static final String VALIDATION_USERNAME_CONSECUTIVE = "The name should not contain consecutive '.'.";
 
     @Size(max = 25, message = VALIDATION_MAX)
     private String firstName;
@@ -43,7 +51,9 @@ public class UsersBean {
 
     @NotBlank(message = VALIDATION_EMPTY)
     @Size(max = 25, message = VALIDATION_MAX)
-    @Pattern(regexp = "([a-zA-Z0-9-_]*)?", message = VALIDATION_USERNAME)
+    @Pattern.List({ @Pattern(regexp = "(.(?<![.]{2}))+", message = VALIDATION_USERNAME_CONSECUTIVE),
+            @Pattern(regexp = "[^.\\s].*[^.\\s]|[^.\\s]", message = VALIDATION_USERNAME_BEGIN_END),
+            @Pattern(regexp = "[^\\/\\\\:*?\"<>|{}~^]*", message = VALIDATION_USERNAME_CHARACTERS) })
     private String username;
 
     @NotBlank(message = VALIDATION_EMPTY)
@@ -53,35 +63,36 @@ public class UsersBean {
     @Size(max = 25, message = VALIDATION_MAX)
     private String changedPassword;
 
-    @NotEmpty(message = VALIDATION_GROUPS)
-    private List<String> groups;
+    private Set<String> groups;
 
     private boolean internalUser = false;
 
-    @ManagedProperty(value = "#{userManagementService}")
+    @Autowired
     protected UserManagementService userManagementService;
 
-    @ManagedProperty(value = "#{groupManagementService}")
+    @Autowired
     protected GroupManagementService groupManagementService;
 
-    @ManagedProperty(value = "#{passwordEncoder}")
+    @Autowired
     protected PasswordEncoder passwordEncoder;
 
-    @ManagedProperty(value = "#{canCreateInternalUsers}")
+    @Value("#{canCreateInternalUsers}")
     protected boolean canCreateInternalUsers;
 
-    @ManagedProperty(value = "#{canCreateExternalUsers}")
+    @Value("#{canCreateExternalUsers}")
     protected boolean canCreateExternalUsers;
+
+    @Autowired
+    protected AdminUsers adminUsersInitializer;
+
+    @Autowired
+    protected CurrentUserInfo currentUserInfo;
 
     /**
      * Validation for existed user
      */
     public void validateUsername(FacesContext context, UIComponent toValidate, Object value) {
-        User user = null;
-        try {
-            user = userManagementService.loadUserByUsername((String) value);
-        } catch (UsernameNotFoundException ignored) {
-        }
+        User user = userManagementService.loadUserByUsername((String) value);
 
         if (user != null) {
             throw new ValidatorException(new FacesMessage("User with such name already exists"));
@@ -95,80 +106,52 @@ public class UsersBean {
     public String getGroups(Object objUser) {
         @SuppressWarnings("unchecked")
         Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
-        String collect = authorities.stream().filter((p) -> p instanceof Group).map(Privilege::getName)
-            .map((n) -> "\"" + n + "\"").collect(Collectors.joining(",", "[", "]"));
-        return collect;
+        StringJoiner joiner = new StringJoiner(",", "[", "]");
+        for (Privilege authority : authorities) {
+            if (authority instanceof Group) {
+                joiner.add("\"" + authority.getName() + "\"");
+            }
+        }
+        return joiner.toString();
     }
 
-    public String getOnlyAdminGroups(Object objUser) {
-        if (!isOnlyAdmin(objUser)) {
-            return "[]";
-        }
-
-        String adminPrivilege = Privileges.ADMIN.name();
-        @SuppressWarnings("unchecked")
-        Collection<Privilege> authorities = (Collection<Privilege>) ((User) objUser).getAuthorities();
-        String collect = authorities.stream().filter((p) -> p instanceof Group).map(p -> ((Group) p))
-            .filter(p -> p.hasPrivilege(adminPrivilege)).map(Group::getAuthority).map((n) -> "\"" + n + "\"")
-            .collect(Collectors.joining(",", "[", "]"));
-        return collect;
-    }
-
-    private List<Privilege> getSelectedGroups() {
-        List<Privilege> resultGroups = new ArrayList<>();
-        Map<String, Group> groups = new HashMap<>();
-
-        if (this.groups != null) {
-            for (String groupName : this.groups) {
-                groups.put(groupName, groupManagementService.getGroupByName(groupName));
+    public String getOnlyAdminGroups() {
+        StringJoiner joiner = new StringJoiner(",", "[", "]");
+        for (Group x : groupManagementService.getGroups()) {
+            if (x.hasPrivilege(Privileges.ADMIN.getAuthority())) {
+                joiner.add("\"" + x.getAuthority() + "\"");
             }
-
-            for (Group group : new ArrayList<>(groups.values())) {
-                if (!groups.isEmpty()) {
-                    removeIncludedGroups(group, groups);
-                }
-            }
-
-            resultGroups.addAll(groups.values());
         }
-
-        return resultGroups;
+        return joiner.toString();
     }
 
     public void addUser() {
         boolean willBeExternalUser = canCreateExternalUsers && (!internalUser || !canCreateInternalUsers);
         String passwordHash = willBeExternalUser ? null : passwordEncoder.encode(password);
-        userManagementService.addUser(new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
+        userManagementService.addUser(username, firstName, lastName, passwordHash);
+        userManagementService.updateAuthorities(username, groups);
     }
 
     public void editUser() {
         User user = userManagementService.loadUserByUsername(username);
-        if (!user.isInternalUser()) {
-            firstName = user.getFirstName();
-            lastName = user.getLastName();
+        if (user.isInternalUser()) {
+            boolean updatePassword = StringUtils.isNotBlank(changedPassword);
+            String passwordHash = updatePassword ? passwordEncoder.encode(changedPassword) : null;
+            userManagementService.updateUserData(username, firstName, lastName, passwordHash, updatePassword);
         }
-        String passwordHash = StringUtils.isBlank(changedPassword) ? null : passwordEncoder.encode(changedPassword);
-        userManagementService
-            .updateUser(new SimpleUser(firstName, lastName, username, passwordHash, getSelectedGroups()));
+        boolean leaveAdminGroups = adminUsersInitializer.isSuperuser(username) || currentUserInfo.getUserName()
+            .equals(username);
+        userManagementService.updateAuthorities(username, groups, leaveAdminGroups);
     }
 
-    private void removeIncludedGroups(Group group, Map<String, Group> groups) {
-        Set<String> groupNames = new HashSet<>(groups.keySet());
-        for (String checkGroupName : groupNames) {
-            if (!group.getName().equals(checkGroupName) && group.hasPrivilege(checkGroupName)) {
-                Group includedGroup = groups.get(checkGroupName);
-                if (includedGroup != null) {
-                    removeIncludedGroups(includedGroup, groups);
-                    groups.remove(checkGroupName);
-                }
-            }
-        }
+    public boolean isSuperuser(User user) {
+        String username = user.getUsername();
+        return adminUsersInitializer.isSuperuser(username);
     }
 
-    public boolean isOnlyAdmin(Object objUser) {
-        String adminPrivilege = Privileges.ADMIN.name();
-        return ((User) objUser)
-            .hasPrivilege(adminPrivilege) && userManagementService.getUsersByPrivilege(adminPrivilege).size() == 1;
+    public boolean isCurrentUser(User user) {
+        String username = user.getUsername();
+        return currentUserInfo.getUserName().equals(username);
     }
 
     public void deleteUser(String username) {
@@ -219,15 +202,21 @@ public class UsersBean {
         return internalUser;
     }
 
+    public boolean isUnsafePassword(User user) {
+        String password = user.getPassword();
+        String username = user.getUsername();
+        return password != null && passwordEncoder.matches(username, password);
+    }
+
     public void setInternalUser(boolean internalUser) {
         this.internalUser = internalUser;
     }
 
-    public List<String> getGroups() {
+    public Set<String> getGroups() {
         return groups;
     }
 
-    public void setGroups(List<String> groups) {
+    public void setGroups(Set<String> groups) {
         this.groups = groups;
     }
 

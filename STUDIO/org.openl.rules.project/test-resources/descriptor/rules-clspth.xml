@@ -13,7 +13,7 @@
 		<entry path="file.jar" />
 		<entry path="lib/*.jar" />
 		<entry path="lib2/**/*.jar" />
-		<entry path="lib2/file.jar" />
+		<entry path="./lib2/file.jar" />
 		<entry path="no_file.jar" />
 	</classpath>
 </project>

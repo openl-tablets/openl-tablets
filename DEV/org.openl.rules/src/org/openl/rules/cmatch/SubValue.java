@@ -5,8 +5,8 @@ import org.openl.rules.table.IGridRegion;
 import org.openl.rules.table.ui.ICellStyle;
 
 public class SubValue {
-    private StringValue value;
-    private int indent;
+    private final StringValue value;
+    private final int indent;
     private IGridRegion gridRegion;
 
     public SubValue(StringValue value, ICellStyle cellStyle) {

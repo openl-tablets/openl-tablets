@@ -1,6 +1,3 @@
-/**
- * Created Jul 8, 2007
- */
 package org.openl.rules.dt.algorithm;
 
 import java.util.ArrayList;
@@ -11,6 +8,7 @@ import java.util.Objects;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.impl.BindHelper;
 import org.openl.domain.IIntIterator;
 import org.openl.domain.IIntSelector;
 import org.openl.rules.binding.RulesBindingDependencies;
@@ -41,12 +39,11 @@ import org.openl.rules.dt.type.StringRangeAdaptor;
 import org.openl.rules.helpers.DateRange;
 import org.openl.rules.helpers.NumberUtils;
 import org.openl.rules.helpers.StringRange;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullParameterDeclaration;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.util.ClassUtils;
 import org.openl.vm.IRuntimeEnv;
@@ -132,7 +129,7 @@ import org.openl.vm.Tracer;
  * <p/>
  * <code>driver.type == type</code>
  * <p/>
- *
+ * <p>
  * where <code>driver.type</code> is tested value and <code>type</code> is rule condition parameter against which the
  * tested value is being checked. We could parse the code and figure it out automatically - but we decided to simplify
  * our task by putting a bit more responsibility (and control too) into developer's hands. If the condition expression
@@ -183,7 +180,7 @@ import org.openl.vm.Tracer;
  *
  * </tbody>
  * </table>
- *
+ * <p>
  * The OpenL Tablets Decision Table Optimizer will automatically recognize these conditions and create indexes for
  * them.<br/>
  * The advantages of the suggested approach are summarized here:
@@ -243,23 +240,23 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     }
 
     private static boolean isDoubleRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.DoubleRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.DoubleRange.class == type.getInstanceClass();
     }
 
     private static boolean isIntRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.IntRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.IntRange.class == type.getInstanceClass();
     }
 
     private static boolean isCharRangeType(IOpenClass type) {
-        return org.openl.rules.helpers.CharRange.class.equals(type.getInstanceClass());
+        return org.openl.rules.helpers.CharRange.class == type.getInstanceClass();
     }
 
     private static boolean isStringRangeType(IOpenClass type) {
-        return StringRange.class.equals(type.getInstanceClass());
+        return StringRange.class == type.getInstanceClass();
     }
 
     private static boolean isDateRangeType(IOpenClass type) {
-        return DateRange.class.equals(type.getInstanceClass());
+        return DateRange.class == type.getInstanceClass();
     }
 
     private static boolean isCharType(IOpenClass type) {
@@ -277,14 +274,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
     // TODO to do - fix _NO_PARAM_ issue
     @SuppressWarnings("unchecked")
     public static IConditionEvaluator makeEvaluator(ICondition condition,
-            IOpenClass inputParamType,
-            IBindingContext bindingContext) throws SyntaxNodeException {
+            IOpenClass conditionMethodType,
+            IBindingContext bindingContext) {
         IParameterDeclaration[] params = condition.getParams();
+        if (NullParameterDeclaration.isAnyNull(params)) {
+            return DefaultConditionEvaluator.INSTANCE; // parameters defined with error cannot build evaluator
+        }
         if (params.length == 1) {
             IOpenClass conditionParamType = params[0].getType();
 
             ConditionCasts conditionCasts = ConditionHelper
-                .findConditionCasts(conditionParamType, inputParamType, bindingContext);
+                .findConditionCasts(conditionParamType, conditionMethodType, bindingContext);
 
             if (conditionCasts.isCastToInputTypeExists()) {
                 return condition.getNumberOfEmptyRules(0) > 1 ? new EqualsIndexedEvaluatorV2(conditionCasts)
@@ -295,15 +295,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             if (aggregateInfo.isAggregate(conditionParamType)) {
                 ConditionCasts aggregateConditionCasts = ConditionHelper.findConditionCasts(aggregateInfo
-                    .getComponentType(conditionParamType), inputParamType, bindingContext);
+                    .getComponentType(conditionParamType), conditionMethodType, bindingContext);
                 if (aggregateConditionCasts.isCastToConditionTypeExists() || aggregateConditionCasts
-                    .isCastToInputTypeExists() && !inputParamType.isArray()) {
+                    .isCastToInputTypeExists() && !conditionMethodType.isArray()) {
                     return condition.getNumberOfEmptyRules(0) > 1 ? new ContainsInArrayIndexedEvaluatorV2(
                         aggregateConditionCasts) : new ContainsInArrayIndexedEvaluator(aggregateConditionCasts);
                 }
             }
 
-            IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(inputParamType,
+            IRangeAdaptor<? extends Object, ? extends Comparable<?>> rangeAdaptor = getRangeAdaptor(conditionMethodType,
                 conditionParamType);
 
             if (rangeAdaptor != null) {
@@ -318,20 +318,15 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                                                               : new EqualsIndexedEvaluator(conditionCasts);
             }
 
-            if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
-                .equals(inputParamType)) {
-                return new DefaultConditionEvaluator();
-            }
-
         } else if (params.length == 2) {
             IOpenClass conditionParamType0 = params[0].getType();
             IOpenClass conditionParamType1 = params[1].getType();
 
             ConditionCasts conditionCasts = ConditionHelper
-                .findConditionCasts(conditionParamType0, inputParamType, bindingContext);
+                .findConditionCasts(conditionParamType0, conditionMethodType, bindingContext);
 
             if ((conditionCasts.atLeastOneExists()) && Objects.equals(conditionParamType0, conditionParamType1)) {
-                Class<?> clazz = inputParamType.getInstanceClass();
+                Class<?> clazz = conditionMethodType.getInstanceClass();
                 if (clazz == byte.class || clazz == short.class || clazz == int.class || clazz == long.class || clazz == float.class || clazz == double.class || ClassUtils
                     .isAssignable(clazz, Comparable.class)) {
                     return new CombinedRangeIndexEvaluator(null, 2, conditionCasts);
@@ -340,18 +335,18 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
             IAggregateInfo aggregateInfo = conditionParamType1.getAggregateInfo();
             if (aggregateInfo.isAggregate(
-                conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == inputParamType) {
+                conditionParamType1) && aggregateInfo.getComponentType(conditionParamType1) == conditionMethodType) {
                 BooleanTypeAdaptor booleanTypeAdaptor = BooleanAdaptorFactory.getAdaptor(conditionParamType0);
 
                 if (booleanTypeAdaptor != null) {
                     return new ContainsInOrNotInArrayIndexedEvaluator(booleanTypeAdaptor);
                 }
             }
+        }
 
-            if (JavaOpenClass.BOOLEAN.equals(inputParamType) || JavaOpenClass.getOpenClass(Boolean.class)
-                .equals(inputParamType)) {
-                return new DefaultConditionEvaluator();
-            }
+        if (JavaOpenClass.BOOLEAN.equals(conditionMethodType) || JavaOpenClass.getOpenClass(Boolean.class)
+            .equals(conditionMethodType)) {
+            return DefaultConditionEvaluator.INSTANCE;
         }
 
         List<String> names = new ArrayList<>();
@@ -364,16 +359,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             "Cannot build an evaluator for condition '%s' with parameters '%s' and method parameter '%s'.",
             condition.getName(),
             String.join(", ", names),
-            inputParamType.getName());
+            conditionMethodType.getName());
 
-        throw SyntaxNodeExceptionUtils.createError(message, null, null, condition.getUserDefinedExpressionSource());
+        BindHelper.processError(message, condition.getUserDefinedExpressionSource(), bindingContext);
+        return DefaultConditionEvaluator.INSTANCE;
     }
 
     private ConditionToEvaluatorHolder[] initEvaluators(IConditionEvaluator[] evaluators,
             DecisionTable table,
             IndexInfo info) {
         if (table.getNumberOfConditions() <= info.fromCondition || info.fromCondition > info.toCondition) {
-            return new ConditionToEvaluatorHolder[0];
+            return ConditionToEvaluatorHolder.EMPTY_ARRAY;
         } else {
             List<ConditionToEvaluatorHolder> evalToConds = new ArrayList<>(evaluators.length);
             for (int j = info.fromCondition; j <= info.toCondition; j++) {
@@ -392,7 +388,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
                 evalToConds.add(pair);
             }
             Collections.sort(evalToConds);
-            return evalToConds.toArray(new ConditionToEvaluatorHolder[0]);
+            return evalToConds.toArray(ConditionToEvaluatorHolder.EMPTY_ARRAY);
         }
     }
 
@@ -401,7 +397,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return null;
         }
         ConditionToEvaluatorHolder firstPair = evaluators[0];
-        if (!firstPair.canIndex()) {
+        if (!firstPair.isIndexed()) {
             return null;
         }
         IRuleIndex indexRoot = firstPair.makeIndex(info.makeRuleIterator());
@@ -415,7 +411,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
         }
 
         ConditionToEvaluatorHolder pair = evaluators[condN];
-        if (!pair.canIndex()) {
+        if (!pair.isIndexed()) {
             return;
         }
 
@@ -439,24 +435,26 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     /**
      * Clears condition's param values.
-     *
+     * <p>
      * Memory optimization: clear condition values because this values will be used in index(only if it condition is not
      * used).
      */
     @Override
-    public void removeParamValuesForIndexedConditions() {
-        for (ConditionToEvaluatorHolder eval : evaluators) {
-            if (eval.isIndexed()) {
-                if (!isDependecyOnConditionExists(eval.getCondition())) {
-                    eval.getCondition().clearParamValues();
+    public void cleanParamValuesForIndexedConditions() {
+        if (dependencies != null) {
+            for (ConditionToEvaluatorHolder eval : evaluators) {
+                if (eval.isIndexed()) {
+                    if (!isDependencyOnConditionExists(eval.getCondition())) {
+                        eval.getCondition().clearParamValues();
+                    }
                 }
             }
+            // we do not need dependencies after clearing conditions
+            dependencies = null;
         }
-        // we do not need dependencies after clearing conditions
-        dependencies = null;
     }
 
-    private boolean isDependecyOnConditionExists(ICondition condition) {
+    private boolean isDependencyOnConditionExists(ICondition condition) {
         for (IOpenField field : dependencies.getFieldsMap().values()) {
             if (field instanceof ConditionOrActionParameterField && ((ConditionOrActionParameterField) field)
                 .getConditionOrAction() == condition) {
@@ -468,14 +466,14 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     /**
      * This method produces the iterator over the set of rules in DT. It has to retain the order of the rules.
-     *
+     * <p>
      * An optimized algorithm has 2 distinct steps:
-     *
+     * <p>
      * 1) Create initial discriminate rules set using indexing in initial conditions.
-     *
+     * <p>
      * 2) Iterate over the initial set using remaining conditions as selectors; not-optimized algorithm has the whole
      * rules set as initial.
-     *
+     * <p>
      * Performance. From the algorithm definition it is clear, that step 1 of algorithm is performed with constant or
      * near constant speed with regard to the number of the rules. The performance of the part 2 is largely dependent
      * the size of the resulting rules set. The order of initial indexed conditions does not seem to affect performance
@@ -529,6 +527,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
 
     private static class ConditionToEvaluatorHolder implements Comparable<ConditionToEvaluatorHolder> {
 
+        static final ConditionToEvaluatorHolder[] EMPTY_ARRAY = new ConditionToEvaluatorHolder[0];
         private final IndexInfo localInfo;
         private int uniqueKeysSize = -1;
         private final ICondition condition;
@@ -552,7 +551,7 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             this.evaluator = evaluator;
         }
 
-        public boolean canIndex() {
+        public boolean isIndexed() {
             return evaluator.isIndexed() && !condition.hasFormulas();
         }
 
@@ -560,12 +559,17 @@ public class DecisionTableOptimizedAlgorithm implements IDecisionTableAlgorithm 
             return evaluator.makeIndex(condition, it);
         }
 
-        public boolean isIndexed() {
-            return evaluator.isIndexed();
-        }
-
         @Override
         public int compareTo(ConditionToEvaluatorHolder o) {
+            if (!this.isIndexed() && !o.isIndexed()) {
+                return 0;
+            }
+            if (this.isIndexed() && !o.isIndexed()) {
+                return -1;
+            }
+            if (!this.isIndexed() && o.isIndexed()) {
+                return 1;
+            }
             if (this.isEqualsIndex() && o.isEqualsIndex()) {
                 return Integer.compare(this.getUniqueKeysSize(), o.getUniqueKeysSize());
             }

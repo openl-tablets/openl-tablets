@@ -5,7 +5,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class MethodDelegator implements IOpenMethod {
 
-    protected IMethodCaller methodCaller;
+    protected final IMethodCaller methodCaller;
 
     public MethodDelegator(IMethodCaller methodCaller) {
         this.methodCaller = methodCaller;

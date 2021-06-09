@@ -5,7 +5,7 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-              http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.2.xsd
+              http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.4.xsd
               http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="common-authentication.xml"/>
@@ -28,11 +28,12 @@
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
-            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none" />
-            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none" />
-            <security:filter-chain pattern="/faces/pages/public/**" filters="none" />
-            <security:filter-chain pattern="/web/public/**" filters="none" />
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
+            <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none"/>
+            <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none"/>
+            <security:filter-chain pattern="/faces/pages/public/**" filters="none"/>
+            <security:filter-chain pattern="/web/public/**" filters="none"/>
             <security:filter-chain pattern="/saml/login/**"
                                    filters="securityContextPersistenceFilter,metadataGeneratorFilter,samlEntryPoint"/>
             <security:filter-chain pattern="/security_logout"
@@ -53,8 +54,6 @@
     </bean>
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
-    <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
-
     <util:list id="authenticationProviders">
         <ref bean="authenticationProviderWrapper"/>
     </util:list>
@@ -111,13 +110,18 @@
     <bean id="samlLogger" class="org.springframework.security.saml.log.SAMLDefaultLogger"/>
 
     <!-- Central storage of cryptographic keys -->
-    <bean id="keyManager" class="org.springframework.security.saml.key.JKSKeyManager">
+    <bean id="keyManager" class="org.openl.rules.webstudio.security.OpenLJKSKeyManager">
         <constructor-arg name="storeFile" value="#{environment.getProperty('security.saml.keystore-file-path')}"/>
         <constructor-arg name="storePass" value="#{environment.getProperty('security.saml.keystore-password')}"/>
         <constructor-arg name="passwords">
             <map>
                 <entry key="#{environment.getProperty('security.saml.keystore-sp-alias')}"
                        value="#{environment.getProperty('security.saml.keystore-sp-password')}"/>
+            </map>
+        </constructor-arg>
+        <constructor-arg name="availableCredentials">
+            <map>
+                <entry key="remote-server" value="#{environment.getProperty('security.saml.server-certificate')}"/>
             </map>
         </constructor-arg>
         <constructor-arg name="defaultKey" value="#{environment.getProperty('security.saml.keystore-sp-alias')}"/>
@@ -131,6 +135,7 @@
                 <property name="binding" value="#{environment.getProperty('security.saml.binding')}"/>
                 <property name="authnContexts"
                           value="#{T(java.util.Arrays).asList('${security.saml.authentication-contexts}')}"/>
+                <property name="forceAuthN" value="true"/>
             </bean>
         </property>
     </bean>
@@ -164,14 +169,19 @@
     <bean id="metadata" class="org.springframework.security.saml.metadata.CachingMetadataManager">
         <constructor-arg>
             <list>
-                <!-- Example of HTTP metadata without Extended Metadata -->
-                <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
-                    <!-- URL containing the metadata -->
-                    <constructor-arg name="metadataURL"
-                                     value="#{environment.getProperty('security.saml.saml-server-metadata-url')}"/>
-                    <!-- Timeout for metadata loading in ms -->
-                    <constructor-arg name="requestTimeout" value="${security.saml.request-timeout}"/>
-                    <property name="parserPool" ref="parserPool"/>
+                <bean class="org.springframework.security.saml.metadata.ExtendedMetadataDelegate">
+                    <constructor-arg>
+                        <bean class="org.opensaml.saml2.metadata.provider.HTTPMetadataProvider">
+                            <!-- URL containing the metadata -->
+                            <constructor-arg name="metadataURL"
+                                             value="#{environment.getProperty('security.saml.saml-server-metadata-url')}"/>
+                            <!-- Timeout for metadata loading in ms -->
+                            <constructor-arg name="requestTimeout" value="${security.saml.request-timeout}"/>
+                            <property name="parserPool" ref="parserPool"/>
+                        </bean>
+                    </constructor-arg>
+                    <property name="metadataTrustCheck"
+                              value="#{environment.getProperty('security.saml.metadata-trust-check')}"/>
                 </bean>
             </list>
         </constructor-arg>
@@ -187,7 +197,14 @@
         <property name="userDetails">
             <bean class="org.openl.security.saml.SAMLAttributesToOpenLUserDetailsService">
                 <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="authoritiesMapper" ref="authoritiesMapper"/>
+                <constructor-arg name="authoritiesMapper">
+                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                        <constructor-arg name="userManagementService" ref="userManagementService"/>
+                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                        <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
+                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                    </bean>
+                </constructor-arg>
             </bean>
         </property>
         <property name="forcePrincipalAsString" value="false"/>
@@ -200,19 +217,9 @@
     <bean id="authenticationProviderWrapper"
           class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="samlAuthenticationProvider"/>
-        <constructor-arg name="authenticationUserDetailsService">
-            <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
-                <constructor-arg name="userManagementService" ref="userManagementService"/>
-                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="prefix" value="saml"/>
-            </bean>
-        </constructor-arg>
-        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
-
     <!-- Provider of default SAML Context -->
-    <bean id="contextProvider" class="org.springframework.security.saml.context.SAMLContextProviderImpl"/>
+    <import resource="security-saml-loadbalancer-${security.saml.is-app-after-balancer}.xml"/>
 
     <!-- Processing filter for WebSSO profile messages -->
     <bean id="samlWebSSOProcessingFilter" class="org.springframework.security.saml.SAMLProcessingFilter">
@@ -257,7 +264,10 @@
     </bean>
 
     <!-- SAML 2.0 WebSSO Assertion Consumer -->
-    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl"/>
+    <bean id="webSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerImpl">
+        <property name="maxAuthenticationAge"
+                  value="#{environment.getProperty('security.saml.max-authentication-age')}"/>
+    </bean>
 
     <!-- SAML 2.0 Holder-of-Key WebSSO Assertion Consumer -->
     <bean id="hokWebSSOprofileConsumer" class="org.springframework.security.saml.websso.WebSSOProfileConsumerHoKImpl"/>

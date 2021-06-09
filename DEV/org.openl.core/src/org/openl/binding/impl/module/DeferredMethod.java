@@ -21,7 +21,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class DeferredMethod extends AMethod {
-    private ISyntaxNode methodBodyNode;
+    private final ISyntaxNode methodBodyNode;
 
     private IBoundMethodNode methodBodyBoundNode = null;
 
@@ -54,8 +54,8 @@ public class DeferredMethod extends AMethod {
             IOpenRunner runner = env.getRunner();
 
             return runner.run(methodBodyBoundNode, params, env);
-        } catch (ControlSignalReturn csret) {
-            return csret.getReturnValue();
+        } catch (ControlSignalReturn e) {
+            return e.getReturnValue();
         } finally {
             env.popThis();
         }

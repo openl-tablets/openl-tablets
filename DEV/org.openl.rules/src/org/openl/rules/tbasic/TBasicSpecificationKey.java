@@ -13,9 +13,9 @@ public enum TBasicSpecificationKey {
     IF("IF"),
     ELSE("ELSE");
 
-    private String name;
+    private final String name;
 
-    private TBasicSpecificationKey(String name) {
+    TBasicSpecificationKey(String name) {
         this.name = name;
     }
 

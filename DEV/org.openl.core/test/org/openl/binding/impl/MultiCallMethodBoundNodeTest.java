@@ -39,7 +39,7 @@ public class MultiCallMethodBoundNodeTest {
             methodCaller,
             Collections.singletonList(2));
 
-        assertEquals(JavaOpenClass.STRING.getAggregateInfo().getIndexedAggregateType(JavaOpenClass.STRING),
+        assertEquals(JavaOpenClass.STRING.getArrayType(1),
             boundNode.getType());
     }
 }

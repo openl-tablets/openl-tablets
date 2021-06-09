@@ -23,8 +23,7 @@ public class String2LocalTimeConvertor implements IString2DataConvertor<LocalTim
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
-                LocalTime localTime = LocalTime.parse(data, dtFormat);
-                return localTime;
+                return LocalTime.parse(data, dtFormat);
             } catch (DateTimeParseException e) {
                 // Loop on
             }

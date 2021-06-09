@@ -11,9 +11,9 @@ import org.openl.rules.table.IGridRegion;
  */
 public class RegionGridSelector implements IGridSelector {
 
-    private IGridRegion[] regions;
+    private final IGridRegion[] regions;
 
-    private boolean exclude;
+    private final boolean exclude;
 
     public RegionGridSelector(IGridRegion region, boolean exclude) {
         regions = new IGridRegion[] { region };
@@ -26,8 +26,8 @@ public class RegionGridSelector implements IGridSelector {
     }
 
     private boolean contains(int col, int row) {
-        for (int i = 0; i < regions.length; i++) {
-            if (IGridRegion.Tool.contains(regions[i], col, row)) {
+        for (IGridRegion region : regions) {
+            if (IGridRegion.Tool.contains(region, col, row)) {
                 return true;
             }
         }

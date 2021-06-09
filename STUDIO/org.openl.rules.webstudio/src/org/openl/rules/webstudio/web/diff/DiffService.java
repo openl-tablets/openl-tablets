@@ -38,7 +38,7 @@ public class DiffService {
     public Response compareXls(@Context UriInfo uriInfo,
             @Multipart(value = "file1", required = false) InputStream file1,
             @Multipart(value = "file2", required = false) InputStream file2,
-            @Multipart(value = "fileName") String fileName) {
+            @Multipart(value = "fileName", required = false) String fileName) {
         try {
             String requestId = UUID.randomUUID().toString();
 

@@ -4,8 +4,11 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.plugin.AbstractMojo;
@@ -18,11 +21,11 @@ import org.openl.util.ZipUtils;
 
 abstract class BaseOpenLMojo extends AbstractMojo {
     private static final String SEPARATOR = "--------------------------------------------------";
-    protected static final String OPENL_ARTIFACT_TYPE = "zip";
+    private static final Collection<String> OPENL_FILES = Arrays.asList("rules.xml", "rules-deploy.xml");
 
     /**
-     * Folder that contains all OpenL-related resources (OpenL rules, project descriptor etc.). For example:
-     * "${project.basedir}/src/main/openl".
+     * Folder that contains all OpenL Tablets-related resources such as rules and project descriptor, for example,
+     * ${project.basedir}/src/main/openl.
      *
      * @since 5.19.0
      */
@@ -145,15 +148,43 @@ abstract class BaseOpenLMojo extends AbstractMojo {
         return sb;
     }
 
-    private Collection<Artifact> getDependentOpenLProjects() {
-        List<Artifact> dependencies = new ArrayList<>();
+    protected Set<Artifact> getDependentOpenLProjects() {
+        Set<Artifact> dependencies = new HashSet<>();
         for (Artifact artifact : project.getArtifacts()) {
-            if (OPENL_ARTIFACT_TYPE.equals(artifact.getType())) {
+            File file = artifact.getFile();
+            if (ZipUtils.contains(file, OPENL_FILES::contains)) {
                 dependencies.add(artifact);
+                debug("OpenL artifact : ", artifact);
             }
         }
-
         return dependencies;
+    }
+
+    protected Set<Artifact> getDependentNonOpenLProjects() {
+        Set<Artifact> dependencies = new HashSet<>();
+        for (Artifact artifact : project.getArtifacts()) {
+            File file = artifact.getFile();
+            if (!ZipUtils.contains(file, OPENL_FILES::contains)) {
+                dependencies.add(artifact);
+                debug("Non OpenL artifact : ", artifact);
+            }
+        }
+        return dependencies;
+    }
+
+    static boolean skipOpenLCoreDependency(List<String> dependencyTrail) {
+        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
+            String dependency = dependencyTrail.get(i);
+            if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
+                    .startsWith("org.slf4j:")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    static boolean isOpenLCoreDependency(String group) {
+        return "org.openl.rules".equals(group) || "org.openl".equals(group) || "org.slf4j".equals(group);
     }
 
 }

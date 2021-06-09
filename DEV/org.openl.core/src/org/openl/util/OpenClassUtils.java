@@ -1,10 +1,6 @@
 package org.openl.util;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import org.openl.types.IOpenClass;
-import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public final class OpenClassUtils {
@@ -12,102 +8,16 @@ public final class OpenClassUtils {
     private OpenClassUtils() {
     }
 
-    public static IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
-        IOpenClass t1 = openClass1;
-        IOpenClass t2 = openClass2;
-        if (t1.getInstanceClass() != null && t2.getInstanceClass() != null) {
-            if (t1.getInstanceClass().isPrimitive() && !t2.getInstanceClass().isPrimitive() || !t1.getInstanceClass()
-                .isPrimitive() && t2.getInstanceClass().isPrimitive()) {
-                if (t1.getInstanceClass().isPrimitive()) {
-                    t1 = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t1.getInstanceClass()));
-                }
-                if (t2.getInstanceClass().isPrimitive()) {
-                    t2 = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t2.getInstanceClass()));
-                }
-            }
+    public static IOpenClass getRootComponentClass(IOpenClass fieldType) {
+        if (!fieldType.isArray()) {
+            return fieldType;
         }
-        return findParentClassNoPrimitives(t1, t2);
+        // Get the component type of the array
+        //
+        return getRootComponentClass(fieldType.getComponentClass());
     }
 
-    private static IOpenClass findParentClassNoPrimitives(IOpenClass class1, IOpenClass class2) {
-        if (NullOpenClass.isAnyNull(class1)) {
-            if (NullOpenClass.isAnyNull(class2)) {
-                return class2;
-            }
-            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(class2.getInstanceClass()));
-        }
-        if (NullOpenClass.isAnyNull(class2)) {
-            if (NullOpenClass.isAnyNull(class1)) {
-                return class1;
-            }
-            return JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(class1.getInstanceClass()));
-        }
-
-        if (class1.isArray() && class2.isArray()) {
-            int dim = 0;
-            while (class1.isArray() && class2.isArray()) {
-                dim++;
-                class1 = class1.getComponentClass();
-                class2 = class2.getComponentClass();
-            }
-            IOpenClass parentClass = findParentClassNoPrimitives(class1, class2);
-            if (parentClass == null) {
-                return null;
-            }
-            return parentClass.getArrayType(dim);
-        }
-
-        if (class1.getInstanceClass() == null && class2.getInstanceClass() == null) {
-            return class1;
-        }
-
-        // If class1 is NULL literal
-        if (class1.getInstanceClass() == null) {
-            if (class2.getInstanceClass().isPrimitive()) {
-                return null;
-            } else {
-                return class2;
-            }
-        }
-
-        // If class2 is NULL literal
-        if (class2.getInstanceClass() == null) {
-            if (class1.getInstanceClass().isPrimitive()) {
-                return null;
-            } else {
-                return class1;
-            }
-        }
-
-        if (class1.getInstanceClass().isPrimitive() || class2.getInstanceClass().isPrimitive()) { // If
-            // one
-            // is
-            // primitive
-            if (class1.equals(class2)) {
-                return class1;
-            }
-            return null;
-        }
-        Set<Class<?>> superClasses = new HashSet<>();
-        Class<?> clazz = class1.getInstanceClass();
-        superClasses.add(clazz);
-        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
-            clazz = clazz.getSuperclass();
-            superClasses.add(clazz);
-        }
-        clazz = class2.getInstanceClass();
-        if (superClasses.contains(clazz)) {
-            return JavaOpenClass.getOpenClass(clazz);
-        }
-        while (!clazz.isInterface() && !Object.class.equals(clazz)) {
-            clazz = clazz.getSuperclass();
-            if (superClasses.contains(clazz)) {
-                return JavaOpenClass.getOpenClass(clazz);
-            }
-            superClasses.add(clazz);
-        }
-
-        return null;
+    public static boolean isVoid(IOpenClass type) {
+        return type == JavaOpenClass.VOID || type == JavaOpenClass.CLS_VOID;
     }
-
 }

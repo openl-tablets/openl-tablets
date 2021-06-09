@@ -18,8 +18,8 @@ public class RowParser implements IRowParser {
     private static final String ACTION = "Action";
     private static final String BEFORE = "Before";
     private static final String AFTER = "After";
-    private List<AlgorithmRow> rows;
-    private TableParserSpecificationBean[] specifications;
+    private final List<AlgorithmRow> rows;
+    private final TableParserSpecificationBean[] specifications;
 
     public RowParser(List<AlgorithmRow> rows, TableParserSpecificationBean[] specifications) {
         assert rows != null;

@@ -16,12 +16,12 @@
 
         <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
         <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="#{contextPath}/css/common.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?6" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
 
-        <script src="#{contextPath}/javascript/common.js?2"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
+        <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
         <script src="#{contextPath}/javascript/vendor/jquery.are-you-sure.js"></script>
         <script src="#{contextPath}/javascript/vendor/bootstrap.min.js"></script>
@@ -30,6 +30,7 @@
         <script src="#{contextPath}/javascript/jquery.popup.js"></script>
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
         <script src="#{contextPath}/javascript/bomjs.js"></script>
+        <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
 
         <h:outputScript name="jsf.js" library="javax.faces" />
 
@@ -50,6 +51,8 @@
                     handleError(399);
                 }
                 handleError(data.responseCode);
+                console.error("Error in response:");
+                console.error(data);
             };
             jsf.ajax.addOnError(onError);
 
@@ -73,6 +76,12 @@
                     },
                     info: function(content) {
                         message(content, 8000, true);
+                    },
+                    showLoader: function() {
+                        showLoader();
+                    },
+                    hideLoader: function() {
+                        hideLoader();
                     }
                 }
             };
@@ -139,7 +148,7 @@
             }
 
           $j(function () {
-              fixTabIndexesInRichPopupPanels();
+              fixRichFaces();
               updateSubmitListener(showLoader);
           });
           //]]>
@@ -197,11 +206,5 @@
 
         <!-- ajax request can change DOM, for example add submit buttons. We must add listeners to them when request is finished. -->
         <a4j:status onstart="showLoader()" onstop="hideLoader(); updateSubmitListener(showLoader);" />
-
-        <c:if test="#{environment.getProperty('webstudio.analytics') != 'false'}">
-            <ui:include src="/pages/common/analytics.xhtml">
-                <ui:param name="id" value="#{environment.getProperty('webstudio.analytics')}" />
-            </ui:include>
-        </c:if>
     </h:body>
 </html>

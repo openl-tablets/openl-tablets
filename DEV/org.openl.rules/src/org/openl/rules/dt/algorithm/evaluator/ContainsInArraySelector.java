@@ -8,8 +8,8 @@ import org.openl.rules.dt.element.ICondition;
 
 public class ContainsInArraySelector implements IIntSelector {
 
-    private ICondition condition;
-    private Object value;
+    private final ICondition condition;
+    private final Object value;
 
     ContainsInArraySelector(ICondition condition, Object value) {
         this.condition = condition;

@@ -1,0 +1,2 @@
+DELETE /admin/deploy/rules-to-deploy HTTP/1.1
+

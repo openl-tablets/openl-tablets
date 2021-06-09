@@ -6,7 +6,7 @@
     xmlns:a4j="http://richfaces.org/a4j"
     xmlns:rich="http://richfaces.org/rich">
 
-    <rich:popupPanel id="modalAddUser" width="530" autosized="true">
+    <rich:popupPanel id="modalAddUser" minWidth="530" autosized="true">
         <f:facet name="header">
             <h:outputText value="Add New User" />
         </f:facet>
@@ -48,13 +48,10 @@
                     <h:message for="lastName" styleClass="error" />
                 </a4j:outputPanel>
 
-                <label class="required">Groups:</label>
+                <label>Groups:</label>
                 <h:selectManyCheckbox id="addUserGroups" value="#{usersBean.groups}" layout="pageDirection">
                     <f:selectItems value="#{usersBean.groupItems}" />
                 </h:selectManyCheckbox>
-                <a4j:outputPanel ajaxRendered="true" id="groupsError">
-                    <h:message for="addUserGroups" styleClass="error" />
-                </a4j:outputPanel>
             </h:panelGrid>
             </div>
 

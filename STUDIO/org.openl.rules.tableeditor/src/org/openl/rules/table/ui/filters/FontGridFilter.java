@@ -12,20 +12,20 @@ import org.openl.rules.table.ui.IGridSelector;
  * @author NSamatov
  */
 public class FontGridFilter extends AGridFilter {
-    private short[] fontColor;
+    private final short[] fontColor;
 
-    private Integer size;
-    private Integer incrementSize;
+    private final Integer size;
+    private final Integer incrementSize;
 
-    private String name;
+    private final String name;
 
-    private Boolean italic;
+    private final Boolean italic;
 
-    private Boolean bold;
+    private final Boolean bold;
 
-    private Boolean underlined;
+    private final Boolean underlined;
 
-    private Boolean strikeout;
+    private final Boolean strikeout;
 
     /**
      * Initialize a filter with some parameters. If any parameter is null, it is not changed when filtering. Instead

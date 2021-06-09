@@ -9,7 +9,7 @@ import org.openl.vm.Tracer;
 public class WeightAlgorithmExecutor implements IMatchAlgorithmExecutor {
 
     public static final Object NO_MATCH = null;
-    private ScoreAlgorithmExecutor scoreAlgorithmExecutor = new ScoreAlgorithmExecutor();
+    private final ScoreAlgorithmExecutor scoreAlgorithmExecutor = new ScoreAlgorithmExecutor();
 
     @Override
     public Object invoke(ColumnMatch target, Object[] params, IRuntimeEnv env) {

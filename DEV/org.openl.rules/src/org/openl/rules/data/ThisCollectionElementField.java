@@ -12,7 +12,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ThisCollectionElementField extends AOpenField {
     private int elementIndex;
-    private CollectionType collectionType;
+    private final CollectionType collectionType;
     private Object mapKey;
 
     public ThisCollectionElementField(int elementIndex, IOpenClass type, CollectionType collectionType) {

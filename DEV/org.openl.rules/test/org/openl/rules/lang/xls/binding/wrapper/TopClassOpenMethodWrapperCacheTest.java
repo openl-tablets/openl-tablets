@@ -1,7 +1,15 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
-import static org.junit.Assert.*;
+import static org.awaitility.Awaitility.given;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
+import java.util.concurrent.Callable;
+import java.util.concurrent.TimeUnit;
+
+import org.junit.Test;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.ADynamicClass;
@@ -11,15 +19,10 @@ import org.openl.vm.IRuntimeEnv;
 
 public class TopClassOpenMethodWrapperCacheTest {
 
-    private static void gc() throws Exception {
-        System.gc();
-        System.gc();
-        System.gc();
-        Thread.sleep(10);
-    }
+    private static final int AWAIT_TIMEOUT = 60;
 
-    @org.junit.Test
-    public void test() throws Exception {
+    @Test
+    public void test() {
         IOpenClass openClass1 = new SomeOpenClass("Class1");
         IOpenMethod m1 = new SomeOpenMethod(null);
 
@@ -45,25 +48,18 @@ public class TopClassOpenMethodWrapperCacheTest {
         assertNotNull(m2);
         assertNotNull(m3);
 
-        gc();
-        assertEquals(3, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(3));
         assertNotNull(openClass1);
         assertNotNull(openClass2);
         assertNotNull(m1);
         assertNotNull(m2);
 
         // Check cache when a method has dependency on a class
+        // There is no reason to keep openClass2 in the cache, if no reference exists to the key.
+        // Zulu JVM cleans weak references eager.
         openClass2 = null;
-        gc();
-        assertEquals(3, cache.cache.size());
-        assertNotNull(openClass1);
-        assertNull(openClass2);
-        assertNotNull(m1);
-        assertNotNull(m2);
-
         m2 = null;
-        gc();
-        assertEquals(2, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(2));
         assertNotNull(openClass1);
         assertNull(openClass2);
         assertNotNull(m1);
@@ -71,16 +67,14 @@ public class TopClassOpenMethodWrapperCacheTest {
 
         // Check when a method can be GC-ed, but class is still used
         m1 = null;
-        gc();
-        assertEquals(2, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(2));
         assertNotNull(openClass1);
         assertNull(openClass2);
         assertNull(m1);
         assertNull(m2);
 
         openClass1 = null;
-        gc();
-        assertEquals(1, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(1));
         assertNull(openClass1);
         assertNull(openClass2);
         assertNull(m1);
@@ -90,16 +84,21 @@ public class TopClassOpenMethodWrapperCacheTest {
 
         // Check when a class can be GC-ed, but method is still used
         openClass3 = null;
-        gc();
-        assertEquals(0, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(0));
         assertNull(openClass3);
         assertNotNull(m3);
 
         m3 = null;
-        gc();
-        assertEquals(0, cache.cache.size());
+        given().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(getCacheSize(cache), equalTo(0));
         assertNull(openClass3);
         assertNull(m3);
+    }
+
+    private Callable<Integer> getCacheSize(TopClassOpenMethodWrapperCache cache) {
+        return () -> {
+            System.gc();
+            return cache.cache.size();
+        };
     }
 
     private static class SomeOpenClass extends ADynamicClass {
@@ -116,11 +115,8 @@ public class TopClassOpenMethodWrapperCacheTest {
 
     private static class SomeOpenMethod extends AMethod {
 
-        private IOpenClass openClass;
-
         SomeOpenMethod(IOpenClass openClass) {
             super(null);
-            this.openClass = openClass;
         }
 
         @Override

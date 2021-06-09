@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
@@ -17,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javax.xml.bind.annotation.XmlSeeAlso;
 import javax.xml.namespace.QName;
 import javax.xml.transform.dom.DOMSource;
 
@@ -27,13 +18,18 @@ import org.apache.cxf.aegis.type.AegisType;
 import org.apache.cxf.aegis.type.TypeCreationOptions;
 import org.apache.cxf.aegis.type.TypeMapping;
 import org.openl.rules.calc.SpreadsheetResult;
-import org.openl.rules.table.Point;
+import org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ArgumentReplacementVariationType;
+import org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ComplexVariationType;
+import org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.DeepCloningVariationType;
+import org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.JXPathVariationType;
+import org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.VariationsResultType;
+import org.openl.rules.ruleservice.databinding.annotation.JacksonBindingConfigurationUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAegisDatabindingFactoryBean {
 
-    private final Logger log = LoggerFactory.getLogger(AbstractAegisDatabindingFactoryBean.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractAegisDatabindingFactoryBean.class);
 
     private Boolean writeXsiTypes;
     private Boolean readXsiTypes;
@@ -45,7 +41,7 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     private Bus bus;
     private Collection<DOMSource> schemas;
     private Map<String, String> namespaceMap;
-    private boolean supportVariations = false;
+    private boolean supportVariations;
 
     public AegisDatabinding createAegisDatabinding() {
         AegisContext aegisContext = new OpenLAegisContext();
@@ -53,6 +49,12 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getConfiguration() != null) {
             aegisDatabinding.setConfiguration(configuration);
             aegisContext.setTypeCreationOptions(configuration);
+        } else {
+            TypeCreationOptions typeCreationOptions = new TypeCreationOptions();
+            typeCreationOptions.setDefaultNillable(false);
+            typeCreationOptions.setDefaultMinOccurs(0);
+            aegisDatabinding.setConfiguration(typeCreationOptions);
+            aegisContext.setTypeCreationOptions(typeCreationOptions);
         }
 
         if (getMtomUseXmime() != null) {
@@ -65,11 +67,10 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             aegisContext.setMtomEnabled(getMtomEnabled());
         }
 
-        Set<String> rootClassNames = getOverrideTypesWithDefaultOpenLTypes();
+        Set<String> rootClassNames = getPreparedOverrideTypes();
         aegisDatabinding.setOverrideTypes(rootClassNames);
         aegisContext.setRootClassNames(rootClassNames);
         aegisContext.initialize();
-
         if (getBus() != null) {
             aegisDatabinding.setBus(getBus());
         }
@@ -93,7 +94,6 @@ public abstract class AbstractAegisDatabindingFactoryBean {
         if (getReadXsiTypes() != null) {
             aegisDatabinding.getAegisContext().setReadXsiTypes(getReadXsiTypes());
         }
-
         TypeMapping typeMapping = aegisDatabinding.getAegisContext().getTypeMapping();
         loadAegisTypeClassAndRegister(
             org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.context.RuntimeContextBeanType.class,
@@ -120,51 +120,31 @@ public abstract class AbstractAegisDatabindingFactoryBean {
     }
 
     protected void registerVariationTypes(TypeMapping typeMapping) {
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.VariationsResultType.class,
-            typeMapping);
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.JXPathVariationType.class,
-            typeMapping);
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ArgumentReplacementVariationType.class,
-            typeMapping);
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.DeepCloningVariationType.class,
-            typeMapping);
-        loadAegisTypeClassAndRegister(
-            org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation.ComplexVariationType.class,
-            typeMapping);
+        loadAegisTypeClassAndRegister(VariationsResultType.class, typeMapping);
+        loadAegisTypeClassAndRegister(JXPathVariationType.class, typeMapping);
+        loadAegisTypeClassAndRegister(ArgumentReplacementVariationType.class, typeMapping);
+        loadAegisTypeClassAndRegister(DeepCloningVariationType.class, typeMapping);
+        loadAegisTypeClassAndRegister(ComplexVariationType.class, typeMapping);
     }
 
     protected abstract void registerOpenLTypes(TypeMapping typeMapping);
 
     protected abstract void registerCustomJavaTypes(TypeMapping typeMapping);
 
-    protected void loadAegisTypeClassAndRegister(String aegisTypeClassName, TypeMapping typeMapping) {
-        try {
-            Class<?> clazz = Thread.currentThread().getContextClassLoader().loadClass(aegisTypeClassName);
-            AegisType aegisType = instatiateAegisType(clazz);
-            typeMapping.register(aegisType);
-        } catch (Exception e) {
-            log.warn("Aegis type '{}' registration failed.", aegisTypeClassName, e);
-        }
-    }
-
-    private AegisType instatiateAegisType(Class<?> clazz) throws NoSuchMethodException,
-                                                          InstantiationException,
-                                                          IllegalAccessException,
-                                                          InvocationTargetException {
+    private static AegisType instantiateAegisType(Class<?> clazz) throws NoSuchMethodException,
+                                                                         InstantiationException,
+                                                                         IllegalAccessException,
+                                                                         InvocationTargetException {
         Constructor<?> constructor = clazz.getConstructor();
         return (AegisType) constructor.newInstance();
     }
 
     protected void loadAegisTypeClassAndRegister(Class<?> aegisTypeClass, TypeMapping typeMapping) {
         try {
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(aegisType);
         } catch (Exception e) {
-            log.warn("Aegis type '{}' registration failed.", aegisTypeClass.getName(), e);
+            LOG.warn("Aegis type '{}' registration failed.", aegisTypeClass.getName(), e);
         }
     }
 
@@ -174,10 +154,10 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             TypeMapping typeMapping) {
         try {
             Class<?> typeClazz = Thread.currentThread().getContextClassLoader().loadClass(typeClassName);
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
-            log.warn("Type '{}' registration failed.", typeClassName, e);
+            LOG.warn("Type '{}' registration failed.", typeClassName, e);
         }
     }
 
@@ -186,47 +166,76 @@ public abstract class AbstractAegisDatabindingFactoryBean {
             QName qName,
             TypeMapping typeMapping) {
         try {
-            AegisType aegisType = instatiateAegisType(aegisTypeClass);
+            AegisType aegisType = instantiateAegisType(aegisTypeClass);
             typeMapping.register(typeClazz, qName, aegisType);
         } catch (Exception e) {
-            log.warn("Type '{}' registration failed.", typeClazz.getName(), e);
+            LOG.warn("Type '{}' registration failed.", typeClazz.getName(), e);
         }
     }
 
-    private void tryToLoadClass(String className) {
+    private static Class<?> tryToLoadClass(String className) {
         try {
-            Thread.currentThread().getContextClassLoader().loadClass(className);
+            return Thread.currentThread().getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
-            log.warn("Class '{}' is not found.", className, e);
+            LOG.warn("Class '{}' is not found.", className, e);
+        }
+        return null;
+    }
+
+    private void addClassesWithXmlSeeAlso(Set<String> overrideTypes, Class<?> clazz) {
+        if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+            XmlSeeAlso xmlSeeAlso = clazz.getAnnotation(XmlSeeAlso.class);
+            if (xmlSeeAlso != null) {
+                for (Class<?> cls : xmlSeeAlso.value()) {
+                    overrideTypes.add(cls.getName());
+                    addClassesWithXmlSeeAlso(overrideTypes, cls);
+                }
+            }
         }
     }
 
-    protected Set<String> getOverrideTypesWithDefaultOpenLTypes() {
-        Set<String> overrideTypes = new HashSet<>();
+    private void addClassesWithXmlSeeAlso(Set<String> overrideTypes) {
+        Set<String> tmp = new HashSet<>(overrideTypes);
+        for (String className : tmp) {
+            Class<?> cls = tryToLoadClass(className);
+            if (cls != null) {
+                addClassesWithXmlSeeAlso(overrideTypes, cls);
+            }
+        }
+    }
+
+    protected Set<String> getPreparedOverrideTypes() {
+        Set<String> preparedOverrideTypes = new HashSet<>();
         if (getOverrideTypes() != null) {
             for (String className : getOverrideTypes()) {
-                tryToLoadClass(className);
+                Class<?> clazz = tryToLoadClass(className);
+                if (!JacksonBindingConfigurationUtils.isConfiguration(clazz)) {
+                    preparedOverrideTypes.add(className);
+                }
             }
-            overrideTypes.addAll(getOverrideTypes());
         }
-        overrideTypes.add(SpreadsheetResult.class.getName());
-        overrideTypes.add(Point.class.getName());
+
+        addClassesWithXmlSeeAlso(preparedOverrideTypes);
+
+        preparedOverrideTypes.add(SpreadsheetResult.class.getName());
 
         if (supportVariations) {
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.VariationsResult");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.Variation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ComplexVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.NoVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.JXPathVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.DeepCloningVariation");
-            tryToLoadAndAppend(overrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.VariationsResult");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.Variation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.ComplexVariation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.NoVariation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.JXPathVariation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.DeepCloningVariation");
+            tryToLoadAndAdd(preparedOverrideTypes, "org.openl.rules.variation.ArgumentReplacementVariation");
         }
-        return overrideTypes;
+        return preparedOverrideTypes;
     }
 
-    private void tryToLoadAndAppend(Set<String> overrideTypes, String className) {
-        tryToLoadClass(className);
-        overrideTypes.add(className);
+    private void tryToLoadAndAdd(Set<String> overrideTypes, String className) {
+        Class<?> cls = tryToLoadClass(className);
+        if (cls != null) {
+            overrideTypes.add(className);
+        }
     }
 
     public Boolean getWriteXsiTypes() {

@@ -11,8 +11,6 @@ import org.openl.rules.ui.IProjectTypes;
  */
 public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
 
-    private static final String WORKBOOK_NAME = "workbook";
-
     /**
      * {@inheritDoc}
      */
@@ -22,14 +20,6 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
         XlsWorkbookSourceCodeModule wb = (XlsWorkbookSourceCodeModule) nodeObject;
 
         return new String[] { wb.getDisplayName(), wb.getUri(), wb.getUri() };
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return WORKBOOK_NAME;
     }
 
     /**
@@ -55,29 +45,13 @@ public class WorkbookTreeNodeBuilder extends BaseTableTreeNodeBuilder {
      * {@inheritDoc}
      */
     @Override
-    public int getWeight(Object sorterObject) {
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public Object makeObject(TableSyntaxNode tsn) {
         return tsn.getXlsSheetSourceCodeModule().getWorkbookSource();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Object getProblems(Object nodeObject) {
-        return null;
-    }
-
-    @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
-        TreeNode<Object> treeNode = (TreeNode<Object>) super.makeNode(tableSyntaxNode, i);
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+        ProjectTreeNode treeNode = super.makeNode(tableSyntaxNode, i);
         // Put spreadsheets in order as they defined in xls, not sort them alphabetically
         treeNode.setElements(new LinkedHashMap<>(treeNode.getElements()));
         return treeNode;

@@ -27,8 +27,8 @@ public class TableEditorRenderer extends TableViewerRenderer {
         }
         ExternalContext externalContext = context.getExternalContext();
         Map<String, String> requestMap = externalContext.getRequestParameterMap();
-        String cellToEdit = requestMap.get(Constants.REQUEST_PARAM_CELL);
-        String errorCell = requestMap.get(Constants.REQUEST_PARAM_ERROR_CELL);
+        String cellToEdit = requestMap.get("cell");
+        String errorCell = requestMap.get("errorCell");
         List<ActionLink> actionLinks = getActionLinks(component);
         if (tableEditor.isEditable()) {
             initEditorModel(externalContext, tableEditor);

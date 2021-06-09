@@ -3,9 +3,6 @@ package org.openl.rules.webstudio.web.test;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.table.IOpenLTable;
@@ -18,19 +15,19 @@ import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean providing logic for 'Run Tables' page of WebStudio.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class RunBean {
 
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
+    private final RunTestHelper runTestHelper;
 
-    @ManagedProperty(value = "#{mainBean}")
-    private MainBean mainBean;
+    private final MainBean mainBean;
 
     private TestSuite testSuite;
 
@@ -41,6 +38,11 @@ public class RunBean {
      */
     private String id;
 
+    public RunBean(RunTestHelper runTestHelper, MainBean mainBean) {
+        this.runTestHelper = runTestHelper;
+        this.mainBean = mainBean;
+    }
+
     @PostConstruct
     public void init() {
         testSuite = runTestHelper.getTestSuite();
@@ -49,14 +51,6 @@ public class RunBean {
             ProjectModel model = WebStudioUtils.getProjectModel();
             results = model.runTest(testSuite);
         }
-    }
-
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
-        this.runTestHelper = runTestHelper;
-    }
-
-    public void setMainBean(MainBean mainBean) {
-        this.mainBean = mainBean;
     }
 
     public String getTableName() {

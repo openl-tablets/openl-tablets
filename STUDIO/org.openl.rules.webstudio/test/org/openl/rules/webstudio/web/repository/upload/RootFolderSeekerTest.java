@@ -1,6 +1,7 @@
 package org.openl.rules.webstudio.web.repository.upload;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -25,9 +26,9 @@ public class RootFolderSeekerTest {
 
         assertEquals("package/hello/", folderExtractor.extractFromRootFolder("my/package/hello/"));
         assertEquals("file.xml", folderExtractor.extractFromRootFolder("my/file.xml"));
-        assertEquals(null, folderExtractor.extractFromRootFolder("file.txt"));
-        assertEquals(null, folderExtractor.extractFromRootFolder("hello/package/hello/"));
-        assertEquals(null, folderExtractor.extractFromRootFolder(null));
+        assertNull(folderExtractor.extractFromRootFolder("file.txt"));
+        assertNull(folderExtractor.extractFromRootFolder("hello/package/hello/"));
+        assertNull(folderExtractor.extractFromRootFolder(null));
     }
 
     @Test
@@ -48,7 +49,7 @@ public class RootFolderSeekerTest {
         assertEquals("my/file.xml", folderExtractor.extractFromRootFolder("my/file.xml"));
         assertEquals("file.txt", folderExtractor.extractFromRootFolder("file.txt"));
         assertEquals("hello/package/hello/", folderExtractor.extractFromRootFolder("hello/package/hello/"));
-        assertEquals(null, folderExtractor.extractFromRootFolder(null));
+        assertNull(folderExtractor.extractFromRootFolder(null));
     }
 
 }

@@ -1,21 +1,12 @@
 package org.openl.rules.project.instantiation;
 
-import java.io.File;
-import java.net.URL;
-
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.extension.instantiation.ExtensionDescriptorFactory;
-import org.openl.rules.extension.instantiation.IExtensionDescriptor;
 import org.openl.rules.project.model.MethodFilter;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.runtime.InterfaceClassGeneratorImpl;
 import org.openl.rules.runtime.RulesEngineFactory;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.ModuleFileSourceCodeModule;
-import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The simplest {@link RulesInstantiationStrategyFactory} for module that contains only Excel file.
@@ -23,7 +14,6 @@ import org.slf4j.LoggerFactory;
  * @author PUdalau
  */
 public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStrategy {
-    private final Logger log = LoggerFactory.getLogger(ApiBasedInstantiationStrategy.class);
 
     /**
      * Rules engine factory for module that contains only Excel file.
@@ -73,36 +63,20 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
-    private IOpenSourceCodeModule getSourceCode(Module module) {
-        File sourceFile = new File(getModule().getRulesRootPath().getPath());
-        URL url = URLSourceCodeModule.toUrl(sourceFile);
-        return new ModuleFileSourceCodeModule(url, getModule().getName());
-    }
-
     @Override
     @SuppressWarnings("unchecked")
     protected RulesEngineFactory<?> getEngineFactory() {
         Class<Object> serviceClass = (Class<Object>) getServiceClass();
-        if (engineFactory == null || serviceClass != null && !engineFactory.getInterfaceClass().equals(serviceClass)) {
-            if (getModule().getExtension() != null) {
-                IExtensionDescriptor extensionDescriptor = ExtensionDescriptorFactory
-                    .getExtensionDescriptor(getModule().getExtension(), getClassLoader());
+        if (engineFactory == null) {
 
-                IOpenSourceCodeModule source = extensionDescriptor.getSourceCode(getModule());
-                source.setParams(prepareExternalParameters());
+            Module module = getModule();
+            IOpenSourceCodeModule source = new ModulePathSourceCodeModule(module.getRulesPath(), module.getName());
+            source.setParams(prepareExternalParameters());
 
-                String openlName = extensionDescriptor.getOpenLName();
-                engineFactory = new RulesEngineFactory<>(openlName, source, serviceClass);
-            } else {
-                IOpenSourceCodeModule source = getSourceCode(getModule());
-                source.setParams(prepareExternalParameters());
-
-                engineFactory = new RulesEngineFactory<>(source, serviceClass);
-            }
+            engineFactory = new RulesEngineFactory<>(source, serviceClass);
 
             // Information for interface generation, if generation required.
-            Module m = getModule();
-            MethodFilter methodFilter = m.getMethodFilter();
+            MethodFilter methodFilter = module.getMethodFilter();
             if (methodFilter != null && (CollectionUtils.isNotEmpty(methodFilter.getExcludes()) || CollectionUtils
                 .isNotEmpty(methodFilter.getIncludes()))) {
                 String[] includes = new String[] {};
@@ -134,4 +108,11 @@ public class ApiBasedInstantiationStrategy extends SingleModuleInstantiationStra
         }
     }
 
+    @Override
+    public void setServiceClass(Class<?> serviceClass) {
+        super.setServiceClass(serviceClass);
+        if (engineFactory != null) {
+            engineFactory.setInterfaceClass((Class) serviceClass);
+        }
+    }
 }

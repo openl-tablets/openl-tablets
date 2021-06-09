@@ -7,7 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IOpenClass;
 
 public final class NotExistNodeBinder implements INodeBinder {
-    public static INodeBinder the = new NotExistNodeBinder();
+    public static final INodeBinder the = new NotExistNodeBinder();
 
     private NotExistNodeBinder() {
         // Disable to instantiate outside of this class.

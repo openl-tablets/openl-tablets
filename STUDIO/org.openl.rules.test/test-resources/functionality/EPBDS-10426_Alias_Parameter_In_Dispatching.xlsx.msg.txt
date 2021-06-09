@@ -1,0 +1,2 @@
+WARN: Method 'MyRule(AnyParameter param)' conflicts with another method 'MyRule(SomeParameter param)', because of parameter types are different.
+WARN: Method 'MyRule(SomeParameter param)' conflicts with another method 'MyRule(AnyParameter param)', because of parameter types are different.

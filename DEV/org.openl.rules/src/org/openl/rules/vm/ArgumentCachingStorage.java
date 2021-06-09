@@ -6,12 +6,15 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ArgumentCachingStorage {
+    private static final Logger LOG = LoggerFactory.getLogger(ArgumentCachingStorage.class);
 
     private List<CalculationStep> originalCalculationSteps;
     private Iterator<CalculationStep> step;
-    private SimpleRulesRuntimeEnv simpleRulesRuntimeEnv;
+    private final SimpleRulesRuntimeEnv simpleRulesRuntimeEnv;
 
     public void resetMethodArgumentsCache() {
         storage.clear();
@@ -22,7 +25,7 @@ public class ArgumentCachingStorage {
             "simpleRulesRuntimeEnv cannot be null");
     }
 
-    private Storage storage = new Storage();
+    private final Storage storage = new Storage();
 
     public Object findInCache(Object member, Object... params) throws ResultNotFoundException {
         Data data = storage.get(member);
@@ -49,6 +52,7 @@ public class ArgumentCachingStorage {
                 }
             }
             data.add(new InvocationData(clonedParams, result));
+            LOG.debug("Error occurred: ", e);
         }
     }
 
@@ -58,7 +62,7 @@ public class ArgumentCachingStorage {
     }
 
     private abstract static class CalculationStep {
-        private Object member;
+        private final Object member;
 
         public CalculationStep(Object member) {
             this.member = Objects.requireNonNull(member, "member cannot be null");
@@ -76,7 +80,7 @@ public class ArgumentCachingStorage {
     }
 
     private static class BackwardCalculationStep extends CalculationStep {
-        private Object result;
+        private final Object result;
 
         public BackwardCalculationStep(Object member, Object result) {
             super(member);
@@ -167,10 +171,10 @@ public class ArgumentCachingStorage {
     }
 
     static final class InvocationData {
-        private Object[] params;
+        private final Object[] params;
         private int paramsHashCode;
-        private boolean paramsHashCodeCalculated = false;
-        private Object result;
+        private boolean paramsHashCodeCalculated;
+        private final Object result;
 
         public InvocationData(Object[] params, Object result) {
             this.params = params;
@@ -197,18 +201,17 @@ public class ArgumentCachingStorage {
     static final class Data {
         private static final int MAX_DATA_LENGTH = 1000;
 
-        InvocationData[] invocationDatas = new InvocationData[MAX_DATA_LENGTH];
-        int size = 0;
+        final InvocationData[] invocationDatas = new InvocationData[MAX_DATA_LENGTH];
+        int size;
 
         public Object get(Object[] params) throws ResultNotFoundException {
             int hashCode = Arrays.deepHashCode(params);
 
             for (int i = 0; i < size; i++) {
                 InvocationData invocationData = invocationDatas[i];
-                if (hashCode == invocationData.getParamsHashCode()) {
-                    if (Arrays.deepEquals(invocationData.getParams(), params)) {
-                        return invocationData.getResult();
-                    }
+                if (hashCode == invocationData.getParamsHashCode()
+                        && Arrays.deepEquals(invocationData.getParams(), params)) {
+                    return invocationData.getResult();
                 }
             }
             throw new ResultNotFoundException();

@@ -27,7 +27,7 @@ public class BaseTestUnit implements ITestUnit {
     private final long executionTime;
     // must be increased only through addComparisonResult method
     private final List<ComparedResult> comparisonResults = new ArrayList<>();
-    private int numberOfFailedTests = 0;
+    private int numberOfFailedTests;
 
     BaseTestUnit(TestDescription test, Object res, Throwable error, long executionTime) {
         this.test = test;
@@ -120,7 +120,7 @@ public class BaseTestUnit implements ITestUnit {
     }
 
     private void addComparisonResult(ComparedResult result) {
-        if (!TestStatus.TR_OK.equals(result.getStatus())) {
+        if (!(TestStatus.TR_OK == result.getStatus())) {
             numberOfFailedTests++;
         }
         comparisonResults.add(result);
@@ -185,7 +185,7 @@ public class BaseTestUnit implements ITestUnit {
         return true;
     }
 
-    private Object getFieldValueOrNull(Object result, IOpenField field) {
+    private static Object getFieldValueOrNull(Object result, IOpenField field) {
         Object fieldValue = null;
         if (result != null) {
             try {
@@ -228,9 +228,9 @@ public class BaseTestUnit implements ITestUnit {
         throw new UnsupportedOperationException();
     }
 
-    public static class Builder implements ITestResultBuilder {
+    public static final class Builder implements ITestResultBuilder {
 
-        private static Builder instance = new Builder();
+        private static final Builder instance = new Builder();
 
         private Builder() {
             /* NON */

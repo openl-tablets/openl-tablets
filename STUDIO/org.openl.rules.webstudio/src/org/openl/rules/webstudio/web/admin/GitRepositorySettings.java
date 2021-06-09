@@ -1,9 +1,9 @@
 package org.openl.rules.webstudio.web.admin;
 
-import java.io.File;
+import java.util.Optional;
 
 import org.openl.config.PropertiesHolder;
-import org.openl.rules.webstudio.util.PreferencesManager;
+import org.openl.spring.env.DynamicPropertySource;
 import org.openl.util.StringUtils;
 
 public class GitRepositorySettings extends RepositorySettings {
@@ -17,10 +17,13 @@ public class GitRepositorySettings extends RepositorySettings {
     private String localRepositoryPath;
     private String branch;
     private String newBranchTemplate;
+    private String newBranchRegex;
+    private String newBranchRegexError;
     private String tagPrefix;
     private int listenerTimerPeriod;
     private int connectionTimeout;
-    private String settingsPath;
+    private int failedAuthenticationSeconds;
+    private Integer maxAuthenticationAttempts;
 
     private final String URI;
     private final String LOGIN;
@@ -30,11 +33,15 @@ public class GitRepositorySettings extends RepositorySettings {
     private final String LOCAL_REPOSITORY_PATH;
     private final String BRANCH;
     private final String NEW_BRANCH_TEMPLATE;
+    private final String NEW_BRANCH_REGEX;
+    private final String NEW_BRANCH_REGEX_ERROR;
     private final String TAG_PREFIX;
     private final String LISTENER_TIMER_PERIOD;
     private final String CONNECTION_TIMEOUT;
-    private final String SETTINGS_PATH;
-    private String CONFIG_PREFIX;
+    private final String CONFIG_PREFIX;
+    private final String FAILED_AUTHENTICATION_SECONDS;
+    private final String MAX_AUTHENTICATION_ATTEMPTS;
+
 
     GitRepositorySettings(PropertiesHolder properties, String configPrefix) {
         super(properties, configPrefix);
@@ -46,21 +53,26 @@ public class GitRepositorySettings extends RepositorySettings {
         USER_EMAIL = configPrefix + ".user-email";
         LOCAL_REPOSITORY_PATH = configPrefix + ".local-repository-path";
         BRANCH = configPrefix + ".branch";
-        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch-pattern";
+        NEW_BRANCH_TEMPLATE = configPrefix + ".new-branch.pattern";
+        NEW_BRANCH_REGEX = configPrefix + ".new-branch.regex";
+        NEW_BRANCH_REGEX_ERROR = configPrefix + ".new-branch.regex-error";
         TAG_PREFIX = configPrefix + ".tag-prefix";
         LISTENER_TIMER_PERIOD = configPrefix + ".listener-timer-period";
         CONNECTION_TIMEOUT = configPrefix + ".connection-timeout";
-        SETTINGS_PATH = ".git-settings-path";
+        FAILED_AUTHENTICATION_SECONDS = configPrefix + ".failed-authentication-seconds";
+        MAX_AUTHENTICATION_ATTEMPTS = configPrefix + ".max-authentication-attempts";
 
         load(properties);
     }
 
     private void load(PropertiesHolder properties) {
-        String type = RepositorySettings.getTypePrefix(CONFIG_PREFIX);
         String localPath = properties.getProperty(LOCAL_REPOSITORY_PATH);
+        String[] prefixParts = CONFIG_PREFIX.split("\\.");
+        String id = prefixParts.length > 1 ? prefixParts[1] : "repository";
+        //prefixParts.length must be always > 1
         String defaultLocalPath = localPath != null ? localPath
-                                                    : properties.getProperty(
-                                                        PreferencesManager.WEBSTUDIO_WORKING_DIR_KEY) + File.separator + type + "-repository";
+                : properties.getProperty(
+                DynamicPropertySource.OPENL_HOME) + "/repositories/" + id;
 
         uri = properties.getProperty(URI);
         login = properties.getProperty(LOGIN);
@@ -70,10 +82,16 @@ public class GitRepositorySettings extends RepositorySettings {
         localRepositoryPath = defaultLocalPath;
         branch = properties.getProperty(BRANCH);
         tagPrefix = properties.getProperty(TAG_PREFIX);
-        listenerTimerPeriod = Integer.parseInt(properties.getProperty(LISTENER_TIMER_PERIOD));
-        connectionTimeout = Integer.parseInt(properties.getProperty(CONNECTION_TIMEOUT));
-        settingsPath = properties.getProperty(SETTINGS_PATH);
+        listenerTimerPeriod = Integer.parseInt(Optional.ofNullable(properties.getProperty(LISTENER_TIMER_PERIOD)).orElse(properties.getProperty("repo-git.listener-timer-period")));
+        connectionTimeout = Integer.parseInt(Optional.ofNullable(properties.getProperty(CONNECTION_TIMEOUT)).orElse(properties.getProperty("repo-git.connection-timeout")));
+        failedAuthenticationSeconds = Integer.parseInt(Optional.ofNullable(properties.getProperty(FAILED_AUTHENTICATION_SECONDS)).orElse(properties.getProperty("repo-git.failed-authentication-seconds")));
+        String authsAttempts = Optional.ofNullable(properties.getProperty(MAX_AUTHENTICATION_ATTEMPTS)).orElse(properties.getProperty("repo-git.max-authentication-attempts"));
+        if(StringUtils.isNotBlank(authsAttempts)){
+            maxAuthenticationAttempts = Integer.parseInt(authsAttempts);
+        }
         newBranchTemplate = properties.getProperty(NEW_BRANCH_TEMPLATE);
+        newBranchRegex = properties.getProperty(NEW_BRANCH_REGEX);
+        newBranchRegexError = properties.getProperty(NEW_BRANCH_REGEX_ERROR);
 
         remoteRepository = StringUtils.isNotBlank(uri);
     }
@@ -166,12 +184,20 @@ public class GitRepositorySettings extends RepositorySettings {
         this.connectionTimeout = connectionTimeout;
     }
 
-    public String getSettingsPath() {
-        return settingsPath;
+    public int getFailedAuthenticationSeconds() {
+        return failedAuthenticationSeconds;
     }
 
-    public void setSettingsPath(String settingsPath) {
-        this.settingsPath = settingsPath;
+    public void setFailedAuthenticationSeconds(int failedAuthenticationSeconds) {
+        this.failedAuthenticationSeconds = failedAuthenticationSeconds;
+    }
+
+    public Integer getMaxAuthenticationAttempts() {
+        return maxAuthenticationAttempts;
+    }
+
+    public void setMaxAuthenticationAttempts(Integer maxAuthenticationAttempts) {
+        this.maxAuthenticationAttempts = maxAuthenticationAttempts;
     }
 
     public String getNewBranchTemplate() {
@@ -180,6 +206,22 @@ public class GitRepositorySettings extends RepositorySettings {
 
     public void setNewBranchTemplate(String newBranchTemplate) {
         this.newBranchTemplate = newBranchTemplate;
+    }
+
+    public String getNewBranchRegex() {
+        return newBranchRegex;
+    }
+
+    public void setNewBranchRegex(String newBranchRegex) {
+        this.newBranchRegex = newBranchRegex;
+    }
+
+    public String getNewBranchRegexError() {
+        return newBranchRegexError;
+    }
+
+    public void setNewBranchRegexError(String newBranchRegexError) {
+        this.newBranchRegexError = newBranchRegexError;
     }
 
     @Override
@@ -208,10 +250,13 @@ public class GitRepositorySettings extends RepositorySettings {
         propertiesHolder.setProperty(LOCAL_REPOSITORY_PATH, localRepositoryPath);
         propertiesHolder.setProperty(BRANCH, branch);
         propertiesHolder.setProperty(NEW_BRANCH_TEMPLATE, newBranchTemplate);
+        propertiesHolder.setProperty(NEW_BRANCH_REGEX, newBranchRegex);
+        propertiesHolder.setProperty(NEW_BRANCH_REGEX_ERROR, newBranchRegexError);
         propertiesHolder.setProperty(TAG_PREFIX, tagPrefix);
         propertiesHolder.setProperty(LISTENER_TIMER_PERIOD, listenerTimerPeriod);
         propertiesHolder.setProperty(CONNECTION_TIMEOUT, connectionTimeout);
-        propertiesHolder.setProperty(SETTINGS_PATH, settingsPath);
+        propertiesHolder.setProperty(FAILED_AUTHENTICATION_SECONDS, failedAuthenticationSeconds);
+        propertiesHolder.setProperty(MAX_AUTHENTICATION_ATTEMPTS, maxAuthenticationAttempts);
     }
 
     @Override
@@ -219,16 +264,17 @@ public class GitRepositorySettings extends RepositorySettings {
         super.revert(properties);
 
         properties.revertProperties(URI,
-            LOGIN,
-            PASSWORD,
-            USER_DISPLAY_NAME,
-            USER_EMAIL,
-            LOCAL_REPOSITORY_PATH,
-            BRANCH,
-            NEW_BRANCH_TEMPLATE,
-            TAG_PREFIX,
-            LISTENER_TIMER_PERIOD,
-            SETTINGS_PATH);
+                LOGIN,
+                PASSWORD,
+                USER_DISPLAY_NAME,
+                USER_EMAIL,
+                LOCAL_REPOSITORY_PATH,
+                BRANCH,
+                NEW_BRANCH_TEMPLATE,
+                NEW_BRANCH_REGEX,
+                NEW_BRANCH_REGEX_ERROR,
+                TAG_PREFIX,
+                LISTENER_TIMER_PERIOD);
         load(properties);
     }
 
@@ -246,13 +292,27 @@ public class GitRepositorySettings extends RepositorySettings {
             setLocalRepositoryPath(otherSettings.getLocalRepositoryPath());
             setBranch(otherSettings.getBranch());
             setNewBranchTemplate(otherSettings.getNewBranchTemplate());
+            setNewBranchRegex(otherSettings.getNewBranchRegex());
+            setNewBranchRegexError(otherSettings.getNewBranchRegexError());
             setTagPrefix(otherSettings.getTagPrefix());
             setListenerTimerPeriod(otherSettings.getListenerTimerPeriod());
             setConnectionTimeout(otherSettings.getConnectionTimeout());
+            setFailedAuthenticationSeconds(otherSettings.getFailedAuthenticationSeconds());
+            setMaxAuthenticationAttempts(otherSettings.getMaxAuthenticationAttempts());
             setCommentTemplate(otherSettings.getCommentTemplate());
-            setSettingsPath(otherSettings.getSettingsPath());
             setRemoteRepository(otherSettings.isRemoteRepository());
         }
+    }
+
+    @Override
+    public void applyRepositorySuffix(FreeValueFinder valueFinder) {
+        super.applyRepositorySuffix(valueFinder);
+        String path = getLocalRepositoryPath();
+        if (path.endsWith("/")) {
+            path = path.substring(0, path.length() - 1);
+        }
+        final String paramNameSuffix = LOCAL_REPOSITORY_PATH.substring(CONFIG_PREFIX.length() + 1);
+        setLocalRepositoryPath(valueFinder.find(paramNameSuffix, path));
     }
 
     @Override

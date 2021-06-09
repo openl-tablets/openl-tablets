@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.calc;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.util.Arrays;
 
 import javax.xml.namespace.QName;
@@ -41,15 +31,13 @@ public class SpreadsheetResultType extends BeanType {
     public SpreadsheetResultType() {
         super(new WrapperBeanTypeInfo(TYPE_CLASS,
             QNAME.getNamespaceURI(),
-            Arrays.asList("rowTitles",
-                "columTitles",
-                "height",
+            Arrays.asList("height",
                 "width",
                 "logicalTable",
                 "customSpreadsheetResultOpenClass",
                 "rowNamesForResultModel",
                 "columnNamesForResultModel",
-                "detailedPlainModel")));
+                "tableStructureDetails")));
         setTypeClass(TYPE_CLASS);
         setSchemaType(QNAME);
     }

@@ -6,19 +6,19 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Test;
 import org.openl.OpenL;
 import org.openl.engine.OpenLManager;
-import org.openl.engine.OpenLSourceManager;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.message.Severity;
-import org.openl.source.SourceType;
 import org.openl.source.impl.StringSourceCodeModule;
-import org.openl.syntax.code.ProcessedCode;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.impl.CompositeMethod;
 
 public class InspectionsTest {
     private static final String ALWAYS_TRUE = "Condition is always true.";
     private static final String ALWAYS_FALSE = "Condition is always false.";
 
     @Test
-    public void testConditionTypes() {
+    public void testConditionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num ==== num ? 1 : 2", ALWAYS_TRUE);
         checkWarning("Integer num = 7; num <= num ? 1 : 2", ALWAYS_TRUE);
@@ -35,7 +35,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testDifferentExpressionTypes() {
+    public void testDifferentExpressionTypes() throws OpenLCompilationException {
         checkWarning("Integer num = 7; num == num ? 1 : 2", ALWAYS_TRUE);
         // Same field of same object
         checkWarning("String[] arr = {\"bb\"}; arr == arr ? 1 : 2", ALWAYS_TRUE);
@@ -60,7 +60,7 @@ public class InspectionsTest {
     }
 
     @Test
-    public void testNoWarning() {
+    public void testNoWarning() throws OpenLCompilationException {
         Object result;
 
         result = checkNoMessage(
@@ -81,31 +81,33 @@ public class InspectionsTest {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkWarning(String expression, String... expectedMessage) {
-        ProcessedCode processedCode = new OpenLSourceManager(OpenL.getInstance(OpenL.OPENL_J_NAME))
-            .processSource(new StringSourceCodeModule(expression, null), SourceType.METHOD_BODY);
-        assertEquals(expectedMessage.length, processedCode.getMessages().size());
-        int i = 0;
-        for (OpenLMessage message : processedCode.getMessages()) {
-            assertEquals(Severity.WARN, message.getSeverity());
-            assertEquals(expectedMessage[i], message.getSummary());
-            i++;
-        }
+    private <T> T checkWarning(String expression, String expectedMessage) throws OpenLCompilationException {
+        StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        IBindingContext bindingContext = openl.getBinder().makeBindingContext();
+        IOpenMethodHeader header = OpenLManager
+            .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
+        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
 
-        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
-            new StringSourceCodeModule(expression, null),
-            SourceType.METHOD_BODY);
+        assertEquals(1, bindingContext.getMessages().size());
+        OpenLMessage message = bindingContext.getMessages().iterator().next();
+        assertEquals(Severity.WARN, message.getSeverity());
+        assertEquals(expectedMessage, message.getSummary());
+
+        return (T) OpenLManager.run(openl, source);
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T checkNoMessage(String expression) {
-        ProcessedCode processedCode = new OpenLSourceManager(OpenL.getInstance(OpenL.OPENL_J_NAME))
-            .processSource(new StringSourceCodeModule(expression, null), SourceType.METHOD_BODY);
+    private <T> T checkNoMessage(String expression) throws OpenLCompilationException {
+        StringSourceCodeModule source = new StringSourceCodeModule(expression, null);
+        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
+        IBindingContext bindingContext = openl.getBinder().makeBindingContext();
+        IOpenMethodHeader header = OpenLManager
+            .makeMethodHeader(openl, new StringSourceCodeModule("Object main()", null), bindingContext);
+        CompositeMethod compositeMethod = OpenLManager.makeMethod(openl, source, header, bindingContext);
 
-        assertTrue(processedCode.getMessages().isEmpty());
+        assertTrue(bindingContext.getMessages().isEmpty());
 
-        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME),
-            new StringSourceCodeModule(expression, null),
-            SourceType.METHOD_BODY);
+        return (T) OpenLManager.run(OpenL.getInstance(OpenL.OPENL_J_NAME), source);
     }
 }

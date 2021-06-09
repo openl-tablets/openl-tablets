@@ -93,7 +93,7 @@ public class EngineFactory<T> extends ASourceCodeEngineFactory {
         return interfaceClass;
     }
 
-    protected void setInterfaceClass(Class<T> interfaceClass) {
+    public void setInterfaceClass(Class<T> interfaceClass) {
         this.interfaceClass = interfaceClass;
     }
 

@@ -1,14 +1,10 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.exception.OpenLException;
 import org.openl.message.OpenLErrorMessage;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLWarnMessage;
-import org.openl.rules.lang.xls.syntax.TableUtils;
 import org.openl.rules.table.xls.XlsUrlParser;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -19,9 +15,11 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.ILocation;
 import org.openl.util.text.TextInfo;
 import org.richfaces.component.UIRepeat;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class MessagesBean {
 
     private UIRepeat messages;
@@ -106,11 +104,14 @@ public class MessagesBean {
     }
 
     public String getTableId() {
-        String errorUri = getErrorUri();
+        Object rowData = messages.getRowData();
+        OpenLMessage message = null;
+        if (rowData instanceof OpenLMessage) {
+            message = (OpenLMessage) rowData;
+        }
 
         ProjectModel model = WebStudioUtils.getProjectModel();
-
-        return TableUtils.makeTableId(model.findTableUri(errorUri));
+        return model.getMessageNodeId(message);
     }
 
     public String getErrorCell() {
@@ -119,8 +120,7 @@ public class MessagesBean {
             return null;
         }
 
-        XlsUrlParser uriParser = new XlsUrlParser();
-        uriParser.parse(errorUri);
+        XlsUrlParser uriParser = new XlsUrlParser(errorUri);
 
         return uriParser.getCell();
     }

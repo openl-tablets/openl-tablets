@@ -25,7 +25,6 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 public class CompoundStep extends CodeStep {
 
-    private static final long serialVersionUID = -7072660266573768559L;
     private String id;
 
     public String getId() {

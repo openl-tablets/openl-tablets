@@ -13,7 +13,10 @@ public interface ProjectState {
 
     String getProjectVersion();
 
-    void saveFileData(FileData fileData);
+    String getRepositoryId();
+
+    void saveFileData(String repositoryId, FileData fileData);
 
     FileData getFileData();
+
 }

@@ -10,7 +10,7 @@ import org.openl.types.IOpenMethodHeader;
 
 class PreBinderMethods {
     // LinkedHashMap is used for keeping the same order of compilation. This helps to reproduce the bugs in compilation.
-    private Map<IOpenMethodHeader, RecursiveOpenMethodPreBinder> binderMethods = new LinkedHashMap<>();
+    private final Map<IOpenMethodHeader, RecursiveOpenMethodPreBinder> binderMethods = new LinkedHashMap<>();
 
     public Collection<RecursiveOpenMethodPreBinder> findByMethodName(String methodName) {
         return binderMethods.values()

@@ -58,7 +58,7 @@ public final class PropertiesHelper {
 
         }
         if (method instanceof MethodDelegator) {
-            return getTableProperties(((MethodDelegator) method).getMethod());
+            return getTableProperties(method.getMethod());
         }
 
         return new TableProperties();

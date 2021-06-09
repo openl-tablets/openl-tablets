@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
         <relativePath>../..</relativePath>
     </parent>
     <artifactId>openl-maven-plugin</artifactId>
@@ -15,6 +15,21 @@
         <name>OpenL Tablets</name>
         <url>https://openl-tablets.org</url>
     </organization>
+    <properties>
+        <!-- 512MB Should be enough to don't fall in OutOfMemoryError -->
+        <invoker.mavenOpts>-Xms16m -Xmx512m</invoker.mavenOpts>
+        <invoker.timeoutInSeconds>0</invoker.timeoutInSeconds>
+        <big-tableparts.mavenOpts>${invoker.mavenOpts}</big-tableparts.mavenOpts>
+        <big-tableparts.timeoutInSeconds>${invoker.timeoutInSeconds}</big-tableparts.timeoutInSeconds>
+        <big-testsuite.mavenOpts>${invoker.mavenOpts}</big-testsuite.mavenOpts>
+        <big-testsuite.timeoutInSeconds>${invoker.timeoutInSeconds}</big-testsuite.timeoutInSeconds>
+        <gen-spreadsheetresult.mavenOpts>${invoker.mavenOpts}</gen-spreadsheetresult.mavenOpts>
+        <gen-spreadsheetresult.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-spreadsheetresult.timeoutInSeconds>
+        <recompile.timeoutInSeconds>${invoker.timeoutInSeconds}</recompile.timeoutInSeconds>
+        <multimodule.timeoutInSeconds>${invoker.timeoutInSeconds}</multimodule.timeoutInSeconds>
+        <multimodule.mavenOpts>${invoker.mavenOpts}</multimodule.mavenOpts>
+        <gen-datatypes.timeoutInSeconds>${invoker.timeoutInSeconds}</gen-datatypes.timeoutInSeconds>
+    </properties>
     <dependencies>
         <dependency>
             <groupId>org.apache.maven</groupId>
@@ -23,10 +38,6 @@
         <dependency>
             <groupId>org.apache.maven</groupId>
             <artifactId>maven-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.codehaus.plexus</groupId>
-            <artifactId>plexus-archiver</artifactId>
         </dependency>
         <!-- dependencies to annotations -->
         <dependency>
@@ -62,14 +73,13 @@
             <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.openl.rules</groupId>
+            <artifactId>org.openl.rules.ruleservice</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-simple</artifactId>
             <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.jboss.windup.decompiler.fernflower</groupId>
-            <artifactId>windup-fernflower</artifactId>
-            <version>1.0.0.20171018</version>
         </dependency>
     </dependencies>
 
@@ -79,6 +89,13 @@
                 <!-- generate MOJOs documents -->
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-plugin-plugin</artifactId>
+                <configuration>
+                    <requirements>
+                        <maven>3.6</maven>
+                        <jdk>8</jdk>
+                        <memory>64m</memory>
+                    </requirements>
+                </configuration>
             </plugin>
             <plugin>
                 <!-- Do not generate project reports -->
@@ -105,18 +122,6 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-pdf-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>pdf</goal>
-                        </goals>
-                        <phase>site</phase>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
     <profiles>
@@ -140,9 +145,71 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <projectsDirectory>it</projectsDirectory>
+                            <pomIncludes>
+                                <pomInclude>*/pom.xml</pomInclude>
+                            </pomIncludes>
+                            <preBuildHookScript>setup</preBuildHookScript>
+                            <postBuildHookScript>verify</postBuildHookScript>
+                            <goals>
+                                <goal>clean</goal>
+                                <goal>verify</goal>
+                            </goals>
+                            <streamLogs>true</streamLogs>
+                            <useLocalRepository>true</useLocalRepository>
+                            <properties>
+                                <maven.compiler.source>${java.source.version}</maven.compiler.source>
+                                <maven.compiler.target>${java.target.version}</maven.compiler.target>
+                            </properties>
+                            <showErrors>true</showErrors>
+                            <!-- Estimated test's time should not take more than 10 sec on 4х CPU (2GHz) -->
+                            <!-- with limited amount of memory. It allows to detect memory leaks. -->
+                            <!-- Special cases should be defined in invoker.properties file. -->
+                            <!-- !!! Don't increase these parameters without special need !!! -->
+                            <timeoutInSeconds>${invoker.timeoutInSeconds}</timeoutInSeconds>
+                            <mavenOpts>${jacoco.argLine} ${invoker.mavenOpts}</mavenOpts>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
+            <dependencies>
+                <dependency>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>org.openl.rules.ruleservice.annotation</artifactId>
+                    <scope>test</scope>
+                </dependency>
+                <dependency>
+                    <groupId>org.openl.rules</groupId>
+                    <artifactId>org.openl.rules.calculation.result</artifactId>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>perf</id>
+            <activation>
+                <property>
+                    <name>!noPerf</name>
+                </property>
+            </activation>
+            <properties>
+                <!-- Fine tuned settings to detects memory and performance issues -->
+                <invoker.mavenOpts>-Xms16m -Xmx48m</invoker.mavenOpts>
+                <invoker.timeoutInSeconds>30</invoker.timeoutInSeconds>
+                <big-tableparts.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</big-tableparts.mavenOpts>
+                <big-tableparts.timeoutInSeconds>60</big-tableparts.timeoutInSeconds>
+                <big-testsuite.mavenOpts>${jacoco.argLine} -Xms32m -Xmx96m</big-testsuite.mavenOpts>
+                <big-testsuite.timeoutInSeconds>150</big-testsuite.timeoutInSeconds>
+                <gen-spreadsheetresult.mavenOpts>${jacoco.argLine} -Xms32m -Xmx256m</gen-spreadsheetresult.mavenOpts>
+                <gen-spreadsheetresult.timeoutInSeconds>60</gen-spreadsheetresult.timeoutInSeconds>
+                <!-- due double work of packaging: 30s * 2 -->
+                <recompile.timeoutInSeconds>60</recompile.timeoutInSeconds>
+                <!-- Multimodule has 4 projects -->
+                <multimodule.timeoutInSeconds>60</multimodule.timeoutInSeconds>
+                <!-- this module could be failed from time to time previously as well -->
+                <gen-datatypes.timeoutInSeconds>35</gen-datatypes.timeoutInSeconds>
+            </properties>
         </profile>
     </profiles>
 </project>

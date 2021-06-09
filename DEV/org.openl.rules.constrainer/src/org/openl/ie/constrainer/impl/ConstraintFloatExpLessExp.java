@@ -72,10 +72,10 @@ public final class ConstraintFloatExpLessExp extends ConstraintImpl {
     } // ~ ObserverExp2Max
 
     // PRIVATE MEMBERS
-    private FloatExp _exp1;
-    private FloatExp _exp2;
-    private double _offset;
-    private Constraint _opposite;
+    private final FloatExp _exp1;
+    private final FloatExp _exp2;
+    private final double _offset;
+    private final Constraint _opposite;
 
     public ConstraintFloatExpLessExp(FloatExp exp1, FloatExp exp2) {
         this(exp1, exp2, 0);

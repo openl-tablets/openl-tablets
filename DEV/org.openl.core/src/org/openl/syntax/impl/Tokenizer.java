@@ -28,9 +28,9 @@ import org.openl.util.text.TextInterval;
 public class Tokenizer {
 
     private static final int EOF = -1;
-    private static String TOKEN_TYPE = "token";
+    private static final String TOKEN_TYPE = "token";
 
-    private static Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<>();
+    private static final Map<String, Tokenizer> tokenizers = new ConcurrentHashMap<>();
 
     private boolean[] delimitersTable = {};
 
@@ -198,7 +198,7 @@ public class Tokenizer {
             throw new OpenLCompilationException("Parsing error", e, null, source);
         }
 
-        return nodes.toArray(new IdentifierNode[nodes.size()]);
+        return nodes.toArray(new IdentifierNode[0]);
     }
 
     public static IdentifierNode firstToken(IOpenSourceCodeModule source,

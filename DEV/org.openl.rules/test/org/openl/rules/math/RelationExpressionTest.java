@@ -7,7 +7,7 @@ import org.openl.rules.TestUtils;
 
 public class RelationExpressionTest {
 
-    private static String SRC = "test/rules/math/RelationExpressionTest.xls";
+    private static final String SRC = "test/rules/math/RelationExpressionTest.xls";
 
     @Test
     public void testEqualComparison() {

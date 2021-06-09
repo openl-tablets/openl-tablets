@@ -1,22 +1,30 @@
 package org.openl.ie.constrainer.impl;
 
-import org.openl.ie.constrainer.*;
+import java.util.Comparator;
+
+import org.openl.ie.constrainer.EventOfInterest;
+import org.openl.ie.constrainer.Failure;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
+import org.openl.ie.constrainer.Observer;
+import org.openl.ie.constrainer.Subject;
 import org.openl.ie.tools.Reusable;
 import org.openl.ie.tools.ReusableFactory;
 import org.openl.ie.tools.ReusableImpl;
 
 public class IntExpArrayElement1 extends IntExpImpl {
     static class AdvancedMapping implements Mapping {
-        java.util.HashMap valueToArrayIdx = new java.util.HashMap();
-        IntExp _index;
-        IntExp _element;
-        IntExpArray _ary;
+        final java.util.HashMap valueToArrayIdx = new java.util.HashMap();
+        final IntExp _index;
+        final IntExp _element;
+        final IntExpArray _ary;
         IntExpArray _valuesUsed; // How many times a particular value could
         // be encountered within _ary[_index]
 
-        IntExpArray copyOfAry;
-        IntExp _copyOfIndex;
-        AryElementsObserver[] _observers;
+        final IntExpArray copyOfAry;
+        final IntExp _copyOfIndex;
+        final AryElementsObserver[] _observers;
 
         static IntExpArray createCopyOfIntExpArray(IntExpArray array) {
             IntExpArray arrCopy = new IntExpArray(array.constrainer(), array.size());
@@ -50,7 +58,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
                     if (!var.contains(i)) {
                         try {
                             copy.removeValue(i);
-                        } catch (Failure f) {
+                        } catch (Failure ignored) {
                         }
                     }
                 }
@@ -126,9 +134,9 @@ public class IntExpArrayElement1 extends IntExpImpl {
                     ValueCounterIterator iter = new ValueCounterIterator(_ary, i);
                     try {
                         _index.iterateDomain(iter);
-                    } catch (Failure f) {
+                    } catch (Failure ignored) {
                     }
-                    valueToArrayIdx.put(new Integer(i), new Integer(cnt));
+                    valueToArrayIdx.put(i, cnt);
                     usage[cnt] = iter.cnt;
                     cnt++;
                 }
@@ -141,7 +149,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         }
 
         void decreaseUsageCounter(int val) throws Failure {
-            int idx = ((Integer) valueToArrayIdx.get(new Integer(val)));
+            int idx = ((Integer) valueToArrayIdx.get(val));
             int oldMax = _valuesUsed.get(idx).max();
             if (oldMax == 1) {
                 _element.removeValue(val);
@@ -303,7 +311,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
     } // ~AdvancedMapping2
 
     class AryElementsObserver extends Observer {
-        private int idx;
+        private final int idx;
 
         public AryElementsObserver(int id) {
             idx = id;
@@ -435,7 +443,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * finds min(_ary[idx]) and max(_ary[idx]).
      */
     static class FindMinMaxIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new FindMinMaxIterator();
@@ -474,7 +482,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * Finds idx from the _index where _ary[idx] == value.
      */
     static class FindValueIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new FindValueIterator();
@@ -582,7 +590,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * Remove all indexes from the _index where max < min(_ary[idx]).
      */
     static class RemoveFromElementMaxIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new RemoveFromElementMaxIterator();
@@ -616,7 +624,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * Remove all indexes from the _index where min > max(_ary[idx]).
      */
     static class RemoveFromElementMinIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new RemoveFromElementMinIterator();
@@ -650,7 +658,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * Remove all indexes from the _index where _ary[idx] != value.
      */
     static class SetValueFromElementIterator extends ReusableImpl implements IntExp.IntDomainIterator {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new SetValueFromElementIterator();
@@ -684,10 +692,10 @@ public class IntExpArrayElement1 extends IntExpImpl {
      * An Mapping that scan index for a value.
      */
     static class SimpleMapping implements Mapping {
-        IntExp _index;
-        IntExp _element;
-        IntExpArray _ary;
-        AryElementsObserver[] _observers;
+        final IntExp _index;
+        final IntExp _element;
+        final IntExpArray _ary;
+        final AryElementsObserver[] _observers;
 
         public SimpleMapping(IntExp index, IntExp element, IntExpArray ary, AryElementsObserver[] observers) {
             _index = index;
@@ -802,8 +810,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
      */
 
     private static class ValueCounterIterator implements IntExp.IntDomainIterator {
-        IntExpArray _ary;
-        int _val;
+        final IntExpArray _ary;
+        final int _val;
         int cnt = 0;
 
         public ValueCounterIterator(IntExpArray array, int value) {
@@ -820,11 +828,11 @@ public class IntExpArrayElement1 extends IntExpImpl {
         }
     }
 
-    private IntExpArray _ary;
+    private final IntExpArray _ary;
 
-    private AryElementsObserver[] _aryElementsObservers = null;
+    private AryElementsObserver[] _aryElementsObservers;
 
-    private IntExp _indexExp;
+    private final IntExp _indexExp;
 
     private IntVar _index;
 
@@ -836,7 +844,7 @@ public class IntExpArrayElement1 extends IntExpImpl {
         FindValueIterator it = FindValueIterator.getIterator(index, ary, value);
         try {
             index.iterateDomain(it);
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         int foundIndex = it.foundIndex;
@@ -854,9 +862,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
         CopyElementsIterator iter = CopyElementsIterator.getIterator(index, ary);
         try {
             index.iterateDomain(iter);
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
-        // iter.free();
         return iter.extract;
     }
 
@@ -1013,22 +1020,8 @@ public class IntExpArrayElement1 extends IntExpImpl {
         int[] values = new int[arMax - arMin + 1];
         int valCounter = 0;
 
-        class IntExpComparator implements java.util.Comparator {
-            @Override
-            public int compare(Object a1, Object a2) {
-
-                if (((IntExp) a1).min() < ((IntExp) a2).min()) {
-                    return -1;
-                }
-                if (((IntExp) a1).min() == ((IntExp) a2).min()) {
-                    return 0;
-                }
-                return 1;
-            }
-        }
-
         IntExpArray tmp = makeExtraction(_index, _ary);
-        tmp.sort(new IntExpComparator());
+        tmp.sort(Comparator.comparingInt(IntExp::min));
 
         for (int i = tmp.get(0).min(); i <= tmp.get(0).max(); i++) {
             if (tmp.get(0).contains(i)) {

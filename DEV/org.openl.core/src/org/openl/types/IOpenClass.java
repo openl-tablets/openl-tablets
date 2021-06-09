@@ -7,10 +7,9 @@
 package org.openl.types;
 
 import java.util.Collection;
-import java.util.Map;
 
 import org.openl.binding.IOpenLibrary;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.domain.IType;
 import org.openl.meta.IMetaHolder;
 import org.openl.vm.IRuntimeEnv;
@@ -29,14 +28,14 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
 
     IOpenClass[] EMPTY = {};
 
-    Map<String, IOpenField> getFields();
+    Collection<IOpenField> getFields();
 
     /**
      * Returns public fields declared in this class.
      *
      * @return map of fields declared in this class.
      */
-    Map<String, IOpenField> getDeclaredFields();
+    Collection<IOpenField> getDeclaredFields();
 
     IAggregateInfo getAggregateInfo();
 
@@ -52,7 +51,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      * @return
      * @since 5.0
      */
-    IOpenField getField(String name, boolean strictMatch) throws AmbiguousVarException;
+    IOpenField getField(String name, boolean strictMatch) throws AmbiguousFieldException;
 
     IOpenField getIndexField();
 
@@ -79,13 +78,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
      */
     boolean isAbstract();
 
-    /**
-     * @param c Class to check
-     * @return true if the instance of corresponding Class class belongs to the open class.
-     */
-    boolean isAssignableFrom(Class<?> c);
-
-    /**
+   /**
      * @param ioc IOpenClass to check
      * @return true if the instance of corresponding IOpenClass class belongs to the open class.
      */
@@ -148,7 +141,7 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     /**
      * We do not have a limitation on number of superclasses. This feature is not fully supported yet
      */
-    Iterable<IOpenClass> superClasses();
+    Collection<IOpenClass> superClasses();
 
     /**
      * Add new type to internal types list. If the type with the same name already exists exception will be thrown.
@@ -170,4 +163,14 @@ public interface IOpenClass extends IType, IOpenLibrary, IMetaHolder {
     IOpenClass getArrayType(int dim);
 
     boolean isInterface();
+
+    IOpenField getStaticField(String name);
+
+    IOpenField getStaticField(String name, boolean strictMatch);
+
+    Collection<IOpenField> getStaticFields();
+
+    IOpenClass toStaticClass();
+
+    boolean isStatic();
 }

@@ -38,8 +38,7 @@ final class JndiLogger extends OpenLLogger {
                 } else {
                     log("  {} = {}", jndiPath, value);
                 }
-
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 log("  {} ! {}", jndiPath, t.toString());
             }
         }

@@ -1,11 +1,13 @@
 package org.openl.types.impl;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.types.java.JavaOpenClass;
 
 public class ComponentTypeArrayOpenClassTest {
@@ -28,6 +30,12 @@ public class ComponentTypeArrayOpenClassTest {
     public void testEquals_componentClassWithSamePackages() {
         to = new ComponentTypeArrayOpenClass(new JavaOpenClass(org.openl.generated.packA.MyType.class));
         assertEquals(from, to);
+    }
+
+    @Test
+    public void testIsAssignableFromNullOpenClass() {
+        to = new ComponentTypeArrayOpenClass(new JavaOpenClass(org.openl.generated.packA.MyType.class));
+        assertFalse(to.isAssignableFrom(NullOpenClass.the));
     }
 
     @Test

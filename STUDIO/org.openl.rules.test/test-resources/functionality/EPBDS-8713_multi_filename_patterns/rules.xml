@@ -1,0 +1,16 @@
+<project>
+  <name>EPBDS-8713_multi_filename_patterns</name>
+  <modules>
+    <module>
+      <name>Rules</name>
+      <rules-root path="Product-*.xlsx"/>
+    </module>
+    <module>
+      <name>Test</name>
+      <rules-root path="Test.xlsx"/>
+    </module>
+  </modules>
+  <properties-file-name-pattern>.*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%state%</properties-file-name-pattern>
+  <properties-file-name-pattern>Test</properties-file-name-pattern>
+  <properties-file-name-pattern>.*-%lob%-.*-%effectiveDate:ddMMyyyy%-%startRequestDate:ddMMyyyy%-%currency%</properties-file-name-pattern>
+</project>

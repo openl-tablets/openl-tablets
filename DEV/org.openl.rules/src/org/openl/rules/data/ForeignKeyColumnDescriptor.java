@@ -49,7 +49,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     private final IdentifierNode foreignKey;
     private String[] foreignKeyColumnChainTokens = {};
 
-    private CellKey foreignKeyCellCoordinate;
+    private final CellKey foreignKeyCellCoordinate;
 
     public ForeignKeyColumnDescriptor(IOpenField field,
             IdentifierNode foreignKeyTable,
@@ -168,6 +168,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
             String key) throws SyntaxNodeException {
 
         Object result;
+        IOpenClass resType;
 
         try {
             if (foreignKeyColumnChainTokens.length == 0) {
@@ -182,12 +183,17 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 }
             }
             result = foreignTable.findObject(foreignKeyIndex, key, bindingContext);
+            resType = foreignTable.getDataModel().getType();
+
             if (result == null) {
                 throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
             }
 
             if (!ArrayUtils.isEmpty(foreignKeyTableAccessorChainTokens)) {
-                ResultChainObject chainRes = getChainObject(bindingContext, result, foreignKeyTableAccessorChainTokens);
+                ResultChainObject chainRes = getChainObject(bindingContext,
+                    resType,
+                    result,
+                    foreignKeyTableAccessorChainTokens);
                 if (chainRes == null) {
                     throw createIndexNotFoundError(foreignTable, valueTable, key, null, bindingContext);
                 }
@@ -226,19 +232,12 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         ITable foreignTable = db.getTable(foreignKeyTableName);
         Object result = null;
 
-        validateForeignTable(foreignTable, foreignKeyTableName);
-
         int foreignKeyIndex = 0;
-        String columnName = NOT_INITIALIZED;
+        String columnName;
 
         if (foreignKey != null) {
             columnName = foreignKey.getIdentifier();
             foreignKeyIndex = foreignTable.getColumnIndex(columnName);
-        }
-
-        if (foreignKeyIndex == -1) {
-            String message = MessageUtils.getConstructorNotFoundMessage(columnName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
         }
 
         boolean valuesAnArray = isValuesAnArray(fieldType);
@@ -318,14 +317,7 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String foreignKeyTableName = foreignKeyTable.getIdentifier();
                 ITable foreignTable = db.getTable(foreignKeyTableName);
 
-                validateForeignTable(foreignTable, foreignKeyTableName);
-
                 int foreignKeyIndex = getForeignKeyIndex(foreignTable);
-
-                if (foreignKeyIndex == -1) {
-                    String message = MessageUtils.getColumnNotFoundErrorMessage(foreignKey.getIdentifier());
-                    throw SyntaxNodeExceptionUtils.createError(message, null, foreignKey);
-                }
 
                 // table will have 1xN size
                 //
@@ -337,28 +329,16 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
                 String s = getCellStringValue(valuesTable);
                 if (!StringUtils.isEmpty(s)) {
                     Object result;
-                    try {
-                        result = foreignTable.findObject(foreignKeyIndex, s, cxt);
-                    } catch (SyntaxNodeException ex) {
-                        foreignTable.getTableSyntaxNode().addError(ex);
-                        cxt.addError(ex);
-                        return;
-                    }
+                    result = foreignTable.findObject(foreignKeyIndex, s, cxt);
                     if (result != null) {
-                        ResultChainObject chainRes = getChainObject(cxt, result, foreignKeyTableAccessorChainTokens);
+                        ResultChainObject chainRes = getChainObject(cxt,
+                            resType,
+                            result,
+                            foreignKeyTableAccessorChainTokens);
                         if (chainRes == null) {
                             throw createIndexNotFoundError(foreignTable, valuesTable, s, null, cxt);
                         }
-                        Class<?> instanceClass = chainRes.instanceClass;
-                        int dim = 0;
-                        while (instanceClass.isArray()) {
-                            instanceClass = instanceClass.getComponentType();
-                            dim++;
-                        }
-                        resType = JavaOpenClass.getOpenClass(instanceClass);
-                        if (dim > 0) {
-                            resType = resType.getArrayType(dim);
-                        }
+                        resType = chainRes.getType();
                     }
                 }
 
@@ -519,32 +499,26 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
         }
     }
 
-    private void validateForeignTable(ITable foreignTable, String foreignKeyTableName) throws SyntaxNodeException {
-        if (foreignTable == null) {
-            String message = MessageUtils.getTableNotFoundErrorMessage(foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        } else if (foreignTable.getTableSyntaxNode().hasErrors()) {
-            String message = MessageUtils.getForeignTableCompilationErrorsMessage(foreignKeyTableName);
-            throw SyntaxNodeExceptionUtils.createError(message, null, foreignKeyTable);
-        }
-    }
-
     private int getForeignKeyIndex(ITable foreignTable) {
-        if (foreignKey != null) {
-            String columnName = foreignKey.getIdentifier();
-            return foreignTable.getColumnIndex(columnName);
+        if (foreignTable != null) {
+            if (foreignKey != null) {
+                String columnName = foreignKey.getIdentifier();
+                return foreignTable.getColumnIndex(columnName);
+            } else {
+                ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
+                if (descriptor.isPrimaryKey()) {
+                    return descriptor.getColumnIdx();
+                }
+                ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
+                if (firstColDescriptor.isPrimaryKey()) {
+                    // first column is primary key for another level. So return column index for first descriptor
+                    return descriptor.getColumnIdx();
+                }
+                // we don't have defined PK lets use first key as PK
+                return 0;
+            }
         } else {
-            ColumnDescriptor descriptor = foreignTable.getDataModel().getDescriptors()[0];
-            if (descriptor.isPrimaryKey()) {
-                return descriptor.getColumnIdx();
-            }
-            ColumnDescriptor firstColDescriptor = foreignTable.getDataModel().getDescriptor(0);
-            if (firstColDescriptor.isPrimaryKey()) {
-                // first column is primary key for another level. So return column index for first descriptor
-                return descriptor.getColumnIdx();
-            }
-            // we don't have defined PK lets use first key as PK
-            return 0;
+            return -1;
         }
     }
 
@@ -595,26 +569,30 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     private ResultChainObject getChainObject(IBindingContext bindingContext,
+            IOpenClass resType,
             Object parentObj,
             IdentifierNode[] fieldChainTokens) {
         Object resObj = parentObj;
-        Class<?> resInctClass = parentObj.getClass();
         if (fieldChainTokens.length > 1) {
             IOpenField openField = DataTableBindHelper.processFieldsChain(bindingContext,
                 null,
-                JavaOpenClass.getOpenClass(resInctClass),
+                resType,
                 ArrayUtils.subarray(fieldChainTokens, 1, fieldChainTokens.length));
             if (openField == null) {
                 return null;
             }
             resObj = openField.get(resObj, new SimpleRulesVM().getRuntimeEnv());
-            resInctClass = openField.getType().getInstanceClass();
+            resType = openField.getType();
         }
-        return new ResultChainObject(resObj, resInctClass);
+        return new ResultChainObject(resObj, resType);
     }
 
     public IdentifierNode getForeignKeyTable() {
         return foreignKeyTable;
+    }
+
+    public IdentifierNode getForeignKey() {
+        return foreignKey;
     }
 
     public CellKey getForeignKeyCellCoordinate() {
@@ -636,20 +614,20 @@ public class ForeignKeyColumnDescriptor extends ColumnDescriptor {
     }
 
     static class ResultChainObject {
-        private Object value;
-        private Class<?> instanceClass;
+        private final Object value;
+        private final IOpenClass type;
 
-        ResultChainObject(Object value, Class<?> instanceClass) {
+        ResultChainObject(Object value, IOpenClass type) {
             this.value = value;
-            this.instanceClass = instanceClass;
+            this.type = type;
         }
 
         public Object getValue() {
             return value;
         }
 
-        public Class<?> getInstanceClass() {
-            return instanceClass;
+        public IOpenClass getType() {
+            return type;
         }
     }
 }

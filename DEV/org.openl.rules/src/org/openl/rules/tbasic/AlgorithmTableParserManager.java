@@ -18,7 +18,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private static volatile AlgorithmTableParserManager INSTANCE;
 
-    private static Object synchObjectForInstance = new Object();
+    private static final Object synchObjectForInstance = new Object();
 
     private final IAlgorithmTableParserManager rulesWrapperInstance;
 
@@ -26,9 +26,9 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
 
     private volatile ConversionRuleBean[] fixedConvertionRules;
 
-    private Object synchObjectForConvertionRules = new Object();
+    private final Object synchObjectForConvertionRules = new Object();
 
-    private Object synchObjectForFixedConvertionRules = new Object();
+    private final Object synchObjectForFixedConvertionRules = new Object();
 
     public static AlgorithmTableParserManager getInstance() {
         lazyLoadInstance();
@@ -52,10 +52,10 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
             IAlgorithmTableParserManager.class);
         engineFactory.setExecutionMode(true);
 
-        rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.makeInstance();
+        rulesWrapperInstance = (IAlgorithmTableParserManager) engineFactory.newInstance();
     }
 
-    private ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
+    private static ConversionRuleBean[] fixBrokenValues(ConversionRuleBean[] conversionRules) {
         for (ConversionRuleBean conversionRule : conversionRules) {
             fixBrokenValues(conversionRule.getOperationType());
             fixBrokenValues(conversionRule.getOperationParam1());
@@ -66,11 +66,11 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
         return conversionRules;
     }
 
-    private void fixBrokenValues(String[] label) {
+    private static void fixBrokenValues(String[] label) {
         for (int i = 0; i < label.length; i++) {
-            if (label[i].equalsIgnoreCase("N/A")) {
+            if ("N/A".equalsIgnoreCase(label[i])) {
                 label[i] = null;
-            } else if (label[i].equalsIgnoreCase("\"\"")) {
+            } else if ("\"\"".equalsIgnoreCase(label[i])) {
                 label[i] = "";
             }
         }
@@ -84,9 +84,7 @@ public final class AlgorithmTableParserManager implements IAlgorithmTableParserM
      */
     @Override
     public TableParserSpecificationBean[] getAlgorithmSpecification() {
-        TableParserSpecificationBean[] result = rulesWrapperInstance.getAlgorithmSpecification();
-
-        return result;
+        return  rulesWrapperInstance.getAlgorithmSpecification();
     }
 
     @Override

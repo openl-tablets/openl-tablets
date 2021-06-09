@@ -8,7 +8,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
-import org.openl.rules.variation.VariationException;
 
 public class RunITest {
 
@@ -66,7 +65,7 @@ public class RunITest {
     }
 
     @Test
-    public void testCalVehicleYearVariationsPack_SOAP() throws VariationException {
+    public void testCalVehicleYearVariationsPack_SOAP() {
         client.post("/EPBDS-6437", "/variation.req.xml", "/variation.resp.xml");
     }
 
@@ -75,5 +74,18 @@ public class RunITest {
         client.post("/REST/EPBDS-9201/spr", "/milliseconds.req.json", "/milliseconds.resp.json");
         client.post("/REST/EPBDS-9201/spr", "/defaultDateFormat.req.json", "/defaultDateFormat.resp.json");
         client.post("/REST/EPBDS-9201/spr", "/iso8601WithoutTime.req.json", "/iso8601WithoutTime.resp.json");
+    }
+
+    @Test
+    public void testEPBDS_10642() {
+        client.get("/EPBDS-10642/swagger.json", "/EPBDS-10642/EPBDS-10642/swagger.resp.json");
+        client.get("/EPBDS-10642/openapi.json", "/EPBDS-10642/EPBDS-10642/openapi.resp.json");
+        client.post("/EPBDS-10642/localDateProxy", "/EPBDS-10642/EPBDS-10642/localDateProxy.req.txt", "/EPBDS-10642/EPBDS-10642/localDateProxy.resp.txt");
+        client.post("/EPBDS-10642/localTimeProxy", "/EPBDS-10642/EPBDS-10642/localTimeProxy.req.txt", "/EPBDS-10642/EPBDS-10642/localTimeProxy.resp.txt");
+        client.post("/EPBDS-10642/localDateTimeProxy", "/EPBDS-10642/EPBDS-10642/localDateTimeProxy.req.txt", "/EPBDS-10642/EPBDS-10642/localDateTimeProxy.resp.txt");
+        client.post("/EPBDS-10642/zonedDateTypeProxy", "/EPBDS-10642/EPBDS-10642/zonedDateTypeProxy.req.txt", "/EPBDS-10642/EPBDS-10642/zonedDateTypeProxy.resp.txt");
+        client.post("/EPBDS-10642/instantProxy", "/EPBDS-10642/EPBDS-10642/instantProxy.req.txt", "/EPBDS-10642/EPBDS-10642/instantProxy.resp.txt");
+        client.post("/EPBDS-10642/dateType", "/EPBDS-10642/EPBDS-10642/dateType.req.txt", "/EPBDS-10642/EPBDS-10642/dateType.resp.txt");
+        client.post("/EPBDS-10642/spr", "/EPBDS-10642/EPBDS-10642/spr.req.json", "/EPBDS-10642/EPBDS-10642/spr.resp.json");
     }
 }

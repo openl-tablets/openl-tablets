@@ -1,5 +1,6 @@
 package org.openl.rules.project.model;
 
+import java.nio.file.Path;
 import java.util.Map;
 
 public class Module {
@@ -10,7 +11,6 @@ public class Module {
     private String wildcardName;
     private String wildcardRulesRootPath;
     private MethodFilter methodFilter;
-    private Extension extension;
 
     public MethodFilter getMethodFilter() {
         return methodFilter;
@@ -56,16 +56,12 @@ public class Module {
         return rulesRootPath;
     }
 
+    public Path getRulesPath() {
+        return project.getProjectFolder().resolve(rulesRootPath.getPath()).toAbsolutePath();
+    }
+
     public void setRulesRootPath(PathEntry rulesRootPath) {
         this.rulesRootPath = rulesRootPath;
-    }
-
-    public Extension getExtension() {
-        return extension;
-    }
-
-    public void setExtension(Extension extension) {
-        this.extension = extension;
     }
 
     public Map<String, Object> getProperties() {

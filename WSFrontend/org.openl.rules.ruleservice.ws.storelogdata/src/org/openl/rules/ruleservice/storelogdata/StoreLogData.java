@@ -38,7 +38,7 @@ public class StoreLogData {
 
     private Method serviceMethod;
 
-    private Map<String, Object> customValues = new HashMap<>();
+    private final Map<String, Object> customValues = new HashMap<>();
 
     private ObjectSerializer objectSerializer;
 

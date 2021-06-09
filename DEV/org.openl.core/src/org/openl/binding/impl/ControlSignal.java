@@ -12,8 +12,6 @@ package org.openl.binding.impl;
  */
 public class ControlSignal extends RuntimeException {
 
-    private static final long serialVersionUID = -1921533116812896265L;
-
     public ControlSignal() {
         super();
     }

@@ -1,0 +1,2 @@
+DELETE /admin/deploy/yaml_project HTTP/1.1
+

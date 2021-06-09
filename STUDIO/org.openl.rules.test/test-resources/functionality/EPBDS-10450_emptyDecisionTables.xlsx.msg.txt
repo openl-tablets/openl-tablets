@@ -1,0 +1,11 @@
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+WARN: There are no rule rows in the table.
+ERROR: Invalid structure of decision table.

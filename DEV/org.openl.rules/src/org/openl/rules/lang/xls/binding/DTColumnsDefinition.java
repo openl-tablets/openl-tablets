@@ -4,41 +4,79 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.rules.types.IUriMember;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.IParameterDeclaration;
 import org.openl.types.impl.CompositeMethod;
 
-public class DTColumnsDefinition implements IUriMember {
+public class DTColumnsDefinition {
 
-    private Map<String, List<IParameterDeclaration>> localParameters;
-    private IOpenMethodHeader header;
+    private final String tableName;
+    private final String expression;
+    private final Map<String, List<IParameterDeclaration>> parameters;
+    private final IOpenMethodHeader header;
     private CompositeMethod compositeMethod;
-    private DTColumnsDefinitionType type;
-    private String uri;
+    private final DTColumnsDefinitionType type;
+    private final String uri;
+    private Set<String> externalParameters;
 
     public DTColumnsDefinition(DTColumnsDefinitionType type,
-            Map<String, List<IParameterDeclaration>> localParameters,
+            String tableName,
             IOpenMethodHeader header,
-            CompositeMethod compositeMethod,
+            String expression,
+            Map<String, List<IParameterDeclaration>> parameters,
             TableSyntaxNode tableSyntaxNode) {
-        this.localParameters = localParameters;
-        this.compositeMethod = compositeMethod;
-        this.header = header;
-        this.type = type;
+        this.tableName = tableName;
+        this.header = Objects.requireNonNull(header, "header cannot be null");
+        this.expression = Objects.requireNonNull(expression, "expression cannot be null");
+        this.parameters = Objects.requireNonNull(parameters, "parameters cannot be null");
+        this.type = Objects.requireNonNull(type, "type cannot be null");
         this.uri = tableSyntaxNode.getUri();
+    }
+
+    public String getTableName() {
+        return tableName;
+    }
+
+    public String getExpression() {
+        return expression;
+    }
+
+    public String getUri() {
+        return uri;
     }
 
     public CompositeMethod getCompositeMethod() {
         return compositeMethod;
     }
 
-    public int getNumberOfTitles() {
-        return localParameters.size();
+    public void setCompositeMethod(CompositeMethod compositeMethod) {
+        this.compositeMethod = compositeMethod;
     }
 
-    public List<IParameterDeclaration> getLocalParameters(String title) {
-        List<IParameterDeclaration> value = localParameters.get(title);
+    public Set<String> getExternalParameters() {
+        if (externalParameters == null) {
+            return Collections.emptySet();
+        }
+        return externalParameters;
+    }
+
+    public void setExternalParameters(Set<String> externalParameters) {
+        this.externalParameters = externalParameters;
+    }
+
+    public int getNumberOfTitles() {
+        return parameters.size();
+    }
+
+    public List<IParameterDeclaration> getParameters() {
+        return parameters.values()
+            .stream()
+            .flatMap(Collection::stream)
+            .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    public List<IParameterDeclaration> getParameters(String title) {
+        List<IParameterDeclaration> value = parameters.get(title);
         if (value != null) {
             return Collections.unmodifiableList(value);
         } else {
@@ -46,16 +84,8 @@ public class DTColumnsDefinition implements IUriMember {
         }
     }
 
-    public Collection<IParameterDeclaration> getLocalParameters() {
-        return localParameters.values()
-            .stream()
-            .flatMap(Collection::stream)
-            .filter(e -> e != null && e.getName() != null)
-            .collect(Collectors.toCollection(ArrayList::new));
-    }
-
     public Set<String> getTitles() {
-        return Collections.unmodifiableSet(localParameters.keySet());
+        return Collections.unmodifiableSet(parameters.keySet());
     }
 
     public IOpenMethodHeader getHeader() {
@@ -67,19 +97,14 @@ public class DTColumnsDefinition implements IUriMember {
     }
 
     public boolean isCondition() {
-        return DTColumnsDefinitionType.CONDITION.equals(type);
+        return DTColumnsDefinitionType.CONDITION == type;
     }
 
     public boolean isAction() {
-        return DTColumnsDefinitionType.ACTION.equals(type);
+        return DTColumnsDefinitionType.ACTION == type;
     }
 
     public boolean isReturn() {
-        return DTColumnsDefinitionType.RETURN.equals(type);
-    }
-
-    @Override
-    public String getUri() {
-        return uri;
+        return DTColumnsDefinitionType.RETURN == type;
     }
 }

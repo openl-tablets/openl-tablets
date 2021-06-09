@@ -31,7 +31,20 @@ import java.util.List;
  *
  * @author Yury Molchan
  */
-public interface Repository {
+public interface Repository extends AutoCloseable {
+    /**
+     * Get unique identifier for Repository. Used to distinguish one repository from another. Must be unique.
+     * 
+     * @return repository id.
+     */
+    String getId();
+
+    /**
+     * Get repository name shown on UI.
+     * 
+     * @return repository name
+     */
+    String getName();
 
     /**
      * Return a list of files recursively in the given folder.
@@ -86,6 +99,15 @@ public interface Repository {
      * @throws IOException if not possible to delete the file.
      */
     boolean delete(FileData data) throws IOException;
+
+    /**
+     * Delete multiple files or mark it as deleted in one transaction.
+     *
+     * @param data list of files to delete
+     * @return true if at least one file is deleted
+     * @throws IOException if not possible to delete the file
+     */
+    boolean delete(List<FileData> data) throws  IOException;
 
     /**
      * Set a listener to monitor changes in the repository.
@@ -159,4 +181,9 @@ public interface Repository {
      * @return Supported features
      */
     Features supports();
+
+    @Override
+    default void close() throws Exception {
+        // Do nothing. For backward compatibility of API
+    }
 }

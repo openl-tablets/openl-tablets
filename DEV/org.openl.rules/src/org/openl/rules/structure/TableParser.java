@@ -10,8 +10,8 @@ public final class TableParser {
     public static void parseTable(ILogicalTable table, ITableParserElement[] pElements, ITableObject tobj) {
         ILogicalTable unparsedTable = table;
 
-        for (int i = 0; i < pElements.length; i++) {
-            unparsedTable = pElements[i].parse(unparsedTable, tobj);
+        for (ITableParserElement pElement : pElements) {
+            unparsedTable = pElement.parse(unparsedTable, tobj);
         }
 
     }

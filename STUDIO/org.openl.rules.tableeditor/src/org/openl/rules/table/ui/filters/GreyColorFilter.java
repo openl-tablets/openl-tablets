@@ -6,7 +6,7 @@ package org.openl.rules.table.ui.filters;
  */
 public class GreyColorFilter implements IColorFilter {
 
-    private double brightness;
+    private final double brightness;
 
     public GreyColorFilter(double brightness) {
         this.brightness = brightness;

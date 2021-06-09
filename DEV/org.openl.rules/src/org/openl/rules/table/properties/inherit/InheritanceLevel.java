@@ -1,6 +1,7 @@
 package org.openl.rules.table.properties.inherit;
 
 public enum InheritanceLevel {
+    GLOBAL("Global"),
     PROJECT("Project"),
     FOLDER("Folder"),
     EXTERNAL("External"),
@@ -9,7 +10,7 @@ public enum InheritanceLevel {
     CATEGORY("Category"),
     TABLE("Table");
 
-    private String displayName;
+    private final String displayName;
 
     InheritanceLevel(String displayName) {
         this.displayName = displayName;

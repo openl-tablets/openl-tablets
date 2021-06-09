@@ -8,7 +8,6 @@ package org.openl.rules.lang.xls.syntax;
 
 import java.lang.annotation.Annotation;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.openl.meta.StringValue;
@@ -24,38 +23,30 @@ import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.syntax.GridLocation;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.NaryNode;
 import org.openl.types.IOpenMember;
-import org.openl.util.CollectionUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  */
 public class TableSyntaxNode extends NaryNode {
-    private final Logger log = LoggerFactory.getLogger(TableSyntaxNode.class);
+    public static final TableSyntaxNode[] EMPTY_ARRAY = new TableSyntaxNode[0];
 
     private ILogicalTable table;
 
-    private HeaderSyntaxNode headerNode;
+    private final HeaderSyntaxNode headerNode;
 
     private ITableProperties tableProperties;
 
     private IOpenMember member;
 
-    private Map<String, ILogicalTable> subTables = new HashMap<>();
-
-    /**
-     * Map with errors in the order in which they were inserted
-     */
-    private LinkedHashMap<ErrorKey, SyntaxNodeException> errors = new LinkedHashMap<>();
+    private final Map<String, ILogicalTable> subTables = new HashMap<>();
 
     private Object validationResult;
 
     private MetaInfoReader metaInfoReader = EmptyMetaInfoReader.getInstance();
+
+    private volatile String tableId;
 
     public TableSyntaxNode(String type,
             GridLocation pos,
@@ -72,39 +63,8 @@ public class TableSyntaxNode extends NaryNode {
         table = LogicalTableHelper.logicalTable(gridTable);
     }
 
-    public void addError(SyntaxNodeException error) {
-        ErrorKey key = new ErrorKey(error);
-        if (errors.get(key) != null) {
-            String message = error.getMessage();
-            if (log.isWarnEnabled()) {
-                log.warn("Skip duplicated message: " + message, error);
-            }
-            return;
-        }
-        errors.put(key, error);
-    }
-
-    public void addError(CompositeSyntaxNodeException error) {
-        SyntaxNodeException[] errors = error.getErrors();
-        for (SyntaxNodeException e : errors) {
-            addError(e);
-        }
-    }
-
-    public void clearErrors() {
-        errors.clear();
-    }
-
     public String getDisplayName() {
         return table.getSource().getCell(0, 0).getStringValue();
-    }
-
-    public SyntaxNodeException[] getErrors() {
-        return errors.values().toArray(new SyntaxNodeException[0]);
-    }
-
-    public boolean hasErrors() {
-        return CollectionUtils.isNotEmpty(errors);
     }
 
     public GridLocation getGridLocation() {
@@ -172,7 +132,14 @@ public class TableSyntaxNode extends NaryNode {
     }
 
     public String getId() {
-        return TableUtils.makeTableId(getUri());
+        if (tableId == null) {
+            synchronized (this) {
+                if (tableId == null) {
+                    tableId = TableUtils.makeTableId(getUri());
+                }
+            }
+        }
+        return tableId;
     }
 
     public Object getValidationResult() {

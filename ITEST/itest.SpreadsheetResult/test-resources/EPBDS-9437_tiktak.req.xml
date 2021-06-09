@@ -1,0 +1,8 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:tiktak xmlns:ns1="http://DefaultNamespace">
+            <ns1:i>100</ns1:i>
+            <ns1:j>foo</ns1:j>
+        </ns1:tiktak>
+    </soap:Body>
+</soap:Envelope>

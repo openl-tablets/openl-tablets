@@ -30,7 +30,7 @@ public abstract class ReusableFactory implements java.io.Serializable {
     /**
      * All created factories.
      */
-    protected static Vector _allFactories = new Vector();
+    protected static final Vector _allFactories = new Vector();
     protected FastStack _reusables;
 
     protected int _element_counter;

@@ -19,13 +19,13 @@ import org.slf4j.LoggerFactory;
 
 public class ConfigurableResourceContext implements IConfigurableResourceContext {
 
-    private final Logger log = LoggerFactory.getLogger(ConfigurableResourceContext.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigurableResourceContext.class);
 
     private static final String[] DEFAULT_FILESYSTEM_ROOTS = { ".", "" };
 
-    private IOpenLConfiguration config;
+    private final IOpenLConfiguration config;
     private ClassLoader classLoader;
-    private String[] fileSystemRoots;
+    private final String[] fileSystemRoots;
     private Properties properties;
 
     public ConfigurableResourceContext(ClassLoader classLoader, IOpenLConfiguration config) {
@@ -58,8 +58,8 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
     public Class<?> findClass(String className) {
         try {
             return getClassLoader().loadClass(className);
-        } catch (Throwable t) {
-            log.debug("Cannot load class '{}'", className, t);
+        } catch (Exception | LinkageError e) {
+            LOG.debug("Failed to load class '{}'.", className, e);
             return null;
         }
     }
@@ -76,8 +76,8 @@ public class ConfigurableResourceContext implements IConfigurableResourceContext
         if (file.isAbsolute() && file.exists()) {
             return file;
         } else {
-            for (int i = 0; i < fileSystemRoots.length; i++) {
-                file = new File(fileSystemRoots[i], url);
+            for (String fileSystemRoot : fileSystemRoots) {
+                file = new File(fileSystemRoot, url);
                 if (file.exists()) {
                     return file;
                 }

@@ -9,11 +9,11 @@ import org.openl.rules.enumeration.RecalculateEnum;
 import org.openl.rules.lang.xls.binding.ATableBoundNode;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.properties.ITableProperties;
-import org.openl.rules.types.IUriMember;
 import org.openl.rules.vm.CacheMode;
 import org.openl.rules.vm.ResultNotFoundException;
 import org.openl.rules.vm.SimpleRulesRuntimeEnv;
 import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IModuleInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.types.Invokable;
@@ -23,40 +23,30 @@ import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
 
-public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IUriMember {
+public abstract class ExecutableRulesMethod extends ExecutableMethod implements ITablePropertiesMethod, IModuleInfo {
 
     private ITableProperties properties;
     // FIXME: it should be AMethodBasedNode but currently it will be
     // ATableBoundNode due to TestSuiteMethod instance of
     // ExecutableRulesMethod(but test table is firstly data table)
     private ATableBoundNode boundNode;
-
-    private String uri;
-
     private boolean hasAliasTypeParams;
     private IOpenCast[] aliasDatatypesCasts;
 
+    private String moduleName;
+
     @Override
-    public String getUri() {
-        if (this.uri == null) {
-            throw new IllegalStateException("Table uri is not defined in the method.");
-        }
-        return uri;
+    public String getModuleName() {
+        return moduleName;
     }
 
-    /**
-     * Must be invoked from inherited class constructor only
-     */
-    protected final void setUri(String uri) {
-        this.uri = uri;
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
     }
 
     public ExecutableRulesMethod(IOpenMethodHeader header, ATableBoundNode boundNode) {
         super(header);
         this.boundNode = boundNode;
-        if (this.boundNode != null) {
-            uri = boundNode.getTableSyntaxNode().getTable().getSource().getUri();
-        }
         hasAliasTypeParams = false;
         if (header != null) {
             int i = 0;
@@ -68,8 +58,10 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
                         aliasDatatypesCasts = new IOpenCast[header.getSignature().getNumberOfParameters()];
                     }
                     IOpenClass methodParam = header.getSignature().getParameterTypes()[i];
-                    aliasDatatypesCasts[i++] = castFactory
-                        .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    if (methodParam.getInstanceClass() != null) {
+                        aliasDatatypesCasts[i++] = castFactory
+                            .getCast(JavaOpenClass.getOpenClass(methodParam.getInstanceClass()), methodParam);
+                    }
                 }
             }
         }
@@ -94,12 +86,7 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         return Tracer.invoke(invoke2, target, params, env, this);
     }
 
-    private Invokable invoke2 = new Invokable() {
-        @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return invoke2(target, params, env);
-        }
-    };
+    private final Invokable invoke2 = (Invokable) this::invoke2;
 
     private Object invoke2(Object target, Object[] params, IRuntimeEnv env) {
         if (hasAliasTypeParams) {
@@ -185,6 +172,16 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         this.boundNode = node;
     }
 
+    public void clearForExecutionMode() {
+        setBoundNode(null);
+        ITableProperties methodProperties = getMethodProperties();
+        if (methodProperties != null) {
+            methodProperties.setModulePropertiesTableSyntaxNode(null);
+            methodProperties.setCategoryPropertiesTableSyntaxNode(null);
+            methodProperties.setPropertiesSection(null);
+        }
+    }
+
     public ATableBoundNode getBoundNode() {
         return boundNode;
     }
@@ -222,5 +219,9 @@ public abstract class ExecutableRulesMethod extends ExecutableMethod implements 
         }
 
         return null;
+    }
+
+    public boolean isAlias() {
+        return false;
     }
 }

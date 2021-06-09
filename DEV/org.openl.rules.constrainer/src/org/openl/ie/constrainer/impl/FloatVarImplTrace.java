@@ -21,7 +21,7 @@ import org.openl.ie.constrainer.Failure;
  * An implementation of the FloatVar with tracing capabilities.
  */
 public class FloatVarImplTrace extends FloatVarImpl {
-    int _trace_flags = 0;
+    int _trace_flags;
 
     public FloatVarImplTrace(Constrainer constrainer, double min, double max, String name, int trace_flags) {
         super(constrainer, min, max, name);

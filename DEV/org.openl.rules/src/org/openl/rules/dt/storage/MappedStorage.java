@@ -2,7 +2,7 @@ package org.openl.rules.dt.storage;
 
 abstract class MappedStorage extends ReadOnlyStorage<Object> {
 
-    private Object[] uniqueValues;
+    private final Object[] uniqueValues;
 
     MappedStorage(Object[] uniqueValues, StorageInfo info) {
         super(info);

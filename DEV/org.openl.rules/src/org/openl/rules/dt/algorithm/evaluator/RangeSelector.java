@@ -7,13 +7,13 @@ import org.openl.vm.IRuntimeEnv;
 
 public class RangeSelector implements IIntSelector {
 
-    private ICondition condition;
-    private Object value;
+    private final ICondition condition;
+    private final Object value;
 
-    private Object target;
-    private Object[] params;
-    private IRuntimeEnv env;
-    private IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor;
+    private final Object target;
+    private final Object[] params;
+    private final IRuntimeEnv env;
+    private final IRangeAdaptor<Object, ? extends Comparable<Object>> adaptor;
 
     RangeSelector(ICondition condition,
             Object value,
@@ -49,8 +49,8 @@ public class RangeSelector implements IIntSelector {
 
         condition.loadValues(realParams, 0, ruleN, target, this.params, env);
 
-        Comparable<Object> vFrom = null;
-        Comparable<Object> vTo = null;
+        Comparable<Object> vFrom;
+        Comparable<Object> vTo;
 
         if (adaptor == null) {
             vFrom = (Comparable<Object>) realParams[0];

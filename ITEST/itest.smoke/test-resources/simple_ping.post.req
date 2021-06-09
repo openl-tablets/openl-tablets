@@ -1,0 +1,9 @@
+POST /simple HTTP/1.1
+Content-Type: application/xml
+Accept: application/xml;q=1.0, */*;q=0.1
+
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <ns1:ping xmlns:ns1="http://DefaultNamespace"/>
+    </soap:Body>
+</soap:Envelope>

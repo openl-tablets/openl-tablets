@@ -1,7 +1,14 @@
 package org.openl.util;
 
 import java.io.*;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Enumeration;
+import java.util.function.Predicate;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 
 /**
@@ -62,10 +69,6 @@ public final class ZipUtils {
 
     /**
      * Pack all files in a directory to a zip file.
-     *
-     * @param sourceDirectory
-     * @param targetFile
-     * @throws IOException
      */
     public static void archive(File sourceDirectory, File targetFile) throws IOException {
         if (!sourceDirectory.exists()) {
@@ -79,8 +82,59 @@ public final class ZipUtils {
                     String.format("Directory '%s' is empty.", sourceDirectory.getAbsolutePath()));
             }
         }
-        try (OutputStream fos = new FileOutputStream(targetFile)) {
-            ZipCompressor.archive(sourceDirectory, fos);
+        try (ZipArchiver arch = new ZipArchiver(targetFile.toPath())) {
+            ProjectPackager.addOpenLProject(sourceDirectory, arch);
         }
+    }
+
+    public static boolean contains(File zipFile, Predicate<String> names) {
+        try (ZipFile zip = new ZipFile(zipFile)) {
+            Enumeration<? extends ZipEntry> entries = zip.entries();
+            while (entries.hasMoreElements()) {
+                ZipEntry zipEntry = entries.nextElement();
+                if (names.test(zipEntry.getName())) {
+                    return true;
+                }
+            }
+        } catch (IOException ignored) {
+            // skip
+        }
+        return false;
+    }
+
+    public static URI toJarURI(Path pathToZip) {
+        URI rootURI = pathToZip.toUri();
+        try {
+            return new URI("jar:" + rootURI.getScheme(), rootURI.getPath(), null);
+        } catch (URISyntaxException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
+        }
+    }
+
+    public static Path toPath(URI uri) {
+        if ("jar".equals(uri.getScheme())) {
+            String path = uri.getRawSchemeSpecificPart();
+            int sep = path.indexOf("!/");
+            if (sep > -1) {
+                path = path.substring(0, sep);
+            }
+            try {
+                URI uriToZip = new URI(path);
+                if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                    //FIXME workaround to fix double URI encoding for URIs from ZipPath
+                    try {
+                        uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                    } catch (URISyntaxException ignored) {
+                        //it's ok
+                    }
+                }
+                return Paths.get(uriToZip);
+            } catch (URISyntaxException e) {
+                throw RuntimeExceptionWrapper.wrap(e);
+            }
+        } else if ("file".equals(uri.getScheme())) {
+            return Paths.get(uri);
+        }
+        throw new IllegalArgumentException("Invalid URI scheme.");
     }
 }

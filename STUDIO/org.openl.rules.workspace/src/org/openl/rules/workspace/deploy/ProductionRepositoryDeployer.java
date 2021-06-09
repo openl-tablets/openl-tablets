@@ -2,7 +2,6 @@ package org.openl.rules.workspace.deploy;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -22,6 +21,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.openl.rules.project.abstraction.Comments;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.repository.RepositoryInstatiator;
 import org.openl.rules.repository.api.ChangesetType;
@@ -30,7 +30,6 @@ import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -46,14 +45,15 @@ import org.yaml.snakeyaml.Yaml;
  * This class allows to deploy a zip-based project to a production repository. By default configuration of destination
  * repository is get from "deployer.properties" file.
  *
+ * @deprecated use {@link org.openl.rules.ruleservice.deployer.RulesDeployerService}
  * @author Yury Molchan
  */
+@Deprecated
 public class ProductionRepositoryDeployer {
     private final Logger log = LoggerFactory.getLogger(ProductionRepositoryDeployer.class);
-    public static final String VERSION_IN_DEPLOYMENT_NAME = ".version-in-deployment-name";
     private static final String DEPLOYMENT_DESCRIPTOR_FILE_NAME = "deployment";
-    private PropertyResolver environment;
-    private String prefix;
+    private final PropertyResolver environment;
+    private final String prefix;
 
     /**
      *
@@ -84,27 +84,17 @@ public class ProductionRepositoryDeployer {
     }
 
     public void deployInternal(File zipFile, boolean skipExist) throws Exception {
-        Repository deployRepo = null;
-        try {
+        try (Repository deployRepo = RepositoryInstatiator.newRepository(Comments.REPOSITORY_PREFIX + prefix,
+            environment::getProperty)) {
             // Initialize repo
-            deployRepo = RepositoryInstatiator.newRepository(prefix, environment);
-            String includeVersion = environment.getProperty("repository." + prefix + VERSION_IN_DEPLOYMENT_NAME);
-            String deployPath = environment.getProperty("repository." + prefix + ".base.path");
+            String deployPath = environment.getProperty(Comments.REPOSITORY_PREFIX + prefix + ".base.path");
             if (deployPath == null) {
                 deployPath = "deploy/"; // Workaround for backward compatibility.
             } else if (!deployPath.isEmpty() && !deployPath.endsWith("/")) {
                 deployPath += "/";
             }
 
-            deployInternal(zipFile, deployRepo, skipExist, Boolean.parseBoolean(includeVersion), deployPath);
-        } finally {
-            // Close repo
-            if (deployRepo != null) {
-                if (deployRepo instanceof Closeable) {
-                    // Close repo connection after validation
-                    IOUtils.closeQuietly((Closeable) deployRepo);
-                }
-            }
+            deployInternal(zipFile, deployRepo, skipExist, deployPath);
         }
 
     }
@@ -133,7 +123,7 @@ public class ProductionRepositoryDeployer {
     }
 
     private static List<File> getRulesFolders(File root) {
-        ProjectResolver projectResolver = ProjectResolver.instance();
+        ProjectResolver projectResolver = ProjectResolver.getInstance();
         if (projectResolver.isRulesProject(root) != null) {
             return Collections.singletonList(root);
         }
@@ -153,7 +143,6 @@ public class ProductionRepositoryDeployer {
     public void deployInternal(File zipFile,
             Repository deployRepo,
             boolean skipExist,
-            boolean includeVersionInDeploymentName,
             String deployPath) throws Exception {
 
         // Temp folders
@@ -168,13 +157,7 @@ public class ProductionRepositoryDeployer {
             String deploymentName = getDeploymentName(zipFolder);
 
             if (deploymentName == null) {
-                FileData fileData = createFileData(deployRepo,
-                    skipExist,
-                    includeVersionInDeploymentName,
-                    deployPath,
-                    zipFolder,
-                    name,
-                    null);
+                FileData fileData = createFileData(deployRepo, skipExist, deployPath, zipFolder, name, null);
 
                 if (fileData == null) {
                     return;
@@ -184,13 +167,7 @@ public class ProductionRepositoryDeployer {
                 List<File> rulesConfigs = getRulesFolders(zipFolder);
                 List<FileItem> fileItems = new ArrayList<>();
                 for (File f : rulesConfigs) {
-                    FileData fileData = createFileData(deployRepo,
-                        skipExist,
-                        includeVersionInDeploymentName,
-                        deployPath,
-                        f,
-                        name,
-                        deploymentName);
+                    FileData fileData = createFileData(deployRepo, skipExist, deployPath, f, name, deploymentName);
 
                     if (fileData == null) {
                         return;
@@ -229,11 +206,10 @@ public class ProductionRepositoryDeployer {
 
     private FileData createFileData(Repository deployRepo,
             boolean skipExist,
-            boolean includeVersionInDeploymentName,
             String deployPath,
             File rulesFolder,
             String defaultName,
-            String deploymentName) throws RRepositoryException, IOException {
+            String deploymentName) throws IOException {
         // Renamed a project according to rules.xml
         String name = defaultName;
         File rules = new File(rulesFolder, "rules.xml");
@@ -244,32 +220,19 @@ public class ProductionRepositoryDeployer {
             }
         }
 
-        int version = 0;
         StringBuilder fileNameBuilder = new StringBuilder(deployPath);
         fileNameBuilder.append(deploymentName == null ? name : deploymentName);
-        if (includeVersionInDeploymentName) {
-            version = DeployUtils.getNextDeploymentVersion(deployRepo, name, deployPath);
-            fileNameBuilder.append(DeployUtils.SEPARATOR).append(version);
-        } else {
-            File rulesDeploy = new File(rulesFolder, "rules-deploy.xml");
-            if (rulesDeploy.exists()) {
-                String apiVersion = getApiVersion(rulesDeploy);
-                if (apiVersion != null && !apiVersion.isEmpty()) {
-                    fileNameBuilder.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
-                }
+        File rulesDeploy = new File(rulesFolder, "rules-deploy.xml");
+        if (rulesDeploy.exists()) {
+            String apiVersion = getApiVersion(rulesDeploy);
+            if (apiVersion != null && !apiVersion.isEmpty()) {
+                fileNameBuilder.append(DeployUtils.API_VERSION_SEPARATOR).append(apiVersion);
             }
         }
         fileNameBuilder.append('/');
         if (skipExist) {
-            if (includeVersionInDeploymentName) {
-                if (version > 1) {
-                    log.info("Project [{}] exists. It has been skipped to deploy.", name);
-                    return null;
-                }
-            } else {
-                if (!deployRepo.list(fileNameBuilder.toString()).isEmpty()) {
-                    return null;
-                }
+            if (!deployRepo.list(fileNameBuilder.toString()).isEmpty()) {
+                return null;
             }
         }
         fileNameBuilder.append(name);

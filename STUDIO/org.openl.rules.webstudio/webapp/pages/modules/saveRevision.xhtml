@@ -1,11 +1,12 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-  <rich:popupPanel id="modalSave" width="530" autosized="true">
+  <rich:popupPanel id="modalSave" minWidth="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Save changes" />
     </f:facet>
@@ -20,13 +21,15 @@
           <h:outputText value="Project Name:" />
           <h:outputText value="#{artefact.name}"/>
 
-          <h:outputText rendered="#{studio.isRenamed(artefact)}" value=""/>
-          <h:panelGroup rendered="#{studio.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText rendered="#{!repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and studio.isRenamed(artefact)}" value=""/>
+          <h:panelGroup rendered="#{!repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and studio.isRenamed(artefact)}" styleClass="warning">
             <h:outputText value="Project name in rules.xml is '#{studio.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 
           <h:outputText value="Current Revision:" />
-          <h:outputText value="#{artefact.version.versionName}"/>
+          <h:panelGroup>
+            <h:outputText value="#{utils.descriptiveProjectVersion(artefact)}"/>
+          </h:panelGroup>
 
           <h:outputText value="Comment:" />
           <h:inputTextarea id="comment" value="#{mainBean.versionComment}" type="text" size="35" readonly="false"
@@ -69,12 +72,20 @@
       function goToNewProject() {
           var hash = $location.getHash(true);
           var index = hash.indexOf('/');
-          var newUrl = '#{utils.encode(artefact.name)}';
+          if (index > 0) {
+            // First '/' is for repository id. We search the second one (url part for module/table)
+            index = hash.indexOf('/', index + 1);
+          }
+          var newUrl = '#{utils.encode(artefact.repository.id)}/#{utils.encode(studio.getLogicalName(artefact))}';
           if (index > 0) {
               newUrl += hash.substring(index);
           }
           ws.nav.go(newUrl, true);
       }
+
+      $j(function () {
+        initExpandableLinks();
+      });
       //]]>
   </script>
 </ui:composition>

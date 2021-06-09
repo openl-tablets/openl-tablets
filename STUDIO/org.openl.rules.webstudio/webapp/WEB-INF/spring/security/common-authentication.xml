@@ -51,32 +51,11 @@
         <property name="matchers">
             <list>
                 <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
-                    <constructor-arg value="/**/sourceModified.xhtml"/>
-                </bean>
-                <bean class="org.springframework.security.web.util.matcher.AntPathRequestMatcher">
                     <!-- accessDenied.xhtml, login.xhtml, sessionExpired.xhtml -->
                     <constructor-arg value="/**/pages/*.xhtml"/>
                 </bean>
             </list>
         </property>
-    </bean>
-
-    <!-- =================== Map string authorities to OpenL Privileges ============================ -->
-    <bean id="authoritiesMapper" class="org.openl.rules.webstudio.security.OpenLGroupsAuthoritiesMapper">
-        <constructor-arg ref="groupDao"/>
-    </bean>
-
-
-    <!-- ======================== RememberMe ========================== -->
-
-    <bean id="rememberMeAuthenticationFilter" class="org.springframework.security.web.authentication.rememberme.RememberMeAuthenticationFilter">
-        <constructor-arg name="rememberMeServices" ref="rememberMeServices" />
-        <constructor-arg name="authenticationManager" ref="authenticationManager" />
-    </bean>
-
-    <bean id="rememberMeAuthenticationProvider"
-          class="org.springframework.security.authentication.RememberMeAuthenticationProvider">
-        <constructor-arg name="key" value="WebStudio_rememberme" />
     </bean>
 
     <!-- ======================== Logout ========================== -->

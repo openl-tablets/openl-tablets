@@ -12,7 +12,7 @@ public class TableCopierTest {
         assertTrue(TableCopier.isEmpty(null));
         assertTrue(TableCopier.isEmpty(""));
         assertTrue(TableCopier.isEmpty(new Object[0]));
-        assertFalse(TableCopier.isEmpty(Double.valueOf(12)));
+        assertFalse(TableCopier.isEmpty(12.0));
         assertFalse(TableCopier.isEmpty(new int[] { 1, 2 }));
     }
 

@@ -80,7 +80,7 @@ public class ParameterExportTest {
     public void emptyParameters() throws IOException {
         export.write(sheet, mockResults());
 
-        assertEquals(0, saveAndReadSheet().getLastRowNum());
+        assertEquals(-1, saveAndReadSheet().getLastRowNum());
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ParameterExportTest {
         assertRowEquals(row, "#1", "12,23.0", "123", "333");
     }
 
-    public class ComplexObj {
+    public static class ComplexObj {
         public List<Object> paramList;
         public Map<String, Integer> mapValues;
 

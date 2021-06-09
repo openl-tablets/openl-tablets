@@ -1,3 +1,4 @@
 WARN: Cells '$Step1*' and '$Step-1' conflict with each other in the spreadsheet output model.
 WARN: Cells '$Step-1' and '$Step.1' conflict with each other in the spreadsheet output model.
 WARN: Cells '$myValue' and '$MyValue' conflict with each other in the spreadsheet output model.
+WARN: Cells '$res$ultValue' and '$ResUlt$Value' conflict with each other in the spreadsheet output model.

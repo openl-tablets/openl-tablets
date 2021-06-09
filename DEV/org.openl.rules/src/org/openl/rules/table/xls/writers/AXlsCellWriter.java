@@ -15,7 +15,7 @@ public abstract class AXlsCellWriter {
     public static final String NUMBER_WRITER = "Number Writer";
     public static final String STRING_WRITER = "String Writer";
 
-    private XlsSheetGridModel xlsSheetGridModel;
+    private final XlsSheetGridModel xlsSheetGridModel;
     private Cell cellToWrite;
     private Object valueToWrite;
     private String strValue;

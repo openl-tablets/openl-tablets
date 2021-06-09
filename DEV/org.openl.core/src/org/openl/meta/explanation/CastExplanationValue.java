@@ -1,13 +1,15 @@
 package org.openl.meta.explanation;
 
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.openl.meta.number.CastOperand;
 
 @SuppressWarnings("rawtypes")
 public class CastExplanationValue extends SingleValueExplanation {
-    private ExplanationNumberValue<?> value;
-    private CastOperand operand;
+    private final ExplanationNumberValue<?> value;
+    private final CastOperand operand;
 
     public CastExplanationValue(ExplanationNumberValue<?> value, CastOperand operand) {
         this.value = value;
@@ -23,8 +25,8 @@ public class CastExplanationValue extends SingleValueExplanation {
     }
 
     @Override
-    public Iterable<? extends org.openl.util.tree.ITreeElement> getChildren() {
-        return Arrays.asList(value);
+    public Collection<ExplanationNumberValue<?>> getChildren() {
+        return Collections.singletonList(value);
     }
 
     @Override

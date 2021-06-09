@@ -4,9 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
-import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ObjectVersionConverter;
-import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDescriptor;
 
 import com.thoughtworks.xstream.XStream;
@@ -52,13 +50,13 @@ public class BaseProjectDescriptorSerializer<T> implements IProjectDescriptorSer
         return descriptor;
     }
 
-    private void postProcess(ProjectDescriptor descriptor) {
+    private static void postProcess(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
-            descriptor.setClasspath(new ArrayList<PathEntry>());
+            descriptor.setClasspath(new ArrayList<>());
         }
 
         if (descriptor.getModules() == null) {
-            descriptor.setModules(new ArrayList<Module>());
+            descriptor.setModules(new ArrayList<>());
         }
     }
 }

@@ -44,9 +44,9 @@ public class TableBuilder {
     /**
      * Mapping for style to style transformation.
      */
-    private Map<CellStyle, CellStyle> style2style;
+    private final Map<CellStyle, CellStyle> style2style;
 
-    private MetaInfoWriter metaInfoWriter;
+    private final MetaInfoWriter metaInfoWriter;
 
     /**
      * Creates new instance.

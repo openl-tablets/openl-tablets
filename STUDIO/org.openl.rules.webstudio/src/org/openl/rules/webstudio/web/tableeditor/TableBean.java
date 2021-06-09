@@ -9,26 +9,22 @@ import static org.openl.rules.security.Privileges.RUN;
 import static org.openl.rules.security.Privileges.TRACE;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.RequestScoped;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
-import org.openl.message.OpenLWarnMessage;
 import org.openl.message.Severity;
 import org.openl.rules.lang.xls.IXlsTableNames;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.service.TableServiceImpl;
 import org.openl.rules.table.IGridTable;
@@ -36,8 +32,6 @@ import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.table.xls.XlsSheetGridModel;
-import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.tableeditor.model.TableEditorModel;
 import org.openl.rules.testmethod.ParameterWithValueDeclaration;
 import org.openl.rules.testmethod.ProjectHelper;
@@ -46,7 +40,7 @@ import org.openl.rules.testmethod.TestMethodBoundNode;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUtils;
-import org.openl.rules.types.IUriMember;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.RecentlyVisitedTables;
 import org.openl.rules.ui.WebStudio;
@@ -55,21 +49,24 @@ import org.openl.rules.webstudio.util.XSSFOptimizer;
 import org.openl.rules.webstudio.web.test.Utils;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.env.PropertyResolver;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for Table page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class TableBean {
-    private static final String REQUEST_ID_PREFIX = "project-";
+    private static final String REQUEST_ID_FORMAT = "request-id:%s;project-name:%s";
+    private static final Pattern REQUEST_ID_PATTERN = Pattern.compile("request-id:(.+);project-name:(.+)");
     private static final int MAX_PROBLEMS = 100;
     private final Logger log = LoggerFactory.getLogger(TableBean.class);
 
@@ -81,7 +78,7 @@ public class TableBean {
     private IOpenMethod[] allTests = {};
     private IOpenMethod[] tests = {};
 
-    private List<IOpenLTable> targetTables;
+    private List<TableDescription> targetTables;
 
     private String uri;
     private String id;
@@ -90,17 +87,16 @@ public class TableBean {
     private boolean canBeOpenInExcel;
     private boolean copyable;
 
-    private Collection<OpenLMessage> errors;
-    private Collection<OpenLMessage> warnings;
     // Errors + Warnings
     private List<OpenLMessage> problems;
 
-    @ManagedProperty(value = "#{environment}")
-    private PropertyResolver propertyResolver;
+    private final PropertyResolver propertyResolver;
 
-    private boolean targetTablesHasErrors;
+    private boolean hasErrors;
 
-    public TableBean() {
+    public TableBean(PropertyResolver propertyResolver) {
+        this.propertyResolver = propertyResolver;
+
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
 
         WebStudio studio = WebStudioUtils.getWebStudio();
@@ -127,11 +123,7 @@ public class TableBean {
             copyable = editable && table.isCanContainProperties() && !XlsNodeTypes.XLS_DATATYPE.toString()
                 .equals(table.getType()) && isGranted(CREATE_TABLES);
 
-            String tableType = table.getType();
-            if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
-                .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
-                targetTables = model.getTargetTables(uri);
-            }
+            initTargetTables();
 
             initProblems();
             initTests(model);
@@ -140,7 +132,7 @@ public class TableBean {
             model.getRecentlyVisitedTables().setLastVisitedTable(table);
             // Check the save table parameter
             String saveTable1 = WebStudioUtils.getRequestParameter("saveTable");
-            boolean saveTable = saveTable1 == null ? true  : Boolean.valueOf(saveTable1);
+            boolean saveTable = saveTable1 == null || Boolean.parseBoolean(saveTable1);
             if (saveTable) {
                 storeTable();
             }
@@ -151,6 +143,40 @@ public class TableBean {
         ProjectModel model = WebStudioUtils.getProjectModel();
         RecentlyVisitedTables recentlyVisitedTables = model.getRecentlyVisitedTables();
         recentlyVisitedTables.add(table);
+    }
+
+    private void initTargetTables() {
+        List<TableDescription> targetTables = new ArrayList<>();
+        String tableType = table.getType();
+        if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
+            .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+
+            if (method instanceof TestSuiteMethod) {
+                List<IOpenMethod> targetMethods = new ArrayList<>();
+                IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
+
+                // Overloaded methods
+                if (testedMethod instanceof OpenMethodDispatcher) {
+                    List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) testedMethod).getCandidates();
+                    targetMethods.addAll(overloadedMethods);
+                } else {
+                    targetMethods.add(testedMethod);
+                }
+
+                for (IOpenMethod targetMethod : targetMethods) {
+                    IMemberMetaInfo methodInfo = targetMethod.getInfo();
+                    if (methodInfo != null) {
+                        TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
+                        IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
+                        targetTables.add((new TableDescription(targetTable.getUri(),
+                            targetTable.getId(),
+                            getTableName(targetTable))));
+                    }
+                }
+            }
+
+        }
+        this.targetTables = targetTables;
     }
 
     private void initTests(final ProjectModel model) {
@@ -172,78 +198,36 @@ public class TableBean {
     }
 
     private void initProblems() {
-        initErrors();
-        initWarnings();
+
+        ProjectModel model = WebStudioUtils.getProjectModel();
+        String tableUri = table.getUri();
+        List<OpenLMessage> errors = new ArrayList<>(model.getErrorsByUri(tableUri));
+        List<OpenLMessage> warnings = new ArrayList<>(model.getWarnsByUri(tableUri));
+
+        if (warnings.size() >= MAX_PROBLEMS) {
+            warnings = warnings.subList(0, MAX_PROBLEMS);
+            warnings.add(OpenLMessagesUtils.newErrorMessage(
+                    "Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+        }
+        if (errors.size() >= MAX_PROBLEMS) {
+            errors = errors.subList(0, MAX_PROBLEMS);
+            errors.add(OpenLMessagesUtils.newErrorMessage(
+                    "Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+        }
+
+        hasErrors = !errors.isEmpty();
+        // if the current table is a test then check tested target tables on errors.
+        for (TableDescription targetTable : targetTables) {
+            if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
+                warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                hasErrors = true;
+                break;
+            }
+        }
 
         problems = new ArrayList<>();
         problems.addAll(errors);
         problems.addAll(warnings);
-    }
-
-    private void initErrors() {
-        Collection<OpenLMessage> messages = table.getMessages();
-        errors = OpenLMessagesUtils.filterMessagesBySeverity(messages, Severity.ERROR);
-
-        if (errors.size() > MAX_PROBLEMS) {
-            ArrayList<OpenLMessage> problems = errors.stream()
-                .limit(MAX_PROBLEMS)
-                .collect(Collectors.toCollection(ArrayList::new));
-            problems.add(OpenLMessagesUtils
-                .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
-            errors = problems;
-        }
-    }
-
-    private void initWarnings() {
-        warnings = new ArrayList<>();
-
-        if (targetTables != null) {
-            boolean warningWasAdded = false;
-            for (IOpenLTable targetTable : targetTables) {
-                if (!targetTable.getMessages().isEmpty()) {
-                    if (!warningWasAdded) {
-                        warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
-                        warningWasAdded = true;
-                    }
-                    if (!OpenLMessagesUtils.filterMessagesBySeverity(targetTable.getMessages(), Severity.ERROR)
-                        .isEmpty()) {
-                        targetTablesHasErrors = true;
-                    }
-                }
-            }
-        }
-
-        ProjectModel model = WebStudioUtils.getProjectModel();
-
-        Collection<OpenLMessage> warnMessages = OpenLMessagesUtils.filterMessagesBySeverity(model.getModuleMessages(),
-            Severity.WARN);
-        for (OpenLMessage message : warnMessages) {
-            if (message instanceof OpenLWarnMessage) {// there can be simple OpenLMessages with severity WARN
-                OpenLWarnMessage warning = (OpenLWarnMessage) message;
-                ISyntaxNode syntaxNode = warning.getSource();
-                if (syntaxNode instanceof TableSyntaxNode && ((TableSyntaxNode) syntaxNode).getUri()
-                    .equals(table.getUri())) {
-                    warnings.add(warning);
-                } else {
-                    String warnUri = warning.getSourceLocation();
-
-                    XlsUrlParser uriParser = new XlsUrlParser();
-                    uriParser.parse(warnUri);
-                    if (XlsUrlUtils.intersects(uriParser, table.getUriParser())) {
-                        warnings.add(warning);
-                    }
-                }
-            }
-        }
-
-        if (warnings.size() > MAX_PROBLEMS) {
-            ArrayList<OpenLMessage> problems = warnings.stream()
-                .limit(MAX_PROBLEMS)
-                .collect(Collectors.toCollection(ArrayList::new));
-            problems.add(OpenLMessagesUtils
-                .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
-            warnings = problems;
-        }
     }
 
     public String getTableName(IOpenLTable table) {
@@ -270,7 +254,7 @@ public class TableBean {
         }
     }
 
-    public final boolean isDispatcherValidationNode() {
+    public boolean isDispatcherValidationNode() {
         return table != null && table.getName().startsWith(DispatcherTablesBuilder.DEFAULT_DISPATCHER_TABLE_NAME);
     }
 
@@ -280,14 +264,6 @@ public class TableBean {
 
     public IOpenLTable getTable() {
         return table;
-    }
-
-    public Collection<OpenLMessage> getErrors() {
-        return errors;
-    }
-
-    public Collection<OpenLMessage> getWarnings() {
-        return warnings;
     }
 
     public List<OpenLMessage> getProblems() {
@@ -320,7 +296,7 @@ public class TableBean {
                 params[n++] = inputParam;
             }
         } else {
-            params = new ParameterWithValueDeclaration[0];
+            params = ParameterWithValueDeclaration.EMPTY_ARRAY;
         }
         return params;
     }
@@ -334,15 +310,7 @@ public class TableBean {
     }
 
     public List<TableDescription> getTargetTables() {
-        if (targetTables == null) {
-            return null;
-        }
-        List<TableDescription> tableDescriptions = new ArrayList<>(targetTables.size());
-        for (IOpenLTable targetTable : targetTables) {
-            tableDescriptions
-                .add(new TableDescription(targetTable.getUri(), targetTable.getId(), getTableName(targetTable)));
-        }
-        return tableDescriptions;
+        return targetTables;
     }
 
     /**
@@ -365,15 +333,11 @@ public class TableBean {
     }
 
     public boolean isHasErrors() {
-        return CollectionUtils.isNotEmpty(errors);
-    }
-
-    public boolean isHasWarnings() {
-        return CollectionUtils.isNotEmpty(warnings);
+        return hasErrors;
     }
 
     public boolean isHasProblems() {
-        return isHasErrors() || isHasWarnings();
+        return CollectionUtils.isNotEmpty(problems);
     }
 
     /**
@@ -406,11 +370,10 @@ public class TableBean {
         }
         List<TableDescription> tableDescriptions = new ArrayList<>(allTests.length);
         for (IOpenMethod test : allTests) {
-            String tableUri = ((IUriMember) test).getUri();
             TableSyntaxNode syntaxNode = (TableSyntaxNode) test.getInfo().getSyntaxNode();
-            tableDescriptions.add(new TableDescription(tableUri, syntaxNode.getId(), getTestName(test)));
+            tableDescriptions.add(new TableDescription(syntaxNode.getUri(), syntaxNode.getId(), getTestName(test)));
         }
-        Collections.sort(tableDescriptions, (o1, o2) -> o1.getName().compareTo(o2.getName()));
+        tableDescriptions.sort(Comparator.comparing(TableDescription::getName));
         return tableDescriptions.toArray(new TableDescription[0]);
     }
 
@@ -431,13 +394,15 @@ public class TableBean {
             XlsSheetGridModel sheetModel = (XlsSheetGridModel) gridTable.getGrid();
             sheetModel.getSheetSource().getWorkbookSource().save();
             gridTable.stopEditing();
-            WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
+            WebStudioUtils.getExternalContext()
+                .getSessionMap()
+                .remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
             studio.compile();
             RecentlyVisitedTables visitedTables = studio.getModel().getRecentlyVisitedTables();
             visitedTables.remove(table);
         } catch (Exception e) {
-            throw e.getCause();
+            throw e.getCause() == null ? e : e.getCause();
         }
         return null;
     }
@@ -457,15 +422,12 @@ public class TableBean {
         return true;
     }
 
-    public void setPropertyResolver(PropertyResolver propertyResolver) {
-        this.propertyResolver = propertyResolver;
-    }
-
     public boolean beforeSaveAction() {
         String editorId = WebStudioUtils
             .getRequestParameter(org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_EDITOR_ID);
 
-        Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext().getSessionMap()
+        Map<?, ?> editorModelMap = (Map<?, ?>) WebStudioUtils.getExternalContext()
+            .getSessionMap()
             .get(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
 
         TableEditorModel editorModel = (TableEditorModel) editorModelMap.get(editorId);
@@ -489,19 +451,25 @@ public class TableBean {
     public String getRequestId() {
         final WebStudio studio = WebStudioUtils.getWebStudio();
         RulesProject currentProject = studio.getCurrentProject();
+        String requestId = currentProject == null ? "" : currentProject.getRepository().getId();
         String projectName = currentProject == null ? "" : currentProject.getName();
-        return REQUEST_ID_PREFIX + projectName;
+        return String.format(REQUEST_ID_FORMAT, requestId, projectName);
     }
 
     public static void tryUnlock(String requestId) {
-        if (StringUtils.isBlank(requestId) || !requestId.startsWith(REQUEST_ID_PREFIX)) {
+        if (StringUtils.isBlank(requestId)) {
+            return;
+        }
+        Matcher matcher = REQUEST_ID_PATTERN.matcher(requestId);
+        if (!matcher.matches()) {
             return;
         }
 
-        String projectName = requestId.substring(REQUEST_ID_PREFIX.length());
+        String repositoryId = matcher.group(1);
+        String projectName = matcher.group(2);
 
         final WebStudio studio = WebStudioUtils.getWebStudio();
-        RulesProject currentProject = studio.getProject(projectName);
+        RulesProject currentProject = studio.getProject(repositoryId, projectName);
         if (currentProject != null) {
             try {
                 if (!currentProject.isModified()) {
@@ -526,20 +494,16 @@ public class TableBean {
         return isEditable() && isGranted(REMOVE_TABLES);
     }
 
-    public boolean hasErrorsInTargetTables() {
-        return targetTablesHasErrors;
-    }
-
     public boolean getCanRun() {
-        return isGranted(RUN) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(RUN) && !isHasErrors();
     }
 
     public boolean getCanTrace() {
-        return isGranted(TRACE) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(TRACE) && !isHasErrors();
     }
 
     public boolean getCanBenchmark() {
-        return isGranted(BENCHMARK) && !hasErrorsInTargetTables() && !isHasErrors();
+        return isGranted(BENCHMARK) && !isHasErrors();
     }
 
     public Integer getRowIndex() {

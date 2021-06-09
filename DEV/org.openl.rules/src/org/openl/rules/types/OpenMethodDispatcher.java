@@ -1,22 +1,27 @@
 package org.openl.rules.types;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
+import org.openl.base.INamedThing;
 import org.openl.binding.MethodUtil;
-import org.openl.binding.exception.DuplicatedMethodException;
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContextOptimizationForOpenMethodDispatcher;
 import org.openl.rules.lang.xls.binding.TableVersionComparator;
-import org.openl.rules.lang.xls.binding.wrapper.IOpenMethodWrapper;
-import org.openl.rules.lang.xls.prebind.LazyMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.IRulesMethodWrapper;
+import org.openl.rules.lang.xls.binding.wrapper.WrapperLogic;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.method.ITablePropertiesMethod;
 import org.openl.rules.table.properties.DimensionPropertiesMethodKey;
 import org.openl.runtime.IRuntimeContext;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.types.*;
-import org.openl.types.impl.MethodDelegator;
+import org.openl.types.IMemberMetaInfo;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.Tracer;
@@ -43,31 +48,17 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * List of method candidates.
      */
-    private List<IOpenMethod> candidates = new ArrayList<>();
-    private Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
+    private final List<IOpenMethod> candidates = new ArrayList<>();
+    private final Map<Integer, DimensionPropertiesMethodKey> candidatesToDimensionKey = new HashMap<>();
 
-    private final Invokable invokeInner = new Invokable() {
-        @Override
-        public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-            return invokeInner(target, params, env);
-        }
-    };
+    protected OpenMethodDispatcher() {
+    }
 
-    /**
-     * Creates new instance of decorator.
-     *
-     * @param delegate method to decorate
-     */
-    protected void decorate(IOpenMethod delegate) {
-
-        // Check that IOpenMethod object is not null.
-        //
-        Objects.requireNonNull(delegate, "Method cannot be null");
-
+    public OpenMethodDispatcher(IOpenMethod delegate) {
         // Save method as delegate. It used by decorator to delegate requests
         // about method info such as signature, name, etc.
         //
-        this.delegate = delegate;
+        this.delegate = Objects.requireNonNull(delegate, "Method cannot be null");
 
         // Evaluate method key.
         //
@@ -157,7 +148,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
      */
     @Override
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
-        return Tracer.invoke(invokeInner, target, params, env, this);
+        return Tracer.invoke(this::invokeInner, target, params, env, this);
     }
 
     /**
@@ -171,7 +162,7 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
 
         // Get matching method.
         //
-        IOpenMethod method = null;
+        IOpenMethod method;
 
         if (context instanceof IRulesRuntimeContextOptimizationForOpenMethodDispatcher) {
             IRulesRuntimeContextOptimizationForOpenMethodDispatcher rulesRuntimeContextOptimizationForOpenMethodDispatcher = (IRulesRuntimeContextOptimizationForOpenMethodDispatcher) context;
@@ -201,18 +192,10 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
             throw new OpenLRuntimeException(message);
         }
 
-        while (method instanceof LazyMethodWrapper || method instanceof MethodDelegator) {
-            if (method instanceof LazyMethodWrapper) {
-                method = ((LazyMethodWrapper) method).getCompiledMethod(env);
-            }
-            if (method instanceof MethodDelegator) {
-                MethodDelegator methodDelegator = (MethodDelegator) method;
-                method = methodDelegator.getMethod();
-            }
-        }
+        method = WrapperLogic.extractMethod(method);
 
-        if (method instanceof IOpenMethodWrapper) {
-            method = ((IOpenMethodWrapper) method).getDelegate();
+        if (method instanceof IRulesMethodWrapper) {
+            method = ((IRulesMethodWrapper) method).getDelegate();
         }
 
         return method;
@@ -221,35 +204,25 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
     /**
      * Invokes appropriate method using runtime context.
      */
-    protected Object invokeInner(Object target, Object[] params, IRuntimeEnv env) {
+    private <R> R invokeInner(Object target, Object[] params, IRuntimeEnv env) {
         IOpenMethod method = findMatchingMethod(env);
         Tracer.put(this, "rule", method);
-        return method.invoke(target, params, env);
+        return (R) method.invoke(target, params, env);
     }
 
     /**
      * In case we have several versions of one table we should add only the newest or active version of table.
      *
-     * @param newMethod The methods that we are trying to add.
-     * @param key Method key of these methods based on signature.
      * @param existedMethod The existing method.
+     * @param newMethod The methods that we are trying to add.
      */
-    protected IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod, MethodKey key) {
+    private IOpenMethod useActiveOrNewerVersion(IOpenMethod existedMethod, IOpenMethod newMethod) {
         int compareResult = TableVersionComparator.getInstance().compare(existedMethod, newMethod);
         if (compareResult > 0) {
             return newMethod;
         } else if (compareResult == 0) {
-            /**
-             * Throw the error with the right message for the case when the methods are equal
-             */
-            if (newMethod instanceof IUriMember && existedMethod instanceof IUriMember) {
-                if (!UriMemberHelper.isTheSame((IUriMember) newMethod, (IUriMember) existedMethod)) {
-                    String message = ValidationMessages.getDuplicatedMethodMessage(existedMethod, newMethod);
-                    throw new DuplicatedMethodException(message, existedMethod, newMethod);
-                }
-            } else {
-                throw new IllegalStateException("Implementation supports only IUriMember.");
-            }
+            DuplicateMemberThrowExceptionHelper.throwDuplicateMethodExceptionIfMethodsAreNotTheSame(newMethod,
+                existedMethod);
         }
         return existedMethod;
     }
@@ -265,15 +238,12 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
         return -1;
     }
 
-    private Set<MethodKey> candidateKeys = new HashSet<>();
-
     /**
      * Try to add method as overloaded version of decorated method.
      *
      * @param candidate method to add
      */
     public void addMethod(IOpenMethod candidate) {
-
         // Evaluate the candidate method key.
         //
 
@@ -298,32 +268,13 @@ public abstract class OpenMethodDispatcher implements IOpenMethod {
                 }
             } else {
                 IOpenMethod existedMethod = candidates.get(i);
-                try {
-                    candidate = useActiveOrNewerVersion(existedMethod, candidate, candidateKey);
-                    candidates.set(i, candidate);
-                    candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
-                } catch (DuplicatedMethodException e) {
-                    if (!candidateKeys.contains(candidateKey)) {
-                        if (candidate instanceof IMemberMetaInfo) {
-                            IMemberMetaInfo memberMetaInfo = (IMemberMetaInfo) candidate;
-                            if (memberMetaInfo.getSyntaxNode() instanceof TableSyntaxNode) {
-                                SyntaxNodeException error = SyntaxNodeExceptionUtils
-                                    .createError(e.getMessage(), e, memberMetaInfo.getSyntaxNode());
-                                ((TableSyntaxNode) memberMetaInfo.getSyntaxNode()).addError(error);
-                            }
-                        }
-                        candidateKeys.add(candidateKey);
-                    }
-                    throw e;
-                }
+                candidate = useActiveOrNewerVersion(existedMethod, candidate);
+                candidates.set(i, candidate);
+                candidatesToDimensionKey.put(i, new DimensionPropertiesMethodKey(candidate));
             }
         } else {
-            // Throw appropriate exception.
-            //
-            StringBuilder sb = new StringBuilder();
-            MethodUtil.printMethod(this, sb);
-
-            throw new OpenLRuntimeException("Invalid method signature to overload: " + sb.toString());
+            throw new IllegalStateException(String.format("Unexpected signature '%s' is found.",
+                MethodUtil.printSignature(this, INamedThing.REGULAR)));
         }
     }
 

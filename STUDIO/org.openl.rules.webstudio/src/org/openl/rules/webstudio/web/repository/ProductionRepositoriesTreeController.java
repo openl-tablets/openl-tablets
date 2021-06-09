@@ -1,23 +1,33 @@
 package org.openl.rules.webstudio.web.repository;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
-
+import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
+import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class ProductionRepositoriesTreeController {
-    @ManagedProperty(value = "#{repositorySelectNodeStateHolder}")
+
+    private final Logger log = LoggerFactory.getLogger(ProductionRepositoriesTreeController.class);
+
+    @Autowired
     private RepositorySelectNodeStateHolder repositorySelectNodeStateHolder;
 
-    @ManagedProperty(value = "#{productionRepositoriesTreeState}")
+    @Autowired
     private ProductionRepositoriesTreeState productionRepositoriesTreeState;
+
+    @Autowired
+    private ProjectVersionCacheManager projectVersionCacheManager;
 
     public ProductionRepositoriesTreeState getProductionRepositoriesTreeState() {
         return productionRepositoriesTreeState;
@@ -34,7 +44,7 @@ public class ProductionRepositoriesTreeController {
      */
     public List<TreeNode> getRulesProjects() {
         TreeNode selectedNode = repositorySelectNodeStateHolder.getSelectedNode();
-        return selectedNode == null ? Collections.<TreeNode> emptyList() : selectedNode.getChildNodes();
+        return selectedNode == null ? Collections.emptyList() : selectedNode.getChildNodes();
     }
 
     public String selectRulesProject() {
@@ -74,6 +84,10 @@ public class ProductionRepositoriesTreeController {
         this.repositorySelectNodeStateHolder = repositorySelectNodeStateHolder;
     }
 
+    public void setProjectVersionCacheManager(ProjectVersionCacheManager projectVersionCacheManager) {
+        this.projectVersionCacheManager = projectVersionCacheManager;
+    }
+
     public String refreshTree() {
         productionRepositoriesTreeState.invalidateTree();
 
@@ -88,6 +102,17 @@ public class ProductionRepositoriesTreeController {
     public void deleteProdRepo(String configName) {
         if (productionRepositoriesTreeState.getRoot() != null) {
             productionRepositoriesTreeState.getRoot().removeChild(configName);
+        }
+    }
+
+    public String getBusinessVersion(TreeProductProject version) {
+        try {
+            String businessVersion = projectVersionCacheManager
+                .getDesignBusinessVersionOfDeployedProject(version.getData().getProject());
+            return businessVersion != null ? businessVersion : "No valid revision found";
+        } catch (IOException e) {
+            log.error("Error during getting project design version", e);
+            return "No valid revision found";
         }
     }
 }

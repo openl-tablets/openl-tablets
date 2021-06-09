@@ -1,8 +1,11 @@
 package org.openl.rules.lang.xls;
 
+import java.util.Date;
+
 import org.openl.base.INamedThing;
 import org.openl.rules.datatype.binding.DatatypeNodeBinder;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.table.formatters.Formats;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.types.IMemberMetaInfo;
@@ -16,13 +19,14 @@ public final class TableSyntaxNodeUtils {
     private TableSyntaxNodeUtils() {
     }
 
-    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i) {
-        return getTableDisplayValue(tableSyntaxNode, i, null);
+    public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode, int i, Formats formats) {
+        return getTableDisplayValue(tableSyntaxNode, i, null, formats);
     }
 
     public static String[] getTableDisplayValue(TableSyntaxNode tableSyntaxNode,
             int i,
-            OverloadedMethodsDictionary dictionary) {
+            OverloadedMethodsDictionary dictionary,
+            Formats formats) {
 
         ITableProperties tableProperties = tableSyntaxNode.getTableProperties();
 
@@ -56,7 +60,14 @@ public final class TableSyntaxNodeUtils {
                 String[] dimensionalPropertyNames = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
 
                 for (String dimensionalPropertyName : dimensionalPropertyNames) {
-                    String value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
+                    String value;
+
+                    Object propertyValue = tableProperties.getPropertyValue(dimensionalPropertyName);
+                    if (formats != null && propertyValue instanceof Date) {
+                        value = formats.formatDateOrDateTime((Date) propertyValue);
+                    } else {
+                        value = tableProperties.getPropertyValueAsString(dimensionalPropertyName);
+                    }
 
                     if (StringUtils.isNotEmpty(value)) {
                         String propertyInfo = dimensionalPropertyName + "=" + value;
@@ -115,6 +126,6 @@ public final class TableSyntaxNodeUtils {
     public static String getTestName(IOpenMethod testMethod) {
         IMemberMetaInfo mi = testMethod.getInfo();
         TableSyntaxNode tnode = (TableSyntaxNode) mi.getSyntaxNode();
-        return getTableDisplayValue(tnode, 0)[INamedThing.SHORT];
+        return getTableDisplayValue(tnode, 0, null)[INamedThing.SHORT];
     }
 }

@@ -9,11 +9,11 @@ import org.openl.vm.IRuntimeEnv;
 
 public class EqualsSelector implements IIntSelector {
 
-    private ICondition condition;
-    private Object value;
-    private Object target;
-    private Object[] params;
-    private IRuntimeEnv env;
+    private final ICondition condition;
+    private final Object value;
+    private final Object target;
+    private final Object[] params;
+    private final IRuntimeEnv env;
 
     EqualsSelector(ICondition condition, Object value, Object target, Object[] params, IRuntimeEnv env) {
         this.condition = condition;

@@ -3,7 +3,6 @@ package org.openl.rules.dt.type;
 import org.openl.binding.impl.NumericComparableString;
 import org.openl.rules.helpers.ARangeParser.ParseStruct.BoundType;
 import org.openl.rules.helpers.StringRange;
-import org.openl.rules.helpers.StringRangeParser;
 
 public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, NumericComparableString> {
 
@@ -21,11 +20,11 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Nume
         if (range == null) {
             return null;
         }
-        NumericComparableString max = range.getUpperBound();
-        if (!StringRangeParser.MAX_VALUE.equals(max) && range.getUpperBoundType() == BoundType.INCLUDING) {
-            max = NumericComparableString.valueOf(max.getValue() + " ");
+        if (range.getUpperBoundType() == BoundType.INCLUDING) {
+            return range.getUpperBound().incrementAndGet();
+        } else {
+            return range.getUpperBound();
         }
-        return max;
     }
 
     @Override
@@ -33,11 +32,10 @@ public final class StringRangeAdaptor implements IRangeAdaptor<StringRange, Nume
         if (range == null) {
             return null;
         }
-        NumericComparableString min = range.getLowerBound();
-        if (!StringRangeParser.MAX_VALUE.equals(min) && range.getLowerBoundType() == BoundType.EXCLUDING) {
-            min = NumericComparableString.valueOf(min.getValue() + " ");
+        if (range.getLowerBoundType() == BoundType.EXCLUDING) {
+            return range.getLowerBound().incrementAndGet();
         }
-        return min;
+        return range.getLowerBound();
     }
 
     @Override

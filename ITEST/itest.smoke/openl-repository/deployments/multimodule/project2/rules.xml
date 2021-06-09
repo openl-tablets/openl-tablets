@@ -1,0 +1,8 @@
+<project>
+    <name>Project 2</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>

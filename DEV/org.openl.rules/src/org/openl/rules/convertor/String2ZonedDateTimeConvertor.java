@@ -22,8 +22,7 @@ public class String2ZonedDateTimeConvertor implements IString2DataConvertor<Zone
         }
         for (DateTimeFormatter dtFormat : supportedFormats) {
             try {
-                ZonedDateTime zonedDateTime = ZonedDateTime.parse(data, dtFormat);
-                return zonedDateTime;
+                return ZonedDateTime.parse(data, dtFormat);
             } catch (DateTimeParseException e) {
                 // Loop on
             }

@@ -3,6 +3,7 @@ package org.openl.rules.table;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Ignore;
@@ -37,7 +38,7 @@ public class GridTableUtilsTest {
         ILogicalTable table = LogicalTableHelper.logicalTable(grid);
         List<IGridRegion> regions = GridTableUtils.getGridRegions(table);
         assertEquals(1, regions.size());
-        List<IGridRegion> expected = Arrays.asList(mr(0, 0, 1, 1));
+        List<IGridRegion> expected = Collections.singletonList(mr(0, 0, 1, 1));
         assertEquals(expected, regions);
     }
 

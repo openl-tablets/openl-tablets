@@ -6,7 +6,7 @@ import org.openl.vm.IRuntimeEnv;
 
 public class PrimaryKeyField extends AOpenField {
 
-    private ITable table;
+    private final ITable table;
 
     public PrimaryKeyField(String name, ITable table) {
         super(name, JavaOpenClass.STRING);

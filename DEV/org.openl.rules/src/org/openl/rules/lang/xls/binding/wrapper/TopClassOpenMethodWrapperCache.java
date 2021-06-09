@@ -9,13 +9,13 @@ import org.openl.types.IOpenMethod;
 
 class TopClassOpenMethodWrapperCache {
 
-    private IOpenMethodWrapper methodWrapper;
+    private final IRulesMethodWrapper methodWrapper;
 
-    public TopClassOpenMethodWrapperCache(IOpenMethodWrapper methodWrapper) {
+    public TopClassOpenMethodWrapperCache(IRulesMethodWrapper methodWrapper) {
         this.methodWrapper = methodWrapper;
     }
 
-    Map<IOpenClass, WeakReference<IOpenMethod>> cache = new WeakHashMap<>();
+    final Map<IOpenClass, WeakReference<IOpenMethod>> cache = new WeakHashMap<>();
 
     void put(IOpenClass openClass, IOpenMethod openMethod) {
         cache.put(openClass, new WeakReference<>(openMethod));

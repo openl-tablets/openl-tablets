@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.util.Arrays;
+
 import org.openl.ie.constrainer.*;
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -41,9 +43,7 @@ public final class DomainBits extends DomainImpl {
     {
         super(var, min, max);
         _bits = new boolean[max - min + 1];
-        for (int i = 0; i < _bits.length; ++i) {
-            _bits[i] = true;
-        }
+        Arrays.fill(_bits, true);
         _size = _max - _min + 1;
         // check("constructor");
     }
@@ -144,7 +144,7 @@ public final class DomainBits extends DomainImpl {
             int to = upperBound(from);
 
             if (to - from == 1) {
-                buf.append(String.valueOf(from));
+                buf.append(from);
             } else {
                 buf.append(from).append("..").append(to - 1);
             }
@@ -229,7 +229,7 @@ public final class DomainBits extends DomainImpl {
 
         // _max = M;
 
-        for (; _max > M;) {
+        while (_max > M) {
             if (_bits[_max-- - _initial_min]) {
                 --_size;
             }
@@ -266,7 +266,7 @@ public final class DomainBits extends DomainImpl {
 
         // _min = m;
 
-        for (; _min < m;) {
+        while (_min < m) {
             if (_bits[_min++ - _initial_min]) {
                 --_size;
             }

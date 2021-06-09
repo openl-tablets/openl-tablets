@@ -1,0 +1,157 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/getTestData1": {
+      "post": {
+        "summary": "",
+        "description": "",
+        "operationId": "getTestData_1",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/GetTestDataRequest1"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "number",
+                  "format": "double"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "DefaultRulesRuntimeContext": {
+        "type": "object",
+        "properties": {
+          "currentDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "requestDate": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "lob": {
+            "type": "string"
+          },
+          "nature": {
+            "type": "string"
+          },
+          "usState": {
+            "type": "string",
+            "enum": [
+              "AL",
+              "AK",
+              "AZ",
+              "WI",
+              "WY"
+            ]
+          },
+          "country": {
+            "type": "string",
+            "enum": [
+              "AE",
+              "AL",
+              "YE",
+              "ZA"
+            ]
+          },
+          "usRegion": {
+            "type": "string",
+            "enum": [
+              "MW",
+              "NE",
+              "SE",
+              "SW",
+              "W"
+            ]
+          },
+          "currency": {
+            "type": "string",
+            "enum": [
+              "ALL",
+              "VND",
+              "YER"
+            ]
+          },
+          "lang": {
+            "type": "string",
+            "enum": [
+              "ALB",
+              "ARA",
+              "VIE"
+            ]
+          },
+          "region": {
+            "type": "string",
+            "enum": [
+              "NCSA",
+              "EU",
+              "EMEA",
+              "APJ"
+            ]
+          },
+          "caProvince": {
+            "type": "string",
+            "enum": [
+              "AB",
+              "BC",
+              "PE",
+              "MB",
+              "NB",
+              "NS",
+              "NU",
+              "ON",
+              "QC",
+              "SK",
+              "NL",
+              "YT",
+              "NT"
+            ]
+          },
+          "caRegion": {
+            "type": "string",
+            "enum": [
+              "QC",
+              "HQ"
+            ]
+          }
+        }
+      },
+      "GetTestDataRequest1": {
+        "type": "object",
+        "properties": {
+          "param0": {
+            "$ref": "#/components/schemas/DefaultRulesRuntimeContext"
+          },
+          "param1": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

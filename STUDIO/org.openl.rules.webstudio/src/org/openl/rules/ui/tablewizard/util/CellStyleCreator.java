@@ -12,7 +12,7 @@ import org.openl.rules.table.xls.XlsSheetGridModel;
 import org.richfaces.json.JSONObject;
 
 public class CellStyleCreator {
-    private XlsSheetGridModel gridModel;
+    private final XlsSheetGridModel gridModel;
 
     public CellStyleCreator(XlsSheetGridModel gridModel) {
         this.gridModel = gridModel;

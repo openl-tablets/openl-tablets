@@ -18,7 +18,7 @@ package org.openl.ie.constrainer;
  * A generic implementation of a ConstrainerObject interface.
  */
 public class ConstrainerObjectImpl implements ConstrainerObject {
-    protected Constrainer _constrainer;
+    protected final Constrainer _constrainer;
     private Object _object;
     protected String _name;
 

@@ -20,17 +20,20 @@ import org.openl.types.IOpenMethod;
  */
 public class AmbiguousMethodException extends OpenlNotCheckedException {
 
-    private static final long serialVersionUID = -4733490029481524664L;
+    private final List<IOpenMethod> matchingMethods;
 
-    private List<IOpenMethod> matchingMethods;
-
-    private String methodName;
+    private final String methodName;
 
     private IOpenClass[] pars;
 
+    public AmbiguousMethodException(String methodName, List<IOpenMethod> matchingMethods) {
+        this.methodName = methodName;
+        this.matchingMethods = Collections.unmodifiableList(matchingMethods);
+    }
+
     public AmbiguousMethodException(String methodName, IOpenClass[] pars, List<IOpenMethod> matchingMethods) {
         this.methodName = methodName;
-        this.pars = pars;
+        this.pars = pars != null ? pars : IOpenClass.EMPTY;
         this.matchingMethods = Collections.unmodifiableList(matchingMethods);
     }
 
@@ -43,7 +46,11 @@ public class AmbiguousMethodException extends OpenlNotCheckedException {
         StringBuilder sb = new StringBuilder();
 
         sb.append("Method '");
-        MethodUtil.printMethod(methodName, pars, sb);
+        if (pars != null) {
+            MethodUtil.printMethod(methodName, pars, sb);
+        } else {
+            sb.append(methodName);
+        }
         sb.append("' is ambiguous:\n").append("Matching methods:\n");
         for (IOpenMethod method : matchingMethods) {
             MethodUtil.printMethod(method, sb).append('\n');

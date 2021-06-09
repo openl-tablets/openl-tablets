@@ -22,6 +22,8 @@ import com.typesafe.config.impl.Parseable;
 
 final class ConfigLoader {
 
+    private static final Logger LOG = LoggerFactory.getLogger(ConfigLoader.class);
+
     private ConfigLoader() {
     }
 
@@ -30,12 +32,11 @@ final class ConfigLoader {
             env.getProperty(propName);
             return true;
         } catch (Exception e) {
-            final Logger log = LoggerFactory.getLogger(ConfigLoader.class);
-            if (log.isWarnEnabled()) {
+            if (LOG.isWarnEnabled()) {
                 if (e instanceof IllegalArgumentException) {
-                    log.warn("Failed to load spring property '{}'. {}", propName, e.getMessage());
+                    LOG.warn("Failed to load spring property '{}'. {}", propName, e.getMessage());
                 } else {
-                    log.warn("Failed to load spring property '{}'.", propName, e);
+                    LOG.warn("Failed to load spring property '{}'.", propName, e);
                 }
             }
             return false;
@@ -46,8 +47,8 @@ final class ConfigLoader {
     private static Properties getApplicationContextProperties(ApplicationContext applicationContext) {
         Environment env = applicationContext.getEnvironment();
         Properties props = new Properties();
-        MutablePropertySources propSrcs = ((AbstractEnvironment) env).getPropertySources();
-        StreamSupport.stream(propSrcs.spliterator(), false)
+        MutablePropertySources propSources = ((AbstractEnvironment) env).getPropertySources();
+        StreamSupport.stream(propSources.spliterator(), false)
             .filter(ps -> ps instanceof EnumerablePropertySource)
             .map(ps -> ((EnumerablePropertySource) ps).getPropertyNames())
             .flatMap(Arrays::stream)

@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -15,26 +18,37 @@ import org.openl.rules.ruleservice.publish.RuleServicePublisherListener;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.DaoCreationException;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntityOperations;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.EntitySupport;
+import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.DriverException;
-import com.datastax.oss.driver.api.core.session.Session;
 import com.datastax.oss.driver.api.core.type.codec.TypeCodecs;
 import com.datastax.oss.driver.api.mapper.annotations.Entity;
 
+@Component
+@ConditionalOnEnable("ruleservice.store.logs.cassandra.enabled")
 public class CassandraOperations implements InitializingBean, DisposableBean, RuleServicePublisherListener, ApplicationContextAware {
-    private final Logger log = LoggerFactory.getLogger(CassandraOperations.class);
+    private static final Logger LOG = LoggerFactory.getLogger(CassandraOperations.class);
 
     private CqlSession session;
-    private boolean schemaCreationEnabled = false;
+
+    @Value("${ruleservice.store.logs.cassandra.schema.create}")
+    private boolean schemaCreationEnabled;
+
     private ApplicationContext applicationContext;
+    private final AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
+        Collections.unmodifiableSet(new HashSet<>()));
+    private final AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
+        Collections.unmodifiableMap(new HashMap<>()));
 
     @Override
     public void setApplicationContext(ApplicationContext applicationContext) {
@@ -52,10 +66,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    public Session connect() {
-        if (session == null) {
-            init();
-        }
+    public CqlSession getCqlSession() {
         return session;
     }
 
@@ -65,18 +76,13 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             try {
                 session.close();
             } catch (Exception e) {
-                log.error("Failed to close Cassandra connection.", e);
+                LOG.error("Failed to close Cassandra connection.", e);
             }
         }
     }
 
-    private AtomicReference<Set<Class<?>>> entitiesWithAlreadyCreatedSchema = new AtomicReference<>(
-        Collections.unmodifiableSet(new HashSet<>()));
-    private AtomicReference<Map<Class<?>, CassandraEntitySaver>> entitySavers = new AtomicReference<>(
-        Collections.unmodifiableMap(new HashMap<>()));
-
-    protected CassandraEntitySaver getEntitySaver(Class<?> entityClass) throws DaoCreationException,
-                                                                        ReflectiveOperationException {
+    private CassandraEntitySaver getEntitySaver(Class<?> entityClass) throws DaoCreationException,
+                                                                      ReflectiveOperationException {
         CassandraEntitySaver cassandraEntitySaver = null;
         Map<Class<?>, CassandraEntitySaver> current;
         Map<Class<?>, CassandraEntitySaver> next;
@@ -113,7 +119,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    public void save(Object entity) {
+    public void save(Object entity, boolean sync) {
         if (entity == null) {
             return;
         }
@@ -121,13 +127,16 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
             createSchemaIfMissed(entity.getClass());
             EntitySupport entitySupport = entity.getClass().getAnnotation(EntitySupport.class);
             if (entitySupport == null) {
-                log.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class {}.",
+                LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '{}'.",
                     entity.getClass().getTypeName());
             } else {
-                getEntitySaver(entity.getClass()).insert(entity);
+                CompletionStage<Void> completionStage = getEntitySaver(entity.getClass()).insert(entity);
+                if (sync) {
+                    completionStage.toCompletableFuture().join();
+                }
             }
-        } catch (ReflectiveOperationException | DaoCreationException e) {
-            log.error("Failed to save cassandra entity.", e);
+        } catch (ReflectiveOperationException | DaoCreationException | CompletionException | CancellationException e) {
+            LOG.error("Failed to save cassandra entity '{}'.", entity.getClass().getTypeName(), e);
         }
     }
 
@@ -137,7 +146,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
     }
 
     @Override
-    public void onUndeploy(String serviceName) {
+    public void onUndeploy(String deployPath) {
         entitiesWithAlreadyCreatedSchema.set(Collections.emptySet());
         entitySavers.set(Collections.emptyMap());
     }
@@ -180,11 +189,11 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    protected static String removeCommentsInStatement(String statement) {
+    static String removeCommentsInStatement(String statement) {
         return statement.replaceAll("(?:/\\*(?:[^*]|(?:\\*+[^*/]))*\\*+/)|(?://.*)|(?:--.*)", "");
     }
 
-    private String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
+    private static String extractCqlQueryForEntity(Class<?> entityClass) throws IOException {
         InputStream inputStream = entityClass
             .getResourceAsStream("/" + entityClass.getName().replaceAll("\\.", "/") + ".cql");
         if (inputStream == null) {
@@ -206,7 +215,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         try {
             init();
         } catch (Exception e) {
-            log.error("Cassandra initialization failure.", e);
+            LOG.error("Cassandra initialization failure.", e);
         }
     }
 }

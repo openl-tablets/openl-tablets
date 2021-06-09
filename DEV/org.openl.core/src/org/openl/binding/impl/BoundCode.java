@@ -22,10 +22,10 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public class BoundCode implements IBoundCode {
 
-    private IParsedCode parsedCode;
-    private IBoundNode topNode;
-    private SyntaxNodeException[] errors;
-    private Collection<OpenLMessage> messages;
+    private final IParsedCode parsedCode;
+    private final IBoundNode topNode;
+    private final SyntaxNodeException[] errors;
+    private final Collection<OpenLMessage> messages;
 
     public BoundCode(IParsedCode parsedCode,
             IBoundNode topNode,

@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.Map;
 
 import org.openl.base.INamedThing;
+import org.openl.util.AIndexedIterator;
 import org.openl.util.ClassUtils;
-import org.openl.util.OpenIterator;
 
 /**
  * Default format to convert <code>Object</code> values to <code>String</code> representations. Supports:<br>
@@ -63,8 +63,7 @@ public final class DefaultFormat {
     }
 
     protected static StringBuilder formatArray(Object obj, StringBuilder buf) {
-
-        return formatIterator(OpenIterator.fromArrayObj(obj), buf, Array.getLength(obj), "[]");
+        return formatIterator(AIndexedIterator.fromArrayObj(obj), buf, Array.getLength(obj), "[]");
     }
 
     protected static StringBuilder formatBean(Object obj, StringBuilder buf) {
@@ -77,7 +76,6 @@ public final class DefaultFormat {
     }
 
     protected static StringBuilder formatCollection(Collection<?> collection, StringBuilder buf) {
-
         buf.append(ClassUtils.getShortClassName(collection.getClass()));
 
         Object element = null;
@@ -123,7 +121,6 @@ public final class DefaultFormat {
     }
 
     protected static StringBuilder formatMap(Map<?, ?> map, StringBuilder buf) {
-
         buf.append(ClassUtils.getShortClassName(map.getClass()));
 
         Map.Entry<?, ?> element = null;

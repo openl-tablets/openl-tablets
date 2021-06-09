@@ -17,7 +17,7 @@ public interface IDependencyLoader {
      */
     CompiledDependency getCompiledDependency() throws OpenLCompilationException;
 
-    boolean isCompiled();
+    CompiledDependency getRefToCompiledDependency();
 
     String getDependencyName();
 

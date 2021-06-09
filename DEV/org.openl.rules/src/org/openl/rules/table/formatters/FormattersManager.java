@@ -32,7 +32,7 @@ public final class FormattersManager {
         IFormatter formatter;
         if (value != null) {
             Class<?> clazz = value.getClass();
-            formatter = getFormatter(clazz, value);
+            formatter = getFormatter(clazz);
             if (formatter instanceof DefaultFormatter) { // this is formatter
                 // used by default, we
                 // don`t like it,
@@ -78,13 +78,12 @@ public final class FormattersManager {
      *            {@link #DEFAULT_NUMBER_FORMAT} and {@link #DEFAULT_DATE_FORMAT} accordingly.
      * @return formatter for a type.
      */
-    public static IFormatter getFormatter(Class<?> clazz, Object value, String format) {
+    public static IFormatter getFormatter(Class<?> clazz, String format) {
         IFormatter formatter;
 
         // Numeric
         if (ClassUtils.isAssignable(clazz, Number.class)) {
             if (StringUtils.isBlank(format) && NumberUtils.isFloatPointType(clazz)) {
-                format = getFormatForScale(value);
                 return new SmartNumberFormatter(Locale.US);
             }
             String numberFormat = StringUtils.isNotBlank(format) ? format : DEFAULT_NUMBER_FORMAT;
@@ -116,40 +115,8 @@ public final class FormattersManager {
         return formatter;
     }
 
-    /**
-     * Returns format pattern for appropriate value scale
-     *
-     * @param value float point value which is gonna be formatted
-     * @return format pattern for appropriate value scale, <code>null</code> if value is <code>null</code>
-     */
-    private static String getFormatForScale(Object value) {
-        if (value != null) {
-            int scale = NumberUtils.getScale((Number) value);
-
-            StringBuilder buf = new StringBuilder();
-            buf.append("#");
-            if (scale > 0) {
-                buf.append(".");
-
-                for (int i = 0; i < scale; i++) {
-                    buf.append("#");
-                }
-            }
-            return buf.toString();
-        }
-        return null;
-    }
-
-    public static IFormatter getFormatter(Class<?> clazz, Object value) {
-        return getFormatter(clazz, value, null);
-    }
-
-    public static IFormatter getFormatter(Class<?> clazz, String format) {
-        return getFormatter(clazz, null, format);
-    }
-
     public static IFormatter getFormatter(Class<?> clazz) {
-        return getFormatter(clazz, null, null);
+        return getFormatter(clazz, null);
     }
 
 }

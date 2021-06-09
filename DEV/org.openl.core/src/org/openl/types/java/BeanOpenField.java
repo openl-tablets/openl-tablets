@@ -16,12 +16,15 @@ import org.openl.util.ClassUtils;
 import org.openl.util.RuntimeExceptionWrapper;
 import org.openl.util.StringUtils;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  *
  */
-public class BeanOpenField implements IOpenField {
+public final class BeanOpenField implements IOpenField {
+    private static final Logger LOG = LoggerFactory.getLogger(BeanOpenField.class);
 
     private final PropertyDescriptor descriptor;
     private final Method readMethod;
@@ -33,18 +36,14 @@ public class BeanOpenField implements IOpenField {
             BeanInfo info = Introspector.getBeanInfo(c, c.getSuperclass());
             PropertyDescriptor[] pds = info.getPropertyDescriptors();
             for (PropertyDescriptor pd : pds) {
-                if (pd.getPropertyType() == null) {
+                if (pd.getPropertyType() == null || "class".equals(pd.getName())) {
                     // (int) only method(s)
-                    continue;
-                }
-                if (pd.getName().equals("class")) {
                     continue;
                 }
 
                 String fieldName = pd.getName();
-                Field field = null;
                 try {
-                    field = c.getDeclaredField(fieldName);
+                    c.getDeclaredField(fieldName);
                 } catch (NoSuchFieldException ex) {
                     // Catch it
                     // if there is no such field => it was
@@ -52,23 +51,25 @@ public class BeanOpenField implements IOpenField {
                     //
                     try {
                         String fname = ClassUtils.capitalize(fieldName);
-                        field = c.getDeclaredField(fname);
+                        Field field = c.getDeclaredField(fname);
                         // Reset the name
                         fieldName = field.getName();
                         pd.setName(fieldName);
+                        LOG.debug("Error occurred: ", ex);
                     } catch (NoSuchFieldException e1) {
                         try {
                             // Special case for backward compatibility
                             // when getAB() was generated for 'aB' field name.
                             // In this case Introspector returns 'AB' field name.
                             String fname = StringUtils.uncapitalize(fieldName);
-                            field = c.getDeclaredField(fname);
+                            Field field = c.getDeclaredField(fname);
                             // Reset the name
                             fieldName = field.getName();
                             pd.setName(fieldName);
-                        } catch (NoSuchFieldException e2) {
+                            LOG.debug("Error occurred: ", e1);
+                        } catch (NoSuchFieldException e) {
+                            LOG.debug("Ignored error: ", e);
                             // It is possible that there is no such field at all
-                            //
                         }
                     }
 
@@ -76,7 +77,7 @@ public class BeanOpenField implements IOpenField {
 
                 BeanOpenField bf = new BeanOpenField(pd);
 
-                if (field == null || !java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                if (map.get(fieldName) == null || map.get(fieldName).isStatic()) {
                     map.put(fieldName, bf);
                 }
             }
@@ -101,7 +102,7 @@ public class BeanOpenField implements IOpenField {
         try {
             if (target == null) {
                 // assuming it is a non static read method.
-                return null;
+                return getType().nullObject();
             }
             return readMethod.invoke(target, ArrayTool.ZERO_OBJECT);
         } catch (Exception ex) {
@@ -162,10 +163,12 @@ public class BeanOpenField implements IOpenField {
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        try {
-            writeMethod.invoke(target, value);
-        } catch (Exception ex) {
-            throw RuntimeExceptionWrapper.wrap("", ex);
+        if (target != null) {
+            try {
+                writeMethod.invoke(target, value);
+            } catch (Exception ex) {
+                throw RuntimeExceptionWrapper.wrap("", ex);
+            }
         }
     }
 

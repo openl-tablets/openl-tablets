@@ -634,7 +634,7 @@ public class ComparisonTest {
     @Test
     public void testStringEq() {
         assertTrue(Comparison.string_eq("aaa111aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_eq(new String("11"), new String("11")));
+        assertTrue(Comparison.string_eq("11", "11"));
         assertTrue(Comparison.string_eq(null, null));
         assertFalse(Comparison.string_eq(null, "some"));
         assertFalse(Comparison.string_eq("some", null));
@@ -644,7 +644,7 @@ public class ComparisonTest {
     @Test
     public void testStringNe() {
         assertFalse(Comparison.string_ne("aaa111aaa", "aaa111aaa"));
-        assertFalse(Comparison.string_ne(new String("11"), new String("11")));
+        assertFalse(Comparison.string_ne("11", "11"));
         assertFalse(Comparison.string_ne(null, null));
         assertTrue(Comparison.string_ne(null, "some"));
         assertTrue(Comparison.string_ne("some", null));
@@ -654,7 +654,7 @@ public class ComparisonTest {
     @Test
     public void testStringLt() {
         assertFalse(Comparison.string_lt("aaa111aaa", "aaa111aaa"));
-        assertFalse(Comparison.string_lt(new String("11"), new String("11")));
+        assertFalse(Comparison.string_lt("11", "11"));
         assertFalse(Comparison.string_lt(null, null));
         assertTrue(Comparison.string_lt(null, "some"));
         assertFalse(Comparison.string_lt("some", null));
@@ -666,7 +666,7 @@ public class ComparisonTest {
     @Test
     public void testStringLe() {
         assertTrue(Comparison.string_le("aaa111aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_le(new String("11"), new String("11")));
+        assertTrue(Comparison.string_le("11", "11"));
         assertTrue(Comparison.string_le(null, null));
         assertTrue(Comparison.string_le(null, "some"));
         assertFalse(Comparison.string_le("some", null));
@@ -678,7 +678,7 @@ public class ComparisonTest {
     @Test
     public void testStringGt() {
         assertFalse(Comparison.string_gt("aaa111aaa", "aaa111aaa"));
-        assertFalse(Comparison.string_gt(new String("11"), new String("11")));
+        assertFalse(Comparison.string_gt("11", "11"));
         assertFalse(Comparison.string_gt(null, null));
         assertFalse(Comparison.string_gt(null, "some"));
         assertTrue(Comparison.string_gt("aaa222aaa", "aaa111aaa"));
@@ -689,7 +689,7 @@ public class ComparisonTest {
     @Test
     public void testStringGe() {
         assertTrue(Comparison.string_ge("aaa111aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_ge(new String("11"), new String("11")));
+        assertTrue(Comparison.string_ge("11", "11"));
         assertTrue(Comparison.string_ge(null, null));
         assertTrue(Comparison.string_ge("some", null));
         assertFalse(Comparison.string_ge(null, "some"));
@@ -701,7 +701,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceEq() {
         assertTrue(Comparison.string_eq((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
-        assertTrue(Comparison.string_eq((CharSequence) new String("11"), (CharSequence) new String("11")));
+        assertTrue(Comparison.string_eq((CharSequence) "11", (CharSequence) "11"));
         assertTrue(Comparison.string_eq((CharSequence) null, (CharSequence) null));
         assertFalse(Comparison.string_eq((CharSequence) null, "some"));
         assertFalse(Comparison.string_eq("some", (CharSequence) null));
@@ -711,7 +711,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceNe() {
         assertFalse(Comparison.string_ne((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
-        assertFalse(Comparison.string_ne((CharSequence) new String("11"), (CharSequence) new String("11")));
+        assertFalse(Comparison.string_ne((CharSequence) "11", (CharSequence) "11"));
         assertFalse(Comparison.string_ne((CharSequence) null, (CharSequence) null));
         assertTrue(Comparison.string_ne((CharSequence) null, "some"));
         assertTrue(Comparison.string_ne("some", (CharSequence) null));
@@ -721,7 +721,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceLt() {
         assertFalse(Comparison.string_lt((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
-        assertFalse(Comparison.string_lt((CharSequence) new String("11"), (CharSequence) new String("11")));
+        assertFalse(Comparison.string_lt((CharSequence) "11", (CharSequence) "11"));
         assertFalse(Comparison.string_lt((CharSequence) null, (CharSequence) null));
         assertTrue(Comparison.string_lt((CharSequence) null, "some"));
         assertFalse(Comparison.string_lt("some", (CharSequence) null));
@@ -733,7 +733,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceLe() {
         assertTrue(Comparison.string_le((CharSequence) "aaa111aaa", (CharSequence) "aaa111aaa"));
-        assertTrue(Comparison.string_le((CharSequence) new String("11"), (CharSequence) new String("11")));
+        assertTrue(Comparison.string_le((CharSequence) "11", (CharSequence) "11"));
         assertTrue(Comparison.string_le((CharSequence) null, (CharSequence) null));
         assertTrue(Comparison.string_le((CharSequence) null, "some"));
         assertFalse(Comparison.string_le("some", (CharSequence) null));
@@ -745,7 +745,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceGt() {
         assertFalse(Comparison.string_gt("aaa111aaa", "aaa111aaa"));
-        assertFalse(Comparison.string_gt(new String("11"), new String("11")));
+        assertFalse(Comparison.string_gt("11", "11"));
         assertFalse(Comparison.string_gt(null, null));
         assertFalse(Comparison.string_gt(null, "some"));
         assertTrue(Comparison.string_gt("aaa222aaa", "aaa111aaa"));
@@ -756,7 +756,7 @@ public class ComparisonTest {
     @Test
     public void testCharSequenceGe() {
         assertTrue(Comparison.string_ge("aaa111aaa", "aaa111aaa"));
-        assertTrue(Comparison.string_ge(new String("11"), new String("11")));
+        assertTrue(Comparison.string_ge("11", "11"));
         assertTrue(Comparison.string_ge(null, null));
         assertTrue(Comparison.string_ge("some", null));
         assertFalse(Comparison.string_ge(null, "some"));

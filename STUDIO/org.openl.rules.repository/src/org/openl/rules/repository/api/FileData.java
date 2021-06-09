@@ -1,5 +1,6 @@
 package org.openl.rules.repository.api;
 
+import java.nio.file.Path;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -22,7 +23,8 @@ public class FileData {
     private boolean deleted;
     private String branch;
     private String uniqueId;
-    private Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
+    private Path path;
+    private final Map<Class<? extends AdditionalData>, AdditionalData> additionalData = new HashMap<>();
 
     /**
      * The full path of the file from the root folder. The path MUST not start from the '/' symbol. The allowed folder
@@ -158,5 +160,13 @@ public class FileData {
 
     public Map<Class<? extends AdditionalData>, AdditionalData> getAdditionalData() {
         return additionalData;
+    }
+
+    public Path getPath() {
+        return path;
+    }
+
+    public void setPath(Path path) {
+        this.path = path;
     }
 }

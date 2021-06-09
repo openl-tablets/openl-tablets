@@ -1,1 +1,1 @@
-ERROR: Method '$value$nostep(SpreadsheetResultTest1[])' is not found.
+ERROR: Field '$value$nostep' is not found in type 'SpreadsheetResultTest1'

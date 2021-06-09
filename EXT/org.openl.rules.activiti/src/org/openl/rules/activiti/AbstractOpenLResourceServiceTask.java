@@ -1,6 +1,7 @@
 package org.openl.rules.activiti;
 
 import java.io.File;
+import java.io.IOException;
 
 import org.activiti.engine.RepositoryService;
 import org.activiti.engine.delegate.DelegateExecution;
@@ -47,7 +48,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
         if (provideRuntimeContext != null) {
             Object isProvideRuntimeContextValue = provideRuntimeContext.getValue(execution);
             if (isProvideRuntimeContextValue instanceof String) {
-                isProvideRuntimeContext = Boolean.valueOf((String) isProvideRuntimeContextValue);
+                isProvideRuntimeContext = Boolean.parseBoolean((String) isProvideRuntimeContextValue);
             }
             if (isProvideRuntimeContextValue instanceof Boolean) {
                 isProvideRuntimeContext = ((Boolean) isProvideRuntimeContextValue);
@@ -57,7 +58,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
     }
 
     private synchronized SimpleProjectEngineFactory<T> initSimpleProjectEngineFactory(
-            DelegateExecution execution) throws Exception {
+            DelegateExecution execution) throws IOException {
         String processDefinitionId = execution.getProcessDefinitionId();
         String resourceValue = (String) resource.getValue(execution);
         RepositoryService repositoryService = execution.getEngineServices().getRepositoryService();
@@ -68,13 +69,14 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
 
         boolean isProvideRuntimeContext = isProvideRuntimeContext(execution);
 
-        SimpleProjectEngineFactoryBuilder<T> simpleProjectEngineFactoryBuilder = new SimpleProjectEngineFactoryBuilder<T>()
-            .setExecutionMode(true)
-            .setProject(projectWorkspace.getCanonicalPath())
-            .setWorkspace(projectWorkspace.getCanonicalPath())
-            .setProvideRuntimeContext(isProvideRuntimeContext);
+        SimpleProjectEngineFactoryBuilder<T> simpleProjectEngineFactoryBuilder =
+                new SimpleProjectEngineFactoryBuilder<T>()
+                    .setExecutionMode(true)
+                    .setProject(projectWorkspace.getCanonicalPath())
+                    .setWorkspace(projectWorkspace.getCanonicalPath())
+                    .setProvideRuntimeContext(isProvideRuntimeContext);
 
-        if (interfaceClass != null && !interfaceClass.equals(Object.class)) {
+        if (interfaceClass != null && interfaceClass != Object.class) {
             simpleProjectEngineFactoryBuilder.setInterfaceClass(interfaceClass);
         }
 
@@ -89,7 +91,7 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
     }
 
     protected final SimpleProjectEngineFactory<T> getSimpleProjectEngineFactory(
-            DelegateExecution execution) throws Exception {
+            DelegateExecution execution) throws IOException {
         if (simpleProjectEngineFactory == null) {
             synchronized (this) {
                 if (simpleProjectEngineFactory == null) {
@@ -104,8 +106,9 @@ public abstract class AbstractOpenLResourceServiceTask<T> implements JavaDelegat
         if (instance == null) {
             synchronized (this) {
                 if (instance == null) {
-                    SimpleProjectEngineFactory<T> simpleProjectEngineFactory = getSimpleProjectEngineFactory(execution);
-                    instance = simpleProjectEngineFactory.newInstance();
+                    SimpleProjectEngineFactory<T> executionSimpleProjectEngineFactory =
+                            getSimpleProjectEngineFactory(execution);
+                    instance = executionSimpleProjectEngineFactory.newInstance();
                 }
             }
         }

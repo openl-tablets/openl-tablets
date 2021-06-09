@@ -10,7 +10,7 @@ class CollectionComparator extends GenericComparator<Collection<?>> {
 
     private static final CollectionComparator INSTANCE = new CollectionComparator();
 
-    private TestResultComparator comparator = TestResultComparatorFactory.getComparator(Object.class, null);
+    private final TestResultComparator comparator = TestResultComparatorFactory.getComparator(Object.class, null);
 
     /**
      * Use {@link #getInstance()} instead.

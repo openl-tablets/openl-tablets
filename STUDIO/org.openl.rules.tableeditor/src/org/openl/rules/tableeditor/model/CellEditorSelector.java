@@ -29,7 +29,7 @@ import org.openl.util.formatters.IFormatter;
 // TODO Reimplement
 public class CellEditorSelector {
 
-    private ICellEditorFactory factory = new CellEditorFactory();
+    private final ICellEditorFactory factory = new CellEditorFactory();
 
     public ICellEditor selectEditor(ICell cell, CellMetaInfo meta) {
         if (cell.getFormula() != null) {
@@ -50,7 +50,7 @@ public class CellEditorSelector {
             Class<?> instanceClass = dataType.getInstanceClass();
 
             if (domain instanceof EnumDomain) {
-                Object[] allObjects = ((EnumDomain<?>) domain).getEnum().getAllObjects();
+                Object[] allObjects = ((EnumDomain<?>) domain).getAllObjects();
 
                 if (allObjects instanceof String[]) {
                     String[] allObjectValues = (String[]) allObjects;
@@ -61,7 +61,7 @@ public class CellEditorSelector {
                         return factory.makeComboboxEditor(allObjectValues);
                     }
                 } else if (allObjects != null) {
-                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta);
+                    IFormatter formatter = XlsDataFormatterFactory.getFormatter(cell, meta, false);
                     if (formatter instanceof ArrayFormatter) {
                         // We need a formatter for each element of an array.
                         formatter = ((ArrayFormatter) formatter).getElementFormat();
@@ -101,10 +101,12 @@ public class CellEditorSelector {
                 }
 
                 // Date
-            } else if (ClassUtils.isAssignable(instanceClass, Date.class) || ClassUtils.isAssignable(instanceClass,
-                LocalDate.class) || ClassUtils.isAssignable(instanceClass, LocalDateTime.class) || ClassUtils
-                    .isAssignable(instanceClass, LocalTime.class) || ClassUtils.isAssignable(instanceClass,
-                        ZonedDateTime.class) || ClassUtils.isAssignable(instanceClass, Instant.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, Date.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDate.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, LocalTime.class)
+                        || ClassUtils.isAssignable(instanceClass, ZonedDateTime.class)
+                        || ClassUtils.isAssignable(instanceClass, Instant.class)) {
                 result = factory.makeDateEditor();
 
                 // Boolean
@@ -122,8 +124,7 @@ public class CellEditorSelector {
                     result = factory.makeComboboxEditor(values, displayValues);
                 }
                 // Range
-            } else if (ClassUtils.isAssignable(instanceClass,
-                INumberRange.class) && !instanceClass.equals(CharRange.class)) {
+            } else if (ClassUtils.isAssignable(instanceClass, INumberRange.class) && CharRange.class != instanceClass) {
                 if (ClassUtils.isAssignable(instanceClass, IntRange.class) && DecisionTableHelper
                     .parsableAs(initialValue, instanceClass, null)) {
                     result = factory.makeNumberRangeEditor(ICellEditor.CE_INTEGER, initialValue);

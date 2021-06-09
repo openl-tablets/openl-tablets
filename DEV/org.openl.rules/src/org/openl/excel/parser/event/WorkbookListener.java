@@ -2,12 +2,30 @@ package org.openl.excel.parser.event;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.poi.hssf.eventusermodel.HSSFEventFactory;
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
 import org.apache.poi.hssf.eventusermodel.HSSFRequest;
-import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.record.BOFRecord;
+import org.apache.poi.hssf.record.BoolErrRecord;
+import org.apache.poi.hssf.record.BoundSheetRecord;
+import org.apache.poi.hssf.record.CellValueRecordInterface;
+import org.apache.poi.hssf.record.DateWindow1904Record;
+import org.apache.poi.hssf.record.DimensionsRecord;
+import org.apache.poi.hssf.record.FormulaRecord;
+import org.apache.poi.hssf.record.LabelRecord;
+import org.apache.poi.hssf.record.LabelSSTRecord;
+import org.apache.poi.hssf.record.MergeCellsRecord;
+import org.apache.poi.hssf.record.NumberRecord;
+import org.apache.poi.hssf.record.RKRecord;
+import org.apache.poi.hssf.record.SSTRecord;
+import org.apache.poi.hssf.record.StringRecord;
 import org.apache.poi.poifs.filesystem.POIFSFileSystem;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -22,11 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WorkbookListener implements HSSFListener {
-    private final Logger log = LoggerFactory.getLogger(WorkbookListener.class);
+    private static final Logger LOG = LoggerFactory.getLogger(WorkbookListener.class);
 
     private final List<EventSheetDescriptor> sheets = new ArrayList<>();
     private final ParserDateUtil parserDateUtil = new ParserDateUtil();
-    private Map<String, Object[][]> cellsMap = new HashMap<>();
+    private final Map<String, Object[][]> cellsMap = new HashMap<>();
 
     private boolean use1904Windowing = false;
 
@@ -51,7 +69,7 @@ public class WorkbookListener implements HSSFListener {
 
     @SuppressWarnings("deprecation")
     @Override
-    public void processRecord(Record record) {
+    public void processRecord(org.apache.poi.hssf.record.Record record) {
         int row;
         int column;
         Object value;
@@ -71,7 +89,7 @@ public class WorkbookListener implements HSSFListener {
                     sheetIndex++;
 
                     if (!sheetsSorted) {
-                        Collections.sort(sheets, (o1, o2) -> o1.getOffset() - o2.getOffset());
+                        sheets.sort(Comparator.comparingInt(EventSheetDescriptor::getOffset));
                         sheetsSorted = true;
                     }
                 }
@@ -83,7 +101,7 @@ public class WorkbookListener implements HSSFListener {
 
                 int rowsCount = dr.getLastRow() - dr.getFirstRow();
                 int colsCount = dr.getLastCol() - dr.getFirstCol();
-                log.debug("Array size: {}:{}", rowsCount, colsCount);
+                LOG.debug("Array size: {}:{}", rowsCount, colsCount);
                 Object[][] cells = new Object[rowsCount][colsCount];
                 cellsMap.put(getSheet().getName(), cells);
                 break;
@@ -262,7 +280,7 @@ public class WorkbookListener implements HSSFListener {
 
         if (maxRows > cells.length || maxCols > columnCount) {
             // Can occur when merged region is greater than last row and column
-            log.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
+            LOG.debug("Extend cells array. Current: {}:{}, new: {}:{}", cells.length, columnCount, maxRows, maxCols);
             Object[][] copy = new Object[maxRows][maxCols];
 
             arrayCopy(cells, copy);

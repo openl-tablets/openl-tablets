@@ -14,6 +14,10 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class DefaultConditionEvaluator implements IConditionEvaluator {
+    public static final IConditionEvaluator INSTANCE = new DefaultConditionEvaluator();
+
+    private DefaultConditionEvaluator() {
+    }
 
     @Override
     public IOpenSourceCodeModule getFormalSourceCode(IBaseCondition condition) {

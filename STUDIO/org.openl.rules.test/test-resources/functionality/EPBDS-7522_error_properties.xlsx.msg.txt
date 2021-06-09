@@ -1,0 +1,2 @@
+ERROR: Property 'description' cannot be defined on level 'Module'.
+ERROR: Property 'tags' cannot be defined on level 'Category'.

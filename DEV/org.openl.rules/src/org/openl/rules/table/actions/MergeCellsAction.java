@@ -12,7 +12,7 @@ import org.openl.rules.table.IWritableGrid;
  */
 public class MergeCellsAction implements IUndoableGridTableAction {
 
-    private IGridRegion region;
+    private final IGridRegion region;
     private List<IGridRegion> removedRegions;
 
     public MergeCellsAction(IGridRegion region) {

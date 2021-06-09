@@ -1,0 +1,75 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="modalDeleteBranch" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Confirm Delete Branch"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="RichFaces.$('modalDeleteBranch').hide();" alt="Close"/>
+        </f:facet>
+
+        <h:form id="deleteBranchForm" style="max-width: 550px">
+            <ui:param name="project" value="#{repositoryTreeController.selectedProject}"/>
+            <h:panelGroup id="modalDeleteBranchData" rendered="#{repositoryTreeController.branchDeletable}">
+
+                <div>
+                    <h:outputText value="Are you sure you want to delete branch '#{project.branch}'?"/>
+                </div>
+                <h:panelGroup layout="block" rendered="#{project.modified}">
+                    <p>
+                        <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>
+                        <span class="attention-text">WARNING!</span> Project '#{project.businessName}' is modified, if you delete branch, all changes will be lost.</p>
+                </h:panelGroup>
+                <h:panelGroup layout="block" rendered="#{not repositoryTreeController.isMergedIntoMain(project)}">
+                    <p>
+                        <h:graphicImage value="/images/warning.svg" alt="warning" style="height: 11px;"/>
+                        <span class="attention-text">WARNING!</span> Branch '#{project.branch}' is not merged into the '#{repositoryTreeController.getMainBranch(project)}' branch.
+                        All unmerged changes will be lost and cannot be restored.</p>
+                </h:panelGroup>
+            </h:panelGroup>
+
+            <footer>
+                <h:commandButton value="Delete" action="#{repositoryTreeController.deleteBranch}"
+                                 rendered="#{repositoryTreeController.isMergedIntoMain(project) and not project.modified}"
+                                 styleClass="button-primary"/>
+                <h:commandButton value="I understand the consequences, delete this branch"
+                                 action="#{repositoryTreeController.deleteBranch}"
+                                 rendered="#{not repositoryTreeController.isMergedIntoMain(project) or project.modified}"
+                                 styleClass="button-warning"/>
+                <input type="button" value="Cancel" onclick="RichFaces.$('modalDeleteBranch').hide();"/>
+            </footer>
+
+            <input id="branchDeletableState" type="hidden" value="#{repositoryTreeController.branchDeletable}"/>
+
+            <a4j:jsFunction name="renderDeleteBranchForm" render="@form projectTree nodeView" oncomplete="showDeleteBranchDialog()"
+                            action="#{repositoryTreeController.checkBranchIsDeletable}"/>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+
+        function openDeleteBranchDialog() {
+            renderDeleteBranchForm();
+        }
+
+        function showDeleteBranchDialog() {
+            if ($j('#branchDeletableState').val() === 'true') {
+                RichFaces.$("modalDeleteBranch").show();
+            }
+        }
+
+        //]]>
+    </script>
+
+
+</ui:composition>

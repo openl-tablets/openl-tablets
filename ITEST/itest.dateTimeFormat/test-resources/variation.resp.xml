@@ -3,7 +3,6 @@
         <ns1:calVehicleYear1Response xmlns:ns1="http://DefaultNamespace">
             <ns1:return xmlns:ns2="http://variation.rules.openl.org"
                         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:type="ns2:VariationsResult">
-                <ns2:data xsi:nil="true"/>
                 <ns2:variationFailures/>
                 <ns2:variationResults>
                     <ns1:entry>

@@ -11,6 +11,7 @@ import org.openl.rules.testmethod.TestSuiteMethod;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
 
@@ -75,8 +76,20 @@ public final class Utils {
         if (tests != null) {
             TestUnitsResults[] results = new TestUnitsResults[tests.length];
             for (int i = 0; i < tests.length; i++) {
-                TestSuite testSuite = new TestSuite((TestSuiteMethod) tests[i]);
-                results[i] = model.runTest(testSuite);
+                TestSuiteMethod testSuiteMethod = (TestSuiteMethod) tests[i];
+                IOpenMethod testedMethod = testSuiteMethod.getTestedMethod();
+                IMemberMetaInfo metaInfo = testedMethod.getInfo();
+                String sourceUrl = metaInfo.getSourceUrl();
+
+                TestSuite testSuite = new TestSuite(testSuiteMethod);
+                TestUnitsResults testUnitsResults;
+                if (model.getErrorsByUri(sourceUrl).isEmpty()) {
+                    testUnitsResults = model.runTest(testSuite);
+                } else {
+                    testUnitsResults = new TestUnitsResults(testSuite);
+                    testUnitsResults.setTestedRulesHaveErrors(true);
+                }
+                results[i] = testUnitsResults;
             }
             return results;
         }

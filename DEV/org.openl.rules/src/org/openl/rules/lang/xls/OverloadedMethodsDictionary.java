@@ -15,7 +15,7 @@ public class OverloadedMethodsDictionary {
     /**
      * Internal map of groups.
      */
-    private Map<MethodKey, Set<TableSyntaxNodeKey>> internalMap = new HashMap<>();
+    private final Map<MethodKey, Set<TableSyntaxNodeKey>> internalMap = new HashMap<>();
 
     /**
      * Checks that method already in dictionary.

@@ -1,3 +1,6 @@
+![Build](https://github.com/openl-tablets/openl-tablets/workflows/Build/badge.svg)
+![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.openl/org.openl.core/badge.svg)
+
 # Easy Business Rules
 
 **OpenL Tablets** targets the infamous gap between business requirements (rules and policies) and software implementation.
@@ -19,12 +22,13 @@ All of OpenL Tablets is open sourced under **LGPL** license.
 #### Requirements:
 
 * JDK 8
-* Maven 3.5.4
-* 1 GiB RAM free
+* Maven 3.6.3
+* 512 MiB RAM free
+* 2 GiB Disk space free
 
 #### Build command:
 
-`mvn clean verify`
+`mvn`
 
 Estimated build time: ~15 minutes
 

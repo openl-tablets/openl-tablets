@@ -45,7 +45,7 @@ public class SheetHandler extends DefaultHandler {
     // Set when an Inline String "is" is seen
     private boolean isInlineStringOpen;
 
-    private StringBuilder value = new StringBuilder();
+    private final StringBuilder value = new StringBuilder();
 
     // Set when cell start element is seen;
     // used when cell close element is seen.
@@ -58,7 +58,7 @@ public class SheetHandler extends DefaultHandler {
     // Cell indent
     private Short indent;
 
-    private List<CellRangeAddress> mergedCells = new ArrayList<>();
+    private final List<CellRangeAddress> mergedCells = new ArrayList<>();
 
     SheetHandler(SharedStringsTable sharedStringsTable,
             boolean use1904Windowing,

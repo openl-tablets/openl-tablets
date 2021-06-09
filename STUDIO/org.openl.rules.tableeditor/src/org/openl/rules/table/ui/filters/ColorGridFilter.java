@@ -18,7 +18,7 @@ public class ColorGridFilter extends AGridFilter {
 
     private int scope = ALL;
 
-    private IColorFilter filter;
+    private final IColorFilter filter;
 
     public ColorGridFilter(IGridSelector selector, IColorFilter filter) {
         super(selector);

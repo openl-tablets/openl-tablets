@@ -1,0 +1,7 @@
+ERROR: Property 'version' cannot be defined in 'Run' table.
+ERROR: Property 'active' cannot be defined in 'Test' table.
+ERROR: There is no body in 'Data' table.
+ERROR: Property 'id' cannot be defined in 'Test' table.
+ERROR: Property 'autoType' cannot be defined in 'Test' table.
+ERROR: Property 'failOnMiss' cannot be defined in 'Test' table.
+ERROR: Field 'DriverPremiumDuplicatedTest' has already been defined.

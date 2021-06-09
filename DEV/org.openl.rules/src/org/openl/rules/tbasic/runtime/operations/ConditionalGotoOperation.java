@@ -16,7 +16,7 @@ import org.openl.rules.tbasic.runtime.TBasicContextHolderEnv;
  */
 public class ConditionalGotoOperation extends GotoOperation {
 
-    private boolean expectedCondition;
+    private final boolean expectedCondition;
 
     /**
      * Create an instance of <code>ConditionalGotoOperation</code>.
@@ -66,7 +66,7 @@ public class ConditionalGotoOperation extends GotoOperation {
     /**
      * @return
      */
-    private Result skipGoto() {
+    private static Result skipGoto() {
         Result result;
         result = new Result(ReturnType.NEXT);
         return result;

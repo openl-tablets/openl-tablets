@@ -4,6 +4,7 @@ import static org.junit.Assert.assertNotNull;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -17,25 +18,20 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.management.ServiceManager;
 import org.openl.rules.ruleservice.simple.RulesFrontend;
-import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@TestPropertySource(properties = { "ruleservice.datasource.dir=test-resources/DynamicInterfacePublishingTest",
-        "ruleservice.datasource.deploy.clean.datasource=false" })
+@TestPropertySource(properties = { "production-repository.uri=test-resources/DynamicInterfacePublishingTest",
+        "production-repository.factory = repo-file"})
 @ContextConfiguration({ "classpath:openl-ruleservice-beans.xml" })
-public class DynamicInterfacePublishingTest implements ApplicationContextAware {
+public class DynamicInterfacePublishingTest {
 
+    @Autowired
     private ApplicationContext applicationContext;
-
-    @Override
-    public void setApplicationContext(ApplicationContext arg0) throws BeansException {
-        this.applicationContext = arg0;
-    }
 
     @Test
     public void publishWithDynamicInterface() throws RuleServiceInstantiationException {
@@ -43,13 +39,9 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-            RuleServiceManager.class);
-        assertNotNull(ruleServicePublisher);
-
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test1");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project1");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
         String[] methods = {
@@ -60,9 +52,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
                 "baseHello(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;",
                 "baseHello2(Lorg/openl/rules/context/IRulesRuntimeContext;I)Ljava/lang/String;" };
         Set<String> methodNames = new HashSet<>();
-        for (String s : methods) {
-            methodNames.add(s);
-        }
+        Collections.addAll(methodNames, methods);
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
             if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {
@@ -78,13 +68,9 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-            RuleServiceManager.class);
-        assertNotNull(ruleServicePublisher);
-
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test2");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project2");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 
@@ -92,9 +78,7 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/generated/beans/MyType;)Lorg/openl/generated/beans/MyType;",
                 "method2(Lorg/openl/rules/context/IRulesRuntimeContext;Lorg/openl/ruleservice/dynamicinterface/test/MyClass;)Lorg/openl/ruleservice/dynamicinterface/test/MyClass;" };
         Set<String> methodNames = new HashSet<>();
-        for (String s : methods) {
-            methodNames.add(s);
-        }
+        Collections.addAll(methodNames, methods);
         int count = 0;
         for (Method method : service.getServiceClass().getMethods()) {
             if (methodNames.contains(method.getName() + Type.getMethodDescriptor(method))) {
@@ -110,13 +94,9 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         ServiceManager serviceManager = applicationContext.getBean("serviceManager", ServiceManager.class);
         assertNotNull(serviceManager);
 
-        RuleServiceManager ruleServicePublisher = applicationContext.getBean("ruleServiceManager",
-            RuleServiceManager.class);
-        assertNotNull(ruleServicePublisher);
-
         RulesFrontend frontend = applicationContext.getBean("frontend", RulesFrontend.class);
         assertNotNull(frontend);
-        OpenLService service = ruleServicePublisher.getServiceByName("dynamic-interface-test3");
+        OpenLService service = serviceManager.getServiceByDeploy("DynamicInterfacePublishingTest/project3");
         assertNotNull(service);
         assertNotNull(service.getServiceClass());
 
@@ -127,25 +107,25 @@ public class DynamicInterfacePublishingTest implements ApplicationContextAware {
         Class<?> myClassClass = service.getServiceClass()
             .getClassLoader()
             .loadClass("org.openl.ruleservice.dynamicinterface.test.MyClass");
-        Object myClassIntance = myClassClass.newInstance();
+        Object myClassInstance = myClassClass.newInstance();
         Method setNameMethod = myClassClass.getMethod("setName", String.class);
         final String someValue = "someValue";
-        setNameMethod.invoke(myClassIntance, someValue);
+        setNameMethod.invoke(myClassInstance, someValue);
         Object result = frontend
-            .execute("dynamic-interface-test3", "method2", new Object[] { context, myClassIntance });
+            .execute("dynamic-interface-test3", "method2", context, myClassInstance);
         Assert.assertTrue(myClassClass.isInstance(result));
         Method getNameMethod = myClassClass.getMethod("getName");
         Object name = getNameMethod.invoke(result);
         Assert.assertEquals(someValue, name);
         Class<?> myTypeClass = service.getServiceClass().getClassLoader().loadClass("org.openl.generated.beans.MyType");
         Object myTypeInstance = myTypeClass.newInstance();
-        result = frontend.execute("dynamic-interface-test3", "method2", new Object[] { context, myTypeInstance });
+        result = frontend.execute("dynamic-interface-test3", "method2", context, myTypeInstance);
         Assert.assertNull(result);
-        result = frontend.execute("dynamic-interface-test3", "method3", new Object[] { context, myClassIntance });
-        Object value = getNameMethod.invoke(myClassIntance);
+        frontend.execute("dynamic-interface-test3", "method3", context, myClassInstance);
+        Object value = getNameMethod.invoke(myClassInstance);
         Assert.assertEquals("beforeAdviceWasInvoked", value);
 
-        result = frontend.execute("dynamic-interface-test3", "helloWorld", new Object[] {});
+        result = frontend.execute("dynamic-interface-test3", "helloWorld");
         Assert.assertEquals("Hello world ServiceExtraMethodHandler!", result);
     }
 }

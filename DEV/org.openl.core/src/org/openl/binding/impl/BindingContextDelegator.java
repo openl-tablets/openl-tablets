@@ -9,12 +9,17 @@ import org.openl.binding.IBindingContext;
 import org.openl.binding.IBindingContextDelegator;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.INodeBinder;
-import org.openl.binding.exception.*;
+import org.openl.binding.exception.AmbiguousMethodException;
+import org.openl.binding.exception.AmbiguousTypeException;
+import org.openl.binding.exception.AmbiguousFieldException;
+import org.openl.binding.exception.DuplicatedTypeException;
+import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.exception.SyntaxNodeException;
+import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IMethodCaller;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
@@ -59,13 +64,6 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenField findFieldFor(IOpenClass type,
-            String fieldName,
-            boolean strictMatch) throws AmbiguousVarException {
-        return delegate.findFieldFor(type, fieldName, strictMatch);
-    }
-
-    @Override
     public IMethodCaller findMethodCaller(String namespace,
             String name,
             IOpenClass[] parTypes) throws AmbiguousMethodException {
@@ -78,7 +76,7 @@ public class BindingContextDelegator implements IBindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         return delegate.findVar(namespace, name, strictMatch);
     }
 
@@ -89,7 +87,31 @@ public class BindingContextDelegator implements IBindingContextDelegator {
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
-        return delegate.findClosestClass(openClass1, openClass2);
+        IOpenClass openClass = delegate.findClosestClass(openClass1, openClass2);
+        return findOpenClass(openClass);
+    }
+
+    @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        IOpenClass openClass = delegate.findParentClass(openClass1, openClass2);
+        return findOpenClass(openClass);
+    }
+
+    private IOpenClass findOpenClass(IOpenClass openClass) {
+        if (openClass == null) {
+            return null;
+        }
+        IOpenClass componentOpenClass = openClass;
+        int dim = 0;
+        while (componentOpenClass.isArray()) {
+            componentOpenClass = componentOpenClass.getComponentClass();
+            dim++;
+        }
+        IOpenClass thisContextOpenClass = this.findType(ISyntaxConstants.THIS_NAMESPACE, componentOpenClass.getName());
+        if (thisContextOpenClass != null) {
+            return dim > 0 ? thisContextOpenClass.getArrayType(dim) : thisContextOpenClass;
+        }
+        return openClass;
     }
 
     public IBindingContext getDelegate() {

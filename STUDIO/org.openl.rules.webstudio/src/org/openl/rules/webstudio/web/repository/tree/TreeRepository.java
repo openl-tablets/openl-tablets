@@ -14,7 +14,7 @@ public class TreeRepository extends TreeFolder {
 
     private static final long serialVersionUID = -4465731820834289469L;
 
-    private String type;
+    private final String type;
 
     public TreeRepository(String id, String name, IFilter<AProjectArtefact> filter, String type) {
         super(id, name, filter);

@@ -15,9 +15,9 @@ final class DateIntervalImpl extends DateInterval {
 
     static final DateInterval NULLABLE = new NullableInterval();
 
-    private CalendarWrapper startDate;
-    private CalendarWrapper endDate;
-    private boolean isNegative;
+    private final CalendarWrapper startDate;
+    private final CalendarWrapper endDate;
+    private final boolean isNegative;
 
     DateIntervalImpl(Date start, Date end) {
         if (start.after(end)) {
@@ -116,7 +116,7 @@ final class DateIntervalImpl extends DateInterval {
         if (d == 0.0d) {
             return d;
         }
-        return isNegative ? -1 * d : d;
+        return isNegative ? (-1 * d) : d;
     }
 
     /**

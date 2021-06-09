@@ -69,10 +69,10 @@ public final class ConstraintExpLessExp extends ConstraintImpl {
     } // ~ ObserverExp2Max
 
     // PRIVATE MEMBERS
-    private IntExp _exp1;
-    private IntExp _exp2;
-    private int _offset;
-    private Constraint _opposite;
+    private final IntExp _exp1;
+    private final IntExp _exp2;
+    private final int _offset;
+    private final Constraint _opposite;
 
     /**
      * exp1 <= exp2 + offset

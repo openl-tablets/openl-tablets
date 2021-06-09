@@ -3,14 +3,14 @@ try {
     def lines = new File(folder, 'build.log').readLines('UTF-8')
 
     // Check that all tests are run
-    assert lines.any { it.contains('Running GreetingTest from the module Simple Rules') }
-    assert lines.any { it.contains('Running GreetingSuccessful1 from the module Simple Rules') }
-    assert lines.any { it.contains('Running GreetingSuccessful2 from the module Simple Rules') }
-    assert lines.any { it.contains('Running TryGreetingTest from the module Rules With Error') }
-    assert lines.any { it.contains('Running TryFailedGreetingTest from the module Rules With Error') }
-    assert lines.any { it.contains('Running calcTest from the module Spreadsheets') }
-    assert lines.any { it.contains('Running whenExpectCorrectResult from the module EPBDS-8339') }
-    assert lines.any { it.contains('Running whenExpectError from the module EPBDS-8339') }
+    assert lines.any { it.contains("Running 'GreetingTest' from module 'Simple Rules'...") }
+    assert lines.any { it.contains("Running 'GreetingSuccessful1' from module 'Simple Rules'...") }
+    assert lines.any { it.contains("Running 'GreetingSuccessful2' from module 'Simple Rules'...") }
+    assert lines.any { it.contains("Running 'TryGreetingTest' from module 'Rules With Error'...") }
+    assert lines.any { it.contains("Running 'TryFailedGreetingTest' from module 'Rules With Error'...") }
+    assert lines.any { it.contains("Running 'calcTest' from module 'Spreadsheets'...") }
+    assert lines.any { it.contains("Running 'whenExpectCorrectResult' from module 'EPBDS-8339'...") }
+    assert lines.any { it.contains("Running 'whenExpectError' from module 'EPBDS-8339'...") }
 
     // Check summary for failed test s
     assert lines.any { it.contains('Rules With Error.TryGreetingTest#4 expected: <Good Evening, World!> but was <Good Night, World!>') }

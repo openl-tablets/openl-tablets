@@ -6,9 +6,9 @@ import org.openl.domain.DateRangeDomain;
 
 public class DateDomainCollector implements IDomainCollector {
 
-    private Set<String> propertiesToSearch = new HashSet<>();
+    private final Set<String> propertiesToSearch = new HashSet<>();
 
-    private List<Date> dateValues = new ArrayList<>();
+    private final List<Date> dateValues = new ArrayList<>();
 
     @Override
     public void gatherDomains(Map<String, Object> methodProperties) {

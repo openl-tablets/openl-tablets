@@ -20,7 +20,7 @@ public class AlgorithmRow {
     private IGridRegion gridRegion;
 
     // capacity by number of values
-    private Map<String, IGridRegion> valueGridRegions = new HashMap<>(7);
+    private final Map<String, IGridRegion> valueGridRegions = new HashMap<>(7);
 
     public StringValue getAction() {
         if (action == null) {
@@ -146,12 +146,7 @@ public class AlgorithmRow {
     @Override
     public String toString() {
         String delimeter = " | ";
-        StringBuilder buf = new StringBuilder();
-        buf.append(label).append(delimeter);
-        buf.append(description).append(delimeter);
-        buf.append(operation).append(delimeter);
-        buf.append(condition).append(delimeter);
-        buf.append(action).append(delimeter);
-        return buf.toString();
+        String buf = label + delimeter + description + delimeter + operation + delimeter + condition + delimeter + action + delimeter;
+        return buf;
     }
 }

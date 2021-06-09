@@ -1,19 +1,5 @@
 try {
     File folder = basedir
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/ArrayBoxed.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/ArrayBoxed2.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/ArrayPrimitives.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/ArrayPrimitives2.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Auto.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Boxed.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Boxed2.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/MultiBoxed.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/MultiBoxed2.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/MultiPrimitives.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/MultiPrimitives2.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Person.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Primitives.java').exists()
-    assert new File(folder, 'target/generated-sources/openl/org/openl/generated/beans/Primitives2.java').exists()
 
     assert new File(folder, 'target/classes/org/openl/generated/beans/ArrayBoxed.class').exists()
     assert new File(folder, 'target/classes/org/openl/generated/beans/ArrayBoxed2.class').exists()
@@ -36,7 +22,10 @@ try {
     assert new File(folder, 'target').list({ File file, String name -> name.startsWith('openl-recompile-without-clean-0.0.0') && name.endsWith('-lib.jar')}).length == 2
 
     int threadCount = Runtime.runtime.availableProcessors() * 2.5
-    assert new File(folder, 'build.log').text.contains("Run tests using $threadCount threads.")
+
+    def lines = new File(folder, 'build.log').readLines('UTF-8')
+    assert lines.any { it.contains("Run tests using $threadCount threads.") }
+    assert lines.any { it.contains('[INFO] Verification is passed for \'org.openl.internal:openl-recompile-without-clean\' artifact') }
 
     return true
 

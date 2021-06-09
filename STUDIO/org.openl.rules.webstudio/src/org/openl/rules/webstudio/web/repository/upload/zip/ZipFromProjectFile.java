@@ -1,6 +1,6 @@
 package org.openl.rules.webstudio.web.repository.upload.zip;
 
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
@@ -13,7 +13,7 @@ public class ZipFromProjectFile implements ZipCharsetDetector.ZipSource {
     }
 
     @Override
-    public InputStream createStream() throws FileNotFoundException {
+    public InputStream createStream() throws IOException {
         return uploadedFile.getInput();
     }
 }

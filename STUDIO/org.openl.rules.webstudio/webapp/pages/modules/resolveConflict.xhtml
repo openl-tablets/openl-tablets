@@ -19,7 +19,7 @@
     }
   </style>
 
-  <rich:popupPanel id="modalResolveConflicts" width="580" autosized="true">
+  <rich:popupPanel id="modalResolveConflicts" minWidth="580">
     <f:facet name="header">
       <h:outputText value="Resolve conflicts" />
     </f:facet>
@@ -31,26 +31,51 @@
     <div class="scrollable">
       <h:form id="resolveConflictsForm">
         <ui:param name="isMerging" value="#{mergeConflictBean.merging}"/>
+        <ui:param name="repoId" value="#{mergeConflictBean.repositoryId}"/>
 
         <h:panelGroup id="modalResolveConflictsData">
           <p>
             <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
-              <h:outputText value="Your version:"/>
-              <h:outputText value="#{mergeConflictBean.yourCommit}"/>
+              <h:outputText value="Your version:" title="#{mergeConflictBean.yourBranch}" rendered="#{mergeConflictBean.merging}"/>
+              <h:outputText value="Your version:" rendered="#{not mergeConflictBean.merging}"/>
+              <ui:param name="yourRevision" value="#{mergeConflictBean.yourRevision}" />
+              <ui:param name="yourCommit" value="#{mergeConflictBean.yourCommit}" />
+              <h:outputText value="#{yourRevision}" title="#{yourCommit}" rendered="#{not (yourRevision eq yourCommit)}"/>
+              <h:panelGroup rendered="#{yourRevision eq yourCommit}" styleClass="warning">
+                <h:outputText value="Your revision doesn't exist." title="#{yourCommit}"/>
+              </h:panelGroup>
 
-              <h:outputText value="Their version:"/>
-              <h:outputText value="#{mergeConflictBean.theirCommit}"/>
+              <h:outputText value="Their version:" title="#{mergeConflictBean.theirBranch}" rendered="#{mergeConflictBean.merging}"/>
+              <h:outputText value="Their version:" rendered="#{not mergeConflictBean.merging}"/>
+              <ui:param name="theirRevision" value="#{mergeConflictBean.theirRevision}" />
+              <ui:param name="theirCommit" value="#{mergeConflictBean.theirCommit}" />
+              <h:outputText value="#{theirRevision}" title="#{theirCommit}" rendered="#{not (theirRevision eq theirCommit)}"/>
+              <h:panelGroup rendered="#{theirRevision eq theirCommit}" styleClass="warning">
+                <h:outputText value="Their revision doesn't exist." title="#{theirCommit}"/>
+              </h:panelGroup>
 
               <h:outputText value="Base version:"/>
-              <h:outputText value="#{mergeConflictBean.baseCommit}"/>
+              <ui:param name="baseRevision" value="#{mergeConflictBean.baseRevision}" />
+              <ui:param name="baseCommit" value="#{mergeConflictBean.baseCommit}" />
+              <h:outputText value="#{baseRevision}" title="#{baseCommit}" rendered="#{not (baseRevision eq baseCommit)}"/>
+              <h:panelGroup rendered="#{baseRevision eq baseCommit}" styleClass="warning">
+                <h:outputText value="Base revision doesn't exist." title="#{baseCommit}"/>
+              </h:panelGroup>
 
               <h:outputText value="Comment:"/>
-              <h:inputTextarea id="comment" value="#{mergeConflictBean.mergeMessage}" styleClass="conflict-comment">
-                <f:ajax execute="@this"/>
-              </h:inputTextarea>
+              <h:panelGroup id="comment">
+                <script>
+                  //<![CDATA[
+                  if (typeof updateCommentSize === "function") updateCommentSize();
+                  //]]>
+                </script>
+                <h:inputTextarea value="#{mergeConflictBean.mergeMessage}" styleClass="conflict-comment">
+                  <f:ajax execute="@this"/>
+                </h:inputTextarea>
+              </h:panelGroup>
             </h:panelGrid>
             </p>
-          <ui:repeat value="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
+          <c:forEach items="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
             <h:outputText value="Conflicts in project '#{conflictGroup.projectName}':"
                           title="Project path in repository: #{conflictGroup.projectPath}" rendered="#{not empty conflictGroup.projectName}"
                           styleClass="label"/>
@@ -84,11 +109,11 @@
                 <ui:param name="hasYourFile" value="#{mergeConflictBean.hasYourFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasYourFile and not isMerging}">
-                    <a href="#{contextPath}/web/conflict/local?name=#{conflict}"
+                    <a href="#{contextPath}/web/conflict/local?repo-id=#{repoId}&amp;name=#{conflict}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{hasYourFile and isMerging}">
-                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.yourCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.yourCommit}"
                        title="Download your version">Download Yours</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasYourFile}">
@@ -98,7 +123,7 @@
                 <ui:param name="hasTheirFile" value="#{mergeConflictBean.hasTheirFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasTheirFile}">
-                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.theirCommit}"
                        title="Download their version">Download Theirs</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasTheirFile}">
@@ -108,7 +133,7 @@
                 <ui:param name="hasBaseFile" value="#{mergeConflictBean.hasBaseFile(conflict)}"/>
                 <div>
                   <h:panelGroup rendered="#{hasBaseFile}">
-                    <a href="#{contextPath}/web/conflict/repository?name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
+                    <a href="#{contextPath}/web/conflict/repository?repo-id=#{repoId}&amp;name=#{conflict}&amp;version=#{mergeConflictBean.baseCommit}"
                        title="Download base version">Download Base</a>
                   </h:panelGroup>
                   <h:panelGroup rendered="#{not hasBaseFile}">
@@ -122,7 +147,8 @@
                   <h:outputText value="Resolve"/>
                 </f:facet>
                 <h:selectOneRadio value="#{mergeConflictBean.conflictResolutions[conflict].resolutionType}"
-                                  layout="pageDirection" onchange="return uploadConflictResolution('#{conflict}', this)">
+                                  layout="pageDirection"
+                                  onchange="return onConflictResolutionChange('#{conflict}', this)">
                   <f:selectItem itemValue="YOURS" itemLabel="#{hasYourFile ? 'Use yours' : 'Delete it'}"/>
                   <f:selectItem itemValue="THEIRS" itemLabel="#{hasTheirFile ? 'Use theirs' : 'Delete it'}"/>
                   <f:selectItem itemValue="CUSTOM" itemLabel="Upload merged file"/>
@@ -136,8 +162,7 @@
                 </h:panelGroup>
               </rich:column>
             </rich:dataTable>
-          </ui:repeat>
-
+          </c:forEach>
           <p>
             <h:outputText rendered="#{not empty mergeConflictBean.mergeError}"
                           value="#{mergeConflictBean.mergeError}" styleClass="error"/>
@@ -160,8 +185,6 @@
                         oncomplete="showResolveConflictDialog();"/>
         <a4j:jsFunction name="closeResolveConflictDialog" action="#{mergeConflictBean.clearMergeStatus}"
                         oncomplete="afterResolveConflict(false); RichFaces.$('modalResolveConflicts').hide();"/>
-        <a4j:jsFunction name="successfulConflictResolution" action="#{mergeConflictBean.clearMergeStatus}"
-                        oncomplete="afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();"/>
         <a4j:jsFunction name="setConflictAndUploadConflictResolution" oncomplete="openUploadConflictResolutionDialog();">
           <a4j:param name="conflict" assignTo="#{mergeConflictBean.currentConflictedFile}"/>
         </a4j:jsFunction>
@@ -173,29 +196,49 @@
   <script>
       //<![CDATA[
       var afterResolveConflict = function () {};
+      var commentWidth;
+      var commentHeight;
 
       function openResolveConflictDialog(afterResolveFunction) {
         afterResolveConflict = afterResolveFunction;
+        commentWidth = null;
+        commentHeight = null;
         refreshResolveConflictDialog();
       }
 
       function showResolveConflictDialog() {
-        var $dialog = RichFaces.$("modalResolveConflicts");
-        $dialog.show();
+        let maxHeight = $j(window).height() * 0.8;
 
-        var maxHeight = $j(window).height() * 0.8;
-        if ($dialog.height() > maxHeight) {
-          $dialog.setSize($dialog.width(), maxHeight);
-          $dialog.moveTo($j(window).height() * 0.1, $dialog.getLeft());
-        }
+        // Dialog is initialized already. Change its maxHeight settings.
+        const $dialog = RichFaces.$("modalResolveConflicts");
+        $dialog.maxHeight = maxHeight;
+        $dialog.options.maxHeight = maxHeight;
+
+        // Autosize only once: when show popup. Don't autosize when it's opened already to avoid autoscrolling when
+        // dialog is rerendered.
+        $dialog.show(null, {autosized: true});
       }
 
-      function uploadConflictResolution(conflict, resolutionElement) {
+      function onConflictResolutionChange(conflict, resolutionElement) {
+        commentWidth = $j('.conflict-comment').width()
+        commentHeight = $j('.conflict-comment').height()
+
         if (resolutionElement.value === "CUSTOM" && resolutionElement.checked) {
           setConflictAndUploadConflictResolution(conflict);
           return false;
         }
         return true;
+      }
+
+      function updateCommentSize() {
+        if (commentWidth && commentHeight) {
+          $j('.conflict-comment').width(commentWidth);
+          $j('.conflict-comment').height(commentHeight);
+        }
+      }
+
+      function successfulConflictResolution() {
+        afterResolveConflict(true); RichFaces.$('modalResolveConflicts').hide();
       }
       //]]>
   </script>

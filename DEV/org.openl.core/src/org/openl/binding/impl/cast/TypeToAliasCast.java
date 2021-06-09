@@ -22,7 +22,7 @@ final class TypeToAliasCast implements IOpenCast {
     /**
      * Result type of object after conversion.
      */
-    private IOpenClass toClass;
+    private final IOpenClass toClass;
     private int distance = CastFactory.TYPE_TO_ALIAS_CAST_DISTANCE;
     private IOpenCast typeCast;
     private boolean implicit = true;

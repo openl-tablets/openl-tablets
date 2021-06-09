@@ -5,8 +5,8 @@ import java.util.List;
 import org.openl.rules.table.ICell;
 
 public class DiffPair {
-    private XlsTable table1;
-    private XlsTable table2;
+    private final XlsTable table1;
+    private final XlsTable table2;
     private List<ICell> diffCells1;
     private List<ICell> diffCells2;
 

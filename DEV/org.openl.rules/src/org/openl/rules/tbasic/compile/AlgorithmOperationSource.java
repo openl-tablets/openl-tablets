@@ -10,8 +10,8 @@ import org.openl.source.IOpenSourceCodeModule;
  *
  */
 public class AlgorithmOperationSource {
-    private AlgorithmTreeNode sourceNode;
-    private String operationFieldName;
+    private final AlgorithmTreeNode sourceNode;
+    private final String operationFieldName;
 
     public AlgorithmOperationSource(AlgorithmTreeNode sourceNode, String operationFieldName) {
         this.sourceNode = sourceNode;

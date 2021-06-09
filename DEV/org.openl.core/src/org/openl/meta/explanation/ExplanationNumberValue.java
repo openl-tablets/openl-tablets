@@ -1,12 +1,13 @@
 package org.openl.meta.explanation;
 
+import java.util.Collection;
+
 import javax.xml.bind.annotation.XmlTransient;
 
 import org.openl.meta.IMetaInfo;
 import org.openl.meta.number.CastOperand;
 import org.openl.meta.number.Formulas;
 import org.openl.meta.number.NumberOperations;
-import org.openl.util.tree.ITreeElement;
 
 /**
  * Number value that supports explanation operations.
@@ -15,9 +16,9 @@ import org.openl.util.tree.ITreeElement;
  *
  * @param <T> type that extends {@link ExplanationNumberValue}
  */
-public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>> extends Number implements ExplanationForNumber<T> {
-
-    private static final long serialVersionUID = -5461468496220613277L;
+public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>>
+        extends Number
+        implements ExplanationForNumber<T> {
 
     /**
      * Explanator for current value.
@@ -123,7 +124,7 @@ public abstract class ExplanationNumberValue<T extends ExplanationNumberValue<T>
     }
 
     @Override
-    public Iterable<? extends ITreeElement<T>> getChildren() {
+    public Collection<ExplanationNumberValue<?>> getChildren() {
         return getExplanation().getChildren();
     }
 

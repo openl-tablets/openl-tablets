@@ -1,8 +1,11 @@
 #Project version
-#Wed Dec 04 16:32:16 MSK 2019
-version=f5dfa34b4cf67116151dc5fe502d55ef1f5821d2
-size=-1
-branch=master
+#Wed Apr 07 19:16:33 GMT+03:00 2021
+modified-at=2021-04-07
 author=DEFAULT
-modified-at=2019-12-04
+repository-id=design
 comment=Project Example 2 - Corporate Rating is created.
+version=66ec0f660d6cca4520c60f0bae8175e1e4e1cf5b
+modified-at-long=1617809665000
+branch=master
+path-in-repository=DESIGN/rules/Example 2 - Corporate Rating
+size=-1

@@ -9,15 +9,16 @@ import org.openl.rules.table.xls.XlsUrlParser;
  */
 public abstract class AGridTable implements IGridTable {
 
-    private XlsUrlParser cacheUrlParser;
+    private volatile XlsUrlParser urlParser;
+    private volatile String uri;
 
     @Override
     public IGridRegion getRegion() {
         int left = getGridColumn(0, 0);
         int top = getGridRow(0, 0);
 
-        int right = -1;
-        int bottom = -1;
+        int right;
+        int bottom;
 
         if (isNormalOrientation()) {
             right = getGridColumn(getWidth() - 1, 0);
@@ -32,18 +33,29 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String getUri() {
-        int w = getWidth();
-        int h = getHeight();
-        return getGrid()
-            .getRangeUri(getGridColumn(0, 0), getGridRow(0, 0), getGridColumn(w - 1, h - 1), getGridRow(w - 1, h - 1));
+        if (uri == null) {
+            synchronized (this) {
+                int w = getWidth();
+                int h = getHeight();
+                uri = getGrid().getRangeUri(getGridColumn(0, 0),
+                        getGridRow(0, 0),
+                        getGridColumn(w - 1, h - 1),
+                        getGridRow(w - 1, h - 1));
+            }
+        }
+        return uri;
     }
 
     @Override
     public XlsUrlParser getUriParser() {
-        if (cacheUrlParser == null) {
-            cacheUrlParser = new XlsUrlParser(getUri());
+        if (urlParser == null) {
+            synchronized (this) {
+                if (urlParser == null) {
+                    urlParser = new XlsUrlParser(getUri());
+                }
+            }
         }
-        return cacheUrlParser;
+        return urlParser;
     }
 
     @Override
@@ -113,8 +125,8 @@ public abstract class AGridTable implements IGridTable {
 
     @Override
     public String toString() {
-        StringBuilder tableVizualization = new StringBuilder();
-        tableVizualization.append(super.toString())
+        StringBuilder tableVisualization = new StringBuilder();
+        tableVisualization.append(super.toString())
             .append(isNormalOrientation() ? "[N]" : "[T]")
             .append("(")
             .append(getWidth())
@@ -131,17 +143,17 @@ public abstract class AGridTable implements IGridTable {
                     strValue = "EMPTY";
                 }
                 length += strValue.length();
-                tableVizualization.append(strValue);
-                tableVizualization.append("|");
+                tableVisualization.append(strValue);
+                tableVisualization.append("|");
             }
-            tableVizualization.append("\n");
+            tableVisualization.append("\n");
             for (int k = 0; k <= length; k++) {
-                tableVizualization.append("-");
+                tableVisualization.append("-");
             }
-            tableVizualization.append("\n");
+            tableVisualization.append("\n");
         }
 
-        return tableVizualization.toString();
+        return tableVisualization.toString();
     }
 
 }

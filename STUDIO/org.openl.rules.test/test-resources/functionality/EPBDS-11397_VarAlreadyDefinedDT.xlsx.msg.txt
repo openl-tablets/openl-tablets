@@ -1,0 +1,2 @@
+ERROR: Variable 'b' is already defined.
+ERROR: Variable 'foo' is already defined.

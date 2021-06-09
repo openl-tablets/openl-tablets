@@ -1,0 +1,66 @@
+openapi: 3.0.1
+info:
+  title: mapSpr_mapSpr
+  version: 1.0.0
+servers:
+  - url: /webservice/REST/mapSpr/mapSpr
+    variables: {}
+paths:
+  /mySpr:
+    post:
+      summary: Double mySpr(AlenaDatatype)
+      description: "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
+        \ bla)"
+      operationId: mySpr
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlenaDatatype'
+      responses:
+        "200":
+          description:
+          content:
+            text/plain:
+              schema:
+                type: number
+                format: double
+  /mySpr2:
+    post:
+      summary: Double mySpr(AlenaDatatype)
+      description: "Rules method: java.lang.Double mySpr(org.openl.generated.beans.AlenaDatatype\
+        \ bla)"
+      operationId: mySpr
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        "200":
+          description:
+          content:
+            text/plain:
+              schema:
+                type: object
+components:
+  schemas:
+    AlenaDatatype:
+      type: object
+      properties:
+        objField:
+          type: object
+        mapField:
+          type: object
+          additionalProperties:
+            type: object
+        listField:
+          type: array
+          items:
+            type: object
+        doubleField:
+          type: number
+          format: double
+      xml:
+        name: AlenaDatatype
+        namespace: http://beans.generated.openl.org

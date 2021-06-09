@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.gen</artifactId>
     <packaging>jar</packaging>
@@ -18,10 +18,6 @@
     <dependencies>
         <dependency>
             <groupId>org.openl</groupId>
-            <artifactId>org.openl.commons</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.openl</groupId>
             <artifactId>org.openl.core</artifactId>
         </dependency>
         <dependency>
@@ -31,10 +27,6 @@
         <dependency>
             <groupId>org.apache.velocity</groupId>
             <artifactId>velocity</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-lang</groupId>
-            <artifactId>commons-lang</artifactId>
         </dependency>
     </dependencies>
 </project>

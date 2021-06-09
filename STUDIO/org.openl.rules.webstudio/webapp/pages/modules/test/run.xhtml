@@ -27,7 +27,7 @@
             </h:outputLink>
         </h1>
         <div>
-            <h:outputText value="View expired. Test data is no more available." rendered="#{runBean.expired}" />
+            <h:outputText value="View expired. Test data is no longer available." rendered="#{runBean.expired}" />
 
             <h:panelGroup rendered="#{!runBean.expired}">
                 <h:outputText value="null" rendered="#{empty runBean.results}" />
@@ -73,7 +73,7 @@
                                     <h:outputLink
                                         value="javascript: explain('?rootID=#{helper.getExplanatorId(mainBean.requestId, result.actualResult)}')"
                                         rendered="#{helper.isExplanationValue(result.actualResult)}">
-                                        <h:outputText value="#{helper.formatText(result.actualResult)}" />
+                                        <h:outputText value="#{helper.formatText(result.actualResult, false)}" />
                                     </h:outputLink>
                                     <h:outputText rendered="#{helper.isSpreadsheetResult(result.actualResult)}"
                                         value="#{runBean.getFormattedSpreadsheetResult(result)}" escape="false" />

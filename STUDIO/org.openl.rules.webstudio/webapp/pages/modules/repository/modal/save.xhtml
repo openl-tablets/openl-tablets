@@ -1,11 +1,11 @@
 <ui:composition
-    xmlns:f="http://java.sun.com/jsf/core"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j"
-    xmlns:rich="http://richfaces.org/rich"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets" xmlns:c="http://java.sun.com/jsp/jstl/core">
 
-  <rich:popupPanel id="modalSave" width="530" autosized="true">
+  <rich:popupPanel id="modalSave" minWidth="530" autosized="true">
     <f:facet name="header">
       <h:outputText value="Save changes" />
     </f:facet>
@@ -16,17 +16,19 @@
 
     <h:form id="saveForm">
       <h:panelGroup id="modalSaveData">
-        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label,">
+        <h:panelGrid columns="2" styleClass="formfields" cellspacing="1" columnClasses="label," rendered="#{node.type == 'project'}">
           <h:outputText value="Project Name:" />
           <h:outputText value="#{artefact.name}"/>
 
-          <h:outputText rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" value=""/>
-          <h:panelGroup rendered="#{node.type == 'project' and repositoryTreeController.isRenamed(artefact)}" styleClass="warning">
+          <h:outputText rendered="#{node.type == 'project' and !repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and repositoryTreeController.isRenamed(artefact)}" value=""/>
+          <h:panelGroup rendered="#{node.type == 'project' and !repositoryTreeController.isSupportsMappedFolders(artefact.getRepository().getId()) and repositoryTreeController.isRenamed(artefact)}" styleClass="warning">
             <h:outputText value="Project name in rules.xml is '#{repositoryTreeController.getLogicalName(artefact)}'. It will be replaced with '#{artefact.name}'."/>
           </h:panelGroup>
 
           <h:outputText value="Current Revision:" />
-          <h:outputText value="#{node.versionName}"/>
+          <h:panelGroup>
+            <h:outputText value="#{utils.descriptiveProjectVersion(artefact)}"/>
+          </h:panelGroup>
 
           <h:outputText value="Comment:" />
           <h:inputTextarea id="comment" value="#{repositoryTreeController.versionComment}" type="text" size="35"
@@ -35,6 +37,13 @@
           <h:outputText value=""/>
           <h:message for="comment" styleClass="error"/>
         </h:panelGrid>
+
+        <script>
+          // Must be inside modalSaveData block
+          $j(function () {
+            initExpandableLinks();
+          });
+        </script>
       </h:panelGroup>
 
       <footer>
@@ -43,6 +52,8 @@
                            oncomplete="onSaveComplete(event.data, #{!facesContext.validationFailed});" />
         <input type="button" value="Cancel" onclick="#{rich:component('modalSave')}.hide();" />
       </footer>
+
+      <a4j:jsFunction name="initSaveDialog" render="@form" oncomplete="showSaveDialog();" />
 
       <a4j:jsFunction name="refreshRepositoryAfterSave" render="projectTree nodeView">
         <a4j:param name="wasSaved" assignTo="#{repositoryTreeController.wasSaved}"/>
@@ -53,6 +64,10 @@
 
   <script>
     function openSaveDialog() {
+      initSaveDialog();
+    }
+
+    function showSaveDialog() {
       RichFaces.$("modalSave").show();
       focusElement('saveForm:projectVersion');
     }

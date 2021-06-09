@@ -64,6 +64,10 @@
                         <p>File name: <h:outputText value="#{showDiffBean.getCurrent(requestId).fileName}"/>
                         </p>
                     </h:panelGroup>
+                    <h:panelGroup rendered="#{not empty showDiffBean.getCurrent(requestId).fileStatus}">
+                        <p>File status: <h:outputText value="#{showDiffBean.getCurrent(requestId).fileStatus}"/>
+                        </p>
+                    </h:panelGroup>
 
                     <div style="width: 100%; max-height: 250px; background: #f5f5f5; border-top: 1px solid #bbbbbb; border-bottom: 1px solid #bbbbbb;"
                          class="scrollable">
@@ -106,22 +110,9 @@
                     </p>
 
                     <input type="hidden" name="id" value="#{requestId}"/>
-                    <a4j:jsFunction name="closeComparePage" action="#{showDiffBean.close(requestId)}"/>
                 </h:panelGroup>
             </h:panelGroup>
         </h:form>
-
-        <script>
-            //<![CDATA[
-
-            $j(function () {
-                $j(window).on('unload', function () {
-                    closeComparePage();
-                });
-            });
-
-            //]]>
-        </script>
     </ui:define>
 
 </ui:composition>

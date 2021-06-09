@@ -22,7 +22,7 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
 
-    private Constructor<?> constructor;
+    private final Constructor<?> constructor;
 
     private IOpenClass[] parameterTypes;
 
@@ -138,7 +138,7 @@ public class JavaOpenConstructor implements IOpenMethod, IMethodSignature {
     public Object invoke(Object target, Object[] params, IRuntimeEnv env) {
         try {
             return constructor.newInstance(params);
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }

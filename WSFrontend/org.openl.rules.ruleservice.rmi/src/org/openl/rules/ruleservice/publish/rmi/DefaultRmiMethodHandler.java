@@ -10,8 +10,8 @@ import org.openl.rules.ruleservice.rmi.DefaultRmiHandler;
 
 class DefaultRmiMethodHandler implements DefaultRmiHandler {
 
-    private Object target;
-    private Map<String, List<Method>> methodMap;
+    private final Object target;
+    private final Map<String, List<Method>> methodMap;
 
     DefaultRmiMethodHandler(Object target, Map<String, List<Method>> methodMap) {
         this.target = Objects.requireNonNull(target, "target cannot be null");

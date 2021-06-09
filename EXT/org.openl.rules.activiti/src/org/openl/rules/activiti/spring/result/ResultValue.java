@@ -6,8 +6,8 @@ import org.openl.rules.convertor.ObjectToDataOpenCastConvertor;
 
 public class ResultValue {
 
-    private Object value;
-    private ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
+    private final Object value;
+    private final ObjectToDataOpenCastConvertor convertor = new ObjectToDataOpenCastConvertor();
 
     public ResultValue(Object value) {
         this.value = value;
@@ -15,7 +15,7 @@ public class ResultValue {
 
     @SuppressWarnings("unchecked")
     private <T> T convert(Class<T> to) {
-        IOpenCast openCast = convertor.getConvertor(to, value.getClass());
+        IOpenCast openCast = convertor.getConvertor(value.getClass(), to);
         if (openCast != null) {
             return (T) openCast.convert(value);
         } else {

@@ -9,7 +9,7 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class TypeBoundNode extends ABoundNode {
-    private IOpenClass type;
+    private final IOpenClass type;
 
     TypeBoundNode(ISyntaxNode syntaxNode, IOpenClass type) {
         super(syntaxNode);

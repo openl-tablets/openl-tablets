@@ -5,7 +5,19 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.1.xsd"
        default-autowire="no">
 
-    <!-- Either webstudio-beans.xml or installer-beans.xml. Determined in StartupListener -->
-    <import resource="${webstudio.mode}-beans.xml" />
+    <bean id="versionProperties" class="org.openl.info.OpenLVersion" />
+
+    <bean class="org.springframework.beans.factory.config.CustomScopeConfigurer">
+        <property name="scopes">
+            <map>
+                <entry key="view">
+                    <bean class="org.openl.rules.webstudio.web.jsf.ViewScope"/>
+                </entry>
+            </map>
+        </property>
+    </bean>
+
+    <!-- Either webstudio-true.xml or webstudio-false.xml. -->
+    <import resource="webstudio-${webstudio.configured}.xml" />
 
 </beans>

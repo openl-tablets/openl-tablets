@@ -1,8 +1,10 @@
 package org.openl.rules.data;
 
-import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,6 +35,7 @@ import org.openl.syntax.impl.IdentifierNode;
 import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.types.impl.CollectionElementField;
 import org.openl.types.impl.CollectionType;
@@ -43,8 +46,15 @@ import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.openl.util.text.TextInterval;
 import org.openl.vm.IRuntimeEnv;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataTableBindHelper {
+
+    private DataTableBindHelper() {
+    }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DataTableBindHelper.class);
 
     private static final char INDEX_ROW_REFERENCE_START_SYMBOL = '>';
 
@@ -62,9 +72,9 @@ public class DataTableBindHelper {
 
     // patter for field like addressArry[0]
     public static final Pattern COLLECTION_ACCESS_BY_INDEX_PATTERN = Pattern
-        .compile("\\s*[^\\:\\s]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+        .compile("\\s*[^\\:\\s\\[\\]]+\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
     public static final Pattern COLLECTION_ACCESS_BY_KEY_PATTERN = Pattern
-        .compile("\\s*[^\\:\\s]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
+        .compile("\\s*[^\\:\\s\\[\\]]+\\s*\\[\\s*(\\\".*\\\"|[0-9]+)\\s*\\]\\s*(\\:\\s*[^\\:\\s]+|)\\s*$");
 
     static final Pattern THIS_ARRAY_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*$");
     static final Pattern THIS_LIST_ACCESS_PATTERN = Pattern.compile("\\s*\\[\\s*[0-9]+\\s*\\]\\s*(\\:\\s*[^\\:]+|)$");
@@ -179,7 +189,6 @@ public class DataTableBindHelper {
                 }
             }
         }
-
         return false;
     }
 
@@ -195,6 +204,7 @@ public class DataTableBindHelper {
 
         int count = 0;
         int width = dataTable.getWidth();
+        Set<String> uniqueFieldNames = new HashSet<>();
 
         for (int i = 0; i < width; ++i) {
 
@@ -207,6 +217,33 @@ public class DataTableBindHelper {
             // Remove extra spaces.
             //
             fieldName = StringUtils.trim(fieldName);
+            if (!uniqueFieldNames.add(fieldName)) {
+                continue; // don't count duplicates
+            }
+            // if it's field chain started with array index
+            IOpenClass openClass = tableType;
+            while (openClass.isArray() && fieldName.charAt(0) == '[') {
+                boolean arrayIndex = false;
+                int endIndex = fieldName.indexOf(']');
+                for (int j = 1; j < endIndex; j++) {
+                    char ch = fieldName.charAt(j);
+                    arrayIndex = Character.isDigit(ch);
+                    if (!arrayIndex) {
+                        break; // stop parsing if index isn't numeric
+                    }
+                }
+                if (!arrayIndex) {
+                    break;
+                }
+                openClass = openClass.getComponentClass();
+                if (!openClass.isArray()) {
+                    endIndex++;
+                    if (fieldName.length() <= endIndex || fieldName.charAt(endIndex) != '.') {
+                        endIndex--;
+                    }
+                }
+                fieldName = fieldName.substring(endIndex + 1);
+            }
 
             // if it is field chain get first token
             int dotIndex = fieldName.indexOf('.');
@@ -219,7 +256,7 @@ public class DataTableBindHelper {
                 fieldName = fieldName.substring(0, brIndex);
             }
 
-            IOpenField field = findField(fieldName, null, tableType);
+            IOpenField field = findField(fieldName, null, openClass);
 
             if (field != null && !field.isConst() && field.isWritable()) {
                 count++;
@@ -308,7 +345,7 @@ public class DataTableBindHelper {
         ILogicalTable resultTable = null;
 
         if (tableBody != null) {
-            if (isHorizontalTable(tableBody, tableType)) {
+            if (tableBody.getWidth() == 1 || isHorizontalTable(tableBody, tableType)) {
                 resultTable = tableBody;
             } else {
                 resultTable = tableBody.transpose();
@@ -475,10 +512,12 @@ public class DataTableBindHelper {
         int width = descriptorRows.getWidth();
         ColumnDescriptor[] columnDescriptors = new ColumnDescriptor[width];
 
-        List<IdentifierNode[]> columnIdentifiers = getColumnIdentifiers(bindingContext, table, descriptorRows);
-
-        for (int columnNum = 0; columnNum < columnIdentifiers.size(); columnNum++) {
-            IdentifierNode[] fieldAccessorChainTokens = columnIdentifiers.get(columnNum);
+        LinkedHashSet<IdentifierNodesBucket> columnIdentifiers = getColumnIdentifiers(bindingContext,
+            table,
+            descriptorRows);
+        int columnNum = 0;
+        for (IdentifierNodesBucket node : columnIdentifiers) {
+            IdentifierNode[] fieldAccessorChainTokens = node.getNode();
             if (fieldAccessorChainTokens != null) {
 
                 IOpenField descriptorField = null;
@@ -534,18 +573,17 @@ public class DataTableBindHelper {
 
                 columnDescriptors[columnNum] = currentColumnDescriptor;
             }
+            columnNum++;
         }
 
         boolean hasSupportMultirowsAfter = false;
 
-        for (int columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
+        for (columnNum = columnIdentifiers.size() - 1; columnNum >= 0; columnNum--) {
             if (columnDescriptors[columnNum] != null) {
                 if (hasSupportMultirowsAfter) {
                     columnDescriptors[columnNum].setSupportMultirows(true);
-                } else {
-                    if (columnDescriptors[columnNum].isSupportMultirows()) {
-                        hasSupportMultirowsAfter = true;
-                    }
+                } else if (columnDescriptors[columnNum].isSupportMultirows()) {
+                    hasSupportMultirowsAfter = true;
                 }
             }
         }
@@ -559,13 +597,12 @@ public class DataTableBindHelper {
      *            <code>null</code>.
      * @param table is needed only for error processing. Can be <code>null</code>.
      */
-    public static List<IdentifierNode[]> getColumnIdentifiers(IBindingContext bindingContext,
+    public static LinkedHashSet<IdentifierNodesBucket> getColumnIdentifiers(IBindingContext bindingContext,
             ITable table,
             ILogicalTable descriptorRows) {
         int width = descriptorRows.getWidth();
-        List<IdentifierNode[]> identifiers = new ArrayList<>();
+        LinkedHashSet<IdentifierNodesBucket> identifiers = new LinkedHashSet<>();
         for (int columnNum = 0; columnNum < width; columnNum++) {
-
             GridCellSourceCodeModule cellSourceModule = getCellSourceModule(descriptorRows, columnNum);
             cellSourceModule.update(bindingContext);
 
@@ -579,20 +616,25 @@ public class DataTableBindHelper {
                     fieldAccessorChainTokens = trimAndSplitPrecisionToken(
                         Tokenizer.tokenize(cellSourceModule, CODE_DELIMETERS));
                 } catch (OpenLCompilationException e) {
+                    LOG.debug("Error occurred: ", e);
                     String message = String.format("Cannot parse field source '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                 }
-
-                if (contains(identifiers, fieldAccessorChainTokens)) {
+                if (identifiers.contains(new IdentifierNodesBucket(fieldAccessorChainTokens))) {
                     String message = String.format("Found duplicate of field '%s'", code);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                 } else {
-                    identifiers.add(fieldAccessorChainTokens);
+                    boolean added = identifiers.add(new IdentifierNodesBucket(fieldAccessorChainTokens));
+                    if (!added) {
+                        String message = String.format("Found duplicate of field '%s'", code);
+                        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, cellSourceModule);
+                        bindingContext.addError(error);
+                    }
                 }
             } else {
-                identifiers.add(null);
+                identifiers.add(new IdentifierNodesBucket(null));
             }
         }
         return identifiers;
@@ -690,7 +732,6 @@ public class DataTableBindHelper {
     }
 
     private static IOpenClass getTypeForCollection(IdentifierNode identifierNode,
-            ITable table,
             TestMethodOpenClass testMethodOpenClass,
             IBindingContext bindingContext) {
         int typeSeparatorIndex = identifierNode.getIdentifier().indexOf(':');
@@ -722,7 +763,7 @@ public class DataTableBindHelper {
         if (type == null) {
             String message = String.format("Cannot bind node: '%s'. Cannot find type: '%s'.", identifierNode, typeName);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, identifierNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
         }
         return type;
     }
@@ -759,7 +800,7 @@ public class DataTableBindHelper {
                 if (!(fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementWithMultiRowField)) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils
                         .createError("Primary key was defined incorrectly.", fieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     continue;
                 }
                 // Multi-rows support. PK for arrays.
@@ -789,7 +830,7 @@ public class DataTableBindHelper {
             if (fieldIndex == 0 && StringUtils.matches(THIS_LIST_ACCESS_PATTERN,
                 identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
                     .isAssignable(type.getInstanceClass(), List.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, table, null, bindingContext);
+                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionIndex(fieldNameNode),
                     elementType,
                     CollectionType.LIST);
@@ -800,7 +841,7 @@ public class DataTableBindHelper {
             if (fieldIndex == 0 && StringUtils.matches(THIS_MAP_ACCESS_PATTERN,
                 identifier) && !(type instanceof TestMethodOpenClass) && ClassUtils
                     .isAssignable(type.getInstanceClass(), Map.class)) {
-                IOpenClass elementType = getTypeForCollection(fieldNameNode, table, null, bindingContext);
+                IOpenClass elementType = getTypeForCollection(fieldNameNode, null, bindingContext);
                 fieldAccessorChain[fieldIndex] = new ThisCollectionElementField(getCollectionKey(fieldNameNode),
                     elementType);
                 loadedFieldType = elementType;
@@ -828,8 +869,9 @@ public class DataTableBindHelper {
             } else {
                 fieldInChain = getWritableField(bindingContext, fieldNameNode, table, loadedFieldType);
 
-                if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && (fieldInChain.getType()
-                    .isArray() || ClassUtils.isAssignable(fieldInChain.getType().getInstanceClass(), List.class))) {
+                if (fieldIndex != fieldAccessorChain.length - 1 && fieldInChain != null && fieldInChain
+                    .getType() != NullOpenClass.the && (fieldInChain.getType()
+                        .isArray() || ClassUtils.isAssignable(fieldInChain.getType().getInstanceClass(), List.class))) {
                     fieldInChain = getWritableCollectionElement(bindingContext,
                         fieldNameNode,
                         table,
@@ -839,13 +881,11 @@ public class DataTableBindHelper {
                 }
             }
 
-            if (fieldIndex > 0 && (fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField) && fieldAccessorChain[fieldIndex - 1]
+            if (fieldIndex > 0 && ((fieldAccessorChain[fieldIndex - 1] instanceof CollectionElementField || fieldAccessorChain[fieldIndex - 1] instanceof SpreadsheetResultField)) && fieldAccessorChain[fieldIndex - 1]
                 .getType()
-                .equals(JavaOpenClass.OBJECT)) {
-                if (StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
-                    AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
-                    aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
-                }
+                .equals(JavaOpenClass.OBJECT) && StringUtils.matches(SPREADSHEETRESULT_FIELD_PATTERN, identifier)) {
+                AOpenField aOpenField = (AOpenField) fieldAccessorChain[fieldIndex - 1];
+                aOpenField.setType(JavaOpenClass.getOpenClass(SpreadsheetResult.class));
             }
 
             if (fieldInChain == null) {
@@ -895,6 +935,7 @@ public class DataTableBindHelper {
 
             return Integer.parseInt(txtIndex);
         } catch (Exception e) {
+            LOG.debug("Ignored error: ", e);
             return null;
         }
     }
@@ -913,13 +954,6 @@ public class DataTableBindHelper {
         }
 
         return getFieldName(fieldName);
-    }
-
-    private static void processError(IBindingContext bindingContext, ITable table, SyntaxNodeException error) {
-        if (table != null && table.getTableSyntaxNode() != null) {
-            table.getTableSyntaxNode().addError(error);
-        }
-        bindingContext.addError(error);
     }
 
     /**
@@ -967,11 +1001,13 @@ public class DataTableBindHelper {
                     sb.toString(),
                     fieldName);
             } else {
-                errorMessage = String
-                    .format("Field '%s' is not found in type '%s'.", fieldName, loadedFieldType.getName());
+                errorMessage = String.format("%s '%s' is not found in type '%s'.",
+                    loadedFieldType.isStatic() ? "Static field" : "Field",
+                    fieldName,
+                    loadedFieldType.getName());
             }
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(errorMessage, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -979,7 +1015,7 @@ public class DataTableBindHelper {
             String message = String
                 .format("Field '%s' is not writable in type '%s'.", fieldName, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1018,20 +1054,21 @@ public class DataTableBindHelper {
         }
 
         if (field == null) {
-            String message = String.format("Field '%s' is not found.", name);
+            String message = String
+                .format("%s '%s' is not found.", loadedFieldType.isStatic() ? "Static field" : "Field", name);
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
         if (!ClassUtils.isAssignable(field.getType().getInstanceClass(), Map.class) && !ClassUtils.isAssignable(
             field.getType().getInstanceClass(),
-            List.class) && !field.getType().isArray() && !Object.class.equals(field.getType().getInstanceClass())) {
+            List.class) && !field.getType().isArray() && Object.class != field.getType().getInstanceClass()) {
             String message = String.format("Expected a collection type for field '%s', but found type '%s'.",
                 name,
                 field.getType().toString());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1039,7 +1076,6 @@ public class DataTableBindHelper {
         if (multiRowElement) {
             if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    table,
                     loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                     bindingContext);
                 collectionAccessField = new CollectionElementWithMultiRowField(field,
@@ -1047,7 +1083,7 @@ public class DataTableBindHelper {
                     elementType,
                     CollectionType.LIST);
             } else {
-                if (!field.getType().isArray() && Object.class.equals(field.getType().getInstanceClass())) {
+                if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
                     collectionAccessField = new CollectionElementWithMultiRowField(field,
                         buildRootPathForDatatypeArrayMultiRowElementField(partPathFromRoot, field.getName()),
                         JavaOpenClass.OBJECT,
@@ -1067,16 +1103,16 @@ public class DataTableBindHelper {
                         loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                         bindingContext);
                 } catch (SyntaxNodeException e) {
-                    processError(bindingContext, table, e);
+                    bindingContext.addError(e);
                     return null;
                 } catch (Exception e) {
+                    LOG.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse a map key.",
                         currentFieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     return null;
                 }
                 IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                    table,
                     loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                     bindingContext);
                 collectionAccessField = new CollectionElementField(field, mapKey, elementType);
@@ -1085,19 +1121,19 @@ public class DataTableBindHelper {
                 try {
                     index = getCollectionIndex(currentFieldNameNode);
                 } catch (Exception e) {
+                    LOG.debug("Error occurred: ", e);
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError("Failed to parse an array index.",
                         currentFieldNameNode);
-                    processError(bindingContext, table, error);
+                    bindingContext.addError(error);
                     return null;
                 }
                 if (ClassUtils.isAssignable(field.getType().getInstanceClass(), List.class)) {
                     IOpenClass elementType = getTypeForCollection(currentFieldNameNode,
-                        table,
                         loadedFieldType instanceof TestMethodOpenClass ? (TestMethodOpenClass) loadedFieldType : null,
                         bindingContext);
                     collectionAccessField = new CollectionElementField(field, index, elementType, CollectionType.LIST);
                 } else {
-                    if (!field.getType().isArray() && field.getType().getInstanceClass().equals(Object.class)) {
+                    if (!field.getType().isArray() && Object.class == field.getType().getInstanceClass()) {
                         collectionAccessField = new CollectionElementField(field,
                             index,
                             JavaOpenClass.OBJECT,
@@ -1114,7 +1150,7 @@ public class DataTableBindHelper {
         if (!collectionAccessField.isWritable()) {
             String message = String.format("Field '%s' is not writable in %s.", name, loadedFieldType.getName());
             SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, currentFieldNameNode);
-            processError(bindingContext, table, error);
+            bindingContext.addError(error);
             return null;
         }
 
@@ -1133,16 +1169,15 @@ public class DataTableBindHelper {
                 IOpenClass keyOpenClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
                     tableSyntaxNode.getHeader().getCollectParameters()[0]);
                 if (keyOpenClass != null) {
-                    if (keyOpenClass.getInstanceClass() == String.class) {
-                        if (StringUtils.matches(QUOTED, s)) {
-                            s = s.substring(1, s.length() - 1);
-                        }
+                    if (keyOpenClass.getInstanceClass() == String.class && StringUtils.matches(QUOTED, s)) {
+                        s = s.substring(1, s.length() - 1);
                     }
                     try {
                         IString2DataConvertor<?> converter = String2DataConvertorFactory
                             .getConvertor(keyOpenClass.getInstanceClass());
                         return converter.parse(s, null);
                     } catch (Exception e) {
+                        LOG.debug("Error occurred: ", e);
                         throw SyntaxNodeExceptionUtils.createError(
                             String.format("Cannot convert a key value '%s' to type '%s'.", s, keyOpenClass.getName()),
                             currentFieldNameNode);
@@ -1163,51 +1198,11 @@ public class DataTableBindHelper {
         }
     }
 
-    private static boolean contains(List<IdentifierNode[]> identifiers, IdentifierNode[] identifier) {
-        for (IdentifierNode[] existIdentifier : identifiers) {
-            if (isEqualsIdentifier(existIdentifier, identifier)) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static boolean isEqualsIdentifier(IdentifierNode[] identifier1, IdentifierNode[] identifier2) {
-
-        if (identifier1 == null || identifier2 == null) {
-            return false;
-        }
-
-        int length1 = identifier1.length;
-        int length2 = identifier2.length;
-
-        // if the last identifier is precision then decrease the length
-        if (isPrecisionNode(identifier1[length1 - 1])) {
-            length1--;
-        }
-        if (isPrecisionNode(identifier2[length2 - 1])) {
-            length2--;
-        }
-
-        if (length1 != length2) {
-            return false;
-        }
-
-        for (int i = 0; i < length1; i++) {
-            if (!identifier1[i].getIdentifier().equals(identifier2[i].getIdentifier())) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    private static boolean isPrecisionNode(IdentifierNode node) {
+    static boolean isPrecisionNode(IdentifierNode node) {
         return StringUtils.matches(PRECISION_PATTERN, node.getIdentifier());
     }
 
-    private static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
+    static final NewInstanceBuilder STUB_SPR_NEW_INSTANCE_BUILDER = new StubSpreadsheetResultNewInstanceBuilder();
 
     private static final class StubSpreadsheetResultNewInstanceBuilder implements NewInstanceBuilder {
         @Override

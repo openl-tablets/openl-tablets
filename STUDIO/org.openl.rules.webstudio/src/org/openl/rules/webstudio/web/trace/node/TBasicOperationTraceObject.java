@@ -8,11 +8,11 @@ import org.openl.rules.tbasic.compile.AlgorithmOperationSource;
 public class TBasicOperationTraceObject extends SimpleTracerObject {
 
     private HashMap<String, Object> fieldValues;
-    private String nameForDebug;
-    private String uri;
-    private IGridRegion gridRegion;
-    private String operationName;
-    private int operationRow;
+    private final String nameForDebug;
+    private final String uri;
+    private final IGridRegion gridRegion;
+    private final String operationName;
+    private final int operationRow;
 
     TBasicOperationTraceObject(AlgorithmOperationSource sourceCode, String nameForDebug) {
         super("tbasicOperation");

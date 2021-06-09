@@ -5,26 +5,26 @@ import java.io.InputStream;
 import java.util.Objects;
 
 import org.openl.rules.common.ProjectException;
-import org.openl.rules.project.abstraction.AProject;
-import org.openl.rules.project.abstraction.AProjectArtefact;
-import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.IProject;
+import org.openl.rules.project.abstraction.IProjectArtefact;
+import org.openl.rules.project.abstraction.IProjectResource;
 import org.openl.rules.ruleservice.core.Resource;
 import org.openl.rules.ruleservice.core.ResourceLoader;
 
 class ResourceLoaderImpl implements ResourceLoader {
 
-    private AProject project;
+    private final IProject project;
 
-    public ResourceLoaderImpl(AProject project) {
+    public ResourceLoaderImpl(IProject project) {
         this.project = Objects.requireNonNull(project, "project cannot be null");
     }
 
     @Override
     public Resource getResource(String name) {
         try {
-            AProjectArtefact artefact = project.getArtefact(name);
-            if (artefact instanceof AProjectResource) {
-                final AProjectResource resource = (AProjectResource) artefact;
+            IProjectArtefact artefact = project.getArtefact(name);
+            if (artefact instanceof IProjectResource) {
+                final IProjectResource resource = (IProjectResource) artefact;
                 return new Resource() {
                     @Override
                     public InputStream getResourceAsStream() throws IOException {

@@ -2,12 +2,19 @@ package org.openl.binding.impl.module;
 
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
+import org.openl.binding.impl.BindHelper;
 import org.openl.binding.impl.BindingContextDelegator;
 import org.openl.binding.impl.LocalFrameBuilder;
 import org.openl.syntax.impl.ISyntaxConstants;
-import org.openl.types.*;
+import org.openl.types.IMethodSignature;
+import org.openl.types.IOpenClass;
+import org.openl.types.IOpenField;
+import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
+import org.openl.types.impl.MethodSignature;
 import org.openl.util.RuntimeExceptionWrapper;
 
 /**
@@ -20,13 +27,13 @@ public class MethodBindingContext extends BindingContextDelegator {
 
     public static final int DEFAULT_CONTEXT_LEVEL = 1;
 
-    LocalFrameBuilder localFrame = new LocalFrameBuilder();
+    final LocalFrameBuilder localFrame = new LocalFrameBuilder();
 
     IOpenClass returnType;
-    IOpenMethodHeader header;
+    final IOpenMethodHeader header;
 
-    boolean searchInParameterContext;
-    int parameterContextDepthLevel;
+    final boolean searchInParameterContext;
+    final int parameterContextDepthLevel;
 
     ILocalVar[] paramVars;
 
@@ -43,8 +50,18 @@ public class MethodBindingContext extends BindingContextDelegator {
         IOpenClass[] params = signature.getParameterTypes();
         for (int i = 0; i < params.length; i++) {
             try {
-                localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, signature.getParameterName(i), params[i]);
+                String pName = signature.getParameterName(i);
+                if (pName != null) {
+                    localFrame.addVar(ISyntaxConstants.THIS_NAMESPACE, pName, params[i]);
+                }
             } catch (DuplicatedVarException e) {
+                if (signature instanceof MethodSignature) {
+                    IParameterDeclaration paramDeclaration = ((MethodSignature) signature).getParameterDeclaration(i);
+                    if (paramDeclaration != null && paramDeclaration.getModule() != null) {
+                        BindHelper.processError(e, paramDeclaration.getModule(), delegate);
+                        continue;
+                    }
+                }
                 throw RuntimeExceptionWrapper.wrap(e.getMessage(), e);
             }
         }
@@ -64,7 +81,7 @@ public class MethodBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField var = localFrame.findLocalVar(namespace, name);
 
         if (var != null) {

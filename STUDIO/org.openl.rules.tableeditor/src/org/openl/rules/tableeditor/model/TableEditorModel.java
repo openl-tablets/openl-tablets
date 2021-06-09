@@ -50,11 +50,11 @@ public class TableEditorModel {
      */
     private static final int NUMBER_PROPERTIES_COLUMNS = 3;
 
-    private IOpenLTable table;
+    private final IOpenLTable table;
 
-    private IGridTable gridTable;
-    private String view;
-    private boolean showFormulas = false;
+    private final IGridTable gridTable;
+    private final String view;
+    private boolean showFormulas;
     private boolean collapseProps = false;
     private String beforeEditAction;
     private String beforeSaveAction;
@@ -184,10 +184,6 @@ public class TableEditorModel {
         return xlsgrid.getSheetSource();
     }
 
-    public synchronized void saveAs(String fname) throws IOException {
-        getSheetSource().getWorkbookSource().saveAs(fname);
-    }
-
     public synchronized void setCellValue(int row, int col, String value, IFormatter formatter) {
         IGridRegion originalRegion = getOriginalTableRegion();
         int gcol = originalRegion.getLeft() + col;
@@ -199,7 +195,7 @@ public class TableEditorModel {
         } else {
             ICell cell = gridTable.getGrid().getCell(gcol, grow);
             CellMetaInfo metaInfo = getMetaInfoReader().getMetaInfo(grow, gcol);
-            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo);
+            dataFormatter = XlsDataFormatterFactory.getFormatter(cell, metaInfo, false);
 
             // Don't reformat value if value is belong to domain
             IOpenClass dataType = metaInfo == null ? null : metaInfo.getDataType();

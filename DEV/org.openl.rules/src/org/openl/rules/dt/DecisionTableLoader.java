@@ -1,22 +1,22 @@
 package org.openl.rules.dt;
 
+import static org.openl.rules.dt.DecisionTableHelper.isLookup;
 import static org.openl.rules.dt.DecisionTableHelper.isSimple;
 import static org.openl.rules.dt.DecisionTableHelper.isSmart;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.formula.functions.T;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.dt.DTScale.RowScale;
 import org.openl.rules.dt.element.Action;
 import org.openl.rules.dt.element.ActionType;
@@ -29,12 +29,13 @@ import org.openl.rules.table.IGridTable;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.LogicalTableHelper;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
-import org.openl.rules.utils.ParserUtils;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.ClassUtils;
+import org.openl.util.ParserUtils;
 
 /**
  * @author snshor
@@ -46,6 +47,8 @@ public class DecisionTableLoader {
      * protected modified is for tests access.
      */
     static final String EMPTY_BODY = "Decision table must contain body section.";
+
+    private static final int MAX_COLUMNS_IN_DT = 100;
 
     private static class TableStructure {
         private final List<IBaseCondition> conditions = new ArrayList<>();
@@ -84,9 +87,9 @@ public class DecisionTableLoader {
             DecisionTable decisionTable,
             OpenL openl,
             ModuleOpenClass module,
-            boolean transponse,
+            boolean transpose,
             IBindingContext bindingContext) throws Exception {
-        TableStructure tableStructure = loadTableStructure(tableSyntaxNode, decisionTable, transponse, bindingContext);
+        TableStructure tableStructure = loadTableStructure(tableSyntaxNode, decisionTable, transpose, bindingContext);
         IBaseCondition[] conditionsArray = tableStructure.conditions.toArray(IBaseCondition.EMPTY);
         IBaseAction[] actionsArray = tableStructure.actions.toArray(IBaseAction.EMPTY);
         decisionTable.bindTable(conditionsArray,
@@ -98,40 +101,120 @@ public class DecisionTableLoader {
             tableStructure.columnsNumber);
     }
 
+    private enum Direction {
+        UNKNOWN,
+        TRANSPOSED,
+        NORMAL;
+    }
+
+    private boolean isLookupByHConditions(ILogicalTable tableBody) {
+        int numberOfHCondition = DecisionTableHelper.getNumberOfHConditions(tableBody);
+        int firstColumnHeight = tableBody.getSource().getCell(0, 0).getHeight();
+        int firstColumnForHCondition = DecisionTableHelper
+            .getFirstColumnForHCondition(tableBody, numberOfHCondition, firstColumnHeight);
+        if (firstColumnForHCondition > 0 && firstColumnHeight != tableBody.getSource()
+            .getCell(firstColumnForHCondition, 0)
+            .getHeight()) {
+            final DecisionTableHelper.NumberOfColumnsUnderTitleCounter numberOfColumnsUnderTitleCounter = new DecisionTableHelper.NumberOfColumnsUnderTitleCounter(
+                tableBody,
+                firstColumnHeight);
+            int i = firstColumnForHCondition;
+            while (i < tableBody.getSource().getWidth()) {
+                int c = numberOfColumnsUnderTitleCounter.get(i);
+                if (c > 1) {
+                    return true;
+                }
+                i = i + tableBody.getSource().getCell(i, 0).getWidth();
+            }
+        }
+        return false;
+    }
+
+    private Direction detectTableDirection(TableSyntaxNode tableSyntaxNode) {
+        Direction direction = Direction.UNKNOWN;
+        if (isSmart(tableSyntaxNode)) {
+            ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+            if (tableBody != null && isLookup(tableSyntaxNode)) {
+                if (isLookupByHConditions(tableBody)) {
+                    direction = Direction.NORMAL;
+                }
+                if (isLookupByHConditions(tableBody.transpose())) {
+                    if (Direction.UNKNOWN.equals(direction)) {
+                        direction = Direction.TRANSPOSED;
+                    } else {
+                        direction = Direction.UNKNOWN;
+                    }
+                }
+            }
+        }
+        return direction;
+    }
+
     public void loadAndBind(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             OpenL openl,
             ModuleOpenClass module,
             IBindingContext bindingContext) throws Exception {
-        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-            loadAndBind(tableSyntaxNode, decisionTable, openl, module, false, bindingContext);
-            return null;
-        }, bindingContext);
+        ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        int height = tableBody == null ? 0 : tableBody.getHeight();
+        int width = tableBody == null ? 0 : tableBody.getWidth();
+        Direction direction = detectTableDirection(tableSyntaxNode);
+        boolean f = width > height && width >= MAX_COLUMNS_IN_DT;
+        if (Direction.TRANSPOSED.equals(direction)) {
+            f = true;
+        } else if (Direction.NORMAL.equals(direction)) {
+            f = false;
+        }
+        final boolean firstTransposedThenNormal = f;
+        CompilationErrors loadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+            () -> loadAndBind(tableSyntaxNode, decisionTable, openl, module, firstTransposedThenNormal, bindingContext),
+            bindingContext);
         final DTInfo dtInfo = decisionTable.getDtInfo();
         if (loadAndBindErrors != null) {
-            if (DecisionTableHelper.isSimple(tableSyntaxNode) || DecisionTableHelper.isSmart(tableSyntaxNode)) {
-                CompilationErrors transponsedLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode, () -> {
-                    loadAndBind(tableSyntaxNode, decisionTable, openl, module, true, bindingContext);
-                    return null;
-                }, bindingContext);
-                if (transponsedLoadAndBindErrors == null) {
+            // If table have errors, try to compile transposed variant.
+            // Note that compiling transposed table consumes memory twice and for big tables it does not make any sense
+            // for smart tables
+            if (Direction.UNKNOWN.equals(direction) && (tableBody == null || !isSmart(
+                tableSyntaxNode) || (firstTransposedThenNormal ? width : height) <= MAX_COLUMNS_IN_DT)) {
+                CompilationErrors altLoadAndBindErrors = compileAndRevertIfFails(tableSyntaxNode,
+                    () -> loadAndBind(tableSyntaxNode,
+                        decisionTable,
+                        openl,
+                        module,
+                        !firstTransposedThenNormal,
+                        bindingContext),
+                    bindingContext);
+                if (altLoadAndBindErrors == null) {
                     return;
                 } else {
-                    // Select compilation with less errors count
-                    if (loadAndBindErrors.getBindingSyntaxNodeException().size() > transponsedLoadAndBindErrors
-                        .getBindingSyntaxNodeException()
-                        .size() || loadAndBindErrors.getSyntaxNodeExceptions().length > transponsedLoadAndBindErrors
-                            .getSyntaxNodeExceptions().length && loadAndBindErrors.getBindingSyntaxNodeException()
-                                .size() == transponsedLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
-                        transponsedLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
-                        if (transponsedLoadAndBindErrors.getEx() != null) {
-                            throw transponsedLoadAndBindErrors.getEx();
+                    if (tableBody == null || isSmart(tableSyntaxNode) || isSimple(tableSyntaxNode)) {
+                        // Select compilation with less errors count for smart tables
+                        if (isNotUnmatchedTableError(
+                            altLoadAndBindErrors) && loadAndBindErrors.getBindingSyntaxNodeException()
+                                .size() > altLoadAndBindErrors.getBindingSyntaxNodeException().size()) {
+                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
+                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                            if (altLoadAndBindErrors.getEx() != null) {
+                                throw altLoadAndBindErrors.getEx();
+                            }
+                            return;
                         }
-                        return;
+                    } else {
+                        // Try to analyze what errors is better to use based on table headers
+                        if (!firstTransposedThenNormal && looksLikeVertical(
+                            tableBody) || firstTransposedThenNormal && looksLikeHorizontal(tableBody)) {
+                            putTableForBusinessView(tableSyntaxNode, !firstTransposedThenNormal);
+                            altLoadAndBindErrors.apply(tableSyntaxNode, bindingContext);
+                            if (altLoadAndBindErrors.getEx() != null) {
+                                throw altLoadAndBindErrors.getEx();
+                            }
+                            return;
+                        }
                     }
                 }
                 decisionTable.setDtInfo(dtInfo);
             }
+            putTableForBusinessView(tableSyntaxNode, firstTransposedThenNormal);
             loadAndBindErrors.apply(tableSyntaxNode, bindingContext);
             if (loadAndBindErrors.getEx() != null) {
                 throw loadAndBindErrors.getEx();
@@ -139,11 +222,102 @@ public class DecisionTableLoader {
         }
     }
 
+    private boolean isNotUnmatchedTableError(CompilationErrors altLoadAndBindErrors) {
+        Throwable ex = altLoadAndBindErrors.getEx();
+        if (ex != null) {
+            if (ex instanceof SyntaxNodeException) {
+                ex = ex.getCause();
+            }
+            return !(ex instanceof DTUnmatchedCompilationException);
+        }
+        return true;
+    }
+
+    private static boolean looksLikeHorizontal(ILogicalTable table) {
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return true;
+        }
+
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return false;
+        }
+
+        int validCnt1 = countValidHeaders(table);
+        int validCnt2 = countValidHeaders(table.transpose());
+
+        int invalidCnt1 = table.getWidth() - validCnt1 - countEmptyHeaders(table);
+        int invalidCnt2 = table.getHeight() - validCnt2 - countEmptyHeaders(table.transpose());
+
+        if (invalidCnt1 == invalidCnt2) {
+            if (validCnt1 != validCnt2) {
+                return validCnt1 > validCnt2;
+            }
+            return table.getWidth() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        } else {
+            return invalidCnt1 < invalidCnt2;
+        }
+    }
+
+    private static boolean looksLikeVertical(ILogicalTable table) {
+        if (table.getHeight() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return true;
+        }
+
+        if (table.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            return false;
+        }
+
+        int validCnt1 = countValidHeaders(table);
+        int validCnt2 = countValidHeaders(table.transpose());
+
+        int invalidCnt1 = table.getWidth() - validCnt1 - countEmptyHeaders(table);
+        int invalidCnt2 = table.getHeight() - validCnt2 - countEmptyHeaders(table.transpose());
+
+        if (invalidCnt1 == invalidCnt2) {
+            if (validCnt1 != validCnt2) {
+                return validCnt1 < validCnt2;
+            }
+            return table.getHeight() <= IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
+        } else {
+            return invalidCnt1 > invalidCnt2;
+        }
+    }
+
+    private static int countValidHeaders(ILogicalTable table) {
+        int width = table.getWidth();
+        int count = 0;
+        for (int i = 0; i < width; i++) {
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            if (value != null) {
+                value = value.toUpperCase();
+                count += DecisionTableHelper.isValidConditionHeader(value) || DecisionTableHelper
+                    .isValidActionHeader(value) || DecisionTableHelper.isValidRetHeader(value) || DecisionTableHelper
+                        .isValidCRetHeader(value) || DecisionTableHelper.isValidKeyHeader(value) ? 1 : 0;
+            }
+        }
+        return count;
+    }
+
+    private static int countEmptyHeaders(ILogicalTable table) {
+        int width = table.getWidth();
+        int count = 0;
+        for (int i = 0; i < width; i++) {
+            String value = table.getColumn(i).getSource().getCell(0, 0).getStringValue();
+            if (StringUtils.isBlank(value)) {
+                count++;
+            }
+        }
+        return count;
+    }
+
     private static void validateCollectSyntaxNode(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             IBindingContext bindingContext) throws SyntaxNodeException {
         int parametersCount = tableSyntaxNode.getHeader().getCollectParameters().length;
         IOpenClass type = decisionTable.getType();
+        if (NullOpenClass.isAnyNull(type)) {
+            return;
+        }
         if ((type.isArray() || ClassUtils.isAssignable(type.getInstanceClass(),
             Collection.class)) && parametersCount > 1) {
             throw SyntaxNodeExceptionUtils
@@ -174,7 +348,7 @@ public class DecisionTableLoader {
 
     private TableStructure loadTableStructure(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
-            boolean transponse,
+            boolean transpose,
             IBindingContext bindingContext) throws SyntaxNodeException {
 
         if (DecisionTableHelper.isCollect(tableSyntaxNode)) {
@@ -186,7 +360,7 @@ public class DecisionTableLoader {
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError(EMPTY_BODY, tableSyntaxNode);
         }
-        if (transponse) {
+        if (transpose) {
             tableBody = tableBody.transpose();
         }
         // preprocess decision tables (without conditions and return headers)
@@ -205,32 +379,34 @@ public class DecisionTableLoader {
                     tableSyntaxNode);
             }
         }
+        int height = tableBody.getHeight();
+        if (height < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
+        }
+        if (height == IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
+            bindingContext
+                .addMessage(OpenLMessagesUtils.newWarnMessage("There are no rule rows in the table.", tableSyntaxNode));
+        }
         ILogicalTable toParse = tableBody;
 
         // process lookup decision table.
         //
-
         int nHConditions = DecisionTableHelper.countHConditionsByHeaders(toParse);
         int nVConditions = DecisionTableHelper.countVConditionsByHeaders(toParse);
         TableStructure tableStructure = new TableStructure();
-        if (nHConditions > 0) {
+        if (nHConditions > 0 && height > IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
             try {
                 DecisionTableLookupConvertor dtlc = new DecisionTableLookupConvertor();
-
                 IGridTable convertedTable = dtlc.convertTable(toParse);
-                ILogicalTable offsetConvertedTable = LogicalTableHelper.logicalTable(convertedTable);
-                toParse = offsetConvertedTable.transpose();
+                toParse = LogicalTableHelper.logicalTable(convertedTable);
                 tableStructure.info = new DTInfo(nHConditions, nVConditions, dtlc.getScale());
             } catch (OpenLCompilationException e) {
                 throw SyntaxNodeExceptionUtils.createError(e, tableSyntaxNode);
             } catch (Exception e) {
                 throw SyntaxNodeExceptionUtils.createError("Cannot convert table.", e, tableSyntaxNode);
             }
-        } else if (DecisionTableHelper.looksLikeVertical(toParse)) {
-            // parsing is based on horizontal representation of decision table.
-            //
-            toParse = toParse.transpose();
         }
+        toParse = toParse.transpose();
 
         if (needToUnmergeFirstRow(toParse)) {
             toParse = unmergeFirstRow(toParse);
@@ -240,37 +416,29 @@ public class DecisionTableLoader {
             tableStructure.info = new DTInfo(nHConditions, nVConditions);
         }
         decisionTable.setDtInfo(tableStructure.info);
-
-        if (toParse.getWidth() < IDecisionTableConstants.SERVICE_COLUMNS_NUMBER) {
-            throw SyntaxNodeExceptionUtils.createError("Invalid structure of decision table.", tableSyntaxNode);
-        }
         tableStructure.columnsNumber = toParse.getWidth() - IDecisionTableConstants.SERVICE_COLUMNS_NUMBER;
 
         // NOTE! this method call depends on upper stacks calls, don`t move it upper.
         //
-        putTableForBusinessView(tableSyntaxNode);
+        putTableForBusinessView(tableSyntaxNode, transpose);
         for (int i = 0; i < toParse.getHeight(); i++) {
             loadRow(decisionTable, tableStructure, toParse, i, bindingContext);
         }
 
-        validateMapReturnType(tableSyntaxNode, decisionTable, tableStructure);
+        validateReturnType(tableSyntaxNode, decisionTable, tableStructure);
         return tableStructure;
     }
 
     private static class CompilationErrors {
-        private SyntaxNodeException[] syntaxNodeExceptions;
-        private List<SyntaxNodeException> bindingSyntaxNodeException;
-        private Collection<OpenLMessage> openLMessages;
-        private Exception ex;
-        private DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
+        private final List<SyntaxNodeException> bindingSyntaxNodeException;
+        private final Collection<OpenLMessage> openLMessages;
+        private final Exception ex;
+        private final DecisionTableMetaInfoReader.MetaInfoHolder metaInfos;
 
-        private CompilationErrors(SyntaxNodeException[] syntaxNodeExceptions,
-                List<SyntaxNodeException> bindingSyntaxNodeException,
+        private CompilationErrors(List<SyntaxNodeException> bindingSyntaxNodeException,
                 Collection<OpenLMessage> openLMessages,
                 DecisionTableMetaInfoReader.MetaInfoHolder metaInfos,
                 Exception ex) {
-            this.syntaxNodeExceptions = Objects.requireNonNull(syntaxNodeExceptions,
-                "syntaxNodeExceptions cannot be null");
             this.bindingSyntaxNodeException = Objects.requireNonNull(bindingSyntaxNodeException,
                 "bindingSyntaxNodeException cannot be null");
             this.openLMessages = Objects.requireNonNull(openLMessages, "openLMessages cannot be null");
@@ -281,7 +449,6 @@ public class DecisionTableLoader {
         private void apply(TableSyntaxNode tableSyntaxNode, IBindingContext bindingContext) {
             bindingSyntaxNodeException.forEach(bindingContext::addError);
             openLMessages.forEach(bindingContext::addMessage);
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
             if (!bindingContext.isExecutionMode()) {
                 DecisionTableMetaInfoReader decisionTableMetaInfoReader = (DecisionTableMetaInfoReader) tableSyntaxNode
                     .getMetaInfoReader();
@@ -293,68 +460,58 @@ public class DecisionTableLoader {
             return ex;
         }
 
-        public SyntaxNodeException[] getSyntaxNodeExceptions() {
-            return syntaxNodeExceptions;
-        }
-
         public List<SyntaxNodeException> getBindingSyntaxNodeException() {
             return bindingSyntaxNodeException;
         }
     }
 
     @FunctionalInterface
-    private interface Supplier<T> {
-        T get() throws Exception;
+    private interface Supplier {
+        void get() throws Exception;
     }
 
     private CompilationErrors compileAndRevertIfFails(TableSyntaxNode tableSyntaxNode,
-            Supplier<T> supplier,
+            Supplier supplier,
             IBindingContext bindingContext) {
-        SyntaxNodeException[] syntaxNodeExceptions = tableSyntaxNode.getErrors();
         DecisionTableMetaInfoReader decisionTableMetaInfoReader = null;
         if (!bindingContext.isExecutionMode()) {
             decisionTableMetaInfoReader = (DecisionTableMetaInfoReader) tableSyntaxNode.getMetaInfoReader();
             decisionTableMetaInfoReader.pushMetaInfos();
         }
-        tableSyntaxNode.clearErrors();
         bindingContext.pushErrors();
         bindingContext.pushMessages();
+        Exception ex = null;
         try {
             supplier.get();
-            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-            if (bindingContext.getErrors().length == 0 && !tableSyntaxNode.hasErrors()) {
-                bindingContext.popErrors().forEach(bindingContext::addError);
-                bindingContext.popMessages().forEach(bindingContext::addMessage);
-                Arrays.stream(newSyntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-                if (decisionTableMetaInfoReader != null) {
-                    DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = decisionTableMetaInfoReader.popMetaInfos();
-                    decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
-                }
-                return null;
-            } else {
-                return new CompilationErrors(newSyntaxNodeExceptions,
-                    bindingContext.popErrors(),
-                    bindingContext.popMessages(),
-                    decisionTableMetaInfoReader != null ? decisionTableMetaInfoReader.popMetaInfos() : null,
-                    null);
-            }
         } catch (Exception e) {
-            SyntaxNodeException[] newSyntaxNodeExceptions = tableSyntaxNode.getErrors();
-            tableSyntaxNode.clearErrors();
-            Arrays.stream(syntaxNodeExceptions).forEach(tableSyntaxNode::addError);
-            return new CompilationErrors(newSyntaxNodeExceptions,
-                bindingContext.popErrors(),
-                bindingContext.popMessages(),
-                decisionTableMetaInfoReader != null ? decisionTableMetaInfoReader.popMetaInfos() : null,
-                e);
+            ex = e;
         }
+        List<SyntaxNodeException> errors = bindingContext.popErrors();
+        Collection<OpenLMessage> messages = bindingContext.popMessages();
+        DecisionTableMetaInfoReader.MetaInfoHolder metaInfos = null;
+        if (decisionTableMetaInfoReader != null) {
+            metaInfos = decisionTableMetaInfoReader.popMetaInfos();
+        }
+        if (errors.isEmpty() && ex == null) {
+            messages.forEach(bindingContext::addMessage);
+            if (decisionTableMetaInfoReader != null) {
+                decisionTableMetaInfoReader.getMetaInfos().merge(metaInfos);
+            }
+            return null;
+        }
+        return new CompilationErrors(errors, messages, metaInfos, ex);
     }
 
-    private void validateMapReturnType(TableSyntaxNode tableSyntaxNode,
+    private void validateReturnType(TableSyntaxNode tableSyntaxNode,
             DecisionTable decisionTable,
             TableStructure tableStructure) throws SyntaxNodeException {
+        if (tableStructure.actions.isEmpty()) {
+            throw SyntaxNodeExceptionUtils
+                .createError("Invalid Decision Table headers: At least one return column header is required.", tableSyntaxNode);
+        }
+        if (NullOpenClass.isAnyNull(decisionTable.getType())) {
+            return;
+        }
         if (ClassUtils.isAssignable(decisionTable.getType().getInstanceClass(), Map.class)) {
             if (tableStructure.hasCollectReturnAction && !tableStructure.hasCollectReturnKeyAction) {
                 throw SyntaxNodeExceptionUtils.createError(
@@ -388,29 +545,27 @@ public class DecisionTableLoader {
      *
      * @param tableSyntaxNode table syntax node
      */
-    private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode) {
+    @SuppressWarnings("StatementWithEmptyBody")
+    private void putTableForBusinessView(TableSyntaxNode tableSyntaxNode, boolean transpose) {
         ILogicalTable tableBody = tableSyntaxNode.getTableBody();
+        if (tableBody == null) {
+            return;
+        }
 
         if (DecisionTableHelper.isSmartDecisionTable(tableSyntaxNode) || DecisionTableHelper
             .isSimpleDecisionTable(tableSyntaxNode) || DecisionTableHelper
                 .isSimpleLookupTable(tableSyntaxNode) || DecisionTableHelper.isSmartLookupTable(tableSyntaxNode)) {
             // if DT is simple, its body does not contain conditions and return headers.
             // so put the body as it is.
-            tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
+        } else if (transpose) {
+            // table is horizontal, so remove service columns.
+            tableBody = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         } else {
-            // need to get the subtable without conditions and return headers.
-            ILogicalTable businessView;
-            if (DecisionTableHelper.looksLikeVertical(tableBody)) {
-                // if table is vertical, remove service rows.
-                businessView = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
-            } else {
-                // table is horizontal, so remove service columns.
-                businessView = tableBody.getColumns(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
-            }
-
-            tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, businessView);
+            // if table is vertical, remove service rows.
+            tableBody = tableBody.getRows(IDecisionTableConstants.SERVICE_COLUMNS_NUMBER - 1);
         }
 
+        tableSyntaxNode.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tableBody);
     }
 
     private String getHeaderStr(int row, ILogicalTable table) {
@@ -437,12 +592,17 @@ public class DecisionTableLoader {
         if (DecisionTableHelper.isConditionHeader(header)) {
             tableStructure.conditions.add(new Condition(header, row, table, getConditionScale(tableStructure, header)));
         } else if (DecisionTableHelper.isValidActionHeader(header)) {
-            tableStructure.actions.add(new Action(header, row, table, ActionType.ACTION, DTScale.getStandardScale()));
+            tableStructure.actions
+                .add(new Action(header, row, table, ActionType.ACTION, DTScale.getStandardScale(), decisionTable));
         } else if (DecisionTableHelper.isValidRuleHeader(header)) {
             addRule(row, table, tableStructure, bindingContext);
         } else if (DecisionTableHelper.isValidKeyHeader(header)) {
-            tableStructure.actions
-                .add(new Action(header, row, table, ActionType.COLLECT_RETURN_KEY, DTScale.getStandardScale()));
+            tableStructure.actions.add(new Action(header,
+                row,
+                table,
+                ActionType.COLLECT_RETURN_KEY,
+                DTScale.getStandardScale(),
+                decisionTable));
             tableStructure.hasCollectReturnKeyAction = true;
         } else if (DecisionTableHelper.isValidRetHeader(header)) {
             if (tableStructure.hasCollectReturnAction) {
@@ -456,7 +616,8 @@ public class DecisionTableLoader {
                         0,
                         bindingContext));
             }
-            tableStructure.actions.add(new Action(header, row, table, ActionType.RETURN, DTScale.getStandardScale()));
+            tableStructure.actions
+                .add(new Action(header, row, table, ActionType.RETURN, DTScale.getStandardScale(), decisionTable));
             if (tableStructure.firstUsedReturnActionHeader == null) {
                 tableStructure.firstUsedReturnActionHeader = header;
             }
@@ -478,8 +639,12 @@ public class DecisionTableLoader {
                 tableStructure.firstUsedReturnActionHeader = header;
             }
             if (validateCollectReturnType(decisionTable)) {
-                tableStructure.actions
-                    .add(new Action(header, row, table, ActionType.COLLECT_RETURN, DTScale.getStandardScale()));
+                tableStructure.actions.add(new Action(header,
+                    row,
+                    table,
+                    ActionType.COLLECT_RETURN,
+                    DTScale.getStandardScale(),
+                    decisionTable));
             } else {
                 if (isSmart(decisionTable.getSyntaxNode()) || isSimple(decisionTable.getSyntaxNode())) {
                     boolean isMap = decisionTable.getSyntaxNode().getHeader().getCollectParameters().length > 0;

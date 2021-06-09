@@ -103,7 +103,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
             }
 
             return res;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             throw RuntimeExceptionWrapper.wrap(t);
         }
     }
@@ -153,7 +153,7 @@ public abstract class AGenericConfiguration extends AConfigurationElement {
         if (urlResource != null) {
             try {
                 new URL(urlResource).openConnection();
-            } catch (Throwable t) {
+            } catch (Exception t) {
                 throw new OpenLConfigurationException("Cannot connect to URL " + urlResource, getUri(), t);
             }
 

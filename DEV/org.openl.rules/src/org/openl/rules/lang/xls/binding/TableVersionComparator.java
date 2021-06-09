@@ -31,7 +31,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
     public int compare(IOpenMethod first, IOpenMethod second) {
         if (!new DimensionPropertiesMethodKey(first).equals(new DimensionPropertiesMethodKey(second))) {
             throw new IllegalArgumentException(
-                "Uncomparable tables. Tables should have similar name, signature and dimension properties.");
+                "Incomparable tables. Tables should have similar name, signature and dimension properties.");
         }
         return compare(PropertiesHelper.getTableProperties(first), PropertiesHelper.getTableProperties(second));
     }
@@ -42,7 +42,7 @@ public final class TableVersionComparator implements Comparator<ITableProperties
 
     @Override
     public int compare(ITableProperties first, ITableProperties second) {
-        Boolean firstActive = first.getActive() == null || first.getActive();
+        boolean firstActive = first.getActive() == null || first.getActive();
         Boolean secondActive = second.getActive() == null || second.getActive();
 
         if (firstActive != secondActive) {

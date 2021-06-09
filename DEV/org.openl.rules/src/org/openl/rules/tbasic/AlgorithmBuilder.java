@@ -1,6 +1,11 @@
 package org.openl.rules.tbasic;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.openl.binding.IBindingContext;
 import org.openl.domain.EnumDomain;
@@ -22,6 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class AlgorithmBuilder {
+    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmBuilder.class);
 
     private static final String LABEL = "label";
     private static final String DESCRIPTION = "description";
@@ -34,9 +40,9 @@ public class AlgorithmBuilder {
     private static final String UNDERSCORE = "_";
 
     // Section Description Operation Condition Action Before After
-    private static class AlgorithmColumn {
-        private String id;
-        private int columnIndex;
+    private static final class AlgorithmColumn {
+        private final String id;
+        private final int columnIndex;
 
         private AlgorithmColumn(String id, int columnIndex) {
             this.id = id;
@@ -58,16 +64,15 @@ public class AlgorithmBuilder {
             for (TableParserSpecificationBean specification : algSpecifications) {
                 algorithmOperations.add(specification.getKeyword());
             }
-            String[] algorithmOperationsArray = algorithmOperations.toArray(new String[0]);
+            String[] algorithmOperationsArray = algorithmOperations.toArray(StringUtils.EMPTY_STRING_ARRAY);
             CELL_META_INFO = new CellMetaInfo(
-                new DomainOpenClass("operation",
+                new DomainOpenClass(OPERATION1,
                     JavaOpenClass.STRING,
                     new EnumDomain<>(algorithmOperationsArray),
                     null),
                 false);
-        } catch (Throwable e) {
-            Logger logger = LoggerFactory.getLogger(AlgorithmBuilder.class);
-            logger.error(e.getMessage(), e);
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
             throw new IllegalStateException(e);
         }
     }
@@ -86,14 +91,14 @@ public class AlgorithmBuilder {
         this.tsn = tsn;
     }
 
-    public void build(ILogicalTable tableBody) throws Exception {
+    public void build(IBindingContext cxt, ILogicalTable tableBody) throws Exception {
 
         if (tableBody == null) {
             throw SyntaxNodeExceptionUtils.createError("Invalid table. Provide table body", null, tsn);
         }
 
         if (tableBody.getHeight() <= 2) {
-            throw SyntaxNodeExceptionUtils.createError("Unsufficient rows. Must be more than 2.", null, tsn);
+            throw SyntaxNodeExceptionUtils.createError("Insufficient rows. Must be more than 2.", null, tsn);
         }
 
         prepareColumns(tableBody);
@@ -107,7 +112,7 @@ public class AlgorithmBuilder {
         List<AlgorithmTreeNode> parsedNodes = rowParser.parse();
 
         AlgorithmCompiler compiler = new AlgorithmCompiler(bindingContext, algorithm.getHeader(), parsedNodes);
-        compiler.compile(algorithm);
+        compiler.compile(algorithm, cxt);
     }
 
     private List<AlgorithmRow> buildRows(ILogicalTable tableBody) throws SyntaxNodeException {
@@ -184,7 +189,7 @@ public class AlgorithmBuilder {
         }
     }
 
-    private String safeId(String s) {
+    private static String safeId(String s) {
         String id = "";
         if (s != null) {
             id = s.trim().toLowerCase();

@@ -12,7 +12,7 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
      * Undo for FloatVar.
      */
     static class UndoFloatVar extends SubjectImpl.UndoSubject {
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoFloatVar();
@@ -61,9 +61,9 @@ public class FloatVarImpl extends FloatExpImpl implements FloatVar {
 
     } // ~UndoFloatVar
 
-    private FloatDomain _domain;
+    private final FloatDomain _domain;
 
-    private FloatDomainHistory _history;
+    private final FloatDomainHistory _history;
 
     public FloatVarImpl(Constrainer constrainer, double min, double max, String name) {
         super(constrainer, name);

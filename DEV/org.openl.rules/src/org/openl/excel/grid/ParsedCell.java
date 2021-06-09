@@ -156,7 +156,7 @@ public class ParsedCell implements ICell {
     @Override
     public boolean getNativeBoolean() {
         Object value = getObjectValue();
-        return value == null ? false : (Boolean) value;
+        return value != null && (Boolean) value;
     }
 
     @Override

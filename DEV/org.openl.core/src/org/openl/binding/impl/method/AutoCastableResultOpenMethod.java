@@ -9,9 +9,9 @@ import org.openl.vm.IRuntimeEnv;
 
 public final class AutoCastableResultOpenMethod extends AOpenMethodDelegator {
 
-    private IOpenCast cast;
-    private IOpenClass returnType;
-    private IMethodCaller methodCaller;
+    private final IOpenCast cast;
+    private final IOpenClass returnType;
+    private final IMethodCaller methodCaller;
 
     public AutoCastableResultOpenMethod(IMethodCaller methodCaller, IOpenClass returnType, IOpenCast cast) {
         super(methodCaller.getMethod());

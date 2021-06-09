@@ -29,9 +29,9 @@ public enum NumberOperations {
     SMALL("small"),
     BIG("big");
 
-    private String description;
+    private final String description;
 
-    private NumberOperations(String description) {
+    NumberOperations(String description) {
         this.description = description;
     }
 

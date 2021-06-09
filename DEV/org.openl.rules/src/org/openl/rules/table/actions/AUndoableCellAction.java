@@ -19,7 +19,8 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
     private Object prevValue;
     private String prevFormula;
     private ICellStyle prevStyle;
-    private ICellComment prevComment;
+    private String prevComment;
+    private String prevCommentAuthor;
     private CellMetaInfo prevMetaInfo;
     protected final MetaInfoWriter metaInfoWriter;
 
@@ -35,13 +36,16 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         setPrevValue(cell.getObjectValue());
         setPrevFormula(cell.getFormula());
         setPrevStyle(cell.getStyle());
-        setPrevComment(cell.getComment());
+        if (cell.getComment() != null) {
+            setPrevComment(cell.getComment().getText());
+            setPrevCommentAuthor(cell.getComment().getAuthor());
+        }
         setPrevMetaInfo(metaInfoWriter.getMetaInfo(row, col));
     }
 
     protected void restorePrevCell(IWritableGrid grid) {
         if (prevValue != null || prevStyle != null) {
-            grid.createCell(col, row, prevValue, prevFormula, prevStyle, prevComment);
+            grid.createCell(col, row, prevValue, prevFormula, prevStyle, prevComment, prevCommentAuthor);
         } else {
             grid.clearCell(col, row);
         }
@@ -88,12 +92,20 @@ public abstract class AUndoableCellAction implements IUndoableGridTableAction {
         this.prevStyle = prevStyle;
     }
 
-    public ICellComment getPrevComment() {
+    public String getPrevComment() {
         return prevComment;
     }
 
-    public void setPrevComment(ICellComment prevComment) {
+    public void setPrevComment(String prevComment) {
         this.prevComment = prevComment;
+    }
+
+    public String getPrevCommentAuthor() {
+        return prevCommentAuthor;
+    }
+
+    public void setPrevCommentAuthor(String prevCommentAuthor) {
+        this.prevCommentAuthor = prevCommentAuthor;
     }
 
     public CellMetaInfo getPrevMetaInfo() {

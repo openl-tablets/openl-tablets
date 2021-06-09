@@ -1,0 +1,12 @@
+<project>
+  <name>EPBDS-7544_field_access</name>
+  <modules>
+    <module>
+      <name>EPBDS-7544_error</name>
+      <rules-root path="EPBDS-7544_error.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+</project>

@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
 import org.openl.CompiledOpenClass;
-import org.openl.OpenClassUtil;
 import org.openl.rules.project.model.Module;
 import org.openl.types.IOpenClass;
 
@@ -23,23 +23,25 @@ public final class OpenLService {
     /**
      * Unique for service.
      */
-    private String name;
-    private String url;
-    private String servicePath;
+    private final String name;
+    private final String url;
+    private final String deployPath;
     private String serviceClassName;
     private String rmiServiceClassName;
-    private String rmiName;
+    private final String rmiName;
     private Class<?> serviceClass;
     private Class<?> rmiServiceClass;
     private Object serviceBean;
     private CompiledOpenClass compiledOpenClass;
-    private boolean provideRuntimeContext = false;
-    private boolean provideVariations = false;
-    private Collection<Module> modules;
-    private Set<String> publishers;
+    private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
+    private final Collection<Module> modules;
+    private final Set<String> publishers;
     private ClassLoader classLoader;
     private OpenLServiceInitializer initializer;
     private Throwable exception;
+    private Map<String, String> urls = Collections.emptyMap();
+    private final DeploymentDescription deployment;
 
     /**
      * Returns service classloader
@@ -63,7 +65,7 @@ public final class OpenLService {
      */
     OpenLService(String name,
             String url,
-            String servicePath,
+            String deployPath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -72,10 +74,11 @@ public final class OpenLService {
             Set<String> publishers,
             Collection<Module> modules,
             ClassLoader classLoader,
-            Class<?> serviceClass) {
+            Class<?> serviceClass,
+            DeploymentDescription deployment) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.url = url;
-        this.servicePath = servicePath;
+        this.deployPath = deployPath;
         if (modules != null) {
             this.modules = Collections.unmodifiableCollection(modules);
         } else {
@@ -94,12 +97,13 @@ public final class OpenLService {
 
         this.classLoader = classLoader;
         this.serviceClass = serviceClass;
+        this.deployment = deployment;
     }
 
     private OpenLService(OpenLServiceBuilder builder, OpenLServiceInitializer initializer) {
         this(builder.name,
             builder.url,
-            builder.servicePath,
+            builder.deployPath,
             builder.serviceClassName,
             builder.rmiServiceClassName,
             builder.rmiName,
@@ -108,7 +112,8 @@ public final class OpenLService {
             builder.publishers,
             builder.modules,
             builder.classLoader,
-            builder.serviceClass);
+            builder.serviceClass,
+            builder.deployment);
         this.initializer = Objects.requireNonNull(initializer, "initializer cannot be null");
     }
 
@@ -135,8 +140,8 @@ public final class OpenLService {
      *
      * @return servicePath
      */
-    public String getServicePath() {
-        return servicePath;
+    public String getDeployPath() {
+        return deployPath;
     }
 
     /**
@@ -287,12 +292,24 @@ public final class OpenLService {
         this.exception = exception;
     }
 
+    public Map<String, String> getUrls() {
+        return urls;
+    }
+
+    public void setUrls(Map<String, String> urls) {
+        this.urls = urls;
+    }
+
+    public DeploymentDescription getDeployment() {
+        return deployment;
+    }
+
     /** {@inheritDoc} */
     @Override
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + (name == null ? 0 : name.hashCode());
+        result = prime * result + (deployPath == null ? 0 : deployPath.hashCode());
         return result;
     }
 
@@ -309,11 +326,11 @@ public final class OpenLService {
             return false;
         }
         OpenLService other = (OpenLService) obj;
-        if (name == null) {
-            if (other.name != null) {
+        if (deployPath == null) {
+            if (other.deployPath != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!deployPath.equals(other.deployPath)) {
             return false;
         }
         return true;
@@ -328,7 +345,7 @@ public final class OpenLService {
     public static class OpenLServiceBuilder {
         private String name;
         private String url;
-        private String servicePath;
+        private String deployPath;
         private String serviceClassName;
         private String rmiServiceClassName;
         private String rmiName;
@@ -338,6 +355,7 @@ public final class OpenLService {
         private Collection<Module> modules;
         private Set<String> publishers;
         private ClassLoader classLoader;
+        private DeploymentDescription deployment;
 
         public OpenLServiceBuilder setClassLoader(ClassLoader classLoader) {
             this.classLoader = classLoader;
@@ -398,7 +416,7 @@ public final class OpenLService {
         /**
          * Sets RMI class name to the builder.
          *
-         * @param serviceClassName
+         * @param rmiServiceClassName
          * @return
          */
         public OpenLServiceBuilder setRmiServiceClassName(String rmiServiceClassName) {
@@ -485,13 +503,13 @@ public final class OpenLService {
         }
 
         /**
-         * Sets servicePath to the builder.
+         * Sets deployPath to the builder.
          *
-         * @param servicePath
+         * @param deployPath
          * @return
          */
-        public OpenLServiceBuilder setServicePath(String servicePath) {
-            this.servicePath = servicePath;
+        public OpenLServiceBuilder setDeployPath(String deployPath) {
+            this.deployPath = deployPath;
             return this;
         }
 
@@ -511,6 +529,11 @@ public final class OpenLService {
             return this;
         }
 
+        public OpenLServiceBuilder setDeployment(DeploymentDescription deployment) {
+            this.deployment = deployment;
+            return this;
+        }
+
         /**
          * Builds OpenLService.
          *
@@ -519,6 +542,12 @@ public final class OpenLService {
         public OpenLService build(OpenLServiceInitializer initializer) {
             if (name == null) {
                 throw new IllegalStateException("Field 'name' is required for building ServiceDescription.");
+            }
+            if (deployPath == null) {
+                throw new IllegalStateException("Field 'deployPath' is required for building ServiceDescription.");
+            }
+            if (deployment == null) {
+                throw new IllegalStateException("Field 'deployment' is required for building ServiceDescription.");
             }
             return new OpenLService(this, initializer);
         }

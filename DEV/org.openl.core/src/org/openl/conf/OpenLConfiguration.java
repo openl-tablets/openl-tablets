@@ -9,7 +9,7 @@ import org.openl.binding.ICastFactory;
 import org.openl.binding.INodeBinder;
 import org.openl.binding.exception.AmbiguousMethodException;
 import org.openl.binding.exception.AmbiguousTypeException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.NotExistNodeBinder;
 import org.openl.binding.impl.cast.CastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
@@ -93,19 +93,24 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return javaCastComponents;
     }
 
-    private Map<Key, IOpenClass> closestClassCache = new HashMap<>();
-    private ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
+    private final Map<Key, IOpenClass> closestClassCache = new HashMap<>();
+    private final ReadWriteLock closestClassCacheLock = new ReentrantReadWriteLock();
+
+    @Override
+    public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+        return CastFactory.findParentClass1(openClass1, openClass2);
+    }
 
     @Override
     public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
         Key key = new Key(openClass1, openClass2);
-        IOpenClass closestClass = null;
-        Lock readlock = closestClassCacheLock.readLock();
+        IOpenClass closestClass;
+        Lock readLock = closestClassCacheLock.readLock();
         try {
-            readlock.lock();
+            readLock.lock();
             closestClass = closestClassCache.get(key);
         } finally {
-            readlock.unlock();
+            readLock.unlock();
         }
         if (closestClass == null) {
             Collection<JavaCastComponent> components = getAllJavaCastComponents();
@@ -118,7 +123,6 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                     allMethods.add(method);
                 }
             }
-
             closestClass = CastFactory.findClosestClass(openClass1, openClass2, new ICastFactory() {
                 @Override
                 public IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2) {
@@ -129,13 +133,18 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 public IOpenCast getCast(IOpenClass from, IOpenClass to) {
                     return OpenLConfiguration.this.getCast(from, to);
                 }
+
+                @Override
+                public IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2) {
+                    return CastFactory.findParentClass1(openClass1, openClass2);
+                }
             }, allMethods);
-            Lock writelock = closestClassCacheLock.readLock();
+            Lock writeLock = closestClassCacheLock.readLock();
             try {
-                writelock.lock();
+                writeLock.lock();
                 closestClassCache.put(key, closestClass);
             } finally {
-                writelock.unlock();
+                writeLock.unlock();
             }
         }
         return closestClass;
@@ -172,19 +181,15 @@ public class OpenLConfiguration implements IOpenLConfiguration {
 
     @Override
     public IOpenMethod[] getMethods(String namespace, String name) {
-        IOpenMethod[] mcs = methodFactory == null ? new IOpenMethod[] {}
+        IOpenMethod[] mcs = methodFactory == null ? IOpenMethod.EMPTY_ARRAY
                                                   : methodFactory.getMethods(namespace, name, configurationContext);
-        IOpenMethod[] pmcs = parent == null ? new IOpenMethod[] {} : parent.getMethods(namespace, name);
+        IOpenMethod[] pmcs = parent == null ? IOpenMethod.EMPTY_ARRAY : parent.getMethods(namespace, name);
 
         // Shadowing
         Map<MethodKey, Collection<IOpenMethod>> methods = new HashMap<>();
         for (IOpenMethod method : pmcs) {
             MethodKey mk = new MethodKey(method);
-            Collection<IOpenMethod> callers = methods.get(mk);
-            if (callers == null) {
-                callers = new ArrayList<>();
-                methods.put(mk, callers);
-            }
+            Collection<IOpenMethod> callers = methods.computeIfAbsent(mk, k -> new ArrayList<>());
             callers.add(method);
         }
 
@@ -209,7 +214,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         for (Collection<IOpenMethod> m : methods.values()) {
             openMethods.addAll(m);
         }
-        return openMethods.toArray(new IOpenMethod[] {});
+        return openMethods.toArray(IOpenMethod.EMPTY_ARRAY);
     }
 
     public LibraryFactoryConfiguration getMethodFactory() {
@@ -225,7 +230,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         return parent == null ? NotExistNodeBinder.the : parent.getNodeBinder(node);
     }
 
-    Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
+    final Map<String, Map<String, IOpenClass>> cache = new HashMap<>();
 
     @Override
     public IOpenClass getType(String namespace, String name) throws AmbiguousTypeException {
@@ -235,18 +240,23 @@ public class OpenLConfiguration implements IOpenLConfiguration {
         }
 
         IOpenClass type = typeFactory == null ? null : typeFactory.getType(namespace, name, configurationContext);
-        if (type != null) {
-            namespaceCache.put(name, type);
-            return type;
-        }
-
         if (parent == null) {
-            namespaceCache.put(name, null);
-            return null;
-        } else {
-            type = parent.getType(namespace, name);
             namespaceCache.put(name, type);
             return type;
+        } else {
+            IOpenClass type1 = parent.getType(namespace, name);
+            if (type != null || type1 != null) {
+                if (type1 != null && type != null && !Objects.equals(type, type1)) {
+                    List<IOpenClass> foundTypes = new ArrayList<>();
+                    foundTypes.add(type);
+                    foundTypes.add(type1);
+                    throw new AmbiguousTypeException(name, new ArrayList<>(foundTypes));
+                } else {
+                    namespaceCache.put(name, type != null ? type : type1);
+                    return type != null ? type : type1;
+                }
+            }
+            return null;
         }
     }
 
@@ -264,7 +274,7 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     @Override
-    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField getVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField field = methodFactory == null ? null
                                                  : methodFactory
                                                      .getVar(namespace, name, configurationContext, strictMatch);
@@ -340,8 +350,8 @@ public class OpenLConfiguration implements IOpenLConfiguration {
     }
 
     private static class Key {
-        IOpenClass openClass1;
-        IOpenClass openClass2;
+        final IOpenClass openClass1;
+        final IOpenClass openClass2;
 
         public Key(IOpenClass openClass1, IOpenClass openClass2) {
             super();
@@ -378,13 +388,10 @@ public class OpenLConfiguration implements IOpenLConfiguration {
                 return false;
             }
             if (openClass2 == null) {
-                if (other.openClass2 != null) {
-                    return false;
-                }
-            } else if (!openClass2.equals(other.openClass2)) {
-                return false;
+                return other.openClass2 == null;
+            } else {
+                return openClass2.equals(other.openClass2);
             }
-            return true;
         }
     }
 

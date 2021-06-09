@@ -17,7 +17,7 @@ public final class IntDomainHistory implements java.io.Serializable {
      */
     static final class IntEventDomain extends IntEvent {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new IntEventDomain();
@@ -121,10 +121,10 @@ public final class IntDomainHistory implements java.io.Serializable {
     } // ~IntEventDomain
 
     final static int MIN_IDX = 0, MAX_IDX = 1, SIZE_IDX = 2, REMOVE_IDX = 3, LAST_IDX = 4;
-    IntVar _var;
-    FastVectorInt _history;
+    final IntVar _var;
+    final FastVectorInt _history;
 
-    FastVectorInt _remove_history;
+    final FastVectorInt _remove_history;
 
     int _currentIndex = -1;
 

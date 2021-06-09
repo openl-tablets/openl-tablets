@@ -12,7 +12,7 @@ public enum ProjectStatus {
     EDITING("In Editing"),
     CLOSED("Closed");
 
-    private String displayValue;
+    private final String displayValue;
 
     ProjectStatus(String displayValue) {
         this.displayValue = displayValue;

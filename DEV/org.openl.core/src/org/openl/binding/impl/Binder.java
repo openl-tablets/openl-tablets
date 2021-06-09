@@ -18,13 +18,13 @@ import org.openl.types.java.JavaOpenClass;
  */
 public class Binder implements IOpenBinder {
 
-    Map<MethodKey, Object> methodCache = new HashMap<>();
-    private OpenL openl;
-    private INodeBinderFactory nodeBinderFactory;
-    private ICastFactory castFactory;
-    private INameSpacedVarFactory varFactory;
-    private INameSpacedTypeFactory typeFactory;
-    private INameSpacedMethodFactory methodFactory;
+    final Map<MethodKey, Object> methodCache = new HashMap<>();
+    private final OpenL openl;
+    private final INodeBinderFactory nodeBinderFactory;
+    private final ICastFactory castFactory;
+    private final INameSpacedVarFactory varFactory;
+    private final INameSpacedTypeFactory typeFactory;
+    private final INameSpacedMethodFactory methodFactory;
 
     public Binder(INodeBinderFactory nodeBinderFactory,
             INameSpacedMethodFactory methodFactory,
@@ -88,11 +88,13 @@ public class Binder implements IOpenBinder {
         }
 
         ISyntaxNode syntaxNode = parsedCode.getTopNode();
-
-        bindingContext.pushLocalVarContext();
-        IBoundNode boundNode = ANodeBinder.bindChildNode(syntaxNode, bindingContext);
-        bindingContext.popLocalVarContext();
-
+        IBoundNode boundNode;
+        try {
+            bindingContext.pushLocalVarContext();
+            boundNode = ANodeBinder.bindChildNode(syntaxNode, bindingContext);
+        } finally {
+            bindingContext.popLocalVarContext();
+        }
         return new BoundCode(parsedCode, boundNode, bindingContext.getErrors(), bindingContext.getMessages());
     }
 }

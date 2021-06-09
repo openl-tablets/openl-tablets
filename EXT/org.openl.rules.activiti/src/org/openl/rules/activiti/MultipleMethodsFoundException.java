@@ -2,8 +2,6 @@ package org.openl.rules.activiti;
 
 public class MultipleMethodsFoundException extends RuntimeException {
 
-    private static final long serialVersionUID = -2134177718752351064L;
-
     public MultipleMethodsFoundException() {
         super();
     }

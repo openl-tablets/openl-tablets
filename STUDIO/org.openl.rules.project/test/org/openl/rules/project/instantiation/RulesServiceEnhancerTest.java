@@ -23,12 +23,12 @@ public class RulesServiceEnhancerTest {
 
         ProjectDescriptor project = new ProjectDescriptor();
         project.setName("project1");
-        project.setClasspath(new ArrayList<PathEntry>());
-        project.setProjectFolder(new File("test-resources/excel/"));
+        project.setClasspath(new ArrayList<>());
+        project.setProjectFolder(new File("test-resources/excel/").toPath());
         Module module = new Module();
         module.setName("Rules");
         module.setProject(project);
-        module.setRulesRootPath(new PathEntry("test-resources/excel/Rules.xls"));
+        module.setRulesRootPath(new PathEntry("Rules.xls"));
         project.setModules(Collections.singletonList(module));
 
         IDependencyManager dependencyManager = new SimpleDependencyManager(Collections
@@ -43,13 +43,13 @@ public class RulesServiceEnhancerTest {
 
         IRulesRuntimeContext context = RulesRuntimeContextFactory.buildRulesRuntimeContext();
         context.setCountry(CountriesEnum.US);
-        Method method = serviceClass.getMethod("hello1", new Class<?>[] { IRulesRuntimeContext.class, int.class });
-        Object result = method.invoke(instance, new Object[] { context, 10 });
+        Method method = serviceClass.getMethod("hello1", IRulesRuntimeContext.class, int.class);
+        Object result = method.invoke(instance, context, 10);
 
         assertEquals("Good Morning, World!", result);
 
         context.setCountry(CountriesEnum.RU);
-        result = method.invoke(instance, new Object[] { context, 22 });
+        result = method.invoke(instance, context, 22);
 
         assertEquals("(RU) Good Night, World!", result);
     }

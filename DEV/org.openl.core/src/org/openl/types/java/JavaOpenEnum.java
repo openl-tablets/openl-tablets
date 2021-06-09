@@ -9,7 +9,7 @@ public class JavaOpenEnum extends JavaOpenClass {
         domain = new JavaEnumDomain(this);
     }
 
-    private IDomain<?> domain;
+    private final IDomain<?> domain;
 
     @Override
     public IDomain<?> getDomain() {

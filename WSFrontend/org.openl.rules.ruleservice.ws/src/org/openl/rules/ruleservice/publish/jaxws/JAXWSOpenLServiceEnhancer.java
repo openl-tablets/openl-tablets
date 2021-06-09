@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import javax.jws.WebMethod;
@@ -26,7 +27,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import org.openl.rules.ruleservice.core.RuleServiceInstantiationException;
 import org.openl.rules.ruleservice.core.RuleServiceRuntimeException;
 import org.openl.rules.ruleservice.publish.common.MethodUtils;
-import org.openl.runtime.OpenLJavaAssistProxy;
+import org.openl.runtime.ASMProxyFactory;
 import org.openl.util.ClassUtils;
 import org.openl.util.generation.InterfaceTransformer;
 
@@ -51,15 +52,17 @@ public final class JAXWSOpenLServiceEnhancer {
     private class JAXWSInterfaceAnnotationEnhancerClassVisitor extends ClassVisitor {
         private static final String DECORATED_CLASS_NAME_SUFFIX = "$JAXWSAnnotated";
 
-        private Class<?> originalClass;
-        private OpenLService service;
+        private final Class<?> originalClass;
+        private final Map<String, List<Method>> originalClassMethodsByName;
+        private final OpenLService service;
 
         private Map<Method, String> operationNames = null;
 
         JAXWSInterfaceAnnotationEnhancerClassVisitor(ClassVisitor arg0, Class<?> originalClass, OpenLService service) {
             super(Opcodes.ASM5, arg0);
-            this.originalClass = originalClass;
+            this.originalClass = Objects.requireNonNull(originalClass, "originalClass cannot be null");
             this.service = service;
+            this.originalClassMethodsByName = ASMUtils.buildMap(originalClass);
         }
 
         @Override
@@ -70,13 +73,7 @@ public final class JAXWSOpenLServiceEnhancer {
                 String superName,
                 String[] interfaces) {
             super.visit(version, access, name, signature, superName, interfaces);
-            boolean requiredWebServiceAnnotation = true;
-            for (Annotation annotation : originalClass.getAnnotations()) {
-                if (annotation.annotationType().equals(WebService.class)) {
-                    requiredWebServiceAnnotation = false;
-                    break;
-                }
-            }
+            boolean requiredWebServiceAnnotation = !originalClass.isAnnotationPresent(WebService.class);
             if (requiredWebServiceAnnotation) {
                 AnnotationVisitor annotationVisitor = this.visitAnnotation(Type.getDescriptor(WebService.class), true);
                 if (service != null) {
@@ -99,14 +96,16 @@ public final class JAXWSOpenLServiceEnhancer {
             }
         }
 
-        @Override
-        public MethodVisitor visitMethod(int arg0, String methodName, String arg2, String arg3, String[] arg4) {
-            Method originalMethod = ASMUtils.getMethod(originalClass, methodName, arg2);
+        public MethodVisitor visitMethod(final int access,
+                final String name,
+                final String descriptor,
+                final String signature,
+                final String[] exceptions) {
+            Method originalMethod = ASMUtils.findMethod(originalClassMethodsByName, name, descriptor);
             if (originalMethod == null) {
                 throw new RuleServiceRuntimeException("Method is not found in the original class");
             }
-
-            MethodVisitor mv = super.visitMethod(arg0, methodName, arg2, arg3, arg4);
+            MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
 
             boolean foundWebMethodAnnotation = false;
             if (originalMethod.getAnnotation(WebMethod.class) != null) {
@@ -128,13 +127,16 @@ public final class JAXWSOpenLServiceEnhancer {
                     // for
                     // generated
                     // interfaces
-                    String[] parameterNames = MethodUtils.getParameterNames(originalMethod, service);
+                    String[] parameterNames = MethodUtils.getParameterNames(service.getOpenClass(),
+                        originalMethod,
+                        service.isProvideRuntimeContext(),
+                        service.isProvideVariations());
                     int i = 0;
                     for (String paramName : parameterNames) {
                         Annotation[] annotations = originalMethod.getParameterAnnotations()[i];
                         boolean found = false;
                         for (Annotation ann : annotations) {
-                            if (ann.annotationType().equals(WebParam.class)) {
+                            if (ann instanceof WebParam) {
                                 found = true;
                                 break;
                             }
@@ -166,7 +168,7 @@ public final class JAXWSOpenLServiceEnhancer {
                     }
                 }
 
-                methods = MethodUtils.sort(methods);
+                methods = org.openl.util.generation.MethodUtils.sort(methods);
 
                 for (Method m : methods) {
                     String s = m.getName();
@@ -235,14 +237,14 @@ public final class JAXWSOpenLServiceEnhancer {
                 methodMap.put(targetMethod, method);
             } catch (NoSuchMethodException ex) {
                 throw new RulesInstantiationException(String.format(
-                    "Failed to find corresponding method in original class for method '%s' in service '%s'",
+                    "Failed to find corresponding method in original class for method '%s' in service '%s'.",
                     MethodUtil.printMethod(method.getName(), method.getParameterTypes()),
-                    service.getName()));
+                    service.getDeployPath()));
             }
         }
-        return OpenLJavaAssistProxy.create(service.getClassLoader(),
+        return ASMProxyFactory.newProxyInstance(service.getClassLoader(),
             new JAXWSMethodHandler(service.getServiceBean(), methodMap),
-            new Class<?>[] { serviceClass });
+            serviceClass);
     }
 
 }

@@ -1,13 +1,15 @@
 package org.openl.rules.repository.api;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.InputStream;
 
 /**
  * @author Yury Molchan
  */
-public class FileItem {
-    private FileData data;
-    private InputStream stream;
+public class FileItem implements Closeable {
+    private final FileData data;
+    private final InputStream stream;
 
     /**
      * @param name the full path name from the root folder.
@@ -36,5 +38,12 @@ public class FileItem {
 
     public InputStream getStream() {
         return stream;
+    }
+
+    @Override
+    public void close() throws IOException {
+        if (stream != null) {
+            stream.close();
+        }
     }
 }

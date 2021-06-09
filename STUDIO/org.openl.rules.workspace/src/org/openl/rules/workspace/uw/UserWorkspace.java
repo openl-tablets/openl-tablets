@@ -1,10 +1,13 @@
 package org.openl.rules.workspace.uw;
 
+import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.ADeploymentProject;
+import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.workspace.WorkspaceUser;
@@ -38,18 +41,24 @@ public interface UserWorkspace extends ProjectsContainer {
 
     void refresh();
 
+    void syncProjects();
+
+    String getActualName(AProject project) throws ProjectException, IOException;
+
     void release();
 
     void removeWorkspaceListener(UserWorkspaceListener listener);
 
-    void uploadLocalProject(String name, String projectFolder, String comment) throws ProjectException;
+    void uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException;
+
+    Optional<RulesProject> getProjectByPath(String repositoryId, String realPath);
 
     WorkspaceUser getUser();
 
     @Override
-    RulesProject getProject(String name) throws ProjectException;
+    RulesProject getProject(String repositoryId, String name) throws ProjectException;
 
-    RulesProject getProject(String name, boolean refreshBefore) throws ProjectException;
+    RulesProject getProject(String repositoryId, String name, boolean refreshBefore) throws ProjectException;
 
     @Override
     Collection<RulesProject> getProjects();
@@ -57,4 +66,6 @@ public interface UserWorkspace extends ProjectsContainer {
     Collection<RulesProject> getProjects(boolean refreshBefore);
 
     LockEngine getProjectsLockEngine();
+
+    boolean isOpenedOtherProject(AProject project);
 }

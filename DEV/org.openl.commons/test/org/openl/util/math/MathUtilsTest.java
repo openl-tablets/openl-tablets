@@ -19,9 +19,9 @@ public class MathUtilsTest {
     @Test
     public void testMedianByte() {
         byte[] values = new byte[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new byte[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((byte[]) null));
         assertNull(MathUtils.median(new byte[0]));
@@ -30,9 +30,9 @@ public class MathUtilsTest {
     @Test
     public void testMedianShort() {
         short[] values = new short[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new short[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((short[]) null));
         assertNull(MathUtils.median(new short[0]));
@@ -41,9 +41,9 @@ public class MathUtilsTest {
     @Test
     public void testMedianInt() {
         int[] values = new int[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new int[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((int[]) null));
         assertNull(MathUtils.median(new int[0]));
@@ -52,9 +52,9 @@ public class MathUtilsTest {
     @Test
     public void testMedianLong() {
         long[] values = new long[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new long[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((long[]) null));
         assertNull(MathUtils.median(new long[0]));
@@ -63,9 +63,9 @@ public class MathUtilsTest {
     @Test
     public void testMedianFloat() {
         float[] values = new float[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new float[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((float[]) null));
         assertNull(MathUtils.median(new float[0]));
@@ -75,56 +75,56 @@ public class MathUtilsTest {
     public void testMedianFloatWrapper() {
         Float[] values = new Float[] { 4f, 4f, 1f, 7f, 2f };
         assertTrue(MathUtils.median(values) instanceof Float);
-        assertEquals(new Float(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0F, MathUtils.median(values), 0.1);
         values = new Float[] { 4f, 5f, 1f, 7f };
-        assertEquals(new Float(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5F, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((Float[]) null));
         assertNull(MathUtils.median(new Float[0]));
 
         values = new Float[] { null, 4f, 4f, null, 1f, 7f, null, 2f };
-        assertEquals(new Float(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0F, MathUtils.median(values), 0.1);
         values = new Float[] { null, 4f, 5f, null, 1f, null, 7f };
-        assertEquals(new Float(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5F, MathUtils.median(values), 0.1);
 
     }
 
     @Test
     public void testMedianDouble() {
         double[] values = new double[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new double[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((double[]) null));
         assertNull(MathUtils.median(new double[0]));
         values = new double[] { 4 };
-        assertEquals(new Double(4), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new double[] { 4, 5 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
     }
 
     @Test
     public void testMedianT() {
         Integer[] values = new Integer[] { 4, 4, 1, 7, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new Integer[] { 4, 5, 1, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
 
         assertNull(MathUtils.median((Integer[]) null));
         assertNull(MathUtils.median(new Integer[0]));
 
         values = new Integer[] { null, 4, 4, null, 1, 7, null, 2 };
-        assertEquals(new Double(4.0), MathUtils.median(values), 0.1);
+        assertEquals(4.0, MathUtils.median(values), 0.1);
         values = new Integer[] { null, 4, 5, null, 1, null, 7 };
-        assertEquals(new Double(4.5), MathUtils.median(values), 0.1);
+        assertEquals(4.5, MathUtils.median(values), 0.1);
     }
 
     @Test
     public void testMedianBigInteger() {
         BigInteger[] values = new BigInteger[] { BigInteger
-            .valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(2) };
+                .valueOf(4), BigInteger.valueOf(4), BigInteger.valueOf(1), BigInteger.valueOf(7), BigInteger.valueOf(2) };
         assertEquals(BigDecimal.valueOf(4), MathUtils.median(values));
         values = new BigInteger[] { BigInteger.valueOf(4),
                 BigInteger.valueOf(5),
@@ -162,7 +162,7 @@ public class MathUtilsTest {
     @Test
     public void testMedianBigDecimal() {
         BigDecimal[] values = new BigDecimal[] { BigDecimal
-            .valueOf(4), BigDecimal.valueOf(4), BigDecimal.valueOf(1), BigDecimal.valueOf(7), BigDecimal.valueOf(2) };
+                .valueOf(4), BigDecimal.valueOf(4), BigDecimal.valueOf(1), BigDecimal.valueOf(7), BigDecimal.valueOf(2) };
         assertEquals(new BigDecimal(4.0), MathUtils.median(values));
         values = new BigDecimal[] { BigDecimal.valueOf(4),
                 BigDecimal.valueOf(5),
@@ -359,16 +359,16 @@ public class MathUtilsTest {
     public void testModFloatWrapper() {
         assertEquals(Float.valueOf("0"), MathUtils.mod(null, Float.valueOf("13")));
         assertEquals(Float.valueOf("0"), MathUtils.mod(Float.valueOf("13"), null));
-        assertEquals(Float.valueOf("1.47"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("1.75")), 0.01);
-        assertEquals(Float.valueOf("-0.28"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("-1.75")), 0.01);
+        assertEquals(Float.parseFloat("1.47"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("1.75")), 0.01);
+        assertEquals(Float.parseFloat("-0.28"), MathUtils.mod(Float.valueOf("3.22"), Float.valueOf("-1.75")), 0.01);
     }
 
     @Test
     public void testModDoubleWrapper() {
         assertEquals(Double.valueOf("0"), MathUtils.mod(null, Double.valueOf("13")));
         assertEquals(Double.valueOf("0"), MathUtils.mod(Double.valueOf("13"), null));
-        assertEquals(Double.valueOf("1.47"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("1.75")), 0.01);
-        assertEquals(Double.valueOf("-0.28"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("-1.75")), 0.01);
+        assertEquals(Double.parseDouble("1.47"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("1.75")), 0.01);
+        assertEquals(Double.parseDouble("-0.28"), MathUtils.mod(Double.valueOf("3.22"), Double.valueOf("-1.75")), 0.01);
     }
 
     @Test
@@ -653,7 +653,7 @@ public class MathUtilsTest {
         float[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new float[] { 1.1f, 2.2f, 3.3f };
-        assertEquals(Float.valueOf("6.6"), MathUtils.sum(arr), 0.1);
+        assertEquals(Float.parseFloat("6.6"), MathUtils.sum(arr), 0.1);
     }
 
     @Test
@@ -661,7 +661,7 @@ public class MathUtilsTest {
         double[] arr = null;
         assertNull(MathUtils.sum(arr));
         arr = new double[] { 1.1d, 2.2d, 3.3d };
-        assertEquals(Double.valueOf("6.6"), MathUtils.sum(arr), 0.1);
+        assertEquals(Double.parseDouble("6.6"), MathUtils.sum(arr), 0.1);
     }
 
     @Test

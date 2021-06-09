@@ -1,10 +1,17 @@
 package org.openl.types.java;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import java.lang.reflect.Method;
+import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Test;
 import org.openl.meta.DoubleValue;
@@ -12,6 +19,7 @@ import org.openl.meta.StringValue;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
+import org.openl.types.NullOpenClass;
 
 public class JavaOpenClassTest {
 
@@ -147,15 +155,15 @@ public class JavaOpenClassTest {
         IOpenField openField = beanAOpenClass.getField("B");
         assertNotNull(openField);
         // then
-        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
-        assertNotNull(fieldMap);
-        assertEquals(6, fieldMap.size());
-        assertNotNull(fieldMap.get("B"));
-        assertNotNull(fieldMap.get("Ba"));
-        assertNotNull(fieldMap.get("BB"));
-        assertNotNull(fieldMap.get("cc"));
-        assertNotNull(fieldMap.get("gg"));
-        for (IOpenField it : fieldMap.values()) {
+        Collection<IOpenField> fields = beanAOpenClass.getFields();
+        assertNotNull(beanAOpenClass.getFields());
+        assertEquals(6, fields.size());
+        assertNotNull(beanAOpenClass.getField("B"));
+        assertNotNull(beanAOpenClass.getField("Ba"));
+        assertNotNull(beanAOpenClass.getField("cc"));
+        assertNotNull(beanAOpenClass.getField("BB"));
+        assertNotNull(beanAOpenClass.getField("gg"));
+        for (IOpenField it : fields) {
             if ("class".equals(it.getName())) {
                 continue;
             }
@@ -165,17 +173,23 @@ public class JavaOpenClassTest {
     }
 
     @Test
+    public void testIsAssignableFromNullOpenClass() {
+        JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanX.class);
+        assertFalse(beanAOpenClass.isAssignableFrom(NullOpenClass.the));
+    }
+
+    @Test
     public void interfaceBeanFieldsTest() {
         JavaOpenClass beanAOpenClass = JavaOpenClass.getOpenClass(BeanXInterface.class);
         IOpenField openField = beanAOpenClass.getField("ba");
         assertNotNull(openField);
-        Map<String, IOpenField> fieldMap = beanAOpenClass.getFields();
-        assertNotNull(fieldMap);
-        assertEquals(5, fieldMap.size());
-        assertNotNull(fieldMap.get("b"));
-        assertNotNull(fieldMap.get("ba"));
-        assertNotNull(fieldMap.get("BB"));
-        assertNotNull(fieldMap.get("x"));
+        Collection<IOpenField> fields = beanAOpenClass.getFields();
+        assertNotNull(fields);
+        assertEquals(5, fields.size());
+        assertNotNull(beanAOpenClass.getField("b"));
+        assertNotNull(beanAOpenClass.getField("ba"));
+        assertNotNull(beanAOpenClass.getField("BB"));
+        assertNotNull(beanAOpenClass.getField("x"));
     }
 
     public static class MyType {

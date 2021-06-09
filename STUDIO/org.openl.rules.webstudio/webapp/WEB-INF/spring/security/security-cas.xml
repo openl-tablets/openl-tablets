@@ -4,7 +4,7 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:util="http://www.springframework.org/schema/util"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-              http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.2.xsd
+              http://www.springframework.org/schema/security https://www.springframework.org/schema/security/spring-security-5.4.xsd
               http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
 
     <import resource="common-authentication.xml"/>
@@ -19,6 +19,7 @@
             <security:filter-chain pattern="/javascript/**" filters="none"/>
             <security:filter-chain pattern="/faces/javax.faces.resource/**" filters="none"/>
             <security:filter-chain pattern="/faces/rfRes/**" filters="none"/>
+            <security:filter-chain pattern="/org.richfaces.resources/**" filters="none" />
             <security:filter-chain pattern="/faces/tableEditor/css/**" filters="none" />
             <security:filter-chain pattern="/faces/tableEditor/img/**" filters="none" />
             <security:filter-chain pattern="/faces/tableEditor/js/**" filters="none" />
@@ -30,8 +31,6 @@
     </bean>
 
     <!-- ============================ Define needed beans for dependencies ====================================== -->
-    <bean id="rememberMeServices" class="org.springframework.security.web.authentication.NullRememberMeServices"/>
-
     <util:list id="authenticationProviders">
         <ref bean="authenticationProviderWrapper"/>
     </util:list>
@@ -91,10 +90,17 @@
         </property>
         <property name="authenticationUserDetailsService">
             <bean class="org.openl.security.cas.CASAttributesToOpenLUserDetailsService">
-                <constructor-arg ref="environment"/>
+                <constructor-arg name="propertyResolver" ref="environment"/>
+                <constructor-arg name="authoritiesMapper">
+                    <bean class="org.openl.rules.webstudio.security.OpenLUserDetailsService">
+                        <constructor-arg name="userManagementService" ref="userManagementService"/>
+                        <constructor-arg name="groupManagementService" ref="groupManagementService"/>
+                        <constructor-arg name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
+                        <constructor-arg name="adminUsersInitializer" ref="adminUsersInitializer"/>
+                    </bean>
+                </constructor-arg>
             </bean>
         </property>
-        <property name="authoritiesMapper" ref="authoritiesMapper"/>
         <property name="key" value="OpenLCasAuthenticationProviderKey"/>
     </bean>
 
@@ -105,15 +111,6 @@
     <bean id="authenticationProviderWrapper"
           class="org.openl.rules.webstudio.security.OpenLAuthenticationProviderWrapper">
         <constructor-arg name="delegate" ref="casAuthenticationProvider"/>
-        <constructor-arg name="authenticationUserDetailsService">
-            <bean class="org.openl.rules.webstudio.security.CreateIfNotExistAuthenticationUserDetailsService">
-                <constructor-arg name="userManagementService" ref="userManagementService"/>
-                <constructor-arg name="groupManagementService" ref="groupManagementService"/>
-                <constructor-arg name="propertyResolver" ref="environment"/>
-                <constructor-arg name="prefix" value="cas"/>
-            </bean>
-        </constructor-arg>
-        <property name="groupsAreManagedInStudio" ref="groupsAreManagedInStudio"/>
     </bean>
 
 </beans>

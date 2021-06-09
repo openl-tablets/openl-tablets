@@ -1,6 +1,7 @@
 package org.openl.util;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -11,7 +12,7 @@ public class FileUtilsTest {
 
     @Test
     public void testGetBaseName() throws Exception {
-        assertEquals(null, FileUtils.getBaseName(null));
+        assertNull(FileUtils.getBaseName(null));
 
         assertEquals("", FileUtils.getBaseName(""));
         assertEquals("", FileUtils.getBaseName(".txt"));
@@ -33,7 +34,7 @@ public class FileUtilsTest {
 
     @Test
     public void testGetName() throws Exception {
-        assertEquals(null, FileUtils.getName(null));
+        assertNull(FileUtils.getName(null));
 
         assertEquals("", FileUtils.getName(""));
         assertEquals(".txt", FileUtils.getName(".txt"));
@@ -57,7 +58,7 @@ public class FileUtilsTest {
 
     @Test
     public void testGetExtension() throws Exception {
-        assertEquals(null, FileUtils.getExtension(null));
+        assertNull(FileUtils.getExtension(null));
 
         assertEquals("", FileUtils.getExtension(""));
         assertEquals("txt", FileUtils.getExtension(".txt"));
@@ -81,7 +82,7 @@ public class FileUtilsTest {
 
     @Test
     public void testRemoveExtension() throws Exception {
-        assertEquals(null, FileUtils.removeExtension(null));
+        assertNull(FileUtils.removeExtension(null));
 
         assertEquals("", FileUtils.removeExtension(""));
         assertEquals("", FileUtils.removeExtension(".txt"));

@@ -23,14 +23,14 @@ public class IntExpMulExpTest extends TestCase {
 
     Constrainer c;
 
-    String[] _names = { "PP", "PN", "PX", "XX", };
+    final String[] _names = { "PP", "PN", "PX", "XX", };
 
-    int[] _min1 = { 1, 1, 1, -1, };
+    final int[] _min1 = { 1, 1, 1, -1, };
 
-    int[] _max1 = { 2, 2, 2, 2, };
+    final int[] _max1 = { 2, 2, 2, 2, };
 
-    int[] _min2 = { 3, -4, -4, -4, };
-    int[] _max2 = { 4, -3, 3, 3, };
+    final int[] _min2 = { 3, -4, -4, -4, };
+    final int[] _max2 = { 4, -3, 3, 3, };
 
     public IntExpMulExpTest(String name) {
         super(name);

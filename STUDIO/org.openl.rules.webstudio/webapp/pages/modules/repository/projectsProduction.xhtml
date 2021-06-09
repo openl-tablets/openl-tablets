@@ -1,4 +1,5 @@
 <ui:composition
+    xmlns:fn="http://java.sun.com/jsp/jstl/functions"
     xmlns:f="http://java.sun.com/jsf/core"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:rich="http://richfaces.org/rich"
@@ -23,12 +24,12 @@
                   <h:outputText value="Name" />
                 </rich:column>
                 <rich:column rendered="#{node.type == 'proddeployment'}">
-                  <h:outputText value="Revision" />
+                  <h:outputText value="Revision in Design Repository" />
                 </rich:column>
-                <rich:column rendered="#{node.type == 'proddeployment'}">
+                <rich:column rendered="#{node.type == 'proddeployment'}" style="min-width: 70px">
                   <h:outputText value="Modified By" />
                 </rich:column>
-                <rich:column rendered="#{node.type == 'proddeployment'}">
+                <rich:column rendered="#{node.type == 'proddeployment'}" style="min-width: 70px">
                   <h:outputText value="Modified At" />
                 </rich:column>
               </rich:columnGroup>
@@ -40,14 +41,14 @@
                 </h:commandLink>
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
-                <h:outputText value="#{prj.data.version.versionName}" />
+                <h:outputText value="#{productionRepositoriesTreeController.getBusinessVersion(prj)}"/>
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedBy}" />
               </rich:column>
               <rich:column rendered="#{node.type == 'proddeployment'}" style="text-align:center">
                 <h:outputText value="#{prj.modifiedAt}">
-                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.date')}" />
+                    <f:convertDateTime type="date" pattern="#{environment.getProperty('data.format.datetime')}" />
                 </h:outputText>
               </rich:column>
             </rich:dataTable>

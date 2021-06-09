@@ -24,10 +24,11 @@ public class IntBoolExpFloatEqExp extends IntBoolExpForSubject {
 
     } // ~ObserverMinMax
 
-    protected FloatExp _exp1, _exp2;
-    protected double _offset;
+    protected final FloatExp _exp1;
+    protected final FloatExp _exp2;
+    protected final double _offset;
 
-    private Observer _observer;
+    private final Observer _observer;
 
     public IntBoolExpFloatEqExp(FloatExp exp1, FloatExp exp2) {
         this(exp1, exp2, 0);

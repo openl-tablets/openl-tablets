@@ -4,7 +4,6 @@
 package org.openl.rules.table.actions;
 
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 
@@ -16,7 +15,7 @@ import org.openl.rules.table.IGridTable;
  */
 public class UndoableCompositeAction implements IUndoableGridTableAction {
 
-    List<IUndoableGridTableAction> actions;
+    final List<IUndoableGridTableAction> actions;
 
     public UndoableCompositeAction(List<IUndoableGridTableAction> actions) {
         this.actions = actions;
@@ -28,8 +27,7 @@ public class UndoableCompositeAction implements IUndoableGridTableAction {
 
     @Override
     public void doAction(IGridTable table) {
-        for (Iterator<IUndoableGridTableAction> iter = actions.iterator(); iter.hasNext();) {
-            IUndoableGridTableAction action = iter.next();
+        for (IUndoableGridTableAction action : actions) {
             action.doAction(table);
         }
     }

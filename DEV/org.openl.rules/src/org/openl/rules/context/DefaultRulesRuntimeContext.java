@@ -3,12 +3,15 @@ package org.openl.rules.context;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import javax.xml.bind.annotation.adapters.XmlAdapter;
 
 import org.openl.rules.types.OpenMethodDispatcher;
-import org.openl.runtime.IRuntimeContext;
 import org.openl.types.IOpenMethod;
 
 public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesRuntimeContextOptimizationForOpenMethodDispatcher, Serializable {
@@ -17,18 +20,18 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     public static class IRulesRuntimeContextAdapter extends XmlAdapter<DefaultRulesRuntimeContext, IRulesRuntimeContext> {
         @Override
-        public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v) throws Exception {
+        public DefaultRulesRuntimeContext marshal(IRulesRuntimeContext v)  {
             // *TODO
             return (DefaultRulesRuntimeContext) v;
         }
 
         @Override
-        public IRulesRuntimeContext unmarshal(DefaultRulesRuntimeContext v) throws Exception {
+        public IRulesRuntimeContext unmarshal(DefaultRulesRuntimeContext v)  {
             return v;
         }
     }
 
-    private Map<String, Object> internalMap = new HashMap<>();
+    private final Map<String, Object> internalMap = new HashMap<>();
 
     @Override
     public Object getValue(String name) {
@@ -40,7 +43,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);
-        verbosePrint(printStream, null, internalMap, new ArrayDeque<Map<?, ?>>());
+        verbosePrint(printStream, null, internalMap, new ArrayDeque<>());
 
         return out.toString();
     }
@@ -74,16 +77,16 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
                 out.print(label);
                 out.print(" = ");
             }
-            out.println("null");
+            out.print("null\r\n");
             return;
         }
         if (label != null) {
             out.print(label);
-            out.println(" = ");
+            out.print(" = \r\n");
         }
 
         printIndent(out, lineage.size());
-        out.println("{");
+        out.print("{\r\n");
 
         lineage.push(map);
 
@@ -105,14 +108,14 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
                     out.print("(ancestor[?] Map)");
                 }
 
-                out.println();
+                out.print("\r\n");
             }
         }
 
         lineage.pop();
 
         printIndent(out, lineage.size());
-        out.println("}");
+        out.print("}\r\n");
     }
 
     /**
@@ -128,7 +131,7 @@ public class DefaultRulesRuntimeContext implements IRulesRuntimeContext, IRulesR
 
     // <<< INSERT >>>
     @Override
-    public IRuntimeContext clone() throws CloneNotSupportedException {
+    public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
         defaultRulesRuntimeContext.setCurrentDate(this.currentDate);
         defaultRulesRuntimeContext.setRequestDate(this.requestDate);

@@ -8,7 +8,7 @@ import java.util.Map;
 
 public abstract class StorageBuilder<T> implements IStorageBuilder<T> {
 
-    StorageInfo info = new StorageInfo();
+    final StorageInfo info = new StorageInfo();
 
     public abstract void writeValue(T value, int index);
 

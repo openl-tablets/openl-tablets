@@ -37,7 +37,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
                 .getMember();
             boolean f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
-                if (executableMethod.getHeader().equals(dependentMethod.getHeader())) {
+                if (executableMethod.getName().equals(dependentMethod.getName())) {
                     f = true;
                 }
             }
@@ -92,13 +92,13 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             int d = 0;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies) {
-                    if (executableMethod.getHeader().equals(expectedRuledDependency.getHeader())) {
+                    if (executableMethod.getName().equals(expectedRuledDependency.getName())) {
                         d++;
                     }
                 }
             }
 
-            assertTrue("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size() == d);
+            assertEquals("Spreadsheet contains all expected dependencies", expectedRuledDependencies.size(), d);
         } else {
             fail("Cannot find expected table");
         }
@@ -116,7 +116,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             ExecutableMethod dependentMethod = (ExecutableMethod) findTable("Method void foo()").getMember();
             boolean f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
-                if (executableMethod.getHeader().equals(dependentMethod.getHeader())) {
+                if (executableMethod.getName().equals(dependentMethod.getName())) {
                     f = true;
                 }
             }
@@ -142,13 +142,13 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
             int d = 0;
             for (ExecutableMethod executableMethod : rulesMethods) {
                 for (ExecutableMethod expectedRuledDependency : expectedRuledDependencies) {
-                    if (executableMethod.getHeader().equals(expectedRuledDependency.getHeader())) {
+                    if (executableMethod.getName().equals(expectedRuledDependency.getName())) {
                         d++;
                     }
                 }
             }
 
-            assertTrue("Method contains expected dependencies", expectedRuledDependencies.size() == d);
+            assertEquals("Method contains expected dependencies", expectedRuledDependencies.size(), d);
         } else {
             fail("Cannot find expected table");
         }
@@ -157,7 +157,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
     @Test
     public void tesTestTable() {
         IOpenClass moduleOpenClass = getCompiledOpenClass().getOpenClass();
-        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", new IOpenClass[0]);
+        TestSuiteMethod testMethod = (TestSuiteMethod) moduleOpenClass.getMethod("riskScoreTest", IOpenClass.EMPTY);
 
         BindingDependencies bindDep = testMethod.getDependencies();
         Set<ExecutableMethod> rulesMethods = bindDep.getRulesMethods();
@@ -170,7 +170,7 @@ public class TestRulesDependencies extends BaseOpenlBuilderHelper {
         for (ExecutableMethod method : expectedRuledDependencies) {
             boolean f = false;
             for (ExecutableMethod executableMethod : rulesMethods) {
-                if (method.getSignature().equals(executableMethod.getSignature())) {
+                if (executableMethod.getName().equals(method.getName())) {
                     f = true;
                     break;
                 }

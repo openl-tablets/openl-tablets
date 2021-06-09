@@ -30,4 +30,8 @@ public interface IOpenField extends IOpenMember {
     }
 
     boolean isWritable();
+
+    default boolean isTransient() {
+        return false;
+    }
 }

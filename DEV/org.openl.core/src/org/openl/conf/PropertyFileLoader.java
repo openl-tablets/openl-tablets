@@ -36,15 +36,15 @@ public class PropertyFileLoader {
 
     public static final Properties NO_PROPERTIES = new Properties();
 
-    private String propertiesFileDefaultName;
+    private final String propertiesFileDefaultName;
 
-    private String propertiesFileProperty;
+    private final String propertiesFileProperty;
 
     private Properties properties = null;
 
-    private IConfigurableResourceContext context;
+    private final IConfigurableResourceContext context;
 
-    private PropertyFileLoader parent = null;
+    private PropertyFileLoader parent;
 
     public PropertyFileLoader(String propertiesFileDefaultName,
             String propertiesFileProperty,
@@ -107,7 +107,7 @@ public class PropertyFileLoader {
             }
             properties = loadProperties(f);
             return true;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             // System.out.println("File not as found: " + url);
             return false;
         }
@@ -121,7 +121,7 @@ public class PropertyFileLoader {
             }
             properties = loadProperties(url);
             return true;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             // Log.debug("Loading as resource: ", t);
             return false;
         }
@@ -131,7 +131,7 @@ public class PropertyFileLoader {
         try {
             properties = loadProperties(new URL(url));
             return true;
-        } catch (Throwable t) {
+        } catch (Exception t) {
             // Log.debug("Loading as url: ", t);
             return false;
         }

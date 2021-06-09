@@ -1,16 +1,20 @@
 package org.openl.rules.webstudio.web.admin;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ViewScoped;
+import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 /**
  * @author Pavel Tarasevich
  *
  */
 
-@ManagedBean
-@ViewScoped
+@Service
+@ViewScope
 public class ConnectionProductionRepoController extends AbstractProductionRepoController {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ConnectionProductionRepoController.class);
 
     @Override
     public void save() {
@@ -39,6 +43,7 @@ public class ConnectionProductionRepoController extends AbstractProductionRepoCo
             RepositoryValidators.validateConnection(repoConfig, getProductionRepositoryFactoryProxy());
             return true;
         } catch (RepositoryValidationException e) {
+            LOG.debug("Error occurred: ", e);
             setErrorMessage(e.getMessage());
             return false;
         }

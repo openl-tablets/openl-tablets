@@ -2,6 +2,7 @@ package org.openl.rules.project.abstraction;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.ProjectException;
@@ -9,7 +10,7 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.util.IOUtils;
 
-public class AProjectResource extends AProjectArtefact {
+public class AProjectResource extends AProjectArtefact implements IProjectResource {
     private ResourceTransformer resourceTransformer;
 
     public AProjectResource(AProject project, Repository repository, FileData fileData) {
@@ -32,7 +33,10 @@ public class AProjectResource extends AProjectArtefact {
         try {
             getProject().tryLockOrThrow();
 
-            setFileData(getRepository().save(getFileData(), inputStream));
+            FileData fd = getFileData();
+            fd.setModifiedAt(new Date());
+
+            setFileData(getRepository().save(fd, inputStream));
         } catch (IOException ex) {
             throw new ProjectException("Cannot set content", ex);
         } finally {

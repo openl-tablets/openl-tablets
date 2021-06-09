@@ -22,21 +22,9 @@
 
   <util:list id="authenticationProviders">
     <ref bean="daoAuthenticationProvider" />
-    <ref bean="rememberMeAuthenticationProvider" />
   </util:list>
 
   <util:list id="logoutHandlers">
-    <ref bean="rememberMeServices" />
     <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler" />
   </util:list>
-
-  <!-- ======================== RememberMe ========================== -->
-
-  <bean id="rememberMeServices" class="org.springframework.security.web.authentication.rememberme.TokenBasedRememberMeServices">
-    <constructor-arg name="userDetailsService" ref="userDetailsService" />
-    <constructor-arg name="key" value="WebStudio_rememberme" />
-    <property name="parameter" value="rememberMe" />
-    <!-- The same as in localeFilter -->
-  </bean>
-
 </beans>

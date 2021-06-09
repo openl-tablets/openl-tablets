@@ -19,8 +19,8 @@ package org.openl.ie.constrainer;
  */
 
 public class ChoicePointLabel implements java.io.Serializable {
-    private int _label;
-    private Constrainer _c;
+    private final int _label;
+    private final Constrainer _c;
 
     ChoicePointLabel(Constrainer c, int label) {
         _c = c;

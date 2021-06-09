@@ -2,7 +2,7 @@ package org.openl.binding.impl.cast;
 
 final class StringToEnumCast implements IOpenCast {
     @SuppressWarnings("rawtypes")
-    private Class enumType;
+    private final Class enumType;
 
     StringToEnumCast(Class<?> enumType) {
         this.enumType = enumType;

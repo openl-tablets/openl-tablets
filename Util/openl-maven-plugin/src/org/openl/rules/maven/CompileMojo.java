@@ -19,7 +19,7 @@ import org.openl.rules.project.instantiation.SimpleProjectEngineFactory;
 import org.openl.types.IOpenClass;
 
 /**
- * Compile and validate OpenL project
+ * Compiles and validates an OpenL Tablets project.
  *
  * @author Yury Molchan
  */
@@ -27,12 +27,13 @@ import org.openl.types.IOpenClass;
 public final class CompileMojo extends BaseOpenLMojo {
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for compilation defined externally,
+     * such as external dependencies and overridden system properties.
      */
     @Parameter
     private Map<String, Object> externalParameters;
 
-    @Parameter(defaultValue = "${project.compileClasspathElements}", readonly = true, required = true)
+    @Parameter(defaultValue = "${project.compileClasspathElements}", required = true, readonly = true)
     private List<String> classpath;
 
     @Override
@@ -45,7 +46,8 @@ public final class CompileMojo extends BaseOpenLMojo {
             long memStart = memUsed();
             long start = System.nanoTime();
 
-            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+            SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder =
+                    new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
@@ -67,8 +69,8 @@ public final class CompileMojo extends BaseOpenLMojo {
             info("DataTypes    : ", openClass.getTypes().size());
             info("Methods      : ", openClass.getMethods().size());
             info("Warnings     : ", warnMessages.size());
-            info("Memory used  : ", (memEnd - memStart) / 262144 / 4.0, " MiB");
-            info("Time elapsed : ", (end - start) / 10000000 / 100.0, " s");
+            info("Memory used  : ", (memEnd - memStart) / 262_144 / 4.0, " MiB");
+            info("Time elapsed : ", (end - start) / 10_000_000 / 100.0, " s");
         } finally {
             OpenClassUtil.releaseClassLoader(classLoader);
         }
@@ -79,7 +81,7 @@ public final class CompileMojo extends BaseOpenLMojo {
         return "OPENL COMPILATION";
     }
 
-    private long memUsed() throws InterruptedException {
+    private static long memUsed() throws InterruptedException {
         Runtime rt = Runtime.getRuntime();
         rt.gc();
         rt.gc();

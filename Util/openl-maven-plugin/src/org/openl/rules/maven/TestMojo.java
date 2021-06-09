@@ -34,24 +34,13 @@ import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ProjectResolvingException;
-import org.openl.rules.testmethod.BaseTestUnit;
-import org.openl.rules.testmethod.ITestUnit;
-import org.openl.rules.testmethod.ProjectHelper;
-import org.openl.rules.testmethod.TestRunner;
-import org.openl.rules.testmethod.TestStatus;
-import org.openl.rules.testmethod.TestSuite;
-import org.openl.rules.testmethod.TestSuiteExecutor;
-import org.openl.rules.testmethod.TestSuiteMethod;
-import org.openl.rules.testmethod.TestUnit;
-import org.openl.rules.testmethod.TestUnitsResults;
+import org.openl.rules.testmethod.*;
 import org.openl.rules.testmethod.result.ComparedResult;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.ThisField;
-import org.openl.util.CollectionUtils;
-import org.openl.util.FileUtils;
 
 /**
- * Run OpenL tests
+ * Runs OpenL Tablets tests.
  *
  * @author Yury Molchan
  */
@@ -59,50 +48,53 @@ import org.openl.util.FileUtils;
 public final class TestMojo extends BaseOpenLMojo {
     private static final String FAILURE = "<<< FAILURE";
     private static final String ERROR = "<<< ERROR";
+
     /**
-     * Set this to 'true' to skip running OpenL tests.
+     * Parameter to skip running OpenL Tablets tests if it set to 'true'.
      */
     @Parameter(property = "skipTests")
     private boolean skipTests;
 
+    /**
+     * Directory containing OpenL Tablets sources to be used in testing OpenL Tablets rules.
+     */
     @Parameter(defaultValue = "${project.build.testSourceDirectory}/../openl")
     private File testSourceDirectory;
 
     /**
-     * Base directory where all reports are written to. Reports are surefire format compatible.
+     * Base directory where all reports are saved. Reports are surefire format compatible.
      */
     @Parameter(defaultValue = "${project.build.directory}/openl-test-reports")
     private File reportsDirectory;
 
     /**
-     * The file format of the test reports. For example junit4 or xlsx.
+     * File format of the test reports. Supported values: junit4 or xlsx.
      */
     @Parameter(defaultValue = "junit4")
     private ReportFormat[] reportsFormat;
 
     /**
-     * Thread count to run test cases. The parameter is as follows:
+     * Thread count to run test cases. The values are as follows:
      * <ul>
-     * <li>4 - Runs tests with 4 threads</li>
-     * <li>1.5C - 1.5 thread per cpu core</li>
-     * <li>none - Run tests sequentially (don't create threads to run tests)</li>
-     * <li>auto - Threads count will be configured automatically</li>
+     * <li>4 - Runs tests with four threads.</li>
+     * <li>1.5C - Runs tests with 1.5 thread per CPU core.</li>
+     * <li>none - Runs tests sequentially. No extra threads for running tests are created.</li>
+     * <li>auto - Automatically configures thread count.</li>
      * </ul>
-     * Default value is "auto".
      */
     @Parameter(defaultValue = "auto")
     private String threadCount;
 
     /**
-     * Compile the project in Single module mode. If true each module will be compiled in sequence and tests from that
-     * module will be run. Needed for big projects. If false all modules will be compiled at once and all tests from all
-     * modules will be run. By default false.
+     * Parameter for compiling the project in the single module mode, where each module is compiled in sequence and
+     * tests from that module are run. This parameter is beneficial for big projects. If this parameter is set to false,
+     * all modules are compiled at once and all tests from all modules are run.
      */
     @Parameter(defaultValue = "false")
     private boolean singleModuleMode;
 
     /**
-     * If you want to override some parameters, define them here.
+     * Additional options for testing defined externally.
      */
     @Parameter
     private Map<String, Object> externalParameters;
@@ -148,38 +140,33 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary runAllTests(String sourcePath, boolean hasDependencies) throws IOException,
-                                                                            RulesInstantiationException,
-                                                                            ProjectResolvingException,
-                                                                            ClassNotFoundException {
+    private Summary runAllTests(String sourcePath,
+            boolean hasDependencies) throws IOException, RulesInstantiationException, ProjectResolvingException {
 
-        String path = sourcePath;
+        String testSourcePath = sourcePath;
+        String mainSourcePath = null;
 
-        if (testSourceDirectory.isDirectory() && !CollectionUtils.isEmpty(testSourceDirectory.list())) {
-            File destination = new File(workspaceFolder, project.getArtifactId());
-            debug("Destination path: ", destination.getPath());
-
-            info("Copying main OpenL sources to workspace...");
-            FileUtils.copy(new File(sourcePath), destination);
-            info("Copying test OpenL sources to workspace...");
-            FileUtils.copy(testSourceDirectory, destination);
+        File testDir = testSourceDirectory.getCanonicalFile();
+        if (testDir.isDirectory() && ProjectResolver.getInstance().isRulesProject(testDir) != null) {
+            mainSourcePath = sourcePath;
 
             try {
-                path = destination.getCanonicalPath();
+                testSourcePath = testDir.getCanonicalPath();
             } catch (Exception e) {
-                warn("The path to OpenL directory in workspace cannot be converted to canonical form.");
-                path = destination.getPath();
+                warn("The path to OpenL test directory cannot be converted to canonical form.");
+                testSourcePath = testDir.getPath();
             }
         }
 
-        return singleModuleMode ? executeModuleByModule(path, hasDependencies)
-                                : executeAllAtOnce(path, hasDependencies);
+        return singleModuleMode ? executeModuleByModule(testSourcePath, mainSourcePath, hasDependencies)
+                                : executeAllAtOnce(testSourcePath, mainSourcePath, hasDependencies);
     }
 
-    private Summary executeAllAtOnce(String sourcePath, boolean hasDependencies) throws MalformedURLException,
-                                                                                 RulesInstantiationException,
-                                                                                 ProjectResolvingException,
-                                                                                 ClassNotFoundException {
+    private Summary executeAllAtOnce(String testSourcePath,
+            String mainSourcePath,
+            boolean hasDependencies) throws MalformedURLException,
+                                     RulesInstantiationException,
+                                     ProjectResolvingException {
         URL[] urls = toURLs(classpath);
         ClassLoader classLoader = null;
         try {
@@ -189,7 +176,10 @@ public final class TestMojo extends BaseOpenLMojo {
             if (hasDependencies) {
                 builder.setWorkspace(workspaceFolder.getPath());
             }
-            SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+            if (mainSourcePath != null) {
+                builder.setProjectDependencies(mainSourcePath);
+            }
+            SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
                 .setClassLoader(classLoader)
                 .setExecutionMode(false)
                 .setExternalParameters(externalParameters)
@@ -202,11 +192,12 @@ public final class TestMojo extends BaseOpenLMojo {
         }
     }
 
-    private Summary executeModuleByModule(String sourcePath, boolean hasDependencies) throws MalformedURLException,
-                                                                                      RulesInstantiationException,
-                                                                                      ProjectResolvingException,
-                                                                                      ClassNotFoundException {
-        ProjectDescriptor pd = ProjectResolver.instance().resolve(new File(sourcePath));
+    private Summary executeModuleByModule(String testSourcePath,
+            String mainSourcePath,
+            boolean hasDependencies) throws MalformedURLException,
+                                     RulesInstantiationException,
+                                     ProjectResolvingException {
+        ProjectDescriptor pd = ProjectResolver.getInstance().resolve(new File(testSourcePath));
         if (pd == null) {
             throw new ProjectResolvingException("Failed to resolve project. Defined location is not an OpenL project.");
         }
@@ -240,17 +231,21 @@ public final class TestMojo extends BaseOpenLMojo {
                 classLoader = new URLClassLoader(urls, SimpleProjectEngineFactory.class.getClassLoader());
 
                 SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<?> builder = new SimpleProjectEngineFactory.SimpleProjectEngineFactoryBuilder<>();
+                if (mainSourcePath != null) {
+                    builder.setProjectDependencies(mainSourcePath);
+                }
                 if (hasDependencies) {
                     builder.setWorkspace(workspaceFolder.getPath());
                 }
-                SimpleProjectEngineFactory<?> factory = builder.setProject(sourcePath)
+                SimpleProjectEngineFactory<?> factory = builder.setProject(testSourcePath)
                     .setClassLoader(classLoader)
                     .setExecutionMode(false)
                     .setModule(module.getName())
                     .setExternalParameters(externalParameters)
                     .build();
 
-                info("Searching tests in the module '", module.getName(), "'...");
+                info("");
+                info("Searching tests in module '", module.getName(), "'...");
                 CompiledOpenClass openLRules = factory.getCompiledOpenClass();
                 Summary summary = executeTests(openLRules);
 
@@ -280,7 +275,7 @@ public final class TestMojo extends BaseOpenLMojo {
                 .filterMessagesBySeverity(openLRules.getMessages(), Severity.ERROR);
             int i = 0;
             for (OpenLMessage message : errorMessages) {
-                String location = message.getSourceLocation() == null ? "" : " at " + message.getSourceLocation();
+                String location = message.getSourceLocation() == null ? "" : (" at " + message.getSourceLocation());
                 error(i + 1 + ". '", message.getSummary(), "'", location);
                 i++;
             }
@@ -301,9 +296,8 @@ public final class TestMojo extends BaseOpenLMojo {
             for (TestSuiteMethod test : tests) {
                 String moduleName = test.getModuleName();
                 try {
-                    info("");
-                    String moduleInfo = moduleName == null ? "" : " from the module " + moduleName;
-                    info("Running ", test.getName(), moduleInfo);
+                    String moduleInfo = moduleName == null ? "" : String.format(" from module '%s'", moduleName);
+                    info("Running ", String.format("'%s'", test.getName()), moduleInfo, "...");
                     TestUnitsResults result;
                     ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
                     try {
@@ -400,7 +394,7 @@ public final class TestMojo extends BaseOpenLMojo {
 
                 info("  Test case: #",
                     num,
-                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : " (" + description + ")",
+                    ITestUnit.DEFAULT_DESCRIPTION.equals(description) ? "" : (" (" + description + ")"),
                     ". Time elapsed: ",
                     formatTime(testUnit.getExecutionTime()),
                     " sec. ",

@@ -8,8 +8,8 @@ import org.apache.poi.ss.usermodel.DateUtil;
 public final class ParserDateUtil {
 
     private static class CacheKey {
-        int formatIndex;
-        String formatString;
+        final int formatIndex;
+        final String formatString;
 
         public CacheKey(int formatIndex, String formatString) {
             super();
@@ -52,7 +52,7 @@ public final class ParserDateUtil {
         }
     }
 
-    private Map<CacheKey, Boolean> cache = new HashMap<>();
+    private final Map<CacheKey, Boolean> cache = new HashMap<>();
 
     public boolean isADateFormat(int formatIndex, String formatString) {
         CacheKey key = new CacheKey(formatIndex, formatString);

@@ -34,7 +34,7 @@ public class MessageHandler {
      */
     public String getUrlForEmptySource(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
+            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
     protected String getUri(OpenLMessage message) {
@@ -43,21 +43,16 @@ public class MessageHandler {
     }
 
     protected String getUrl(ProjectModel model, String errorUri, OpenLMessage message) {
-        String url;
         TableSyntaxNode node = model.getNode(errorUri);
-
         if (isCurrentModule(model, node)) {
-            // Table belongs to current module
-            url = getUrlForCurrentModule(errorUri, node.getId());
+            return getUrlForCurrentModule(errorUri, node.getId());
         } else {
-            // Table belongs to dependent module
             if (node != null) {
-                url = getUrlToDependentModule(node);
+                return getUrlToDependentModule(errorUri, model.getMessageNodeId(message));
             } else {
-                url = getErrorUrlForDependency(message);
+                return getErrorUrlForDependency(message);
             }
         }
-        return url;
     }
 
     private boolean isCurrentModule(ProjectModel model, TableSyntaxNode node) {
@@ -81,28 +76,26 @@ public class MessageHandler {
         return moduleNode;
     }
 
-    private String getUrlToDependentModule(TableSyntaxNode node) {
-        String url = WebStudioUtils.getWebStudio().url("table", node.getUri());
+    private String getUrlToDependentModule(String uri, String id) {
+        String url = WebStudioUtils.getWebStudio().url("table", uri);
         if (url != null && url.endsWith("table")) {
-            url += "?" + Constants.REQUEST_PARAM_ID + "=" + node.getId();
+            url += "?" + Constants.REQUEST_PARAM_ID + "=" + id;
         }
         return url;
     }
 
     private String getUrlForCurrentModule(String errorUri, String tableId) {
-        XlsUrlParser uriParser = new XlsUrlParser();
-        uriParser.parse(errorUri);
+        XlsUrlParser uriParser = new XlsUrlParser(errorUri);
         String url = "table?id=" + tableId;
         if (StringUtils.isNotBlank(uriParser.getCell())) {
-            url += "&" + org.openl.rules.tableeditor.util.Constants.REQUEST_PARAM_ERROR_CELL + "=" + uriParser
-                .getCell();
+            url += "&errorCell=" + uriParser.getCell();
         }
         return WebStudioUtils.getWebStudio().url(url);
     }
 
     private String getErrorUrlForDependency(OpenLMessage message) {
         return WebStudioUtils.getWebStudio()
-            .url("message" + "?type" + "=" + message.getSeverity().name() + "&summary" + "=" + message.getId());
+            .url("message?type=" + message.getSeverity().name() + "&summary=" + message.getId());
     }
 
 }

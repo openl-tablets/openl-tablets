@@ -1,0 +1,2 @@
+DELETE /admin/deploy/Sample%20Project HTTP/1.1
+

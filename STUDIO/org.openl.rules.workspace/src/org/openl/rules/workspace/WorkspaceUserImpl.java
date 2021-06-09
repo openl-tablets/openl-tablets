@@ -7,8 +7,8 @@ package org.openl.rules.workspace;
  */
 public class WorkspaceUserImpl implements WorkspaceUser {
 
-    private String userId;
-    private String userName;
+    private final String userId;
+    private final String userName;
 
     public WorkspaceUserImpl(String userName) {
         userId = generateUserId(userName);

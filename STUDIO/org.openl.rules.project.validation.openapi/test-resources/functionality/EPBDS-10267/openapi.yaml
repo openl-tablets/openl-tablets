@@ -1,0 +1,671 @@
+openapi: 3.0.1
+info:
+  title: std-plan-configuration
+  version: 1.0.0
+servers:
+- url: /webservice/std-plan-configuration
+  variables: {}
+paths:
+  /Behavior:
+    post:
+      summary: "BehaviorResponse Behavior(Boolean, String[], String[], DataItem[],\
+        \ DataItem[])"
+      description: "Rules method: org.openl.generated.beans.BehaviorResponse Behavior(java.lang.Boolean\
+        \ scoped, BehaviorType[] behaviorTypes, ValidationType[] validationTypes,\
+        \ org.openl.generated.beans.DataItem[] attributes, org.openl.generated.beans.DataItem[]\
+        \ dimensions)"
+      operationId: Behavior
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BehaviorRequest'
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BehaviorResponse'
+  /getBehaviorRequestDataMinMax:
+    get:
+      summary: "BehaviorRequest[] getBehaviorRequestDataMinMax()"
+      description: "Method: org.openl.generated.beans.BehaviorRequest[] getBehaviorRequestDataMinMax()"
+      operationId: getBehaviorRequestDataMinMax
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BehaviorRequest'
+  /getBehaviorRequestDataDefault:
+    get:
+      summary: "BehaviorRequest[] getBehaviorRequestDataDefault()"
+      description: "Method: org.openl.generated.beans.BehaviorRequest[] getBehaviorRequestDataDefault()"
+      operationId: getBehaviorRequestDataDefault
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BehaviorRequest'
+  /getBehaviorRequestDataValueList:
+    get:
+      summary: "BehaviorRequest[] getBehaviorRequestDataValueList()"
+      description: "Method: org.openl.generated.beans.BehaviorRequest[] getBehaviorRequestDataValueList()"
+      operationId: getBehaviorRequestDataValueList
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BehaviorRequest'
+  /getBehaviorRequestDataRelationship:
+    get:
+      summary: "BehaviorRequest[] getBehaviorRequestDataRelationship()"
+      description: "Method: org.openl.generated.beans.BehaviorRequest[] getBehaviorRequestDataRelationship()"
+      operationId: getBehaviorRequestDataRelationship
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BehaviorRequest'
+  /getBehaviorRequestDataApplicability:
+    get:
+      summary: "BehaviorRequest[] getBehaviorRequestDataApplicability()"
+      description: "Method: org.openl.generated.beans.BehaviorRequest[] getBehaviorRequestDataApplicability()"
+      operationId: getBehaviorRequestDataApplicability
+      responses:
+        "422":
+          description: Custom user errors in rules or validation errors in input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Some message
+                type: USER_ERROR
+        "400":
+          description: "Invalid request format e.g. missing required field, unparseable\
+            \ JSON value, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Cannot parse 'bar' to JSON
+                type: BAD_REQUEST
+        "500":
+          description: "Internal server errors e.g. compilation or parsing errors,\
+            \ runtime exceptions, etc."
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JAXRSErrorResponse'
+              example:
+                message: Failed to load lazy method.
+                type: COMPILATION
+        "200":
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BehaviorRequest'
+components:
+  schemas:
+    JAXRSErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        type:
+          type: string
+          enum:
+          - USER_ERROR
+          - RULES_RUNTIME
+          - COMPILATION
+          - SYSTEM
+          - BAD_REQUEST
+          - VALIDATION
+        details:
+          type: array
+          items:
+            type: string
+    ApplicabilityBehavior:
+      type: object
+      xml:
+        name: ApplicabilityBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/Behavior'
+      - type: object
+        properties:
+          applicabilityType:
+            type: string
+    AttributeBehavior:
+      type: object
+      xml:
+        name: AttributeBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/Behavior'
+    AttributeValidationBehavior:
+      type: object
+      xml:
+        name: AttributeValidationBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          level:
+            type: string
+            default: Error
+          code:
+            type: string
+          message:
+            type: string
+    AvailabilityBehavior:
+      type: object
+      xml:
+        name: AvailabilityBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeValidationBehavior'
+      - type: object
+        properties:
+          availabilityType:
+            type: string
+          availableValue:
+            $ref: '#/components/schemas/Expr'
+    Behavior:
+      type: object
+      properties:
+        _type:
+          type: string
+        behaviorType:
+          type: string
+        id:
+          type: string
+        entityName:
+          type: string
+        attributeName:
+          type: string
+        scope:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataItem'
+      xml:
+        name: Behavior
+        namespace: http://beans.generated.openl.org
+    BehaviorResponse:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: BehaviorResponse
+        behaviors:
+          type: array
+          items:
+            $ref: '#/components/schemas/Behavior'
+        validationResults:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationResult'
+      xml:
+        name: BehaviorResponse
+        namespace: http://beans.generated.openl.org
+    CategoryBehavior:
+      type: object
+      xml:
+        name: CategoryBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/Behavior'
+      - type: object
+        properties:
+          category:
+            type: string
+    DataItem:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: DataItem
+        id:
+          type: string
+          default: '""'
+        entityName:
+          type: string
+        attributeName:
+          type: string
+        attributeValue:
+          $ref: '#/components/schemas/Value'
+      xml:
+        name: DataItem
+        namespace: http://beans.generated.openl.org
+    DefaultValueBehavior:
+      type: object
+      xml:
+        name: DefaultValueBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          defaultValue:
+            $ref: '#/components/schemas/Expr'
+    EnabledBehavior:
+      type: object
+      xml:
+        name: EnabledBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          enabled:
+            $ref: '#/components/schemas/Expr'
+    Expr:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: Expr
+        valueType:
+          type: string
+        source:
+          type: string
+        result:
+          $ref: '#/components/schemas/Value'
+      xml:
+        name: Expr
+        namespace: http://beans.generated.openl.org
+    MandatoryBehavior:
+      type: object
+      xml:
+        name: MandatoryBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeValidationBehavior'
+      - type: object
+        properties:
+          mandatory:
+            $ref: '#/components/schemas/Expr'
+    MinMaxBehavior:
+      type: object
+      xml:
+        name: MinMaxBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeValidationBehavior'
+      - type: object
+        properties:
+          min:
+            $ref: '#/components/schemas/Expr'
+          max:
+            $ref: '#/components/schemas/Expr'
+          increment:
+            $ref: '#/components/schemas/Expr'
+    Money:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: Money
+        amount:
+          type: number
+          format: double
+        currency:
+          type: string
+      xml:
+        name: Money
+        namespace: http://beans.generated.openl.org
+    RefreshBehavior:
+      type: object
+      xml:
+        name: RefreshBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          refresh:
+            $ref: '#/components/schemas/Expr'
+    RelationshipBehavior:
+      type: object
+      xml:
+        name: RelationshipBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/Behavior'
+      - type: object
+        properties:
+          relationshipType:
+            type: string
+          linkedEntityName:
+            type: string
+    ResetValueBehavior:
+      type: object
+      xml:
+        name: ResetValueBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          resetValue:
+            $ref: '#/components/schemas/Expr'
+    ValidationResult:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: ValidationResult
+        id:
+          type: string
+        entityName:
+          type: string
+        attributeName:
+          type: string
+        level:
+          type: string
+        code:
+          type: string
+        message:
+          type: string
+      xml:
+        name: ValidationResult
+        namespace: http://beans.generated.openl.org
+    Value:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: Value
+        valueType:
+          type: string
+        booleanValue:
+          type: boolean
+        stringValue:
+          type: string
+        integerValue:
+          type: integer
+          format: int64
+        numberValue:
+          type: number
+          format: double
+        moneyValue:
+          $ref: '#/components/schemas/Money'
+        decimalValue:
+          type: number
+        dateValue:
+          type: string
+          format: date-time
+        datetimeValue:
+          type: string
+          format: date-time
+        booleanMultiValues:
+          type: array
+          items:
+            type: boolean
+        stringMultiValues:
+          type: array
+          items:
+            type: string
+        integerMultiValues:
+          type: array
+          items:
+            type: integer
+            format: int64
+        numberMultiValues:
+          type: array
+          items:
+            type: number
+            format: double
+        moneyMultiValues:
+          type: array
+          items:
+            $ref: '#/components/schemas/Money'
+        decimalMultiValues:
+          type: array
+          items:
+            type: number
+        dateMultiValues:
+          type: array
+          items:
+            type: string
+            format: date-time
+        datetimeMultiValues:
+          type: array
+          items:
+            type: string
+            format: date-time
+      xml:
+        name: Value
+        namespace: http://beans.generated.openl.org
+    ValueListBehavior:
+      type: object
+      xml:
+        name: ValueListBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeValidationBehavior'
+      - type: object
+        properties:
+          valueListItems:
+            type: array
+            items:
+              $ref: '#/components/schemas/ValueListItem'
+    ValueListItem:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: ValueListItem
+        itemValue:
+          $ref: '#/components/schemas/Value'
+        label:
+          type: string
+        order:
+          $ref: '#/components/schemas/Expr'
+        visible:
+          $ref: '#/components/schemas/Expr'
+        enabled:
+          $ref: '#/components/schemas/Expr'
+      xml:
+        name: ValueListItem
+        namespace: http://beans.generated.openl.org
+    VisibleBehavior:
+      type: object
+      xml:
+        name: VisibleBehavior
+        namespace: http://beans.generated.openl.org
+      allOf:
+      - $ref: '#/components/schemas/AttributeBehavior'
+      - type: object
+        properties:
+          visible:
+            $ref: '#/components/schemas/Expr'
+    BehaviorRequest:
+      type: object
+      properties:
+        _type:
+          type: string
+          default: BehaviorRequest
+        scoped:
+          type: boolean
+          default: false
+        behaviorTypes:
+          type: array
+          items:
+            type: string
+        validationTypes:
+          type: array
+          items:
+            type: string
+        attributes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataItem'
+        dimensions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DataItem'
+      xml:
+        name: BehaviorRequest
+        namespace: http://beans.generated.openl.org

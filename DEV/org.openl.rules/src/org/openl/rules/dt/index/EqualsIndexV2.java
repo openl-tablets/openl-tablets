@@ -18,15 +18,15 @@ import org.openl.rules.helpers.NumberUtils;
  */
 public class EqualsIndexV2 implements IRuleIndex {
 
-    private static final int[] EMPTY_ARRAY = new int[0];
+    static final int[] EMPTY_ARRAY = new int[0];
 
     private final DecisionTableRuleNode emptyNodeStub = new DecisionTableRuleNodeBuilder().makeNode();
 
-    private Map<Object, int[]> index;
-    private int[] emptyRules;
-    private DecisionTableRuleNode nextNode;
-    private int rulesTotalSize;
-    private ConditionCasts conditionCasts;
+    private final Map<Object, int[]> index;
+    private final int[] emptyRules;
+    private final DecisionTableRuleNode nextNode;
+    private final int rulesTotalSize;
+    private final ConditionCasts conditionCasts;
 
     public EqualsIndexV2(DecisionTableRuleNode nextNode,
             Map<Object, int[]> index,
@@ -155,8 +155,8 @@ public class EqualsIndexV2 implements IRuleIndex {
     }
 
     public static class Builder {
-        private DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
-        private DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+        private final DecisionTableRuleNodeBuilder nextNodeBuilder = new DecisionTableRuleNodeBuilder();
+        private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
 
         private Map<Object, DecisionTableRuleNodeBuilder> map = null;
         private Map<Object, int[]> result = null;

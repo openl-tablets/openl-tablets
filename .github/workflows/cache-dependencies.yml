@@ -1,0 +1,47 @@
+# This workflow collects all Maven dependencies into a cache for offline work
+# For more information see: https://docs.github.com/en/free-pro-team@latest/actions/guides/caching-dependencies-to-speed-up-workflows
+
+name: Cache Maven Dependencies
+
+on:
+  schedule:
+  # Every Day at 00:00 UTC
+  - cron:  '0 0 * * *'
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+
+    name: Cache for ${{ matrix.os }}
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+
+    - uses: actions/checkout@v2
+
+    - name: Set environment variables
+      run: |
+        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
+        echo "DAY=$(date +%w)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: maven-${{ env.WEEK }}-${{ env.DAY }}
+        restore-keys: |
+          maven-${{ env.WEEK }}
+
+    - name: Maven version
+      run: mvn -v
+
+    - name: Download Maven Dependencies
+      run: mvn org.apache.maven.plugins:maven-dependency-plugin:3.1.2:go-offline -Pgpg-sign -Dsonar -Psources -Powasp "-Dmaven.wagon.http.retryHandler.count=5"

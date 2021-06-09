@@ -3,6 +3,7 @@ package org.openl.rules.ui.tablewizard;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -32,8 +33,8 @@ import org.openl.rules.ui.BaseWizard;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.properties.SystemValuesManager;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ import org.slf4j.LoggerFactory;
  *         TODO Rename Workbook and Worksheet to Module and Category correspondently
  */
 public abstract class TableCreationWizard extends BaseWizard {
-    protected static final String INVALID_NAME_MESSAGE = "Invalid name: only latin letters, numbers and _ are allowed, name cannot begin with a number";
+    protected static final String INVALID_NAME_MESSAGE = "Invalid name: it can only have letters, digits, _, $ and should not start with a digit.";
 
     private final Logger log = LoggerFactory.getLogger(TableCreationWizard.class);
 
@@ -63,9 +64,9 @@ public abstract class TableCreationWizard extends BaseWizard {
     /**
      * New table identifier
      */
-    private String newTableId;
+    private String newTableURI;
 
-    private Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
+    private final Set<XlsWorkbookSourceCodeModule> modifiedWorkbooks = new HashSet<>();
 
     protected XlsSheetSourceCodeModule getDestinationSheet() {
         XlsSheetSourceCodeModule sourceCodeModule;
@@ -150,7 +151,7 @@ public abstract class TableCreationWizard extends BaseWizard {
             items.add(new SelectItem(i, workbook.getSheetName(i)));
         }
 
-        Collections.sort(items, (item1, item2) -> item1.getLabel().compareToIgnoreCase(item2.getLabel()));
+        items.sort(Comparator.comparing(SelectItem::getLabel, String.CASE_INSENSITIVE_ORDER));
 
         return items;
     }
@@ -158,25 +159,31 @@ public abstract class TableCreationWizard extends BaseWizard {
     protected void initWorkbooks() {
         workbooks = new HashMap<>();
 
-        WorkbookSyntaxNode[] syntaxNodes = WizardUtils.getWorkbookNodes();
+        ProjectModel projectModel = WebStudioUtils.getProjectModel();
+        WorkbookSyntaxNode[] syntaxNodes = projectModel.getAllWorkbookNodes();
         for (WorkbookSyntaxNode node : syntaxNodes) {
             XlsWorkbookSourceCodeModule module = node.getWorkbookSourceCodeModule();
             workbooks.put(module.getDisplayName(), module);
         }
 
-        if (workbooks.size() > 0) {
-            workbook = workbooks.keySet().iterator().next();
-        }
+        //make current module as default
+        workbook = projectModel.getXlsModuleNode().getWorkbookSyntaxNodes()[0]
+                .getWorkbookSourceCodeModule()
+                .getDisplayName();
     }
 
     public String getNewTableId() {
-        return newTableId;
+        return TableUtils.makeTableId(newTableURI);
     }
 
-    public void setNewTableId(String newTableId) {
-        this.newTableId = TableUtils.makeTableId(newTableId);
+    public String getNewTableURI() {
+        return newTableURI;
+    }
+
+    public void setNewTableURI(String newTableURI) {
+        this.newTableURI = newTableURI;
         // TODO: It should be removed when the table can be resolved by the ID
-        WebStudioUtils.getWebStudio().setTableUri(newTableId);
+        WebStudioUtils.getWebStudio().setTableUri(newTableURI);
     }
 
     public Set<XlsWorkbookSourceCodeModule> getModifiedWorkbooks() {
@@ -200,7 +207,6 @@ public abstract class TableCreationWizard extends BaseWizard {
 
     @Override
     public String finish() throws Exception {
-        boolean success = false;
         try {
             if (!wizardFinished) {
                 onFinish();
@@ -208,15 +214,12 @@ public abstract class TableCreationWizard extends BaseWizard {
             }
             doSave();
             WebStudioUtils.getExternalContext().getSessionMap().remove(org.openl.rules.tableeditor.util.Constants.TABLE_EDITOR_MODEL_NAME);
-            success = true;
         } catch (Exception e) {
             log.error("Could not save table: ", e);
             throw e;
         }
-        if (success) {
-            WebStudioUtils.getWebStudio().compile();
-            reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
-        }
+        WebStudioUtils.getWebStudio().compile();
+        reset(); // After wizard is finished - no need to store references to tables etc: it will be a memory leak.
         return null;
     }
 
@@ -225,7 +228,7 @@ public abstract class TableCreationWizard extends BaseWizard {
      */
     public void validateTechnicalName(FacesContext context, UIComponent toValidate, Object value) {
         FacesMessage message = new FacesMessage();
-        ValidatorException validEx = null;
+        ValidatorException validEx;
 
         try {
             String name = ((String) value).toUpperCase();
@@ -245,13 +248,13 @@ public abstract class TableCreationWizard extends BaseWizard {
         WebStudio studio = WebStudioUtils.getWebStudio();
         ProjectModel model = studio.getModel();
 
-        for (TableSyntaxNode node : model.getAllTableNodes().values()) {
+        for (TableSyntaxNode node : model.getAllTableSyntaxNodes()) {
             try {
                 if (node.getMember().getName().equalsIgnoreCase(techName)) {
                     return false;
                 }
 
-            } catch (Exception e) {
+            } catch (Exception ignored) {
             }
         }
 
@@ -259,7 +262,7 @@ public abstract class TableCreationWizard extends BaseWizard {
     }
 
     protected Map<String, Object> buildSystemProperties() {
-        String userMode = PropertyResolverProvider.getProperty("user.mode");
+        String userMode = Props.text("user.mode");
         Map<String, Object> result = new LinkedHashMap<>();
 
         List<TablePropertyDefinition> systemPropDefinitions = TablePropertyDefinitionUtils.getSystemProperties();

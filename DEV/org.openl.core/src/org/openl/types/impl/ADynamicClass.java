@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -26,7 +27,7 @@ public abstract class ADynamicClass extends AOpenClass {
 
     private final String name;
 
-    protected Map<String, IOpenField> fieldMap;
+    protected volatile Map<String, IOpenField> fieldMap;
 
     protected Class<?> instanceClass;
 
@@ -48,7 +49,6 @@ public abstract class ADynamicClass extends AOpenClass {
         }
 
         fieldMap().put(field.getName(), field);
-
         addFieldToLowerCaseMap(field);
     }
 
@@ -59,16 +59,17 @@ public abstract class ADynamicClass extends AOpenClass {
             methodMap = new HashMap<>(4);
         }
 
-        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass)) {
-            Method[] mm = instanceClass.getDeclaredMethods();
-            if (isPublic(instanceClass)) {
-                for (int i = 0; i < mm.length; i++) {
-                    if (isPublic(mm[i])) {
-                        JavaOpenMethod om = new JavaOpenMethod(mm[i]);
+        if (instanceClass != null && !DynamicObject.class.isAssignableFrom(instanceClass) && isPublic(instanceClass)) {
+            try {
+                Method[] mm = instanceClass.getDeclaredMethods();
+                for (Method method : mm) {
+                    if (isPublic(method)) {
+                        JavaOpenMethod om = new JavaOpenMethod(method);
                         MethodKey kom = new MethodKey(om);
                         methodMap.put(kom, om);
                     }
                 }
+            } catch (LinkageError ignored) {
             }
         }
 
@@ -109,9 +110,9 @@ public abstract class ADynamicClass extends AOpenClass {
             constructorMap = new HashMap<>(1);
         }
         Constructor<?>[] cc = getInstanceClass().getDeclaredConstructors();
-        for (int i = 0; i < cc.length; i++) {
-            if (isPublic(cc[i])) {
-                IOpenMethod om = new JavaOpenConstructor(cc[i]);
+        for (Constructor<?> constructor : cc) {
+            if (isPublic(constructor)) {
+                IOpenMethod om = new JavaOpenConstructor(constructor);
                 MethodKey kom = new MethodKey(om);
                 constructorMap.put(kom, om);
             }
@@ -122,7 +123,11 @@ public abstract class ADynamicClass extends AOpenClass {
     @Override
     protected Map<String, IOpenField> fieldMap() {
         if (fieldMap == null) {
-            fieldMap = new HashMap<>();
+            synchronized (this) {
+                if (fieldMap == null) {
+                    fieldMap = new HashMap<>();
+                }
+            }
         }
         return fieldMap;
     }
@@ -171,19 +176,11 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        if (c == null) {
-            return false;
-        }
-        return getInstanceClass().isAssignableFrom(c);
-    }
-
-    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc == null) {
+        if (ioc == null || ioc.getInstanceClass() == null) {
             return false;
         }
-        return isAssignableFrom(ioc.getInstanceClass());
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
@@ -192,7 +189,8 @@ public abstract class ADynamicClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         return Collections.emptyList();
     }
+
 }

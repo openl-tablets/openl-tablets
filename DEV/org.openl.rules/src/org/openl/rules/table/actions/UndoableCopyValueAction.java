@@ -13,8 +13,8 @@ import org.openl.rules.table.IWritableGrid;
  */
 public class UndoableCopyValueAction extends AUndoableCellAction {
 
-    private int colFrom;
-    private int rowFrom;
+    private final int colFrom;
+    private final int rowFrom;
 
     private GridRegion toRestore;
     private GridRegion toRemove;

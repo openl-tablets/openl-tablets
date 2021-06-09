@@ -1,8 +1,5 @@
 package org.openl.rules.table;
 
-import java.util.Collection;
-
-import org.openl.message.OpenLMessage;
 import org.openl.rules.lang.xls.types.meta.MetaInfoReader;
 import org.openl.rules.table.properties.ITableProperties;
 import org.openl.rules.table.xls.XlsUrlParser;
@@ -16,8 +13,6 @@ public interface IOpenLTable {
     ITableProperties getProperties();
 
     String getType();
-
-    Collection<OpenLMessage> getMessages();
 
     /**
      * @return Table name for user. (Firstly will be searched in table properties and then from table header)

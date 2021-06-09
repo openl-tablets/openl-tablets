@@ -1,8 +1,10 @@
 package org.openl.rules.ruleservice.core;
 
 import java.util.*;
+import java.util.jar.Manifest;
 
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.RulesDeploy;
 
 /**
  * Class designed for storing service info.
@@ -13,20 +15,22 @@ import org.openl.rules.project.model.Module;
  *
  */
 public final class ServiceDescription {
-    private String name;
-    private String url;
-    private String servicePath;
-    private String serviceClassName;
-    private String rmiServiceClassName;
-    private String rmiName;
-    private String annotationTemplateClassName;
-    private boolean provideRuntimeContext;
-    private boolean provideVariations;
-    private Map<String, Object> configuration;
-    private Collection<Module> modules;
-    private DeploymentDescription deployment;
-    private String[] publishers;
-    private ResourceLoader resourceLoader;
+    private final String name;
+    private final String url;
+    private final String deployPath;
+    private final String serviceClassName;
+    private final String rmiServiceClassName;
+    private final String rmiName;
+    private final String annotationTemplateClassName;
+    private final boolean provideRuntimeContext;
+    private final boolean provideVariations;
+    private final Map<String, Object> configuration;
+    private final Collection<Module> modules;
+    private final DeploymentDescription deployment;
+    private final String[] publishers;
+    private final ResourceLoader resourceLoader;
+    private final Manifest manifest;
+    private final RulesDeploy rulesDeploy;
 
     /**
      * Main constructor.
@@ -40,7 +44,7 @@ public final class ServiceDescription {
      */
     ServiceDescription(String name,
             String url,
-            String servicePath,
+            String deployPath,
             String serviceClassName,
             String rmiServiceClassName,
             String rmiName,
@@ -51,17 +55,20 @@ public final class ServiceDescription {
             DeploymentDescription deployment,
             Map<String, Object> configuration,
             String[] publishers,
-            ResourceLoader resourceLoader) {
+            ResourceLoader resourceLoader,
+            Manifest manifest,
+            RulesDeploy rulesDeploy) {
         this.name = Objects.requireNonNull(name, "name cannot be null");
         this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
         this.url = url;
-        this.servicePath = servicePath;
+        this.deployPath = deployPath;
         this.serviceClassName = serviceClassName;
         this.provideRuntimeContext = provideRuntimeContext;
         this.rmiServiceClassName = rmiServiceClassName;
         this.rmiName = rmiName;
         this.provideVariations = provideVariations;
         this.annotationTemplateClassName = annotationTemplateClassName;
+        this.rulesDeploy = rulesDeploy;
         if (configuration == null) {
             this.configuration = Collections.emptyMap();
         } else {
@@ -75,6 +82,7 @@ public final class ServiceDescription {
 
         this.publishers = publishers;
         this.deployment = deployment;
+        this.manifest = manifest;
     }
 
     private ServiceDescription(ServiceDescriptionBuilder builder) {
@@ -91,7 +99,13 @@ public final class ServiceDescription {
             builder.deployment,
             builder.configuration,
             builder.publishers.toArray(new String[] {}),
-            builder.resourceLoader);
+            builder.resourceLoader,
+            builder.manifest,
+            builder.rulesDeploy);
+    }
+
+    public RulesDeploy getRulesDeploy() {
+        return rulesDeploy;
     }
 
     /**
@@ -126,8 +140,8 @@ public final class ServiceDescription {
      *
      * @return
      */
-    public String getServicePath() {
-        return servicePath;
+    public String getDeployPath() {
+        return deployPath;
     }
 
     /**
@@ -207,6 +221,10 @@ public final class ServiceDescription {
         return deployment;
     }
 
+    public Manifest getManifest() {
+        return manifest;
+    }
+
     public String[] getPublishers() {
         if (publishers == null) {
             return new String[] {};
@@ -214,36 +232,19 @@ public final class ServiceDescription {
         return publishers;
     }
 
-    /** {@inheritDoc} */
     @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (name == null ? 0 : name.hashCode());
-        return result;
+    public boolean equals(Object o) {
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
+        ServiceDescription that = (ServiceDescription) o;
+        return deployPath.equals(that.deployPath);
     }
 
-    /** {@inheritDoc} */
     @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (getClass() != obj.getClass()) {
-            return false;
-        }
-        ServiceDescription other = (ServiceDescription) obj;
-        if (name == null) {
-            if (other.name != null) {
-                return false;
-            }
-        } else if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+    public int hashCode() {
+        return Objects.hash(deployPath);
     }
 
     /**
@@ -267,6 +268,8 @@ public final class ServiceDescription {
         private DeploymentDescription deployment;
         private Set<String> publishers = new HashSet<>();
         private ResourceLoader resourceLoader;
+        private Manifest manifest;
+        private RulesDeploy rulesDeploy;
 
         public ServiceDescriptionBuilder setResourceLoader(ResourceLoader resourceLoader) {
             this.resourceLoader = Objects.requireNonNull(resourceLoader, "resourceLoader cannot be null");
@@ -276,10 +279,13 @@ public final class ServiceDescription {
         public ServiceDescriptionBuilder setPublishers(String[] publishers) {
             this.publishers = new HashSet<>();
             if (publishers != null) {
-                for (String publisher : publishers) {
-                    this.publishers.add(publisher);
-                }
+                Collections.addAll(this.publishers, publishers);
             }
+            return this;
+        }
+
+        public ServiceDescriptionBuilder setRulesDeploy(RulesDeploy rulesDeploy) {
+            this.rulesDeploy = rulesDeploy;
             return this;
         }
 
@@ -453,8 +459,13 @@ public final class ServiceDescription {
             return this;
         }
 
+        public ServiceDescriptionBuilder setManifest(Manifest manifest) {
+            this.manifest = manifest;
+            return this;
+        }
+
         /**
-         * Builds ServiceDesctiption.
+         * Builds ServiceDescription.
          *
          * @return
          */

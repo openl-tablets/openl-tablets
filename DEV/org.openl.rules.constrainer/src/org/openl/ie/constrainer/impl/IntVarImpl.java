@@ -16,7 +16,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
      */
     static final class UndoIntVarImpl extends UndoSubject {
 
-        static ReusableFactory _factory = new ReusableFactory() {
+        static final ReusableFactory _factory = new ReusableFactory() {
             @Override
             protected Reusable createNewElement() {
                 return new UndoIntVarImpl();
@@ -63,7 +63,7 @@ public class IntVarImpl extends IntExpImpl implements IntVar {
 
     private Domain _domain;
 
-    private IntDomainHistory _history;
+    private final IntDomainHistory _history;
 
     public IntVarImpl(Constrainer constrainer, int max) {
         this(constrainer, 0, max);

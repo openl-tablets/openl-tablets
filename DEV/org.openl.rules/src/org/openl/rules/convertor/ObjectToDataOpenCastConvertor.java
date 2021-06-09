@@ -18,7 +18,7 @@ public class ObjectToDataOpenCastConvertor {
         return castFactory;
     }
 
-    public IOpenCast getConvertor(Class<?> toClass, Class<?> fromClass) {
+    public IOpenCast getConvertor(Class<?> fromClass, Class<?> toClass) {
         return getCastFactory().getCast(JavaOpenClass.getOpenClass(fromClass), JavaOpenClass.getOpenClass(toClass));
     }
 }

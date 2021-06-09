@@ -6,10 +6,10 @@ import org.openl.rules.calc.element.SpreadsheetCell;
 
 public class ScalarResultBuilder implements IResultBuilder {
 
-    private SpreadsheetCell cell;
+    private final SpreadsheetCell cell;
 
-    private boolean calculateAllCells;
-    private IOpenCast openCast;
+    private final boolean calculateAllCells;
+    private final IOpenCast openCast;
 
     public ScalarResultBuilder(SpreadsheetCell spreadsheetCell, IOpenCast openCast, boolean calculateAllCells) {
         this.cell = spreadsheetCell;

@@ -13,7 +13,7 @@ import org.openl.ie.tools.ReusableFactory;
  */
 public class UndoFastVectorAdd extends UndoImpl implements java.io.Serializable {
 
-    static ReusableFactory _factory = new ReusableFactory() {
+    static final ReusableFactory _factory = new ReusableFactory() {
         @Override
         protected Reusable createNewElement() {
             return new UndoFastVectorAdd();

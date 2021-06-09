@@ -9,9 +9,11 @@ import org.openl.conf.UserContext;
 import org.openl.types.IOpenMember;
 import org.openl.vm.IRuntimeEnv;
 import org.openl.vm.SimpleVM;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AOpenLEngineFactory extends AEngineFactory {
-
+    private static final Logger LOG = LoggerFactory.getLogger(AOpenLEngineFactory.class);
     public static final String DEFAULT_USER_HOME = ".";
 
     // Volatile is required for correct double locking checking pattern
@@ -19,7 +21,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
     private volatile IUserContext userContext;
 
     private String openlName;
-    private String userHome;
+    private final String userHome;
 
     protected IRuntimeEnvBuilder runtimeEnvBuilder;
 
@@ -70,6 +72,7 @@ public abstract class AOpenLEngineFactory extends AEngineFactory {
             // checking if classloader has openl, sometimes it does not
             userClassLoader.loadClass(this.getClass().getName());
         } catch (ClassNotFoundException cnfe) {
+            LOG.debug("Error occurred: ", cnfe);
             userClassLoader = this.getClass().getClassLoader();
         }
 

@@ -1,33 +1,32 @@
 package org.openl.rules.data;
 
 import org.openl.binding.impl.module.ModuleOpenClass;
-import org.openl.rules.types.IUriMember;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.types.IDynamicObject;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.AOpenField;
 import org.openl.vm.IRuntimeEnv;
 
-public class DataOpenField extends AOpenField implements IUriMember {
+public class DataOpenField extends AOpenField {
 
     private ITable table;
     private Object data;
     private ModuleOpenClass declaringClass;
+    private XlsNodeTypes nodeType;
     private String uri;
 
-    public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
-
-        super(table.getDataModel().getName(),
-            table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
-
-        this.table = table;
-        this.uri = table.getTableSyntaxNode().getTable().getSource().getUri();
-        data = table.getDataArray();
-        this.declaringClass = declaringClass;
+    public DataOpenField() {
+        super(null, null);
     }
 
-    @Override
-    public String getUri() {
-        return uri;
+    public DataOpenField(ITable table, ModuleOpenClass declaringClass) {
+        super(table.getDataModel().getName(),
+            table.getDataModel().getType().getAggregateInfo().getIndexedAggregateType(table.getDataModel().getType()));
+        this.table = table;
+        this.data = table.getDataArray();
+        this.nodeType = table.getTableSyntaxNode().getNodeType();
+        this.declaringClass = declaringClass;
+        this.uri = table.getTableSyntaxNode().getUri();
     }
 
     @Override
@@ -54,20 +53,31 @@ public class DataOpenField extends AOpenField implements IUriMember {
 
     @Override
     public Object get(Object target, IRuntimeEnv env) {
+        if (target == null) {
+            return getType().nullObject();
+        }
+        Object dynamicObject = ((IDynamicObject) target).getFieldValue(getName());
 
-        Object data = ((IDynamicObject) target).getFieldValue(getName());
-
-        if (data == null) {
-            data = this.data;
-            ((IDynamicObject) target).setFieldValue(getName(), data);
+        if (dynamicObject == null) {
+            dynamicObject = this.data;
+            ((IDynamicObject) target).setFieldValue(getName(), dynamicObject);
         }
 
-        return data;
+        return dynamicObject;
     }
 
     @Override
     public void set(Object target, Object value, IRuntimeEnv env) {
-        ((IDynamicObject) target).setFieldValue(getName(), value);
+        if (target != null) {
+            ((IDynamicObject) target).setFieldValue(getName(), value);
+        }
     }
 
+    public XlsNodeTypes getNodeType() {
+        return nodeType;
+    }
+
+    public String getUri() {
+        return uri;
+    }
 }

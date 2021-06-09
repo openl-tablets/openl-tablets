@@ -14,7 +14,7 @@ import org.openl.rules.calculation.result.convertor2.CompoundStep;
  */
 public class CompoundStepPostProcessor {
 
-    private int idStepNumber;
+    private final int idStepNumber;
 
     CompoundStepPostProcessor() {
         this(0);

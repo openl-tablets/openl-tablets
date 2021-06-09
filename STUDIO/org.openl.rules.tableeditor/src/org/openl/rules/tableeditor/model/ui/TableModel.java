@@ -13,22 +13,23 @@ import org.openl.util.CollectionUtils;
 
 public class TableModel {
 
-    private ICellModel[][] cells;
+    private final ICellModel[][] cells;
 
-    private IGridTable gridTable;
+    private final IGridTable gridTable;
 
     private int numRowsToDisplay = -1;
 
     private final boolean showHeader;
 
     public static TableModel initializeTableModel(IGridTable table, int numRows, MetaInfoReader metaInfoReader) {
-        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader);
+        return initializeTableModel(table, null, numRows, null, null, null, metaInfoReader, false);
     }
 
     public static TableModel initializeTableModel(IGridTable table,
             IGridFilter[] filters,
-            MetaInfoReader metaInfoReader) {
-        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader);
+            MetaInfoReader metaInfoReader,
+            boolean smartNumbers) {
+        return initializeTableModel(table, filters, -1, null, null, null, metaInfoReader, smartNumbers);
     }
 
     public static TableModel initializeTableModel(IGridTable table,
@@ -37,7 +38,8 @@ public class TableModel {
             LinkBuilder linkBuilder,
             String mode,
             String view,
-            MetaInfoReader metaInfoReader) {
+            MetaInfoReader metaInfoReader,
+            boolean smartNumbers) {
         if (table == null) {
             return null;
         }
@@ -60,7 +62,7 @@ public class TableModel {
             ((GridRegion) region).setBottom(region.getTop() + numRows - 1);
         }
 
-        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader).buildModel(table, numRows);
+        return new TableViewer(grid, region, linkBuilder, mode, view, metaInfoReader, smartNumbers).buildModel(table, numRows);
     }
 
     public boolean isShowHeader() {

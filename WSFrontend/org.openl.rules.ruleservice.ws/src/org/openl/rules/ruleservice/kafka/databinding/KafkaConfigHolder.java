@@ -5,7 +5,7 @@ import org.openl.rules.ruleservice.kafka.conf.BaseKafkaConfig;
 public final class KafkaConfigHolder {
     private static final KafkaConfigHolder INSTANCE = new KafkaConfigHolder();
 
-    private ThreadLocal<BaseKafkaConfig> kafkaConfigHolder = new ThreadLocal<>();
+    private final ThreadLocal<BaseKafkaConfig> kafkaConfigHolder = new ThreadLocal<>();
 
     private KafkaConfigHolder() {
     }

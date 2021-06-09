@@ -11,9 +11,9 @@ public enum OperationType {
     SUBROUTINE("!Subroutine"),
     FUNCTION("!Function");
 
-    private String name;
+    private final String name;
 
-    private OperationType(String name) {
+    OperationType(String name) {
         this.name = name;
     }
 

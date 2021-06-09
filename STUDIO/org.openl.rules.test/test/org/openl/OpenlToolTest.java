@@ -1,10 +1,9 @@
 package org.openl;
 
-import org.junit.Assert;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
 import org.openl.meta.StringValue;
-import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
@@ -33,7 +32,7 @@ public class OpenlToolTest extends TestCase {
         super(name);
     }
 
-    public void testMakeMethod() {
+    public void testMakeMethod() throws SyntaxNodeException {
         StringValue srcCode = new StringValue("5");
 
         OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
@@ -53,21 +52,4 @@ public class OpenlToolTest extends TestCase {
         assertEquals(JavaOpenClass.DOUBLE, m.getType());
 
     }
-
-    public void testMakeType() {
-        String type = "String [] []";
-
-        OpenL openl = OpenL.getInstance(OpenL.OPENL_J_NAME);
-
-        String[][] xx = { { "" } };
-
-        IOpenClass ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
-        Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
-
-        type = "String [] []";
-        ioc = OpenLManager.makeType(openl, new StringSourceCodeModule(type, "<internal_string>"), null);
-        Assert.assertEquals(xx.getClass(), ioc.getInstanceClass());
-
-    }
-
 }

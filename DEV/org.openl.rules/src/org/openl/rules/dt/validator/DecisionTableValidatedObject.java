@@ -38,7 +38,7 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     private final Logger log = LoggerFactory.getLogger(DecisionTableValidatedObject.class);
 
-    private IDecisionTable decisionTable;
+    private final IDecisionTable decisionTable;
     private Map<String, IDomainAdaptor> domainMap;
 
     public DecisionTableValidatedObject(IDecisionTable decisionTable) {
@@ -60,11 +60,6 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
     @Override
     public IDecisionTable getDecisionTable() {
         return decisionTable;
-    }
-
-    @Override
-    public IConditionSelector getSelector() {
-        return null;
     }
 
     @Override
@@ -215,13 +210,13 @@ public class DecisionTableValidatedObject implements IDecisionTableValidatedObje
 
     @Override
     public Object transformSignatureValueBack(String name, int intValue, DecisionTableAnalyzer dtAnalyzer) {
-        Object result = intValue;
+        Object result;
 
         DecisionTableParamDescription pd = dtAnalyzer.getUsedParams().get(name);
 
         Class<?> instanceClass = pd.getParameterDeclaration().getType().getInstanceClass();
 
-        if (boolean.class.equals(instanceClass) || Boolean.class.equals(instanceClass)) {
+        if (boolean.class == instanceClass || Boolean.class == instanceClass) {
             return intValue == 1 ? "true" : "false";
         }
 

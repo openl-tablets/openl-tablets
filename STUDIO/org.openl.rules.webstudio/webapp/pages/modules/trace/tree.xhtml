@@ -115,6 +115,7 @@
                 type="text/javascript"></script>
 
         <script type="text/javascript">
+            //<![CDATA[
             $(function () {
                 $.ajaxSetup({
                     beforeSend: showLoader,
@@ -131,12 +132,19 @@
                     lazyLoad: function (event, data) {
                         data.result = {
                             url: "#{contextPath}/web/trace/nodes",
-                            data: {id: data.node.key}
+                            data: {
+                                id: data.node.key,
+                                showRealNumbers: "#{studio.showRealNumbers}"
+                            }
                         };
                     },
-                    source: {url: "#{contextPath}/web/trace/nodes"}
+                    source: {
+                        url: "#{contextPath}/web/trace/nodes",
+                        data: {showRealNumbers: "#{studio.showRealNumbers}"}
+                    }
                 });
             });
+            //]]>
         </script>
 
         <div class="traceTreeParams">

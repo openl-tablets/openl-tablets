@@ -1,11 +1,25 @@
 package org.openl.rules.maven;
 
-import static org.codehaus.plexus.archiver.util.DefaultFileSet.fileSet;
-
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.*;
+import java.nio.file.Paths;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.jar.Attributes;
+import java.util.jar.JarFile;
+import java.util.jar.Manifest;
 
 import org.apache.maven.artifact.Artifact;
 import org.apache.maven.artifact.ArtifactUtils;
@@ -17,32 +31,31 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProjectHelper;
-import org.codehaus.plexus.archiver.Archiver;
-import org.codehaus.plexus.archiver.jar.JarArchiver;
-import org.codehaus.plexus.archiver.manager.ArchiverManager;
+import org.codehaus.plexus.util.DirectoryScanner;
+import org.openl.info.OpenLVersion;
 import org.openl.util.CollectionUtils;
 import org.openl.util.FileUtils;
+import org.openl.util.ProjectPackager;
 import org.openl.util.StringUtils;
+import org.openl.util.ZipArchiver;
 import org.openl.util.ZipUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 
 /**
- * Package an OpenL project in ZIP archive.
+ * Packages an OpenL Tablets project in a ZIP archive.
  *
  * @author Yury Molchan
  * @since 5.19.1
  */
-@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true, requiresDependencyResolution = ResolutionScope.RUNTIME, requiresDependencyCollection = ResolutionScope.RUNTIME)
+@Mojo(name = "package", defaultPhase = LifecyclePhase.PACKAGE, threadSafe = true,
+        requiresDependencyResolution = ResolutionScope.RUNTIME,
+        requiresDependencyCollection = ResolutionScope.RUNTIME)
 public final class PackageMojo extends BaseOpenLMojo {
 
-    private static final String RULES_XML = "rules.xml";
-    private static final String RULES_DEPLOY_XML = "rules-deploy.xml";
     private static final String DEPLOYMENT_YAML = "deployment.yaml";
-    private static final String DEPLOYMENT_CLASSIFIER = "deployment";
-
-    @Component
-    ArchiverManager archiverManager;
+    static final String DEPLOYMENT_CLASSIFIER = "deployment";
+    private static final String OPENL_ARTIFACT_TYPE = "zip";
 
     @Parameter(defaultValue = "${project.packaging}", readonly = true)
     private String packaging;
@@ -63,46 +76,98 @@ public final class PackageMojo extends BaseOpenLMojo {
     private File classesDirectory;
 
     /**
-     * Comma separated list of packaging formats.
+     * Comma separated list of packaging formats. Supported values: zip, jar.
      */
     @Parameter(defaultValue = "zip")
     private String format;
 
     /**
-     * A folder to store dependencies inside the OpenL project.
+     * Folder to store dependencies inside the OpenL Tablets project.
      */
     @Parameter(defaultValue = "lib/")
     private String classpathFolder;
 
     /**
-     * Classifier to add to the artifact generated. If given, the artifact will be attached as a supplemental artifact.
-     * If not given this will create the main artifact which is the default behavior. If you try to do that a second
-     * time without using a classifier the build will fail.
+     * Classifier that identifies the generated artifact as a supplemental one. By default, if a classifier is not
+     * provided, the system creates the artifact as the main one. Maven does not support using multiple main artifacts.
+     * Upon the second attempt to create the main artifact without using a classifier, the build fails.
      */
     @Parameter
     private String classifier;
 
     /**
-     * An allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL rules require a few
-     * dependencies like: domain models (Java beans) or some utils (e.g. JSON parsing). So the quantity of required
-     * dependencies does not exceed 3 usually. In case incorrect declaring of transitive dependencies, the size of the
-     * ZIP package increases dramatically. This parameter allows to prevent such situation by failing packaging.
+     * Allowed quantity of dependencies which can be included into the ZIP archive. Usually OpenL Tablets rules require
+     * a few dependencies, such as domain models, that is, Java beans, or some utils, for example, JSON parsing.
+     * Typically, the quantity of required dependencies does not exceed 3. If transitive dependencies are declared
+     * incorrectly, the size of the ZIP package increases dramatically. This parameter allows preventing such situation
+     * by failing packaging.
      */
     @Parameter(defaultValue = "3", required = true)
     private int dependenciesThreshold;
 
     /**
-     * Enables generation of deployed zip. This zip includes exploded main OpenL project and all depended OpenL projects
-     * which are located in separated folders inside archive.
+     * Parameter that enables deployed zip generation. This zip includes an exploded main OpenL Tablets project and all
+     * dependent OpenL Tablets projects located in separated folders inside the archive.
      */
     @Parameter(defaultValue = "false")
     private boolean deploymentPackage;
 
     /**
-     * The name of deployment archive
+     * Deployment archive name.
      */
     @Parameter(defaultValue = "${project.build.finalName}")
     private String deploymentName;
+
+    /**
+     * Parameter that adds default manifest entries into MANIFEST.MF file.
+     *
+     * @since 5.23.4
+     */
+    @Parameter(defaultValue = "true")
+    private boolean addDefaultManifest;
+
+    /**
+     * Set of key/values to be included to MANIFEST.MF. This parameter overrides default values added by
+     * {@linkplain #addDefaultManifest} parameter.
+     * 
+     * @since 5.23.4
+     */
+    @Parameter
+    private Map<String, String> manifestEntries;
+
+    @Parameter(defaultValue = "${user.name}", readonly = true, required = true)
+    private String userName;
+
+    /**
+     * Sets the list of include patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then all files will be included.
+     *
+     * @since 5.23.6
+     */
+    @Parameter
+    private String[] includes;
+
+    /**
+     * Sets the list of exclude patterns to use. All '/' and '\' characters are replaced by
+     * <code>File.separatorChar</code>, so the separator used need not match <code>File.separatorChar</code>.
+     * <p/>
+     * When a pattern ends with a '/' or '\', "**" is appended.
+     *
+     * If it is not defined, then no files will be excluded.
+     *
+     * Note: 'pom.xml' file and 'target' directory are excluded always independently on this parameter.
+     *
+     * @since 5.23.6
+     */
+    @Parameter
+    private final String[] excludes = StringUtils.EMPTY_STRING_ARRAY;
+
+    @Parameter(defaultValue = "${basedir}", readonly = true, required = true)
+    private String projectBaseDir;
 
     @Override
     void execute(String sourcePath, boolean hasDependencies) throws Exception {
@@ -113,7 +178,7 @@ public final class PackageMojo extends BaseOpenLMojo {
             info("Skipping packaging of the empty OpenL project.");
             return;
         }
-        String[] types = StringUtils.split(format, ',');
+        String[] types = getFormats();
         if (CollectionUtils.isEmpty(types)) {
             throw new MojoFailureException("No formats have been defined in the plugin configuration.");
         }
@@ -123,51 +188,67 @@ public final class PackageMojo extends BaseOpenLMojo {
         if (mainArtifactExists && StringUtils.isBlank(classifier) && Arrays.asList(types).contains(packaging)) {
             error("The main artifact have been attached already.");
             error(
-                "You have to use classifier to attach supplemental artifacts to the project instead of replacing them.");
+        "You have to use classifier to attach supplemental artifacts " +
+                "to the project instead of replacing them."
+            );
             throw new MojoFailureException("It is not possible to replace the main artifact.");
         }
         Set<Artifact> dependencies = getDependencies();
-        int dependensiesSize = dependencies.size();
-        if (dependensiesSize > dependenciesThreshold) {
+        int dependenciesSize = dependencies.size();
+        if (dependenciesSize > dependenciesThreshold) {
             error("The quantity of dependencies (",
-                dependensiesSize,
-                ") exceedes the defined threshold in 'dependenciesThreshold=",
+                dependenciesSize,
+                ") exceeds the defined threshold in 'dependenciesThreshold=",
                 dependenciesThreshold,
                 "' parameter.");
             for (Artifact artifact : dependencies) {
                 error("    : ", artifact);
             }
-            throw new MojoFailureException("The quantity of dependencies exceedes the limit");
+            throw new MojoFailureException("The quantity of dependencies exceeds the limit");
         }
-        if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+        final boolean openLJarPackaging = packaging.equals("openl-jar");
+        if (!mainArtifactExists && CollectionUtils.isNotEmpty(classesDirectory.list()) && !openLJarPackaging) {
             // create a jar file with compiled Java sources for OpenL rules
             dependencyLib = File.createTempFile(finalName, "-lib.jar", outputDirectory);
-            Archiver jarArch = new JarArchiver();
-            jarArch.setIncludeEmptyDirs(false);
-            jarArch.setDestFile(dependencyLib);
-            jarArch.addFileSet(fileSet(classesDirectory).includeEmptyDirs(false));
-            jarArch.createArchive();
+
+            JarArchiver.archive(classesDirectory, dependencyLib);
         }
+
+        DirectoryScanner dirScan = new DirectoryScanner();
+        dirScan.setBasedir(openLSourceDir);
+        dirScan.setExcludes(getExcludes());
+        dirScan.setIncludes(includes);
+        dirScan.scan();
+        final String[] includedFiles = dirScan.getIncludedFiles();
 
         for (String type : types) {
             File outputFile = getOutputFile(outputDirectory, finalName, classifier, type);
-            Archiver arch = archiverManager.getArchiver(type);
-            arch.setIncludeEmptyDirs(false);
-            addFile(arch, openLSourceDir, RULES_XML);
-            addFile(arch, openLSourceDir, RULES_DEPLOY_XML);
-            arch.addFileSet(
-                fileSet(openLSourceDir).includeEmptyDirs(false).exclude(new String[] { RULES_XML, RULES_DEPLOY_XML }));
 
-            if (dependencyLib != null && dependencyLib.isFile()) {
-                arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
-            }
-            for (Artifact artifact : dependencies) {
-                File file = artifact.getFile();
-                arch.addFile(file, classpathFolder + file.getName());
+            final boolean itselfLink = outputFile.equals(dependencyLib);
+
+            try (ZipArchiver arch = new ZipArchiver(outputFile.toPath())) {
+                if (addDefaultManifest || manifestEntries != null) {
+                    Manifest manifest = createManifest();
+                    ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                    manifest.write(baos);
+                    arch.addFile(new ByteArrayInputStream(baos.toByteArray()), JarFile.MANIFEST_NAME);
+                }
+
+                if (openLJarPackaging && CollectionUtils.isNotEmpty(classesDirectory.list())) {
+                    ProjectPackager.addOpenLProject(classesDirectory, arch);
+                }
+
+                ProjectPackager.addOpenLProject(openLSourceDir, includedFiles, arch);
+
+                if (dependencyLib != null && dependencyLib.isFile() && !itselfLink) {
+                    arch.addFile(dependencyLib, classpathFolder + finalName + ".jar");
+                }
+                for (Artifact artifact : dependencies) {
+                    File file = artifact.getFile();
+                    arch.addFile(file, classpathFolder + file.getName());
+                }
             }
 
-            arch.setDestFile(outputFile);
-            arch.createArchive();
             if (mainArtifactExists || StringUtils.isNotBlank(classifier)) {
                 info("Attaching the supplemental artifact '", outputFile, ",");
                 projectHelper.attachArtifact(project, type, classifier, outputFile);
@@ -178,32 +259,44 @@ public final class PackageMojo extends BaseOpenLMojo {
             }
         }
 
-        if (deploymentPackage) {
+        if (deploymentPackage && (openLJarPackaging || "openl".equals(packaging))) {
             File outputDeploymentDir = new File(outputDirectory, finalName + "-" + DEPLOYMENT_CLASSIFIER);
             if (outputDeploymentDir.isDirectory()) {
                 info("Cleaning up '", outputDeploymentDir, "' directory...");
                 FileUtils.delete(outputDeploymentDir);
             }
             outputDeploymentDir.mkdir();
-            Set<Artifact> openLDependencies = getOpenLDependencies();
+            Set<Artifact> openLDependencies = getDependentOpenLProjects();
             for (Artifact openLArtifact : openLDependencies) {
-                File artifactFile = openLArtifact.getFile();
-                unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
+                if (isRuntimeScope(openLArtifact.getScope())) {
+                    debug("ADD : ", openLArtifact);
+                    File artifactFile = openLArtifact.getFile();
+                    unpackZip(outputDeploymentDir, openLArtifact.getArtifactId(), artifactFile);
+                }
             }
             unpackZip(outputDeploymentDir, project.getArtifact().getArtifactId(), project.getArtifact().getFile());
             generateDeploymentFile(outputDeploymentDir);
 
+            final String artifactType = getFormats()[0];
             File outputFile = getOutputFile(outputDirectory,
                 deploymentName,
                 DEPLOYMENT_CLASSIFIER,
-                OPENL_ARTIFACT_TYPE);
-            Archiver arch = archiverManager.getArchiver(OPENL_ARTIFACT_TYPE);
-            arch.setIncludeEmptyDirs(false);
-            arch.addFileSet(fileSet(outputDeploymentDir).includeEmptyDirs(false));
-            arch.setDestFile(outputFile);
-            arch.createArchive();
+                artifactType);
+            ZipUtils.archive(outputDeploymentDir, outputFile);
+
             info("Attaching the deployment artifact '", outputFile, ",");
-            projectHelper.attachArtifact(project, OPENL_ARTIFACT_TYPE, DEPLOYMENT_CLASSIFIER, outputFile);
+            projectHelper.attachArtifact(project, artifactType, DEPLOYMENT_CLASSIFIER, outputFile);
+        }
+    }
+
+    private String[] getFormats() {
+        switch (packaging) {
+            case "openl":
+                return new String[] { "zip" };
+            case "openl-jar":
+                return new String[] { "jar" };
+            default:
+                return StringUtils.split(format, ',');
         }
     }
 
@@ -211,7 +304,7 @@ public final class PackageMojo extends BaseOpenLMojo {
         HashSet<String> allowed = getAllowedDependencies();
 
         Set<Artifact> dependencies = new HashSet<>();
-        for (Artifact artifact : project.getArtifacts()) {
+        for (Artifact artifact : getDependentNonOpenLProjects()) {
             String groupId = artifact.getGroupId();
             String type = artifact.getType();
             String scope = artifact.getScope();
@@ -224,7 +317,7 @@ public final class PackageMojo extends BaseOpenLMojo {
                 debug("SKIP : ", artifact, " (by dependency depth)");
                 continue; // skip, unexpected size of dependencies
             }
-            if (skipTransitiveDependency(dependencyTrail)) {
+            if (skipOpenLCoreDependency(dependencyTrail)) {
                 debug("SKIP : ", artifact, " (transitive dependency from OpenL or SLF4j dependencies)");
                 continue;
             }
@@ -256,30 +349,11 @@ public final class PackageMojo extends BaseOpenLMojo {
     }
 
     private boolean skipToProcess(String groupId, String type, String scope) {
-        return !isRuntimeScope(scope) || groupId.equals("org.openl.rules") || groupId.equals("org.openl") || groupId
-            .equals("org.slf4j") || OPENL_ARTIFACT_TYPE.equals(type);
+        return !isRuntimeScope(scope) || isOpenLCoreDependency(groupId);
     }
 
     private boolean isRuntimeScope(String scope) {
         return Artifact.SCOPE_RUNTIME.equals(scope) || Artifact.SCOPE_COMPILE.equals(scope);
-    }
-
-    private boolean skipTransitiveDependency(List<String> dependencyTrail) {
-        for (int i = 1; i < dependencyTrail.size() - 1; i++) {
-            String dependency = dependencyTrail.get(i);
-            if (dependency.startsWith("org.openl.rules:") || dependency.startsWith("org.openl:") || dependency
-                .startsWith("org.slf4j:")) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void addFile(Archiver arch, File folder, String fileName) {
-        File file = new File(folder, fileName);
-        if (file.isFile()) {
-            arch.addFile(file, fileName);
-        }
     }
 
     @Override
@@ -310,17 +384,6 @@ public final class PackageMojo extends BaseOpenLMojo {
         return new File(basedir, fileName.toString());
     }
 
-    private Set<Artifact> getOpenLDependencies() {
-        Set<Artifact> openLDependencies = new HashSet<>();
-        for (Artifact artifact : project.getArtifacts()) {
-            if (OPENL_ARTIFACT_TYPE.equals(artifact.getType()) && isRuntimeScope(artifact.getScope())) {
-                openLDependencies.add(artifact);
-                debug("ADD : ", artifact);
-            }
-        }
-        return openLDependencies;
-    }
-
     private void unpackZip(File baseDir, String name, File zip) throws IOException {
         File outDir = new File(baseDir, name);
         ZipUtils.extractAll(zip, outDir);
@@ -336,4 +399,43 @@ public final class PackageMojo extends BaseOpenLMojo {
             new Yaml(options).dump(properties, writer);
         }
     }
+
+    private Manifest createManifest() {
+        Manifest manifest = new Manifest();
+        Attributes attributes = manifest.getMainAttributes();
+        attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
+        if (addDefaultManifest) {
+            // initialize with default values
+            attributes.putValue("Build-Date", ZonedDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+            attributes.putValue("Built-By", userName);
+            attributes.put(Attributes.Name.IMPLEMENTATION_TITLE,
+                String.format("%s:%s", project.getGroupId(), project.getArtifactId()));
+            attributes.put(Attributes.Name.IMPLEMENTATION_VERSION, project.getVersion());
+            if (project.getOrganization() != null) {
+                attributes.put(Attributes.Name.IMPLEMENTATION_VENDOR, project.getOrganization().getName());
+            }
+            attributes.putValue("Created-By", "OpenL Maven Plugin v" + OpenLVersion.getVersion());
+        }
+
+        if (manifestEntries != null) {
+            for (Map.Entry<String, String> entry : manifestEntries.entrySet()) {
+                String key = entry.getKey();
+                // if value is empty, create an entry with empty string to prevent nulls in file
+                String value = StringUtils.trimToEmpty(entry.getValue());
+                attributes.putValue(key, value);
+            }
+        }
+        return manifest;
+    }
+
+    private String[] getExcludes() {
+        ArrayList<String> strings = new ArrayList<>(excludes.length + 2);
+        Collections.addAll(strings, excludes);
+
+        final String targetDir = Paths.get(projectBaseDir).relativize(outputDirectory.toPath()) + "/**";
+        strings.add(targetDir);
+        strings.add("pom.xml");
+        return strings.toArray(StringUtils.EMPTY_STRING_ARRAY);
+    }
+
 }

@@ -5,8 +5,8 @@ import org.openl.util.RangeWithBounds;
 
 public class NumberRangeEditor implements ICellEditor {
 
-    private String entryEditor;
-    private String parsedValue;
+    private final String entryEditor;
+    private final String parsedValue;
 
     public NumberRangeEditor(String entryEditor, String initialValue) {
         this.entryEditor = entryEditor;

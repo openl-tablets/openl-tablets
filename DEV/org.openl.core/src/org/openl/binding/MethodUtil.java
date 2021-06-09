@@ -7,6 +7,7 @@
 package org.openl.binding;
 
 import java.lang.reflect.Method;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.reflect.MethodUtils;
 import org.openl.base.INamedThing;
@@ -14,7 +15,6 @@ import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
 import org.openl.util.ClassUtils;
-import org.openl.util.IConvertor;
 import org.openl.util.print.DefaultFormat;
 
 /**
@@ -23,27 +23,26 @@ import org.openl.util.print.DefaultFormat;
  */
 public final class MethodUtil {
 
-    private static final IConvertor<IOpenClass, String> DEFAULT_TYPE_CONVERTER = (e) -> printType(e);
+    private static final Function<IOpenClass, String> DEFAULT_TYPE_CONVERTER = MethodUtil::printType;
 
     private MethodUtil() {
         // Hidden constructor
     }
 
     public static String printType(IOpenClass type) {
-        return type.getDisplayName(INamedThing.SHORT);
+        return type != null ? type.getDisplayName(INamedThing.SHORT) : "null";
     }
 
     public static StringBuilder printMethod(IOpenMethodHeader method, StringBuilder buf) {
-        buf.append(DEFAULT_TYPE_CONVERTER.convert(method.getType())).append(' ');
+        buf.append(DEFAULT_TYPE_CONVERTER.apply(method.getType())).append(' ');
         printMethod(method, buf, DEFAULT_TYPE_CONVERTER);
         return buf;
     }
 
     public static String printSignature(IOpenMethodHeader methodHeader, final int mode) {
-        StringBuilder buf = new StringBuilder(100);
-        IConvertor<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
+        StringBuilder buf = new StringBuilder();
+        Function<IOpenClass, String> typeConverter = (e) -> e.getDisplayName(mode);
         printMethod(methodHeader, buf, typeConverter);
-
         return buf.toString();
     }
 
@@ -54,14 +53,14 @@ public final class MethodUtil {
 
     private static void printMethod(IOpenMethodHeader methodHeader,
             StringBuilder buf,
-            IConvertor<IOpenClass, String> typeConverter) {
+            Function<IOpenClass, String> typeConverter) {
 
         startPrintingMethodName(methodHeader.getName(), buf);
 
         IMethodSignature signature = methodHeader.getSignature();
 
         for (int i = 0; i < signature.getNumberOfParameters(); i++) {
-            String type = typeConverter.convert(signature.getParameterType(i));
+            String type = typeConverter.apply(signature.getParameterType(i));
             String name = signature.getParameterName(i);
             if (i != 0) {
                 buf.append(", ");
@@ -83,23 +82,26 @@ public final class MethodUtil {
         endPrintingMethodName(buf);
     }
 
-    public static String printMethod(String name, Class<?>[] params) {
-        return printMethod(name, params, new StringBuilder()).toString();
+    public static String printMethod(String name, Class<?>[] params, boolean shortClassNames) {
+        return printMethod(name, params, shortClassNames, new StringBuilder()).toString();
     }
 
-    public static StringBuilder printMethod(String name, Class<?>[] params, StringBuilder buf) {
+    public static String printMethod(String name, Class<?>[] params) {
+        return printMethod(name, params, false, new StringBuilder()).toString();
+    }
+
+    public static StringBuilder printMethod(String name,
+            Class<?>[] params,
+            boolean shortClassNames,
+            StringBuilder buf) {
         startPrintingMethodName(name, buf);
 
         for (int i = 0; i < params.length; i++) {
-            String type = params[i].getName();
+            String type = shortClassNames ? params[i].getSimpleName() : params[i].getTypeName();
             if (i != 0) {
                 buf.append(", ");
             }
-
-            if (type != null) {
-                buf.append(type);
-            }
-
+            buf.append(type);
         }
 
         endPrintingMethodName(buf);

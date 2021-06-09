@@ -1,0 +1,275 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "CalcBug_CalcBug",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/webservice/REST/CalcBug/CalcBug",
+      "variables": {}
+    }
+  ],
+  "paths": {
+    "/mySpr": {
+      "post": {
+        "summary": "MySpr mySpr(int, String)",
+        "description": "Rules method: SpreadsheetResultmySpr mySpr(int a, java.lang.String b)",
+        "operationId": "mySpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MySprRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MySpr"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/newSpr": {
+      "post": {
+        "summary": "NewSpr newSpr(int, String)",
+        "description": "Rules method: SpreadsheetResultnewSpr newSpr(int a, java.lang.String b)",
+        "operationId": "newSpr",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/NewSprRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "422": {
+            "description": "Custom user errors in rules or validation errors in input parameters",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Some message",
+                  "type": "USER_ERROR"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Cannot parse 'bar' to JSON",
+                  "type": "BAD_REQUEST"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/JAXRSErrorResponse"
+                },
+                "example": {
+                  "message": "Failed to load lazy method.",
+                  "type": "COMPILATION"
+                }
+              }
+            }
+          },
+          "200": {
+            "description": "Successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/NewSpr"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "JAXRSErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "USER_ERROR",
+              "RULES_RUNTIME",
+              "COMPILATION",
+              "SYSTEM",
+              "BAD_REQUEST",
+              "VALIDATION"
+            ]
+          },
+          "details": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "MySpr": {
+        "type": "object",
+        "properties": {
+          "Step1": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Step2": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "Step3": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NewSpr"
+            }
+          }
+        }
+      },
+      "NewSpr": {
+        "type": "object",
+        "properties": {
+          "calc1": {
+            "type": "number",
+            "format": "double"
+          },
+          "calc2": {
+            "type": "string"
+          }
+        }
+      },
+      "MySprRequest": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "b": {
+            "type": "string"
+          }
+        }
+      },
+      "NewSprRequest": {
+        "type": "object",
+        "properties": {
+          "a": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "b": {
+            "type": "string"
+          }
+        }
+      },
+      "LostSpreadsheetWithSelfReferences": {
+        "type": "object",
+        "properties": {
+          "abba": {
+            "type": "number",
+            "format": "long"
+          },
+          "interesting": {
+            "$ref": "#/components/schemas/LostSpreadsheetWithSelfReferences"
+          },
+          "interestingArray": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/LostSpreadsheetWithSelfReferences"
+              }
+            }
+          },
+          "callOfSpr": {
+            "$ref": "#/components/schemas/MySpr"
+          }
+        }
+      },
+      "LostSpreadsheetWithoutSelfRefs": {
+        "type": "object",
+        "properties": {
+          "abba": {
+            "type": "number",
+            "format": "long"
+          },
+          "callOfSpr": {
+            "$ref": "#/components/schemas/MySpr"
+          }
+        }
+      }
+    }
+  }
+}

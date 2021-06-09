@@ -80,7 +80,6 @@ public class Vehicle {
     public boolean equals(Object obj) {
         EqualsBuilder builder = new EqualsBuilder();
         if (!(obj instanceof Vehicle)) {
-            ;
             return false;
         }
         Vehicle another = (Vehicle) obj;
@@ -103,32 +102,8 @@ public class Vehicle {
     }
 
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Vehicle {");
-        builder.append(" name=");
-        builder.append(getName());
-        builder.append(" model=");
-        builder.append(getModel());
-        builder.append(" year=");
-        builder.append(getYear());
-        builder.append(" hasAlarm=");
-        builder.append(getHasAlarm());
-        builder.append(" type=");
-        builder.append(getType());
-        builder.append(" onHighTheftProbabilityList=");
-        builder.append(getOnHighTheftProbabilityList());
-        builder.append(" airbags=");
-        builder.append(getAirbags());
-        builder.append(" price=");
-        builder.append(getPrice());
-        builder.append(" bodyType=");
-        builder.append(getBodyType());
-        builder.append(" coverage=");
-        builder.append(ArrayUtils.toString(getCoverage()));
-        builder.append(" hasRollBar=");
-        builder.append(getHasRollBar());
-        builder.append(" }");
-        return builder.toString();
+        return "Vehicle {" + " name=" + getName() + " model=" + getModel() + " year=" + getYear() + " hasAlarm=" + getHasAlarm() + " type=" + getType() + " onHighTheftProbabilityList=" + getOnHighTheftProbabilityList() + " airbags=" + getAirbags() + " price=" + getPrice() + " bodyType=" + getBodyType() + " coverage=" + ArrayUtils
+            .toString(getCoverage()) + " hasRollBar=" + getHasRollBar() + " }";
     }
 
     public void setName(java.lang.String name) {

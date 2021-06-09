@@ -1,5 +1,7 @@
 package org.openl.rules.table.constraints;
 
+import org.openl.util.StringUtils;
+
 /**
  * @author Andrei Astrouski
  */
@@ -20,7 +22,7 @@ public class LessThanConstraint extends AbstractConstraint {
         if (mathes.length > 1) {
             return new String[] { mathes[1] };
         }
-        return new String[0];
+        return StringUtils.EMPTY_STRING_ARRAY;
     }
 
     @Override

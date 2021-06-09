@@ -1,6 +1,8 @@
 package org.openl.rules.helpers;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import java.math.BigDecimal;
 
@@ -16,10 +18,11 @@ public class DoubleRangeParsingTest {
 
     @Test
     public void testBrackets() {
-        assertTrue(new DoubleRange("(2; 3.01)").contains(3));
-        assertTrue(new DoubleRange("(2;3.01)").contains(3));
-        assertFalse(new DoubleRange("(2;3.01)").contains(2));
-        assertTrue(new DoubleRange("[2 .. 3.01)").contains(2));
+        assertTrue(new DoubleRange("(.1; 3.01)").contains(3d));
+        assertTrue(new DoubleRange("(2; 3.01)").contains(3d));
+        assertTrue(new DoubleRange("(2;3.01)").contains(3d));
+        assertFalse(new DoubleRange("(2;3.01)").contains(2d));
+        assertTrue(new DoubleRange("[2 .. 3.01)").contains(2d));
         assertEquals(new DoubleRange("[4;5]"), new DoubleRange(4, 5));
         assertEquals(new DoubleRange("( 1.0002; 6 ]"),
             new DoubleRange(1.0002, 6, BoundType.EXCLUDING, BoundType.INCLUDING));
@@ -30,9 +33,9 @@ public class DoubleRangeParsingTest {
 
     private void checkWrong(String x) {
         try {
-            IntRangeParser.getInstance().parse(x);
+            DoubleRangeParser.getInstance().parse(x);
             Assert.fail();
-        } catch (Exception e) {
+        } catch (Exception ignored) {
         }
     }
 
@@ -41,6 +44,8 @@ public class DoubleRangeParsingTest {
         checkWrong(",");
         checkWrong(",1");
         checkWrong("1,");
+        checkWrong("1.");
+        checkWrong("..1");
         checkWrong("1,1,");
         checkWrong(",1,1");
 
@@ -49,9 +54,13 @@ public class DoubleRangeParsingTest {
         checkWrong("[1,1 .. ,1]");
         checkWrong("[,1 .. 1]");
         checkWrong("[1, .. 1]");
+        checkWrong("[1. .. 1]");
+        checkWrong("[..1. .. 1]");
 
         checkWrong(">,1");
         checkWrong("<1,");
+        checkWrong("<1.");
+        checkWrong("<..1");
         checkWrong("<,1,1,");
         checkWrong("<1,1,");
         checkWrong("<,1,1");
@@ -61,6 +70,8 @@ public class DoubleRangeParsingTest {
         checkWrong("1,1 .. ,1");
         checkWrong(",1 .. 1");
         checkWrong("1, .. 1");
+        checkWrong("1. .. 1");
+        checkWrong("..1 .. 1");
 
         checkWrong("1.0.0");
         checkWrong(",1.0");
@@ -158,8 +169,8 @@ public class DoubleRangeParsingTest {
     public void testSimplifiedDeclaration() {
         DoubleRange range1 = new DoubleRange("1-15");
         assertEquals(range1, new DoubleRange(1, 15, BoundType.INCLUDING, BoundType.INCLUDING));
-        assertTrue(range1.contains(1));
-        assertTrue(range1.contains(15));
+        assertTrue(range1.contains(1d));
+        assertTrue(range1.contains(15d));
     }
 
     @Test

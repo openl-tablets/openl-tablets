@@ -7,17 +7,21 @@
 package org.openl.types.impl;
 
 import java.util.Map;
+import java.util.Optional;
 
 import org.openl.binding.BindingDependencies;
 import org.openl.binding.IBoundMethodNode;
 import org.openl.syntax.ISyntaxNode;
+import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
 import org.openl.types.Invokable;
 import org.openl.vm.IRuntimeEnv;
 
 public class CompositeMethod extends ExecutableMethod {
 
+    public static final CompositeMethod[] EMPTY_ARRAY = new CompositeMethod[0];
     private IBoundMethodNode methodBodyBoundNode;
     private Boolean invokable;
 
@@ -40,7 +44,7 @@ public class CompositeMethod extends ExecutableMethod {
     }
 
     public boolean isInvokable() {
-        return invokable != null ? invokable : methodBodyBoundNode != null;
+        return invokable != null ? invokable : (methodBodyBoundNode != null);
     }
 
     @Override
@@ -62,6 +66,13 @@ public class CompositeMethod extends ExecutableMethod {
             ((CompositeMethodInvoker) invoker).removeDebugInformation();
             invokable = methodBodyBoundNode != null;
             methodBodyBoundNode = null;
+        }
+        IMethodSignature signature = getSignature();
+        if (signature instanceof MethodSignature) {
+            for (int i = 0; i < signature.getNumberOfParameters(); i++) {
+                IParameterDeclaration paramDeclaration = ((MethodSignature) signature).getParameterDeclaration(i);
+                Optional.ofNullable(paramDeclaration).ifPresent(IParameterDeclaration::removeDebugInformation);
+            }
         }
     }
 

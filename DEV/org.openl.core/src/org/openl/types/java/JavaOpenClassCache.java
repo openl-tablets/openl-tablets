@@ -9,7 +9,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.apache.commons.collections4.map.AbstractReferenceMap;
 import org.apache.commons.collections4.map.ReferenceMap;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.meta.*;
 
 public final class JavaOpenClassCache {
@@ -24,7 +24,7 @@ public final class JavaOpenClassCache {
      * memory leak. Classes added to javaClassCache will not be garbage collected. TODO use better cache implementation
      * instead
      */
-    private Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<>(AbstractReferenceMap.ReferenceStrength.SOFT,
+    private final Map<Class<?>, JavaOpenClass> cache = new ReferenceMap<>(AbstractReferenceMap.ReferenceStrength.SOFT,
         AbstractReferenceMap.ReferenceStrength.SOFT);
 
     public static JavaOpenClassCache getInstance() {
@@ -50,6 +50,7 @@ public final class JavaOpenClassCache {
         javaClassCache.put(boolean.class, JavaOpenClass.BOOLEAN);
         javaClassCache.put(Boolean.class, new JavaOpenClass(Boolean.class, true));
         javaClassCache.put(void.class, JavaOpenClass.VOID);
+        javaClassCache.put(Void.class, JavaOpenClass.CLS_VOID);
         javaClassCache.put(String.class, JavaOpenClass.STRING);
         javaClassCache.put(Object.class, JavaOpenClass.OBJECT);
         javaClassCache.put(Class.class, JavaOpenClass.CLASS);
@@ -105,8 +106,8 @@ public final class JavaOpenClassCache {
                 if (classLoader == cl) {
                     toRemove.add(c);
                 }
-                if (cl instanceof OpenLBundleClassLoader) {
-                    if (((OpenLBundleClassLoader) cl).containsClassLoader(classLoader)) {
+                if (cl instanceof OpenLClassLoader) {
+                    if (((OpenLClassLoader) cl).containsClassLoader(classLoader)) {
                         toRemove.add(c);
                     }
                 }

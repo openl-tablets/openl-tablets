@@ -6,8 +6,8 @@ import org.openl.rules.table.ui.ICellFont;
 
 public class XlsCellFont implements ICellFont {
 
-    private Font font;
-    private Workbook workbook;
+    private final Font font;
+    private final Workbook workbook;
 
     public XlsCellFont(Font font, Workbook workbook) {
         this.font = font;

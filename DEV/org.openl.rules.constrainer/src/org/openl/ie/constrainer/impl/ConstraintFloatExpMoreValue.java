@@ -24,9 +24,9 @@ import org.openl.ie.constrainer.*;
  */
 public final class ConstraintFloatExpMoreValue extends ConstraintImpl {
     // PRIVATE MEMBERS
-    private FloatExp _exp;
-    private double _value;
-    private Constraint _opposite;
+    private final FloatExp _exp;
+    private final double _value;
+    private final Constraint _opposite;
 
     public ConstraintFloatExpMoreValue(FloatExp exp, double value) {
         super(exp.constrainer(), "");// exp.name()+">="+value);

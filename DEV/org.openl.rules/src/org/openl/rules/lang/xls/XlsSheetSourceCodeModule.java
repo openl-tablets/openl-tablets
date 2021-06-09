@@ -6,14 +6,14 @@ import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Sheet;
 import org.openl.rules.lang.xls.load.SheetLoader;
-import org.openl.rules.table.syntax.XlsURLConstants;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.util.StringTool;
 
+@Deprecated
 public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
-    private XlsWorkbookSourceCodeModule workbookSource;
+    private final XlsWorkbookSourceCodeModule workbookSource;
 
-    private SheetLoader sheetLoader;
+    private final SheetLoader sheetLoader;
 
     private Map<String, Object> params;
 
@@ -64,7 +64,12 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
 
     @Override
     public String getUri() {
-        return workbookSource.getUri() + "?" + XlsURLConstants.SHEET + "=" + StringTool.encodeURL(getSheetName());
+        String workbookUri = workbookSource.getUri();
+        if (workbookUri == null) {
+            // assume that URI is null for virtual grid module, let's try to make it unique
+            workbookUri = "VIRTUAL_WORKBOOK@" + System.identityHashCode(this);
+        }
+        return workbookUri + "?sheet=" + StringTool.encodeURL(getSheetName());
     }
 
     public XlsWorkbookSourceCodeModule getWorkbookSource() {
@@ -79,10 +84,5 @@ public class XlsSheetSourceCodeModule implements IOpenSourceCodeModule {
     @Override
     public void setParams(Map<String, Object> params) {
         this.params = params;
-    }
-
-    @Override
-    public boolean isModified() {
-        return workbookSource.isModified();
     }
 }

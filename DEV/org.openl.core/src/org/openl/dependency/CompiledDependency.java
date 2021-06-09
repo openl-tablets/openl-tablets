@@ -8,8 +8,8 @@ import org.openl.CompiledOpenClass;
  */
 public class CompiledDependency {
 
-    private String dependencyName;
-    private CompiledOpenClass compiledOpenClass;
+    private final String dependencyName;
+    private final CompiledOpenClass compiledOpenClass;
 
     public CompiledDependency(String dependencyName, CompiledOpenClass compiledOpenClass) {
         this.dependencyName = dependencyName;

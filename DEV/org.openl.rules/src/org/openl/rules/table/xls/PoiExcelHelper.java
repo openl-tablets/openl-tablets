@@ -19,7 +19,7 @@ public final class PoiExcelHelper {
     private static final short MAX_STYLES = 4030;
 
     public static void copyCellValue(Cell cellFrom, Cell cellTo) {
-        cellTo.setCellType(CellType.BLANK);
+        cellTo.setBlank();
         switch (cellFrom.getCellType()) {
             case BLANK:
                 break;

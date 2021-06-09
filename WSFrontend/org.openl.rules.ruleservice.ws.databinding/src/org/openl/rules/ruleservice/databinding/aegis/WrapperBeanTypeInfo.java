@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding.aegis;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.beans.PropertyDescriptor;
 import java.util.List;
 
@@ -22,7 +12,7 @@ import org.apache.cxf.aegis.type.basic.BeanTypeInfo;
  *
  */
 public class WrapperBeanTypeInfo extends BeanTypeInfo {
-    private List<String> ignoredProperties;
+    private final List<String> ignoredProperties;
 
     public WrapperBeanTypeInfo(Class<?> typeClass, String defaultNamespace, List<String> ignoredProperties) {
         super(typeClass, defaultNamespace);

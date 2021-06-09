@@ -12,9 +12,9 @@ import org.openl.rules.table.actions.GridRegionAction.ActionType;
  */
 public class UndoableInsertRowsAction extends UndoableInsertAction {
 
-    private int nRows;
-    private int beforeRow;
-    private int col;
+    private final int nRows;
+    private final int beforeRow;
+    private final int col;
 
     public UndoableInsertRowsAction(int nRows, int beforeRow, int col, MetaInfoWriter metaInfoWriter) {
         super(metaInfoWriter);

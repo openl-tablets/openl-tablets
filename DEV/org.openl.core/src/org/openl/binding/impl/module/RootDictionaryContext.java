@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.openl.base.INamedThing;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.impl.OpenFieldDelegator;
@@ -14,7 +14,7 @@ import org.openl.vm.IRuntimeEnv;
 public class RootDictionaryContext implements VariableInContextFinder {
 
     static class ContextField extends OpenFieldDelegator {
-        IOpenField parent;
+        final IOpenField parent;
 
         protected ContextField(IOpenField parent, IOpenField delegate) {
             super(delegate);
@@ -65,17 +65,18 @@ public class RootDictionaryContext implements VariableInContextFinder {
             if (parent != null) {
                 target = parent.get(target, env);
             }
-            super.set(target, value, env);
-
+            if (target != null) {
+                super.set(target, value, env);
+            }
         }
 
     }
 
-    protected IOpenField[] roots;
+    protected final IOpenField[] roots;
 
-    protected int maxDepthLevel;
+    protected final int maxDepthLevel;
 
-    protected HashMap<String, List<IOpenField>> fields = new HashMap<>();
+    protected final HashMap<String, List<IOpenField>> fields = new HashMap<>();
 
     public RootDictionaryContext(IOpenField[] roots, int maxDepthLevel) {
         this.roots = roots;
@@ -103,18 +104,18 @@ public class RootDictionaryContext implements VariableInContextFinder {
     }
 
     @Override
-    public IOpenField findVariable(String name) throws AmbiguousVarException {
+    public IOpenField findVariable(String name) throws AmbiguousFieldException {
         return findField(name);
     }
 
-    public IOpenField findField(String name) throws AmbiguousVarException {
+    public IOpenField findField(String name) throws AmbiguousFieldException {
         name = name.toLowerCase();
         List<IOpenField> ff = fields.get(name);
         if (ff == null) {
             return null;
         }
         if (ff.size() > 1) {
-            throw new AmbiguousVarException(name, ff);
+            throw new AmbiguousFieldException(name, ff);
         }
 
         return ff.get(0);
@@ -124,17 +125,17 @@ public class RootDictionaryContext implements VariableInContextFinder {
         if (level > maxDepthLevel) {
             return;
         }
-        IOpenClass fieldType = field.getType();
-
         add(new ContextField(parent, field));
-        if (fieldType.isSimple()) {
-            return;
-        }
 
-        for (IOpenField openField : fieldType.getFields().values()) {
-            initializeField(field, openField, level + 1);
+        if (level + 1 <= maxDepthLevel) {
+            IOpenClass fieldType = field.getType();
+            if (fieldType.isSimple()) {
+                return;
+            }
+            for (IOpenField openField : fieldType.getFields()) {
+                initializeField(field, openField, level + 1);
+            }
         }
-
     }
 
     private void initializeRoots() {

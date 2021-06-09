@@ -2,7 +2,6 @@ package org.openl.rules.table.xls;
 
 import static org.junit.Assert.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +21,6 @@ import org.openl.rules.lang.xls.types.meta.MetaInfoWriterImpl;
 import org.openl.rules.table.*;
 import org.openl.rules.table.actions.IUndoableGridTableAction;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.util.StringUtils;
 
 /**
  * Tests correctness of resizing and moving merged regions during removing/inserting of columns and rows.
@@ -39,7 +37,7 @@ public class MergedRegionsTest {
      */
     private static class TestDesctiption {
         private static final String testDescriptionFormat = "test=.+&result=.+&original=.+&from=\\d+&count=\\d+";
-        private static Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
+        private static final Pattern testDescriptionPattern = Pattern.compile(testDescriptionFormat);
 
         private IGridRegion testRegion;
         private IGridRegion expectedResultRegion;
@@ -87,9 +85,9 @@ public class MergedRegionsTest {
                 } else if ("original".equals(key)) {
                     test.originalTableRegion = new XlsGridRegion(CellRangeAddress.valueOf(value));
                 } else if ("from".equals(key)) {
-                    test.from = Integer.valueOf(value);
+                    test.from = Integer.parseInt(value);
                 } else if ("count".equals(key)) {
-                    test.count = Integer.valueOf(value);
+                    test.count = Integer.parseInt(value);
                 }
             }
             return test;
@@ -104,8 +102,8 @@ public class MergedRegionsTest {
      */
     private static class DifferentCellsException extends Exception {
         private static final long serialVersionUID = 1L;
-        private ICell resultCell;
-        private ICell expectedCell;
+        private final ICell resultCell;
+        private final ICell expectedCell;
 
         public ICell getResultCell() {
             return resultCell;
@@ -122,8 +120,7 @@ public class MergedRegionsTest {
 
     }
 
-    private static String __src = "test/rules/MergedRegions.xls";
-    private static boolean saveAfterFailure = false;
+    private static final String __src = "test/rules/MergedRegions.xls";
 
     private List<TestDesctiption> findAllTests(IWritableGrid grid) {
         List<TestDesctiption> result = new ArrayList<>();
@@ -241,14 +238,6 @@ public class MergedRegionsTest {
             removeRowsActions.undoAction(table);
             compareTablesByCell(test.getTestRegion(), test.getOriginalTableRegion(), grid);
         } catch (DifferentCellsException e) {
-            if (saveAfterFailure) {
-                try {
-                    workbook.saveAs(
-                        String.format("test/rules/MergedRegionsAfter%s.xls", grid.getSheetSource().getSheetName()));
-                } catch (IOException e1) {
-                    e1.printStackTrace();
-                }
-            }
             fail("Different cells:\n" + e.getResultCell().getUri() + "\n and \n" + e.getExpectedCell().getUri());
         }
     }

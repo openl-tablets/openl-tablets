@@ -1,13 +1,12 @@
 package org.openl.rules.webstudio.web;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class NotFoundBean {
     public String getProject() {
         return WebStudioUtils.getRequestParameter("project");
@@ -18,9 +17,10 @@ public class NotFoundBean {
     }
 
     public Type getType() {
+        String repositoryId = WebStudioUtils.getRequestParameter("repositoryId");
         String project = getProject();
         if (project != null) {
-            ProjectDescriptor projectDescriptor = WebStudioUtils.getWebStudio().getProjectByName(project);
+            ProjectDescriptor projectDescriptor = WebStudioUtils.getWebStudio().getProjectByName(repositoryId, project);
             if (projectDescriptor == null) {
                 return Type.PROJECT;
             }

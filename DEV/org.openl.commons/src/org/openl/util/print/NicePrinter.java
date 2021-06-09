@@ -17,13 +17,13 @@ import java.util.Map;
  */
 public class NicePrinter {
 
-    int identStep = 2;
+    final int identStep = 2;
 
-    StringBuilder buffer = null;
+    StringBuilder buffer;
 
     int ident = 0;
 
-    HashMap<Object, Integer> printedObjects = new HashMap<>();
+    final HashMap<Object, Integer> printedObjects = new HashMap<>();
 
     int printedID = 0;
 

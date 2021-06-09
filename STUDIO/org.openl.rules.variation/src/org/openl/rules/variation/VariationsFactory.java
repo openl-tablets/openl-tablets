@@ -1,15 +1,5 @@
 package org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 /**
  * Factory for simple variations creation.
  *
@@ -59,7 +49,7 @@ public abstract class VariationsFactory {
             Object valueToSet,
             boolean cloneArguments) {
         // TODO check null ID
-        Variation variation = null;
+        Variation variation;
         if (path.equals(THIS_POINTER)) {
             variation = new ArgumentReplacementVariation(vairationId, argumentIndex, valueToSet);
         } else {

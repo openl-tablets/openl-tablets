@@ -5,7 +5,7 @@ import org.openl.types.java.JavaEnumDomain;
 
 public class JavaEnumDomainAdaptor implements IDomainAdaptor {
 
-    private JavaEnumDomain domain;
+    private final JavaEnumDomain domain;
 
     public JavaEnumDomainAdaptor(JavaEnumDomain domain) {
         this.domain = domain;

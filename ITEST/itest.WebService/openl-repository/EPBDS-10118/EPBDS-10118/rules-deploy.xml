@@ -1,0 +1,8 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <publishers>
+    <publisher>WEBSERVICE</publisher>
+    <publisher>RESTFUL</publisher>
+  </publishers>
+</rules-deploy>

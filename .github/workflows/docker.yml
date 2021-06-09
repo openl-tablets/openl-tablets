@@ -1,0 +1,130 @@
+# This workflow will publish Docker images to the Central Docker Hub repository.
+
+name: DockerHub Publisher
+
+on:
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish'
+        required: false
+        default: 'latest'
+
+jobs:
+  publish:
+
+    name: Publish ${{ github.event.inputs.version }} images to DockerHub
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Setup Soft
+      run: sudo apt-get install -y --no-install-recommends libxml2-utils
+
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Determine the latest version
+      run: |
+        SERVER="https://repo.maven.apache.org/maven2"
+        metaUrl="$SERVER/org/openl/org.openl.core/maven-metadata.xml"
+        metaData="$(wget -qO - $metaUrl)"
+        latest="$(echo $metaData | xmllint --xpath /metadata/versioning/latest/text\(\) - )"
+        version="${{ github.event.inputs.version }}"
+        if [ "$version" = "latest" ]; then
+          version="$latest"
+        fi
+        major=$(echo $version | grep -o -E [0-9]+.[0-9]+ | head -n1)
+        latestMajor=$(echo $metaData | grep -E $major\.[0-9.]+ -o | sort -V -r | head -n1)
+        echo $version
+        echo $major
+        echo $latest
+        echo $latestMajor
+        tags_11="-t openltablets/\$appName:$version"
+        tags_8="-t openltablets/\$appName:$version-jre8"
+        if [ "$latestMajor" = "$version" ]; then
+          tags_11+=" -t openltablets/\$appName:$major.x"
+          tags_8+=" -t openltablets/\$appName:$major.x-jre8"
+        fi
+        if [ "$latest" = "$version" ]; then
+          tags_11+=" -t openltablets/\$appName:latest"
+        fi
+        echo "tags_11=$tags_11" >> $GITHUB_ENV
+        echo "tags_8=$tags_8" >> $GITHUB_ENV
+        echo "version=$version" >> $GITHUB_ENV
+
+    - name: DEMO JDK 8
+      env:
+        appName : demo
+      run: >
+        eval docker build $tags_8
+        --build-arg VERSION=$version
+        --build-arg JDK=8-jre-slim-buster
+        -f ./Dockerfiles/Demo .
+
+    - name: DEMO JDK 11
+      env:
+        appName : demo
+      run: >
+        eval docker build $tags_11
+        --build-arg VERSION=$version
+        --build-arg JDK=11-slim-buster
+        -f ./Dockerfiles/Demo .
+
+    - name: Rule Services (All) JDK 8
+      run: >
+        docker build -t openltablets/ws:$version-jre8-all
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        -f ./Dockerfiles/RuleServices-all .
+
+    - name: Rule Services (All) JDK 11
+      run: >
+        docker build -t openltablets/ws:$version-all
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        -f ./Dockerfiles/RuleServices-all .
+
+    - name: Rule Services JDK 8
+      env:
+        appName : ws
+      run: >
+        eval docker build $tags_8
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        -f ./Dockerfiles/RuleServices .
+
+    - name: Rule Services JDK 11
+      env:
+        appName : ws
+      run: >
+        eval docker build $tags_11
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        -f ./Dockerfiles/RuleServices .
+
+    - name: WebStudio JDK 8
+      env:
+        appName : webstudio
+      run: >
+        eval docker build $tags_8
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk8-openjdk-slim-buster
+        -f ./Dockerfiles/WebStudio .
+
+    - name: WebStudio JDK 11
+      env:
+        appName : webstudio
+      run: >
+        eval docker build $tags_11
+        --build-arg VERSION=$version
+        --build-arg TOMCAT=9-jdk11-openjdk-slim-buster
+        -f ./Dockerfiles/WebStudio .
+
+    - name: Push images
+      run: |
+        docker login -u ${{ secrets.DOCKER_LOGIN }} -p ${{ secrets.DOCKER_TOKEN }}
+        docker push -a openltablets/demo
+        docker push -a openltablets/ws
+        docker push -a openltablets/webstudio

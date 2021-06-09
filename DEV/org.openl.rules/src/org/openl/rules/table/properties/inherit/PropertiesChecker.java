@@ -55,23 +55,17 @@ public final class PropertiesChecker {
         for (String propertyNameToCheck : propertyNamesToCheck) {
             if (!PropertiesChecker.isPropertySuitableForTableType(propertyNameToCheck, tableType)) {
                 String message = String
-                    .format("Property '%s' cannot be defined in %s Table", propertyNameToCheck, typeName);
-
-                addError(bindingContext, tableSyntaxNode, message);
+                    .format("Property '%s' cannot be defined in '%s' table.", propertyNameToCheck, typeName);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                bindingContext.addError(error);
             } else if (level != null && !PropertiesChecker.isPropertySuitableForLevel(level, propertyNameToCheck)) {
-                String message = String.format("Property '%s' cannot be defined on the '%s' level",
+                String message = String.format("Property '%s' cannot be defined on level '%s'.",
                     propertyNameToCheck,
                     level.getDisplayName());
-
-                addError(bindingContext, tableSyntaxNode, message);
+                SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
+                bindingContext.addError(error);
             }
         }
-    }
-
-    private static void addError(IBindingContext bindingContext, TableSyntaxNode tableSyntaxNode, String message) {
-        SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, tableSyntaxNode);
-        tableSyntaxNode.addError(error);
-        bindingContext.addError(error);
     }
 
     /**

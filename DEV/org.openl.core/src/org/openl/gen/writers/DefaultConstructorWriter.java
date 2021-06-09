@@ -1,13 +1,5 @@
 package org.openl.gen.writers;
 
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.commons.GeneratorAdapter;
-import org.objectweb.asm.commons.Method;
-import org.openl.gen.ByteCodeGenerationException;
-import org.openl.gen.FieldDescription;
-
 import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -17,6 +9,15 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.*;
+
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.GeneratorAdapter;
+import org.objectweb.asm.commons.Method;
+import org.openl.gen.ByteCodeGenerationException;
+import org.openl.gen.FieldDescription;
+import org.openl.gen.TypeDescription;
 
 public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
@@ -60,13 +61,13 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     /**
      * @param beanNameWithPackage name of the class being generated with package, symbol '/' is used as separator<br>
      *            (e.g. <code>my/test/TestClass</code>)
-     * @param parentClass class descriptor for super class.
+     * @param parentType class descriptor for super class.
      * @param beanFields fields of generating class.
      */
     public DefaultConstructorWriter(String beanNameWithPackage,
-            Class<?> parentClass,
+            TypeDescription parentType,
             Map<String, FieldDescription> beanFields) {
-        super(beanNameWithPackage, parentClass, beanFields);
+        super(beanNameWithPackage, parentType, beanFields);
     }
 
     private static void pushValue(GeneratorAdapter mg, Type type, Object value) {
@@ -212,49 +213,44 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
     }
 
     private static void pushLocalDate(GeneratorAdapter mg, Type type, LocalDate value) {
-        LocalDate ld = value;
-        mg.push(ld.getYear());
-        mg.push(ld.getMonthValue());
-        mg.push(ld.getDayOfMonth());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
         mg.invokeStatic(type, LOCAL_DATE_OF);
     }
 
     private static void pushZonedDateTime(GeneratorAdapter mg, Type type, ZonedDateTime value) {
-        ZonedDateTime zdt = value;
-        mg.push(zdt.getYear());
-        mg.push(zdt.getMonthValue());
-        mg.push(zdt.getDayOfMonth());
-        mg.push(zdt.getHour());
-        mg.push(zdt.getMinute());
-        mg.push(zdt.getSecond());
-        mg.push(zdt.getNano());
-        mg.push(zdt.getZone().getId());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
+        mg.push(value.getNano());
+        mg.push(value.getZone().getId());
         mg.invokeStatic(Type.getType(ZoneId.class), ZONE_ID_OF);
         mg.invokeStatic(type, ZONED_DATETIME_OF);
     }
 
     private static void pushInstant(GeneratorAdapter mg, Type type, Instant value) {
-        Instant instantDate = value;
-        mg.push(instantDate.toEpochMilli());
+        mg.push(value.toEpochMilli());
         mg.invokeStatic(type, INSTANT_OF);
     }
 
     private static void pushLocalDateTime(GeneratorAdapter mg, Type type, LocalDateTime value) {
-        LocalDateTime ldt = value;
-        mg.push(ldt.getYear());
-        mg.push(ldt.getMonthValue());
-        mg.push(ldt.getDayOfMonth());
-        mg.push(ldt.getHour());
-        mg.push(ldt.getMinute());
-        mg.push(ldt.getSecond());
+        mg.push(value.getYear());
+        mg.push(value.getMonthValue());
+        mg.push(value.getDayOfMonth());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
         mg.invokeStatic(type, LOCAL_DATETIME_OF);
     }
 
     private static void pushLocalTime(GeneratorAdapter mg, Type type, LocalTime value) {
-        LocalTime lt = value;
-        mg.push(lt.getHour());
-        mg.push(lt.getMinute());
-        mg.push(lt.getSecond());
+        mg.push(value.getHour());
+        mg.push(value.getMinute());
+        mg.push(value.getSecond());
         mg.invokeStatic(type, LOCAL_TIME_OF);
     }
 
@@ -289,7 +285,7 @@ public class DefaultConstructorWriter extends DefaultBeanByteCodeWriter {
 
         // invokes the super class constructor
         mg.loadThis();
-        mg.invokeConstructor(Type.getType(getParentClass()), DEF_CONSTR);
+        mg.invokeConstructor(Type.getType(getParentType().getTypeDescriptor()), DEF_CONSTR);
 
         for (Map.Entry<String, FieldDescription> field : getBeanFields().entrySet()) {
             FieldDescription fieldDescription = field.getValue();

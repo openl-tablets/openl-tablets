@@ -1,1 +1,3 @@
-{"body":"Failure in the method: `Spreadsheet[1 x 3]`.error(A is not valid). Cause: A is not valid"}
+{
+  "body": "Failure in the method: `Spreadsheet[1 x 3]`.error(A is not valid). Cause: A is not valid"
+}

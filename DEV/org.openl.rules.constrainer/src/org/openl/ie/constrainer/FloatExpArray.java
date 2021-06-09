@@ -8,7 +8,7 @@ import java.util.Comparator;
  */
 public final class FloatExpArray extends ConstrainerObjectImpl {
 
-    private FloatExp[] _data;
+    private final FloatExp[] _data;
 
     /**
      * Constructor for "size" unitialized expressions. Call set() to initialize all the expressions in this array.
@@ -44,8 +44,8 @@ public final class FloatExpArray extends ConstrainerObjectImpl {
      */
     public double max() {
         double max = -Double.MAX_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            double maxi = _data[i].max();
+        for (FloatExp datum : _data) {
+            double maxi = datum.max();
             if (maxi > max) {
                 max = maxi;
             }
@@ -58,8 +58,8 @@ public final class FloatExpArray extends ConstrainerObjectImpl {
      */
     public double min() {
         double min = Double.MAX_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            double mini = _data[i].min();
+        for (FloatExp datum : _data) {
+            double mini = datum.min();
             if (mini < min) {
                 min = mini;
             }

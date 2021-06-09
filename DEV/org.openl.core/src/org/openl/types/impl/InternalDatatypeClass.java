@@ -12,8 +12,8 @@ import org.openl.types.IOpenMember;
  */
 public class InternalDatatypeClass implements IOpenMember {
 
-    private IOpenClass domainOpenClass;
-    private IOpenClass declaringClass;
+    private final IOpenClass domainOpenClass;
+    private final IOpenClass declaringClass;
 
     public InternalDatatypeClass(IOpenClass domenOpenClass, IOpenClass declaringClass) {
         this.domainOpenClass = domenOpenClass;

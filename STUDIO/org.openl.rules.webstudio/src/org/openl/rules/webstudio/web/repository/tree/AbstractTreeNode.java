@@ -1,16 +1,17 @@
 package org.openl.rules.webstudio.web.repository.tree;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
 
-import javax.faces.model.SelectItem;
-
+import org.openl.rules.common.ArtefactPath;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.AProjectArtefact;
 import org.openl.rules.project.abstraction.AProjectFolder;
 import org.openl.rules.project.abstraction.RulesProject;
-
-import com.google.common.collect.Iterators;
 
 /**
  * This abstract class implements basic functionality of {@link TreeNode} interface. Every particular tree node should
@@ -42,6 +43,7 @@ import com.google.common.collect.Iterators;
 public abstract class AbstractTreeNode implements TreeNode {
 
     private static final long serialVersionUID = 1238954077308840345L;
+    static final String UNVERSIONED = "unversioned";
 
     // private static final Comparator<AbstractTreeNode> CHILD_COMPARATOR
     // = new Comparator<AbstractTreeNode>() {
@@ -60,11 +62,11 @@ public abstract class AbstractTreeNode implements TreeNode {
     /**
      * Identifier of the node.
      */
-    private String id;
+    private final String id;
     /**
      * Display name
      */
-    private String name;
+    private final String name;
 
     /**
      * Reference on parent node. For upper level node(s) it is <code>null</code>
@@ -75,7 +77,7 @@ public abstract class AbstractTreeNode implements TreeNode {
      * When <code>true</code> then the node cannot have children. Any operation that implies adding/getting/removing
      * children will lead to {@link UnsupportedOperationException}.
      */
-    private boolean isLeafOnly;
+    private final boolean isLeafOnly;
 
     private AProjectArtefact data;
 
@@ -207,7 +209,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
         if (isLeafOnly) {
             checkLeafOnly();
-            result = Iterators.emptyIterator();
+            result = Collections.emptyIterator();
             // work around limitation for TreeNode
         } else {
             result = getElements().keySet().iterator();
@@ -275,6 +277,11 @@ public abstract class AbstractTreeNode implements TreeNode {
         return null;
     }
 
+    public String getShortVersion() {
+        String version = getVersionName();
+        return version == null || version.length() < 6 ? version : version.substring(0, 6);
+    }
+
     private RulesProject findProjectContainingCurrentArtefact() {
         TreeNode node = this;
         while (node != null && !(node.getData() instanceof RulesProject)) {
@@ -313,30 +320,16 @@ public abstract class AbstractTreeNode implements TreeNode {
                 if (data.isFolder()) {
                     return false;
                 } else {
-                    List<ProjectVersion> versions = project
-                        .getArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
-                    return !versions.isEmpty();
+                    return project
+                        .hasArtefactVersions(getData().getArtefactPath().withoutFirstSegment());
                 }
             } else {
-                return getData().getVersionsCount() > 0;
+                AProjectArtefact artefact = getData();
+                return artefact instanceof  AProject && ((AProject) artefact).getLastHistoryVersion() != null;
             }
         } else {
             return false;
         }
-    }
-
-    public boolean isHasModifications() {
-        return getData().hasModifications();
-    }
-
-    public SelectItem[] getSelectedFileVersions() {
-        Collection<ProjectVersion> versions = getVersions();
-
-        List<SelectItem> selectItems = new ArrayList<>();
-        for (ProjectVersion version : versions) {
-            selectItems.add(new SelectItem(version.getVersionName()));
-        }
-        return selectItems.toArray(new SelectItem[selectItems.size()]);
     }
 
     @Override
@@ -346,7 +339,7 @@ public abstract class AbstractTreeNode implements TreeNode {
 
     @Override
     public boolean isLeaf() {
-        return isLeafOnly || getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts();
+        return isLeafOnly || (getData() instanceof AProjectFolder && !((AProjectFolder) getData()).hasArtefacts());
     }
 
     @Override
@@ -375,5 +368,10 @@ public abstract class AbstractTreeNode implements TreeNode {
     @Override
     public void refresh() {
         data.refresh();
+    }
+
+    @Override
+    public ArtefactPath getInternalArtifactPath() {
+        return getData().getArtefactPath().withoutFirstSegment();
     }
 }

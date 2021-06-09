@@ -50,6 +50,13 @@ public interface ITableProperties {
      */
     Map<String, Object> getModuleProperties();
 
+    /**
+     * <code>{@link Map}</code> of properties applied globally and inheritable in modules.
+     *
+     * @return <code>{@link Map}</code> of properties applied to the module this table belongs to.
+     */
+    Map<String, Object> getGlobalProperties();
+
     Map<String, Object> getExternalProperties();
 
     /**
@@ -89,7 +96,11 @@ public interface ITableProperties {
 
     TableSyntaxNode getModulePropertiesTableSyntaxNode();
 
+    TableSyntaxNode getGlobalPropertiesTableSyntaxNode();
+
     void setModulePropertiesTableSyntaxNode(TableSyntaxNode modulePropertiesTableSyntaxNode);
+
+    void setGlobalPropertiesTableSyntaxNode(TableSyntaxNode globalPropertiesTableSyntaxNode);
 
     TableSyntaxNode getCategoryPropertiesTableSyntaxNode();
 
@@ -104,8 +115,7 @@ public interface ITableProperties {
      * @param propertyName Name of the property.
      *
      * @return level on which property is defined. <code>NULL</code> when there is no such property on all these levels.
-     *         Or it can be set by default. So check is it applied as default. @see
-     *         {@link #isPropertyAppliedByDefault(String)
+     * Or it can be set by default. So check is it applied as default. @see {@link #isPropertyAppliedByDefault(String)
      *
      */
     InheritanceLevel getPropertyLevelDefinedOn(String propertyName);
@@ -127,6 +137,7 @@ public interface ITableProperties {
     boolean isPropertiesEmpty();
 
     // <<< INSERT >>>
+
     java.lang.String getName();
 
     void setName(java.lang.String name);
@@ -243,9 +254,17 @@ public interface ITableProperties {
 
     void setScope(java.lang.String scope);
 
+    java.lang.Integer getPriority();
+
+    void setPriority(java.lang.Integer priority);
+
     java.lang.String getDatatypePackage();
 
     void setDatatypePackage(java.lang.String datatypePackage);
+
+    java.lang.String getSpreadsheetResultPackage();
+
+    void setSpreadsheetResultPackage(java.lang.String spreadsheetResultPackage);
 
     java.lang.Boolean getCacheable();
 
@@ -255,13 +274,17 @@ public interface ITableProperties {
 
     void setRecalculate(org.openl.rules.enumeration.RecalculateEnum recalculate);
 
+    org.openl.rules.enumeration.DTEmptyResultProcessingEnum getEmptyResultProcessing();
+
+    void setEmptyResultProcessing(org.openl.rules.enumeration.DTEmptyResultProcessingEnum emptyResultProcessing);
+
     java.lang.String getPrecision();
 
     void setPrecision(java.lang.String precision);
 
-    java.lang.Boolean getDetailedPlainModel();
+    java.lang.Boolean getTableStructureDetails();
 
-    void setDetailedPlainModel(java.lang.Boolean detailedPlainModel);
+    void setTableStructureDetails(java.lang.Boolean tableStructureDetails);
 
     java.lang.Boolean getAutoType();
 
@@ -283,6 +306,8 @@ public interface ITableProperties {
     void setCategoryProperties(Map<String, Object> categoryProperties);
 
     void setModuleProperties(Map<String, Object> moduleProperties);
+
+    void setGlobalProperties(Map<String, Object> moduleProperties);
 
     void setExternalProperties(Map<String, Object> moduleProperties);
 

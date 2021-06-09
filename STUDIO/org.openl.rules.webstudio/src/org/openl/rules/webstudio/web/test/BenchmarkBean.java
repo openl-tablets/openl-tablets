@@ -2,12 +2,9 @@ package org.openl.rules.webstudio.web.test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.ToLongFunction;
-
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.syntax.TableUtils;
@@ -18,23 +15,24 @@ import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethod;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class BenchmarkBean {
 
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
+    private final RunTestHelper runTestHelper;
 
-    private List<BenchmarkInfoView> benchmarks = new ArrayList<>();
+    private final List<BenchmarkInfoView> benchmarks = new ArrayList<>();
     private List<BenchmarkInfoView> comparedBenchmarks = Collections.emptyList();
     private List<BenchmarkInfoView> benchmarkOrders;
 
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
+    public BenchmarkBean(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
     }
 
-    private boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
+    private static boolean isTestForOverallTestSuiteMethod(TestSuite testSuite) {
         return testSuite.getTestSuiteMethod() != null && testSuite.getNumberOfTests() == testSuite.getTestSuiteMethod()
             .getNumberOfTestsCases();
     }
@@ -53,8 +51,7 @@ public class BenchmarkBean {
             BenchmarkInfoView biv = runBenchmark(tableId,
                 testName,
                 testInfo,
-                bu,
-                new ParameterWithValueDeclaration[0],
+                bu, ParameterWithValueDeclaration.EMPTY_ARRAY,
                 testSuite.getNumberOfTests());
             benchmarks.add(0, biv);
         } else {
@@ -81,7 +78,7 @@ public class BenchmarkBean {
         }
         comparedBenchmarks = bi;
         benchmarkOrders = new ArrayList<>(bi);
-        benchmarkOrders.sort((o1, o2) -> (int) (o2.drunsunitsec() - o1.drunsunitsec()));
+        benchmarkOrders.sort(Comparator.comparingDouble(BenchmarkInfoView::drunsunitsec).reversed());
         return null;
     }
 
@@ -143,7 +140,7 @@ public class BenchmarkBean {
     // The lowest total time for benchmark.
     private static final long MIN_NANOS = 3 * 1_000_000_000L;
 
-    private BenchmarkInfoView runBenchmark(String tableId,
+    private static BenchmarkInfoView runBenchmark(String tableId,
             String testName,
             String testInfo,
             ToLongFunction<Integer> bu,

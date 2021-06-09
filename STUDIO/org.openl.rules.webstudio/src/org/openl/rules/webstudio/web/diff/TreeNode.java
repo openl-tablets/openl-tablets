@@ -9,7 +9,7 @@ import org.richfaces.model.TreeNodeImpl;
 
 public class TreeNode extends TreeNodeImpl {
 
-    private DiffTreeNode diffTreeNode;
+    private final DiffTreeNode diffTreeNode;
 
     public TreeNode(DiffTreeNode node) {
         this(node, false);
@@ -31,7 +31,7 @@ public class TreeNode extends TreeNodeImpl {
     }
 
     public String getIcon() {
-        String icon = null;
+        String icon;
 
         switch (diffTreeNode.getElement(1).getDiffStatus()) {
             case ADDED:

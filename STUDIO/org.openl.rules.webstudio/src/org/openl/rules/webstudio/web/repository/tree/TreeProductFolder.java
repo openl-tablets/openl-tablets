@@ -6,7 +6,7 @@ import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.webstudio.web.repository.UiConst;
 
 public class TreeProductFolder extends TreeFolder {
-    private IFilter<AProjectArtefact> filter;
+    private final IFilter<AProjectArtefact> filter;
 
     public TreeProductFolder(String id, String name, IFilter<AProjectArtefact> filter) {
         super(id, name, filter);
@@ -17,7 +17,7 @@ public class TreeProductFolder extends TreeFolder {
     public void addChild(AProjectArtefact childArtefact) {
         String name = childArtefact.getName();
 
-        String id = RepositoryUtils.getTreeNodeId(name);
+        String id = RepositoryUtils.getTreeNodeId(childArtefact);
         if (childArtefact.isFolder()) {
             TreeProductFolder treeFolder = new TreeProductFolder(id, name, filter);
             treeFolder.setData(childArtefact);

@@ -43,11 +43,11 @@ public final class IntExpAddArray extends IntExpImpl {
     static final private int[] event_map = { MIN, MIN, MAX, MAX, MIN | MAX | VALUE, VALUE,
             // REMOVE, REMOVE
     };
-    private IntExpArray _vars;
+    private final IntExpArray _vars;
 
-    private Observer _observer;
+    private final Observer _observer;
 
-    private IntVar _sum;
+    private final IntVar _sum;
 
     public IntExpAddArray(Constrainer constrainer, IntExpArray vars) {
         super(constrainer);
@@ -57,8 +57,8 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] data = _vars.data();
 
-        for (int i = 0; i < data.length; i++) {
-            data[i].attachObserver(_observer);
+        for (IntExp datum : data) {
+            datum.attachObserver(_observer);
         }
 
         String sum_name = "";
@@ -93,8 +93,8 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] vars = _vars.data();
 
-        for (int i = 0; i < vars.length; i++) {
-            max_sum += vars[i].max();
+        for (IntExp var : vars) {
+            max_sum += var.max();
         }
         return max_sum;
     }
@@ -104,8 +104,8 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] vars = _vars.data();
 
-        for (int i = 0; i < vars.length; i++) {
-            min_sum += vars[i].min();
+        for (IntExp var : vars) {
+            min_sum += var.min();
         }
         return min_sum;
     }
@@ -192,8 +192,7 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] vars = _vars.data();
 
-        for (int i = 0; i < vars.length; i++) {
-            IntExp vari = vars[i];
+        for (IntExp vari : vars) {
             int maxi = max - (min_sum - vari.min());
             if (maxi < vari.max()) {
                 vari.setMax(maxi);
@@ -215,8 +214,7 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] vars = _vars.data();
 
-        for (int i = 0; i < vars.length; i++) {
-            IntExp vari = vars[i];
+        for (IntExp vari : vars) {
             int mini = min - (max_sum - vari.max());
             if (mini > vari.min()) {
                 vari.setMin(mini);
@@ -247,8 +245,7 @@ public final class IntExpAddArray extends IntExpImpl {
 
         IntExp[] vars = _vars.data();
 
-        for (int i = 0; i < vars.length; i++) {
-            IntExp vari = vars[i];
+        for (IntExp vari : vars) {
             int mini = vari.min();
             int maxi = vari.max();
 

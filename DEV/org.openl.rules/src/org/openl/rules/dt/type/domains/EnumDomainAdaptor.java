@@ -3,6 +3,7 @@
  */
 package org.openl.rules.dt.type.domains;
 
+import java.util.Arrays;
 import java.util.HashSet;
 
 import org.openl.domain.EnumDomain;
@@ -17,11 +18,7 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
     private Object[] values;
 
     public EnumDomainAdaptor(EnumDomain<?> domain) {
-        values = domain.getEnum().getAllObjects();
-    }
-
-    public EnumDomainAdaptor(Object[] values) {
-        this.values = values;
+        values = domain.getAllObjects();
     }
 
     @Override
@@ -77,13 +74,9 @@ public class EnumDomainAdaptor implements IDomainAdaptor {
 
         HashSet<Object> set = new HashSet<>(v1.length + v2.length);
 
-        for (int i = 0; i < v1.length; i++) {
-            set.add(v1[i]);
-        }
+        set.addAll(Arrays.asList(v1));
 
-        for (int i = 0; i < v2.length; i++) {
-            set.add(v2[i]);
-        }
+        set.addAll(Arrays.asList(v2));
 
         Object[] newValues = set.toArray();
 

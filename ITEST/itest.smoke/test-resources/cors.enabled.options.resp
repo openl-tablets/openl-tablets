@@ -1,0 +1,7 @@
+HTTP/1.1 202 Accepted
+Access-Control-Allow-Headers: MNO,PQR
+Access-Control-Allow-Methods: UVW,XYZ
+Access-Control-Allow-Origin: abc
+Access-Control-Max-Age: 777
+Content-Length: 0
+

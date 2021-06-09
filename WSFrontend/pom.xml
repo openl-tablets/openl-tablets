@@ -4,14 +4,13 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <artifactId>org.openl.rules.ruleservice-pom</artifactId>
     <packaging>pom</packaging>
     <name>OpenL - RuleService</name>
     <description>Rules Service Pom Project</description>
     <modules>
-        <module>org.openl.rules.ruleservice.annotation</module>
         <module>org.openl.rules.ruleservice</module>
         <module>org.openl.rules.ruleservice.rmi.frontend</module>
         <module>org.openl.rules.ruleservice.rmi</module>
@@ -22,8 +21,11 @@
         <module>org.openl.rules.ruleservice.ws.storelogdata.cassandra</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch.annotation</module>
         <module>org.openl.rules.ruleservice.ws.storelogdata.elasticsearch</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.hive.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.storelogdata.hive</module>
         <module>org.openl.rules.ruleservice.ws</module>
-        <module>org.openl.rules.ruleservice.ws.full</module>
+	    <module>org.openl.rules.ruleservice.ws.annotation</module>
+        <module>org.openl.rules.ruleservice.ws.all</module>
         <module>org.openl.rules.ruleservice.deployer</module>
     </modules>
 </project>

@@ -2,7 +2,11 @@ package org.openl.rules.ruleservice.ws.databinding;
 
 import static org.junit.Assert.assertEquals;
 
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Locale;
+import java.util.TimeZone;
 
 import org.junit.AfterClass;
 import org.junit.Test;
@@ -10,7 +14,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 import org.openl.rules.context.IRulesRuntimeContext;
-import org.openl.rules.ruleservice.databinding.JacksonObjectMapperFactoryBean;
+import org.openl.rules.serialization.JacksonObjectMapperFactoryBean;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -58,7 +62,12 @@ public class JacksonObjectMapperISO8601DateFormatTest {
 
         JacksonObjectMapperFactoryBean bean = new JacksonObjectMapperFactoryBean();
         bean.setSupportVariations(true);
-        this.objectMapper = bean.createJacksonObjectMapper();
+        ObjectMapper objectMapper = null;
+        try {
+            objectMapper = bean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+        }
+        this.objectMapper = objectMapper;
     }
 
     @Test

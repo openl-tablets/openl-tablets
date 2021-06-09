@@ -7,36 +7,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-/*
- * #%L
- * OpenL - Rules - Serialization
- * %%
- * Copyright (C) 2016 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 public final class JsonUtils {
 
     private JsonUtils() {
     }
 
-    private static final class DefaultObjectMapperHolder {
-        private static final ObjectMapper INSTANCE;
-        static {
-            JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
-            jacksonObjectMapperFactoryBean.setDefaultTypingMode(DefaultTypingMode.SMART);
-            jacksonObjectMapperFactoryBean.setSupportVariations(true);
-            INSTANCE = jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
-        }
-    }
-
     public static ObjectMapper createJacksonObjectMapper(Class<?>[] types, boolean enableDefaultTyping) {
         if (enableDefaultTyping) {
-            return createJacksonObjectMapper(types, DefaultTypingMode.ENABLE);
+            return createJacksonObjectMapper(types, DefaultTypingMode.EVERYTHING);
         } else {
-            return createJacksonObjectMapper(types, DefaultTypingMode.SMART);
+            return createJacksonObjectMapper(types, DefaultTypingMode.JAVA_LANG_OBJECT);
         }
     }
 
@@ -44,16 +24,22 @@ public final class JsonUtils {
         JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
         jacksonObjectMapperFactoryBean.setDefaultTypingMode(defaultTypingMode);
         jacksonObjectMapperFactoryBean.setSupportVariations(true);
-        Set<String> overideTypes = new HashSet<>();
-        for (Class<?> type : types) {
-            overideTypes.add(type.getName());
+        jacksonObjectMapperFactoryBean.setOverrideClasses(new HashSet<>(Arrays.asList(types)));
+        try {
+            return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+            return null;
         }
-        jacksonObjectMapperFactoryBean.setOverrideTypes(overideTypes);
-        return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
     }
 
     private static ObjectMapper getDefaultJacksonObjectMapper() {
-        return DefaultObjectMapperHolder.INSTANCE;
+        JacksonObjectMapperFactoryBean jacksonObjectMapperFactoryBean = new JacksonObjectMapperFactoryBean();
+        jacksonObjectMapperFactoryBean.setSupportVariations(true);
+        try {
+            return jacksonObjectMapperFactoryBean.createJacksonObjectMapper();
+        } catch (ClassNotFoundException ignored) {
+        }
+        return null;
     }
 
     public static String toJSON(Object value) throws JsonProcessingException {
@@ -99,17 +85,18 @@ public final class JsonUtils {
     }
 
     public static <T> T fromJSON(String jsonString, Class<T> readType, Class<?>[] types) throws IOException {
-        return fromJSON(jsonString, readType, types, false);
+        if (types == null) {
+            types = new Class<?>[0];
+        }
+        ObjectMapper objectMapper = createJacksonObjectMapper(types, DefaultTypingMode.DISABLED);
+        return objectMapper.readValue(jsonString, readType);
     }
 
+    @Deprecated
     public static <T> T fromJSON(String jsonString,
             Class<T> readType,
             Class<?>[] types,
             boolean enableDefaultTyping) throws IOException {
-        if (types == null) {
-            types = new Class<?>[0];
-        }
-        ObjectMapper objectMapper = createJacksonObjectMapper(types, enableDefaultTyping);
-        return objectMapper.readValue(jsonString, readType);
+        return fromJSON(jsonString, readType, types);
     }
 }

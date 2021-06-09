@@ -1,8 +1,12 @@
 package org.openl.rules.validation;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 
-import org.openl.OpenL;
 import org.openl.message.OpenLMessage;
 import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -22,18 +26,19 @@ import org.openl.validation.ValidationResult;
  */
 public class ActivePropertyValidator extends TablesValidator {
 
-    public static final String NO_ACTIVE_TABLE_MESSAGE = "No active table for group of tables. The last version will be used for execution.";
+    public static final String NO_ACTIVE_TABLE_MESSAGE =
+            "No active table for group of tables. The last version will be used for execution.";
     public static final String ODD_ACTIVE_TABLE_MESSAGE = "There can be only one active table.";
 
     @Override
-    public ValidationResult validateTables(OpenL openl, TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
+    public ValidationResult validateTables(TableSyntaxNode[] tableSyntaxNodes, IOpenClass openClass) {
         // Group methods not TableSyntaxNodes as we may have dependent modules,
         // and no sources for them,
         // represented in current module. The only information about dependency
         // methods contains in openClass.
         //
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = groupExecutableMethods(
-            tableSyntaxNodes);
+                tableSyntaxNodes);
 
         Collection<OpenLMessage> messages = new LinkedHashSet<>();
 
@@ -56,10 +61,7 @@ public class ActivePropertyValidator extends TablesValidator {
             if (activeTableFoundCount > 1) {
                 for (TableSyntaxNode executableMethodTable : activeExecutableMethodTable) {
                     SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(ODD_ACTIVE_TABLE_MESSAGE,
-                        executableMethodTable);
-                    if (openClass.equals(executableMethodTable.getMember().getDeclaringClass())) {
-                        executableMethodTable.addError(error);
-                    }
+                            executableMethodTable);
                     messages.add(OpenLMessagesUtils.newErrorMessage(error));
                 }
             }
@@ -74,11 +76,11 @@ public class ActivePropertyValidator extends TablesValidator {
         return ValidationUtils.withMessages(messages);
     }
 
-    private boolean isActive(TableSyntaxNode executableMethodTable) {
+    private static boolean isActive(TableSyntaxNode executableMethodTable) {
         return Boolean.TRUE.equals(executableMethodTable.getTableProperties().getActive());
     }
 
-    private Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
+    private static Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupExecutableMethods(
             TableSyntaxNode[] tableSyntaxNodes) {
         Map<DimensionPropertiesMethodKey, List<TableSyntaxNode>> groupedMethods = new HashMap<>();
 
@@ -87,7 +89,7 @@ public class ActivePropertyValidator extends TablesValidator {
                 ExecutableRulesMethod executableMethod = (ExecutableRulesMethod) tsn.getMember();
                 DimensionPropertiesMethodKey key = new DimensionPropertiesMethodKey(executableMethod);
                 if (!groupedMethods.containsKey(key)) {
-                    groupedMethods.put(key, new ArrayList<TableSyntaxNode>());
+                    groupedMethods.put(key, new ArrayList<>());
                 }
                 groupedMethods.get(key).add(tsn);
             }

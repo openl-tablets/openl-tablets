@@ -2,8 +2,8 @@ package org.openl.rules.ruleservice.core;
 
 public abstract class AbstractOpenLServiceInitializer implements OpenLServiceInitializer {
 
-    private volatile boolean initializated = false;
-    private volatile boolean initializationStarted = false;
+    private volatile boolean initializated;
+    private volatile boolean initializationStarted;
 
     @Override
     public void ensureInitialization(OpenLService openLService) throws RuleServiceInstantiationException {
@@ -21,7 +21,7 @@ public abstract class AbstractOpenLServiceInitializer implements OpenLServiceIni
     protected void validate(OpenLService openLService) throws RuleServiceInstantiationException {
         if (openLService.getServiceClass().getMethods().length == 0) {
             throw new RuleServiceInstantiationException(
-                String.format("Service '%s' does not have any methods to deploy.", openLService.getName()));
+                String.format("Service '%s' does not have any methods to deploy.", openLService.getDeployPath()));
         }
     }
 

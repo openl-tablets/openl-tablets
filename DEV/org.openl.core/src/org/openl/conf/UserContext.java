@@ -22,9 +22,9 @@ import org.openl.OpenL;
  */
 public final class UserContext extends AUserContext {
 
-    private ClassLoader userClassLoader;
+    private final ClassLoader userClassLoader;
 
-    private String userHome;
+    private final String userHome;
 
     public UserContext(ClassLoader userClassLoader, String userHome) {
         this.userClassLoader = userClassLoader;
@@ -60,14 +60,12 @@ public final class UserContext extends AUserContext {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("home=").append(userHome).append("cl=").append(printClassloader(userClassLoader));
-        return sb.toString();
+        return "home=" + userHome + "cl=" + printClassloader(userClassLoader);
     }
 
-    private Map<String, IOpenLConfiguration> configurations = new HashMap<>();
+    private final Map<String, IOpenLConfiguration> configurations = new HashMap<>();
 
-    private Map<String, OpenL> openls = new HashMap<>();
+    private final Map<String, OpenL> openls = new HashMap<>();
 
     @Override
     public OpenL getOpenL(String name) {

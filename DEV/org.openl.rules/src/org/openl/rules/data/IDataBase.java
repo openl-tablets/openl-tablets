@@ -34,4 +34,5 @@ public interface IDataBase {
             ILogicalTable dataWithHeader,
             OpenlToolAdaptor ota) throws Exception;
 
+    void clearOddDataForExecutionMode();
 }

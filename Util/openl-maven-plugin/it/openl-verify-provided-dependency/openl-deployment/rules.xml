@@ -1,0 +1,8 @@
+<project>
+    <name>OpenL Deployment</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+        </module>
+    </modules>
+</project>

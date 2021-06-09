@@ -50,7 +50,6 @@ public class TestBool {
             return true;
 
         } catch (Exception e) {
-            System.out.println(e);
             e.printStackTrace();
             return false;
         }

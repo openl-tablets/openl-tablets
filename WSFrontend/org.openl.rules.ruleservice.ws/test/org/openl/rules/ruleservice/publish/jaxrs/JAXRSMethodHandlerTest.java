@@ -16,12 +16,12 @@ public class JAXRSMethodHandlerTest {
 
     @Test
     public void checkNotNullConstructorArguments() {
-        new JAXRSMethodHandler(new Object(), new HashMap<Method, Method>());
+        new JAXRSMethodHandler(new Object(), new HashMap<>());
     }
 
     @Test(expected = NullPointerException.class)
     public void checkNullTargetConstructorArgument() {
-        new JAXRSMethodHandler(null, new HashMap<Method, Method>());
+        new JAXRSMethodHandler(null, new HashMap<>());
     }
 
     @Test(expected = NullPointerException.class)
@@ -35,7 +35,7 @@ public class JAXRSMethodHandlerTest {
         HashMap<Method, Method> methods = new HashMap<>();
         JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
         Method unknownMethod = Object.class.getDeclaredMethod("hashCode");
-        handler.invoke(null, unknownMethod, null, null);
+        handler.invoke(unknownMethod, null);
     }
 
     @Test
@@ -47,7 +47,7 @@ public class JAXRSMethodHandlerTest {
         methods.put(method, method);
 
         JAXRSMethodHandler handler = new JAXRSMethodHandler(target, methods);
-        Object result = handler.invoke(null, method, null, null);
+        Object result = handler.invoke(method, null);
 
         assertTrue(result instanceof Response);
         assertEquals("Done", ((Response) result).getEntity());

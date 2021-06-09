@@ -3,7 +3,7 @@ package org.openl.rules.ruleservice.loader;
 import java.util.Collection;
 
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.project.abstraction.Deployment;
+import org.openl.rules.project.abstraction.IDeployment;
 import org.openl.rules.project.model.Module;
 
 /**
@@ -26,7 +26,7 @@ public interface RuleServiceLoader {
      *
      * @return list of deployments.
      */
-    Collection<Deployment> getDeployments();
+    Collection<IDeployment> getDeployments();
 
     /**
      * @param deploymentName
@@ -37,4 +37,21 @@ public interface RuleServiceLoader {
     Collection<Module> resolveModulesForProject(String deploymentName,
             CommonVersion deploymentVersion,
             String projectName);
+
+    /**
+     * Gets a deployment from data source.
+     *
+     * @param deploymentName target deployment name
+     * @param deploymentVersion target version
+     * @return deployment
+     */
+    IDeployment getDeployment(String deploymentName, CommonVersion deploymentVersion);
+
+    /**
+     * Removes deploy path from folder path
+     *
+     * @param realFolderPath real path to folder
+     * @return cleared folder path
+     */
+    String getLogicalProjectFolder(String realFolderPath);
 }

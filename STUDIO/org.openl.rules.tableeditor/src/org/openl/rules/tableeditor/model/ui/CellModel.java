@@ -4,16 +4,19 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.table.ui.ICellFont;
+import org.openl.util.StringUtils;
 
 public class CellModel implements ICellModel {
 
-    private int row;
-    private int column;
+    public static final String CANNOT_SHOW_FORMULA_HINT = "double click to show formula";
+
+    private final int row;
+    private final int column;
 
     private int colspan = 1;
     private int rowspan = 1;
 
-    private int indent = 0;
+    private int indent;
     private String halign;
     private String valign;
     private short[] rgbBackground;
@@ -86,8 +89,8 @@ public class CellModel implements ICellModel {
 
         String[] bwidth = new String[4];
         for (int i = 0; i < borderStyle.length; i++) {
-            int width = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
-            bwidth[i] = width + (width != 0 ? "px" : "");
+            int borderStyleWidth = borderStyle[i] == null ? 0 : borderStyle[i].getWidth();
+            bwidth[i] = borderStyleWidth + (borderStyleWidth != 0 ? "px" : "");
         }
         String widthStr = boxCSStoString(bwidth);
         if (!widthStr.equals(DEFAULT_CELL_STYLES.get("border-width"))) {
@@ -372,7 +375,11 @@ public class CellModel implements ICellModel {
 
     @Override
     public void setFormula(String formula) {
-        this.formula = "=" + formula;
+        if (!StringUtils.isEmpty(formula)) {
+            this.formula = "=" + formula;
+        } else {
+            this.formula = CANNOT_SHOW_FORMULA_HINT;
+        }
         hasFormula = true;
     }
 

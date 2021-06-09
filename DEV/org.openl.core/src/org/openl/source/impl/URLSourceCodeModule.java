@@ -5,28 +5,25 @@
  */
 package org.openl.source.impl;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.Objects;
 
 import org.openl.util.RuntimeExceptionWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author snshor
  */
 public class URLSourceCodeModule extends ASourceCodeModule {
-    private final Logger log = LoggerFactory.getLogger(URLSourceCodeModule.class);
-
-    private URL url;
-    private long lastModified;
+    private final URL url;
 
     public URLSourceCodeModule(URL url) {
         this.url = url;
-        lastModified = getLastModified();
     }
 
     public URLSourceCodeModule(String file) {
@@ -43,32 +40,6 @@ public class URLSourceCodeModule extends ASourceCodeModule {
 
     public URL getUrl() {
         return url;
-    }
-
-    public long getLastModified() {
-        InputStream is = null;
-        try {
-            URLConnection conn = url.openConnection();
-            long lastModified = conn.getLastModified();
-
-            // FileURLConnection#getLastModified() opens an input stream to get the last modified date.
-            // It should be closed explicitly.
-            //
-            is = conn.getInputStream();
-
-            return lastModified;
-        } catch (IOException e) {
-            log.warn("Failed to open connection for URL '{}'", url, e);
-            return -1;
-        } finally {
-            if (is != null) {
-                try {
-                    is.close();
-                } catch (IOException e) {
-                    // ignore
-                }
-            }
-        }
     }
 
     @Override
@@ -114,15 +85,4 @@ public class URLSourceCodeModule extends ASourceCodeModule {
     public String toString() {
         return url.toString();
     }
-
-    @Override
-    public boolean isModified() {
-        return getLastModified() != lastModified;
-    }
-
-    @Override
-    public void resetModified() {
-        lastModified = getLastModified();
-    }
-
 }

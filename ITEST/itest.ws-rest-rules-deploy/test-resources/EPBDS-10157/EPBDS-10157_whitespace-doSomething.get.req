@@ -1,0 +1,2 @@
+GET /%20/doSomething HTTP/1.1
+

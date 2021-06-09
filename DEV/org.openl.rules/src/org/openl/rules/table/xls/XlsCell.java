@@ -25,15 +25,15 @@ import org.openl.util.StringUtils;
 
 public class XlsCell implements ICell {
 
-    private int column;
-    private int row;
-    private IGridRegion region;
-    private CellLoader cellLoader;
+    private final int column;
+    private final int row;
+    private final IGridRegion region;
+    private final CellLoader cellLoader;
 
     private int width = 1;
     private int height = 1;
 
-    private XlsSheetGridModel gridModel;
+    private final XlsSheetGridModel gridModel;
 
     /**
      * Usually there is a parameter duplication: the same column and row exist in cell object. But sometimes cell is

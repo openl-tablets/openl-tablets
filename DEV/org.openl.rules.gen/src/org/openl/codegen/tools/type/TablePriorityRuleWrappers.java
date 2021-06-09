@@ -7,13 +7,14 @@ import java.util.regex.Pattern;
 
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.JavaClassPriorityRuleWrapper;
 import org.openl.codegen.tools.type.TablePriorityRuleWrapper.SimplePriorityRuleWrapper;
-import org.openl.rules.table.properties.expressions.sequence.ASimplePriorityRule;
-import org.openl.rules.table.properties.expressions.sequence.JavaClassTablesComparator;
 
 public class TablePriorityRuleWrappers {
 
-    private SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
-    private JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
+    private static final String PREFIX = "javaclass:";
+    private static final String MIN_OPERATION_NAME = "MIN";
+    private static final String MAX_OPERATION_NAME = "MAX";
+    private final SimplePriorityRuleWrapper[] simplePriorityRuleWrappers;
+    private final JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers;
 
     public TablePriorityRuleWrappers(SimplePriorityRuleWrapper[] simplePriorityRuleWrappers,
             JavaClassPriorityRuleWrapper[] javaClassPriorityRuleWrappers) {
@@ -36,13 +37,13 @@ public class TablePriorityRuleWrappers {
                     String operationName = matcher.group(1);
                     String propertyName = matcher.group(2);
 
-                    if (operationName.equalsIgnoreCase(ASimplePriorityRule.MIN_OPERATION_NAME)) {
+                    if (operationName.equalsIgnoreCase(MIN_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                            ASimplePriorityRule.MIN_OPERATION_NAME,
+                            MIN_OPERATION_NAME,
                             propertyName));
-                    } else if (operationName.equalsIgnoreCase(ASimplePriorityRule.MAX_OPERATION_NAME)) {
+                    } else if (operationName.equalsIgnoreCase(MAX_OPERATION_NAME)) {
                         wrappers.add(new SimplePriorityRuleWrapper(priorityRule,
-                            ASimplePriorityRule.MAX_OPERATION_NAME,
+                            MAX_OPERATION_NAME,
                             propertyName));
                     } else {
                         throw new IllegalArgumentException(String
@@ -60,9 +61,9 @@ public class TablePriorityRuleWrappers {
         List<JavaClassPriorityRuleWrapper> wrappers = new ArrayList<>();
         for (String priorityRule : priorityRules) {
             try {
-                if (priorityRule.startsWith(JavaClassTablesComparator.PREFIX)) {
+                if (priorityRule.startsWith(PREFIX)) {
                     wrappers.add(new JavaClassPriorityRuleWrapper(priorityRule,
-                        priorityRule.substring(JavaClassTablesComparator.PREFIX.length()).trim()));
+                        priorityRule.substring(PREFIX.length()).trim()));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

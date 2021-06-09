@@ -15,7 +15,6 @@ public class SessionTimeoutFilter implements Filter {
 
     private static final int REDIRECT_ERROR_CODE = 399;
 
-    private FilterConfig config;
     private String redirectPage;
     private String[] excludePages;
 
@@ -59,13 +58,12 @@ public class SessionTimeoutFilter implements Filter {
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        config = filterConfig;
-        redirectPage = config.getInitParameter("redirectPage");
+        redirectPage = filterConfig.getInitParameter("redirectPage");
         if (redirectPage == null) {
             redirectPage = "";
             log.warn("Session Timeout filter: could not get an initial parameter 'redirectPage'");
         }
-        String excludePagesStr = config.getInitParameter("excludePages");
+        String excludePagesStr = filterConfig.getInitParameter("excludePages");
         if (excludePagesStr != null) {
             excludePages = excludePagesStr.split(",");
         }

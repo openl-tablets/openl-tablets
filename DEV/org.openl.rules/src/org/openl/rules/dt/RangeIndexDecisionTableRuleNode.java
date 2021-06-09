@@ -1,34 +1,37 @@
 package org.openl.rules.dt;
 
-import java.util.Arrays;
-import java.util.Set;
+import java.util.BitSet;
 
 import org.openl.rules.dt.index.IRuleIndex;
 
 public class RangeIndexDecisionTableRuleNode extends DecisionTableRuleNode implements IDecisionTableRuleNodeV2 {
 
-    private final Set<Integer> ruleSet;
+    private final BitSet ruleSet;
     private final IRuleIndex nextIndex;
 
-    public RangeIndexDecisionTableRuleNode(Set<Integer> ruleSet, IRuleIndex nextIndex) {
+    public RangeIndexDecisionTableRuleNode(BitSet ruleSet, IRuleIndex nextIndex) {
         super(null);
         this.ruleSet = ruleSet;
         this.nextIndex = nextIndex;
     }
 
     @Override
-    public Set<Integer> getRuleSet() {
+    public BitSet getRuleSet() {
         return ruleSet;
     }
 
     @Override
     public int[] getRules() {
-        int[] result = new int[ruleSet.size()];
+        int[] result = new int[ruleSet.cardinality()];
         int i = 0;
-        for (Integer it : ruleSet) {
-            result[i++] = it;
+
+        for (int rule = ruleSet.nextSetBit(0); rule >= 0; rule = ruleSet.nextSetBit(rule + 1)) {
+            result[i++] = rule;
+            if (rule == Integer.MAX_VALUE) {
+                break; // or (i+1) would overflow
+            }
         }
-        Arrays.sort(result);
+
         return result;
     }
 

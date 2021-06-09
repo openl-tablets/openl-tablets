@@ -1,7 +1,5 @@
 package org.openl.binding.impl;
 
-import java.util.Objects;
-
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.exception.OpenlNotCheckedException;
@@ -9,6 +7,7 @@ import org.openl.syntax.ISyntaxNode;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
+import org.openl.types.java.JavaOpenClass;
 
 /**
  *
@@ -41,12 +40,11 @@ public class IdentifierBinder extends ANodeBinder {
         }
 
         BindHelper.checkOnDeprecation(node, bindingContext, type);
-        return new TypeBoundNode(node, type);
+        return new TypeBoundNode(node, type.toStaticClass());
     }
 
     @Override
     public IBoundNode bindTarget(ISyntaxNode node, IBindingContext bindingContext, IBoundNode target) {
-
         String fieldName = node.getText();
         IOpenClass type = target.getType();
         int dims = 0;
@@ -54,23 +52,51 @@ public class IdentifierBinder extends ANodeBinder {
             dims++;
             type = type.getComponentClass();
         }
+        IOpenField field;
+        boolean strictMatch = isStrictMatch(node);
+        if (target.isStaticTarget()) {
+            field = type.getStaticField(fieldName, strictMatch);
+        } else {
+            if (!isAllowStrictFieldMatch(type)) {
+                // disable strict match for all types to save backward compatibility with old client projects, except
+                // new types annotated with @AllowStrictFieldMatchType
+                strictMatch = false;
+            }
+            field = type.getField(fieldName, strictMatch);
+        }
 
-        IOpenField field = bindingContext.findFieldFor(type, fieldName, false);
         if (field == null) {
-            throw new OpenlNotCheckedException(String.format("Field '%s' is not found in type '%s'.", fieldName, type));
+            throw new OpenlNotCheckedException(String.format("%s '%s' is not found in type '%s'.",
+                type.isStatic() ? "Static field" : "Field",
+                fieldName,
+                type));
         }
 
         if (target.isStaticTarget() != field.isStatic()) {
 
             if (field.isStatic()) {
-                BindHelper.processWarn("Accessing to static field from non-static object.", node, bindingContext);
+                if (!(field instanceof JavaOpenClass.JavaClassClassField)) {
+                    BindHelper.processWarn(
+                        String.format("Accessing to static field '%s' from non-static object of type '%s'.",
+                            field.getName(),
+                            target.getType().getName()),
+                        node,
+                        bindingContext);
+                }
             } else {
-                return makeErrorNode("Accessing to non-static field from a static class.", node, bindingContext);
+                return makeErrorNode(String.format("Accessing to non-static field '%s' of static type '%s'.",
+                    field.getName(),
+                    target.getType().getName()), node, bindingContext);
             }
         }
 
         BindHelper.checkOnDeprecation(node, bindingContext, field);
         return new FieldBoundNode(node, field, target, dims);
+    }
+
+    private static boolean isAllowStrictFieldMatch(IOpenClass type) {
+        return type != null && type.getInstanceClass() != null && type.getInstanceClass()
+            .isAnnotationPresent(AllowStrictFieldMatchType.class);
     }
 
     private boolean isStrictMatch(ISyntaxNode node) {

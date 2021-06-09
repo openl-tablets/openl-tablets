@@ -3,11 +3,9 @@
   <mapping>
     <property name="logicalTable" ignore="true"/>
     <property name="customSpreadsheetResultOpenClass" ignore="true"/>
-    <property name="columnTitles" ignore="true"/>
-    <property name="rowTitles" ignore="true"/>
     <property name="fieldsCoordinates" ignore="true"/>
     <property name="rowNamesForResultModel" ignore="true"/>
     <property name="columnNamesForResultModel" ignore="true"/>
-    <property name="detailedPlainModel" ignore="true"/>
+    <property name="tableStructureDetails" ignore="true"/>
  </mapping>
 </mappings>

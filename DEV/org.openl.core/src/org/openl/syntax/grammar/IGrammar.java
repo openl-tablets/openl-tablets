@@ -16,19 +16,19 @@ import org.openl.syntax.exception.SyntaxNodeException;
  */
 public interface IGrammar {
 
-    SyntaxNodeException[] getErrors();
+    SyntaxNodeException getError();
 
     ISyntaxNode getTopNode();
 
-    void parse(Reader characterStream, String parseType);
+    void parseAsMethod(Reader reader);
 
-    void parseAsMethod(Reader r);
+    void parseAsMethodHeader(Reader reader);
 
-    void parseAsMethodHeader(Reader r);
-
-    void parseAsModule(Reader r);
+    void parseAsModule(Reader reader);
 
     void parseAsType(Reader reader);
+
+    void parseAsParamDeclaration(Reader reader);
 
     void setModule(IOpenSourceCodeModule module);
 

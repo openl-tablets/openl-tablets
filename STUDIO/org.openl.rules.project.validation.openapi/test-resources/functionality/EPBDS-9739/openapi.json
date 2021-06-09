@@ -1,0 +1,2609 @@
+{
+    "info": {
+        "title": "Example 1 - Bank Rating_Example 1 - Bank Rating",
+        "version": "1.0.0"
+    },
+    "openapi": "3.0.1",
+    "paths": {
+        "/BalanceDynamicIndexCalculation": {
+            "post": {
+                "description": "Method: java.lang.Double BalanceDynamicIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData, org.openl.generated.beans.FinancialData)",
+                "operationId": "BalanceDynamicIndexCalculation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BalanceDynamicIndexCalculationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double BalanceDynamicIndexCalculation(IRulesRuntimeContext, FinancialData, FinancialData)"
+            }
+        },
+        "/BalanceQualityIndexCalculation": {
+            "post": {
+                "description": "Method: org.openl.generated.spreadsheetresults.BalanceQualityIndexCalculation BalanceQualityIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData)",
+                "operationId": "BalanceQualityIndexCalculation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BalanceQualityIndexCalculationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "./components.json#/BalanceQualityIndexCalculation"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "BalanceQualityIndexCalculation BalanceQualityIndexCalculation(IRulesRuntimeContext, FinancialData)"
+            }
+        },
+        "/BankLimitIndex": {
+            "post": {
+                "description": "Method: java.lang.Double BankLimitIndex(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank, java.lang.String)",
+                "operationId": "BankLimitIndex",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BankLimitIndexRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double BankLimitIndex(IRulesRuntimeContext, Bank, String)"
+            }
+        },
+        "/BankQualitativeIndexCalculation": {
+            "post": {
+                "description": "Method: java.lang.Double BankQualitativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+                "operationId": "BankQualitativeIndexCalculation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BankQualitativeIndexCalculationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double BankQualitativeIndexCalculation(IRulesRuntimeContext, Bank)"
+            }
+        },
+        "/BankRatingCalculation": {
+            "post": {
+                "description": "Method: org.openl.generated.spreadsheetresults.BankRatingCalculation BankRatingCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+                "operationId": "BankRatingCalculation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BankRatingCalculationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "./components.json#/BankRatingCalculation"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "BankRatingCalculation BankRatingCalculation(IRulesRuntimeContext, Bank)"
+            }
+        },
+        "/BankRatingGroup": {
+            "post": {
+                "description": "Method: java.lang.String BankRatingGroup(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "BankRatingGroup",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/BankRatingGroupRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "String BankRatingGroup(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/CapitalAdequacyScore": {
+            "post": {
+                "description": "Method: java.lang.Double CapitalAdequacyScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "CapitalAdequacyScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/CapitalAdequacyScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double CapitalAdequacyScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/CapitalDynamicScore": {
+            "post": {
+                "description": "Method: java.lang.Double CapitalDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "CapitalDynamicScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/CapitalDynamicScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double CapitalDynamicScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/ClaimsOnCustomerRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double ClaimsOnCustomerRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "ClaimsOnCustomerRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/ClaimsOnCustomerRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double ClaimsOnCustomerRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/CreditPortfolioQualityScore": {
+            "post": {
+                "description": "Method: java.lang.Double CreditPortfolioQualityScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "CreditPortfolioQualityScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/CreditPortfolioQualityScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double CreditPortfolioQualityScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/DowngradesOfBankRatingScore": {
+            "post": {
+                "description": "Method: java.lang.Double DowngradesOfBankRatingScore(org.openl.rules.context.IRulesRuntimeContext, boolean)",
+                "operationId": "DowngradesOfBankRatingScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DowngradesOfBankRatingScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double DowngradesOfBankRatingScore(IRulesRuntimeContext, boolean)"
+            }
+        },
+        "/EquityScore": {
+            "post": {
+                "description": "Method: java.lang.Double EquityScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Double)",
+                "operationId": "EquityScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/EquityScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double EquityScore(IRulesRuntimeContext, String, Double)"
+            }
+        },
+        "/HighLiquidityRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double HighLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "HighLiquidityRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/HighLiquidityRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double HighLiquidityRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/IsAdequateCoreCapitalRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double IsAdequateCoreCapitalRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "IsAdequateCoreCapitalRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/IsAdequateCoreCapitalRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double IsAdequateCoreCapitalRatioScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/IsAdequateLiquidityRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double IsAdequateLiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "IsAdequateLiquidityRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/IsAdequateLiquidityRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double IsAdequateLiquidityRatioScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/IsAdequateMaxCreditRiskScore": {
+            "post": {
+                "description": "Method: java.lang.Double IsAdequateMaxCreditRiskScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.String, java.lang.Boolean)",
+                "operationId": "IsAdequateMaxCreditRiskScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/IsAdequateMaxCreditRiskScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double IsAdequateMaxCreditRiskScore(IRulesRuntimeContext, String, Boolean)"
+            }
+        },
+        "/IsAdequateNormativeIndexCalculation": {
+            "post": {
+                "description": "Method: java.lang.Double IsAdequateNormativeIndexCalculation(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.Bank)",
+                "operationId": "IsAdequateNormativeIndexCalculation",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/IsAdequateNormativeIndexCalculationRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double IsAdequateNormativeIndexCalculation(IRulesRuntimeContext, Bank)"
+            }
+        },
+        "/LiabilitiesToCustomersDynamicScore": {
+            "post": {
+                "description": "Method: java.lang.Double LiabilitiesToCustomersDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "LiabilitiesToCustomersDynamicScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/LiabilitiesToCustomersDynamicScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double LiabilitiesToCustomersDynamicScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/LiabilitiesToCustomersOnDemandRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double LiabilitiesToCustomersOnDemandRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "LiabilitiesToCustomersOnDemandRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/LiabilitiesToCustomersOnDemandRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double LiabilitiesToCustomersOnDemandRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/LiquidityDynamicScore": {
+            "post": {
+                "description": "Method: java.lang.Double LiquidityDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "LiquidityDynamicScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/LiquidityDynamicScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double LiquidityDynamicScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/LiquidityRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double LiquidityRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "LiquidityRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/LiquidityRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double LiquidityRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/LossesInThisYearScore": {
+            "post": {
+                "description": "Method: java.lang.Double LossesInThisYearScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "LossesInThisYearScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/LossesInThisYearScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double LossesInThisYearScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/MaxLimit": {
+            "post": {
+                "description": "Method: java.lang.Double MaxLimit(org.openl.rules.context.IRulesRuntimeContext)",
+                "operationId": "MaxLimit",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DefaultRulesRuntimeContext"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double MaxLimit(IRulesRuntimeContext)"
+            }
+        },
+        "/NegativeHistoryRelationsScore": {
+            "post": {
+                "description": "Method: java.lang.Double NegativeHistoryRelationsScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "NegativeHistoryRelationsScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/NegativeHistoryRelationsScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double NegativeHistoryRelationsScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/NegativeInfoShareHoldersOrManagementScore": {
+            "post": {
+                "description": "Method: java.lang.Double NegativeInfoShareHoldersOrManagementScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "NegativeInfoShareHoldersOrManagementScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/NegativeInfoShareHoldersOrManagementScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double NegativeInfoShareHoldersOrManagementScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/NegativeMassMediaScore": {
+            "post": {
+                "description": "Method: java.lang.Double NegativeMassMediaScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Boolean)",
+                "operationId": "NegativeMassMediaScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/NegativeMassMediaScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double NegativeMassMediaScore(IRulesRuntimeContext, Boolean)"
+            }
+        },
+        "/NetMoneyMarketLiabilitiesScore": {
+            "post": {
+                "description": "Method: java.lang.Double NetMoneyMarketLiabilitiesScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "NetMoneyMarketLiabilitiesScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/NetMoneyMarketLiabilitiesScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double NetMoneyMarketLiabilitiesScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/OtherAssetsRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double OtherAssetsRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "OtherAssetsRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/OtherAssetsRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double OtherAssetsRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/ProfitDynamicScore": {
+            "post": {
+                "description": "Method: java.lang.Double ProfitDynamicScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, java.lang.Double)",
+                "operationId": "ProfitDynamicScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/ProfitDynamicScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double ProfitDynamicScore(IRulesRuntimeContext, Double, Double)"
+            }
+        },
+        "/QuickRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double QuickRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "QuickRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/QuickRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double QuickRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/SecuredByPropertyChargesClaimsRatioScore": {
+            "post": {
+                "description": "Method: java.lang.Double SecuredByPropertyChargesClaimsRatioScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double)",
+                "operationId": "SecuredByPropertyChargesClaimsRatioScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/SecuredByPropertyChargesClaimsRatioScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double SecuredByPropertyChargesClaimsRatioScore(IRulesRuntimeContext, Double)"
+            }
+        },
+        "/SetNonZeroValues": {
+            "post": {
+                "description": "Method: void SetNonZeroValues(org.openl.rules.context.IRulesRuntimeContext, org.openl.generated.beans.FinancialData)",
+                "operationId": "SetNonZeroValues",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/SetNonZeroValuesRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "void SetNonZeroValues(IRulesRuntimeContext, FinancialData)"
+            }
+        },
+        "/TotalBalanceScore": {
+            "post": {
+                "description": "Method: java.lang.Double TotalBalanceScore(org.openl.rules.context.IRulesRuntimeContext, java.lang.Double, java.lang.String)",
+                "operationId": "TotalBalanceScore",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/TotalBalanceScoreRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "text/plain": {
+                                "schema": {
+                                    "format": "double",
+                                    "type": "number"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Double TotalBalanceScore(IRulesRuntimeContext, Double, String)"
+            }
+        },
+        "/getBankData": {
+            "post": {
+                "description": "Method: org.openl.generated.beans.Bank[] getBankData(org.openl.rules.context.IRulesRuntimeContext)",
+                "operationId": "getBankData",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DefaultRulesRuntimeContext"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "./components.json#/Bank"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Bank[] getBankData(IRulesRuntimeContext)"
+            }
+        },
+        "/getBankFinancialData": {
+            "post": {
+                "description": "Method: org.openl.generated.beans.FinancialData[] getBankFinancialData(org.openl.rules.context.IRulesRuntimeContext)",
+                "operationId": "getBankFinancialData",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DefaultRulesRuntimeContext"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "./components.json#/FinancialData"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "FinancialData[] getBankFinancialData(IRulesRuntimeContext)"
+            }
+        },
+        "/getBankRatingList": {
+            "post": {
+                "description": "Method: org.openl.generated.beans.Rating[] getBankRatingList(org.openl.rules.context.IRulesRuntimeContext)",
+                "operationId": "getBankRatingList",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DefaultRulesRuntimeContext"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "./components.json#/Rating"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "Rating[] getBankRatingList(IRulesRuntimeContext)"
+            }
+        },
+        "/getQualityIndicatorsData": {
+            "post": {
+                "description": "Method: org.openl.generated.beans.QualityIndicators[] getQualityIndicatorsData(org.openl.rules.context.IRulesRuntimeContext)",
+                "operationId": "getQualityIndicatorsData",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "./components.json#/DefaultRulesRuntimeContext"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "items": {
+                                        "$ref": "./components.json#/QualityIndicators"
+                                    },
+                                    "type": "array"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Cannot parse 'bar' to JSON",
+                                    "type": "BAD_REQUEST"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Invalid request format e.g. missing required field, unparseable JSON value, etc."
+                    },
+                    "422": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Some message",
+                                    "type": "USER_ERROR"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Custom user errors in rules or validation errors in input parameters"
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {
+                                "example": {
+                                    "message": "Failed to load lazy method.",
+                                    "type": "COMPILATION"
+                                },
+                                "schema": {
+                                    "$ref": "./components.json#/JAXRSErrorResponse"
+                                }
+                            }
+                        },
+                        "description": "Internal server errors e.g. compilation or parsing errors, runtime exceptions, etc."
+                    }
+                },
+                "summary": "QualityIndicators[] getQualityIndicatorsData(IRulesRuntimeContext)"
+            }
+        }
+    },
+    "servers": [
+        {
+            "url": "/webservice/REST/Example%201%20-%20Bank%20Rating/Example%201%20-%20Bank%20Rating",
+            "variables": {}
+        }
+    ]
+}

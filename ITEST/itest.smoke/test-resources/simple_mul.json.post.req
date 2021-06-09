@@ -1,0 +1,8 @@
+POST /REST/simple/mul HTTP/1.1
+Content-Type: application/json
+Accept: application/json;q=1.0, */*;q=0.8
+
+{
+  "x": 7,
+  "y": 3
+}

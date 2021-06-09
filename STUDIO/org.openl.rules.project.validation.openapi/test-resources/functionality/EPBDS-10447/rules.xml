@@ -1,0 +1,10 @@
+<project>
+  <name>ValidationOpenApi666</name>
+  <comment></comment>
+  <modules>
+    <module>
+      <name>ValidationOpenApi</name>
+      <rules-root path="ValidationOpenApi.xlsx"/>
+    </module>
+  </modules>
+</project>

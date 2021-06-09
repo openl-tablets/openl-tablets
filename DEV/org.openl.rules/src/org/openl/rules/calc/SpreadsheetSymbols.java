@@ -4,11 +4,11 @@ public enum SpreadsheetSymbols {
 
     /** cell name indicating return statement */
     RETURN_NAME("RETURN"),
-    TYPE_DELIMETER(":"),
+    TYPE_DELIMITER(":"),
     TILDE("~"),
     ASTERISK("*");
 
-    private String symbols;
+    private final String symbols;
 
     SpreadsheetSymbols(String symbols) {
         this.symbols = symbols;

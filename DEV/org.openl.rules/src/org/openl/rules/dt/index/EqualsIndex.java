@@ -11,7 +11,7 @@ import org.openl.rules.helpers.NumberUtils;
 
 public class EqualsIndex extends ARuleIndex {
 
-    private Map<Object, DecisionTableRuleNode> valueNodes;
+    private final Map<Object, DecisionTableRuleNode> valueNodes;
 
     public EqualsIndex(DecisionTableRuleNode emptyOrFormulaNodes,
             Map<Object, DecisionTableRuleNode> valueNodes,
@@ -36,7 +36,7 @@ public class EqualsIndex extends ARuleIndex {
     public static class Builder {
         private Map<Object, DecisionTableRuleNodeBuilder> map = null;
         private Map<Object, DecisionTableRuleNode> nodeMap = null;
-        private DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
+        private final DecisionTableRuleNodeBuilder emptyBuilder = new DecisionTableRuleNodeBuilder();
         private boolean comparatorBasedMap = false;
         private ConditionCasts conditionCasts;
 

@@ -16,7 +16,7 @@ public class SuffixNode extends MethodBoundNode {
      * @param method
      */
     public SuffixNode(ISyntaxNode syntaxNode, IBoundNode[] child, IMethodCaller method) {
-        super(syntaxNode, child, method);
+        super(syntaxNode, method, child);
     }
 
     @Override

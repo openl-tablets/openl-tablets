@@ -1,5 +1,6 @@
 package org.openl.rules.dt.type.domains;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -34,31 +35,31 @@ public class DimensionPropertiesDomainsCollectorTest extends BaseOpenlBuilderHel
 
         IDomainAdaptor usRegionDomainAdaptor = propertiesDomains.get(PROPERTY_USREGION);
         // number of values is 3. counting starts from 0.
-        assertTrue(2 == usRegionDomainAdaptor.getMax());
+        assertEquals(2, usRegionDomainAdaptor.getMax());
 
         IDomainAdaptor lobDomainAdaptor = propertiesDomains.get(PROPERTY_LOB);
         // number of values is 5. counting starts from 0.
-        assertTrue(4 == lobDomainAdaptor.getMax());
+        assertEquals(4, lobDomainAdaptor.getMax());
 
         IDomainAdaptor stateDomainAdaptor = propertiesDomains.get(PROPERTY_STATE);
         // number of values is 4. counting starts from 0.
-        assertTrue(3 == stateDomainAdaptor.getMax());
+        assertEquals(3, stateDomainAdaptor.getMax());
 
         IDomainAdaptor countryDomainAdaptor = propertiesDomains.get(PROPERTY_COUNTRY);
         // number of values is 11. counting starts from 0.
-        assertTrue(10 == countryDomainAdaptor.getMax());
+        assertEquals(10, countryDomainAdaptor.getMax());
 
         IDomainAdaptor effectiveDateDomainAdaptor = propertiesDomains.get(PROPERTY_EFFECTIVE_DATE);
         int effectiveDateMaxInd = effectiveDateDomainAdaptor.getMax();
 
         IDomainAdaptor expirationDateDomainAdaptor = propertiesDomains.get(PROPERTY_EXPIRATION_DATE);
         int expirationDateMaxInd = expirationDateDomainAdaptor.getMax();
-        assertTrue(expirationDateMaxInd == effectiveDateMaxInd);
+        assertEquals(expirationDateMaxInd, effectiveDateMaxInd);
 
         IDomainAdaptor currentDateDomainAdaptor = propertiesDomains
             .get(DimensionPropertiesDomainsCollector.CURRENT_DATE_PARAM);
         int currentDateMaxInd = currentDateDomainAdaptor.getMax();
-        assertTrue(currentDateMaxInd == expirationDateMaxInd);
+        assertEquals(currentDateMaxInd, expirationDateMaxInd);
     }
 
     private List<Map<String, Object>> getMethodsProperties() {

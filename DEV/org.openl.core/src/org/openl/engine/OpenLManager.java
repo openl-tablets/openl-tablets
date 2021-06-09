@@ -1,16 +1,36 @@
 package org.openl.engine;
 
 import org.openl.CompiledOpenClass;
+import org.openl.IOpenBinder;
+import org.openl.IOpenVM;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
+import org.openl.binding.IBoundCode;
+import org.openl.binding.IBoundMethodHeader;
+import org.openl.binding.IBoundMethodNode;
+import org.openl.binding.IBoundNode;
+import org.openl.binding.impl.ANodeBinder;
+import org.openl.binding.impl.MethodCastNode;
+import org.openl.binding.impl.ParameterDeclarationNode;
+import org.openl.binding.impl.TypeBoundNode;
+import org.openl.binding.impl.TypeCastException;
+import org.openl.binding.impl.cast.IOpenCast;
+import org.openl.binding.impl.module.MethodBindingContext;
 import org.openl.dependency.IDependencyManager;
-import org.openl.exception.OpenLRuntimeException;
+import org.openl.exception.OpenLCompilationException;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.SourceType;
+import org.openl.source.impl.StringSourceCodeModule;
+import org.openl.syntax.code.IParsedCode;
+import org.openl.syntax.exception.CompositeOpenlException;
+import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.types.IMethodSignature;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenMethodHeader;
+import org.openl.types.IParameterDeclaration;
+import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
+import org.openl.types.impl.OpenMethodHeader;
+import org.openl.util.OpenClassUtils;
 
 /**
  * Helper class that encapsulates several OpenL engine methods.
@@ -19,19 +39,6 @@ import org.openl.types.impl.CompositeMethod;
 public final class OpenLManager {
 
     private OpenLManager() {
-    }
-
-    /**
-     * Makes open class that describes a type.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param bindingContext binding context
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass makeType(OpenL openl, IOpenSourceCodeModule source, IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeType(source, bindingContext);
     }
 
     /**
@@ -47,8 +54,12 @@ public final class OpenLManager {
             IOpenSourceCodeModule source,
             IOpenMethodHeader methodHeader,
             IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeMethod(source, methodHeader, bindingContext);
+
+        CompositeMethod compositeMethod = new CompositeMethod(methodHeader, null);
+
+        compileMethod(openl, source, compositeMethod, bindingContext);
+
+        return compositeMethod;
     }
 
     /**
@@ -61,9 +72,39 @@ public final class OpenLManager {
      */
     public static IOpenMethodHeader makeMethodHeader(OpenL openl,
             IOpenSourceCodeModule source,
+            IBindingContext bindingContext) throws OpenLCompilationException {
+        IParsedCode parsedCode = openl.getParser().parseAsMethodHeader(source);
+        IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, true);
+        if (topNode instanceof IBoundMethodHeader) {
+            return ((IBoundMethodHeader) topNode).getMethodHeader();
+        } else {
+            throw new OpenLCompilationException("Invalid method header.", null, null, source);
+        }
+    }
+
+    public static IParameterDeclaration makeParameterDeclaration(OpenL openl,
+            IOpenSourceCodeModule source,
             IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeMethodHeader(source, bindingContext);
+        IParsedCode parsedCode = openl.getParser().parseAsParameterDeclaration(source);
+        IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
+        if (topNode instanceof ParameterDeclarationNode) {
+            return ((ParameterDeclarationNode) topNode).getParameterDeclaration();
+        }
+        return null;
+    }
+
+    public static IOpenClass makeType(OpenL openl,
+            String code,
+            IOpenSourceCodeModule source,
+            IBindingContext bindingContext) {
+        IParsedCode parsedCode = openl.getParser()
+            .parseAsType(code != null ? new StringSourceCodeModule(code, source.getUri()) : source);
+        IBoundNode topNode = getBoundNode(openl, bindingContext, parsedCode, false);
+        if (topNode instanceof TypeBoundNode) {
+            return topNode.getType();
+        } else {
+            return NullOpenClass.the;
+        }
     }
 
     /**
@@ -85,12 +126,31 @@ public final class OpenLManager {
             IMethodSignature signature,
             IOpenClass declaringClass,
             IBindingContext bindingContext) {
-        OpenLCodeManager codeManager = new OpenLCodeManager(openl);
-        return codeManager.makeMethodWithUnknownType(source, methodName, signature, declaringClass, bindingContext);
+
+        OpenMethodHeader header = new OpenMethodHeader(methodName, NullOpenClass.the, signature, declaringClass);
+        CompositeMethod compositeMethod = new CompositeMethod(header, null);
+
+        MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
+        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
+
+        IOpenClass retType = methodBindingContext.getReturnType();
+        if (retType == NullOpenClass.the && topNode != null) {
+            retType = topNode.getType();
+        }
+
+        header.setTypeClass(retType);
+
+        if (topNode instanceof IBoundMethodNode) {
+            IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
+            compositeMethod.setMethodBodyBoundNode(boundMethodNode);
+        }
+
+        return compositeMethod;
     }
 
     /**
-     * Compiles a method.
+     * Compiles a method and sets meta info to the cells.
      *
      * @param openl OpenL engine context
      * @param source method source
@@ -101,72 +161,16 @@ public final class OpenLManager {
             IOpenSourceCodeModule source,
             CompositeMethod compositeMethod,
             IBindingContext bindingContext) {
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        compileManager.compileMethod(source, compositeMethod, bindingContext);
-    }
 
-    /**
-     * Compiles module. As a result a module open class will be returned by engine.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source) {
-        return compileModule(openl, source, false);
-    }
+        IOpenMethodHeader header = compositeMethod.getHeader();
+        MethodBindingContext methodBindingContext = new MethodBindingContext(header, bindingContext);
+        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        IBoundNode topNode = getBoundNode(openl, methodBindingContext, parsedCode, true);
 
-    /**
-     * Compiles module. As a result a module open class will be returned by engine.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
-     * @return {@link IOpenClass} instance
-     */
-    public static IOpenClass compileModule(OpenL openl, IOpenSourceCodeModule source, boolean executionMode) {
-        return compileModule(openl, source, executionMode, null);
-    }
-
-    public static IOpenClass compileModule(OpenL openl,
-            IOpenSourceCodeModule source,
-            boolean executionMode,
-            IDependencyManager dependencyManager) {
-        OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        try {
-            return compileManager.compileModule(source, executionMode, dependencyManager);
-        } finally {
-            if (dependencyManager != null) {
-                dependencyManager.clearOddDataForExecutionMode();
-            }
+        if (topNode instanceof IBoundMethodNode) {
+            IBoundMethodNode boundMethodNode = bindMethod((IBoundMethodNode) topNode, header, bindingContext);
+            compositeMethod.setMethodBodyBoundNode(boundMethodNode);
         }
-    }
-
-    /**
-     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
-     * compilation are suppressed.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @return {@link CompiledOpenClass} instance
-     */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl, IOpenSourceCodeModule source) {
-        return compileModuleWithErrors(openl, source, false);
-    }
-
-    /**
-     * Compiles module. As a result a module open class will be returned by engine. All errors that occurred during
-     * compilation are suppressed.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param executionMode <code>true</code> if module should be compiled in memory optimized mode for only execution
-     * @return {@link CompiledOpenClass} instance
-     */
-    public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
-            IOpenSourceCodeModule source,
-            boolean executionMode) {
-        return compileModuleWithErrors(openl, source, executionMode, null);
     }
 
     public static CompiledOpenClass compileModuleWithErrors(OpenL openl,
@@ -174,13 +178,7 @@ public final class OpenLManager {
             boolean executionMode,
             IDependencyManager dependencyManager) {
         OpenLCompileManager compileManager = new OpenLCompileManager(openl);
-        try {
-            return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
-        } finally {
-            if (dependencyManager != null) {
-                dependencyManager.clearOddDataForExecutionMode();
-            }
-        }
+        return compileManager.compileModuleWithErrors(source, executionMode, dependencyManager);
     }
 
     /**
@@ -189,46 +187,78 @@ public final class OpenLManager {
      * @param openl OpenL engine context
      * @param source source
      * @return result of script execution
-     * @throws OpenLRuntimeException
+     * @throws CompositeOpenlException if errors in the source code
      */
-    public static Object runScript(OpenL openl, IOpenSourceCodeModule source) {
+    public static Object run(OpenL openl, IOpenSourceCodeModule source) throws CompositeOpenlException {
 
-        OpenLRunManager runManager = new OpenLRunManager(openl);
+        IParsedCode parsedCode = openl.getParser().parseAsMethodBody(source);
+        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
+        if (parsingErrors.length > 0) {
+            throw new CompositeOpenlException("Parsing Error:", parsingErrors, null);
+        }
+        IOpenBinder binder = openl.getBinder();
+        IBoundCode boundCode = binder.bind(parsedCode, null);
+        SyntaxNodeException[] bindingErrors = boundCode.getErrors();
 
-        return runManager.runScript(source);
+        if (bindingErrors.length > 0) {
+            throw new CompositeOpenlException("Binding Error:", bindingErrors, boundCode.getMessages());
+        }
+
+        IBoundNode boundNode = boundCode.getTopNode();
+
+        IOpenVM vm = openl.getVm();
+
+        return vm.getRunner().run((IBoundMethodNode) boundNode, new Object[0]);
     }
 
     /**
-     * Compiles and runs specified method.
+     * Binds method which defines by header descriptor.
      *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param methodName method name
-     * @param paramTypes parameters types
-     * @param params parameters values
-     * @return result of method execution
+     * @param boundMethodNode method bound node
+     * @param header method header descriptor
+     * @param bindingContext binding context
+     * @return node of bound code that contains information about method
      */
-    public static Object runMethod(OpenL openl,
-            IOpenSourceCodeModule source,
-            String methodName,
-            IOpenClass[] paramTypes,
-            Object[] params) {
-        OpenLRunManager runManager = new OpenLRunManager(openl);
-        return runManager.runMethod(source, methodName, paramTypes, params);
+    private static IBoundMethodNode bindMethod(IBoundMethodNode boundMethodNode,
+            IOpenMethodHeader header,
+            IBindingContext bindingContext) {
+
+        IOpenClass type = header.getType();
+
+        if (!OpenClassUtils.isVoid(type) && !NullOpenClass.isAnyNull(type)) {
+
+            IOpenCast cast = null;
+            try {
+                cast = ANodeBinder.getCast(boundMethodNode, type, bindingContext);
+            } catch (TypeCastException e) {
+                bindingContext.addError(e);
+            }
+
+            if (cast != null) {
+                boundMethodNode = new MethodCastNode(boundMethodNode, cast, type);
+            }
+        }
+        return boundMethodNode;
     }
 
-    /**
-     * Compiles source and runs code.
-     *
-     * @param openl OpenL engine context
-     * @param source source
-     * @param sourceType type of source
-     * @return result of execution
-     * @throws OpenLRuntimeException
-     */
-    public static Object run(OpenL openl, IOpenSourceCodeModule source, SourceType sourceType) {
-        OpenLRunManager runManager = new OpenLRunManager(openl);
-        return runManager.run(source, sourceType);
-    }
+    private static IBoundNode getBoundNode(OpenL openl,
+            IBindingContext bindingContext,
+            IParsedCode parsedCode,
+            boolean allowParsingErrors) {
+        SyntaxNodeException[] parsingErrors = parsedCode.getErrors();
+        if (parsingErrors.length > 0) {
+            for (SyntaxNodeException parsingError : parsingErrors) {
+                bindingContext.addError(parsingError);
+            }
+            if (!allowParsingErrors) {
+                return null;
+            }
+        }
+        FullClassnameSupport.transformIdentifierBindersWithBindingContextInfo(bindingContext, parsedCode);
 
+        IOpenBinder binder = openl.getBinder();
+        IBoundCode boundCode = binder.bind(parsedCode, bindingContext);
+
+        return boundCode.getTopNode();
+    }
 }

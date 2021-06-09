@@ -1,6 +1,11 @@
 package org.openl.rules.repository.git;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.openl.rules.repository.git.TestGitUtils.assertContains;
 import static org.openl.rules.repository.git.TestGitUtils.createFileData;
 
@@ -11,7 +16,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.jgit.api.Git;
 import org.eclipse.jgit.api.errors.GitAPIException;
+import org.eclipse.jgit.internal.storage.file.ObjectDirectory;
 import org.eclipse.jgit.lib.Constants;
 import org.junit.After;
 import org.junit.Before;
@@ -22,26 +29,29 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
+import org.openl.rules.repository.api.RepositorySettings;
+import org.openl.rules.repository.file.FileSystemRepository;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 
 public class LocalGitRepositoryTest {
+    private static final String FOLDER_IN_REPOSITORY = "rules/project1";
+
     private File root;
     private GitRepository repo;
 
     @Before
-    public void setUp() throws IOException, RRepositoryException {
+    public void setUp() throws IOException {
         root = Files.createTempDirectory("openl").toFile();
         repo = createRepository(new File(root, "design-repository"));
     }
 
     @After
-    public void tearDown() throws IOException {
+    public void tearDown() {
         if (repo != null) {
             repo.close();
         }
-        FileUtils.delete(root);
+        FileUtils.deleteQuietly(root);
         if (root.exists()) {
             fail("Cannot delete folder " + root);
         }
@@ -98,9 +108,31 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
+    public void testCreatePackFolderAfterGC() throws IOException {
+        File packDirectory;
+        try (Git git = repo.getClosableGit()) {
+            packDirectory = ((ObjectDirectory) git.getRepository().getObjectDatabase()).getPackDirectory();
+        }
+        assertTrue(packDirectory.delete());
+        assertFalse(packDirectory.exists());
+
+        List<FileItem> changes = Collections
+            .singletonList(new FileItem("rules/project1/file2", IOUtils.toInputStream("Modified")));
+
+        FileData folderData = new FileData();
+        folderData.setName("rules/project1");
+        folderData.setAuthor("John Smith");
+
+        // git.gc() is invoked inside repo.save()
+        FileData savedData = repo.save(folderData, changes, ChangesetType.FULL);
+        assertNotNull(savedData);
+        assertTrue(packDirectory.exists());
+    }
+
+    @Test
     public void testBranches() throws IOException {
         try {
-            repo.createBranch("project1", "project1/test1");
+            repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
             fail("Must fail when create a branch on empty repository");
         } catch (IOException e) {
             assertEquals("Can't create a branch on the empty repository.", e.getMessage());
@@ -109,9 +141,9 @@ public class LocalGitRepositoryTest {
         String text = "Some text";
         repo.save(createFileData("initial.txt", text), IOUtils.toInputStream(text));
 
-        repo.createBranch("project1", "project1/test1");
-        repo.createBranch("project1", "project1/test2");
-        List<String> branches = repo.getBranches("project1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "project1/test2");
+        List<String> branches = repo.getBranches(FOLDER_IN_REPOSITORY);
         assertTrue(branches.contains(Constants.MASTER));
         assertTrue(branches.contains("project1/test1"));
         assertTrue(branches.contains("project1/test2"));
@@ -127,11 +159,15 @@ public class LocalGitRepositoryTest {
         assertEquals(1, repo.listHistory("rules/project11").size());
         assertEquals(1, repo.listHistory("rules/project2").size());
 
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, "rules/project1/file2", "'file2' in the branch 'master' was added");
         writeSampleFile(repo.forBranch("branch1"), "rules/project1/file3", "'file3' in the branch 'branch1' was added");
+
+        assertFalse(repo.isMergedInto("branch1", repo.getBranch()));
         repo.merge("branch1", "admin", null);
+        assertTrue(repo.isMergedInto("branch1", repo.getBranch()));
+        assertFalse(repo.isMergedInto(repo.getBranch(), "branch1"));
 
         assertEquals(4, repo.listHistory("rules/project1").size());
         assertEquals(1, repo.listHistory("rules/project11").size());
@@ -148,7 +184,7 @@ public class LocalGitRepositoryTest {
         final String textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
@@ -175,6 +211,29 @@ public class LocalGitRepositoryTest {
     }
 
     @Test
+    public void testDiffWhenConflictInFileWithParenthesis() throws IOException {
+        final String project1 = "rules/project(1)";
+        final String file = project1 + "/file1";
+        final String textInMaster = "In master";
+        final String textInBranch1 = "In branch1";
+
+        writeSampleFile(repo, file, "Project(1) was created");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
+
+        writeSampleFile(repo, file, textInMaster, "Modify master");
+        writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
+        try {
+            repo.merge("branch1", "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            String diff = e.getDiffs().get(file);
+            assertNotNull(diff);
+            assertTrue(diff.contains("--- \"a/rules/project(1)/file1\""));
+            assertTrue(diff.contains("+++ \"b/rules/project(1)/file1\""));
+        }
+    }
+
+    @Test
     public void testHistoryWhenMergeWithConflictAndChooseYours() throws IOException, GitAPIException {
         final String project1 = "rules/project1";
         final String file = project1 + "/file1";
@@ -182,7 +241,7 @@ public class LocalGitRepositoryTest {
         final String textInBranch1 = "In branch1";
 
         writeSampleFile(repo, file, "Project1 was created");
-        repo.createBranch("project1", "branch1");
+        repo.createBranch(FOLDER_IN_REPOSITORY, "branch1");
 
         writeSampleFile(repo, file, textInMaster, "Modify master");
         writeSampleFile(repo.forBranch("branch1"), file, textInBranch1, "Modify branch1");
@@ -208,6 +267,132 @@ public class LocalGitRepositoryTest {
         }
     }
 
+    @Test
+    public void testHistoryWhenMergeDifferentProjectModifications() throws IOException {
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+        assertEquals(1, repo.listHistory("rules/project1").size());
+        assertEquals(1, repo.listHistory("rules/project2").size());
+
+        String branch1 = "branch1";
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        GitRepository repoForBranch1 = repo.forBranch(branch1);
+
+        modifyFile(repo, "rules/project2/file1", "Modify project2 in 'master'");
+        modifyFile(repoForBranch1, "rules/project1/file1", "Modify project1 in 'branch1'");
+
+        assertEquals(1, repo.listHistory("rules/project1").size());
+        assertEquals(2, repoForBranch1.listHistory("rules/project1").size());
+        assertEquals(2, repo.listHistory("rules/project2").size());
+
+        repoForBranch1.merge(repo.getBranch(), "user1", null);
+        repo.merge(repoForBranch1.getBranch(), "user1", null);
+
+        List<FileData> historyForProject2 = repo.listHistory("rules/project2");
+        // See EPBDS-10480 for details.
+        assertEquals(2, historyForProject2.size());
+    }
+
+    @Test
+    public void testIsMergedWhenNoValuableCommitsInOtherBranch() throws IOException {
+        final String mainBranch = repo.getBranch();
+        final String branch1 = "branch1";
+
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+
+        GitRepository repoBranch1 = repo.forBranch(branch1);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch1.
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #1");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Merge changes to main branch.
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch1 again. We have 1 extra merge commit in main branch.
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        // See PBDS-10808. In main branch there are no valuable changes. Only merge commits gotten from branch1. So we
+        // assume that there are no interesting commits.
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Merge changes to main branch
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // We modify it 3 times to ensure that it still works for 2 extra merge commits in main branch (to ensure that
+        // our algorithm works recursively).
+        modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #3");
+        assertFalse(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+    }
+
+    @Test
+    public void testIsMergedWhenValuableCommitInOtherBranchWasDiscarded() throws IOException {
+        final String mainBranch = repo.getBranch();
+        final String branch1 = "branch1";
+        final String branch2 = "branch2";
+
+        writeSampleFile(repo, "rules/project1/file1", "Project1 was created");
+        writeSampleFile(repo, "rules/project2/file1", "Project2 was created");
+
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch1);
+        repo.createBranch(FOLDER_IN_REPOSITORY, branch2);
+
+        GitRepository repoBranch1 = repo.forBranch(branch1);
+        GitRepository repoBranch2 = repo.forBranch(branch2);
+
+        // Modify a file in branch1 and merge it to main branch.
+        final String textInBranch1 = "Modify 'file1' in the branch 'branch1'. #1";
+        modifyFile(repoBranch1, "rules/project1/file1", textInBranch1);
+        repo.merge(branch1, "admin", null);
+        assertTrue(repo.isMergedInto(branch1, mainBranch));
+        assertTrue(repo.isMergedInto(mainBranch, branch1));
+
+        // Modify a file in branch2 and merge it to main branch with conflict. Choose theirs.
+        final String textInBranch2 = "Modify 'file1' in the branch 'branch2'.";
+        modifyFile(repoBranch2, "rules/project1/file1", textInBranch2);
+        try {
+            repo.merge(branch2, "admin", null);
+            fail("MergeConflictException is expected");
+        } catch (MergeConflictException e) {
+            final String resolveMessage = "Resolve conflict (use theirs)";
+            Iterable<FileItem> resolvedFiles = Collections
+                .singletonList(new FileItem("rules/project1/file1", IOUtils.toInputStream(textInBranch1)));
+
+            // Resolve conflict with choosing "theirs".
+            repo.merge(branch2, "admin", new ConflictResolveData(e.getTheirCommit(), resolvedFiles, resolveMessage));
+            assertTrue(repo.isMergedInto(branch2, mainBranch));
+            // Because it was a conflict, project state in mainBranch differs from the state in branch2
+            assertFalse(repo.isMergedInto(mainBranch, branch2));
+
+            assertTrue(repo.isMergedInto(branch1, mainBranch));
+            // Our project (project1) was modified in branch2 and then their changes were discarded when merged into
+            // main. We should be able to retrieve their changes despite that they were discarded.
+            // So we expect that main branch isn't merged into branch1 (there are valuable changes in main branch).
+            assertFalse(repo.isMergedInto(mainBranch, branch1));
+
+            // Modify again in branch1.
+            modifyFile(repoBranch1, "rules/project1/file1", "Modify 'file1' in the branch 'branch1'. #2");
+            assertFalse(repo.isMergedInto(branch1, mainBranch));
+            assertFalse(repo.isMergedInto(mainBranch, branch1));
+        }
+    }
+
+    private void modifyFile(GitRepository repository, String path, String text) throws IOException {
+        String comment = "'" + path + "' in the branch '" + repository.getBranch() + "' was modified";
+        writeSampleFile(repository, path, text, comment);
+    }
+
     private void writeSampleFile(Repository repository, String path, String comment) throws IOException {
         String text = "File located in " + path;
         writeSampleFile(repository, path, text, comment);
@@ -217,11 +402,15 @@ public class LocalGitRepositoryTest {
         repository.save(createFileData(path, text, comment), IOUtils.toInputStream(text));
     }
 
-    private GitRepository createRepository(File local) throws RRepositoryException {
+    private GitRepository createRepository(File local) {
         GitRepository repo = new GitRepository();
         repo.setLocalRepositoryPath(local.getAbsolutePath());
-        repo.setGitSettingsPath(local.getParent() + "/git-settings");
+        FileSystemRepository settingsRepository = new FileSystemRepository();
+        settingsRepository.setUri(local.getParent() + "/git-settings");
+        String locksRoot = new File(root, "locks").getAbsolutePath();
+        repo.setRepositorySettings(new RepositorySettings(settingsRepository, locksRoot, 1));
         repo.setCommentTemplate("WebStudio: {commit-type}. {user-message}");
+        repo.setGcAutoDetach(false);
         repo.initialize();
 
         return repo;

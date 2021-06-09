@@ -557,4 +557,33 @@ public class StringsTest {
         assertFalse(like("01234", "####"));
         assertTrue(like("0123", "#+"));
     }
+
+    @Test
+    public void testTextJoin() {
+        assertNull(Strings.textJoin(null, (Object[]) null));
+        assertNull(Strings.textJoin("", (Object[]) null));
+        assertEquals("", Strings.textJoin(""));
+        assertEquals("", Strings.textJoin("", ""));
+        assertEquals("foo, bar, zoo,   ", Strings.textJoin(", ", "foo", null, "bar", "", "zoo", "  "));
+        assertEquals("foobarzoo", Strings.textJoin("", null, "foo", null, "bar", "", "zoo", null));
+        assertEquals("a, b, c", Strings.textJoin(", ", null, "a", null, "b", "", "c", null));
+        assertEquals("a, 11, b, c", Strings.textJoin(", ", "a", 11L, "b", "", "c"));
+        assertEquals("foobarzoo ", Strings.textJoin(null, "foo", null, "bar", "", "zoo "));
+    }
+
+    @Test
+    public void testTextSplit() {
+        assertNull(Strings.textSplit(null, null));
+        assertArrayEquals(new String[] {""}, Strings.textSplit(null, ""));
+        assertArrayEquals(new String[] {"abc", ", def", ", xyz"}, Strings.textSplit(" , ", "abc , , def , , xyz"));
+        assertArrayEquals(new String[] {"abc", "def", "xyz"}, Strings.textSplit(".", "abc..def.xyz"));
+        assertArrayEquals(new String[] {"abc", "def.xyz "}, Strings.textSplit("..", "abc..def.xyz "));
+        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(", ", "abc..def.xyz "));
+        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit(null, "abc..def.xyz "));
+        assertArrayEquals(new String[] {"abc..def.xyz "}, Strings.textSplit("", "abc..def.xyz "));
+        assertArrayEquals(new String[] {"a", "b", "c"}, Strings. textSplit(".", "....a....b.....c....."));
+        assertArrayEquals(new String[] {"a, b c@d?e.f"}, Strings.textSplit("[, ?.@]+", "a, b c@d?e.f"));
+        assertArrayEquals(new String[] {"Lorem", "Ipsum", "is", "simply", "dummy", "text", "of", "the", "printing", "and", "typesetting", "industry"},
+                Strings.textSplit(" ", "Lorem Ipsum is simply dummy text of the printing and typesetting industry"));
+    }
 }

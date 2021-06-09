@@ -1,12 +1,19 @@
 package org.openl.rules.diff.xls2;
 
 import java.io.File;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.openl.OpenClassUtil;
 import org.openl.binding.IBoundCode;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.conf.UserContext;
+import org.openl.impl.DefaultCompileContext;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls.XlsProjectionDiffer;
 import org.openl.rules.lang.xls.XlsBinder;
@@ -19,7 +26,7 @@ import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
 import org.openl.types.IOpenClass;
-import org.openl.xls.sequential.SequentialParser;
+import org.openl.xls.Parser;
 
 /**
  * Find difference between two XLS files. It compares per Table.
@@ -42,7 +49,7 @@ public class XlsDiff2 {
     // Same Sheet, Header
     private static final String GUESS_MAY_BE_SAME = "4-mayBeSame";
 
-    private Map<String, List<DiffPair>> diffGuess;
+    private final Map<String, List<DiffPair>> diffGuess;
 
     public XlsDiff2() {
         // TreeMap -- Key as a weight
@@ -51,14 +58,14 @@ public class XlsDiff2 {
 
     private List<XlsTable> load(IOpenSourceCodeModule src) {
         final ClassLoader oldCl = Thread.currentThread().getContextClassLoader();
-        ClassLoader bundleCl = null;
+        ClassLoader classLoader = null;
         try {
-            bundleCl = new OpenLBundleClassLoader(oldCl);
-            Thread.currentThread().setContextClassLoader(bundleCl);
-            UserContext ucxt = new UserContext(bundleCl, ".");
+            classLoader = new OpenLClassLoader(oldCl);
+            Thread.currentThread().setContextClassLoader(classLoader);
+            UserContext ucxt = new UserContext(classLoader, ".");
 
-            IParsedCode pc = new SequentialParser(ucxt).parseAsModule(src);
-            IBoundCode bc = new XlsBinder(ucxt).bind(pc);
+            IParsedCode pc = new Parser(ucxt).parseAsModule(src);
+            IBoundCode bc = new XlsBinder(new DefaultCompileContext(), ucxt).bind(pc);
             IOpenClass ioc = bc.getTopNode().getType();
 
             XlsMetaInfo xmi = (XlsMetaInfo) ioc.getMetaInfo();
@@ -72,7 +79,7 @@ public class XlsDiff2 {
 
             return tables;
         } finally {
-            OpenClassUtil.releaseClassLoader(bundleCl);
+            OpenClassUtil.releaseClassLoader(classLoader);
             Thread.currentThread().setContextClassLoader(oldCl);
         }
     }

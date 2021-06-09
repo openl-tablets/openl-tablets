@@ -48,4 +48,12 @@ public class LoopNode extends ABoundNode {
         }
         return null;
     }
+
+    public IBoundNode getConditionNode() {
+        return conditionNode;
+    }
+
+    public IBoundNode getBlockCodeNode() {
+        return blockCodeNode;
+    }
 }

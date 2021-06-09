@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
 public final class TreeBuildTracer extends Tracer {
 
     private final Logger log = LoggerFactory.getLogger(TreeBuildTracer.class);
-    private static ThreadLocal<ITracerObject> tree = new ThreadLocal<>();
-    private static ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> map = new ThreadLocal<>();
+    private static final ThreadLocal<ITracerObject> tree = new ThreadLocal<>();
+    private static final ThreadLocal<Map<TracerKeyNode, SimpleTracerObject>> map = new ThreadLocal<>();
 
     static {
         Tracer.instance = new TreeBuildTracer();

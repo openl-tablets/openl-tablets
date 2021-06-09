@@ -5,10 +5,12 @@
 package org.openl.rules.datatype.binding;
 
 import org.openl.OpenL;
+import org.openl.binding.IBindingContext;
 import org.openl.binding.IMemberBoundNode;
 import org.openl.domain.EnumDomain;
 import org.openl.domain.IDomain;
 import org.openl.engine.OpenLManager;
+import org.openl.message.OpenLMessagesUtils;
 import org.openl.rules.OpenlToolAdaptor;
 import org.openl.rules.binding.RuleRowHelper;
 import org.openl.rules.binding.RulesModuleBindingContext;
@@ -19,11 +21,12 @@ import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.lang.xls.types.DatatypeMetaInfo;
 import org.openl.rules.lang.xls.types.DatatypeOpenClass;
 import org.openl.rules.table.ILogicalTable;
+import org.openl.util.TableNameChecker;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.ISyntaxConstants;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
 import org.openl.types.impl.DomainOpenClass;
 import org.openl.types.java.JavaOpenClass;
@@ -47,9 +50,17 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         ILogicalTable table = tsn.getTable();
         IOpenSourceCodeModule tableSource = tsn.getHeader().getModule();
 
-        IdentifierNode[] parsedHeader = DatatypeHelper.tokenizeHeader(tableSource);
+        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableSource, " \n\r");
+        if (parsedHeader.length < 2) {
+            String message1 = "Datatype table format: Datatype <typename>";
+            throw SyntaxNodeExceptionUtils.createError(message1, null, null, tableSource);
+        }
 
         String typeName = parsedHeader[TYPE_INDEX].getIdentifier();
+        if (TableNameChecker.isInvalidJavaIdentifier(typeName)) {
+            String message = "Datatype table " + typeName + TableNameChecker.NAME_ERROR_MESSAGE;
+            bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(message, parsedHeader[TYPE_INDEX]));
+        }
 
         IOpenClass openClass = bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE, typeName);
         String packageName = tsn.getTableProperties().getPropertyValueAsString("datatypePackage");
@@ -62,7 +73,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
         // Put sub table without header and properties section for business view.
         //
-        putSubTableForBussinesView(tsn);
+        putSubTableForBusinessView(tsn);
 
         // Check the datatype table that is alias data type.
         //
@@ -84,9 +95,10 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
             //
             Object[] res = {};
             if (dataPart != null) {
-                IOpenSourceCodeModule arrayAliasTypeSource = new StringSourceCodeModule(type + "[]",
-                    tableSource.getUri());
-                IOpenClass arrayOpenClass = OpenLManager.makeType(openl, arrayAliasTypeSource, bindingContext);
+                IOpenClass arrayOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                        type + "[]",
+                        tableSource,
+                        bindingContext);
 
                 OpenlToolAdaptor openlAdaptor = new OpenlToolAdaptor(openl, bindingContext, tsn);
 
@@ -99,15 +111,14 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
 
             IDomain<?> domain = new EnumDomain<>(res);
 
-            // Create source code module for type definition.
             // Domain values are loaded as elements of array. We are create one
             // more type for it - array with appropriate type of elements.
-            //
-            IOpenSourceCodeModule aliasTypeSource = new StringSourceCodeModule(type, tableSource.getUri());
-
             // Create appropriate OpenL class for type definition.
             //
-            IOpenClass baseOpenClass = OpenLManager.makeType(openl, aliasTypeSource, bindingContext);
+            IOpenClass baseOpenClass = OpenLManager.makeType(((IBindingContext) bindingContext).getOpenL(),
+                    type,
+                    tableSource,
+                    bindingContext);
 
             // Create domain class definition which will be used by OpenL engine at runtime.
             //
@@ -128,11 +139,15 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
                 .getIdentifier()
                 .equals("extends")) {
 
-                String message = "Datatype table formats: [Datatype %typename%] or [Datatype %typename% extends %parentTypeName%] or [Datatype %typename% %<aliastype>%] ";
+                String message = "Datatype table formats: [Datatype %typename%] " + "or [Datatype %typename% extends %parentTypeName%] " + "or [Datatype %typename% %<aliastype>%] ";
                 throw SyntaxNodeExceptionUtils.createError(message, null, null, tableSource);
             }
 
             DatatypeOpenClass tableType = new DatatypeOpenClass(typeName, packageName);
+
+            if (!bindingContext.isExecutionMode()) {
+                tableType.setTableSyntaxNode(tsn);
+            }
 
             // set meta info with uri to the DatatypeOpenClass for indicating the source of the datatype table
             //
@@ -155,7 +170,7 @@ public class DatatypeNodeBinder extends AXlsTableBinder {
         }
     }
 
-    private void putSubTableForBussinesView(TableSyntaxNode tsn) {
+    private static void putSubTableForBusinessView(TableSyntaxNode tsn) {
         tsn.getSubTables().put(IXlsTableNames.VIEW_BUSINESS, tsn.getTableBody());
     }
 }

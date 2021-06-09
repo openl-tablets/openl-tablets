@@ -8,7 +8,7 @@ public class FastStringReader extends Reader {
     private static final IOException$1 IO_EXC = new IOException$1();
 
     private String str;
-    private int length;
+    private final int length;
     private int next = 0;
     private int mark = 0;
 

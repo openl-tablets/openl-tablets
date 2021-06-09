@@ -14,14 +14,12 @@ import java.util.zip.ZipOutputStream;
 
 import org.openl.rules.common.CommonUser;
 import org.openl.rules.common.CommonVersion;
-import org.openl.rules.common.LockInfo;
+import org.openl.rules.lock.LockInfo;
 import org.openl.rules.common.ProjectDescriptor;
-import org.openl.rules.common.ProjectDescriptorHelper;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ProjectDescriptorImpl;
 import org.openl.rules.common.impl.RepositoryProjectVersionImpl;
-import org.openl.rules.project.impl.local.SimpleLockInfo;
 import org.openl.rules.repository.api.ArtefactProperties;
 import org.openl.rules.repository.api.ChangesetType;
 import org.openl.rules.repository.api.FileData;
@@ -37,12 +35,12 @@ import org.slf4j.LoggerFactory;
  * This class stores only deploy configuration, not deployed projects! For the latter see {@link Deployment} class.
  */
 public class ADeploymentProject extends UserWorkspaceProject {
-    private final Logger log = LoggerFactory.getLogger(ADeploymentProject.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ADeploymentProject.class);
 
     private List<ProjectDescriptor> descriptors;
     private ADeploymentProject openedVersion;
     /* this button is used for rendering the save button (only for deploy configuration) */
-    private boolean modifiedDescriptors = false;
+    private volatile boolean modifiedDescriptors;
 
     private final LockEngine lockEngine;
 
@@ -65,11 +63,11 @@ public class ADeploymentProject extends UserWorkspaceProject {
         lockEngine = null;
     }
 
-    public void addProjectDescriptor(String name, CommonVersion version) {
+    public void addProjectDescriptor(String repositoryId, String name, String path, String branch, CommonVersion version) {
         if (hasProjectDescriptor(name)) {
             removeProjectDescriptor(name);
         }
-        getDescriptors().add(new ProjectDescriptorImpl(name, version));
+        getDescriptors().add(new ProjectDescriptorImpl(repositoryId, name, path, branch, version));
     }
 
     public boolean hasProjectDescriptor(String name) {
@@ -136,53 +134,55 @@ public class ADeploymentProject extends UserWorkspaceProject {
 
     @Override
     public void save(CommonUser user) throws ProjectException {
-        InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
-        if (getRepository().supports().folders()) {
-            FileData fileData = getFileData();
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                IOUtils.copyAndClose(inputStream, out);
+        synchronized (this) {
+            InputStream inputStream = ProjectDescriptorHelper.serialize(descriptors);
+            if (getRepository().supports().folders()) {
+                FileData fileData = getFileData();
+                try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    IOUtils.copyAndClose(inputStream, out);
 
-                fileData.setAuthor(user == null ? null : user.getUserName());
-                fileData.setSize(out.size());
+                    fileData.setAuthor(user == null ? null : user.getUserName());
+                    fileData.setSize(out.size());
 
-                FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
-                    new ByteArrayInputStream(out.toByteArray()));
-                setFileData(((FolderRepository) getRepository())
-                    .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
-            } catch (IOException e) {
-                throw new ProjectException(e.getMessage(), e);
+                    FileItem change = new FileItem(fileData.getName() + "/" + ArtefactProperties.DESCRIPTORS_FILE,
+                            new ByteArrayInputStream(out.toByteArray()));
+                    setFileData(((FolderRepository) getRepository())
+                            .save(fileData, Collections.singletonList(change), ChangesetType.FULL));
+                } catch (IOException e) {
+                    throw new ProjectException(e.getMessage(), e);
+                }
+            } else {
+                // Archive the folder using zip
+                FileData fileData = getFileData();
+                ZipOutputStream zipOutputStream = null;
+                try {
+                    ByteArrayOutputStream out = new ByteArrayOutputStream();
+                    zipOutputStream = new ZipOutputStream(out);
+
+                    ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
+                    zipOutputStream.putNextEntry(entry);
+
+                    IOUtils.copy(inputStream, zipOutputStream);
+
+                    inputStream.close();
+                    zipOutputStream.closeEntry();
+
+                    zipOutputStream.close();
+                    fileData.setAuthor(user == null ? null : user.getUserName());
+                    fileData.setSize(out.size());
+                    setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
+                } catch (IOException e) {
+                    throw new ProjectException(e.getMessage(), e);
+                } finally {
+                    IOUtils.closeQuietly(zipOutputStream);
+                }
             }
-        } else {
-            // Archive the folder using zip
-            FileData fileData = getFileData();
-            ZipOutputStream zipOutputStream = null;
-            try {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                zipOutputStream = new ZipOutputStream(out);
 
-                ZipEntry entry = new ZipEntry(ArtefactProperties.DESCRIPTORS_FILE);
-                zipOutputStream.putNextEntry(entry);
-
-                IOUtils.copy(inputStream, zipOutputStream);
-
-                inputStream.close();
-                zipOutputStream.closeEntry();
-
-                zipOutputStream.close();
-                fileData.setAuthor(user == null ? null : user.getUserName());
-                fileData.setSize(out.size());
-                setFileData(getRepository().save(fileData, new ByteArrayInputStream(out.toByteArray())));
-            } catch (IOException e) {
-                throw new ProjectException(e.getMessage(), e);
-            } finally {
-                IOUtils.closeQuietly(zipOutputStream);
-            }
+            modifiedDescriptors = false;
+            open();
+            unlock();
         }
-
-        modifiedDescriptors = false;
-        open();
-        unlock();
     }
 
     private void removeProjectDescriptor(String name) {
@@ -213,15 +213,15 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public LockInfo getLockInfo() {
         if (lockEngine == null) {
-            return SimpleLockInfo.NO_LOCK;
+            return LockInfo.NO_LOCK;
         }
-        return lockEngine.getLockInfo(getBranch(), getName());
+        return lockEngine.getLockInfo(getDesignRepository().getId(), getBranch(), getName());
     }
 
     @Override
-    public boolean tryLock() throws ProjectException {
+    public boolean tryLock() {
         if (lockEngine != null) {
-            return lockEngine.tryLock(getBranch(), getName(), getUser().getUserName());
+            return lockEngine.tryLock(getDesignRepository().getId(), getBranch(), getName(), getUser().getUserName());
         }
 
         return super.tryLock();
@@ -230,7 +230,7 @@ public class ADeploymentProject extends UserWorkspaceProject {
     @Override
     public void unlock() {
         if (lockEngine != null) {
-            lockEngine.unlock(getBranch(), getName());
+            lockEngine.unlock(getDesignRepository().getId(), getBranch(), getName());
         }
     }
 
@@ -242,32 +242,36 @@ public class ADeploymentProject extends UserWorkspaceProject {
     }
 
     private List<ProjectDescriptor> getDescriptors() {
-        if (descriptors == null) {
-            descriptors = new ArrayList<>();
-            ADeploymentProject source = openedVersion == null ? this : openedVersion;
-            if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
-                InputStream content = null;
-                try {
-                    content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
-                    List<ProjectDescriptor> newDescriptors = ProjectDescriptorHelper.deserialize(content);
-                    if (newDescriptors != null) {
-                        descriptors = newDescriptors;
+        synchronized (this) {
+            if (descriptors == null) {
+                descriptors = new ArrayList<>();
+                ADeploymentProject source = openedVersion == null ? this : openedVersion;
+                if (source.hasArtefact(ArtefactProperties.DESCRIPTORS_FILE)) {
+                    InputStream content = null;
+                    try {
+                        content = ((AProjectResource) source.getArtefact(ArtefactProperties.DESCRIPTORS_FILE)).getContent();
+                        List<ProjectDescriptor> newDescriptors = ProjectDescriptorHelper.deserialize(content);
+                        if (newDescriptors != null) {
+                            descriptors = newDescriptors;
+                        }
+                    } catch (Exception e) {
+                        LOG.error(e.getMessage(), e);
+                    } finally {
+                        IOUtils.closeQuietly(content);
                     }
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                } finally {
-                    IOUtils.closeQuietly(content);
                 }
             }
+            return descriptors;
         }
-        return descriptors;
+
     }
 
     @Override
     public void refresh() {
-        super.refresh();
-        descriptors = null;
-        modifiedDescriptors = false;
+        if (!isModified()) {
+            super.refresh();
+            descriptors = null;
+        }
     }
 
     @Override

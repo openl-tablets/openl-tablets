@@ -51,7 +51,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
 
     private final short value;
 
-    private static DoubleValue[] toDoubleValues(org.openl.meta.ShortValue[] values) {
+    private static DoubleValue[] toDoubleValues(ShortValue[] values) {
         if (values == null) {
             return null;
         }
@@ -98,13 +98,13 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param name of new variable
      * @return the new org.openl.meta.ShortValue variable with name <b>name</b> and value <b>value</b>
      */
-    public static org.openl.meta.ShortValue copy(org.openl.meta.ShortValue value, String name) {
+    public static ShortValue copy(ShortValue value, String name) {
         if (value.getName() == null) {
             value.setName(name);
 
             return value;
         } else if (!value.getName().equals(name)) {
-            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(value, NumberOperations.COPY, value);
+            ShortValue result = new ShortValue(value, NumberOperations.COPY, value);
             result.setName(name);
 
             return result;
@@ -120,14 +120,14 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2 org.openl.meta.ShortValue
      * @return remainder from division value1 by value2
      */
-    public static org.openl.meta.ShortValue rem(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static ShortValue rem(ShortValue value1, ShortValue value2) {
         // Commented to support operations with nulls. See also MathUtils.mod()
         // validate(value1, value2, Formulas.REM.toString());
         if (value1 == null || value2 == null) {
             return ZERO;
         }
 
-        return new org.openl.meta.ShortValue(value1,
+        return new ShortValue(value1,
             value2,
             Operators.rem(value1.getValue(), value2.getValue()),
             Formulas.REM);
@@ -140,7 +140,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2 org.openl.meta.ShortValue
      * @return the result of addition operation
      */
-    public static org.openl.meta.ShortValue add(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static ShortValue add(ShortValue value1, ShortValue value2) {
         if (value1 == null) {
             return value2;
         }
@@ -149,7 +149,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(value1,
+        return new ShortValue(value1,
             value2,
             Operators.add(value1.getValue(), value2.getValue()),
             Formulas.ADD);
@@ -163,13 +163,13 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2 org.openl.meta.ShortValue
      * @return the result of multiplication operation
      */
-    public static org.openl.meta.ShortValue multiply(org.openl.meta.ShortValue value1,
-            org.openl.meta.ShortValue value2) {
+    public static ShortValue multiply(ShortValue value1,
+                                      ShortValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
 
-        return new org.openl.meta.ShortValue(value1,
+        return new ShortValue(value1,
             value2,
             Operators.multiply(value1.getValue(), value2.getValue()),
             Formulas.MULTIPLY);
@@ -183,8 +183,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2 org.openl.meta.ShortValue
      * @return the result of subtraction operation
      */
-    public static org.openl.meta.ShortValue subtract(org.openl.meta.ShortValue value1,
-            org.openl.meta.ShortValue value2) {
+    public static ShortValue subtract(ShortValue value1,
+                                      ShortValue value2) {
         if (value1 == null && value2 == null) {
             return null;
         }
@@ -197,7 +197,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(value1,
+        return new ShortValue(value1,
             value2,
             Operators.subtract(value1.getValue(), value2.getValue()),
             Formulas.SUBTRACT);
@@ -211,8 +211,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2 org.openl.meta.ShortValue
      * @return the result of division operation
      */
-    public static org.openl.meta.DoubleValue divide(org.openl.meta.ShortValue value1,
-            org.openl.meta.ShortValue value2) {
+    public static org.openl.meta.DoubleValue divide(ShortValue value1,
+                                                    ShortValue value2) {
         if (value1 == null || value2 == null) {
             return null;
         }
@@ -235,7 +235,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param divisor org.openl.meta.ShortValue
      * @return LongValue the result of division operation
      */
-    public static LongValue quotient(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+    public static LongValue quotient(ShortValue number, ShortValue divisor) {
         if (number != null && divisor != null) {
             LongValue result = new LongValue(MathUtils.quotient(number.getValue(), divisor.getValue()));
             return new LongValue(result, NumberOperations.QUOTIENT, null);
@@ -250,11 +250,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @return the remainder after a number is divided by a divisor. The result is a numeric value and has the same sign
      *         as the devisor.
      */
-    public static org.openl.meta.ShortValue mod(org.openl.meta.ShortValue number, org.openl.meta.ShortValue divisor) {
+    public static ShortValue mod(ShortValue number, ShortValue divisor) {
         if (number != null && divisor != null) {
-            org.openl.meta.ShortValue result = new org.openl.meta.ShortValue(
+            ShortValue result = new ShortValue(
                 MathUtils.mod(number.getValue(), divisor.getValue()));
-            return new org.openl.meta.ShortValue(result, NumberOperations.MOD, number, divisor);
+            return new ShortValue(result, NumberOperations.MOD, number, divisor);
         }
         return null;
     }
@@ -289,18 +289,18 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value2
      * @return the result of value1 raised to the power of value2
      */
-    public static org.openl.meta.ShortValue pow(org.openl.meta.ShortValue value1, org.openl.meta.ShortValue value2) {
+    public static ShortValue pow(ShortValue value1, ShortValue value2) {
         // Commented to support operations with nulls
         // "null" means that data does not exist
         //
         // validate(value1, value2, NumberOperations.POW);
         if (value1 == null) {
-            return value2 == null ? null : new org.openl.meta.ShortValue((short) 0);
+            return value2 == null ? null : new ShortValue((short) 0);
         } else if (value2 == null) {
             return value1;
         }
 
-        return new org.openl.meta.ShortValue(new org.openl.meta.ShortValue(
+        return new ShortValue(new ShortValue(
             Operators.pow(value1.getValue(), value2.getValue())), NumberOperations.POW, value1, value2);
     }
 
@@ -309,16 +309,16 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value
      * @return the absolute value (module) of the value <b>value </b>
      */
-    public static org.openl.meta.ShortValue abs(org.openl.meta.ShortValue value) {
+    public static ShortValue abs(ShortValue value) {
         // Commented to support operations with nulls.
         // validate(value, NumberOperations.ABS);
         if (value == null) {
             return null;
         }
         // evaluate result
-        org.openl.meta.ShortValue result = new org.openl.meta.ShortValue((short) Math.abs(value.getValue()));
+        ShortValue result = new ShortValue((short) Math.abs(value.getValue()));
         // create instance with information about last operation
-        return new org.openl.meta.ShortValue(result, NumberOperations.ABS, value);
+        return new ShortValue(result, NumberOperations.ABS, value);
     }
 
     /**
@@ -326,7 +326,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value
      * @return the negative value of the <b>value</b>
      */
-    public static org.openl.meta.ShortValue negative(org.openl.meta.ShortValue value) {
+    public static ShortValue negative(ShortValue value) {
         if (value == null) {
             return null;
         }
@@ -338,7 +338,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value
      * @return the <b>value</b> increased by 1
      */
-    public static org.openl.meta.ShortValue inc(org.openl.meta.ShortValue value) {
+    public static ShortValue inc(ShortValue value) {
         return add(value, ONE);
     }
 
@@ -347,7 +347,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value
      * @return the <b>value</b>
      */
-    public static org.openl.meta.ShortValue positive(org.openl.meta.ShortValue value) {
+    public static ShortValue positive(ShortValue value) {
         return value;
     }
 
@@ -356,7 +356,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param value
      * @return the <b>value </b> decreased by 1
      */
-    public static org.openl.meta.ShortValue dec(org.openl.meta.ShortValue value) {
+    public static ShortValue dec(ShortValue value) {
         return subtract(value, ONE);
     }
 
@@ -369,8 +369,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.ShortValue
      */
-    public static org.openl.meta.ShortValue autocast(byte x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue(x);
+    public static ShortValue autocast(byte x, ShortValue y) {
+        return new ShortValue(x);
     }
 
     /**
@@ -380,8 +380,8 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param y is needed to avoid ambiguity in Java method resolution
      * @return the casted value to org.openl.meta.ShortValue
      */
-    public static org.openl.meta.ShortValue autocast(short x, org.openl.meta.ShortValue y) {
-        return new org.openl.meta.ShortValue(x);
+    public static ShortValue autocast(short x, ShortValue y) {
+        return new ShortValue(x);
     }
 
     // Constructors
@@ -390,7 +390,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
     }
 
     /** Formula constructor **/
-    public ShortValue(org.openl.meta.ShortValue lv1, org.openl.meta.ShortValue lv2, short value, Formulas operand) {
+    public ShortValue(ShortValue lv1, ShortValue lv2, short value, Formulas operand) {
         super(lv1, lv2, operand);
         this.value = value;
     }
@@ -405,7 +405,7 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * Copy the current value with new name <b>name</b>
      */
     @Override
-    public org.openl.meta.ShortValue copy(String name) {
+    public ShortValue copy(String name) {
         return copy(this, name);
     }
 
@@ -440,11 +440,11 @@ public class ShortValue extends ExplanationNumberValue<ShortValue> implements Co
      * @param values an array for sorting
      * @return the sorted array
      */
-    public static org.openl.meta.ShortValue[] sort(org.openl.meta.ShortValue[] values) {
-        org.openl.meta.ShortValue[] sortedArray = null;
+    public static ShortValue[] sort(ShortValue[] values) {
+        ShortValue[] sortedArray = null;
         if (values != null) {
-            sortedArray = new org.openl.meta.ShortValue[values.length];
-            org.openl.meta.ShortValue[] notNullArray = ArrayTool.removeNulls(values);
+            sortedArray = new ShortValue[values.length];
+            ShortValue[] notNullArray = ArrayTool.removeNulls(values);
 
             Arrays.sort(notNullArray);
 

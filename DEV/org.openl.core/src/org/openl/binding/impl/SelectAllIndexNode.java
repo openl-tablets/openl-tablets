@@ -9,15 +9,14 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.BooleanUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
 class SelectAllIndexNode extends ABoundNode {
-    private ILocalVar tempVar;
-    private IBoundNode condition;
-    private IBoundNode targetNode;
+    private final ILocalVar tempVar;
+    private final IBoundNode condition;
+    private final IBoundNode targetNode;
 
     SelectAllIndexNode(ISyntaxNode syntaxNode, IBoundNode targetNode, IBoundNode condition, ILocalVar tempVar) {
         super(syntaxNode, targetNode, condition);
@@ -56,7 +55,7 @@ class SelectAllIndexNode extends ABoundNode {
             return type;
         }
 
-        IOpenClass varType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType);
+        IOpenClass componentType = tempVar.getType();
+        return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 }

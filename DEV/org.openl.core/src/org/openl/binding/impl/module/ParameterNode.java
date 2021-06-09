@@ -11,8 +11,8 @@ import org.openl.vm.IRuntimeEnv;
  */
 public class ParameterNode extends ABoundNode {
 
-    protected String name;
-    protected IOpenClass type;
+    protected final String name;
+    protected final IOpenClass type;
 
     ParameterNode(ISyntaxNode syntaxNode, String name, IOpenClass type) {
         super(syntaxNode);

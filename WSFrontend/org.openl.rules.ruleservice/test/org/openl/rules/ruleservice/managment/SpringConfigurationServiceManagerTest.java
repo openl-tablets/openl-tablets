@@ -18,9 +18,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @TestPropertySource(properties = {
-        "production-repository.factory = org.openl.rules.repository.file.FileSystemRepository",
-        "production-repository.uri = test-resources/openl-repository",
-        "version-in-deployment-name = true" })
+        "production-repository.factory = repo-zip",
+        "production-repository.uri = test-resources/openl-repository/deploy" })
 @ContextConfiguration(locations = { "classpath:openl-ruleservice-beans.xml" })
 @DirtiesContext
 public class SpringConfigurationServiceManagerTest implements ApplicationContextAware {
@@ -41,7 +40,7 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(frontend);
         Object object = frontend.execute("org.openl.tablets.tutorial4_org.openl.tablets.tutorial4",
             "vehicleEligibilityScore",
-            new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional" });
+                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "Provisional");
         assertTrue(object instanceof org.openl.meta.DoubleValue);
         org.openl.meta.DoubleValue value = (org.openl.meta.DoubleValue) object;
         assertEquals(50.0, value.getValue(), 0.01);
@@ -56,6 +55,6 @@ public class SpringConfigurationServiceManagerTest implements ApplicationContext
         assertNotNull(frontend);
         frontend.execute("ErrorTest_ErrorTest",
             "vehicleEligibilityScore",
-            new Object[] { RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test" });
+                RulesRuntimeContextFactory.buildRulesRuntimeContext(), "test");
     }
 }

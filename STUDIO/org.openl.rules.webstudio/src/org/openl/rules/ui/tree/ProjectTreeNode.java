@@ -1,109 +1,78 @@
 package org.openl.rules.ui.tree;
 
-import org.openl.base.INamedThing;
+import java.util.Collection;
+import java.util.Map;
+import java.util.TreeMap;
+
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
-import org.openl.util.tree.ITreeElement;
 
-public class ProjectTreeNode extends TreeNode<Object> implements INamedThing {
+public class ProjectTreeNode {
 
-    private String uri;
-    private String[] displayName;
-    private int nameCount = 0;
-    private TableSyntaxNode tableSyntaxNode;
-    private Object problems;
+    private final String[] displayName;
+    private final TableSyntaxNode tableSyntaxNode;
 
-    public ProjectTreeNode(String[] displayName,
-            String type,
-            String uri,
-            Object problems,
-            int nameCount,
-            TableSyntaxNode tsn) {
-
-        setType(type);
-        this.uri = uri;
+    public ProjectTreeNode(String[] displayName, String type, TableSyntaxNode tsn) {
+        this.type = type;
         this.displayName = displayName;
-        this.problems = problems;
-        this.nameCount = nameCount;
         this.tableSyntaxNode = tsn;
     }
 
-    public String[] getDisplayName() {
-        return displayName;
-    }
-
-    @Override
     public String getDisplayName(int mode) {
         return displayName[mode];
-    }
-
-    @Override
-    public String getName() {
-        return getDisplayName(SHORT);
-    }
-
-    public int getNameCount() {
-        return nameCount;
-    }
-
-    public Object getProblems() {
-        return problems;
-    }
-
-    public String getUri() {
-        return uri;
-    }
-
-    public boolean hasProblems() {
-        if (problems != null) {
-            return true;
-        }
-
-        Iterable<? extends ITreeElement<Object>> children = getChildren();
-        for (ITreeElement<Object> treeNode : children) {
-            if (treeNode instanceof ProjectTreeNode) {
-                ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
-                if (projectTreeNode.hasProblems()) {
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public int getNumErrors() {
-        int result = 0;
-
-        TableSyntaxNode table = getTableSyntaxNode();
-        if (table != null) {
-            SyntaxNodeException[] errors = table.getErrors();
-
-            if (errors != null) {
-                return errors.length;
-            }
-        }
-
-        Iterable<? extends ITreeElement<Object>> children = getChildren();
-        for (ITreeElement<Object> treeNode : children) {
-            if (treeNode instanceof ProjectTreeNode) {
-                ProjectTreeNode projectTreeNode = (ProjectTreeNode) treeNode;
-                result += projectTreeNode.getNumErrors();
-            }
-        }
-        return result;
-    }
-
-    public void setProblems(Object problems) {
-        this.problems = problems;
-    }
-
-    public void setUri(String uri) {
-        this.uri = uri;
     }
 
     public TableSyntaxNode getTableSyntaxNode() {
         return tableSyntaxNode;
     }
 
+    /**
+     * Children of current node.
+     */
+    private Map<Object, ProjectTreeNode> elements = new TreeMap<>();
+
+    /**
+     * String that represent the node type.
+     */
+    private final String type;
+
+    /**
+     * {@inheritDoc}
+     */
+    public void addChild(Object key, ProjectTreeNode child) {
+        elements.put(key, child);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public ProjectTreeNode getChild(Object key) {
+        return elements.get(key);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public Collection<ProjectTreeNode> getChildren() {
+        return getElements().values();
+    }
+
+    /**
+     * Gets the map of elements.
+     *
+     * @return map of elements
+     */
+    public Map<Object, ProjectTreeNode> getElements() {
+        return elements;
+    }
+
+    public void setElements(Map<Object, ProjectTreeNode> elements) {
+        this.elements = elements;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public String getType() {
+        return type;
+    }
 }

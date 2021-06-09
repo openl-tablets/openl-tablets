@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class DOMReader implements ExcelReader {
-    private final Logger log = LoggerFactory.getLogger(DOMReader.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DOMReader.class);
 
     private final String fileName;
     private File tempFile;
@@ -107,7 +107,7 @@ public class DOMReader implements ExcelReader {
             // Fill values
             int rows = lastRow - firstRow + 1;
             int cols = lastColumn - firstColumn + 1;
-            log.debug("Array size: {}:{}", rows, cols);
+            LOG.debug("Array size: {}:{}", rows, cols);
             Object[][] cells = new Object[rows][cols];
 
             for (int i = firstRow; i <= lastRow; i++) {
@@ -225,7 +225,7 @@ public class DOMReader implements ExcelReader {
                 workbook = null;
             }
         } catch (IOException e) {
-            log.error(e.getMessage(), e);
+            LOG.error(e.getMessage(), e);
         }
 
         FileUtils.deleteQuietly(tempFile);
@@ -240,7 +240,7 @@ public class DOMReader implements ExcelReader {
     }
 
     // See OpenL Tablets implementation
-    private Object extractCellValue(Cell cell) {
+    private static Object extractCellValue(Cell cell) {
         if (cell != null) {
             CellType type = cell.getCellType();
             if (type == CellType.FORMULA) {

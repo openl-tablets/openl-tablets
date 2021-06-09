@@ -13,7 +13,7 @@ import org.openl.types.IMethodCaller;
  *
  */
 public abstract class OpenLEvaluationOperation extends RuntimeOperation {
-    private IMethodCaller openLStatement;
+    private final IMethodCaller openLStatement;
 
     /**
      * Create an instance of <code>OpenLEvaluationOperation</code>.

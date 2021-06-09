@@ -2,7 +2,7 @@ package org.openl.rules.dt;
 
 class SimpleReturnDTHeader extends DTHeader {
 
-    private String title;
+    private final String title;
 
     SimpleReturnDTHeader(String statement, String title, int column, int width) {
         super(new int[] {}, statement, column, width);
@@ -31,5 +31,10 @@ class SimpleReturnDTHeader extends DTHeader {
     @Override
     boolean isReturn() {
         return true;
+    }
+
+    @Override
+    boolean isRule() {
+        return false;
     }
 }

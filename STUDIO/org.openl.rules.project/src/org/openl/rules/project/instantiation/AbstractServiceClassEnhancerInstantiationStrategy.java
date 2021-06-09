@@ -9,9 +9,8 @@ import java.util.Map;
 import org.openl.CompiledOpenClass;
 import org.openl.exception.OpenlNotCheckedException;
 import org.openl.rules.project.model.Module;
-import org.openl.runtime.OpenLJavaAssistProxy;
-
-import javassist.util.proxy.MethodHandler;
+import org.openl.runtime.ASMProxyFactory;
+import org.openl.runtime.ASMProxyHandler;
 
 /**
  *
@@ -23,7 +22,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     /**
      * Instantiation strategy delegate.
      */
-    private RulesInstantiationStrategy instantiationStrategy;
+    private final RulesInstantiationStrategy instantiationStrategy;
 
     /**
      * Internal generated class at runtime which used as service class.
@@ -68,16 +67,19 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
                     getOriginalInstantiationStrategy().setServiceClass(clazz);
                 } catch (Exception e) {
                     throw new OpenlNotCheckedException(
-                        "Failed to set service class to instantiation strategy enhancer. Failed to get undecorated class.",
+                        "Failed to set service class to instantiation strategy enhancer. " +
+                                "Failed to get undecorated class.",
                         e);
                 }
             } else {
                 throw new OpenlNotCheckedException(
-                    "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.");
+                    "Failed to set service class to instantiation strategy enhancer. " +
+                            "Service class is not supported by this strategy.");
             }
         } catch (ValidationServiceClassException e) {
             throw new OpenlNotCheckedException(
-                "Failed to set service class to instantiation strategy enhancer. Service class is not supported by this strategy.",
+                "Failed to set service class to instantiation strategy enhancer. " +
+                        "Service class is not supported by this strategy.",
                 e);
         }
     }
@@ -88,7 +90,7 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
      * @return {@link InvocationHandler} instance
      * @throws Exception
      */
-    protected abstract MethodHandler makeMethodHandler(Object instanceObject) throws Exception;
+    protected abstract ASMProxyHandler makeMethodHandler(Object instanceObject) throws Exception;
 
     /**
      * Gets interface classes what used for proxy construction.
@@ -112,7 +114,11 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
     public final Object instantiate() throws RulesInstantiationException {
         try {
             Object originalInstance = getOriginalInstantiationStrategy().instantiate();
-            return OpenLJavaAssistProxy.create(getClassLoader(), makeMethodHandler(originalInstance), getProxyInterfaces(originalInstance));
+            return ASMProxyFactory.newProxyInstance(
+                    getClassLoader(),
+                    makeMethodHandler(originalInstance),
+                    getProxyInterfaces(originalInstance)
+            );
         } catch (Exception e) {
             throw new RulesInstantiationException(e.getMessage(), e);
         }
@@ -131,7 +137,6 @@ public abstract class AbstractServiceClassEnhancerInstantiationStrategy implemen
 
     @Override
     public ClassLoader getClassLoader() throws RulesInstantiationException {
-
         return getOriginalInstantiationStrategy().getInstanceClass().getClassLoader();
     }
 

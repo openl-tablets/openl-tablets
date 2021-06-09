@@ -1,5 +1,8 @@
 package org.openl.rules.lang.xls.binding.wrapper;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.openl.binding.ICastFactory;
 import org.openl.binding.impl.cast.IOpenCast;
 import org.openl.exception.OpenlNotCheckedException;
@@ -10,36 +13,35 @@ import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.java.JavaOpenClass;
 import org.openl.vm.IRuntimeEnv;
-
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class ContextPropertiesInjector {
-
-    private final Map<String, ContextPropertyInjection> contextPropertyInjections;
+    private static final Logger LOG = LoggerFactory.getLogger(ContextPropertiesInjector.class);
+    private static final ContextPropertyInjection[] PROPERTY_INJECTIONS = new ContextPropertyInjection[0];
+    private final ContextPropertyInjection[] contextPropertyInjections;
 
     public ContextPropertiesInjector(IOpenClass[] paramTypes, ICastFactory castFactory) {
         int i = 0;
-        Map<String, ContextPropertyInjection> contextPropertyInjections = new LinkedHashMap<>();
+        Map<String, ContextPropertyInjection> contextInjections = new LinkedHashMap<>();
         for (IOpenClass paramType : paramTypes) {
             try {
                 int paramIndex = i;
                 paramType.getFields()
-                    .values()
                     .stream()
                     .filter(IOpenField::isContextProperty)
-                    .forEach(field -> contextPropertyInjections.put(field.getContextProperty(),
+                    .forEach(field -> contextInjections.put(field.getContextProperty(),
                         createContextInjection(paramIndex, field, castFactory)));
-            } catch (Exception | LinkageError ignored) {
+            } catch (Exception | LinkageError e) {
+                LOG.debug("Ignored error: ", e);
             }
             i++;
         }
-        this.contextPropertyInjections = Collections.unmodifiableMap(contextPropertyInjections);
+        this.contextPropertyInjections = !contextInjections.isEmpty() ? contextInjections.values()
+            .toArray(PROPERTY_INJECTIONS) : null;
     }
 
-    private ContextPropertyInjection createContextInjection(int paramIndex,
+    private static ContextPropertyInjection createContextInjection(int paramIndex,
             IOpenField field,
             ICastFactory castFactory) {
         Class<?> contextType = DefaultRulesRuntimeContext.CONTEXT_PROPERTIES.get(field.getContextProperty());
@@ -49,13 +51,14 @@ class ContextPropertiesInjector {
         }
         IOpenClass contextTypeOpenClass = JavaOpenClass.getOpenClass(contextType);
         IOpenCast openCast = castFactory.getCast(field.getType(), contextTypeOpenClass);
-        if (openCast != null && (openCast
-            .isImplicit() || contextTypeOpenClass.getInstanceClass() != null && contextTypeOpenClass.getInstanceClass()
-                .isEnum())) {
+        if ((openCast != null && (openCast.isImplicit())
+                || (contextTypeOpenClass.getInstanceClass() != null
+                    && contextTypeOpenClass.getInstanceClass().isEnum()))) {
             return new ContextPropertyInjection(paramIndex, field, openCast);
         } else {
             throw new ClassCastException(String.format(
-                "Type mismatch for context property '%s' for field '%s' in class '%s'. Cannot convert from '%s' to '%s'.",
+                "Type mismatch for context property '%s' for field '%s' in class '%s'. " +
+                    "Cannot convert from '%s' to '%s'.",
                 field.getContextProperty(),
                 field.getName(),
                 field.getDeclaringClass().getName(),
@@ -65,15 +68,20 @@ class ContextPropertiesInjector {
     }
 
     public boolean push(Object[] params, IRuntimeEnv env, SimpleRulesRuntimeEnv simpleRulesRuntimeEnv) {
-        IRulesRuntimeContext rulesRuntimeContext = null;
-        for (ContextPropertyInjection contextPropertiesInjector : contextPropertyInjections.values()) {
-            rulesRuntimeContext = contextPropertiesInjector
-                .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+        if (contextPropertyInjections != null) {
+            IRulesRuntimeContext rulesRuntimeContext = null;
+            for (ContextPropertyInjection contextPropertiesInjector : contextPropertyInjections) {
+                rulesRuntimeContext = contextPropertiesInjector
+                    .inject(params, env, simpleRulesRuntimeEnv, rulesRuntimeContext);
+            }
+            if (rulesRuntimeContext != null) {
+                env.pushContext(rulesRuntimeContext);
+                return true;
+            } else {
+                return false;
+            }
         }
-        if (rulesRuntimeContext != null) {
-            env.pushContext(rulesRuntimeContext);
-        }
-        return rulesRuntimeContext != null;
+        return false;
     }
 
     public void pop(SimpleRulesRuntimeEnv env) {
@@ -81,9 +89,9 @@ class ContextPropertiesInjector {
     }
 
     private static class ContextPropertyInjection {
-        private int paramIndex;
-        private IOpenField field;
-        private IOpenCast openCast;
+        private final int paramIndex;
+        private final IOpenField field;
+        private final IOpenCast openCast;
 
         public ContextPropertyInjection(int paramIndex, IOpenField field, IOpenCast openCast) {
             super();
@@ -102,13 +110,11 @@ class ContextPropertiesInjector {
                 if (rulesRuntimeContext == null) {
                     IRulesRuntimeContext currentRuntimeContext = (IRulesRuntimeContext) simpleRulesRuntimeEnv
                         .getContext();
-                    if (!Objects.equals(value, currentRuntimeContext.getValue(field.getContextProperty()))) {
-                        try {
-                            rulesRuntimeContext = (IRulesRuntimeContext) currentRuntimeContext.clone();
-                            rulesRuntimeContext.setValue(field.getContextProperty(), value);
-                        } catch (CloneNotSupportedException e) {
-                            throw new OpenlNotCheckedException(e);
-                        }
+                    try {
+                        rulesRuntimeContext = currentRuntimeContext.clone();
+                        rulesRuntimeContext.setValue(field.getContextProperty(), value);
+                    } catch (CloneNotSupportedException e) {
+                        throw new OpenlNotCheckedException(e);
                     }
                 } else {
                     rulesRuntimeContext.setValue(field.getContextProperty(), value);

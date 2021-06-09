@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTMergeCell;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTMergeCells;
 import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
@@ -14,6 +15,14 @@ import org.openxmlformats.schemas.spreadsheetml.x2006.main.CTWorksheet;
  * https://bz.apache.org/bugzilla/show_bug.cgi?id=60397
  */
 public class CustomizedSXSSFWorkbook extends SXSSFWorkbook {
+
+    public CustomizedSXSSFWorkbook() {
+    }
+
+    public CustomizedSXSSFWorkbook(XSSFWorkbook workbook) {
+        // WebStudio cannot edit tables in case inline text in cells is used, so workaround is to use shared strings
+        super(workbook, 100, false, true);
+    }
 
     /**
      * Overrides base implementation to return CustomizedSXSSFSheet

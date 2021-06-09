@@ -19,4 +19,6 @@ public interface ICastFactory {
     IOpenCast getCast(IOpenClass from, IOpenClass to);
 
     IOpenClass findClosestClass(IOpenClass openClass1, IOpenClass openClass2);
+
+    IOpenClass findParentClass(IOpenClass openClass1, IOpenClass openClass2);
 }

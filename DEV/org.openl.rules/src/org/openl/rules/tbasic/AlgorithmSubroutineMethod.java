@@ -50,7 +50,7 @@ public class AlgorithmSubroutineMethod extends AlgorithmFunction {
         String sourceUrl = null;
 
         // TODO: rewrite to return more precise source code url
-        if (algorithmSteps.size() > 0) {
+        if (!algorithmSteps.isEmpty()) {
             RuntimeOperation firstOperation = algorithmSteps.get(0);
             sourceUrl = firstOperation.getSourceCode().getSourceUri();
         }

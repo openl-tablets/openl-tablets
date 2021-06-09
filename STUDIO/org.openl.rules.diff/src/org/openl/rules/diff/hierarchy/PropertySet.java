@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class PropertySet {
-    private Map<String, ProjectionProperty> properties;
+    private final Map<String, ProjectionProperty> properties;
 
     public PropertySet() {
         properties = new HashMap<>();

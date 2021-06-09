@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public class DateFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(DateFormatter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(DateFormatter.class);
 
     private DateFormat format;
 
@@ -37,7 +37,7 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format);
         } catch (Exception e) {
-            log.error("Could not create format: {}", format);
+            LOG.error("Could not create format: {}", format);
             this.format = new SimpleDateFormat();
         }
     }
@@ -46,7 +46,7 @@ public class DateFormatter implements IFormatter {
         try {
             this.format = new SimpleDateFormat(format, locale);
         } catch (Exception e) {
-            log.error("Could not create format: {}", format);
+            LOG.error("Could not create format: {}", format);
             this.format = DateFormat
                 .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT, locale == null ? Locale.getDefault() : locale);
         }
@@ -55,7 +55,7 @@ public class DateFormatter implements IFormatter {
     @Override
     public String format(Object value) {
         if (!(value instanceof Date)) {
-            log.debug("Should be Date: {}", value);
+            LOG.debug("Should be Date: {}", value);
             return null;
         }
 
@@ -70,7 +70,7 @@ public class DateFormatter implements IFormatter {
         try {
             return format.parse(value);
         } catch (ParseException e) {
-            log.debug("Could not parse Date: {}", value, e);
+            LOG.debug("Could not parse Date: {}", value, e);
             return null;
         }
     }

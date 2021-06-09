@@ -6,12 +6,12 @@ import java.util.Objects;
 
 import javax.ws.rs.core.Response;
 
-import org.openl.runtime.IOpenLMethodHandler;
+import org.openl.runtime.AbstractOpenLMethodHandler;
 
-public class JAXRSMethodHandler implements IOpenLMethodHandler<Method, Method> {
+public class JAXRSMethodHandler extends AbstractOpenLMethodHandler<Method, Method> {
 
-    private Object target;
-    private Map<Method, Method> methodMap;
+    private final Object target;
+    private final Map<Method, Method> methodMap;
 
     @Override
     public Method getTargetMember(Method key) {
@@ -29,7 +29,7 @@ public class JAXRSMethodHandler implements IOpenLMethodHandler<Method, Method> {
     }
 
     @Override
-    public Object invoke(Object proxy, Method method, Method proceed, Object[] args) throws Throwable {
+    public Object invoke(Method method, Object[] args) throws Exception {
         Method m = methodMap.get(method);
         if (m == null) {
             throw new IllegalStateException("Method is not found in the map of methods.");

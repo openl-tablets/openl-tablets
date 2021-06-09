@@ -1,0 +1,3 @@
+ERROR: Parameter cell format: <type> <name>
+ERROR: Encountered " <INTEGER_LITERAL> "1 "" at line 1, column 10.
+ERROR: Identifier 'intArr2' is not found.

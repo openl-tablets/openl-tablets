@@ -1,6 +1,7 @@
 package org.openl.rules.lang.xls.syntax;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -15,9 +16,8 @@ import org.openl.types.IOpenMethod;
 
 public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     private final static String SRC = "test/rules/OverloadedTables_Test.xls";
-    private XlsModuleSyntaxNode xsn = null;
-    private List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<>();
-    private List<TableSyntaxNode> driverEligibilityTables = new ArrayList<>();
+    private final List<TableSyntaxNode> driverAgeTypeTables = new ArrayList<>();
+    private final List<TableSyntaxNode> driverEligibilityTables = new ArrayList<>();
 
     public TestTableSyntaxNodeKey() {
         super(SRC);
@@ -27,7 +27,7 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
     public void getTables() {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         XlsMetaInfo xmi = (XlsMetaInfo) compiledOpenClass.getOpenClassWithErrors().getMetaInfo();
-        xsn = xmi.getXlsModuleNode();
+        XlsModuleSyntaxNode xsn = xmi.getXlsModuleNode();
         TableSyntaxNode[] tsns = xsn.getXlsTableSyntaxNodes();
         for (TableSyntaxNode tsn : tsns) {
             if (tsn.getMember() instanceof IOpenMethod && tsn.getType().equals("xls.dt")) {
@@ -42,10 +42,10 @@ public class TestTableSyntaxNodeKey extends BaseOpenlBuilderHelper {
 
     @Test
     public void testEquals() {
-        assertTrue(new TableSyntaxNodeKey(driverAgeTypeTables.get(0))
-            .equals(new TableSyntaxNodeKey(driverAgeTypeTables.get(1))));
-        assertTrue(!new TableSyntaxNodeKey(driverEligibilityTables.get(0))
-            .equals(new TableSyntaxNodeKey(driverEligibilityTables.get(1))));
+        assertEquals(new TableSyntaxNodeKey(driverAgeTypeTables.get(0)),
+                new TableSyntaxNodeKey(driverAgeTypeTables.get(1)));
+        assertFalse(new TableSyntaxNodeKey(driverEligibilityTables.get(0)).equals(new TableSyntaxNodeKey(
+                driverEligibilityTables.get(1))));
 
     }
 

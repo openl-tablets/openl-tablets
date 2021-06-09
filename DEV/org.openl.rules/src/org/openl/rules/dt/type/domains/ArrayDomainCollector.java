@@ -10,9 +10,9 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class ArrayDomainCollector implements IDomainCollector {
 
-    private String propertyToSearch;
+    private final String propertyToSearch;
 
-    private Set<Object> arrayEnumProperties = new HashSet<>();
+    private final Set<Object> arrayEnumProperties = new HashSet<>();
 
     public ArrayDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;

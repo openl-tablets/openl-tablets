@@ -1,18 +1,16 @@
 package org.openl.rules.webstudio.web.test;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenIndex;
 import org.openl.types.java.JavaOpenClass;
 import org.richfaces.model.TreeNode;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Set;
 
 public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
     private static final String COLLECTION_TYPE = "collection";
@@ -45,13 +43,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
             while (iterator.hasNext()) {
                 Object element = iterator.next();
                 IOpenClass type = collectionElementType;
-                if (type == JavaOpenClass.OBJECT && element != null) {
+                if (element != null && element.getClass() != collectionElementType.getInstanceClass()) {
                     // Show content of complex objects
                     type = JavaOpenClass.getOpenClass(element.getClass());
                 }
 
                 ParameterRenderConfig childConfig = new ParameterRenderConfig.Builder(type, element)
-                    .keyField(config.getKeyField())
+                    .keyField(
+                        config.getKeyField() != null ? config.getKeyField() : collectionElementType.getIndexField())
                     .parent(this)
                     .hasExplainLinks(config.isHasExplainLinks())
                     .requestId(config.getRequestId())
@@ -172,12 +171,12 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
         return ParameterTreeBuilder.createNode(childConfig);
     }
 
+    @SuppressWarnings("unchecked")
     private void saveChildNodesToValue() {
         IOpenClass arrayType = getType();
         IAggregateInfo info = arrayType.getAggregateInfo();
         Object newCollection = info.makeIndexedAggregate(arrayType.getComponentClass(), getChildren().size());
         IOpenIndex index = info.getIndex(arrayType);
-
         int i = 0;
         for (ParameterDeclarationTreeNode node : getChildren()) {
             Object key = getKeyFromElementNum(i);
@@ -186,11 +185,14 @@ public class CollectionParameterTreeNode extends ParameterDeclarationTreeNode {
                 value = getNullableValue();
             }
             if (key != null) {
-                index.setValue(newCollection, key, value);
+                if(index!=null){
+                    index.setValue(newCollection, key, value);
+                }else if(newCollection instanceof Collection){
+                    ((Collection<Object>) newCollection).add(value);
+                }
             }
             i++;
         }
-
         setValue(newCollection);
     }
 

@@ -19,8 +19,8 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
      */
     @Override
     public void addTo(ModuleOpenClass openClass) {
-        for (int i = 0; i < children.length; i++) {
-            ((IMemberBoundNode) children[i]).addTo(openClass);
+        for (IBoundNode child : children) {
+            ((IMemberBoundNode) child).addTo(openClass);
         }
     }
 
@@ -35,8 +35,8 @@ public class MemberBlockNode extends BlockNode implements IMemberBoundNode {
 
     @Override
     public void removeDebugInformation(IBindingContext cxt) throws Exception {
-        for (int i = 0; i < children.length; i++) {
-            ((IMemberBoundNode) children[i]).removeDebugInformation(cxt);
+        for (IBoundNode child : children) {
+            ((IMemberBoundNode) child).removeDebugInformation(cxt);
         }
     }
 

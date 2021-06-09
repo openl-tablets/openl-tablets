@@ -10,7 +10,6 @@ import org.openl.rules.project.abstraction.Deployment;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderRepository;
 import org.openl.rules.repository.api.Repository;
-import org.openl.rules.repository.exceptions.RRepositoryException;
 
 public final class DeployUtils {
     public static final String SEPARATOR = "#";
@@ -22,29 +21,25 @@ public final class DeployUtils {
     }
 
     public static Collection<Deployment> getLastDeploymentProjects(Repository repository,
-            String deployPath) throws RRepositoryException {
+            String deployPath) throws IOException {
 
         Map<String, Deployment> latestDeployments = new HashMap<>();
         Map<String, Integer> versionsList = new HashMap<>();
 
         Collection<FileData> fileDatas;
-        try {
-            if (repository.supports().folders()) {
-                // All deployments
-                fileDatas = ((FolderRepository) repository).listFolders(deployPath);
-            } else {
-                // Projects inside all deployments
-                fileDatas = repository.list(deployPath);
-            }
-        } catch (IOException ex) {
-            throw new RRepositoryException("Cannot read the deploy repository", ex);
+        if (repository.supports().folders()) {
+            // All deployments
+            fileDatas = ((FolderRepository) repository).listFolders(deployPath);
+        } else {
+            // Projects inside all deployments
+            fileDatas = repository.list(deployPath);
         }
         for (FileData fileData : fileDatas) {
             String deploymentFolderName = fileData.getName().substring(deployPath.length()).split("/")[0];
             int separatorPosition = deploymentFolderName.lastIndexOf(SEPARATOR);
 
             String deploymentName = deploymentFolderName;
-            Integer version = 0;
+            int version = 0;
             CommonVersionImpl commonVersion;
             if (separatorPosition >= 0) {
                 deploymentName = deploymentFolderName.substring(0, separatorPosition);
@@ -62,14 +57,10 @@ public final class DeployUtils {
 
                 String folderPath = deployPath + deploymentFolderName;
                 boolean folderStructure;
-                try {
-                    if (repository.supports().folders()) {
-                        folderStructure = !((FolderRepository) repository).listFolders(folderPath + "/").isEmpty();
-                    } else {
-                        folderStructure = false;
-                    }
-                } catch (IOException e) {
-                    throw new RRepositoryException(e.getMessage(), e);
+                if (repository.supports().folders()) {
+                    folderStructure = !((FolderRepository) repository).listFolders(folderPath + "/").isEmpty();
+                } else {
+                    folderStructure = false;
                 }
                 Deployment deployment = new Deployment(repository,
                     folderPath,
@@ -82,20 +73,4 @@ public final class DeployUtils {
 
         return latestDeployments.values();
     }
-
-    public static int getNextDeploymentVersion(Repository repository,
-            String project,
-            String deployPath) throws RRepositoryException {
-        Collection<Deployment> lastDeploymentProjects = getLastDeploymentProjects(repository, deployPath);
-        int version = 1;
-        String prefix = project + SEPARATOR;
-        for (Deployment deployment : lastDeploymentProjects) {
-            if (deployment.getName().startsWith(prefix)) {
-                version = Integer.valueOf(deployment.getCommonVersion().getRevision()) + 1;
-                break;
-            }
-        }
-        return version;
-    }
-
 }

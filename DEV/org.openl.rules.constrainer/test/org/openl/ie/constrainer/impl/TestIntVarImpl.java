@@ -28,13 +28,13 @@ import junit.textui.TestRunner;
  */
 
 public class TestIntVarImpl extends TestCase {
-    private Constrainer C = new Constrainer("TestIntVarImpl");
-    private int size = 21;
-    private int min = -10;
-    private int max = 10;
-    private IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
-    private IntVar bit_small = new IntVarImpl(C, min, max, "intvar2", IntVar.DOMAIN_BIT_SMALL);
-    private IntVar plain = new IntVarImpl(C, min, max, "intvar3", IntVar.DOMAIN_PLAIN);
+    private final Constrainer C = new Constrainer("TestIntVarImpl");
+    private final int size = 21;
+    private final int min = -10;
+    private final int max = 10;
+    private final IntVar bit_fast = new IntVarImpl(C, min, max, "intvar1", IntVar.DOMAIN_BIT_FAST);
+    private final IntVar bit_small = new IntVarImpl(C, min, max, "intvar2", IntVar.DOMAIN_BIT_SMALL);
+    private final IntVar plain = new IntVarImpl(C, min, max, "intvar3", IntVar.DOMAIN_PLAIN);
 
     public static void main(String[] args) {
         TestRunner.run(new TestSuite(TestIntVarImpl.class));
@@ -153,15 +153,15 @@ public class TestIntVarImpl extends TestCase {
             }
 
             for (int j = min; j < newMin; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
 
             for (int j = newMax + 1; j <= max; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
             counter++;
         }
@@ -169,19 +169,19 @@ public class TestIntVarImpl extends TestCase {
         try {
             bit_fast.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_FAST)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
             bit_small.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_BIT_SMALL)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         try {
             plain.removeValue(0);
             fail("test failed due to incorrect work of IntVar.removeValue(int) (Domain type: IntVar.DOMAIN_PLAIN)");
-        } catch (Failure f) {
+        } catch (Failure ignored) {
         }
 
         assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of bound()", bit_fast.bound());
@@ -231,9 +231,9 @@ public class TestIntVarImpl extends TestCase {
             }
 
             for (int j = min; j < curMin; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
             counter++;
         }
@@ -275,9 +275,9 @@ public class TestIntVarImpl extends TestCase {
             assertEquals("IntVarImpl.Domain_BIT_SMALL: wrong size", 21 - (max - i), bit_small.size());
             assertEquals("IntVarImpl.Domain_PLAIN: wrong size", 21 - (max - i), plain.size());
             for (int j = max; j > i; j--) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
 
             for (int j = i; j >= min; j--) {
@@ -325,9 +325,9 @@ public class TestIntVarImpl extends TestCase {
             }
 
             for (int j = i + 2; j <= max; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
         }
     }
@@ -368,9 +368,9 @@ public class TestIntVarImpl extends TestCase {
             assertEquals("IntVarImpl.Domain_BIT_SMALL: wrong size", 21 - (i - min), bit_small.size());
             assertEquals("IntVarImpl.Domain_PLAIN: wrong size", 21 - (i - min), plain.size());
             for (int j = min; j < i; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
 
             for (int j = i; j <= max; j++) {
@@ -411,9 +411,9 @@ public class TestIntVarImpl extends TestCase {
             assertEquals("IntVarImpl.Domain_BIT_SMALL: wrong size", 21 - (i - 1 - min), bit_small.size());
             assertEquals("IntVarImpl.Domain_PLAIN: wrong size", 21 - (i - 1 - min), plain.size());
             for (int j = min; j < i - 1; j++) {
-                assertTrue("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", !bit_fast.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", !bit_small.contains(j));
-                assertTrue("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", !plain.contains(j));
+                assertFalse("IntVarImpl.Domain_BIT_FAST: wrong work of contains(int)", bit_fast.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_BIT_SMALL: wrong work of contains(int)", bit_small.contains(j));
+                assertFalse("IntVarImpl.DOMAIN_PLAIN: wrong work of contains(int)", plain.contains(j));
             }
 
             for (int j = i - 1; j <= max; j++) {

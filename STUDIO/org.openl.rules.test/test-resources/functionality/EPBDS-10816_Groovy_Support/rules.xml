@@ -1,0 +1,16 @@
+<project>
+  <name>EPBDS-10816_Groovy_Support</name>
+  <modules>
+    <module>
+      <name>Datatypes</name>
+      <rules-root path="Datatypes.xlsx"/>
+    </module>
+    <module>
+      <name>Main</name>
+      <rules-root path="Main.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+</project>

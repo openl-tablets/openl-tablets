@@ -1,0 +1,12 @@
+<soap:Envelope xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+    <soap:Body>
+        <soap:Fault>
+            <faultcode>soap:Server</faultcode>
+            <faultstring>***</faultstring>
+            <detail>
+                <type>RULES_RUNTIME</type>
+                <stackTrace>***</stackTrace>
+            </detail>
+        </soap:Fault>
+    </soap:Body>
+</soap:Envelope>

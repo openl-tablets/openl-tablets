@@ -1,15 +1,24 @@
 package org.openl.rules.project.impl.local;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
 
-import org.openl.rules.repository.api.*;
+import org.openl.rules.repository.api.ChangesetType;
+import org.openl.rules.repository.api.Features;
+import org.openl.rules.repository.api.FeaturesBuilder;
+import org.openl.rules.repository.api.FileData;
+import org.openl.rules.repository.api.FileItem;
+import org.openl.rules.repository.api.FolderItem;
 import org.openl.rules.repository.file.FileSystemRepository;
+import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.impl.FolderHelper;
 import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
@@ -18,10 +27,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class LocalRepository extends FileSystemRepository {
+    /**
+     * @deprecated Will be removed in the future.
+     */
+    @Deprecated
     private static final String DATE_FORMAT = "yyyy-MM-dd";
+    private static final String REPOSITORY_ID = "repository-id";
+    private static final String PATH_IN_REPOSITORY = "path-in-repository";
     private static final String VERSION_PROPERTY = "version";
     private static final String BRANCH_PROPERTY = "branch";
     private static final String AUTHOR_PROPERTY = "author";
+    /**
+     * @deprecated Will be removed in the future. Is replaced with {@link #MODIFIED_AT_LONG_PROPERTY}.
+     */
+    @Deprecated
     private static final String MODIFIED_AT_PROPERTY = "modified-at";
     private static final String MODIFIED_AT_LONG_PROPERTY = "modified-at-long";
     private static final String SIZE_PROPERTY = "size";
@@ -43,15 +62,18 @@ public class LocalRepository extends FileSystemRepository {
     public List<FileData> list(String path) throws IOException {
         List<FileData> list = super.list(path);
 
-        for (Iterator<FileData> iterator = list.iterator(); iterator.hasNext();) {
-            FileData fileData = iterator.next();
-            if (propertiesEngine.isPropertyFile(fileData.getName())) {
-                // Property files must be hidden
-                iterator.remove();
-            }
-        }
+        // Property and history files must be hidden
+        list.removeIf(fileData -> isShouldBeHidden(fileData.getName(), path));
 
         return list;
+    }
+
+    private boolean isShouldBeHidden(String fileName, String path) {
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+        return fileName.startsWith(path + FolderHelper.PROPERTIES_FOLDER + "/") || fileName
+            .startsWith(path + FolderHelper.HISTORY_FOLDER + "/");
     }
 
     @Override
@@ -94,7 +116,12 @@ public class LocalRepository extends FileSystemRepository {
         deleteFileProperties(data.getName());
 
         if (deleted) {
-            notifyModified(data.getName());
+            // If name doesn't contain "/", it's a project name. No need to recreate project state for the deleted
+            // project.
+            String name = data.getName();
+            if (name.contains("/")) {
+                notifyModified(name);
+            }
         }
         return deleted;
     }
@@ -165,12 +192,6 @@ public class LocalRepository extends FileSystemRepository {
 
             @Override
             public void notifyModified() {
-                if (propertiesEngine.isEmptyProject(pathInProject)) {
-                    propertiesEngine.deleteAllProperties(pathInProject);
-                    invokeListener();
-                    return;
-                }
-
                 propertiesEngine.createPropertiesFile(pathInProject, MODIFIED_FILE_NAME);
                 setFileModified(pathInProject);
                 invokeListener();
@@ -257,16 +278,42 @@ public class LocalRepository extends FileSystemRepository {
             }
 
             @Override
-            public void saveFileData(FileData fileData) {
+            public String getRepositoryId() {
+                File file = propertiesEngine.getPropertiesFile(pathInProject, VERSION_FILE_NAME);
+                if (!file.exists()) {
+                    return null;
+                }
+
+                Properties properties = new Properties();
+                FileInputStream is = null;
+                try {
+                    is = new FileInputStream(file);
+                    properties.load(is);
+                    return properties.getProperty(REPOSITORY_ID);
+                } catch (IOException e) {
+                    throw new IllegalStateException(e);
+                } finally {
+                    IOUtils.closeQuietly(is);
+                }
+            }
+
+            @Override
+            public void saveFileData(String repositoryId, FileData fileData) {
                 if (fileData.getVersion() == null || fileData.getAuthor() == null || fileData.getModifiedAt() == null) {
                     // No need to save empty fileData
                     return;
                 }
                 Properties properties = new Properties();
+                properties.setProperty(REPOSITORY_ID, repositoryId);
+                FileMappingData mappingData = fileData.getAdditionalData(FileMappingData.class);
+                if (mappingData != null) {
+                    properties.setProperty(PATH_IN_REPOSITORY, mappingData.getInternalPath());
+                }
                 properties.setProperty(VERSION_PROPERTY, fileData.getVersion());
                 properties.setProperty(AUTHOR_PROPERTY, fileData.getAuthor());
                 properties.setProperty(MODIFIED_AT_PROPERTY,
                     new SimpleDateFormat(DATE_FORMAT).format(fileData.getModifiedAt()));
+                properties.setProperty(MODIFIED_AT_LONG_PROPERTY, "" + fileData.getModifiedAt().getTime());
                 properties.setProperty(SIZE_PROPERTY, "" + fileData.getSize());
                 if (fileData.getComment() != null) {
                     properties.setProperty(COMMENT_PROPERTY, fileData.getComment());
@@ -306,7 +353,23 @@ public class LocalRepository extends FileSystemRepository {
                     String version = properties.getProperty(VERSION_PROPERTY);
                     String branch = properties.getProperty(BRANCH_PROPERTY);
                     String author = properties.getProperty(AUTHOR_PROPERTY);
-                    String modifiedAt = properties.getProperty(MODIFIED_AT_PROPERTY);
+                    String pathIntRepository = properties.getProperty(PATH_IN_REPOSITORY);
+
+                    if (pathIntRepository != null) {
+                        fileData.addAdditionalData(new FileMappingData(name, pathIntRepository));
+                    }
+
+                    Date modifiedAt;
+                    String modifiedAtLong = properties.getProperty(MODIFIED_AT_LONG_PROPERTY);
+                    if (modifiedAtLong != null) {
+                        modifiedAt = new Date(Long.parseLong(modifiedAtLong));
+                    } else {
+                        // Backward compatibility for projects opened in previous version of WebStudio.
+                        // Will be removed in the future.
+                        String modifiedAtStr = properties.getProperty(MODIFIED_AT_PROPERTY);
+                        modifiedAt = modifiedAtStr == null ? null
+                                                           : new SimpleDateFormat(DATE_FORMAT).parse(modifiedAtStr);
+                    }
                     String size = properties.getProperty(SIZE_PROPERTY);
                     String comment = properties.getProperty(COMMENT_PROPERTY);
 
@@ -319,7 +382,7 @@ public class LocalRepository extends FileSystemRepository {
                     fileData.setVersion(version);
                     fileData.setBranch(branch);
                     fileData.setAuthor(author);
-                    fileData.setModifiedAt(new SimpleDateFormat(DATE_FORMAT).parse(modifiedAt));
+                    fileData.setModifiedAt(modifiedAt);
                     fileData.setSize(Long.parseLong(size));
                     fileData.setComment(comment);
 

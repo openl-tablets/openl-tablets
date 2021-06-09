@@ -17,7 +17,7 @@ import org.openl.util.StringUtils;
  */
 public class MethodSignature implements IMethodSignature {
 
-    IParameterDeclaration[] parameters;
+    final IParameterDeclaration[] parameters;
 
     public MethodSignature(IParameterDeclaration... parameters) {
         this.parameters = parameters;
@@ -41,11 +41,14 @@ public class MethodSignature implements IMethodSignature {
     @Override
     public IOpenClass[] getParameterTypes() {
         IOpenClass[] parameterTypes = new IOpenClass[parameters.length];
-
         for (int i = 0; i < parameterTypes.length; i++) {
             parameterTypes[i] = parameters[i].getType();
         }
         return parameterTypes;
+    }
+
+    public IParameterDeclaration getParameterDeclaration(int i) {
+        return parameters[i];
     }
 
     public MethodSignature merge(IParameterDeclaration[] extraParams) {

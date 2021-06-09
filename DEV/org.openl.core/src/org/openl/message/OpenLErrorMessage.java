@@ -6,7 +6,6 @@ import java.util.Objects;
 
 import org.openl.exception.OpenLCompilationException;
 import org.openl.exception.OpenLException;
-import org.openl.main.SourceCodeURLConstants;
 import org.openl.util.StringUtils;
 
 /**
@@ -16,14 +15,11 @@ import org.openl.util.StringUtils;
  */
 public class OpenLErrorMessage extends OpenLMessage {
 
-    private OpenLException error;
+    private final OpenLException error;
 
     public OpenLErrorMessage(OpenLException error) {
         super(getOpenLExceptionMessage(error), Severity.ERROR);
-        if (error == null) {
-            throw new NullPointerException();
-        }
-        this.error = error;
+        this.error = Objects.requireNonNull(error);
     }
 
     public OpenLException getError() {
@@ -35,13 +31,14 @@ public class OpenLErrorMessage extends OpenLMessage {
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
 
-        printWriter.println(super.toString());
+        printWriter.print(super.toString());
+        printWriter.print("\r\n");
 
         if (getError() != null) {
             String url = getError().getSourceLocation();
 
             if (StringUtils.isNotEmpty(url)) {
-                printWriter.println(SourceCodeURLConstants.AT_PREFIX + url);
+                printWriter.print("    at " + url + "\r\n");
             }
             if (getError().getCause() != null && getError().getLocation() == null) {
                 getError().getCause().printStackTrace(printWriter);

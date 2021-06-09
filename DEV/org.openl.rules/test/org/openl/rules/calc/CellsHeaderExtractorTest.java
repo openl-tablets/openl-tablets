@@ -3,6 +3,7 @@ package org.openl.rules.calc;
 import static org.junit.Assert.*;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import org.junit.Test;
@@ -28,7 +29,7 @@ public class CellsHeaderExtractorTest {
     public void testGetSignatureDependencies() {
         List<String> dependencies = CellsHeaderExtractor.getSignatureDependencies(
             "Spreadsheet SpreadsheetResultCalcForTests_v10 calcTotalsTrace(TestHelperDataBean_v10 testdata)");
-        assertEquals(Arrays.asList("CalcForTests_v10"), dependencies);
+        assertEquals(Collections.singletonList("CalcForTests_v10"), dependencies);
 
         dependencies = CellsHeaderExtractor.getSignatureDependencies(
             "Spreadsheet SpreadsheetResultCalcForTests calcTotalsTrace(SpreadsheetResultParam1 p1,int p2,SpreadsheetResultParam3 SpreadsheetResult3)");
@@ -36,11 +37,11 @@ public class CellsHeaderExtractorTest {
 
         dependencies = CellsHeaderExtractor.getSignatureDependencies(
             "Spreadsheet SpreadsheetResult calcTotalsTrace ( SpreadsheetResult SpreadsheetResult1, SpreadsheetResultParam2[] p2 )");
-        assertEquals(Arrays.asList("Param2"), dependencies);
+        assertEquals(Collections.singletonList("Param2"), dependencies);
 
         dependencies = CellsHeaderExtractor
             .getSignatureDependencies("Spreadsheet SpreadsheetResultCalcForTests[] calcTotalsTrace");
-        assertEquals(Arrays.asList("CalcForTests"), dependencies);
+        assertEquals(Collections.singletonList("CalcForTests"), dependencies);
 
         dependencies = CellsHeaderExtractor
             .getSignatureDependencies("Spreadsheet ASpreadsheetResultCalcForTests calcTotalsTrace");

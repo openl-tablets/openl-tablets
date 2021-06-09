@@ -12,7 +12,7 @@ import org.openl.ie.constrainer.IntVar;
  *
  */
 public class DateRangeDomainAdaptor implements IDomainAdaptor {
-    private DateRangeDomain domain;
+    private final DateRangeDomain domain;
 
     public DateRangeDomainAdaptor(DateRangeDomain domain) {
         this.domain = domain;

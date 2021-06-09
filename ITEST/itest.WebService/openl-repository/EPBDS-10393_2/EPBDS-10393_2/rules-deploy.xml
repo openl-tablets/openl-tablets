@@ -1,0 +1,20 @@
+<rules-deploy>
+  <isProvideRuntimeContext>false</isProvideRuntimeContext>
+  <isProvideVariations>false</isProvideVariations>
+  <serviceName>EPBDS-10393_2</serviceName>
+  <url>EPBDS-10393_2</url>
+  <configuration>
+    <entry>
+      <string>jackson.typingPropertyName</string>
+      <string>_type</string>
+    </entry>
+    <entry>
+      <string>jackson.simpleClassNameAsTypingPropertyValue</string>
+      <string>true</string>
+    </entry>
+    <entry>
+      <string>jackson.defaultTypingMode</string>
+      <string>DISABLED</string>
+    </entry>
+  </configuration>
+</rules-deploy>

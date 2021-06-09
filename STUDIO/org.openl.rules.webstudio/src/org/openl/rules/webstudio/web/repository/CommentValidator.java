@@ -2,8 +2,9 @@ package org.openl.rules.webstudio.web.repository;
 
 import java.util.regex.Pattern;
 
+import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.webstudio.web.Props;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.spring.env.PropertyResolverProvider;
 import org.openl.util.StringUtils;
 
 public class CommentValidator {
@@ -27,15 +28,14 @@ public class CommentValidator {
             "Length is greater than allowable maximum of '" + MAX_COMMENT_LENGTH + "'");
     }
 
-    public static CommentValidator forDesignRepo() {
-        return new CommentValidator(
-            PropertyResolverProvider.getProperty("repository.design.comment-validation-pattern"),
-            PropertyResolverProvider.getProperty("repository.design.invalid-comment-message"));
+    public static CommentValidator forRepo(String repoId) {
+        boolean customComments = Boolean.parseBoolean(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.use-custom-comments"));
+        if (customComments) {
+            return new CommentValidator(Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.comment-validation-pattern"),
+                Props.text(Comments.REPOSITORY_PREFIX + repoId + ".comment-template.invalid-comment-message"));
+        } else {
+            return new CommentValidator(null, null);
+        }
     }
 
-    static CommentValidator forDeployConfigRepo() {
-        return new CommentValidator(
-            PropertyResolverProvider.getProperty("repository.deploy-config.comment-validation-pattern"),
-            PropertyResolverProvider.getProperty("repository.deploy-config.invalid-comment-message"));
-    }
 }

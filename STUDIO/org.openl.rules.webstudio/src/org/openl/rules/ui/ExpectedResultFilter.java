@@ -14,7 +14,7 @@ import org.openl.rules.testmethod.result.ComparedResult;
 
 class ExpectedResultFilter extends AGridFilter {
 
-    private Map<Point, ComparedResult> spreadsheetCellsForTest;
+    private final Map<Point, ComparedResult> spreadsheetCellsForTest;
 
     public ExpectedResultFilter(Map<Point, ComparedResult> spreadsheetCellsForTest) {
         this.spreadsheetCellsForTest = new HashMap<>(spreadsheetCellsForTest);
@@ -22,7 +22,7 @@ class ExpectedResultFilter extends AGridFilter {
 
     @Override
     public FormattedCell filterFormat(FormattedCell cell) {
-        Point cellCoordinates = new Point(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
+        Point cellCoordinates = Point.get(cell.getAbsoluteColumn(), cell.getAbsoluteRow());
 
         if (spreadsheetCellsForTest.containsKey(cellCoordinates)) {
             ComparedResult result = spreadsheetCellsForTest.get(cellCoordinates);
@@ -30,7 +30,7 @@ class ExpectedResultFilter extends AGridFilter {
             boolean isOk = result.getStatus() == TestStatus.TR_OK;
             if (isOk) {
                 formattedValue.append("<i class=\"case-success\"></i> ")
-                    .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo()));
+                    .append(XlsDataFormatterFactory.getFormattedValue(cell, cell.getMetaInfo(), false));
             } else {
                 Object expectedValue = result.getExpectedValue();
                 if (expectedValue instanceof IParameterWithValueDeclaration) {

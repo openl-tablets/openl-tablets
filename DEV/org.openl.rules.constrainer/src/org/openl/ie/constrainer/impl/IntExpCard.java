@@ -39,11 +39,11 @@ public final class IntExpCard extends IntExpImpl {
         }
     } // ~ ObserverPossibleRequired
 
-    private IntExpArray _vars;
-    private IntVar _possible_required;
-    private IntVarImpl _indexes;
+    private final IntExpArray _vars;
+    private final IntVar _possible_required;
+    private final IntVarImpl _indexes;
 
-    private int _card_value;
+    private final int _card_value;
 
     public IntExpCard(Constrainer constrainer, IntExpArray vars, int card_value) throws Failure {
         // super(constrainer,0,vars.size(),"C" + card_value,
@@ -100,16 +100,13 @@ public final class IntExpCard extends IntExpImpl {
     }
 
     public void bindAll() throws Failure {
-        IntExp.IntDomainIterator it = new IntExp.IntDomainIterator() {
-            @Override
-            public boolean doSomethingOrStop(int i) throws Failure {
-                if (i == _vars.size()) {
-                    return true;
-                }
-                IntExp exp = _vars.get(i);
-                exp.setValue(_card_value);
+        IntExp.IntDomainIterator it = i -> {
+            if (i == _vars.size()) {
                 return true;
             }
+            IntExp exp = _vars.get(i);
+            exp.setValue(_card_value);
+            return true;
         };
 
         _indexes.iterateDomain(it);
@@ -150,18 +147,15 @@ public final class IntExpCard extends IntExpImpl {
     }
 
     public void removeUnbounds() throws Failure {
-        IntExp.IntDomainIterator it = new IntExp.IntDomainIterator() {
-            @Override
-            public boolean doSomethingOrStop(int i) throws Failure {
-                if (i == _vars.size()) {
-                    return true;
-                }
-                IntExp exp = _vars.get(i);
-                if (!exp.bound()) {
-                    exp.removeValue(_card_value);
-                }
+        IntExp.IntDomainIterator it = i -> {
+            if (i == _vars.size()) {
                 return true;
             }
+            IntExp exp = _vars.get(i);
+            if (!exp.bound()) {
+                exp.removeValue(_card_value);
+            }
+            return true;
         };
 
         _indexes.iterateDomain(it);

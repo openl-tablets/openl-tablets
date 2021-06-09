@@ -6,6 +6,9 @@ import javax.faces.context.FacesContext;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 public class GitRepositorySettingsValidators extends RepositorySettingsValidators {
     public void localRepositoryPath(FacesContext context, UIComponent toValidate, Object value) {
         String localPath = (String) value;
@@ -32,6 +35,20 @@ public class GitRepositorySettingsValidators extends RepositorySettingsValidator
 
         // Only simple validation
         WebStudioUtils.validate(email.contains("@"), "Incorrect email");
+    }
+
+    public void newBranchRegex(FacesContext context, UIComponent toValidate, Object value) {
+        String pattern = (String) value;
+        if (StringUtils.isBlank(pattern)) {
+            return;
+        }
+        try {
+            Pattern.compile(pattern);
+        } catch (PatternSyntaxException patternSyntaxException) {
+            WebStudioUtils.throwValidationError(
+                String.format("Branch name pattern '%s' is not valid regular expression.", value)
+            );
+        }
     }
 
     @Override

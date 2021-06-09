@@ -1,22 +1,31 @@
 package org.openl.rules.webstudio.web.diff;
 
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import javax.annotation.PreDestroy;
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.component.UIComponent;
 import javax.faces.model.SelectItem;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.common.impl.ArtefactPathImpl;
-import org.openl.rules.common.impl.CommonVersionImpl;
 import org.openl.rules.diff.tree.DiffTreeNode;
 import org.openl.rules.diff.xls2.XlsDiff2;
-import org.openl.rules.project.abstraction.*;
+import org.openl.rules.project.abstraction.AProject;
+import org.openl.rules.project.abstraction.AProjectArtefact;
+import org.openl.rules.project.abstraction.AProjectFolder;
+import org.openl.rules.project.abstraction.AProjectResource;
+import org.openl.rules.project.abstraction.UserWorkspaceProject;
+import org.openl.rules.repository.api.BranchRepository;
+import org.openl.rules.repository.api.Repository;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
@@ -28,30 +37,47 @@ import org.richfaces.component.UITree;
 import org.richfaces.function.RichFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Supplies repository structured diff UI tree with data.
  *
  * @author Andrey Naumenko
  */
-@ManagedBean
-@SessionScoped
+@Service
+@SessionScope
 public class RepositoryDiffController extends AbstractDiffController {
     private final Logger log = LoggerFactory.getLogger(RepositoryDiffController.class);
 
-    @ManagedProperty(value = "#{repositoryTreeState}")
-    private RepositoryTreeState repositoryTreeState;
+    private final RepositoryTreeState repositoryTreeState;
 
-    @ManagedProperty(value = "#{designTimeRepository}")
-    private DesignTimeRepository designTimeRepository;
+    private final DesignTimeRepository designTimeRepository;
 
-    private AProject projectUW; // User Workspace project
+    private String branch;
+    private UserWorkspaceProject projectUW; // User Workspace project
     private List<AProjectArtefact> excelArtefactsUW;
     private List<AProjectArtefact> excelArtefactsRepo;
 
     private String selectedExcelFileUW;
     private String selectedExcelFileRepo;
     private String selectedVersionRepo;
+
+    public RepositoryDiffController(RepositoryTreeState repositoryTreeState,
+            DesignTimeRepository designTimeRepository) {
+        this.repositoryTreeState = repositoryTreeState;
+        this.designTimeRepository = designTimeRepository;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
+        // In the new branch that revision can be absent. Clear it.
+        selectedVersionRepo = null;
+    }
 
     public void setSelectedExcelFileUW(String selectedExcelFileUW) {
         this.selectedExcelFileUW = selectedExcelFileUW;
@@ -77,17 +103,24 @@ public class RepositoryDiffController extends AbstractDiffController {
         return selectedVersionRepo;
     }
 
-    public SelectItem[] getVersionsRepo() {
-        Collection<ProjectVersion> versions = projectUW.getVersions();
-        SelectItem[] selectItems = new SelectItem[versions.size()];
-
-        int i = 0;
-        for (ProjectVersion version : versions) {
-            selectItems[i] = new SelectItem(version.getVersionName());
-            i++;
+    public List<ProjectVersion> getVersionsRepo() {
+        try {
+            List<ProjectVersion> versions;
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                Repository repository = ((BranchRepository) designRepository).forBranch(branch);
+                String folderPath = designTimeRepository.getProject(designRepository.getId(), projectUW.getName())
+                    .getFolderPath();
+                versions = new AProject(repository, folderPath).getVersions();
+            } else {
+                versions = projectUW.getVersions();
+            }
+            Collections.reverse(versions);
+            return versions;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return Collections.emptyList();
         }
-
-        return selectItems;
     }
 
     public List<SelectItem> getExcelFilesUW() {
@@ -110,12 +143,8 @@ public class RepositoryDiffController extends AbstractDiffController {
         return excelItems;
     }
 
-    public void setDesignTimeRepository(DesignTimeRepository designTimeRepository) {
-        this.designTimeRepository = designTimeRepository;
-    }
-
-    public void setRepositoryTreeState(RepositoryTreeState repositoryTreeState) {
-        this.repositoryTreeState = repositoryTreeState;
+    public String getRepositoryId() {
+        return projectUW == null ? null : projectUW.getDesignRepository().getId();
     }
 
     public String init() {
@@ -124,13 +153,17 @@ public class RepositoryDiffController extends AbstractDiffController {
         return null;
     }
 
-    public void initProjectUW() {
+    private void initProjectUW() {
         try {
             UserWorkspaceProject selectedProject = repositoryTreeState.getSelectedProject();
             if (projectUW != selectedProject) {
                 projectUW = selectedProject;
-                selectedVersionRepo = projectUW.getVersion().getVersionName();
+                selectedVersionRepo = projectUW.getFileData().getVersion();
                 setDiffTree(null);
+
+                if (selectedProject.isSupportsBranches()) {
+                    branch = selectedProject.getBranch();
+                }
             }
             excelArtefactsUW = getExcelArtefacts(projectUW, "");
         } catch (Exception e) {
@@ -140,14 +173,24 @@ public class RepositoryDiffController extends AbstractDiffController {
 
     public void initProjectRepo() {
         try {
-            CommonVersionImpl version = new CommonVersionImpl(selectedVersionRepo);
             // Repository project
             AProject projectRepo;
-            try {
-                projectRepo = designTimeRepository.getProject(projectUW.getName(), version);
-            } catch (Exception e) {
-                log.warn("Could not get project'{}' of version '{}'", projectUW.getName(), version.getVersionName(), e);
-                projectRepo = designTimeRepository.getProject(projectUW.getName());
+
+            Repository designRepository = projectUW.getDesignRepository();
+            if (designRepository.supports().branches()) {
+                projectRepo = designTimeRepository
+                    .getProjectByPath(designRepository.getId(), branch, projectUW.getRealPath(), selectedVersionRepo);
+            } else {
+                try {
+                    projectRepo = designTimeRepository
+                        .getProjectByPath(designRepository.getId(), null, projectUW.getRealPath(), selectedVersionRepo);
+                } catch (Exception e) {
+                    log.warn("Could not get project'{}' of version '{}'",
+                        projectUW.getName(),
+                        selectedVersionRepo,
+                        e);
+                    projectRepo = designTimeRepository.getProject(designRepository.getId(), projectUW.getName());
+                }
             }
             excelArtefactsRepo = getExcelArtefacts(projectRepo, "");
         } catch (Exception e) {
@@ -175,21 +218,18 @@ public class RepositoryDiffController extends AbstractDiffController {
                 excelArtefacts.add(projectArtefact);
             }
         }
-        Collections.sort(excelArtefacts, new Comparator<AProjectArtefact>() {
-            @Override
-            public int compare(AProjectArtefact o1, AProjectArtefact o2) {
-                String s1 = o1.getName();
-                int t = s1.lastIndexOf(".");
-                if (t > 0) {
-                    s1 = s1.substring(0, t);
-                }
-                String s2 = o2.getName();
-                t = s2.lastIndexOf(".");
-                if (t > 0) {
-                    s2 = s2.substring(0, t);
-                }
-                return s1.compareTo(s2);
+        excelArtefacts.sort((o1, o2) -> {
+            String s1 = o1.getName();
+            int t = s1.lastIndexOf(".");
+            if (t > 0) {
+                s1 = s1.substring(0, t);
             }
+            String s2 = o2.getName();
+            t = s2.lastIndexOf(".");
+            if (t > 0) {
+                s2 = s2.substring(0, t);
+            }
+            return s1.compareTo(s2);
         });
         return excelArtefacts;
     }

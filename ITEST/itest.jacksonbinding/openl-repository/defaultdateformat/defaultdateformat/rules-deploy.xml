@@ -1,0 +1,17 @@
+<rules-deploy>
+    <isProvideRuntimeContext>false</isProvideRuntimeContext>
+    <isProvideVariations>false</isProvideVariations>
+    <serviceName>rules-defaultdateformat</serviceName>
+    <publishers>
+        <publisher>RESTFUL</publisher>
+    </publishers>
+    <url>rules-defaultdateformat</url>
+
+    <configuration>
+        <entry>
+            <string>jackson.defaultDateFormat</string>
+            <string>dd/MM/yyyy HH:mm:ss</string>
+        </entry>
+    </configuration>
+
+</rules-deploy>

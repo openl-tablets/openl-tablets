@@ -7,7 +7,6 @@ package org.openl.binding.impl;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.IBoundNode;
 import org.openl.syntax.ISyntaxNode;
-import org.openl.syntax.exception.SyntaxNodeException;
 
 /**
  * @author snshor
@@ -24,13 +23,11 @@ public class BlockBinder extends ANodeBinder {
     @Override
     public IBoundNode bind(ISyntaxNode node, IBindingContext bindingContext) {
 
-        IBoundNode[] children = null;
+        IBoundNode[] children;
 
         try {
             bindingContext.pushLocalVarContext();
             children = bindChildren(node, bindingContext);
-        } catch (SyntaxNodeException error) {
-            bindingContext.addError(error);
         } finally {
             bindingContext.popLocalVarContext();
         }

@@ -1,8 +1,6 @@
 package org.openl.rules.maven;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.util.Properties;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
@@ -12,11 +10,10 @@ import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.settings.Server;
 import org.apache.maven.settings.Settings;
 import org.openl.rules.ruleservice.deployer.RulesDeployerService;
-import org.openl.util.FileUtils;
 import org.openl.util.StringUtils;
 
 /**
- * Created by dl on 6/15/17.
+ * Deploys the OpenL Tablets project to an OpenL Tablets repository.
  */
 @Mojo(name = "deploy", defaultPhase = LifecyclePhase.DEPLOY, requiresDependencyResolution = ResolutionScope.COMPILE)
 public class DeployMojo extends BaseOpenLMojo {
@@ -61,7 +58,7 @@ public class DeployMojo extends BaseOpenLMojo {
 
         Properties properties = new Properties();
         if ("jdbc".equals(deployType)) {
-            properties.put("production-repository.factory", "org.openl.rules.repository.db.JdbcDBRepositoryFactory");
+            properties.put("production-repository.factory", "repo-jdbc");
         }
         properties.put("production-repository.uri", deployUrl);
         properties.put("production-repository.login", server.getUsername());
@@ -69,17 +66,12 @@ public class DeployMojo extends BaseOpenLMojo {
         properties.put("production-repository.base.path", "deploy/");
 
         try (RulesDeployerService deployerService = new RulesDeployerService(properties)) {
-            deployerService.deploy(FileUtils.getBaseName(zipFile.getName()), new FileInputStream(zipFile), false);
+            deployerService.deploy(zipFile, false);
         }
     }
 
     private File findZipFile() {
-        File[] zipZiles = outputDirectory.listFiles(new FilenameFilter() {
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.contains(finalName) && name.endsWith(".zip");
-            }
-        });
+        File[] zipZiles = outputDirectory.listFiles((dir, name) -> name.contains(finalName) && name.endsWith(".zip"));
         if (zipZiles == null) {
             throw new IllegalStateException("Cannot deploy the rules project, as the zip file does not exist");
         }

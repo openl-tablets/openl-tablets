@@ -10,9 +10,9 @@ import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 
 public class EnumDomainCollector implements IDomainCollector {
 
-    private String propertyToSearch;
+    private final String propertyToSearch;
 
-    private Set<Object> enumProp = new HashSet<>();
+    private final Set<Object> enumProp = new HashSet<>();
 
     public EnumDomainCollector(String propertyToSearch) {
         this.propertyToSearch = propertyToSearch;

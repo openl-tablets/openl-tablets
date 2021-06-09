@@ -11,7 +11,8 @@ import org.openl.rules.webstudio.web.util.WebStudioUtils;
 public class Explanator extends ObjectRegistry<ExplanationNumberValue<?>> {
 
     private static Explanator getCurrent(String requestId) {
-        return (Explanator) WebStudioUtils.getExternalContext().getSessionMap().get(Constants.SESSION_PARAM_EXPLANATOR + requestId);
+        return (Explanator) WebStudioUtils.getExternalContext()
+                .getSessionMap().get(Constants.SESSION_PARAM_EXPLANATOR + requestId);
     }
 
     private static Explanator getCurrentOrCreate(String requestId) {

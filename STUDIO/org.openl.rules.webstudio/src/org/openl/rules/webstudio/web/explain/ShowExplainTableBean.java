@@ -1,35 +1,36 @@
 package org.openl.rules.webstudio.web.explain;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.RequestScoped;
-
-import org.openl.rules.table.*;
+import org.openl.rules.table.CompositeGrid;
+import org.openl.rules.table.GridRegion;
+import org.openl.rules.table.IGridRegion;
+import org.openl.rules.table.IGridTable;
+import org.openl.rules.table.IOpenLTable;
 import org.openl.rules.table.ui.IGridSelector;
 import org.openl.rules.table.ui.RegionGridSelector;
 import org.openl.rules.table.ui.filters.ColorGridFilter;
 import org.openl.rules.table.ui.filters.IColorFilter;
 import org.openl.rules.table.ui.filters.IGridFilter;
 import org.openl.rules.table.xls.XlsUrlParser;
-import org.openl.rules.table.xls.XlsUrlUtils;
 import org.openl.rules.ui.ProjectModel;
-import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.RequestScope;
 
 /**
  * Request scope managed bean for showExplainTable page.
  */
-@ManagedBean
-@RequestScoped
+@Service
+@RequestScope
 public class ShowExplainTableBean {
 
-    private String uri;
-    private IOpenLTable table;
+    private final String uri;
+    private final IOpenLTable table;
 
     public ShowExplainTableBean() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        uri = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_URI);
+        uri = WebStudioUtils.getRequestParameter("uri");
         table = model.getTable(uri);
     }
 
@@ -51,7 +52,7 @@ public class ShowExplainTableBean {
                     return new GridRegion(top, left, bottom, right);
                 }
             } else {
-                if (XlsUrlUtils.intersects(p1, gridTable.getUriParser())) {
+                if (p1.intersects(gridTable.getUriParser())) {
                     IGridRegion region2 = gridTable.getRegion();
                     IGridRegion region3 = compositeGrid.getMappedRegion(i);
                     IGridRegion tmp = region;
@@ -82,8 +83,7 @@ public class ShowExplainTableBean {
     public IGridFilter getFilter() {
         ProjectModel model = WebStudioUtils.getProjectModel();
 
-        XlsUrlParser p1 = new XlsUrlParser();
-        p1.parse(uri);
+        XlsUrlParser p1 = new XlsUrlParser(uri);
         IGridRegion region = IGridRegion.Tool.makeRegion(p1.getRange());
 
         if (table.getGridTable().getGrid() instanceof CompositeGrid) {

@@ -12,7 +12,7 @@ import org.openl.util.RuntimeExceptionWrapper;
  * The <code>AlgorithmErrorHelper</code> class is the utility class which works with errors(handling and creation).
  *
  */
-class AlgorithmErrorHelper {
+final class AlgorithmErrorHelper {
 
     private AlgorithmErrorHelper() {
     }
@@ -28,7 +28,9 @@ class AlgorithmErrorHelper {
             RuntimeOperation operation) {
         String sourceOperationUrl = operation.getSourceCode().getSourceUri();
         String errorMessage = String.format(
-            "Unexpected error appeared while executing TBasic component logic. It's unusal situation and the most propably something is wrong in component's internal logic, please contact developers. Error: %s at %s",
+            "Unexpected error appeared while executing TBasic component logic. " +
+                "It's unusal situation and the most propably something is wrong in component's internal logic, " +
+                "please contact developers. Error: %s at %s",
             message,
             sourceOperationUrl);
 
@@ -45,7 +47,7 @@ class AlgorithmErrorHelper {
      */
     public static Object processError(Throwable error, TBasicContextHolderEnv environment) {
         IOpenClass algorithmType = environment.getTbasicTarget().getType();
-        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", new IOpenClass[] {});
+        IOpenMethod errorMethod = algorithmType.getMethod("ON ERROR", IOpenClass.EMPTY);
 
         if (errorMethod != null) {
             IOpenField errorField = algorithmType.getField("ERROR");

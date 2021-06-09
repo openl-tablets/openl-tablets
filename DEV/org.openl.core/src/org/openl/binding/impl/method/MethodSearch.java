@@ -27,7 +27,6 @@ import org.openl.types.java.JavaOpenMethod;
 import org.openl.util.ClassUtils;
 import org.openl.util.CollectionUtils;
 import org.openl.util.JavaGenericsUtils;
-import org.openl.util.OpenClassUtils;
 
 /**
  * @author snshor, Marat Kamalov
@@ -59,10 +58,6 @@ public final class MethodSearch {
                     arrayDims[i] = JavaGenericsUtils.getGenericTypeDim(type);
                     int arrayDim = arrayDims[i];
                     IOpenClass t = callParam[i];
-                    if (t.getInstanceClass() != null) {
-                        // don't use alias datatypes as Generics
-                        t = JavaOpenClass.getOpenClass(t.getInstanceClass());
-                    }
 
                     if (t.getInstanceClass() != null && t.getInstanceClass().isPrimitive()) {
                         t = JavaOpenClass.getOpenClass(ClassUtils.primitiveToWrapper(t.getInstanceClass()));
@@ -79,11 +74,7 @@ public final class MethodSearch {
                     if (genericTypes.containsKey(typeNames[i])) {
                         IOpenClass existedType = genericTypes.get(typeNames[i]);
                         IOpenClass clazz = castFactory.findClosestClass(t, existedType);
-                        if (clazz != null) {
-                            genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
-                        } else {
-                            return NO_MATCH;
-                        }
+                        genericTypes.put(typeNames[i], unwrapPrimitiveClassIfNeeded(clazz));
                     } else {
                         genericTypes.put(typeNames[i], t);
                     }
@@ -173,10 +164,8 @@ public final class MethodSearch {
             }
         }
 
-        for (IOpenCast iOpenCast : castHolder) {
-            if (iOpenCast instanceof IOneElementArrayCast) {
-                return NO_MATCH;
-            }
+        if (castHolder.length > 0 && castHolder[castHolder.length - 1] instanceof IOneElementArrayCast) {
+            return NO_MATCH;
         }
 
         return m;
@@ -398,7 +387,7 @@ public final class MethodSearch {
             IOpenClass methodsReturnType,
             IOpenMethod m,
             IMethodCaller methodCaller) {
-        if (methodsReturnCast != null && methodsReturnType != m.getType()) {
+        if (methodsReturnCast != null && !methodsReturnType.equals(m.getType())) {
             return new AutoCastableResultOpenMethod(methodCaller, methodsReturnType, methodsReturnCast);
         } else {
             return methodCaller;
@@ -646,7 +635,7 @@ public final class MethodSearch {
                                                                          .getParameterType(method.getSignature()
                                                                              .getNumberOfParameters() - 1)
                                                                          .isArray());
-        caller = findVarArgMethod(name, params, castFactory, filtered, OpenClassUtils::findParentClass);
+        caller = findVarArgMethod(name, params, castFactory, filtered, castFactory::findParentClass);
         if (caller != null) {
             return caller;
         }

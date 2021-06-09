@@ -5,7 +5,7 @@ import static org.openl.rules.diff.tree.DiffStatus.*;
 import org.openl.rules.diff.hierarchy.Projection;
 
 public class DiffElementImpl implements DiffElement {
-    private Projection projection;
+    private final Projection projection;
     private DiffStatus diffStatus;
     private boolean hierarhyEqual;
     private boolean childrenEqual;

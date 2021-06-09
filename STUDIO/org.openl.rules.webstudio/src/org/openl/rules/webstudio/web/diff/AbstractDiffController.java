@@ -25,11 +25,11 @@ import org.richfaces.event.TreeSelectionChangeEvent;
 
 public abstract class AbstractDiffController {
     // TODO remove?
-    private boolean showEqualElements = false;
+    private boolean showEqualElements;
 
     private TreeNode richDiffTree;
     private TreeNode selectedNode;
-    private List<File> tempFiles = new ArrayList<>();
+    private final List<File> tempFiles = new ArrayList<>();
 
     public abstract String compare();
 
@@ -111,7 +111,7 @@ public abstract class AbstractDiffController {
         if (regions.isEmpty()) {
             return null;
         }
-        IGridRegion[] aRegions = regions.toArray(new IGridRegion[0]);
+        IGridRegion[] aRegions = regions.toArray(IGridRegion.EMPTY_REGION);
         return new ColorGridFilter(new RegionGridSelector(aRegions, true),
             new ColorFilterHolder().makeFilter());
     }
@@ -131,18 +131,19 @@ public abstract class AbstractDiffController {
         selectedNode = null;
     }
 
+    public void reset(){
+        richDiffTree = null;
+        selectedNode = null;
+        showEqualElements = false;
+    }
+
     private void rebuild(AtomicInteger idGenerator, TreeNode parent) {
         for (DiffTreeNode d : parent.getDiffTreeNode().getChildren()) {
             List<PropertyNode> propertyNodes = getPropertyNodes(d);
 
             TreeNode node = new TreeNode(d, propertyNodes.isEmpty() && !hasChildren(d));
 
-            if (shouldSkipNode(node)) {
-                continue;
-            }
-
-            // Skip empty sheets
-            if (node.getType().equals(XlsProjectionType.SHEET.name()) && node.isLeaf()) {
+            if (shouldSkipNode(node) || (node.getType().equals(XlsProjectionType.SHEET.name()) && node.isLeaf())) {
                 continue;
             }
 
@@ -192,16 +193,14 @@ public abstract class AbstractDiffController {
                 if (pp2 != null) {
                     Object v1 = pp1.getRawValue();
                     Object v2 = pp2.getRawValue();
-                    if (v1 != null && v2 != null) {
-                        if (!v1.equals(v2)) {
-                            if (pp1.getName().equals("name")) {
-                                v1 = "";
-                            }
-                            String s = pp1.getName() + ": " + v1 + " -> " + v2;
-
-                            PropertyNode np = new PropertyNode(d, s);
-                            propertyNodes.add(np);
+                    if (v1 != null && v2 != null && !v1.equals(v2)) {
+                        if ("name".equals(pp1.getName())) {
+                            v1 = "";
                         }
+                        String s = pp1.getName() + ": " + v1 + " -> " + v2;
+
+                        PropertyNode np = new PropertyNode(d, s);
+                        propertyNodes.add(np);
                     }
                 }
             }

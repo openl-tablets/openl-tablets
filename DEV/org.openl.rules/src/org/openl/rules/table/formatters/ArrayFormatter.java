@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ArrayFormatter implements IFormatter {
 
-    private final Logger log = LoggerFactory.getLogger(ArrayFormatter.class);
+    private static final Logger LOG = LoggerFactory.getLogger(ArrayFormatter.class);
 
     /**
      * Constant for escaping {@link #ARRAY_ELEMENTS_SEPARATOR} of elements. It is needed when the element contains
@@ -34,7 +34,7 @@ public class ArrayFormatter implements IFormatter {
      */
     private static final String ARRAY_ELEMENTS_SEPARATOR = ",";
 
-    private IFormatter elementFormat;
+    private final IFormatter elementFormat;
 
     /**
      * @param elementFormat formatter for the component type of array.
@@ -56,7 +56,7 @@ public class ArrayFormatter implements IFormatter {
         String result = null;
         if (value != null) {
             if (!value.getClass().isArray()) {
-                log.debug("Should be an array: {}", value);
+                LOG.debug("Should be an array: {}", value);
                 return null;
             }
 

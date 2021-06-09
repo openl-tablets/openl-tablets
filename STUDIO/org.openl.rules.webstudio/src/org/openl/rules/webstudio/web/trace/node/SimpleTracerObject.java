@@ -3,13 +3,17 @@ package org.openl.rules.webstudio.web.trace.node;
 import java.util.ArrayList;
 import java.util.Collections;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public abstract class SimpleTracerObject implements ITracerObject {
+    private static final Logger LOG = LoggerFactory.getLogger(SimpleTracerObject.class);
 
     private ITracerObject parent;
     private ArrayList<ITracerObject> children;
     private Object result;
     private Throwable error;
-    private String type;
+    private final String type;
 
     protected SimpleTracerObject(String type) {
         this.type = type;
@@ -64,7 +68,20 @@ public abstract class SimpleTracerObject implements ITracerObject {
     }
 
     public void setResult(Object result) {
-        this.result = result;
+        if (result != null) {
+            CachingArgumentsCloner cloner = CachingArgumentsCloner.getInstance();
+            Object clonedResult;
+            try {
+                clonedResult = cloner.deepClone(result);
+            } catch (Exception e) {
+                // ignore cloning exception if any, use params itself
+                clonedResult = result;
+                LOG.debug("Ignored error: ", e);
+            }
+            this.result = clonedResult;
+        } else {
+            this.result = null;
+        }
     }
 
     public Throwable getError() {

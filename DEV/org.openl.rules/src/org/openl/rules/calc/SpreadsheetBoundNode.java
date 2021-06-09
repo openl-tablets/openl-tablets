@@ -1,9 +1,11 @@
 package org.openl.rules.calc;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 import org.openl.OpenL;
@@ -31,12 +33,12 @@ import org.openl.types.IOpenMethodHeader;
 import org.openl.types.NullOpenClass;
 import org.openl.types.impl.CompositeMethod;
 import org.openl.types.java.JavaOpenClass;
+import org.openl.util.ClassUtils;
+import org.openl.util.OpenClassUtils;
 
 // TODO: refactor
 // Extract all the binding and build code to the SpreadsheetBinder
 public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBoundNode {
-
-    public static final String CSR_BEANS_PACKAGE = "csr-beans-package";
 
     private SpreadsheetStructureBuilder structureBuilder;
     private SpreadsheetComponentsBuilder componentsBuilder;
@@ -62,8 +64,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         if (!spreadsheet.isCustomSpreadsheet()) {
             throw new IllegalArgumentException("Only custom spreadsheets are supported.");
         }
-        Map<String, IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType().getFields();
-        spreadsheetOpenClassFields.remove("this");
+        Collection<IOpenField> spreadsheetOpenClassFields = spreadsheet.getSpreadsheetType()
+            .getFields()
+            .stream()
+            .filter(e -> !"this".equals(e.getName()))
+            .collect(Collectors.toList());
+
         String typeName = Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName();
 
         CustomSpreadsheetResultOpenClass customSpreadsheetResultOpenClass = new CustomSpreadsheetResultOpenClass(
@@ -75,12 +81,12 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
             spreadsheet.getRowTitles(),
             spreadsheet.getColumnTitles(),
             getModule(),
-            spreadsheet.isDetailedPlainModel());
+            spreadsheet.isTableStructureDetails());
 
         customSpreadsheetResultOpenClass
             .setMetaInfo(new TableMetaInfo("Spreadsheet", spreadsheet.getName(), spreadsheet.getSourceUrl()));
 
-        for (IOpenField field : spreadsheetOpenClassFields.values()) {
+        for (IOpenField field : spreadsheetOpenClassFields) {
             CustomSpreadsheetResultField customSpreadsheetResultField = new CustomSpreadsheetResultField(
                 customSpreadsheetResultOpenClass,
                 field);
@@ -99,9 +105,9 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
              * We need to generate a customSpreadsheet class only if return type of the spreadsheet is SpreadsheetResult
              * and the customspreadsheet property is true
              */
-            boolean isCustomSpreadsheet = SpreadsheetResult.class.equals(getType()
-                .getInstanceClass()) && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
-                    .isCustomSpreadsheetType(bindingContext.getExternalParams());
+            boolean isCustomSpreadsheet = SpreadsheetResult.class == getType()
+                .getInstanceClass() && !(getType() instanceof CustomSpreadsheetResultOpenClass) && OpenLSystemProperties
+                    .isCustomSpreadsheetTypesSupported(bindingContext.getExternalParams());
 
             spreadsheet = new Spreadsheet(getHeader(), this, isCustomSpreadsheet);
         }
@@ -120,11 +126,11 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         spreadsheet.setRowTitles(componentsBuilder.getCellsHeadersExtractor().getRowNames());
         spreadsheet.setColumnTitles(componentsBuilder.getCellsHeadersExtractor().getColumnNames());
 
-        spreadsheet.setDetailedPlainModel(
-            Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getDetailedPlainModel()));
+        spreadsheet.getTableStructureDetails(
+            Boolean.TRUE.equals(getTableSyntaxNode().getTableProperties().getTableStructureDetails()));
 
         if (spreadsheet.isCustomSpreadsheet()) {
-            CustomSpreadsheetResultOpenClass type = null;
+            CustomSpreadsheetResultOpenClass type;
             try {
                 type = buildCustomSpreadsheetResultType(spreadsheet); // Can throw RuntimeException
                 IOpenClass bindingContextType = bindingContext.addType(ISyntaxConstants.THIS_NAMESPACE, type);
@@ -133,7 +139,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
                 String message = String.format("Cannot define type '%s'.",
                     Spreadsheet.SPREADSHEETRESULT_TYPE_PREFIX + spreadsheet.getName());
                 SyntaxNodeException error = SyntaxNodeExceptionUtils.createError(message, e, getTableSyntaxNode());
-                getTableSyntaxNode().addError(error);
                 bindingContext.addError(error);
                 spreadsheet.setCustomSpreadsheetResultType(
                     (CustomSpreadsheetResultOpenClass) bindingContext.findType(ISyntaxConstants.THIS_NAMESPACE,
@@ -184,20 +189,20 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
 
                         StringBuilder sb = new StringBuilder();
                         if (columnsForResultModelCount == 1) {
-                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         } else if (rowsForResultModelCount == 1) {
-                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
                         } else {
-                            sb.append(spreadsheet.getColumnNamesForResultModel()[j]);
-                            sb.append("_");
-                            sb.append(spreadsheet.getRowNamesForResultModel()[i]);
+                            sb.append(ClassUtils.decapitalize(spreadsheet.getColumnNamesForResultModel()[j]));
+                            sb.append(ClassUtils.capitalize(spreadsheet.getRowNamesForResultModel()[i]));
                         }
                         String fName = sb.toString();
                         if (StringUtils.isBlank(fName)) {
                             fName = "_";
                         }
-                        String key = fName.length() > 1 ? Character.toLowerCase(fName.charAt(0)) + fName.substring(1)
-                                                        : fName.toLowerCase();
+                        String key = fName.length() > 1
+                                ? (Character.toLowerCase(fName.charAt(0)) + fName.substring(1))
+                                : fName.toLowerCase();
                         String v = fNames.put(key, refName);
                         if (v != null) {
                             bindingContext.addMessage(OpenLMessagesUtils.newWarnMessage(String.format(
@@ -220,9 +225,6 @@ public class SpreadsheetBoundNode extends AMethodBasedNode implements IMemberBou
         TableSyntaxNode tableSyntaxNode = getTableSyntaxNode();
         validateTableBody(tableSyntaxNode, bindingContext);
         IOpenMethodHeader header = getHeader();
-        if (header.getType() == JavaOpenClass.VOID) {
-            throw SyntaxNodeExceptionUtils.createError("Spreadsheet cannot return 'void' type.", tableSyntaxNode);
-        }
         this.bindingContext = Objects.requireNonNull(bindingContext, "bindingContext cannot be null");
         componentsBuilder = new SpreadsheetComponentsBuilder(tableSyntaxNode, bindingContext);
         componentsBuilder.buildHeaders(header.getType());

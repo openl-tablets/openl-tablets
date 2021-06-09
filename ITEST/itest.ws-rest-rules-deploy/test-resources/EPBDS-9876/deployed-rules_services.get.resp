@@ -1,0 +1,50 @@
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+[
+    {
+        "startedTime": "###",
+        "name": "name",
+        "servicePath": "rules-to-deploy/rules-to-deploy",
+        "urls": {
+            "WEBSERVICE": "rules-to-deploy/rules-to-deploy",
+            "RESTFUL": "REST/rules-to-deploy/rules-to-deploy"
+        },
+        "hasManifest": false,
+        "deploymentName": "rules-to-deploy",
+        "status": "DEPLOYED"
+    },
+    {
+        "startedTime": "###",
+        "name": "name",
+        "servicePath": "rules-to-deploy2/rules-to-deploy2",
+        "urls": {
+            "WEBSERVICE": "rules-to-deploy2/rules-to-deploy2",
+            "RESTFUL": "REST/rules-to-deploy2/rules-to-deploy2"
+        },
+        "hasManifest": false,
+        "deploymentName": "rules-to-deploy2",
+        "status": "DEPLOYED"
+    },
+    {
+        "startedTime": "###",
+        "name": "rules-to-deploy3_rules-to-deploy3",
+        "servicePath": "rules-to-deploy3/rules-to-deploy3",
+        "urls": {
+            "WEBSERVICE": "url",
+            "RESTFUL": "REST/url"
+        },
+        "hasManifest": false,
+        "deploymentName": "rules-to-deploy3",
+        "status": "DEPLOYED"
+    },
+    {
+        "startedTime": "###",
+        "name": "rules-to-deploy4_rules-to-deploy4",
+        "servicePath": "rules-to-deploy4/rules-to-deploy4",
+        "urls": {},
+        "hasManifest": false,
+        "deploymentName": "rules-to-deploy4",
+        "status": "FAILED"
+    }
+]

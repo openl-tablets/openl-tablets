@@ -19,7 +19,8 @@ import org.slf4j.LoggerFactory;
 @XmlRootElement
 @XmlJavaTypeAdapter(StringValueAdapter.class)
 public class StringValue implements IMetaHolder, CharSequence, Comparable<StringValue> {
-    private final Logger log = LoggerFactory.getLogger(StringValue.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StringValue.class);
+
     private transient ValueMetaInfo metaInfo;
     private final String value;
 
@@ -135,25 +136,18 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     @Override
     public void setMetaInfo(IMetaInfo metaInfo) {
         if (metaInfo instanceof ValueMetaInfo) {
-            setMetaInfo((ValueMetaInfo) metaInfo);
+            this.metaInfo = (ValueMetaInfo) metaInfo;
         } else {
             try {
                 ValueMetaInfo valueMetaInfo = new ValueMetaInfo(metaInfo.getDisplayName(IMetaInfo.SHORT),
                     metaInfo.getDisplayName(IMetaInfo.LONG),
                     new URLSourceCodeModule(new URL(metaInfo.getSourceUrl())));
-                setMetaInfo(valueMetaInfo);
+                this.metaInfo = valueMetaInfo;
             } catch (Exception e) {
-                log.debug("Failed to set meta info for StringValue '{}'", value, e);
-                setMetaInfo((ValueMetaInfo) null);
+                LOG.debug("Failed to set meta info for StringValue '{}'", value, e);
+                this.metaInfo = null;
             }
         }
-    }
-
-    /**
-     * Sets the metainfo for the value
-     */
-    public void setMetaInfo(ValueMetaInfo metaInfo) {
-        this.metaInfo = metaInfo;
     }
 
     /**
@@ -190,10 +184,16 @@ public class StringValue implements IMetaHolder, CharSequence, Comparable<String
     }
 
     public static StringValue autocast(String x, StringValue y) {
+        if (x == null) {
+            return null;
+        }
         return new StringValue(x);
     }
 
-    public static String autocast(StringValue x, String y) {
+    public static String cast(StringValue x, String y) {
+        if (x == null) {
+            return null;
+        }
         return x.getValue();
     }
 }

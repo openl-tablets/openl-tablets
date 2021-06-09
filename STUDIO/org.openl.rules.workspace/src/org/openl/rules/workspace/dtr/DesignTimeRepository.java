@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.dtr;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.openl.rules.common.CommonVersion;
@@ -42,9 +43,13 @@ public interface DesignTimeRepository extends ProjectsContainer {
      * @param name name of rules project
      * @param version exact version of project
      * @return specified version of rules project
-     * @throws RepositoryException if failed
+     * @deprecated This method is used for backward compatibility with old version of deploy configs. Use
+     *             getProjectByPath() instead.
      */
-    AProject getProject(String name, CommonVersion version) throws RepositoryException;
+    @Deprecated
+    AProject getProject(String repositoryId, String name, CommonVersion version);
+
+    AProject getProjectByPath(String repositoryId, String branch, String path, String version) throws IOException;
 
     /**
      * Checks whether the DTR has deployment project with specified name.
@@ -58,9 +63,11 @@ public interface DesignTimeRepository extends ProjectsContainer {
 
     void removeListener(DesignTimeRepositoryListener listener);
 
-    List<DesignTimeRepositoryListener> getListeners();
+    Repository getRepository(String id);
 
-    Repository getRepository();
+    List<Repository> getRepositories();
 
     String getRulesLocation();
+
+    List<String> getExceptions();
 }

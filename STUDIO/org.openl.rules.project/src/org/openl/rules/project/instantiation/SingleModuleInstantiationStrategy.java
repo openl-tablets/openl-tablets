@@ -5,9 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.IDependencyManager;
-import org.openl.rules.calc.SpreadsheetBoundNode;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDescriptor;
 
@@ -21,7 +20,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     /**
      * Root <code>Module</code> that is used as start point for Openl compilation.
      */
-    private Module module;
+    private final Module module;
 
     public SingleModuleInstantiationStrategy(Module module,
             IDependencyManager dependencyManager,
@@ -53,7 +52,7 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
     @Override
     protected ClassLoader initClassLoader() {
         ProjectDescriptor project = getModule().getProject();
-        return new OpenLBundleClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
+        return new OpenLClassLoader(project.getClassPathUrls(), Thread.currentThread().getContextClassLoader());
     }
 
     @Override
@@ -63,7 +62,6 @@ public abstract class SingleModuleInstantiationStrategy extends CommonRulesInsta
 
     protected Map<String, Object> prepareExternalParameters() {
         Map<String, Object> externalProperties = new HashMap<>();
-        externalProperties.put(SpreadsheetBoundNode.CSR_BEANS_PACKAGE, module.getProject().getCsrBeansPackage());
         if (getModule().getProperties() != null) {
             externalProperties.putAll(getModule().getProperties());
         }

@@ -3,10 +3,10 @@ package org.openl.rules.dt;
 import java.util.Arrays;
 
 abstract class DTHeader {
-    int[] methodParameterIndexes;
-    int column;
-    String statement;
-    int width;
+    final int[] methodParameterIndexes;
+    final int column;
+    final String statement;
+    final int width;
 
     DTHeader(int[] methodParameterIndexes, String statement, int column, int width) {
         this.methodParameterIndexes = methodParameterIndexes;
@@ -22,6 +22,8 @@ abstract class DTHeader {
     abstract boolean isAction();
 
     abstract boolean isReturn();
+
+    abstract boolean isRule();
 
     int getWidth() {
         return width;
@@ -57,6 +59,8 @@ abstract class DTHeader {
             return "ACTION";
         } else if (isReturn()) {
             return "RETURN";
+        } else if (isRule()) {
+            return "RULE";
         } else {
             return "UNKNOWN";
         }

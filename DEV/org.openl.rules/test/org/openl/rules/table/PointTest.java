@@ -1,7 +1,7 @@
 package org.openl.rules.table;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import org.junit.Test;
 
@@ -9,21 +9,22 @@ public class PointTest {
 
     @Test
     public void testEquals() {
-        Point point1 = new Point(1, 2);
-        Point point2 = new Point(3, 4);
-        Point point3 = new Point(1, 2);
+        Point point1 = Point.get(1, 2);
+        Point point2 = Point.get(3, 4);
+        Point point3 = Point.get(1, 2);
 
-        assertFalse(point1.equals(point2));
-        assertTrue(point1.equals(point3));
+        assertNotEquals(point1, point2);
+        assertEquals(point1, point3);
     }
 
     @Test
     public void testHahCode() {
-        Point point1 = new Point(1, 2);
-        Point point2 = new Point(3, 4);
-        Point point3 = new Point(1, 2);
-        assertTrue(point1.hashCode() != point2.hashCode());
-        assertTrue(point1.hashCode() == point3.hashCode());
+        Point point1 = Point.get(1, 2);
+        Point point2 = Point.get(3, 4);
+        Point point3 = Point.get(1, 2);
+
+        assertNotEquals(point1.hashCode(), point2.hashCode());
+        assertEquals(point1.hashCode(), point3.hashCode());
     }
 
 }

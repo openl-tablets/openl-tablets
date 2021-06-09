@@ -1,36 +1,50 @@
 package org.openl.rules.project.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.*;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.openl.util.FileUtils;
+import org.openl.util.RuntimeExceptionWrapper;
 import org.springframework.util.AntPathMatcher;
 
 public class ProjectDescriptor {
-    private final Logger log = LoggerFactory.getLogger(ProjectDescriptor.class);
-
     private String id;
     private String name;
     private String comment;
-    private File projectFolder;
-    private List<Module> modules = Collections.emptyList();
+    private Path projectFolder;
+    private List<Module> modules;
     private List<PathEntry> classpath;
-    private List<Property> properties;
+    private OpenAPI openapi;
 
     private List<ProjectDependencyDescriptor> dependencies;
-    private String csrBeansPackage;
-    private String propertiesFileNamePattern;
+    private String[] propertiesFileNamePatterns;
     private String propertiesFileNameProcessor;
 
-    public String getPropertiesFileNamePattern() {
-        return propertiesFileNamePattern;
+    private volatile URL[] classPathUrls;
+
+    public String[] getPropertiesFileNamePatterns() {
+        return propertiesFileNamePatterns;
     }
 
-    public void setPropertiesFileNamePattern(String propertiesFileNamePattern) {
-        this.propertiesFileNamePattern = propertiesFileNamePattern;
+    public void setPropertiesFileNamePatterns(String[] propertiesFileNamePatterns) {
+        this.propertiesFileNamePatterns = propertiesFileNamePatterns;
     }
 
     public String getPropertiesFileNameProcessor() {
@@ -49,20 +63,12 @@ public class ProjectDescriptor {
         this.dependencies = dependencies;
     }
 
-    public File getProjectFolder() {
+    public Path getProjectFolder() {
         return projectFolder;
     }
 
-    public void setProjectFolder(File projectRoot) {
+    public void setProjectFolder(Path projectRoot) {
         this.projectFolder = projectRoot;
-    }
-
-    public String getCsrBeansPackage() {
-        return csrBeansPackage;
-    }
-
-    public void setCsrBeansPackage(String csrBeansPackage) {
-        this.csrBeansPackage = csrBeansPackage;
     }
 
     /**
@@ -79,6 +85,14 @@ public class ProjectDescriptor {
     @Deprecated
     public void setId(String id) {
         this.id = id;
+    }
+
+    public OpenAPI getOpenapi() {
+        return openapi;
+    }
+
+    public void setOpenapi(OpenAPI openapi) {
+        this.openapi = openapi;
     }
 
     public String getName() {
@@ -98,11 +112,11 @@ public class ProjectDescriptor {
     }
 
     public List<Module> getModules() {
-        return modules;
+        return modules != null ? modules : new ArrayList<>();
     }
 
     public void setModules(List<Module> modules) {
-        this.modules = modules == null ? Collections.emptyList() : modules;
+        this.modules = modules;
     }
 
     public List<PathEntry> getClasspath() {
@@ -113,89 +127,149 @@ public class ProjectDescriptor {
         this.classpath = classpath;
     }
 
+    private URI fixJarURI(URI jarURI) {
+        if ("jar".equals(jarURI.getScheme())) {
+            URI uriToZip = jarURI;
+            if (uriToZip.getSchemeSpecificPart().contains("%")) {
+                // FIXME workaround to fix double URI encoding for URIs from ZipPath
+                try {
+                    uriToZip = new URI(uriToZip.getScheme() + ":" + uriToZip.getSchemeSpecificPart());
+                } catch (URISyntaxException ignored) {
+                    // it's ok. let's use original one
+                }
+            }
+            return uriToZip;
+        }
+        return jarURI;
+    }
+
     public URL[] getClassPathUrls() {
-        if (classpath == null) {
+        if (projectFolder == null) {
             return new URL[] {};
         }
         URL projectUrl;
         try {
-            projectUrl = projectFolder.toURI().toURL();
+            projectUrl = fixJarURI(projectFolder.toUri()).normalize().toURL();
         } catch (MalformedURLException e) {
-            log.error("Bad URL for the project folder '{}'", projectFolder, e);
             return new URL[] {};
         }
-        Set<String> classpaths = processClasspathPathPatterns();
-        ArrayList<URL> urls = new ArrayList<>(classpaths.size());
-
-        for (String clspth : classpaths) {
-            URL url;
-            try {
-                // absolute
-                url = new URL(clspth);
-            } catch (MalformedURLException e1) {
-                try {
-                    url = new URL(projectUrl, clspth);
-                } catch (MalformedURLException e2) {
-                    log.error("Bad URL in classpath '{}'", clspth, e2);
-                    continue;
+        if (classpath == null) {
+            return new URL[] { projectUrl };
+        }
+        if (classPathUrls == null) {
+            synchronized (this) {
+                if (classPathUrls == null) {
+                    List<URL> urls = new ArrayList<>();
+                    urls.add(projectUrl);
+                    List<URL> originalUrls = new ArrayList<>(urls);
+                    for (String path : processClasspathPathPatterns()) {
+                        path = path.replaceAll("\\\\", "/");
+                        URL url;
+                        URL originalUrl;
+                        try {
+                            url = new URL(path.startsWith("/") ? "file://" + path : path).toURI().normalize().toURL();
+                            originalUrl = url;
+                        } catch (URISyntaxException | MalformedURLException e1) {
+                            try {
+                                url = new URL(projectUrl.getProtocol(),
+                                    projectUrl.getHost(),
+                                    projectUrl.getPort(),
+                                    projectUrl.getPath() + (projectUrl.getPath().endsWith("/") ? "" : "/") + path,
+                                    null).toURI().normalize().toURL();
+                                originalUrl = url;
+                                // FIXME
+                                if ("jar".equals(url.getProtocol()) && "jar".equals(FileUtils.getExtension(path))) {
+                                    try {
+                                        Path temp = Files.createTempFile("tmp-" + FileUtils.getBaseName(path) + "-",
+                                            FileUtils.getExtension(path));
+                                        temp.toFile().deleteOnExit();
+                                        try (InputStream is = url.openStream()) {
+                                            Files.copy(is, temp, StandardCopyOption.REPLACE_EXISTING);
+                                        }
+                                        url = temp.toUri().normalize().toURL();
+                                    } catch (FileNotFoundException ignored) {
+                                        // do nothing. It's OK
+                                    } catch (IOException e) {
+                                        throw RuntimeExceptionWrapper.wrap(e);
+                                    }
+                                }
+                            } catch (URISyntaxException | MalformedURLException e2) {
+                                continue;
+                            }
+                        }
+                        boolean f = false;
+                        for (URL url1 : originalUrls) {
+                            if (url1.sameFile(originalUrl)) {
+                                f = true;
+                            }
+                        }
+                        if (!f) {
+                            originalUrls.add(originalUrl);
+                            urls.add(url);
+                        }
+                    }
+                    classPathUrls = urls.toArray(new URL[0]);
                 }
             }
-            urls.add(url);
         }
-        return urls.toArray(new URL[0]);
+        return classPathUrls;
     }
 
     private Set<String> processClasspathPathPatterns() {
-        Set<String> processedClasspath = new HashSet<>(classpath.size());
-        for (PathEntry pathEntry : classpath) {
+        Set<String> pathEntries = new HashSet<>();
+        for (PathEntry pathEntry : this.classpath) {
             String path = pathEntry.getPath().replace('\\', '/').trim();
+            if (path.startsWith("./")) {
+                path = path.substring(2);
+            }
             if (path.contains("*") || path.contains("?")) {
-                check(projectFolder, processedClasspath, path, projectFolder);
+                resolve(projectFolder, pathEntries, path, projectFolder);
             } else {
                 // without wildcard path
                 if (path.endsWith("/")) {
                     // it is a folder
-                    processedClasspath.add(path);
+                    pathEntries.add(path);
                 } else {
                     File file = new File(path);
                     if (file.isAbsolute() && file.isDirectory()) {
                         // it is a folder
-                        processedClasspath.add(path + "/");
-                    } else if (new File(projectFolder, path).isDirectory()) {
+                        pathEntries.add(path + "/");
+                    } else if (Files.isDirectory(projectFolder.resolve(path))) {
                         // it is a folder
-                        processedClasspath.add(path + "/");
+                        pathEntries.add(path + "/");
                     } else {
                         // it is a file
-                        processedClasspath.add(path);
+                        pathEntries.add(path);
                     }
                 }
             }
         }
-        return processedClasspath;
+        return pathEntries;
     }
 
-    private void check(File folder, Collection<String> matched, String pathPattern, File rootFolder) {
-        File[] files = folder.listFiles();
-        if (files != null) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    check(file, matched, pathPattern, rootFolder);
-                } else {
-                    String relativePath = file.getAbsolutePath().substring(rootFolder.getAbsolutePath().length() + 1);
+    private void resolve(Path folder, Collection<String> pathEntries, String pathPattern, Path rootFolder) {
+        try {
+            Files.walkFileTree(folder, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+                    if (attrs.isDirectory()) {
+                        return FileVisitResult.CONTINUE;
+                    }
+                    String relativePath = rootFolder.relativize(file).toString();
                     relativePath = relativePath.replace('\\', '/');
                     if (new AntPathMatcher().match(pathPattern, relativePath)) {
-                        matched.add(relativePath);
+                        pathEntries.add(relativePath);
                     }
+                    return FileVisitResult.CONTINUE;
                 }
-            }
+            });
+        } catch (IOException e) {
+            throw RuntimeExceptionWrapper.wrap(e);
         }
     }
 
-    public List<Property> getProperties() {
-        return properties;
-    }
-
-    public void setProperties(List<Property> properties) {
-        this.properties = properties;
+    @Override
+    public String toString() {
+        return "ProjectDescriptor{" + "name='" + name + '\'' + '}';
     }
 }

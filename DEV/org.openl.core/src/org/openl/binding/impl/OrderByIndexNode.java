@@ -10,18 +10,15 @@ import org.openl.binding.ILocalVar;
 import org.openl.syntax.ISyntaxNode;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IOpenClass;
-import org.openl.types.java.JavaArrayAggregateInfo;
 import org.openl.util.CollectionUtils;
 import org.openl.vm.IRuntimeEnv;
 
-class OrderByIndexNode extends ABoundNode {
+class OrderByIndexNode<T extends Comparable<T>> extends ABoundNode {
 
-    private static final Comparator<Comparable<Object>> ASC = new AscComparator<>();
-    private static final Comparator<Comparable<Object>> DESC = new DescComparator<>();
-    private ILocalVar tempVar;
-    private boolean isDecreasing;
-    private IBoundNode orderBy;
-    private IBoundNode targetNode;
+    private final ILocalVar tempVar;
+    private final boolean isDecreasing;
+    private final IBoundNode orderBy;
+    private final IBoundNode targetNode;
 
     OrderByIndexNode(ISyntaxNode syntaxNode,
             IBoundNode targetNode,
@@ -45,7 +42,8 @@ class OrderByIndexNode extends ABoundNode {
         IAggregateInfo aggregateInfo = targetNode.getType().getAggregateInfo();
         Iterator<Object> elementsIterator = aggregateInfo.getIterator(target);
 
-        TreeMap<Comparable<Object>, Object> map = new TreeMap<>(isDecreasing ? DESC : ASC);
+        TreeMap<T, Object> map = new TreeMap<>(
+            Comparator.<T>nullsLast(isDecreasing ? Comparator.reverseOrder() : Comparator.naturalOrder()));
 
         while (elementsIterator.hasNext()) {
             Object element = elementsIterator.next();
@@ -53,7 +51,7 @@ class OrderByIndexNode extends ABoundNode {
                 continue;
             }
             tempVar.set(null, element, env);
-            Comparable<Object> key = (Comparable<Object>) orderBy.evaluate(env);
+            T key = (T) orderBy.evaluate(env);
             Object prev = map.put(key, element);
             if (prev != null) {
                 OrderList list;
@@ -70,12 +68,9 @@ class OrderByIndexNode extends ABoundNode {
         }
 
         ArrayList<Object> objects = new ArrayList<>();
-
         for (Object element : map.values()) {
             if (element instanceof OrderList) {
-                for (Object item : (OrderList) element) {
-                    objects.add(item);
-                }
+                objects.addAll((OrderList) element);
             } else {
                 objects.add(element);
             }
@@ -91,41 +86,11 @@ class OrderByIndexNode extends ABoundNode {
             return type;
         }
 
-        IOpenClass varType = tempVar.getType();
-        return JavaArrayAggregateInfo.ARRAY_AGGREGATE.getIndexedAggregateType(varType);
+        IOpenClass componentType = tempVar.getType();
+        return componentType.getAggregateInfo().getIndexedAggregateType(componentType);
     }
 
     private static class OrderList extends ArrayList<Object> {
         private static final long serialVersionUID = 1L;
-    }
-
-    private static class AscComparator<T extends Comparable<Object>> implements Comparator<T> {
-
-        @Override
-        public int compare(T o1, T o2) {
-            if (o1 == o2) {
-                return 0;
-            } else if (o1 == null) {// Move nulls to the end
-                return 1;
-            } else if (o2 == null) {
-                return -1;
-            }
-            return o1.compareTo(o2);
-        }
-    }
-
-    private static class DescComparator<T extends Comparable<Object>> implements Comparator<T> {
-
-        @Override
-        public int compare(T o1, T o2) {
-            if (o1 == o2) {
-                return 0;
-            } else if (o1 == null) {// Move nulls to the end
-                return 1;
-            } else if (o2 == null) {
-                return -1;
-            }
-            return o2.compareTo(o1);
-        }
     }
 }

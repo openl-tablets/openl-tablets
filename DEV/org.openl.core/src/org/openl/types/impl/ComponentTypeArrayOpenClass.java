@@ -1,6 +1,7 @@
 package org.openl.types.impl;
 
 import java.lang.reflect.Array;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -16,16 +17,20 @@ import org.openl.vm.IRuntimeEnv;
 
 public class ComponentTypeArrayOpenClass extends AOpenClass {
 
-    protected IOpenClass componentClass;
-    protected HashMap<String, IOpenField> fieldMap;
+    protected final IOpenClass componentClass;
+    protected final HashMap<String, IOpenField> fieldMap;
     protected IOpenIndex index;
     private final String javaName;
+    private static final Collection<IOpenClass> OBJECT_CLASS = Collections.singleton(JavaOpenClass.OBJECT);
+    private Class<?> instanceClass;
 
-    public static final ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass,
-            int dimensions) {
+    public static ComponentTypeArrayOpenClass createComponentTypeArrayOpenClass(IOpenClass componentClass, int dim) {
         ComponentTypeArrayOpenClass componentTypeArrayOpenClass = null;
-        for (int i = 0; i <= dimensions; i++) {
+        if (dim > 0) {
             componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentClass);
+        }
+        for (int i = 0; i < dim - 1; i++) {
+            componentTypeArrayOpenClass = new ComponentTypeArrayOpenClass(componentTypeArrayOpenClass);
         }
         return componentTypeArrayOpenClass;
     }
@@ -49,8 +54,8 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
-        return Collections.emptyList();
+    public Collection<IOpenClass> superClasses() {
+        return OBJECT_CLASS;
     }
 
     @Override
@@ -71,7 +76,10 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     @Override
     public Class<?> getInstanceClass() {
         if (componentClass.getInstanceClass() != null) {
-            return JavaOpenClass.makeArrayClass(componentClass.getInstanceClass());
+            if (instanceClass == null) {
+                instanceClass = Array.newInstance(componentClass.getInstanceClass(), 0).getClass();
+            }
+            return instanceClass;
         } else {
             return null;
         }
@@ -79,18 +87,13 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
 
     @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc == null) {
+        if (ioc == null || ioc.getInstanceClass() == null) {
             return false;
         }
-        return isAssignableFrom(ioc.getInstanceClass());
-    }
-
-    @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        if (c == null) {
-            return false;
+        if (ioc.isArray()) {
+            return getComponentClass().isAssignableFrom(ioc.getComponentClass());
         }
-        return getInstanceClass().isAssignableFrom(c);
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
@@ -108,7 +111,7 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
         return javaName;
     }
 
-    private String createJavaName(IOpenClass componentClass) {
+    private static String createJavaName(IOpenClass componentClass) {
         String componentName = componentClass.getJavaName();
         if (componentName.charAt(0) == '[') {
             return '[' + componentName;
@@ -165,4 +168,5 @@ public class ComponentTypeArrayOpenClass extends AOpenClass {
     public String toString() {
         return javaName;
     }
+
 }

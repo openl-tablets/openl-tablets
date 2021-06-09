@@ -8,10 +8,19 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JacksonObjectSerializer implements ObjectSerializer {
 
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
 
     public JacksonObjectSerializer(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
+    }
+
+    @Override
+    public <T> T readValue(String content, Class<T> type) throws ProcessingException {
+        try {
+            return objectMapper.readValue(content, type);
+        } catch (JsonProcessingException e) {
+            throw new ProcessingException(e);
+        }
     }
 
     @Override

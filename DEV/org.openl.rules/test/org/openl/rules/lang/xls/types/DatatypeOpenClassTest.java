@@ -14,9 +14,9 @@ import org.openl.types.impl.ComponentTypeArrayOpenClass;
  */
 public class DatatypeOpenClassTest {
 
-    private final String DEFAULT_PACKAGE = "default.test";
-    private final String DEFAULT_NAME = "DatatypeTest";
-    private final String ANY_URL = "file://hello";
+    private final static String DEFAULT_PACKAGE = "default.test";
+    private final static String DEFAULT_NAME = "DatatypeTest";
+    private final static String ANY_URL = "file://hello";
 
     private IOpenClass from;
 
@@ -37,35 +37,35 @@ public class DatatypeOpenClassTest {
         doc3.setMetaInfo(new DatatypeMetaInfo(DEFAULT_NAME, ANY_URL));
         // reflexive check
         //
-        assertTrue(doc1.equals(doc1));
+        assertEquals(doc1, doc1);
         assertEquals(doc1.hashCode(), doc1.hashCode());
 
         // symmetric check
         //
-        assertTrue(doc1.equals(doc2));
-        assertTrue(doc2.equals(doc1));
+        assertEquals(doc1, doc2);
+        assertEquals(doc2, doc1);
         assertEquals(doc1.hashCode(), doc2.hashCode());
 
         // transitive check
         //
-        assertTrue(doc1.equals(doc2));
-        assertTrue(doc2.equals(doc3));
-        assertTrue(doc3.equals(doc1));
+        assertEquals(doc1, doc2);
+        assertEquals(doc2, doc3);
+        assertEquals(doc3, doc1);
 
         // consistent check
         //
-        assertTrue(doc1.equals(doc2));
-        assertTrue(doc1.equals(doc2));
-        assertTrue(doc1.equals(doc2));
+        assertEquals(doc1, doc2);
+        assertEquals(doc1, doc2);
+        assertEquals(doc1, doc2);
 
         // null check
         //
-        assertFalse(doc1.equals(null));
+        assertNotEquals(null, doc1);
 
         DatatypeOpenClass doc4 = new DatatypeOpenClass(DEFAULT_NAME, DEFAULT_PACKAGE + "suffix");
-        assertFalse(doc1.equals(doc4));
-        assertFalse(doc4.equals(doc1));
-        assertFalse(doc1.hashCode() == doc4.hashCode());
+        assertNotEquals(doc1, doc4);
+        assertNotEquals(doc4, doc1);
+        assertNotEquals(doc1.hashCode(), doc4.hashCode());
     }
 
     @Test

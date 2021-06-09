@@ -11,17 +11,17 @@ import org.openl.vm.IRuntimeEnv;
 
 public class SpreadsheetCell implements Invokable {
 
-    private int rowIndex;
-    private int columnIndex;
-    private ICell sourceCell;
+    private final int rowIndex;
+    private final int columnIndex;
+    private final ICell sourceCell;
 
-    private SpreadsheetCellType spreadsheetCellType;
+    private final SpreadsheetCellType spreadsheetCellType;
     private Object value;
     private IOpenClass type;
 
     private IOpenMethod method;
 
-    private boolean typeUnknown = false;
+    private boolean typeUnknown;
 
     public SpreadsheetCell(int rowIndex, int columnIndex, ICell sourceCell, SpreadsheetCellType spreadsheetCellType) {
         this.rowIndex = rowIndex;
@@ -85,10 +85,13 @@ public class SpreadsheetCell implements Invokable {
     }
 
     public void setType(IOpenClass type) {
-        if (type == null) {
-            return;
+        if (type != null) {
+            if (type.equals(NullOpenClass.the)) {
+                this.type = NullOpenClass.the;
+            } else {
+                this.type = type == JavaOpenClass.VOID ? JavaOpenClass.getOpenClass(Void.class) : type;
+            }
         }
-        this.type = type == JavaOpenClass.VOID ? JavaOpenClass.getOpenClass(Void.class) : type;
     }
 
     public void setValue(Object value) {

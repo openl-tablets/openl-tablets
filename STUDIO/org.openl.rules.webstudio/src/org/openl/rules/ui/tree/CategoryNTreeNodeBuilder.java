@@ -9,8 +9,8 @@ import org.openl.util.StringTool;
  */
 public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
 
-    private int categoryLevel;
-    private String separators;
+    private final int categoryLevel;
+    private final String separators;
 
     public CategoryNTreeNodeBuilder(int categoryLevel, String separators) {
         this.categoryLevel = categoryLevel;
@@ -40,16 +40,7 @@ public class CategoryNTreeNodeBuilder extends CategoryTreeNodeBuilder {
      * {@inheritDoc}
      */
     @Override
-    public String getName() {
-        return "category." + categoryLevel;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public String getType(Object sorterObject) {
-        // return "category." + categoryLevel;
         return IProjectTypes.PT_FOLDER;
     }
 

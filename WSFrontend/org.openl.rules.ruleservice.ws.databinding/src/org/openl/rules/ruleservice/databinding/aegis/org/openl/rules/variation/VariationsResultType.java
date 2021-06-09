@@ -1,15 +1,5 @@
 package org.openl.rules.ruleservice.databinding.aegis.org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - RuleService - RuleService - Web Services Databinding
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;

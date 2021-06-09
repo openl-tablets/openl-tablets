@@ -28,9 +28,7 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
         if (code == null) {
             StringBuilder buf = new StringBuilder(4096);
             char[] c = new char[8192];
-            BufferedReader br = new BufferedReader(getCharacterStream());
-
-            try {
+            try (BufferedReader br = new BufferedReader(getCharacterStream())) {
                 for (int len; (len = br.read(c)) > 0;) {
                     buf.append(c, 0, len);
                 }
@@ -67,7 +65,4 @@ public abstract class ASourceCodeModule implements IOpenSourceCodeModule {
     public void setParams(Map<String, Object> params) {
         this.params = params;
     }
-
-    public abstract void resetModified();
-
 }

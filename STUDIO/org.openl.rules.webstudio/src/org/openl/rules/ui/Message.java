@@ -4,11 +4,12 @@ public class Message extends RuntimeException {
 
     private static final long serialVersionUID = 1L;
 
-    public Message() {
-    }
-
     public Message(String message) {
         super(message);
+    }
+
+    public Message(String message, Throwable cause) {
+        super(message, cause);
     }
 
 }

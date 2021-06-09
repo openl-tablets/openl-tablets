@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <groupId>org.openl</groupId>
     <artifactId>org.openl.core</artifactId>
@@ -45,10 +45,6 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.javassist</groupId>
-            <artifactId>javassist</artifactId>
-        </dependency>
         <!-- Required for Java11. -->
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
@@ -56,6 +52,10 @@
             <scope>provided</scope>
             <!-- Annotation classes are used in generated from Datatype Table classes.
             To compile them without adding extra dependency in client's project "compile" scope is used -->
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy</artifactId>
         </dependency>
     </dependencies>
 </project>

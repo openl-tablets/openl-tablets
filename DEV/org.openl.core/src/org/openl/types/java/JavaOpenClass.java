@@ -13,7 +13,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,19 +20,19 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 import org.openl.base.INamedThing;
-import org.openl.gen.JavaInterfaceImplBuilder;
+import org.openl.gen.InterfaceImplBuilder;
 import org.openl.types.IAggregateInfo;
 import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenClass;
 import org.openl.types.IOpenField;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.AOpenClass;
-import org.openl.types.impl.ArrayIndex;
 import org.openl.types.impl.ArrayLengthOpenField;
 import org.openl.types.impl.MethodKey;
 import org.openl.util.ClassUtils;
@@ -66,8 +65,11 @@ public class JavaOpenClass extends AOpenClass {
     private volatile IAggregateInfo aggregateInfo;
 
     protected volatile Map<String, IOpenField> fields;
+    protected volatile Map<String, IOpenField> staticFields;
 
     private volatile List<IOpenClass> superClasses;
+
+    private String name;
 
     public JavaOpenClass(Class<?> instanceClass) {
         this(instanceClass, false);
@@ -137,18 +139,6 @@ public class JavaOpenClass extends AOpenClass {
 
     }
 
-    public static Class<?> makeArrayClass(Class<?> c) {
-        return Array.newInstance(c, 0).getClass();
-    }
-
-    public static ArrayIndex makeArrayIndex(IOpenClass arrayType) {
-        return new ArrayIndex(getOpenClass(arrayType.getInstanceClass().getComponentType()));
-    }
-
-    public static boolean isVoid(IOpenClass clazz) {
-        return JavaOpenClass.VOID.equals(clazz);
-    }
-
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof JavaOpenClass)) {
@@ -159,34 +149,44 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     protected Map<String, IOpenField> fieldMap() {
-        if (fields == null) {
-            synchronized (this) {
-                if (fields == null) {
-                    fields = initalizeFields();
-                }
-            }
-        }
+        ensureFieldsInitialized();
         return fields;
     }
 
-    private Map<String, IOpenField> initalizeFields() {
-        Map<String, IOpenField> fields = new HashMap<>();
+    private void ensureFieldsInitialized() {
+        if (this.fields == null || this.staticFields == null) {
+            synchronized (this) {
+                if (this.fields == null || this.staticFields == null) {
+                    initializeFields();
+                }
+            }
+        }
+    }
+
+    private void initializeFields() {
         Field[] ff = getInstanceClass().getDeclaredFields();
+        Map<String, IOpenField> openFields = new HashMap<>();
+        Map<String, IOpenField> staticOpenFields = new HashMap<>();
 
         if (isPublic(getInstanceClass())) {
             for (Field field : ff) {
                 if (isPublic(field)) {
-                    fields.put(field.getName(), new JavaOpenField(field));
+                    openFields.put(field.getName(), new JavaOpenField(field));
+                    if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {
+                        staticOpenFields.put(field.getName(), new JavaOpenField(field));
+                    }
                 }
             }
         }
         if (instanceClass.isArray()) {
-            fields.put("length", new JavaArrayLengthField());
+            openFields.put("length", new JavaArrayLengthField());
         }
+        openFields.put("class", new JavaClassClassField(instanceClass));
+        staticOpenFields.put("class", new JavaClassClassField(instanceClass));
+        BeanOpenField.collectFields(openFields, instanceClass);
 
-        fields.put("class", new JavaClassClassField(instanceClass));
-        BeanOpenField.collectFields(fields, instanceClass);
-        return fields;
+        this.staticFields = staticOpenFields;
+        this.fields = openFields;
     }
 
     @Override
@@ -230,8 +230,6 @@ public class JavaOpenClass extends AOpenClass {
         return instanceClass;
     }
 
-    String name;
-
     @Override
     public String getName() {
         if (name == null) {
@@ -247,11 +245,10 @@ public class JavaOpenClass extends AOpenClass {
 
     @Override
     public String getPackageName() {
-        return getInstanceClass().getPackage().getName();
-    }
-
-    public String getSimpleName() {
-        return getDisplayName(INamedThing.SHORT);
+        if (getInstanceClass().getPackage() != null) {
+            return getInstanceClass().getPackage().getName();
+        }
+        return null;
     }
 
     @Override
@@ -265,19 +262,11 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public boolean isAssignableFrom(Class<?> c) {
-        if (c == null) {
-            return false;
-        }
-        return getInstanceClass().isAssignableFrom(c);
-    }
-
-    @Override
     public boolean isAssignableFrom(IOpenClass ioc) {
-        if (ioc == null) {
+        if (ioc == null || ioc.getInstanceClass() == null) {
             return false;
         }
-        return isAssignableFrom(ioc.getInstanceClass());
+        return getInstanceClass().isAssignableFrom(ioc.getInstanceClass());
     }
 
     @Override
@@ -355,7 +344,7 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public Iterable<IOpenClass> superClasses() {
+    public Collection<IOpenClass> superClasses() {
         if (superClasses == null) {
             synchronized (this) {
                 if (superClasses == null) {
@@ -377,20 +366,18 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
+    public Collection<IOpenField> getFields() {
         Map<String, IOpenField> fields = new HashMap<>(fieldMap());
         for (IOpenClass superClass : superClasses()) {
             if (superClass.isInterface() && !isAbstract()) {
                 // no need to add fields from interface if current instance is not abstract class
                 continue;
             }
-            Map<String, IOpenField> superClassFields = superClass.getFields();
-            for (Map.Entry<String, IOpenField> entry : superClassFields.entrySet()) {
-                final IOpenField candidateField = entry.getValue();
+            for (IOpenField candidateField : superClass.getFields()) {
                 if (candidateField.getType() == JavaOpenClass.CLASS) {
                     continue;
                 }
-                final String name = entry.getKey();
+                final String name = candidateField.getName();
                 final IOpenField origField = fields.get(name);
                 if (origField == null) {
                     fields.put(name, candidateField);
@@ -406,7 +393,7 @@ public class JavaOpenClass extends AOpenClass {
                 }
             }
         }
-        return fields;
+        return fields.values();
     }
 
     private static class JavaArrayLengthField extends ArrayLengthOpenField {
@@ -419,8 +406,8 @@ public class JavaOpenClass extends AOpenClass {
         }
     }
 
-    private static class JavaClassClassField implements IOpenField {
-        private Class<?> instanceClass;
+    public static class JavaClassClassField implements IOpenField {
+        private final Class<?> instanceClass;
 
         public JavaClassClassField(Class<?> instanceClass) {
             this.instanceClass = instanceClass;
@@ -507,8 +494,6 @@ public class JavaOpenClass extends AOpenClass {
     }
 
     private static class JavaOpenInterface extends JavaOpenClass {
-        @SuppressWarnings("unused")
-        private final Class<?> proxyClass;
 
         private volatile Class<?> generatedImplClass;
 
@@ -526,7 +511,6 @@ public class JavaOpenClass extends AOpenClass {
 
         protected JavaOpenInterface(Class<?> instanceClass) {
             super(instanceClass);
-            proxyClass = Proxy.getProxyClass(instanceClass.getClassLoader(), instanceClass);
         }
 
         @Override
@@ -540,7 +524,7 @@ public class JavaOpenClass extends AOpenClass {
                 if (generatedImplClass == null) {
                     synchronized (this) {
                         if (generatedImplClass == null) {
-                            JavaInterfaceImplBuilder builder = new JavaInterfaceImplBuilder(getInstanceClass());
+                            InterfaceImplBuilder builder = new InterfaceImplBuilder(getInstanceClass());
                             generatedImplClass = ClassUtils.defineClass(builder.getBeanName(),
                                 builder.byteCode(),
                                 Thread.currentThread().getContextClassLoader());
@@ -577,6 +561,44 @@ public class JavaOpenClass extends AOpenClass {
             return true;
         }
 
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname) {
+        ensureFieldsInitialized();
+        IOpenField openField = staticFields.get(fname);
+        if (openField == null) {
+            for (IOpenClass superClass : superClasses()) {
+                if (!superClass.isInterface()) {
+                    return superClass.getStaticField(fname);
+                }
+            }
+        }
+        return openField;
+    }
+
+    @Override
+    public IOpenField getStaticField(String fname, boolean strictMatch) {
+        ensureFieldsInitialized();
+        Optional<String> first = staticFields.keySet().stream().filter(f -> f.equalsIgnoreCase(fname)).findFirst();
+        return first.map(s -> staticFields.get(s)).orElse(null);
+    }
+
+    @Override
+    public Collection<IOpenField> getStaticFields() {
+        ensureFieldsInitialized();
+        Collection<IOpenField> ret = new ArrayList<>(staticFields.values());
+        for (IOpenClass superClass : superClasses()) {
+            if (!superClass.isInterface()) {
+                Collection<IOpenField> staticFields = superClass.getStaticFields();
+                for (IOpenField staticField : staticFields) {
+                    if (ret.stream().noneMatch(e -> e.getName().equals(staticField.getName()))) {
+                        ret.add(staticField);
+                    }
+                }
+            }
+        }
+        return ret;
     }
 
 }

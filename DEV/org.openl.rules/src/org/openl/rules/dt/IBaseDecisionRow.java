@@ -36,4 +36,6 @@ public interface IBaseDecisionRow {
 
     IOpenSourceCodeModule getSourceCodeModule();
 
+    void removeDebugInformation();
+
 }

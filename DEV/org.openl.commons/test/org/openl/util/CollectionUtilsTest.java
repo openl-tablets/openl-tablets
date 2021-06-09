@@ -11,15 +11,10 @@ import org.openl.util.CollectionUtils.Predicate;
  * @author tsaltsevich, Yury Molchan
  */
 public class CollectionUtilsTest {
-    private static final Predicate<Integer> isEven = new Predicate<Integer>() {
-        @Override
-        public boolean evaluate(Integer number) {
-            return number % 2 == 0;
-        }
-    };
+    private static final Predicate<Integer> isEven = number -> number % 2 == 0;
 
     @Test
-    public void testIsEmptyCollection() throws Exception {
+    public void testIsEmptyCollection() {
         List<String> list = new ArrayList<>();
         assertTrue("Collection is not empty", CollectionUtils.isEmpty(list));
         list.add("");
@@ -30,7 +25,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsNotEmptyCollection() throws Exception {
+    public void testIsNotEmptyCollection() {
         List<String> list = new ArrayList<>();
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty(list));
         list.add("");
@@ -41,7 +36,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsEmptyMap() throws Exception {
+    public void testIsEmptyMap() {
         Map<String, Integer> map = new HashMap<>();
         assertTrue("Collection is not empty", CollectionUtils.isEmpty(map));
         map.put(null, null);
@@ -52,7 +47,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsNotEmptyMap() throws Exception {
+    public void testIsNotEmptyMap() {
         Map<String, Integer> map = new HashMap<>();
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty(map));
         map.put(null, null);
@@ -63,7 +58,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsEmptyObjectArray() throws Exception {
+    public void testIsEmptyObjectArray() {
         assertTrue("Collection is not empty", CollectionUtils.isEmpty((Object[]) null));
         assertTrue("Collection is not empty", CollectionUtils.isEmpty(new Object[] {}));
         assertFalse("Collection is empty", CollectionUtils.isEmpty(new Object[] { null }));
@@ -71,7 +66,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsNotEmptyObjectArray() throws Exception {
+    public void testIsNotEmptyObjectArray() {
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty((Object[]) null));
         assertFalse("Collection is empty", CollectionUtils.isNotEmpty(new Object[] {}));
         assertTrue("Collection is not empty", CollectionUtils.isNotEmpty(new Object[] { null }));
@@ -79,7 +74,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsEmptyPrimitiveArray() throws Exception {
+    public void testIsEmptyPrimitiveArray() {
         assertTrue("Array is not empty", CollectionUtils.isEmpty((int[]) null));
         assertTrue("Array is not empty", CollectionUtils.isEmpty(new int[] {}));
         assertTrue("Array is not empty", CollectionUtils.isEmpty(new double[] {}));
@@ -100,7 +95,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testIsNotEmptyPrimitiveObject() throws Exception {
+    public void testIsNotEmptyPrimitiveObject() {
         assertFalse("Array is not empty", CollectionUtils.isNotEmpty((int[]) null));
         assertFalse("Array is not empty", CollectionUtils.isNotEmpty(new int[] {}));
         assertFalse("Array is not empty", CollectionUtils.isNotEmpty(new double[] {}));
@@ -133,20 +128,15 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testMap() throws Exception {
-        CollectionUtils.Mapper<Integer, String> mapper = new CollectionUtils.Mapper<Integer, String>() {
-            @Override
-            public String map(Integer i) {
-                return i.toString();
-            }
-        };
+    public void testMap() {
+        CollectionUtils.Mapper<Integer, String> mapper = Object::toString;
         assertNull("Collection is not null", CollectionUtils.map(null, mapper));
         assertArrayEquals("Returned collection is not correct",
             new String[] { "1", "2", "3" },
             CollectionUtils.map(Arrays.asList(1, 2, 3), mapper).toArray());
         assertArrayEquals("Returned collection is not correct",
             new String[] {},
-            CollectionUtils.map(new ArrayList<Integer>(), mapper).toArray());
+            CollectionUtils.map(new ArrayList<>(), mapper).toArray());
         assertArrayEquals("Returned collection is not correct",
             new String[] { "0" },
             CollectionUtils.map(Collections.singletonList(0), mapper).toArray());
@@ -159,7 +149,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testFindFirst() throws Exception {
+    public void testFindFirst() {
         assertNull("Collection is not null", CollectionUtils.findFirst(null, isEven));
         assertNull("Wrong element is returned", CollectionUtils.findFirst(Arrays.asList(1, 3, 5, 9), isEven));
         assertEquals("Wrong element is returned",
@@ -177,7 +167,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testFindAll() throws Exception {
+    public void testFindAll() {
         assertNull("Wrong element is returned", CollectionUtils.findAll(null, isEven));
         assertArrayEquals("Returned collection is not correct",
             new Object[] {},
@@ -197,7 +187,7 @@ public class CollectionUtilsTest {
     }
 
     @Test
-    public void testHasNull() throws Exception {
+    public void testHasNull() {
         assertFalse("Collection has null", CollectionUtils.hasNull(new Object[] {}));
         assertFalse("Collection has null", CollectionUtils.hasNull(new Object[] { 1, "null", 'e' }));
         assertTrue("Collection has not null", CollectionUtils.hasNull(new Object[] { null }));

@@ -18,7 +18,6 @@ import org.openl.binding.impl.LiteralBoundNode;
 import org.openl.conf.OpenLConfigurationException;
 import org.openl.source.impl.StringSourceCodeModule;
 import org.openl.syntax.code.IParsedCode;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.impl.BinaryNode;
 import org.openl.syntax.impl.NaryNode;
@@ -81,23 +80,6 @@ public class ParserTest extends TestCase {
         Assert.assertEquals(type, syntaxNode.getType());
     }
 
-    public void _testModule(String src, final String type) throws OpenLConfigurationException {
-
-        OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
-        IParsedCode pc = op.getParser().parseAsModule(new StringSourceCodeModule(src, null));
-
-        SyntaxNodeException[] error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
-
-        ISyntaxNode bn = search(pc.getTopNode(), type);
-
-        Assert.assertNotNull(bn);
-
-        Assert.assertEquals(type, bn.getType());
-    }
-
     @SuppressWarnings("unchecked")
     public <T extends ISyntaxNode> T _testOperator(String src, final String type) throws OpenLConfigurationException {
 
@@ -128,11 +110,7 @@ public class ParserTest extends TestCase {
 
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule(src, null));
-
-        SyntaxNodeException[] error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         ISyntaxNode bn = search(pc.getTopNode(), type);
         Assert.assertNotNull(bn);
@@ -143,47 +121,26 @@ public class ParserTest extends TestCase {
     public void testOfMethod() {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.of(2019, 1, 1)", null));
-
-        SyntaxNodeException[] error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("policy.of == policy.the", null));
-
-        error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
-
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
     }
 
     public void testOperatorMethods() {
         OpenL op = OpenL.getInstance(OpenL.OPENL_J_NAME);
 
         IParsedCode pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.or()", null));
-        SyntaxNodeException[] error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.not()", null));
-        error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("LocalDate.and()", null));
-        error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
         pc = op.getParser().parseAsMethodBody(new StringSourceCodeModule("a.not == (a.or == a.and)", null));
-        error = pc.getErrors();
-        if (error.length > 0) {
-            throw new CompositeSyntaxNodeException("Parsing Error:", error);
-        }
+        Assert.assertArrayEquals(SyntaxNodeException.EMPTY_ARRAY, pc.getErrors());
 
     }
 
@@ -277,10 +234,6 @@ public class ParserTest extends TestCase {
 
     }
 
-    public void testMethod() {
-        _testModule("int x(){return 5;}", "module.top");
-    }
-
     public void testMethodHeader() {
         _testMethodHeader("int x(a a1, b b1)", null, "method.header");
     }
@@ -308,6 +261,9 @@ public class ParserTest extends TestCase {
         Assert.assertNotNull(binaryNode);
 
         NaryNode naryNode = _testOperator("x?y: z", "op.ternary.qmark");
+        Assert.assertNotNull(naryNode);
+
+        naryNode = _testOperator("x?y:z", "op.ternary.qmark");
         Assert.assertNotNull(naryNode);
     }
 

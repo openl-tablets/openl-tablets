@@ -1,0 +1,1 @@
+ERROR: OpenAPI Reconciliation: Type of cell '$Status' must be compatible with OpenAPI schema 'array[] of ProcessProcedure' that incompatible with actual schema 'ProcessProcedure'.

@@ -23,10 +23,10 @@ import org.slf4j.LoggerFactory;
  *
  * @author Marat Kamalov
  */
-public class RulesFrontendImpl extends AbstractRulesFrontend {
+public class RulesFrontendImpl implements RulesFrontend {
     private final Logger log = LoggerFactory.getLogger(RulesFrontendImpl.class);
 
-    private Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();
+    private final Map<String, OpenLService> runningServices = new ConcurrentHashMap<>();
 
     /**
      * {@inheritDoc}
@@ -36,7 +36,7 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         Objects.requireNonNull(service, "service cannot be null");
         OpenLService replacedService = runningServices.put(service.getName(), service);
         if (replacedService != null) {
-            log.warn("Service '{}' has already been registered. Replaced with new service bean.", service.getName());
+            log.warn("Service '{}' is already registered. Replaced with new service bean.", service.getName());
         }
     }
 
@@ -49,14 +49,14 @@ public class RulesFrontendImpl extends AbstractRulesFrontend {
         runningServices.remove(serviceName);
     }
 
-    // for internal usage
-    Collection<OpenLService> getServices() {
-        return new ArrayList<>(runningServices.values());
+    @Override
+    public Collection<String> getServiceNames() {
+        return new ArrayList<>(runningServices.keySet());
     }
 
     @Override
-    public java.util.Collection<String> getServiceNames() {
-        return new ArrayList<>(runningServices.keySet());
+    public Collection<OpenLService> getServices() {
+        return runningServices.values();
     }
 
     @Override

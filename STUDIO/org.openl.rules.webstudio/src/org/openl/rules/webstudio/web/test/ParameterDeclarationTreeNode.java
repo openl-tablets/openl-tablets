@@ -13,7 +13,7 @@ import org.richfaces.model.TreeNode;
 
 public abstract class ParameterDeclarationTreeNode extends ParameterWithValueDeclaration implements TreeNode {
 
-    private ParameterDeclarationTreeNode parent;
+    private final ParameterDeclarationTreeNode parent;
     private LinkedHashMap<Object, ParameterDeclarationTreeNode> children;
 
     public ParameterDeclarationTreeNode(String fieldName,

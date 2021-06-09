@@ -10,7 +10,12 @@ import org.openl.binding.impl.module.ModuleBindingContext;
 import org.openl.binding.impl.module.ModuleOpenClass;
 import org.openl.engine.OpenLManager;
 import org.openl.exception.OpenLRuntimeException;
-import org.openl.ie.constrainer.*;
+import org.openl.ie.constrainer.Constrainer;
+import org.openl.ie.constrainer.IntBoolExp;
+import org.openl.ie.constrainer.IntBoolExpConst;
+import org.openl.ie.constrainer.IntExp;
+import org.openl.ie.constrainer.IntExpArray;
+import org.openl.ie.constrainer.IntVar;
 import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl;
 import org.openl.ie.constrainer.consistencyChecking.DTCheckerImpl.CDecisionTableImpl;
 import org.openl.ie.constrainer.consistencyChecking.Overlapping;
@@ -29,11 +34,11 @@ import org.openl.types.java.JavaOpenClass;
 
 public class ValidationAlgorithm {
 
-    private IDecisionTableValidatedObject decisionTableToValidate;
+    private final IDecisionTableValidatedObject decisionTableToValidate;
     private IntExpArray vars;
-    private OpenL openl;
+    private final OpenL openl;
 
-    private Constrainer constrainer = new Constrainer("Validation");
+    private final Constrainer constrainer = new Constrainer("Validation");
 
     public ValidationAlgorithm(IDecisionTableValidatedObject validatedObject, OpenL openl) {
         this.decisionTableToValidate = validatedObject;
@@ -45,7 +50,7 @@ public class ValidationAlgorithm {
         IDecisionTable decisionTable = decisionTableToValidate.getDecisionTable();
         DecisionTableAnalyzer analyzer = new DecisionTableAnalyzer(decisionTable);
 
-        DecisionTableValidationResult result = null;
+        DecisionTableValidationResult result;
 
         if (canValidateDecisionTable(decisionTable, analyzer)) {
             int n = decisionTable.getNumberOfConditions();
@@ -72,8 +77,8 @@ public class ValidationAlgorithm {
             // System.out.println("O:" + overlappings);
 
             result = new DecisionTableValidationResult(decisionTable,
-                overlappings.toArray(new Overlapping[overlappings.size()]),
-                completeness.toArray(new Uncovered[completeness.size()]),
+                overlappings.toArray(new Overlapping[0]),
+                completeness.toArray(new Uncovered[0]),
                 decisionTableToValidate.getTransformer(),
                 analyzer);
         } else {
@@ -206,7 +211,7 @@ public class ValidationAlgorithm {
 
         parameters.addAll(getTransformedLocalParams(paramDeclarations));
 
-        return new MethodSignature(parameters.toArray(new IParameterDeclaration[parameters.size()]));
+        return new MethodSignature(parameters.toArray(IParameterDeclaration.EMPTY));
     }
 
     @SuppressWarnings("deprecation")

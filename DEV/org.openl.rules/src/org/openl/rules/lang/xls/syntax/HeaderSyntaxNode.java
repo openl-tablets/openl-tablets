@@ -9,9 +9,9 @@ public class HeaderSyntaxNode extends CellSyntaxNode {
 
     public static final String HEADER_TYPE = "org.openl.celltype.header";
 
-    private IdentifierNode headerToken;
-    private boolean isCollect;
-    private String[] collectParameters;
+    private final IdentifierNode headerToken;
+    private final boolean isCollect;
+    private final String[] collectParameters;
 
     public HeaderSyntaxNode(GridCellSourceCodeModule module, IdentifierNode headerToken) {
         this(module, headerToken, false, EMPTY_ARRAY);

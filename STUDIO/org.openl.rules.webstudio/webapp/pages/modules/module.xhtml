@@ -7,6 +7,7 @@
     <c:set var="node" value="#{repositorySelectNodeStateHolder.selectedNode}" />
     <c:set var="prj" value="#{repositoryTreeController.rulesProjects}" />
     <ui:param name="module" value="#{studio.currentModule}" />
+    <ui:param name="repositoryId" value="#{studio.currentRepositoryId}" />
 
     <ui:param name="editable" value="#{studio.model.editable}" />
     <ui:param name="includedInWildcard" value="#{projectBean.isModuleMatchesSomePathPattern(module)}" />
@@ -17,10 +18,10 @@
             <span>#{module.name}</span>
             <h:panelGroup rendered="#{editable}">
                 <a href="javascript:void(0)" title="Edit" class="editable-link"
-                   onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{utils.toUrl(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                   onclick="editModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{utils.toUrl(repositoryId, module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/edit.png" style="opacity:0.4" /></a>
                 <a href="javascript:void(0)" title="Copy" class="editable-link"
-                   onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{utils.toUrl(module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
+                   onclick="copyModule({includedInWildcard:#{includedInWildcard},name:'#{module.name}',path:'#{utils.toJSText(projectBean.getModulePath(module))}',includes:'#{utils.toJSText(module.methodFilter.includes)}',excludes:'#{utils.toJSText(module.methodFilter.excludes)}'}, function(){ws.nav.go('#{utils.toUrl(repositoryId, module.project.name)}/' + encodeURIComponent($j('#moduleName').val()), true)})"><img
                         src="#{request.contextPath}/webresource/images/copy.png" style="opacity:0.4" /></a>
             </h:panelGroup>
         </h1>
@@ -32,7 +33,7 @@
                     <table class="properties">
                         <tr>
                             <td>Project</td>
-                            <td><a href="#{utils.toUrl(studio.currentProjectDescriptor.name)}">#{studio.currentProjectDescriptor.name}</a></td>
+                            <td><a href="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name)}">#{studio.currentProjectDescriptor.name}</a></td>
                         </tr>
                         <tr>
                             <td>Path</td>
@@ -57,7 +58,7 @@
                         <div class="list">
                             <a4j:repeat value="#{modulePageBean.includes}" var="key">
                             <div class="list-item">
-                                <a href="#{utils.toUrl(studio.currentProjectDescriptor.name, key)}">#{key}</a>
+                                <a href="#{utils.toUrl(studio.currentProject.repository.id, studio.currentProject.name, key)}">#{key}</a>
                             </div>
                             </a4j:repeat>
                         </div>

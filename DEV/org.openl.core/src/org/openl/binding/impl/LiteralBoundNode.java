@@ -9,8 +9,8 @@ import org.openl.vm.IRuntimeEnv;
  *
  */
 public class LiteralBoundNode extends ABoundNode {
-    protected Object value;
-    protected IOpenClass type;
+    protected final Object value;
+    protected final IOpenClass type;
 
     public LiteralBoundNode(ISyntaxNode syntaxNode, Object value, IOpenClass type) {
         super(syntaxNode);

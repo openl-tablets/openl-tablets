@@ -7,11 +7,10 @@ import java.util.Objects;
 import org.apache.cxf.binding.soap.SoapFault;
 import org.apache.cxf.interceptor.Fault;
 import org.openl.rules.ruleservice.publish.common.ExceptionResponseDto;
+import org.openl.runtime.ASMProxyHandler;
 import org.w3c.dom.Element;
 
-import javassist.util.proxy.MethodHandler;
-
-public class JAXWSMethodHandler implements MethodHandler {
+public class JAXWSMethodHandler implements ASMProxyHandler {
 
     private final Object service;
     private final Map<Method, Method> methodMap;
@@ -22,7 +21,7 @@ public class JAXWSMethodHandler implements MethodHandler {
     }
 
     @Override
-    public Object invoke(Object o, Method method, Method proceed, Object[] args) {
+    public Object invoke(Method method, Object[] args) {
         Method m = methodMap.get(method);
         try {
             return m.invoke(service, args);
@@ -36,7 +35,7 @@ public class JAXWSMethodHandler implements MethodHandler {
             // <detail> <type>TYPE</type> <stackTrace>stacktrace of cause</stackTrace> </detail>
             Element detailEl = fault.getOrCreateDetail();
             Element typeEl = detailEl.getOwnerDocument().createElement("type");
-            typeEl.setTextContent(dto.getType());
+            typeEl.setTextContent(dto.getType().name());
             detailEl.appendChild(typeEl);
 
             if (dto.getDetail() != null) {

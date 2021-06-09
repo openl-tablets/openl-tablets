@@ -1,0 +1,56 @@
+# This workflow will build a Java project with Maven on the daily basis (aka Nightly Build).
+# For more information see: https://help.github.com/actions/language-and-framework-guides/building-and-testing-java-with-maven
+
+name: Deploy Maven artifacts
+
+on:
+  schedule:
+  # Every day at 23:00 UTC+3
+  - cron:  '0 20 * * *'
+  # Manual run from the GitHub action page
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to build'
+        required: false
+
+jobs:
+  deploy:
+
+    name: Deploy
+
+    runs-on: ubuntu-latest
+
+    steps:
+
+    - name: Checkout ${{ github.event.inputs.branch }}
+      uses: actions/checkout@v2
+      with:
+        ref: ${{ github.event.inputs.branch }}
+
+    - uses: actions/setup-java@v1
+      with:
+        java-version: 8
+
+    - name: Set environment variables
+      run: |
+        echo "WEEK=$(date +%U)" >> $GITHUB_ENV
+        echo "DAY=$(date +%w)" >> $GITHUB_ENV
+      shell: bash
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: maven-x${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          maven-${{ env.WEEK }}-${{ env.DAY }}
+          maven-${{ env.WEEK }}
+          maven-
+
+    - name: Build with Maven
+      run: mvn -B deploy -Psources,gpg-sign -DskipTests
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+        SIGN_KEY: ${{ secrets.OSSRH_GPG_SECRET_KEY }}
+        SIGN_KEY_PASS: ${{ secrets.OSSRH_GPG_PASSPHRASE }}

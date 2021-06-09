@@ -14,8 +14,8 @@ import org.openl.types.IOpenClass;
  */
 public class FormalParameter implements IFormalParameter {
 
-    String name;
-    IOpenClass type;
+    final String name;
+    final IOpenClass type;
 
     public FormalParameter(String name, IOpenClass type) {
         this.name = name;

@@ -14,7 +14,7 @@ import org.openl.ie.tools.FastVector;
  */
 public final class IntExpArray extends ConstrainerObjectImpl {
 
-    private IntExp[] _data;
+    private final IntExp[] _data;
 
     private IntArrayCards _cards = null;
 
@@ -271,8 +271,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public int max() {
         int max = Integer.MIN_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int maxi = _data[i].max();
+        for (IntExp datum : _data) {
+            int maxi = datum.max();
             if (maxi > max) {
                 max = maxi;
             }
@@ -307,8 +307,8 @@ public final class IntExpArray extends ConstrainerObjectImpl {
      */
     public int min() {
         int min = Integer.MAX_VALUE;
-        for (int i = 0; i < _data.length; ++i) {
-            int mini = _data[i].min();
+        for (IntExp datum : _data) {
+            int mini = datum.min();
             if (mini < min) {
                 min = mini;
             }
@@ -343,65 +343,6 @@ public final class IntExpArray extends ConstrainerObjectImpl {
     }
 
     /**
-     * Sorts the internal array of the expressions by number of dependents.
-     */
-    public void sortByDependents() // not optimized
-    {
-        sort(new Comparator<IntExp>() {
-            @Override
-            public int compare(IntExp o1, IntExp o2) {
-                return o2.allDependents().size() - o1.allDependents().size();
-            }
-        });
-    }
-
-    /*
-     * extending to 5.1.0 added by S. Vanskov
-     */
-    /**
-     * The function returns subarray of the array consisting of the given array elements which indeses more or equal to
-     * <code> min_index </code> and more or equal to <code> max_index </code>
-     *
-     * @param min_index index lower bound
-     * @param max_index index upper bound
-     *
-     * @return subarray of array from <code> min_index </code> to <code> max_index </code>
-     */
-    public IntExpArray subarray(int min_index, int max_index) {
-        if (min_index > max_index) {
-            return new IntExpArray(constrainer(), 0);
-        }
-
-        List<IntExp> sub_data = new ArrayList<>(max_index - min_index + 1);
-
-        for (int i = min_index; i <= max_index; i++) {
-            sub_data.add(_data[i]);
-        }
-
-        return new IntExpArray(constrainer(), sub_data);
-    }
-
-    /**
-     * The function returns subarray of the array according to the mask array.
-     *
-     * @param mask is the mask array
-     *
-     * @return the subarray according the mask array
-     */
-    public IntExpArray subarrayByMask(boolean[] mask) {
-        int size = Math.min(_data.length, mask.length);
-
-        List<IntExp> sub_data = new ArrayList<>();
-        for (int i = 0; i < size; i++) {
-            if (mask[i]) {
-                sub_data.add(_data[i]);
-            }
-        }
-
-        return new IntExpArray(constrainer(), sub_data);
-    }
-
-    /**
      * Returns an expression for the sum of all expressions in this array.
      */
     public IntExp sum() {
@@ -409,7 +350,7 @@ public final class IntExpArray extends ConstrainerObjectImpl {
             case 0:
                 // return new IntExpConst(constrainer(),0);
                 return (IntExp) _constrainer.expressionFactory()
-                    .getExpression(IntExpConst.class, new Object[] { _constrainer, new Integer(0) });
+                    .getExpression(IntExpConst.class, new Object[] { _constrainer, 0 });
 
             case 1:
                 return _data[0];

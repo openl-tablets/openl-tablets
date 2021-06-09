@@ -1,7 +1,13 @@
 package org.openl.rules.types.impl;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
 
 import org.openl.exception.OpenLRuntimeException;
 import org.openl.rules.context.IRulesRuntimeContext;
@@ -45,13 +51,12 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
         this.decisionTableOpenMethod = decisionTableOpenMethod;
     }
 
-    public MatchingOpenMethodDispatcher() { // For CGLIB proxing
+    public MatchingOpenMethodDispatcher() {
     }
 
     public MatchingOpenMethodDispatcher(IOpenMethod method, XlsModuleOpenClass moduleOpenClass) {
-        super();
-        decorate(method);
-        this.moduleOpenClass = moduleOpenClass;
+        super(method);
+        this.moduleOpenClass = Objects.requireNonNull(moduleOpenClass, "moduleOpenClass cannot be null");
     }
 
     @Override
@@ -81,8 +86,7 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                     context.toString(),
                     candidateMethod.getName()));
             case 1:
-                IOpenMethod matchingMethod = selected.iterator().next();
-                return matchingMethod;
+                return selected.iterator().next();
             default:
                 IOpenMethod method = selected.iterator().next();
                 throw new OpenLRuntimeException(
@@ -97,9 +101,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
     @Override
     public TableSyntaxNode getDispatcherTable() {
         if (decisionTableOpenMethod == null) {
-            DispatcherTablesBuilder dispTableBuilder = new DispatcherTablesBuilder(moduleOpenClass,
+            DispatcherTablesBuilder dispatcherTablesBuilder = new DispatcherTablesBuilder(moduleOpenClass,
                 moduleOpenClass.getRulesModuleBindingContext());
-            dispTableBuilder.build(this);
+            dispatcherTablesBuilder.build(this);
         }
         if (decisionTableOpenMethod != null) {
             return (TableSyntaxNode) decisionTableOpenMethod.getInfo().getSyntaxNode();
@@ -192,21 +196,22 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                             }
                         } else {
                             boolean moreConcreteMethod;
+                            boolean f;
                             if (!notNullPropertyNames.isEmpty()) {
                                 moreConcreteMethod = true;
+                                f = false;
                                 for (IOpenMethod m : mostPriority) {
                                     ITableProperties mProperties = PropertiesHelper.getTableProperties(m);
                                     propsLoop: for (String propName : notNullPropertyNames) {
                                         switch (intersectionMatcher.match(propName, candidateProperties, mProperties)) {
                                             case NESTED:
+                                            case EQUALS:
+                                                f = true;
                                                 break;
                                             case CONTAINS:
-                                                moreConcreteMethod = false;
-                                                break propsLoop;
-                                            case EQUALS:
-                                                break;
                                             case NO_INTERSECTION:
                                             case PARTLY_INTERSECTS:
+                                                f = true;
                                                 moreConcreteMethod = false;
                                                 break propsLoop;
                                         }
@@ -214,8 +219,9 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
                                 }
                             } else {
                                 moreConcreteMethod = false;
+                                f = false;
                             }
-                            if (moreConcreteMethod) {
+                            if (moreConcreteMethod && f) {
                                 notPriorMethods.addAll(mostPriority);
                                 mostPriority.clear();
                                 mostPriority.add(candidate);
@@ -302,16 +308,6 @@ public class MatchingOpenMethodDispatcher extends OpenMethodDispatcher {
             candidatesSorted = prioritySorter.sort(super.getCandidates());
         }
         return candidatesSorted;
-    }
-
-    @Override
-    public IOpenClass getType() {
-        // Use types from declaring types. For customspreadsheetresult types.
-        IOpenClass type = getDeclaringClass().findType(super.getType().getName());
-        if (type == null) {
-            return super.getType();
-        }
-        return type;
     }
 
     // <<< INSERT MatchingProperties >>>

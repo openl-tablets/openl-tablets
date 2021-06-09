@@ -42,6 +42,7 @@ public class RunITest {
     public void testSerializationInclusionAlwaysConfiguration() {
         client.get("/rules-serializationInclusionAlways/getObject", "/serialization_inclusion_always.json");
         client.get("/rules-serializationInclusionAlways/swagger.json", "/serialization_inclusion_always_swagger.json");
+        client.get("/rules-serializationInclusionAlways/openapi.json", "/serialization_inclusion_always_openapi.json");
     }
 
     @Test
@@ -66,7 +67,7 @@ public class RunITest {
 
     @Test
     public void testDefaultDateFormatConfiguration() {
-        client.get("/rules-defaultdateformat/getDate", "/default_dat_format.txt");
+        client.get("/rules-defaultdateformat/getDate", "/default_date_format.txt");
         client.post("/rules-defaultdateformat/spr", "/spr-dateFormat.req.json", "/spr-dateFormat.resp.json");
     }
 

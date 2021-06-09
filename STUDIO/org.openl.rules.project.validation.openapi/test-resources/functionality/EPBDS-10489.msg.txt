@@ -1,0 +1,6 @@
+ERROR: OpenAPI Reconciliation: Unexpected field 'id' is found in type 'Pet'.
+ERROR: OpenAPI Reconciliation: Unexpected path parameter 'id' is found in method 'getpetsA'.
+ERROR: OpenAPI Reconciliation: Expected path parameter 'id' is not found in method 'getpetsA'.
+ERROR: OpenAPI Reconciliation: Expected operation 'DELETE' is not found for path '/getpetsA'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/getpetsB'.
+ERROR: OpenAPI Reconciliation: Expected method is not found for path '/getpetsSimpleType'.

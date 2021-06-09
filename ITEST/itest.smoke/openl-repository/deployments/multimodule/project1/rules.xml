@@ -1,0 +1,19 @@
+<project>
+    <name>Project 1</name>
+    <modules>
+        <module>
+            <rules-root path="*.xlsx"/>
+            <method-filter>
+                <includes>
+                    <value>.+ findCarByVIN\(.+\)</value>
+                </includes>
+            </method-filter>
+        </module>
+    </modules>
+    <dependencies>
+        <dependency>
+            <name>Project 2</name>
+            <autoIncluded>true</autoIncluded>
+        </dependency>
+    </dependencies>
+</project>

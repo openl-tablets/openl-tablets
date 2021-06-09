@@ -33,7 +33,7 @@ public final class DoubleRangeForIntRangeAdaptor implements IRangeAdaptor<IntRan
         if (range == null) {
             return null;
         }
-        return Double.valueOf(range.getMin());
+        return (double) range.getMin();
     }
 
     @Override

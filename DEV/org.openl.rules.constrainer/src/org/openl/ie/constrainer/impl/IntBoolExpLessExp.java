@@ -24,10 +24,11 @@ public class IntBoolExpLessExp extends IntBoolExpForSubject {
 
     } // ~ObserverMinMax
 
-    protected IntExp _left, _right;
-    protected int _offset;
+    protected final IntExp _left;
+    protected final IntExp _right;
+    protected final int _offset;
 
-    private Observer _observer;
+    private final Observer _observer;
 
     public IntBoolExpLessExp(IntExp left, IntExp right) {
         this(left, right, 0);

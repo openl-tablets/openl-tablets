@@ -8,7 +8,7 @@ import org.openl.rules.ruleservice.core.OpenLService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ResultSerializer implements Serializer<Object> {
-    private ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper;
     private String encoding = "UTF8";
 
     // Do not remove first argument. It is used by reflection.

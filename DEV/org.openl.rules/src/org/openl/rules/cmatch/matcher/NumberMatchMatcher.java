@@ -19,7 +19,7 @@ public class NumberMatchMatcher implements IMatcher {
             return null;
         }
 
-        RuntimeException directParseException = null;
+        RuntimeException directParseException;
         try {
             IString2DataConvertor convertor = String2DataConvertorFactory.getConvertor(directClass);
             return convertor.parse(checkValue, null);

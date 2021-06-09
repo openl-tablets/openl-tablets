@@ -26,7 +26,7 @@ import org.openl.rules.calc.result.SpreadsheetResultHelper;
 public abstract class RowExtractor<T extends CalculationStep> {
 
     /** extractors for columns */
-    private List<SpreadsheetColumnExtractor<T>> columnExtractors;
+    private final List<SpreadsheetColumnExtractor<T>> columnExtractors;
 
     public RowExtractor(List<SpreadsheetColumnExtractor<T>> columnExtractors) {
         if (columnExtractors == null) {

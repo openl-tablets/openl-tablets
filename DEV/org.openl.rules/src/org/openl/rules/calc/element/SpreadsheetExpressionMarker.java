@@ -8,9 +8,9 @@ public enum SpreadsheetExpressionMarker {
     CLOSED_CURLY_BRACKET("}"),
     EQUALS_SIGN("=");
 
-    private String symbol;
+    private final String symbol;
 
-    private SpreadsheetExpressionMarker(String marker) {
+    SpreadsheetExpressionMarker(String marker) {
         this.symbol = marker;
     }
 
@@ -24,8 +24,8 @@ public enum SpreadsheetExpressionMarker {
             return true;
         }
 
-        return src.startsWith(EQUALS_SIGN
-            .getSymbol()) && (src.length() > 2 || src.length() == 2 && Character.isLetterOrDigit(src.charAt(1)));
+        return src.startsWith(EQUALS_SIGN.getSymbol())
+                && (src.length() > 2 || (src.length() == 2 && Character.isLetterOrDigit(src.charAt(1))));
     }
 
     @Override

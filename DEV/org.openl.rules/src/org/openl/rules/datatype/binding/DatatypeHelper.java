@@ -3,22 +3,15 @@ package org.openl.rules.datatype.binding;
 import org.openl.OpenL;
 import org.openl.binding.IBindingContext;
 import org.openl.engine.OpenLManager;
-import org.openl.exception.OpenLCompilationException;
-import org.openl.rules.lang.xls.XlsNodeTypes;
-import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.table.ICell;
 import org.openl.rules.table.ILogicalTable;
 import org.openl.rules.table.openl.GridCellSourceCodeModule;
 import org.openl.rules.table.properties.PropertiesHelper;
-import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
-import org.openl.syntax.impl.IdentifierNode;
-import org.openl.syntax.impl.Tokenizer;
 import org.openl.types.IOpenClass;
+import org.openl.types.NullOpenClass;
 import org.openl.util.StringUtils;
 
 public class DatatypeHelper {
-
     /**
      * Datatype table can contain no more than 3 columns: 1) First column - type name 2) Second column - field name 3)
      * Third column - default value
@@ -85,7 +78,7 @@ public class DatatypeHelper {
             table.getCell(DEFAULTS_COLUMN, FIELD_NAME_COLUMN));
     }
 
-    public static boolean isDefault(ICell cell) {
+    private static boolean isDefault(ICell cell) {
         // Type name and field name cannot be blank or start with number but default value can.
         String value = cell.getStringValue();
         if (StringUtils.isBlank(value)) {
@@ -97,56 +90,28 @@ public class DatatypeHelper {
 
     }
 
-    public static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
+    private static int countTypes(ILogicalTable table, OpenL openl, IBindingContext cxt) {
 
         int height = table.getHeight();
         int count = 1; // The first cell is always type name, there is no need to check it. Start from the second one.
 
-        for (int i = 1; i < height; ++i) {
-            try {
-                IOpenClass type = makeType(table.getRow(i), openl, cxt);
-                if (type != null) {
+        cxt.pushErrors();
+        try {
+            for (int i = 1; i < height; ++i) {
+                ILogicalTable row = table.getRow(i);
+                GridCellSourceCodeModule source = new GridCellSourceCodeModule(row.getSource(), cxt);
+                String code = row.getCell(0, 0).getStringValue();
+                if (StringUtils.isBlank(code)) {
+                    continue;
+                }
+                IOpenClass type = OpenLManager.makeType(cxt.getOpenL(), code, source, cxt);
+                if (type != NullOpenClass.the) {
                     count += 1;
                 }
-            } catch (Exception t) {
-                // Ignore exception.
             }
+        } finally {
+            cxt.popErrors();
         }
-
         return count;
     }
-
-    private static IOpenClass makeType(ILogicalTable table, OpenL openl, IBindingContext bindingContext) {
-
-        GridCellSourceCodeModule source = new GridCellSourceCodeModule(table.getSource(), bindingContext);
-
-        return OpenLManager.makeType(openl, source, bindingContext);
-    }
-
-    /**
-     * TODO: This method should be generic for the TableSyntaxNode and return the type of the table e.g.
-     * TableSyntaxNode.getTableReturnType()
-     */
-    public static String getDatatypeName(TableSyntaxNode tsn) throws OpenLCompilationException {
-
-        if (XlsNodeTypes.XLS_DATATYPE.equals(tsn.getNodeType())) {
-            IOpenSourceCodeModule src = tsn.getHeader().getModule();
-
-            IdentifierNode[] parsedHeader = tokenizeHeader(src);
-
-            return parsedHeader[DatatypeNodeBinder.TYPE_INDEX].getIdentifier();
-        }
-
-        return null;
-    }
-
-    public static IdentifierNode[] tokenizeHeader(IOpenSourceCodeModule tableHeader) throws OpenLCompilationException {
-        IdentifierNode[] parsedHeader = Tokenizer.tokenize(tableHeader, " \n\r");
-        if (parsedHeader.length < 2) {
-            String message = "Datatype table format: Datatype <typename>";
-            throw SyntaxNodeExceptionUtils.createError(message, null, null, tableHeader);
-        }
-        return parsedHeader;
-    }
-
 }

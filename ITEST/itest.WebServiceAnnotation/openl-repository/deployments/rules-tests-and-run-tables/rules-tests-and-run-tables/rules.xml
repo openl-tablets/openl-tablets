@@ -17,4 +17,7 @@
             </method-filter>
         </module>
     </modules>
+    <classpath>
+        <entry path="classes"/>
+    </classpath>
 </project>

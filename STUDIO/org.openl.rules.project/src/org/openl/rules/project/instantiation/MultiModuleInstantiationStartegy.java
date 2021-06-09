@@ -1,20 +1,23 @@
 package org.openl.rules.project.instantiation;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import org.openl.CompiledOpenClass;
-import org.openl.classloader.OpenLBundleClassLoader;
+import org.openl.classloader.OpenLClassLoader;
 import org.openl.dependency.CompiledDependency;
 import org.openl.dependency.IDependencyManager;
-import org.openl.engine.OpenLSourceManager;
+import org.openl.engine.OpenLCompileManager;
 import org.openl.exception.OpenLCompilationException;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.source.impl.VirtualSourceCodeModule;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.syntax.code.Dependency;
 import org.openl.syntax.code.DependencyType;
 import org.openl.syntax.code.IDependency;
 import org.openl.syntax.impl.IdentifierNode;
+import org.openl.util.IOUtils;
 
 /**
  * Instantiation strategy that combines several modules into single rules module.
@@ -25,7 +28,7 @@ import org.openl.syntax.impl.IdentifierNode;
  */
 public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstantiationStrategy {
 
-    private Collection<Module> modules;
+    private final Collection<Module> modules;
 
     public MultiModuleInstantiationStartegy(Collection<Module> modules,
             IDependencyManager dependencyManager,
@@ -49,16 +52,27 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
 
     @Override
     protected ClassLoader initClassLoader() throws RulesInstantiationException {
-        OpenLBundleClassLoader classLoader = new OpenLBundleClassLoader(Thread.currentThread().getContextClassLoader());
-        for (Module module : modules) {
-            try {
-                CompiledDependency compiledDependency = getDependencyManager().loadDependency(
-                    new Dependency(DependencyType.MODULE, new IdentifierNode(null, null, module.getName(), null)));
-                CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
-                classLoader.addClassLoader(compiledOpenClass.getClassLoader());
-            } catch (OpenLCompilationException e) {
-                throw new RulesInstantiationException(e.getMessage(), e);
+        OpenLClassLoader classLoader = new OpenLClassLoader(Thread.currentThread().getContextClassLoader());
+        try {
+            Set<ProjectDescriptor> projectDescriptors = modules.stream()
+                .map(Module::getProject)
+                .collect(Collectors.toSet());
+            for (ProjectDescriptor pd : projectDescriptors) {
+                try {
+                    CompiledDependency compiledDependency = getDependencyManager().loadDependency(new Dependency(
+                        DependencyType.MODULE,
+                        new IdentifierNode(null, null, SimpleDependencyLoader.buildDependencyName(pd, null), null)));
+                    CompiledOpenClass compiledOpenClass = compiledDependency.getCompiledOpenClass();
+                    classLoader.addClassLoader(compiledOpenClass.getClassLoader());
+                } catch (OpenLCompilationException e) {
+                    throw new RulesInstantiationException(e.getMessage(), e);
+                }
             }
+        } catch (Exception e) {
+            // If exception is thrown, we must close classLoader in this method and rethrow exception.
+            // If no exception, classLoader will be closed later.
+            IOUtils.closeQuietly(classLoader);
+            throw e;
         }
         return classLoader;
     }
@@ -78,13 +92,13 @@ public abstract class MultiModuleInstantiationStartegy extends CommonRulesInstan
         if (getExternalParameters() != null) {
             params.putAll(getExternalParameters());
         }
-        if (params.get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
+        if (params.get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY) != null) {
             @SuppressWarnings("unchecked")
             List<IDependency> externalDependencies = (List<IDependency>) params
-                .get(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY);
+                .get(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY);
             dependencies.addAll(externalDependencies);
         }
-        params.put(OpenLSourceManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
+        params.put(OpenLCompileManager.EXTERNAL_DEPENDENCIES_KEY, dependencies);
         IOpenSourceCodeModule source = new VirtualSourceCodeModule();
         source.setParams(params);
 

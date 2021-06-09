@@ -21,7 +21,7 @@ import org.openl.rules.ruleservice.storelogdata.annotation.WithStoreLogDataConve
 import org.openl.rules.ruleservice.storelogdata.annotation.ZonedDataTimeToDateConvertor;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONRequest;
 import org.openl.rules.ruleservice.storelogdata.elasticsearch.JSONResponse;
-import org.openl.rules.ruleservice.storelogdata.elasticsearch.RandomUUID;
+import org.openl.rules.ruleservice.storelogdata.RandomUUID;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 
@@ -85,8 +85,11 @@ public class CustomElasticEntity1 {
     @Value(value = "boolValue2")
     private boolean boolValue2;
 
-    @Value(value = "objectSerializerFound")
-    private boolean objectSerializerFound;
+    @Value(value = "awareInstancesFound")
+    private boolean awareInstancesFound;
+
+    @Value(value = "elasticsearchOperationsFound")
+    private boolean elasticsearchOperationsFound;
 
     @Value(value = "stringValue1", converter = NoConvertorString.class)
     private String stringValue1;
@@ -249,12 +252,20 @@ public class CustomElasticEntity1 {
         this.boolValue2 = boolValue2;
     }
 
-    public boolean isObjectSerializerFound() {
-        return objectSerializerFound;
+    public boolean isAwareInstancesFound() {
+        return awareInstancesFound;
     }
 
-    public void setObjectSerializerFound(boolean objectSerializerFound) {
-        this.objectSerializerFound = objectSerializerFound;
+    public void setAwareInstancesFound(boolean awareInstancesFound) {
+        this.awareInstancesFound = awareInstancesFound;
+    }
+
+    public boolean isElasticsearchOperationsFound() {
+        return elasticsearchOperationsFound;
+    }
+
+    public void setElasticsearchOperationsFound(boolean elasticsearchOperationsFound) {
+        this.elasticsearchOperationsFound = elasticsearchOperationsFound;
     }
 
     public String getStringValue1() {

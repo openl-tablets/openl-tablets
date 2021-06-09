@@ -10,15 +10,15 @@ package org.openl.rules.table.ui.filters;
  */
 public class TransparentColorFilter implements IColorFilter {
 
-    private short[] filter;
-    private double transparency; // 0-1, 1 - completely transparent
+    private final short[] filter;
+    private final double transparency; // 0-1, 1 - completely transparent
 
     public TransparentColorFilter(int color, double transparency) {
         this.transparency = transparency;
         filter = new short[3];
         filter[0] = (short) (color >> 16 & 0xff);
         filter[1] = (short) (color >> 8 & 0xff);
-        filter[2] = (short) (color >> 0 & 0xff);
+        filter[2] = (short) (color & 0xff);
     }
 
     public TransparentColorFilter(short[] filter, double transparency) {

@@ -1,63 +1,483 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui:composition
-    xmlns:ui="http://java.sun.com/jsf/facelets"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:a4j="http://richfaces.org/a4j">
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+>
 
-    <h:form id="groupsForm">
-    <h:panelGroup id="groupList">
-    <table class="table">
-        <thead>
-        <tr>
-            <th>Name</th>
-            <th>Description</th>
-            <th>Privileges</th>
-            <th></th>
-        </tr>
-        </thead>
-        <tbody>
-        <a4j:repeat value="#{groupsBean.groups}" var="group">
-        <tr>
-            <td>#{group.name}</td>
-            <td>#{group.description}</td>
-            <td>
-                <a4j:repeat var="groupName" value="#{groupsBean.getIncludedGroups(group)}">
-                    <h:panelGroup class="badge-container">
-                        <h:panelGroup class="badge badge-info" style="margin-right: 2px">#{groupName}</h:panelGroup>
-                    </h:panelGroup>
-                </a4j:repeat>
-                <a4j:repeat var="privilegeName" value="#{groupsBean.getNonGroupPrivileges(group)}">
-                    <h:panelGroup class="badge-container">
-                        <h:panelGroup class="badge #{(privilegeName == 'Administrate') ? 'badge-error' : ''}" style="margin-right: 2px">#{privilegeName}</h:panelGroup>
+    <style>
+        #groupsTable > div:nth-child(2) {
+            display: none;
+        }
 
-                    </h:panelGroup>
-                </a4j:repeat>
-            </td>
-            <td>
-                <a href="javascript:void(0)"
-                    onclick="editGroup('#{utils.toJSText(group.name)}', '#{utils.toJSText(group.description)}', #{groupsBean.isOnlyAdmin(group)})"
-                    title="Edit"><img src="#{request.contextPath}/images/edit2.gif" /></a>
-                <a4j:commandLink execute="@this" render=":userList :addGroupPrivilegeList :addUserGroups :editUserGroups @form"
-                    rendered="#{!groupsBean.isOnlyAdmin(group)}"
-                    action="#{groupsBean.deleteGroup(group.name)}"
-                    onclick="if(!window.confirm('Are you sure you want to delete the group?')) {return false;}"
-                    title="Delete">
-                    <h:graphicImage url="/images/delete.png" />
-                </a4j:commandLink>
-            </td>
-        </tr>
-        </a4j:repeat>
-        </tbody>
-    </table>
-    </h:panelGroup>
+        #groupsTable {
+            display: table;
+        }
 
-    </h:form>
+        #groupsTable .row {
+            display: table-row;
+        }
 
-    <br />
-    <br />
+        #groupsTable .row > div {
+            padding: 6px 11px;
+            text-align: left;
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+        }
 
-    <a href="javascript:void(0)" onclick="addGroup()">Add New Group</a>
+        #groupsTable header {
+            font-weight: bold;
+        }
 
-    <ui:include src="/pages/modules/administration/users/addEditGroup.xhtml" />
+        #groupsTable header.row > div {
+            border-bottom: 1px solid #ccc;
+        }
+
+        #groupsTable .role, #groupsTable .privilege {
+            background: #999;
+            border-radius: 1px;
+            color: #fff;
+            font-size: 9px;
+            font-weight: bold;
+            padding: 3px 6px;
+            white-space: nowrap;
+            text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+            vertical-align: 12%;
+            margin-right: 2px;
+        }
+
+        #groupsTable .role {
+            background: #59c;
+        }
+
+        #groupsTable .privilege.admin {
+            background: #f54;
+        }
+
+        #groupsTable div.row:hover {
+            background-color: #FAE5C1;
+        }
+
+        #privilegesTable {
+            display: table;
+            font-size: 100%;
+        }
+
+        #privilegesTable > div {
+            display: table-row;
+        }
+
+        #privilegesTable > div:hover {
+            background-color: #FAE5C1;
+        }
+
+        #privilegesTable > div > div {
+            padding: 6px 11px;
+            text-align: center;
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+
+        }
+
+        #privilegesTable > div > label {
+            display: table-cell;
+            border-bottom: 1px dotted #ccc;
+
+        }
+
+        #privilegesTable > div:first-child {
+            font-weight: bold;
+        }
+
+        #privilegesTable > div:first-child > div {
+            text-align: left;
+        }
+
+        #privilegesTable > div:first-child > div {
+            border-bottom: 1px solid #ccc;
+        }
+
+        #privilegesTable > div:first-child > label {
+            border-bottom: 1px solid #ccc;
+            display: table-cell;
+            cursor: pointer;
+            color: #29d;
+        }
+
+        #privilegesTable > div:first-child > label div {
+            padding: 6px;
+        }
+
+        #privilegesTable > div:first-child input[type="checkbox"] {
+            display: none;
+        }
+
+        #privilegesTable > div:first-child input[type="checkbox"]:checked + div {
+            background: #77d100;
+            color: #fff;
+        }
+
+    </style>
+
+    <section id="groupsTable">
+        <header class="row">
+            <div>Name</div>
+            <div>Description</div>
+            <div>Privileges</div>
+            <div>Action</div>
+        </header>
+        <div class="row {type}">
+            <div><span class="clickable name">{name}</span></div>
+            <div><span class="description">{description}</span></div>
+            <div>{privileges}</div>
+            <div><span class="clickable delete-icon"/></div>
+        </div>
+    </section>
+    <br/>
+    <br/>
+
+    <a href="javascript:void(0)" id="addNewGroup">Add New Group</a>
+
+    <rich:popupPanel id="modalAddEditGroup" autosized="true" minWidth="670" maxWidth="670">
+        <f:facet name="header">Edit Group</f:facet>
+
+        <f:facet name="controls">
+            <span class="close-icon clickable icon-small" onclick="hideAddGroup()" style="margin: 8px 4px;"/>
+        </f:facet>
+
+        <form id="addEditGroupForm" style="height: 530px; overflow: auto;">
+            <table cellspacing="5">
+                <tr>
+                    <td>
+                        <label class="required">Name:</label>
+                    </td>
+                    <td>
+                        <input type="hidden" name="oldName"/>
+                        <input type="text" name="name" style="margin-right: 7px;" maxlength="40"/>
+                        <span class="error"/>
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label>Description:</label>
+                    </td>
+                    <td style="width: 100%; padding-right: 11px">
+                        <input type="text" name="description" style="width: 100%" maxlength="200"/>
+                    </td>
+                </tr>
+            </table>
+            <div id="privilegesTable"/>
+        </form>
+
+        <footer>
+            <input type="button" value="Save" class="button-primary" onclick="saveGroup()"/>
+            <input type="button" value="Cancel" onclick="hideAddGroup()"/>
+        </footer>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        var privileges = {};
+        var groups = {};
+
+        $j.ajax({
+            url: "#{contextPath}/web/admin/management/privileges",
+            async: false,
+            datatype: "json"
+        })
+            .done(function (data) {
+                privileges = data;
+            });
+
+        (function () {
+
+            var onlyAdmin = "";
+
+            var escaped = {
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                '"': '&quot;',
+                "'": '&#39;',
+                "/": '&#x2F;'
+            };
+
+            function text(value) {
+                return value ? value.replace(/[&<>"'\/]/g, function (s) {
+                    return escaped[s];
+                }) : "";
+            }
+
+            function renderGroupsTable(data) {
+                var admins = 0;
+                var rowTemplate = $j('#groupsTable>div:nth-child(2)');
+                var htmlTemplate = $j('<div/>').append(rowTemplate).html();
+                var list = htmlTemplate;
+                $j('#groupsTable div.row').remove();
+
+                $j.each(data, function (name, item) {
+                    var privs = "";
+
+                    item.roles && item.roles.forEach(function (role) {
+                        privs += "<span class='role'>" + text(role) + "</span>";
+                    });
+
+                    item.privileges && item.privileges.forEach(function (priv) {
+                        if (priv === "ADMIN") {
+                            privs += "<span class='privilege admin'>Administrate</span>";
+                            admins++;
+                            onlyAdmin = name;
+                        } else {
+                            privs += "<span class='privilege'>" + (privileges[priv] || priv) + "</span>";
+                        }
+                    });
+
+                    list += htmlTemplate
+                        .replace(/{type}/g, onlyAdmin === name ? "onlyAdmin" : "")
+                        .replace(/{name}/g, text(name))
+                        .replace(/{description}/g, text(item.description))
+                        .replace(/{privileges}/g, privs);
+                });
+                $j('#groupsTable').append(list);
+                $j('#groupsTable').show();
+                if (admins !== 1) {
+                    onlyAdmin = "";
+                } else {
+                    $j('#groupsTable .onlyAdmin .delete-icon').addClass("disabled");
+                }
+                $j('#groupsTable').removeClass("onlyAdmin");
+            }
+
+            function resolveSubPrivileges(name) {
+
+                var group = groups[name];
+                if (group.allPrivileges !== undefined) {
+                    // already processed
+                    return;
+                }
+                group.allPrivileges = group.privileges || [];
+
+                group.roles && group.roles.forEach(function (role) {
+                    resolveSubPrivileges(role);
+                    var subRole = groups[role];
+                    group.allPrivileges = group.allPrivileges.concat(subRole.allPrivileges);
+                });
+            }
+
+            function propogadeCycledGroups(child, name) {
+                var group = groups[child];
+                group.cycledGroups = group.cycledGroups || [];
+                var cycledGroups = group.cycledGroups;
+                if($j.inArray(name, cycledGroups)=== -1){
+                    cycledGroups.push(name);
+                }
+                group.roles && group.roles.forEach(function (role) {
+                    if ($j.inArray(role, cycledGroups) === -1) {
+                        propogadeCycledGroups(role, name);
+                    }
+                });
+            }
+
+            // Show groups in the table
+            $j('#groupsTable').bind('refresh', function () {
+                $j.ajax({
+                    url: "#{contextPath}/web/admin/management/groups",
+                    datatype: "json"
+                })
+                    .done(function (data) {
+                        renderGroupsTable(data);
+                        groups = data;
+                        $j.each(groups, function (name) {
+                            propogadeCycledGroups(name, name);
+                            resolveSubPrivileges(name);
+                        });
+                    });
+            });
+
+            // Delete a group
+            $j('#groupsTable').on("click", ".clickable.delete-icon", function (e) {
+                e.preventDefault();
+
+                if (!window.confirm('Are you sure you want to delete the group?')) {
+                    return false;
+                }
+
+                var row = $j(this).closest(".row");
+                var name = $j(row).find(".name").text();
+                $j.ajax({
+                    type: "DELETE",
+                    contentType: 'text/plain',
+                    url: "#{contextPath}/web/admin/management/groups",
+                    data: name
+                }).done(function () {
+                    $j('#groupsTable').trigger('refresh');
+                    location.reload();
+                }).fail(function () {
+                    ws.ui.error("Could not delete");
+                    $j('#groupsTable').trigger('refresh');
+                });
+
+            });
+
+            // Edit a group
+            $j('#groupsTable').on("click", ".clickable.name", function (e) {
+                e.preventDefault();
+                var el = $j(this);
+                var name = el.text();
+                editGroup(name, groups[name].description, name === onlyAdmin);
+            });
+
+            // Add a new group
+            $j('#addNewGroup').on("click", function (e) {
+                e.preventDefault();
+                editGroup();
+            });
+
+            $j('#groupsTable').trigger('refresh');
+
+
+            $j("#privilegesTable input[name=group]").live("change", function (e) {
+                var role = $j(e.target).val();
+                if (this.checked) {
+                    checkPrivilegesByGroup(role);
+                } else {
+                    uncheckPrivilegesByGroups();
+                }
+            });
+
+            $j("#privilegesTable input[name=privilege]").live("change", function (e) {
+                if (!this.checked) {
+                    var privilege = $j(e.target).val();
+                    // deselect group contains given privelege
+                    $j("input[name=group]:checked").each(function () {
+                        var role = $j(this).val();
+                        if ($j.inArray(privilege, groups[role].allPrivileges) !== -1) {
+                            $j("#privilegesTable input[name=group][value=" + role + "]").prop("checked", false);
+                        }
+                    });
+                    uncheckPrivilegesByGroups();
+                }
+            });
+
+            function checkPrivilegesByGroup(role) {
+                var group = groups[role];
+                group && group.allPrivileges.forEach(function (privilege) {
+                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + privilege + "]");
+                    checkBox.prop("checked", false);
+                    checkBox.prop("indeterminate", true);
+                });
+
+            }
+
+            function uncheckPrivilegesByGroups() {
+                var allPrivileges = [];
+                $j("input[name=group]:checked").each(function () {
+                    var role = $j(this).val();
+                    allPrivileges = allPrivileges.concat(groups[role].allPrivileges);
+                });
+                $j("input[name=privilege]:not(:checked)").each(function () {
+                    var privilege = $j(this).val();
+                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + privilege + "]");
+                    checkBox.prop("indeterminate", $j.inArray(privilege, allPrivileges) !== -1);
+                });
+            }
+
+            function editGroup(name, description, isOnlyAdmin) {
+                $j("#addEditGroupForm .error").text("");
+                $j("#addEditGroupForm input[name=name]").val(name);
+                $j("#addEditGroupForm input[name=oldName]").val(name);
+                $j("#addEditGroupForm input[name=description]").val(description);
+                $j("#modalAddEditGroup_header_content").text(name !== undefined ? "Edit Group" : "Add New Group");
+
+                var cycledGroups = groups[name] && groups[name].cycledGroups;
+                var allowedGroups = {};
+                $j.each(groups, function (name, gr) {
+                    if ($j.inArray(name, cycledGroups) === -1) {
+                        allowedGroups[name] = gr;
+                    }
+                });
+                render(allowedGroups, privileges);
+                openGroup(name);
+                $j("#privilegesTable input[value=ADMIN]").parent().toggleClass("disabled", isOnlyAdmin === true);
+
+                RichFaces.$("modalAddEditGroup").show();
+            }
+
+            function openGroup(name) {
+                checkPrivilegesByGroup(name);
+                var group = groups[name];
+                group && group.privileges && group.privileges.forEach(function (priv) {
+                    var checkBox = $j("#privilegesTable input[name=privilege][value=" + priv + "]");
+                    checkBox.prop("checked", true);
+                    checkBox.prop("indeterminate", false);
+                });
+                group && group.roles && group.roles.forEach(function (role) {
+                    $j("#privilegesTable input[name=group][value=" + role + "]").prop("checked", true);
+                });
+            }
+
+            function render(groups, privileges) {
+                var html = "<div><div style='min-width: 150px;'>Privilege:</div>";
+                $j.each(groups, function (name, gr) {
+                    html += "<label><input type='checkbox' value='" + text(name) + "' name='group'><div>" + text(name) + "</div></label>";
+                });
+                html += "</div>";
+                $j.each(privileges, function (code, value) {
+                    html += "<div><label><input type='checkbox' value='" + code + "' name='privilege'>" + value + "</label>";
+                    $j.each(groups, function (name, gr) {
+                        if ($j.inArray(code, gr.privileges) !== -1) {
+                            html += "<div><span class='yes-icon'/></div>";
+                        } else if ($j.inArray(code, gr.allPrivileges) !== -1) {
+                            html += "<div><span class='check-icon'/></div>";
+                        } else {
+                            html += "<div><span class='empty-icon'/></div>";
+                        }
+                    });
+                    html += "</div>";
+                });
+
+                $j("#privilegesTable").html(html);
+            }
+
+        })();
+
+        function hideAddGroup() {
+            $j('#groupsTable').trigger('refresh');
+            RichFaces.$("modalAddEditGroup").hide();
+        }
+
+        function saveGroup() {
+            var name = $j("#addEditGroupForm input[name=name]").val();
+
+            var isBlank = !name || /^\s*$/.test(name);
+
+            if (isBlank) {
+                $j("#addEditGroupForm .error").text("Cannot be empty");
+                return;
+            } else {
+                $j("#addEditGroupForm .error").text("");
+            }
+
+            $j.ajax({
+                type: "POST",
+                url: "#{contextPath}/web/admin/management/groups",
+                data: $j("#addEditGroupForm").serialize(),
+            }).done(function () {
+                $j('#groupsTable').trigger('refresh');
+                RichFaces.$("modalAddEditGroup").hide();
+                location.reload();
+            }).fail(function (response) {
+                if (response.responseText) {
+                    ws.ui.error(response.responseText);
+                } else {
+                    ws.ui.error("Could not save.")
+                }
+                $j('#groupsTable').trigger('refresh');
+            });
+        }
+
+        //]]>
+    </script>
 
 </ui:composition>

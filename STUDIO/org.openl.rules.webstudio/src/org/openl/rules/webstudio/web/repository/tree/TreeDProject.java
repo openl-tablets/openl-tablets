@@ -20,26 +20,6 @@ public class TreeDProject extends TreeFile {
         return TreeProject.generateComments(getProject());
     }
 
-    public Date getCreatedAt() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedAt() : null;
-    }
-
-    public String getCreatedBy() {
-        ProjectVersion projectVersion = getProject().getFirstVersion();
-        if (projectVersion == null) {
-            return null;
-        }
-
-        VersionInfo vi = projectVersion.getVersionInfo();
-        return vi != null ? vi.getCreatedBy() : null;
-    }
-
     public Date getModifiedAt() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {
@@ -105,8 +85,16 @@ public class TreeDProject extends TreeFile {
     public String getVersion() {
         ProjectVersion projectVersion = getProject().getVersion();
         if (projectVersion == null) {
-            return "unversioned";
+            return UNVERSIONED;
         }
         return projectVersion.getVersionName();
+    }
+
+    public String getShortVersion() {
+        String version = getVersion();
+        if (UNVERSIONED.equals(version)) {
+            return UNVERSIONED;
+        }
+        return version == null || version.length() < 6 ? version : version.substring(0, 6);
     }
 }

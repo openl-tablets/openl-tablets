@@ -5,7 +5,7 @@ import java.lang.reflect.InvocationTargetException;
 import org.openl.binding.IBindingContext;
 import org.openl.binding.ILocalVar;
 import org.openl.binding.exception.AmbiguousMethodException;
-import org.openl.binding.exception.AmbiguousVarException;
+import org.openl.binding.exception.AmbiguousFieldException;
 import org.openl.binding.impl.method.MethodSearch;
 import org.openl.binding.impl.module.RootDictionaryContext;
 import org.openl.binding.impl.module.VariableInContextFinder;
@@ -25,28 +25,33 @@ import org.openl.vm.IRuntimeEnv;
  * @author PUdalau
  */
 public class TypeBindingContext extends BindingContextDelegator {
-    private VariableInContextFinder context;
-    private ILocalVar localVar;
+    private final VariableInContextFinder context;
+    private final ILocalVar localVar;
 
     public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar) {
+        return create(delegate, localVar, 1);
+    }
+
+    public static TypeBindingContext create(IBindingContext delegate, ILocalVar localVar, int maxDepthLevel) {
         Class<?> instanceClass = localVar.getType().getInstanceClass();
         CustomJavaOpenClass annotation = instanceClass == null ? null
                                                                : instanceClass.getAnnotation(CustomJavaOpenClass.class);
         VariableInContextFinder context;
         if (annotation != null) {
-            context = createCustomVariableFinder(annotation, localVar);
+            context = createCustomVariableFinder(annotation, localVar, maxDepthLevel);
         } else {
-            context = new RootDictionaryContext(new IOpenField[] { localVar }, 1);
+            context = new RootDictionaryContext(new IOpenField[] { localVar }, maxDepthLevel);
         }
 
         return new TypeBindingContext(delegate, localVar, context);
     }
 
     private static VariableInContextFinder createCustomVariableFinder(CustomJavaOpenClass annotation,
-            IOpenField localVar) {
+            IOpenField localVar,
+            int maxDepthLevel) {
         Class<? extends VariableInContextFinder> type = annotation.variableInContextFinder();
         try {
-            return type.getConstructor(IOpenField.class, int.class).newInstance(localVar, 1);
+            return type.getConstructor(IOpenField.class, int.class).newInstance(localVar, maxDepthLevel);
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException(String.format(
                 "Cannot find constructor with signature 'public MyCustomVariableFinder(IOpenField<?> field, int depthLevel)' in type %s",
@@ -75,7 +80,7 @@ public class TypeBindingContext extends BindingContextDelegator {
     }
 
     @Override
-    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousVarException {
+    public IOpenField findVar(String namespace, String name, boolean strictMatch) throws AmbiguousFieldException {
         IOpenField res = null;
         if (namespace.equals(ISyntaxConstants.THIS_NAMESPACE)) {
             res = context.findVariable(name);
@@ -104,8 +109,8 @@ public class TypeBindingContext extends BindingContextDelegator {
 
     private static class LocalVarMethodCaller implements IMethodCaller, IOwnTargetMethod {
 
-        ILocalVar localvar;
-        IMethodCaller method;
+        final ILocalVar localvar;
+        final IMethodCaller method;
 
         public LocalVarMethodCaller(ILocalVar localvar, IMethodCaller method) {
             super();

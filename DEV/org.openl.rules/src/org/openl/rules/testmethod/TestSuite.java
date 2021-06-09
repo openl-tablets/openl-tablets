@@ -11,11 +11,11 @@ import org.openl.types.IOpenMethod;
 import org.openl.vm.IRuntimeEnv;
 
 public class TestSuite implements INamedThing {
-    public static String VIRTUAL_TEST_SUITE = "Virtual test suite";
+    public static final String VIRTUAL_TEST_SUITE = "Virtual test suite";
     private TestSuiteMethod testSuiteMethod;
-    private TestDescription[] tests;
+    private final TestDescription[] tests;
     private TestRunner testRunner = new TestRunner(TestUnit.Builder.getInstance());
-    private OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
+    private final OpenLArgumentsCloner cloner = new OpenLArgumentsCloner();
 
     public TestSuite(TestSuiteMethod testSuiteMethod) {
         this.testSuiteMethod = testSuiteMethod;
@@ -61,6 +61,7 @@ public class TestSuite implements INamedThing {
         final TestUnitsResults testUnitResults = new TestUnitsResults(this);
         final CountDownLatch countDownLatch = new CountDownLatch(THREAD_COUNT);
         final ITestUnit[] testUnitResultsArray = new ITestUnit[getNumberOfTests()];
+
         for (int i = 0; i < THREAD_COUNT; i++) {
             final int numThread = i;
             Runnable runnable = () -> {
@@ -81,6 +82,8 @@ public class TestSuite implements INamedThing {
         try {
             countDownLatch.await();
         } catch (InterruptedException ignored) {
+            // Restore interrupted state...
+            Thread.currentThread().interrupt();
         }
         for (int i = 0; i < getNumberOfTests(); i++) {
             testUnitResults.addTestUnit(testUnitResultsArray[i]);

@@ -26,7 +26,7 @@ public interface IStorage<T> {
         VALUE,
         SPACE,
         ELSE,
-        FORMULA;
+        FORMULA
     }
 
 }

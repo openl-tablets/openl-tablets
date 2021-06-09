@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
 
+import org.apache.poi.ss.SpreadsheetVersion;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.ClientAnchor;
@@ -50,17 +51,18 @@ public abstract class BaseExport {
         Cell cell = row.createCell(cellNum);
 
         Object simpleValue = getSimpleValue(value);
-        if (simpleValue instanceof Map) {
-            // Remove HashMap<..., ...>
-            simpleValue = simpleValue.toString().substring(simpleValue.toString().indexOf("{"));
-        }
         if (simpleValue != null) {
-
             if (simpleValue instanceof Date) {
                 style = styles.getDateStyle(row.getSheet().getWorkbook(), style);
                 cell.setCellValue((Date) simpleValue);
             } else {
-                cell.setCellValue(FormattersManager.format(simpleValue));
+                String cellValue = FormattersManager.format(simpleValue);
+                int maxTextLength = SpreadsheetVersion.EXCEL2007.getMaxTextLength();
+                if (cellValue != null && cellValue.length() > maxTextLength) {
+                    String truncated = "\r\n... TRUNCATED ...";
+                    cellValue = cellValue.substring(0, maxTextLength - truncated.length()) + truncated;
+                }
+                cell.setCellValue(cellValue);
             }
         }
 

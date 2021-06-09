@@ -55,7 +55,7 @@ public class StatisticsTest {
         assertEquals(Integer.valueOf(15), sum((byte) 3, (byte) 4, (byte) 8));
         assertEquals(Integer.valueOf(15), sum((short) 3, (short) 4, (short) 8));
         assertEquals(Integer.valueOf(15), sum(3, 4, 8));
-        assertEquals(Long.valueOf(15), sum(3l, 4l, 8l));
+        assertEquals(Long.valueOf(15), sum(3L, 4L, 8L));
         assertEquals(Float.valueOf(15), sum(3f, 4f, 8f));
         assertEquals(Double.valueOf(15), sum(3d, 4d, 8d));
         assertEquals(Double.valueOf(15), sum((byte) 3, (short) 4, 8));
@@ -77,7 +77,7 @@ public class StatisticsTest {
         assertEquals(Double.valueOf(5), avg((byte) 3, (byte) 4, (byte) 8));
         assertEquals(Double.valueOf(5), avg((short) 3, (short) 4, (short) 8));
         assertEquals(Double.valueOf(5), avg(3, 4, 8));
-        assertEquals(Double.valueOf(5), avg(3l, 4l, 8l));
+        assertEquals(Double.valueOf(5), avg(3L, 4L, 8L));
         assertEquals(Float.valueOf(5), avg(3f, 4f, 8f));
         assertEquals(Double.valueOf(5), avg(3d, 4d, 8d));
         assertEquals(Double.valueOf(5), avg((byte) 3, (short) 4, 8));

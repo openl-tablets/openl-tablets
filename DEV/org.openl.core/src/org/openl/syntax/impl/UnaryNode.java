@@ -15,7 +15,7 @@ import org.openl.util.text.ILocation;
  *
  */
 public class UnaryNode extends ASyntaxNode {
-    private ISyntaxNode left;
+    private final ISyntaxNode left;
 
     public UnaryNode(String type, ILocation pos, ISyntaxNode left, IOpenSourceCodeModule module) {
         super(type, pos, module);

@@ -1,0 +1,128 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+{
+     "buildDate": "*",
+     "buildNumber":  "*",
+     "deployerEnabled": true,
+     "email": "*",
+     "noWadlServices": [],
+     "services": [
+         {
+             "hasManifest": true,
+             "name": "deployed-rules",
+             "servicePath": "rules-to-deploy",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "rules-to-deploy",
+             "urls": {
+                 "RESTFUL": "REST/deployed-rules",
+                 "WEBSERVICE": "deployed-rules"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "EPBDS-10916%20+Whitespaces in Name #_EPBDS-10916%20+Whitespaces in Name #",
+             "servicePath": "EPBDS-10916%20+Whitespaces in Name #",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "EPBDS-10916%20+Whitespaces in Name #",
+             "urls": {
+                 "RESTFUL": "REST/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23/EPBDS-10916%2520%2BWhitespaces%20in%20Name%20%23"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "multi_project_project1",
+             "servicePath": "multiproject/project1",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiproject",
+             "urls": {
+                 "RESTFUL": "multi_project/project1"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "multi_project_project2",
+             "servicePath": "multiproject/project2",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiproject",
+             "urls": {
+                 "RESTFUL": "multi_project/project2"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "multiple-deployment_v1_project2",
+             "servicePath": "multiple-deployment_v1/project2",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiple-deployment_v1",
+             "urls": {
+                 "RESTFUL": "REST/multiple-deployment_v1/project2"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "project1",
+             "servicePath": "multiple-deployment_v1/project1",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiple-deployment_v1",
+             "urls": {
+                 "RESTFUL": "REST/project1",
+                 "WEBSERVICE": "project1"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "simple-jar",
+             "servicePath": "simple-jar",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "simple-jar",
+             "urls": {
+                 "RESTFUL": "simple-jar-rs"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "Tutorial1_Tutorial1",
+             "servicePath": "Tutorial1",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "Tutorial1",
+             "urls": {
+                 "RESTFUL": "REST/Tutorial1/Tutorial1"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "yaml-project1",
+             "servicePath": "multiple-deployment-yaml-datasource/yaml-project1",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiple-deployment-yaml-datasource",
+             "urls": {
+                 "RESTFUL": "yaml-project1"
+             }
+         },
+         {
+             "hasManifest": false,
+             "name": "yaml-project2",
+             "servicePath": "multiple-deployment-yaml-datasource/yaml-project2",
+             "startedTime": "*",
+             "status": "DEPLOYED",
+             "deploymentName": "multiple-deployment-yaml-datasource",
+             "urls": {
+                 "RESTFUL": "yaml-project2"
+             }
+         }
+     ],
+     "startedAt": "*",
+     "startedMilli": "*",
+     "url": "*",
+     "version": "*"
+ }

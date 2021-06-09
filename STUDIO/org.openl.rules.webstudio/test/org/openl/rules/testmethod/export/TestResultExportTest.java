@@ -80,12 +80,7 @@ public class TestResultExportTest {
         }
 
         // Tests can appear in a random order. For testing convenience sort them alphabetically
-        Arrays.sort(results, new Comparator<TestUnitsResults>() {
-            @Override
-            public int compare(TestUnitsResults o1, TestUnitsResults o2) {
-                return o1.getName().compareTo(o2.getName());
-            }
-        });
+        Arrays.sort(results, (o1, o2) -> o1.getName().compareTo(o2.getName()));
 
         return results;
     }

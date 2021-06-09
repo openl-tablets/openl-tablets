@@ -8,8 +8,8 @@ import org.openl.rules.table.syntax.GridLocation;
 import org.openl.source.IOpenSourceCodeModule;
 
 public class XlsTable {
-    private TableSyntaxNode node;
-    private IOpenLTable table;
+    private final TableSyntaxNode node;
+    private final IOpenLTable table;
 
     public XlsTable(TableSyntaxNode node) {
         this.node = node;

@@ -7,7 +7,7 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetUnderlineAction extends AUndoableCellAction {
 
-    private boolean underlined;
+    private final boolean underlined;
 
     public SetUnderlineAction(int col, int row, boolean underlined, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);

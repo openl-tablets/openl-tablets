@@ -17,12 +17,12 @@ public abstract class ADispatcherTableColumn implements IDecisionTableColumn {
     /**
      * All rules for given condition.
      */
-    private DispatcherTableRules rules;
+    private final DispatcherTableRules rules;
 
     /**
      * Dimension property that will be used in given condition
      */
-    private TablePropertyDefinition dimensionProperty;
+    private final TablePropertyDefinition dimensionProperty;
 
     ADispatcherTableColumn(TablePropertyDefinition dimensionProperty, DispatcherTableRules rules) {
         this.dimensionProperty = dimensionProperty;

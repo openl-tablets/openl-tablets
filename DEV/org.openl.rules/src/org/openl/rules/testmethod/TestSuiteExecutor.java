@@ -16,8 +16,7 @@ public final class TestSuiteExecutor {
         this.executor = new ThreadPoolExecutor(threadCount,
             threadCount,
             1L,
-            TimeUnit.MINUTES,
-            new ArrayBlockingQueue<Runnable>(QUEUE_SIZE),
+            TimeUnit.MINUTES, new ArrayBlockingQueue<>(QUEUE_SIZE),
             new ThreadPoolExecutor.CallerRunsPolicy());
         executor.allowCoreThreadTimeOut(true);
     }

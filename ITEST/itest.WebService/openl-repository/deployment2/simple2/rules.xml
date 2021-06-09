@@ -10,6 +10,7 @@
 					<value>.+ dtRetSpr\(.+\)</value>
 					<value>.+ dtRetSpr2\(.+\)</value>
 					<value>.+ dtRetSpr3\(.+\)</value>
+					<value>.+ sprIfNode\(.+\)</value>
 				</includes>
 			</method-filter>
 		</module>

@@ -4,17 +4,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.poi.hssf.eventusermodel.HSSFListener;
-import org.apache.poi.hssf.record.*;
+import org.apache.poi.hssf.record.ArrayRecord;
+import org.apache.poi.hssf.record.BOFRecord;
+import org.apache.poi.hssf.record.FormulaRecord;
+import org.apache.poi.hssf.record.SharedFormulaRecord;
+import org.apache.poi.hssf.record.TableRecord;
 import org.apache.poi.hssf.record.aggregates.SharedValueManager;
 import org.apache.poi.ss.util.CellReference;
 
 public class SharedValueListener implements HSSFListener {
     private final EventSheetDescriptor sheet;
     private int sheetIndex = -1;
-    private List<SharedFormulaRecord> sharedFormulaRecords = new ArrayList<>();
-    private List<CellReference> firstCellRefs = new ArrayList<>();
-    private List<ArrayRecord> arrayRecords = new ArrayList<>();
-    private List<TableRecord> tableRecords = new ArrayList<>();
+    private final List<SharedFormulaRecord> sharedFormulaRecords = new ArrayList<>();
+    private final List<CellReference> firstCellRefs = new ArrayList<>();
+    private final List<ArrayRecord> arrayRecords = new ArrayList<>();
+    private final List<TableRecord> tableRecords = new ArrayList<>();
     private FormulaRecord currentFormula;
 
     public SharedValueListener(EventSheetDescriptor sheet) {
@@ -22,7 +26,7 @@ public class SharedValueListener implements HSSFListener {
     }
 
     @Override
-    public void processRecord(Record record) {
+    public void processRecord(org.apache.poi.hssf.record.Record record) {
         switch (record.getSid()) {
             case BOFRecord.sid:
                 BOFRecord bof = (BOFRecord) record;

@@ -5,9 +5,11 @@ import org.openl.rules.repository.api.PathConverter;
 import org.openl.util.StringUtils;
 
 public class FileMappingData implements AdditionalData<FileMappingData> {
+    private String externalPath;
     private final String internalPath;
 
-    public FileMappingData(String internalPath) {
+    public FileMappingData(String externalPath, String internalPath) {
+        this.externalPath = externalPath;
         this.internalPath = StringUtils.trimToEmpty(internalPath);
     }
 
@@ -19,5 +21,13 @@ public class FileMappingData implements AdditionalData<FileMappingData> {
 
     public String getInternalPath() {
         return internalPath;
+    }
+
+    public String getExternalPath() {
+        return externalPath;
+    }
+
+    public void setExternalPath(String externalPath) {
+        this.externalPath = externalPath;
     }
 }

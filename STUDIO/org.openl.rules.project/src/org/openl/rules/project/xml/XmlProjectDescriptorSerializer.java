@@ -7,10 +7,10 @@ import java.util.HashSet;
 
 import org.openl.rules.project.IProjectDescriptorSerializer;
 import org.openl.rules.project.model.Module;
+import org.openl.rules.project.model.OpenAPI;
 import org.openl.rules.project.model.PathEntry;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
-import org.openl.rules.project.model.Property;
 import org.openl.util.CollectionUtils;
 
 import com.thoughtworks.xstream.XStream;
@@ -21,52 +21,39 @@ import com.thoughtworks.xstream.security.NoTypePermission;
  * Project Descriptor serializer/deserializer.
  * <p>
  * Keep in mind that this serializer is for last version of OpenL. Needed version can be obtained: 1) from each project
- * settings (stored inside ".settings" folder) 2) from default.openl.compatibility.version property of WebStudio
- * configuration. Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory
- * instead.
+ * settings (stored inside ".settings" folder) 2) from openl.compatibility.version property of WebStudio configuration.
+ * Thus if project descriptor serializing is needed consider using ProjectDescriptorSerializerFactory instead.
  */
 public class XmlProjectDescriptorSerializer implements IProjectDescriptorSerializer {
 
     private static final String PROJECT_DESCRIPTOR_TAG = "project";
     private static final String MODULE_TAG = "module";
     private static final String PATH_TAG = "entry";
-    private static final String PROPERTY_TAG = "property";
     private static final String METHOD_FILTER_TAG = "method-filter";
     private static final String DEPENDENCY_TAG = "dependency";
     private static final String PROPERTIES_FILE_NAME_PATTERN = "properties-file-name-pattern";
-    private static final String CSR_BEANS_PACKAGE = "csr-beans-package";
     private static final String PROPERTIES_FILE_NAME_PROCESSOR = "properties-file-name-processor";
 
     private final XStream xstream;
 
-    private final boolean postProcess;
-
-    /**
-     * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
-     */
-    public XmlProjectDescriptorSerializer() {
-        this(true);
-    }
-
     /**
      * Create Project Descriptor Serializer Note: please consider using ProjectDescriptorSerializerFactory instead
      *
-     * @param postProcess is post processing of project descriptor is needed
      */
-    public XmlProjectDescriptorSerializer(boolean postProcess) {
+    public XmlProjectDescriptorSerializer() {
         xstream = new XStream(new DomDriver());
         xstream.addPermission(NoTypePermission.NONE);
         xstream.allowTypeHierarchy(Module.class);
         xstream.allowTypeHierarchy(ProjectDescriptor.class);
         xstream.allowTypeHierarchy(ProjectDependencyDescriptor.class);
         xstream.allowTypeHierarchy(PathEntry.class);
-        xstream.allowTypeHierarchy(Property.class);
         xstream.allowTypeHierarchy(String.class);
 
         xstream.ignoreUnknownElements();
         xstream.omitField(ProjectDescriptor.class, "id"); // This field was deprecated
         xstream.omitField(ProjectDescriptor.class, "log");
         xstream.omitField(ProjectDescriptor.class, "classLoader");
+        xstream.omitField(ProjectDescriptor.class, "classPathUrls");
         xstream.omitField(ProjectDescriptor.class, "projectFolder");
         xstream.omitField(Module.class, "properties"); // properties does not supported by rules.xml
         xstream.omitField(Module.class, "wildcardName"); // runtime properties
@@ -79,10 +66,8 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasType(MODULE_TAG, Module.class);
         xstream.aliasType(DEPENDENCY_TAG, ProjectDependencyDescriptor.class);
         xstream.aliasType(PATH_TAG, PathEntry.class);
-        xstream.aliasType(PROPERTY_TAG, Property.class);
-        xstream.aliasField(PROPERTIES_FILE_NAME_PATTERN, ProjectDescriptor.class, "propertiesFileNamePattern");
+        xstream.addImplicitArray(ProjectDescriptor.class, "propertiesFileNamePatterns", PROPERTIES_FILE_NAME_PATTERN);
         xstream.aliasField(PROPERTIES_FILE_NAME_PROCESSOR, ProjectDescriptor.class, "propertiesFileNameProcessor");
-        xstream.aliasField(CSR_BEANS_PACKAGE, ProjectDescriptor.class, "csrBeansPackage");
         xstream.addDefaultImplementation(HashSet.class, Collection.class);
         xstream.alias("value", String.class);
 
@@ -91,13 +76,19 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         xstream.aliasField(METHOD_FILTER_TAG, Module.class, "methodFilter");
         xstream.registerConverter(new StringValueConverter());
 
-        this.postProcess = postProcess;
+        xstream.aliasField("openapi", ProjectDescriptor.class, "openapi");
+        xstream.aliasField("model-module-name", OpenAPI.class, "modelModuleName");
+        xstream.aliasField("algorithm-module-name", OpenAPI.class, "algorithmModuleName");
     }
 
     @Override
     public String serialize(ProjectDescriptor source) {
-        clean(source);
-        return xstream.toXML(source);
+        populateEmptyCollectionsWithNulls(source);
+        try {
+            return xstream.toXML(source);
+        } finally {
+            populateNullsWithEmptyCollections(source);
+        }
     }
 
     /**
@@ -106,23 +97,21 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     @Override
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
-        if (postProcess) {
-            postProcess(descriptor);
-        }
+        populateNullsWithEmptyCollections(descriptor);
         return descriptor;
     }
 
-    private void postProcess(ProjectDescriptor descriptor) {
+    private void populateNullsWithEmptyCollections(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
-            descriptor.setClasspath(new ArrayList<PathEntry>());
+            descriptor.setClasspath(new ArrayList<>());
         }
 
         if (descriptor.getModules() == null) {
-            descriptor.setModules(new ArrayList<Module>());
+            descriptor.setModules(new ArrayList<>());
         }
     }
 
-    private void clean(ProjectDescriptor descriptor) {
+    private void populateEmptyCollectionsWithNulls(ProjectDescriptor descriptor) {
         if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
             descriptor.setClasspath(null);
         }

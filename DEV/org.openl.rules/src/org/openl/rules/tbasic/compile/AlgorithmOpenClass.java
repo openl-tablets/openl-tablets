@@ -1,9 +1,8 @@
 package org.openl.rules.tbasic.compile;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.openl.OpenL;
@@ -11,10 +10,13 @@ import org.openl.binding.exception.DuplicatedFieldException;
 import org.openl.binding.exception.DuplicatedVarException;
 import org.openl.binding.impl.component.ComponentOpenClass;
 import org.openl.types.IOpenField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AlgorithmOpenClass extends ComponentOpenClass {
+    private static final Logger LOG = LoggerFactory.getLogger(AlgorithmOpenClass.class);
 
-    private Set<String> invisibleFields = new HashSet<>();
+    private final Set<String> invisibleFields = new HashSet<>();
 
     public AlgorithmOpenClass(String name, OpenL openl) {
         super(name, openl);
@@ -37,7 +39,7 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
     }
 
     @Override
-    public Map<String, IOpenField> getFields() {
+    public Collection<IOpenField> getFields() {
         return filterFields(super.getFields());
     }
 
@@ -46,22 +48,23 @@ public class AlgorithmOpenClass extends ComponentOpenClass {
         try {
             super.addField(field);
         } catch (DuplicatedFieldException e) {
+            LOG.debug("Error occurred: ", e);
             throw new DuplicatedVarException("", e.getFieldName());
         }
     }
 
-    private Map<String, IOpenField> filterFields(Map<String, IOpenField> fields) {
-        Map<String, IOpenField> visibleFields = new HashMap<>();
-        for (Entry<String, IOpenField> entry : fields.entrySet()) {
-            if (!invisibleFields.contains(entry.getKey())) {
-                visibleFields.put(entry.getKey(), entry.getValue());
+    private Collection<IOpenField> filterFields(Collection<IOpenField> fields) {
+        Collection<IOpenField> visibleFields = new ArrayList<>();
+        for (IOpenField field : fields) {
+            if (!invisibleFields.contains(field.getName())) {
+                visibleFields.add(field);
             }
         }
         return visibleFields;
     }
 
     @Override
-    public Map<String, IOpenField> getDeclaredFields() {
+    public Collection<IOpenField> getDeclaredFields() {
         return filterFields(super.getDeclaredFields());
     }
 

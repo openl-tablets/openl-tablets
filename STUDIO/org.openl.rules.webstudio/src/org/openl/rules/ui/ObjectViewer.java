@@ -3,6 +3,7 @@ package org.openl.rules.ui;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.openl.rules.calc.SpreadsheetResult;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
@@ -32,23 +33,24 @@ public final class ObjectViewer {
     public static String displaySpreadsheetResult(final SpreadsheetResult res,
             Map<Point, ComparedResult> spreadsheetCellsForTest,
             String requestId) {
-        return display(res, spreadsheetCellsForTest, true, requestId);
+        return display(res, spreadsheetCellsForTest, true, requestId, false);
     }
 
     /** Display SpreadsheetResult with filter for links to explanation for values */
     public static String displaySpreadsheetResult(final SpreadsheetResult res, String requestId) {
-        return display(res, null, true, requestId);
+        return display(res, null, true, requestId, false);
     }
 
     /** Display SpreadsheetResult without any filters in the table **/
-    public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res) {
-        return display(res, null, false, null);
+    public static String displaySpreadsheetResultNoFilters(final SpreadsheetResult res, boolean smartNumbers) {
+        return display(res, null, false, null, smartNumbers);
     }
 
     private static String display(final SpreadsheetResult res,
             Map<Point, ComparedResult> spreadsheetCellsForTest,
             boolean filter,
-            String requestId) {
+            String requestId,
+            boolean smartNumbers) {
         List<IGridFilter> filters = new ArrayList<>();
         filters.add(new TableValueFilter(res));
         filters.add(CollectionCellFilter.INSTANCE);
@@ -68,12 +70,12 @@ public final class ObjectViewer {
         IGridTable gridtable = table.getSource();
 
         ProjectModel model = WebStudioUtils.getWebStudio().getModel();
-        TableSyntaxNode syntaxNode = model.getNode(gridtable.getUri());
-        MetaInfoReader metaInfoReader = syntaxNode == null ? EmptyMetaInfoReader.getInstance()
-                                                           : syntaxNode.getMetaInfoReader();
+        MetaInfoReader metaInfoReader = Optional.ofNullable(model.getNode(gridtable.getUri()))
+            .map(TableSyntaxNode::getMetaInfoReader)
+            .orElseGet(EmptyMetaInfoReader::getInstance);
 
         TableModel tableModel = TableModel
-            .initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]), metaInfoReader);
+            .initializeTableModel(gridtable, filters.toArray(new IGridFilter[0]), metaInfoReader, smartNumbers);
         return new HTMLRenderer.TableRenderer(tableModel).render(false);
     }
 

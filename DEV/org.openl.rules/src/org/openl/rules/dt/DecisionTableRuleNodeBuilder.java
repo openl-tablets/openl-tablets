@@ -5,7 +5,7 @@ import java.util.List;
 
 public class DecisionTableRuleNodeBuilder {
 
-    private List<Integer> rules;
+    private final List<Integer> rules;
 
     public DecisionTableRuleNodeBuilder() {
         this.rules = new ArrayList<>();

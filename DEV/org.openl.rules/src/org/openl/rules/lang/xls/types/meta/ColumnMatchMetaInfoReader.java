@@ -81,7 +81,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return null;
     }
 
-    private Object[] asObjects(int[] columnScores) {
+    private static Object[] asObjects(int[] columnScores) {
         Object[] objects = new Object[columnScores.length];
         for (int i = 0; i < columnScores.length; i++) {
             objects[i] = columnScores[i];
@@ -161,7 +161,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return getObjects(children, rowIndex);
     }
 
-    private Object[] getObjects(List<MatchNode> children, int rowIndex) {
+    private static Object[] getObjects(List<MatchNode> children, int rowIndex) {
         for (MatchNode child : children) {
             if (child.getRowIndex() == rowIndex) {
                 return child.getCheckValues();
@@ -174,7 +174,7 @@ public class ColumnMatchMetaInfoReader extends AMethodMetaInfoReader<ColumnMatch
         return null;
     }
 
-    private int getSpecialRowCount(ColumnMatch columnMatch) {
+    private static int getSpecialRowCount(ColumnMatch columnMatch) {
         IOpenSourceCodeModule alg = columnMatch.getAlgorithm();
         String nameOfAlgorithm = alg != null ? alg.getCode() : null;
         return "WEIGHTED".equals(nameOfAlgorithm) ? 3 : 1;

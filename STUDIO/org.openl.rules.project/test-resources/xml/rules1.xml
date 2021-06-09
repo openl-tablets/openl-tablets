@@ -11,17 +11,5 @@
 
     <properties-file-name-pattern>properties-file-name-pattern</properties-file-name-pattern>
     <properties-file-name-processor>properties-file-name-processor</properties-file-name-processor>
-    <csr-beans-package>csr-beans-package</csr-beans-package>
-
-	<properties>
-		<property>
-			<name>name1</name>
-			<value>value1</value>
-		</property>
-		<property>
-			<name>name2</name>
-			<value>value2</value>
-		</property>
-	</properties>
 
 </project>

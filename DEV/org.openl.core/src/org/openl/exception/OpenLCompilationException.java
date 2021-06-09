@@ -6,16 +6,16 @@ import java.io.StringWriter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.openl.main.SourceCodeURLTool;
 import org.openl.source.IOpenSourceCodeModule;
-import org.openl.syntax.exception.CompositeSyntaxNodeException;
+import org.openl.syntax.exception.CompositeOpenlException;
 import org.openl.util.text.ILocation;
 
 public class OpenLCompilationException extends Exception implements OpenLException {
 
     private static final long serialVersionUID = -8075090606797764194L;
 
-    private Throwable insideCause;
-    private ILocation location;
-    private String sourceLocation;
+    private final Throwable insideCause;
+    private final ILocation location;
+    private final String sourceLocation;
     private String sourceUri;
     private String sourceCode;
 
@@ -104,9 +104,9 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
 
         String message;
 
-        if (cause instanceof CompositeSyntaxNodeException) {
+        if (cause instanceof CompositeOpenlException) {
 
-            CompositeSyntaxNodeException syntaxErrorException = (CompositeSyntaxNodeException) cause;
+            CompositeOpenlException syntaxErrorException = (CompositeOpenlException) cause;
 
             for (int i = 0; i < syntaxErrorException.getErrors().length; i++) {
                 printError(syntaxErrorException.getErrors()[i], writer);
@@ -118,7 +118,7 @@ public class OpenLCompilationException extends Exception implements OpenLExcepti
             message = error.getMessage();
         }
 
-        writer.println("Error: " + message);
+        writer.print("Error: " + message + "\r\n");
 
         SourceCodeURLTool.printCodeAndError(error.getLocation(), error.getSourceCode(), writer);
         SourceCodeURLTool.printSourceLocation(error.getSourceLocation(), writer);

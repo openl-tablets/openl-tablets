@@ -25,7 +25,7 @@ public final class ProjectExportHelper {
     public static File export(WorkspaceUser user, AProject project) throws ProjectException {
         File zipFile = null;
         try {
-            String zipComment = "Project '" + project.getName() + "' version " + project.getFileData()
+            String zipComment = "Project '" + project.getBusinessName() + "' version " + project.getFileData()
                 .getVersion() + "\nExported by " + user.getUserName();
 
             zipFile = File.createTempFile("export-", "-zip");
@@ -64,16 +64,9 @@ public final class ProjectExportHelper {
         ZipEntry entry = new ZipEntry(file.getInternalPath());
         zipOutputStream.putNextEntry(entry);
 
-        InputStream source = null;
-        try {
-            source = file.getContent();
+        try (InputStream source = file.getContent()) {
             IOUtils.copy(source, zipOutputStream);
-        } finally {
-            if (source != null) {
-                source.close();
-            }
         }
-
         zipOutputStream.closeEntry();
     }
 

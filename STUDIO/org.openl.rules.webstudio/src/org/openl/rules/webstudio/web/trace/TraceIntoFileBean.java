@@ -2,92 +2,84 @@ package org.openl.rules.webstudio.web.trace;
 
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.concurrent.TimeoutException;
 
-import javax.faces.bean.ManagedBean;
-import javax.faces.bean.ManagedProperty;
-import javax.faces.bean.SessionScoped;
 import javax.faces.context.FacesContext;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.rules.webstudio.util.WebTool;
-import org.openl.main.SourceCodeURLConstants;
 import org.openl.rules.webstudio.web.test.RunTestHelper;
 import org.openl.rules.webstudio.web.trace.node.ITracerObject;
+import org.openl.rules.webstudio.web.trace.node.RefToTracerNodeObject;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.FileUtils;
-import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
+import org.springframework.web.context.annotation.SessionScope;
 
 /**
  * Request scope managed bean for Trace into File functionality.
  *
  * @author Yury Molchan
  */
-@SessionScoped
-@ManagedBean
+@Service
+@SessionScope
 public class TraceIntoFileBean {
+
+    private static final int MAX_WAIT_TIMEOUT = 60 * 1000;
+
     private static final char[] indents = new char[256];
 
     static {
-        for (int i = 0; i < indents.length; i++) {
-            indents[i] = '\t';
-        }
+        Arrays.fill(indents, '\t');
     }
 
-    private final Logger log = LoggerFactory.getLogger(TraceIntoFileBean.class);
+    private final RunTestHelper runTestHelper;
 
-    @ManagedProperty("#{runTestHelper}")
-    private RunTestHelper runTestHelper;
-
-    public void setRunTestHelper(RunTestHelper runTestHelper) {
+    public TraceIntoFileBean(RunTestHelper runTestHelper) {
         this.runTestHelper = runTestHelper;
     }
 
-    public void traceIntoFile() {
+    public void traceIntoFile() throws IOException {
         ITracerObject tracer = runTestHelper.getTraceObject();
 
-        HttpServletResponse response = (HttpServletResponse) (ServletResponse) WebStudioUtils.getExternalContext()
-            .getResponse();
-
-        String outputFileName = "trace.txt";
-        response.setHeader("Content-Disposition", WebTool.getContentDispositionValue(outputFileName));
-
+        HttpServletResponse response = (HttpServletResponse) WebStudioUtils.getExternalContext().getResponse();
+        response.setHeader("Content-Disposition", "attachment; filename=trace.txt; filename*=UTF-8''trace.txt");
         response.setContentType("text/plain");
 
-        Writer writer = null;
-
-        try {
-            writer = response.getWriter();
-            print(tracer, 0, writer);
-            writer.close();
-        } catch (IOException e) {
-            log.error("Error when printing trace", e);
+        try (Writer writer = response.getWriter()) {
+            long start = System.currentTimeMillis();
+            try {
+                print(tracer, 0, writer, start + MAX_WAIT_TIMEOUT);
+            } catch (TimeoutException e) {
+                writer.write("\n!!!TRACE WAS LIMITED BY TIMEOUT!!!\n");
+            }
         } finally {
-            IOUtils.closeQuietly(writer);
+            FacesContext.getCurrentInstance().responseComplete();
         }
-
-        FacesContext.getCurrentInstance().responseComplete();
     }
 
-    private void print(ITracerObject tracer, int level, Writer writer) throws IOException {
-
+    private void print(ITracerObject tracer, int level, Writer writer, long deadline) throws IOException,
+                                                                                      TimeoutException {
+        if (deadline < System.currentTimeMillis()) {
+            throw new TimeoutException();
+        }
         Iterable<ITracerObject> tracerObjects = tracer.getChildren();
         for (ITracerObject aTrace : tracerObjects) {
             writer.write(indents, 0, level % indents.length);
             writer.write("TRACE: ");
-            writer.write(TraceFormatter.getDisplayName(aTrace));
+            writer.write(TraceFormatter.getDisplayName(aTrace, false));
             writer.write('\n');
             writer.write(indents, 0, level % indents.length);
-            writer.write(SourceCodeURLConstants.AT_PREFIX);
+            writer.write("    at ");
             writer.write(FileUtils.getBaseName(aTrace.getUri()));
-            writer.write('&');
-            writer.write(SourceCodeURLConstants.OPENL);
-            writer.write('=');
+            writer.write("&openl=");
             writer.write('\n');
 
-            print(aTrace, level + 1, writer);
+            if (aTrace instanceof RefToTracerNodeObject) {
+                continue;
+            }
+            print(aTrace, level + 1, writer, deadline);
         }
     }
+
 }

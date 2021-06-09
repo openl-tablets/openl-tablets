@@ -4,6 +4,7 @@ import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
 import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
 import org.openl.rules.ui.IProjectTypes;
+import org.openl.rules.webstudio.WebStudioFormats;
 import org.openl.types.IOpenMethod;
 import org.openl.types.impl.MethodKey;
 
@@ -13,8 +14,6 @@ import org.openl.types.impl.MethodKey;
  */
 public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilder {
 
-    private static final String TABLE_INSTANCE_NAME = "Table Instance";
-
     /**
      * {@inheritDoc}
      */
@@ -23,24 +22,8 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
 
         TableSyntaxNode tsn = (TableSyntaxNode) sorterObject;
 
-        return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary());
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String getName() {
-        return TABLE_INSTANCE_NAME;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object getProblems(Object nodeObject) {
-        TableSyntaxNode tsn = (TableSyntaxNode) nodeObject;
-        return tsn.getErrors() != null ? tsn.getErrors() : tsn.getValidationResult();
+        return TableSyntaxNodeUtils.getTableDisplayValue(tsn, i, getOpenMethodGroupsDictionary(),
+            WebStudioFormats.getInstance());
     }
 
     /**
@@ -69,15 +52,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
      * {@inheritDoc}
      */
     @Override
-    public int getWeight(Object sorterObject) {
-
-        return 0;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
     public boolean isUnique(TableSyntaxNode tsn) {
         return XlsNodeTypes.XLS_PROPERTIES.toString().equals(tsn.getType()) || XlsNodeTypes.XLS_DATATYPE.toString()
             .equals(tsn.getType()) || XlsNodeTypes.XLS_DATA.toString()
@@ -91,15 +65,6 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
         // be grouped
                 || tsn.getMember() == null; // When table contains syntax errors and cannot be grouped with other
                                             // tables.
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Object makeObject(TableSyntaxNode tsn) {
-
-        return tsn;
     }
 
     @Override
@@ -123,15 +88,13 @@ public class TableInstanceTreeNodeBuilder extends OpenMethodsGroupTreeNodeBuilde
     }
 
     @Override
-    public ITreeNode<Object> makeNode(TableSyntaxNode tableSyntaxNode, int i) {
+    public ProjectTreeNode makeNode(TableSyntaxNode tableSyntaxNode, int i) {
         Object nodeObject = makeObject(tableSyntaxNode);
         String[] displayNames = getDisplayValue(nodeObject, 0);
         // it seems we need to process only those tables that have properties that are using for version sorting.
         // in other case return original tableSyntaxNode.
         // ???
         // author: DLiauchuk
-        ProjectTreeNode projectTreeNode = new VersionedTreeNode(displayNames, tableSyntaxNode);
-        projectTreeNode.setObject(nodeObject);
-        return projectTreeNode;
+        return new VersionedTreeNode(displayNames, tableSyntaxNode);
     }
 }

@@ -41,7 +41,7 @@ public class ObjectToDataConvertorFactoryTest {
         assertNotNull(convertor);
         assertTrue(convertor instanceof MatchedConstructorConvertor);
 
-        Double valueToConvert = 23.5666;
+        double valueToConvert = 23.5666;
 
         BigDecimal value = (BigDecimal) convertor.convert(valueToConvert);
         assertEquals(valueToConvert, value.doubleValue(), 0);

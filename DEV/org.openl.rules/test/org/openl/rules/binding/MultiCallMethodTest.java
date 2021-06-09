@@ -37,7 +37,7 @@ public class MultiCallMethodTest {
     @Test
     public void testAccessFieldsMethodsForDataTable() {
         String[] names = instance.personsNames();
-        assertTrue(names.length == 2);
+        assertEquals(2, names.length);
         assertEquals("Vasia", names[0]);
         assertEquals("Petia", names[1]);
     }
@@ -45,7 +45,7 @@ public class MultiCallMethodTest {
     @Test
     public void testAccessFieldsMethodsForArrays() {
         String[] names = instance.personNamesFromArray();
-        assertTrue(names.length == 2);
+        assertEquals(2, names.length);
         assertEquals("Vasia", names[0]);
         assertEquals("Petia", names[1]);
     }
@@ -53,7 +53,7 @@ public class MultiCallMethodTest {
     @Test
     public void test2MethodsCall() {
         int[] a = instance.test2MethodCalls();
-        assertTrue(a.length == 2);
+        assertEquals(2, a.length);
         assertEquals(7, a[0]);
         assertEquals(9, a[1]);
     }

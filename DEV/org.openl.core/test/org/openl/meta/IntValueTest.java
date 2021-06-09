@@ -106,7 +106,7 @@ public class IntValueTest {
         }
 
         mas = null;
-        assertEquals(null, IntValue.big(mas, 5));
+        assertNull(IntValue.big(mas, 5));
 
         mas = new IntValue[1];
         try {

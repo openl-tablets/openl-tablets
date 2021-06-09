@@ -7,13 +7,25 @@
     <bean id="localWorkspaceManager" class="org.openl.rules.workspace.lw.impl.LocalWorkspaceManagerImpl"
           init-method="init">
         <constructor-arg name="propertyResolver" ref="environment"/>
-        <property name="localWorkspaceFolderFilter" ref="localWorkspaceFolderFilter"/>
+        <constructor-arg name="designTimeRepository" ref="designTimeRepository"/>
         <property name="enableLocks" value="#{'${user.mode}' != 'single'}"/>
+    </bean>
+
+    <bean name="settingsRepository" class="org.openl.rules.repository.RepositoryInstatiator" factory-method="newRepository">
+        <constructor-arg name="prefix" value="repository.settings"/>
+        <constructor-arg name="props" value="#{new org.openl.spring.env.PropertyResolverFunction(environment)}"/>
+    </bean>
+
+    <bean name="repositorySettings" class="org.openl.rules.repository.api.RepositorySettings">
+        <constructor-arg name="repository" ref="settingsRepository"/>
+        <constructor-arg name="locksRoot" value="${repository.settings.locks.root}"/>
+        <constructor-arg name="lockTimeToLive" value="${repository.settings.locks.time-to-live}"/>
     </bean>
 
     <bean id="designTimeRepository" class="org.openl.rules.workspace.dtr.impl.DesignTimeRepositoryImpl"
           init-method="init" destroy-method="destroy">
         <property name="propertyResolver" ref="environment"/>
+        <property name="repositorySettings" ref="repositorySettings"/>
     </bean>
 
     <bean id="workspaceManager" class="org.openl.rules.workspace.MultiUserWorkspaceManager">
@@ -21,9 +33,16 @@
         <property name="designTimeRepository" ref="designTimeRepository"/>
     </bean>
 
+    <bean id="designRepositoryFactoryProxy"
+          class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy" destroy-method="destroy">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="mode" value="DESIGN"/>
+    </bean>
+
     <bean id="productionRepositoryFactoryProxy"
-          class="org.openl.rules.webstudio.web.repository.ProductionRepositoryFactoryProxy" destroy-method="destroy">
-        <constructor-arg ref="environment"/>
+          class="org.openl.rules.webstudio.web.repository.RepositoryFactoryProxy" destroy-method="destroy">
+        <constructor-arg name="propertyResolver" ref="environment"/>
+        <constructor-arg name="mode" value="PRODUCTION"/>
     </bean>
 
     <bean id="deploymentManager" class="org.openl.rules.webstudio.web.repository.DeploymentManager">
@@ -35,13 +54,24 @@
     <bean id="projectDescriptorArtefactResolver"
           class="org.openl.rules.project.resolving.ProjectDescriptorArtefactResolver"/>
 
-    <bean id="designRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
-        <constructor-arg ref="environment"/>
-        <constructor-arg name="prefix" value="design."/>
-    </bean>
-
     <bean id="deployConfigRepositoryComments" class="org.openl.rules.project.abstraction.Comments">
         <constructor-arg ref="environment"/>
-        <constructor-arg name="prefix" value="deploy-config."/>
+        <constructor-arg name="repoId" value="deploy-config"/>
     </bean>
+
+    <bean id="projectVersionCacheDB" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionH2CacheDB">
+        <property name="openLHome" value="${openl.home}"/>
+    </bean>
+
+    <bean id="projectVersionCacheManager" class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager">
+        <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="designRepository" ref="designTimeRepository"/>
+    </bean>
+
+    <bean class="org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheMonitor" destroy-method="release">
+        <property name="projectVersionCacheDB" ref="projectVersionCacheDB"/>
+        <property name="projectVersionCacheManager" ref="projectVersionCacheManager"/>
+        <property name="designRepository" ref="designTimeRepository"/>
+    </bean>
+
 </beans>

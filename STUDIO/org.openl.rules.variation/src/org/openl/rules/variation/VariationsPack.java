@@ -1,16 +1,7 @@
 package org.openl.rules.variation;
 
-/*
- * #%L
- * OpenL - Variation
- * %%
- * Copyright (C) 2013 OpenL Tablets
- * %%
- * See the file LICENSE.txt for copying permission.
- * #L%
- */
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.xml.bind.annotation.XmlRootElement;
@@ -40,9 +31,7 @@ public final class VariationsPack {
                 }
             }
         }
-        for (Variation variation : variations) {
-            this.variations.add(variation);
-        }
+        Collections.addAll(this.variations, variations);
     }
 
     public void addVariation(Variation variation) throws VariationException {

@@ -5,11 +5,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Paths;
 
 import org.openl.conf.IConfigurableResourceContext;
 import org.openl.source.IOpenSourceCodeModule;
 import org.openl.source.impl.URLSourceCodeModule;
-import org.openl.util.PathTool;
 
 /**
  * Searches for includes.
@@ -18,14 +18,14 @@ import org.openl.util.PathTool;
 public class IncludeSearcher {
 
     private static final String INCLUDE = "include/";
-    private IConfigurableResourceContext ucxt;
+    private final IConfigurableResourceContext ucxt;
 
     public IncludeSearcher(IConfigurableResourceContext ucxt) {
         this.ucxt = ucxt;
     }
 
     public IOpenSourceCodeModule findInclude(String include) throws IOException {
-        String p = PathTool.mergePath(INCLUDE, include);
+        String p = Paths.get(INCLUDE, include).normalize().toString();
         URL url = ucxt.findClassPathResource(p);
 
         if (url != null) {

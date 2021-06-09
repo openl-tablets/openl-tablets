@@ -3,34 +3,51 @@ package org.openl.rules.project.abstraction;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.List;
-import java.util.Map;
 
 import org.junit.Before;
 import org.junit.Test;
 
 public class CommentsTest {
 
+    public static final String TEMPLATE = "FOO";
+
     private Comments comments;
+    private Comments comments2;
 
     @Before
     public void setUp() {
-        Map<String, Object> parameters = new HashMap<>();
+        String dateTimeFormat = "MM/dd/yyyy 'at' hh:mm:ss a";
         String saveProjectTemplate = "Project {username} {{project-name}} is saved. {foo}";
         String createProjectTemplate = "Project {username} {project-name} is created. {foo}";
         String archiveProjectTemplate = "Project {username} {{project-name} is archived. {foo}";
         String restoreProjectTemplate = "Project {username} '{'{project-name} is restored. {foo}";
         String eraseProjectTemplate = "Project {username} {project-name} is erased. {foo}";
         String copiedFromTemplate = "Project {username} {{project-name}} is copied-from. {foo}";
-        String restoredFromTemplate = "Project {username} {revision} is restored-from. {foo}";
-        comments = new Comments(saveProjectTemplate,
+        String restoredFromTemplate = "Project {username} {revision} is restored-from. Author: {author}, date: {datetime}. {foo}";
+        String newBranchNameTemplate = "WebStudio/{project-name}/{username}/{current-date} {foo}";
+        comments = new Comments(dateTimeFormat,
+            saveProjectTemplate,
             createProjectTemplate,
             archiveProjectTemplate,
             restoreProjectTemplate,
             eraseProjectTemplate,
             copiedFromTemplate,
-            restoredFromTemplate);
+            restoredFromTemplate,
+            newBranchNameTemplate);
+
+        comments2 = new Comments(dateTimeFormat,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE,
+            TEMPLATE);
     }
 
     @Test
@@ -130,14 +147,43 @@ public class CommentsTest {
 
     @Test
     public void testRestoredFrom() {
-        String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd");
-        assertEquals("Project {username} sdsd-s-ds-d-sd-sd is restored-from. {foo}", actual);
+        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        String actual = comments.restoredFrom("sdsd-s-ds-d-sd-sd", "john", date);
+        assertEquals(
+            "Project {username} sdsd-s-ds-d-sd-sd is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+            actual);
     }
 
     @Test
     public void testRestoredFromWithDollarSign() {
-        String actualWithSymbol = comments.restoredFrom("$$$12$$3$");
-        assertEquals("Project {username} $$$12$$3$ is restored-from. {foo}", actualWithSymbol);
+        Date date = new GregorianCalendar(2020, Calendar.JUNE, 22, 21, 2, 42).getTime();
+        String actualWithSymbol = comments.restoredFrom("$$$12$$3$", "john", date);
+        assertEquals(
+            "Project {username} $$$12$$3$ is restored-from. Author: john, date: 06/22/2020 at 09:02:42 PM. {foo}",
+            actualWithSymbol);
+    }
+
+    @Test
+    public void testNewBranch() {
+        assertEquals("WebStudio/myProjectName/myUserName/myCurrentDate {foo}",
+            comments.newBranch("myProjectName", "myUserName", "myCurrentDate"));
+        assertEquals("WebStudio/$$$myProj$ectName$$/myUserName/myCurrentDate {foo}",
+            comments.newBranch("$$$myProj$ectName$$", "myUserName", "myCurrentDate"));
+        assertEquals("WebStudio/Foo岸Бар9-1/myUserName/myCurrentDate {foo}",
+                comments.newBranch("Foo岸~^:Бар9-1.", "myUserName", "myCurrentDate"));
+    }
+
+    @Test
+    public void testSimpleComments() {
+        assertEquals(TEMPLATE, comments2.saveProject("foo"));
+        assertEquals(TEMPLATE, comments2.createProject("foo"));
+        assertEquals(TEMPLATE, comments2.archiveProject("foo"));
+        assertEquals(TEMPLATE, comments2.restoreProject("foo"));
+        assertEquals(TEMPLATE, comments2.eraseProject("foo"));
+        assertEquals(TEMPLATE, comments2.copiedFrom("foo"));
+        assertEquals(TEMPLATE, comments2.restoredFrom("foo", "bar", new Date()));
+        assertEquals("Project {username} {myProjectName} is copied-from. {foo}",
+            comments2.getCommentParts("Project {username} {myProjectName} is copied-from. {foo}").get(0));
     }
 
 }

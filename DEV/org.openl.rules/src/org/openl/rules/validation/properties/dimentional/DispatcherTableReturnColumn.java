@@ -16,15 +16,15 @@ public class DispatcherTableReturnColumn {
     /**
      * Return type of the member of overloaded tables group.
      */
-    private IOpenClass originalReturnType;
+    private final IOpenClass originalReturnType;
     /**
      * Name of method in overloaded tables group.
      */
-    private String methodName;
+    private final String methodName;
     /**
      * Signature of the member of overloaded tables group.
      */
-    private IMethodSignature originalSignature;
+    private final IMethodSignature originalSignature;
 
     DispatcherTableReturnColumn(IOpenClass originalReturnType, String methodName, IMethodSignature originalSignature) {
         this.originalReturnType = originalReturnType;

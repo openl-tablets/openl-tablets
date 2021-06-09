@@ -76,11 +76,11 @@ public class Comparison {
     }
 
     public static boolean eq(Float x, Float y) {
-        return x == null && y == null || x != null && y != null && eq(x.floatValue(), y.floatValue());
+        return (x == null && y == null) || (x != null && y != null && eq(x.floatValue(), y.floatValue()));
     }
 
     public static boolean eq(Double x, Double y) {
-        return x == null && y == null || x != null && y != null && eq(x.doubleValue(), y.doubleValue());
+        return (x == null && y == null) || (x != null && y != null && eq(x.doubleValue(), y.doubleValue()));
     }
 
     public static boolean eq(BigDecimal x, BigDecimal y) {
@@ -411,32 +411,32 @@ public class Comparison {
         if (x == y) {
             return false;
         }
-        return x == null || y != null && NumericComparableString.valueOf(x)
-            .compareTo(NumericComparableString.valueOf(y)) < 0;
+        return x == null ||
+            (y != null && NumericComparableString.valueOf(x).compareTo(NumericComparableString.valueOf(y)) < 0);
     }
 
     public static boolean string_lt(String x, String y) {
         if (Objects.equals(x, y)) {
             return false;
         }
-        return x == null || y != null && NumericComparableString.valueOf(x)
-            .compareTo(NumericComparableString.valueOf(y)) < 0;
+        return x == null ||
+            (y != null && NumericComparableString.valueOf(x).compareTo(NumericComparableString.valueOf(y)) < 0);
     }
 
     public static boolean string_le(CharSequence x, CharSequence y) {
         if (x == y) {
             return true;
         }
-        return x == null || y != null && NumericComparableString.valueOf(x)
-            .compareTo(NumericComparableString.valueOf(y)) <= 0;
+        return x == null
+            || (y != null && NumericComparableString.valueOf(x).compareTo(NumericComparableString.valueOf(y)) <= 0);
     }
 
     public static boolean string_le(String x, String y) {
         if (Objects.equals(x, y)) {
             return true;
         }
-        return x == null || y != null && NumericComparableString.valueOf(x)
-            .compareTo(NumericComparableString.valueOf(y)) <= 0;
+        return x == null
+            || (y != null && NumericComparableString.valueOf(x).compareTo(NumericComparableString.valueOf(y)) <= 0);
     }
 
     public static boolean string_ge(CharSequence x, CharSequence y) {

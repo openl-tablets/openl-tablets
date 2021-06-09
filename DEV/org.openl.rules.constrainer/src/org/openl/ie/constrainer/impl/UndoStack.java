@@ -8,7 +8,7 @@ import org.openl.ie.tools.FastStack;
  * An implementation of the undo stack.
  */
 public final class UndoStack implements java.io.Serializable {
-    private FastStack _stack;
+    private final FastStack _stack;
 
     /**
      * Default constructor.

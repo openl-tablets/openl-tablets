@@ -19,10 +19,10 @@ class XlsNumberFormatter implements IFormatter {
 
     private final Logger log = LoggerFactory.getLogger(XlsNumberFormatter.class);
 
-    private int formatIndex;
-    private String format;
-    private DataFormatter dataFormatter;
-    private Locale locale;
+    private final int formatIndex;
+    private final String format;
+    private final DataFormatter dataFormatter;
+    private final Locale locale;
 
     public XlsNumberFormatter(int xlsFormatIndex, String xlsFormat, DataFormatter xlsDataFormatter, Locale locale) {
         this.formatIndex = xlsFormatIndex;

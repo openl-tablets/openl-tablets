@@ -21,7 +21,7 @@ import org.openl.types.IOpenClass;
  */
 public class LocalVarBinder extends ANodeBinder {
 
-    public static final IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
+    public static IBoundNode createLocalVarDeclarationNode(ISyntaxNode node,
             String name,
             ISyntaxNode initializationNode,
             IOpenClass varType,
@@ -40,7 +40,7 @@ public class LocalVarBinder extends ANodeBinder {
 
         ILocalVar var = bindingContext.addVar(ISyntaxConstants.THIS_NAMESPACE, name, varType);
 
-        return new LocalVarDeclarationNode(node, init == null ? null : new IBoundNode[] { init }, var);
+        return new LocalVarDeclarationNode(node, init, var);
     }
 
     @Override
@@ -67,7 +67,7 @@ public class LocalVarBinder extends ANodeBinder {
             }
         }
 
-        return new BlockNode(node, 0, boundNodes.toArray(new IBoundNode[boundNodes.size()]));
+        return new BlockNode(node, 0, boundNodes.toArray(IBoundNode.EMPTY));
     }
 
 }

@@ -7,7 +7,7 @@ import org.openl.ie.constrainer.impl.FloatExpImpl;
  * optimized implementation.
  */
 public final class FloatExpConst extends FloatExpImpl {
-    private double _const;
+    private final double _const;
 
     public FloatExpConst(Constrainer constrainer, double c) {
         super(constrainer, Double.toString(c));

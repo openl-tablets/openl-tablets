@@ -1,0 +1,31 @@
+<project>
+  <name>EPBDS-10250_data_tables</name>
+  <modules>
+    <module>
+      <name>Algorithms</name>
+      <rules-root path="rules/Algorithms.xlsx"/>
+      <method-filter>
+        <includes>
+          <value>.+ getpetsSimpleType\(\)</value>
+          <value>.+ getPetsArray\(\)</value>
+          <value>.+ getpetsB\(\)</value>
+          <value>.+ getpets\(\)</value>
+          <value>.+ getpetsA\(.+\)</value>
+        </includes>
+      </method-filter>
+    </module>
+    <module>
+      <name>Models</name>
+      <rules-root path="rules/Models.xlsx"/>
+    </module>
+  </modules>
+  <classpath>
+    <entry path="classes"/>
+  </classpath>
+  <openapi>
+    <path>EPBDS-10489.json</path>
+    <model-module-name>Models</model-module-name>
+    <algorithm-module-name>Algorithms</algorithm-module-name>
+    <mode>GENERATION</mode>
+  </openapi>
+</project>

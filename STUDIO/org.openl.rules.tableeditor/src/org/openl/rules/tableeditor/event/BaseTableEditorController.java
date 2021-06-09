@@ -13,7 +13,8 @@ import org.openl.rules.tableeditor.util.Constants;
 public class BaseTableEditorController {
 
     protected TableEditorModel getEditorModel(String editorId) {
-        Map editorModelMap = (Map) FacesContext.getCurrentInstance().getExternalContext().getSessionMap().get(Constants.TABLE_EDITOR_MODEL_NAME);
+        Map editorModelMap = (Map) FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().get(Constants.TABLE_EDITOR_MODEL_NAME);
         if (editorModelMap != null) {
             return (TableEditorModel) editorModelMap.get(editorId);
         }
@@ -37,7 +38,7 @@ public class BaseTableEditorController {
         return editorModel;
     }
 
-    private void prepareForEdit(TableEditorModel editorModel) {
+    private static void prepareForEdit(TableEditorModel editorModel) {
         TableEditor tableEditor = editorModel.getTableEditor();
         String mode = tableEditor.getMode();
         if ((mode == null || Constants.MODE_EDIT.equals(mode)) && tableEditor.isEditable()) {
@@ -47,7 +48,8 @@ public class BaseTableEditorController {
     }
 
     protected void removeEditorModel() {
-        FacesContext.getCurrentInstance().getExternalContext().getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
+        FacesContext.getCurrentInstance().getExternalContext()
+                .getSessionMap().remove(Constants.TABLE_EDITOR_MODEL_NAME);
     }
 
     private TableModel initializeTableModel(String editorId) {
@@ -68,7 +70,7 @@ public class BaseTableEditorController {
             editor.getLinkBuilder(),
             mode,
             editor.getView(),
-            editorModel.getMetaInfoReader());
+            editorModel.getMetaInfoReader(), false);
     }
 
     protected String render(String editorId) {

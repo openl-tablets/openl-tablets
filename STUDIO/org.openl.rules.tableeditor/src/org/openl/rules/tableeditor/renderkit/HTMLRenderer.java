@@ -1,10 +1,11 @@
 package org.openl.rules.tableeditor.renderkit;
 
-import javax.faces.context.FacesContext;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.faces.context.FacesContext;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.openl.rules.table.IGridRegion;
@@ -26,10 +27,6 @@ import org.openl.util.StringUtils;
  * @author Andrei Astrouski
  */
 public class HTMLRenderer {
-
-    /** New line */
-    public static final String NL = "\n";
-
     public static final int ALL_ROWS = -1;
     public static final int MAX_NUM_CELLS = 5000;
 
@@ -90,7 +87,7 @@ public class HTMLRenderer {
                 editor.getLinkBuilder(),
                 mode,
                 editor.getView(),
-                openLTable.getMetaInfoReader());
+                openLTable.getMetaInfoReader(), false);
 
             if (tableModel != null) {
                 TableRenderer tableRenderer = new TableRenderer(tableModel);
@@ -306,19 +303,7 @@ public class HTMLRenderer {
 
     protected String renderEditorToolbarItem(String itemId, String editor, String imgSrc, String action, String title) {
         editor = editor == null || editor.equals("") ? "" : editor + ".";
-        StringBuilder result = new StringBuilder();
-        result.append("<img id=\"")
-            .append(itemId)
-            .append("\" src=\"")
-            .append(internalPath(imgSrc))
-            .append("\" title=\"")
-            .append(title)
-            .append("\" onclick=\"")
-            .append(editor)
-            .append(action)
-            .append("\" class='te_toolbar_item te_toolbar_item_disabled'")
-            .append("></img>");
-        return result.toString();
+        return "<img id=\"" + itemId + "\" src=\"" + internalPath(imgSrc) + "\" title=\"" + title + "\" onclick=\"" + editor + action + "\" class='te_toolbar_item te_toolbar_item_disabled'" + "></img>";
     }
 
     public String renderJS(String jsPath) {
@@ -422,8 +407,7 @@ public class HTMLRenderer {
                     if (cell instanceof CellModel) {
                         boolean selectErrorCell = false;
                         if (cellUri != null) {
-                            XlsUrlParser uriParser = new XlsUrlParser();
-                            uriParser.parse(cellUri);
+                            XlsUrlParser uriParser = new XlsUrlParser(cellUri);
                             if (errorCell != null && errorCell.equals(uriParser.getCell())) {
                                 selectErrorCell = true;
                             }
@@ -434,7 +418,7 @@ public class HTMLRenderer {
                     StringBuilder cellId = new StringBuilder();
                     cellId.append(editorId)
                         .append(Constants.ID_POSTFIX_CELL)
-                        .append(String.valueOf(row + 1))
+                        .append((row + 1))
                         .append(":")
                         .append(col + 1);
 

@@ -4,7 +4,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>org.openl.rules.dev-pom</artifactId>
-        <version>5.23.1-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
     <groupId>org.openl</groupId>
     <artifactId>org.openl.grammars</artifactId>
@@ -38,7 +38,7 @@
                     <dependency>
                         <groupId>net.java.dev.javacc</groupId>
                         <artifactId>javacc</artifactId>
-                        <version>7.0.4</version>
+                        <version>7.0.10</version>
                     </dependency>
                 </dependencies>
             </plugin>

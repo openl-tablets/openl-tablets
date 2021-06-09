@@ -1,5 +1,5 @@
     @Override
-    public IRuntimeContext clone() throws CloneNotSupportedException {
+    public IRulesRuntimeContext clone() throws CloneNotSupportedException {
         DefaultRulesRuntimeContext defaultRulesRuntimeContext = (DefaultRulesRuntimeContext) super.clone();
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
         defaultRulesRuntimeContext.set$tool.formatAccessorName($contextPropertyDefinition.Name)(this.$contextPropertyDefinition.Name);
@@ -33,13 +33,12 @@
     }
 
 #end
-
     public static final Map<String, Class<?>> CONTEXT_PROPERTIES;
-    
+
     static {
         Map<String, Class<?>> contextFields = new TreeMap<>();
 #foreach( $contextPropertyDefinition in $contextPropertyDefinitions )
-        contextFields.put("$contextPropertyDefinition.Name", $tool.getTypeName($contextPropertyDefinition.Type.InstanceClass) .class);
+        contextFields.put("$contextPropertyDefinition.Name", ${tool.getTypeName($contextPropertyDefinition.Type.InstanceClass)}.class);
 #end
-        CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields); 
+        CONTEXT_PROPERTIES = Collections.unmodifiableMap(contextFields);
     }

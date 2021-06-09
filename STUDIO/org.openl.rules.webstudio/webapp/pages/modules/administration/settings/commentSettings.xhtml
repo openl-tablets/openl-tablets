@@ -73,6 +73,8 @@
         This specified value is used as default message when a project is restored from old version.<br/><br/>
         <ul>
         <li>{revision} is replaced by old revision number.</li>
+        <li>{author} is replaced by the author of old project version.</li>
+        <li>{datetime} is replaced by the date of old project version.</li>
         </ul>
     </div>
 
@@ -81,13 +83,13 @@
             <h:outputLabel value="Customize comments:" for="#{prependId}useCustomComments"/>
             <h:selectBooleanCheckbox id="#{prependId}useCustomComments" value="#{settings.useCustomComments}"
                                      onmousedown="if($j(this).attr('checked')){if(!window.confirm('All validation patterns will be lost. Do you want to continue?')) {return false;}} return this.click()">
-                <f:ajax event="change" execute="@form" render="#{prependId}commentSettings"/>
+                <f:ajax event="change" render="#{prependId}commentSettings"/>
             </h:selectBooleanCheckbox>
         </h:panelGrid>
 
         <h:panelGroup rendered="#{settings.useCustomComments}">
             <h:panelGrid columns="3" columnClasses="titleColumn">
-                <h:outputText value="Message:" styleClass="required"/>
+                <h:outputText value="Message template:" styleClass="required"/>
                 <h:inputText value="#{settings.commentTemplate}"
                              title="Comment message template for commits."
                              id="#{prependId}commentTemplate" validator="#{validators.commentTemplate}"/>

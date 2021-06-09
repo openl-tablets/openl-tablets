@@ -41,8 +41,8 @@
                                 <h:outputText value="#{prop.displayName}" />
                             </td>
                             <td>
-                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}"
-                                    rendered="#{prop.dateType}" required="true" requiredMessage="Can not be empty " />
+                                <rich:calendar id="date" value="#{prop.value}" datePattern="#{prop.format}" defaultTime="00:00"
+                                    rendered="#{prop.dateType}" required="true" requiredMessage="Cannot be empty" />
 
                                 <h:selectBooleanCheckbox id="checkbox" value="#{prop.value}" rendered="#{prop.booleanType}" />
 
@@ -60,8 +60,7 @@
                             </td>
                             <td>
                                 <a4j:commandLink action="#{propertiesManager.removeProperty}"
-                                    render="propertiesTable newPropertySelect" execute="@this">
-                                    <h:graphicImage value="/images/delete.png" title="Remove property" />
+                                    render="propertiesTable newPropertySelect" execute="@this" styleClass="delete-icon">
                                     <f:setPropertyActionListener value="#{prop}"
                                         target="#{propertiesManager.propToRemove}" />
                                 </a4j:commandLink>
@@ -98,7 +97,7 @@
                 oncomplete="go('step0.xhtml')" />
         </h:form>
 
-        <rich:popupPanel id="newPropertyDlg" width="310" top="100" left="200" autosized="true">
+        <rich:popupPanel id="newPropertyDlg" minWidth="310" top="100" left="200" autosized="true">
             <f:facet name="header">
                 <h:outputText value="Add Property" />
             </f:facet>

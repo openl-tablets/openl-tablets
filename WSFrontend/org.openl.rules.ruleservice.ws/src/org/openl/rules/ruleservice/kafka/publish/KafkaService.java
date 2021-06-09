@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
 
 public final class KafkaService implements Runnable {
 
-    private static ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
+    private static final ThreadPoolExecutor executor = new ThreadPoolExecutor(Runtime.getRuntime().availableProcessors(),
         Runtime.getRuntime().availableProcessors() * 2,
         60L,
         TimeUnit.SECONDS,
@@ -46,17 +46,17 @@ public final class KafkaService implements Runnable {
     private final Logger log = LoggerFactory.getLogger(KafkaService.class);
 
     private volatile boolean flag = true;
-    private OpenLService service;
-    private String inTopic;
-    private String outTopic;
-    private String dltTopic;
-    private Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
-    private KafkaProducer<String, Object> producer;
-    private KafkaProducer<String, byte[]> dltProducer;
-    private KafkaConsumer<String, RequestMessage> consumer;
+    private final OpenLService service;
+    private final String inTopic;
+    private final String outTopic;
+    private final String dltTopic;
+    private final Map<TopicPartition, OffsetAndMetadata> currentOffsets = new HashMap<>();
+    private final KafkaProducer<String, Object> producer;
+    private final KafkaProducer<String, byte[]> dltProducer;
+    private final KafkaConsumer<String, RequestMessage> consumer;
     private Thread loopRunningThread;
-    private ObjectSerializer objectSerializer;
-    private boolean storeLoggingEnabled;
+    private final ObjectSerializer objectSerializer;
+    private final boolean storageEnabled;
     private StoreLogDataManager storeLogDataManager;
 
     public static KafkaService createService(OpenLService service,
@@ -90,23 +90,23 @@ public final class KafkaService implements Runnable {
             KafkaProducer<String, byte[]> dltProducer,
             ObjectSerializer objectSerializer,
             StoreLogDataManager storeLogDataManager,
-            boolean storeLoggingEnabled) {
+            boolean storageEnabled) {
         this.service = Objects.requireNonNull(service);
         this.inTopic = Objects.requireNonNull(inTopic);
         this.producer = Objects.requireNonNull(producer);
         this.consumer = Objects.requireNonNull(consumer);
         this.dltProducer = Objects.requireNonNull(dltProducer);
         this.objectSerializer = Objects.requireNonNull(objectSerializer);
-        if (storeLoggingEnabled) {
+        if (storageEnabled) {
             this.storeLogDataManager = Objects.requireNonNull(storeLogDataManager);
         }
         this.outTopic = outTopic;
         this.dltTopic = dltTopic;
-        this.storeLoggingEnabled = storeLoggingEnabled;
+        this.storageEnabled = storageEnabled;
     }
 
     public boolean isStoreLogDataEnabled() {
-        return storeLoggingEnabled;
+        return storageEnabled;
     }
 
     public StoreLogDataManager getStoreLogDataManager() {
@@ -237,7 +237,7 @@ public final class KafkaService implements Runnable {
                                                     log.error(String.format(
                                                         "Failed to send a result message for method '%s' in service '%s' to output topic '%s'.",
                                                         requestMessage.getMethod(),
-                                                        getService().getName(),
+                                                        getService().getDeployPath(),
                                                         getOutTopic(consumerRecord)), exception);
                                                 }
                                             } catch (Exception e) {

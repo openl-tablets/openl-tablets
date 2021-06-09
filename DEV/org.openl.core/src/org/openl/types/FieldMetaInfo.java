@@ -7,9 +7,9 @@ import org.openl.syntax.ISyntaxNode;
 
 public class FieldMetaInfo implements IMemberMetaInfo {
 
-    private ISyntaxNode syntaxNode;
-    private String displayName;
-    private String sourceUrl;
+    private final ISyntaxNode syntaxNode;
+    private final String displayName;
+    private final String sourceUrl;
 
     public FieldMetaInfo(String fieldType, String fieldName, ISyntaxNode syntaxNode, String sourceUrl) {
         this.displayName = fieldType + " " + fieldName;

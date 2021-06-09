@@ -1,5 +1,7 @@
 package org.openl.ie.constrainer.impl;
 
+import java.util.Arrays;
+
 import org.openl.ie.constrainer.*;
 
 /**
@@ -10,14 +12,12 @@ final class BitArray implements java.io.Serializable {
     final static int BITS_PER_WORD = 32;
 
     int[] _bits;
-    int _size;
+    final int _size;
 
     BitArray(int size) {
         _bits = new int[(size - 1) / BITS_PER_WORD + 1];
         _size = size;
-        for (int i = 0; i < _bits.length; ++i) {
-            _bits[i] = 0xffffffff;
-        }
+        Arrays.fill(_bits, 0xffffffff);
     }
 
     boolean at(int index) {
@@ -74,7 +74,7 @@ public final class DomainBits2 extends DomainImpl {
     // private int _max; // the last i with _bits[i]=true
 
     // public static final int MAX_VALUE = 1000000;//Integer.MAX_VALUE-1;
-    BitArray _bits;
+    final BitArray _bits;
 
     static void test1(String args[]) throws Exception {
         BitArray b = new BitArray(100);
@@ -193,7 +193,7 @@ public final class DomainBits2 extends DomainImpl {
             int to = upperBound(from);
 
             if (to - from == 1) {
-                buf.append(String.valueOf(from));
+                buf.append(from);
             } else {
                 buf.append(from).append("..").append(to - 1);
             }
@@ -278,7 +278,7 @@ public final class DomainBits2 extends DomainImpl {
 
         // _max = M;
 
-        for (; _max > M;) {
+        while (_max > M) {
             if (_bits.at(_max-- - _initial_min)) {
                 --_size;
             }
@@ -315,7 +315,7 @@ public final class DomainBits2 extends DomainImpl {
 
         // _min = m;
 
-        for (; _min < m;) {
+        while (_min < m) {
             if (_bits.at(_min++ - _initial_min)) {
                 --_size;
             }

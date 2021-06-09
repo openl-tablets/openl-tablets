@@ -7,7 +7,7 @@ import org.openl.rules.table.actions.AUndoableCellAction;
 
 public class SetItalicAction extends AUndoableCellAction {
 
-    private boolean italic;
+    private final boolean italic;
 
     public SetItalicAction(int col, int row, boolean italic, MetaInfoWriter metaInfoWriter) {
         super(col, row, metaInfoWriter);
