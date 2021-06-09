@@ -8,6 +8,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.openl.rules.ruleservice.core.OpenLService;
@@ -116,7 +119,7 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
         }
     }
 
-    public void save(Object entity) {
+    public void save(Object entity, boolean sync) {
         if (entity == null) {
             return;
         }
@@ -127,9 +130,12 @@ public class CassandraOperations implements InitializingBean, DisposableBean, Ru
                 LOG.error("Failed to save cassandra entity. Annotation @EntitySupport is not presented in class '{}'.",
                     entity.getClass().getTypeName());
             } else {
-                getEntitySaver(entity.getClass()).insert(entity);
+                CompletionStage<Void> completionStage = getEntitySaver(entity.getClass()).insert(entity);
+                if (sync) {
+                    completionStage.toCompletableFuture().join();
+                }
             }
-        } catch (ReflectiveOperationException | DaoCreationException e) {
+        } catch (ReflectiveOperationException | DaoCreationException | CompletionException | CancellationException e) {
             LOG.error("Failed to save cassandra entity '{}'.", entity.getClass().getTypeName(), e);
         }
     }

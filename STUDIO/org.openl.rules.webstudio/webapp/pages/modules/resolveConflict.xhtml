@@ -75,7 +75,7 @@
               </h:panelGroup>
             </h:panelGrid>
             </p>
-          <ui:repeat value="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
+          <c:forEach items="#{mergeConflictBean.conflictGroups}" var="conflictGroup">
             <h:outputText value="Conflicts in project '#{conflictGroup.projectName}':"
                           title="Project path in repository: #{conflictGroup.projectPath}" rendered="#{not empty conflictGroup.projectName}"
                           styleClass="label"/>
@@ -162,8 +162,7 @@
                 </h:panelGroup>
               </rich:column>
             </rich:dataTable>
-          </ui:repeat>
-
+          </c:forEach>
           <p>
             <h:outputText rendered="#{not empty mergeConflictBean.mergeError}"
                           value="#{mergeConflictBean.mergeError}" styleClass="error"/>

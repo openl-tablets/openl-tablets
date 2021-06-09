@@ -17,7 +17,4 @@ public interface StoreLogDataService {
         return Collections.emptyList();
     }
 
-    default boolean isSync(StoreLogData storeLogData) {
-        return false;
-    }
 }

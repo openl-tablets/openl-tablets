@@ -29,8 +29,6 @@ import org.openl.rules.convertor.IObjectToDataConvertor;
 import org.openl.rules.convertor.ObjectToDataConvertorFactory;
 import org.openl.rules.convertor.String2DataConvertorFactory;
 import org.openl.rules.dt.element.ArrayHolder;
-import org.openl.rules.dt.element.OneDimArrayHolder;
-import org.openl.rules.dt.element.TwoDimArrayHolder;
 import org.openl.rules.helpers.INumberRange;
 import org.openl.rules.lang.xls.binding.XlsModuleOpenClass;
 import org.openl.rules.lang.xls.types.CellMetaInfo;
@@ -692,7 +690,7 @@ public final class RuleRowHelper {
                 Array.set(array, i, paramsArray[i]);
             }
         }
-        return hasFormulas ? new OneDimArrayHolder(paramType, paramsArray) : array;
+        return hasFormulas ? new ArrayHolder(paramType, paramsArray) : array;
     }
 
     private static Object loadSimpleArrayParams(ILogicalTable dataTable,
@@ -732,7 +730,7 @@ public final class RuleRowHelper {
                 }
             }
             if (hasFormulas) {
-                return new OneDimArrayHolder(paramType, values.toArray(new Object[0]));
+                return new ArrayHolder(paramType, values.toArray(new Object[0]));
             } else {
                 IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
                 Object array = aggregateInfo.makeIndexedAggregate(paramType, values.size());
@@ -779,7 +777,7 @@ public final class RuleRowHelper {
                 }
             }
             if (hasFormulas) {
-                return new TwoDimArrayHolder(paramType, values.toArray(new Object[0][0]));
+                return new ArrayHolder(paramType, values.toArray(new Object[0][0]));
             } else {
                 IAggregateInfo aggregateInfo = aggregateType.getAggregateInfo();
                 Object array = aggregateInfo.makeIndexedAggregate(paramType, values.size());

@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.24.2-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
 
     <groupId>org.openl.itest</groupId>
@@ -29,6 +29,7 @@
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>
+        <module>itest.healthchecks</module>
         <module>itest.dateTimeFormat</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
@@ -91,6 +92,14 @@
                             <server.responses>${project.build.directory}/responses/</server.responses>
                             <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
                             <http.timeout.read>${http.timeout.read}</http.timeout.read>
+                            <!--
+                                Max connections to keep alive. Don't change it without special need.
+                                25 value is chosen because the max thread for parallel tests is 20 + default value 5
+                                See: https://docs.oracle.com/javase/8/docs/technotes/guides/net/http-keepalive.html
+                                -->
+                            <http.maxConnections>25</http.maxConnections>
+                            <!-- Enable Cors header for URL Connection because it's restricted by default -->
+                            <sun.net.http.allowRestrictedHeaders>true</sun.net.http.allowRestrictedHeaders>
                         </systemPropertyVariables>
                     </configuration>
                 </plugin>

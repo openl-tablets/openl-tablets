@@ -3,8 +3,6 @@ package org.openl.rules.ruleservice.storelogdata;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.annotation.SkipFault;
@@ -24,8 +22,6 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
         this.enabled = !storeLogDataServices.isEmpty();
     }
 
-    ExecutorService executorService = Executors.newSingleThreadExecutor();
-
     public Collection<StoreLogDataService> getServices() {
         return storeLogDataServices;
     }
@@ -34,13 +30,11 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     public void store(StoreLogData storeLogData) {
         if (!storeLogData.isIgnorable()) {
             if (!ignoreByFault(storeLogData)) {
-                for (StoreLogDataService storeLoggingService : storeLogDataServices) {
-                    if (storeLoggingService.isSync(storeLogData)) {
-                        save(storeLoggingService, storeLogData);
-                    } else {
-                        executorService.submit(() -> {
-                            save(storeLoggingService, storeLogData);
-                        });
+                for (StoreLogDataService storeLogDataService : storeLogDataServices) {
+                    try {
+                        storeLogDataService.save(storeLogData);
+                    } catch (Exception e) {
+                        log.error("Failed on save operation.", e);
                     }
                 }
             }
@@ -50,14 +44,6 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     @Override
     public boolean isEnabled() {
         return enabled;
-    }
-
-    private void save(StoreLogDataService storeLogDataService, StoreLogData storeLogData) {
-        try {
-            storeLogDataService.save(storeLogData);
-        } catch (Exception e) {
-            log.error("Failed on save operation.", e);
-        }
     }
 
     private boolean ignoreByFault(StoreLogData storeLogData) {

@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.24.2-SNAPSHOT</version>
+    <version>5.24.3-SNAPSHOT</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -80,7 +80,7 @@
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
         <org.springframework.version>5.2.14.RELEASE</org.springframework.version>
         <org.springsecurity.version>5.4.6</org.springsecurity.version>
-        <org.hibernate.version>5.2.18.Final</org.hibernate.version>
+        <org.hibernate.version>5.4.24.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
          -->
@@ -1406,7 +1406,7 @@
             <dependency>
                 <groupId>org.hibernate</groupId>
                 <artifactId>hibernate-validator</artifactId>
-                <version>5.1.1.Final</version>
+                <version>5.4.3.Final</version>
                 <exclusions>
                     <exclusion>
                         <groupId>org.jboss.logging</groupId>

@@ -7,6 +7,9 @@ ARG SERVER="https://repo.maven.apache.org/maven2"
 
 RUN set -eux ; \
     \
+# Create non-root OpenL user
+    groupadd  -r openl && useradd -m -g openl openl ; \
+    \
 # Prepare environment. Install required utils for Docker image building.
     savedAptMark="$(apt-mark showmanual)"; \
     \

@@ -34,7 +34,7 @@
             <div>
                 <c:forEach items="#{searchBean.searchResults}" var="table">
                     <div class="search-result">
-                        <h:outputLink value="#{studio.url('table')}">
+                        <h:outputLink value="#{studio.url('table', table.uri)}">
                             <f:param name="id" value="#{table.id}" />
                             <h:outputText value="#{msg['ws.search.results.view']}" />
                         </h:outputLink>
