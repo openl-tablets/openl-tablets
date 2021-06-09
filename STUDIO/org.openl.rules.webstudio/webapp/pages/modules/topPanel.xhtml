@@ -162,10 +162,17 @@
 
             <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
             <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                styleClass="navbar-dropdown" onclick="test(event, '#{studio.url('test/test')}')">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
+                styleClass="navbar-dropdown" onclick="return runAllTests();">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
             <span class="dropdown dropdown-form">
-                <a class="dropdown-toggle" data-toggle="dropdown" href="#"><b class="caret" /></a>
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
                 <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
+                    <li onclick="event.stopPropagation()">
+                        <span style="margin-bottom: -3px" tabindex="-1" title="Run for the currently opened module only">
+                            <span style="margin-right: 10px">Run for the currently opened module only</span>
+                            <input id="testModuleOnlyField" name="currentOpenedModule" type="checkbox"
+                                   value="true" style="vertical-align:-2px;margin:-4px" />
+                        </span>
+                    </li>
                     <li onclick="event.stopPropagation()">
                         <span tabindex="-1">
                             <span>Tests per page</span>
@@ -241,7 +248,7 @@
                                title="Compare and/or roll back module changes against a specific date">Local Changes</a></li>
                         <li class="divider"></li>
                     </h:panelGroup>
-                    <h:panelGroup rendered="#{!empty module and studio.model.projectCompiledSuccessfully}">
+                    <h:panelGroup rendered="#{!empty module and studio.model.compiledSuccessfully}">
                     <li><a tabindex="-1" href="#{studio.url('dependencies')}">Table Dependencies</a></li>
                     </h:panelGroup>
                     <li><a tabindex="-1" target="_blank"
@@ -258,7 +265,7 @@
     </h:form>
 
     <div style="float:right;position:absolute;margin-right:20px;display:inline-block;top:-31px;left:234px">
-        <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.projectCompiledSuccessfully}">
+        <h:panelGroup rendered="#{!empty rProject and !empty module and studio.model.compiledSuccessfully}">
             <ui:include src="/pages/modules/searchForm.xhtml" />
         </h:panelGroup>
     </div>
@@ -267,9 +274,9 @@
         //<![CDATA[
         // TODO Add to namespace
         function getGlobalTestQuery() {
-            var query = $j("#testSettings").find("select,input").serialize();
-            jQuery('#testSettings').find('input[type=checkbox]:not(:checked)').each(function () {
-                query += '&' + this.name + '=false';
+            var query = '';
+            jQuery('#testSettings').find('input[type=checkbox]').each(function () {
+                query += '&' + this.name + '=' + this.checked;
             });
             return query;
         }
@@ -278,6 +285,35 @@
             e.preventDefault();
             var query = getGlobalTestQuery();
             ws.nav.go(testUrl + "?" + query, true);
+        }
+
+        function onTestOpen() {
+            compiled(function(data) {
+                $j("#testModuleOnlyField").prop('checked', !data);
+                $j("#testModuleOnlyField").prop('disabled', !data);
+            });
+        }
+
+        function compiled(callback) {
+            return $jq.ajax({
+                url: "#{contextPath}/web/compile/module",
+                datatype: "text"
+            })
+                .done(function (data) {
+                    callback(data);
+                });
+        }
+
+        function runAllTests() {
+            compiled(function (data) {
+                if (!data) {
+                    if (!confirm("Tests can be run for the currently opened module only because the project is not compiled yet.")) {
+                        return false;
+                    }
+                }
+                test(event, '#{studio.url('test/test')}');
+            });
+            return false;
         }
 
         function downloadTest(e) {

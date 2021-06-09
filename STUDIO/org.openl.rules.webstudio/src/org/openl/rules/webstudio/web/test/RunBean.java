@@ -10,7 +10,6 @@ import org.openl.rules.testmethod.ITestUnit;
 import org.openl.rules.testmethod.TestSuite;
 import org.openl.rules.testmethod.TestUnitsResults;
 import org.openl.rules.ui.ObjectViewer;
-import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.webstudio.web.MainBean;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
@@ -47,9 +46,10 @@ public class RunBean {
     public void init() {
         testSuite = runTestHelper.getTestSuite();
         id = WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_ID);
+        boolean currentOpenedModule = Boolean
+            .parseBoolean(WebStudioUtils.getRequestParameter(Constants.REQUEST_PARAM_CURRENT_OPENED_MODULE));
         if (testSuite != null) {
-            ProjectModel model = WebStudioUtils.getProjectModel();
-            results = model.runTest(testSuite);
+            results = WebStudioUtils.getProjectModel().runTest(testSuite, currentOpenedModule);
         }
     }
 
