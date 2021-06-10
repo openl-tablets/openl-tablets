@@ -23,7 +23,6 @@ import org.openl.rules.webstudio.util.WebTool;
 import org.openl.rules.repository.api.FileItem;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.util.IOUtils;
@@ -70,9 +69,6 @@ public class ConflictService {
                 stream = file.getStream();
                 IOUtils.copy(stream, output);
                 output.flush();
-            } catch (WorkspaceException e) {
-                LOG.warn(e.getMessage(), e);
-                throw new IOException(e.getMessage(), e);
             } finally {
                 IOUtils.closeQuietly(stream);
             }
@@ -106,7 +102,7 @@ public class ConflictService {
                     }
                 }
                 throw new FileNotFoundException(String.format("File %s is not found.", name));
-            } catch (WorkspaceException | ProjectException e) {
+            } catch (ProjectException e) {
                 LOG.warn(e.getMessage(), e);
                 throw new IOException(e.getMessage(), e);
             } finally {

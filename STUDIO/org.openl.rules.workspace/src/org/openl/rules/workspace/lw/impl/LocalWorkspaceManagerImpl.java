@@ -1,13 +1,14 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -49,14 +50,15 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     /**
      * init-method
      */
-    public void init() throws Exception {
+    public void init() throws FileNotFoundException {
         if (workspaceHome == null) {
             log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
         File location = new File(workspaceHome);
         if (!location.mkdirs() && !location.exists()) {
-            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
+            final String message = MessageFormat.format("Cannot create workspace location ''{0}''", workspaceHome);
+            throw new FileNotFoundException(message);
         }
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
@@ -72,7 +74,7 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     }
 
     @Override
-    public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
+    public LocalWorkspace getWorkspace(WorkspaceUser user) {
         String userId = user.getUserId();
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
