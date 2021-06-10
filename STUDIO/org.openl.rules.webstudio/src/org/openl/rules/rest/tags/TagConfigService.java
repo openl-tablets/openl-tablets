@@ -67,7 +67,8 @@ public class TagConfigService {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
-            throw new NotFoundException();
+           return Response.status(Response.Status.NOT_FOUND).build();
+
         }
         if (tagService.delete(id)) {
             return Response.noContent().build();
