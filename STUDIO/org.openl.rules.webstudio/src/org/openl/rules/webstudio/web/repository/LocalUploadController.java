@@ -19,7 +19,6 @@ import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -76,7 +75,7 @@ public class LocalUploadController {
     private void createProject(File baseFolder,
         RulesUserSession rulesUserSession,
         String comment,
-        String repositoryId) throws ProjectException, WorkspaceException, FileNotFoundException {
+        String repositoryId) throws ProjectException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }

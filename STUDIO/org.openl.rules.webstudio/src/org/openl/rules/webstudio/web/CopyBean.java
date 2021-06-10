@@ -36,7 +36,6 @@ import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -315,17 +314,12 @@ public class CopyBean {
         WebStudioUtils.validate(NameChecker.checkName(newProjectName), NameChecker.BAD_PROJECT_NAME_MSG);
 
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
-        try {
-            UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
-            String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
-                .getSubmittedValue()
-                .toString();
-            boolean projectExist = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
-            WebStudioUtils.validate(!projectExist, "Project with such name already exists.");
-        } catch (WorkspaceException e) {
-            LOG.error(e.getMessage(), e);
-            WebStudioUtils.throwValidationError("Error during validation.");
-        }
+        UserWorkspace userWorkspace = rulesUserSession.getUserWorkspace();
+        String targetRepo = ((UIInput) context.getViewRoot().findComponent("copyProjectForm:repository"))
+            .getSubmittedValue()
+            .toString();
+        boolean projectExist = userWorkspace.getDesignTimeRepository().hasProject(targetRepo, newProjectName);
+        WebStudioUtils.validate(!projectExist, "Project with such name already exists.");
     }
 
     public void newBranchNameValidator(FacesContext context, UIComponent toValidate, Object value) {
@@ -373,7 +367,7 @@ public class CopyBean {
                         "the file with such name already exists.";
                 WebStudioUtils.validate(!newBranchName.startsWith(branch + "/"), message);
             }
-        } catch (WorkspaceException | IOException e) {
+        } catch (IOException e) {
             LOG.debug("Ignored error: ", e);
         }
     }
@@ -397,20 +391,15 @@ public class CopyBean {
             .trimToEmpty(WebStudioUtils.getRequestParameter("copyProjectForm:newProjectName"));
         FolderStructureValidators.validatePathInRepository(projPath);
         final Path currentPath = Paths.get(StringUtils.isEmpty(projPath) ? projName : projPath + projName);
-        try {
-            UserWorkspace userWorkspace = getUserWorkspace();
-            if (userWorkspace.getDesignTimeRepository()
-                .getProjects()
-                .stream()
-                .filter(proj -> proj.getRepository().getId().equals(repositoryId))
-                .map(AProjectFolder::getRealPath)
-                .map(Paths::get)
-                .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
-                WebStudioUtils.throwValidationError("Path conflicts with an existed project.");
-            }
-        } catch (WorkspaceException e) {
-            LOG.debug(e.getMessage(), e);
-            WebStudioUtils.throwValidationError("Error during validation.");
+        UserWorkspace userWorkspace = getUserWorkspace();
+        if (userWorkspace.getDesignTimeRepository()
+            .getProjects()
+            .stream()
+            .filter(proj -> proj.getRepository().getId().equals(repositoryId))
+            .map(AProjectFolder::getRealPath)
+            .map(Paths::get)
+            .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
+            WebStudioUtils.throwValidationError("Path conflicts with an existed project.");
         }
     }
 
@@ -422,14 +411,10 @@ public class CopyBean {
     public void setRepositoryId(String repositoryId) {
         this.repositoryId = repositoryId;
         this.toRepositoryId = repositoryId;
-        try {
-            UserWorkspace userWorkspace = getUserWorkspace();
-            DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
-            if (designTimeRepository.getRepository(toRepositoryId) == null) {
-                toRepositoryId = designTimeRepository.getRepositories().get(0).getId();
-            }
-        } catch (WorkspaceException e) {
-            LOG.error(e.getMessage(), e);
+        UserWorkspace userWorkspace = getUserWorkspace();
+        DesignTimeRepository designTimeRepository = userWorkspace.getDesignTimeRepository();
+        if (designTimeRepository.getRepository(toRepositoryId) == null) {
+            toRepositoryId = designTimeRepository.getRepositories().get(0).getId();
         }
 
         this.designRepoComments = new Comments(propertyResolver, toRepositoryId);
@@ -509,7 +494,7 @@ public class CopyBean {
         }
     }
 
-    private static UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private static UserWorkspace getUserWorkspace() {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }
