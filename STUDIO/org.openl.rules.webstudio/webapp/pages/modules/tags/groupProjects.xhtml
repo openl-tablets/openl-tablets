@@ -32,7 +32,7 @@
                 <ui:remove>
                     <!-- Repository and at least 1 tag -->
                 </ui:remove>
-                <ui:fragment rendered="#{tagTypeBean.tagTypes.size() > 0}">
+                <ui:fragment rendered="#{repositoryTreeState.tagTypes.size() > 0}">
                     <tr>
                         <td>Level 2:</td>
                         <td>
@@ -46,7 +46,7 @@
                 <ui:remove>
                     <!-- Repository and at least 2 tags -->
                 </ui:remove>
-                <ui:fragment rendered="#{tagTypeBean.tagTypes.size() > 1}">
+                <ui:fragment rendered="#{repositoryTreeState.tagTypes.size() > 1}">
                     <tr>
                         <td>Level 3:</td>
                         <td>

@@ -912,6 +912,10 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         }
     }
 
+    public List<TagType> getTagTypes() {
+        return tagTypeService.getAllTagTypes();
+    }
+
     public List<String> getGroupingTypes() {
         final List<String> types = new ArrayList<>();
         types.add(TreeProjectGrouping.GROUPING_NONE);
