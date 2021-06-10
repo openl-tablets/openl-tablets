@@ -15,7 +15,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProjectNameConstraint {
 
-    String message() default "{openl.constraints.ProjectNameConstraint.message}";
+    String message() default "{openl.constraints.project-name.message}";
 
     Class<?>[] groups() default {};
 

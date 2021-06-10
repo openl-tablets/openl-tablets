@@ -24,7 +24,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return true;
         }
         if (value.startsWith("/")) {
-            context.buildConstraintViolationWithTemplate("{openl.constraints.PathConstraint.1.message}")
+            context.buildConstraintViolationWithTemplate("{openl.constraints.path.1.message}")
                 .addConstraintViolation();
             return false;
         }

@@ -12,7 +12,7 @@ public class CreateUpdateProjectModel {
     @NotBlank
     private final String author;
 
-    @NotBlank(message = "{openl.constraints.NotBlank.project.name.message}")
+    @NotBlank(message = "{openl.constrats.not-blank.projectname.message}")
     @ProjectNameConstraint
     private final String projectName;
 

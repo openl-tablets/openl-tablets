@@ -54,7 +54,7 @@ public class ZipArchiveValidator implements Validator {
         }
         Charset charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(archive));
         if (charset == null) {
-            errors.reject("ZipArchive.unknown.charset.message");
+            errors.reject("zip-archive.unknown.charset.message");
             return;
         }
 
@@ -63,7 +63,7 @@ public class ZipArchiveValidator implements Validator {
 
             Path walkRoot = fs.getPath("/");
             if (ProjectResolver.getInstance().isRulesProject(walkRoot) == null) {
-                errors.reject("ZipArchive.unknown.project.structure.message");
+                errors.reject("zip-archive.unknown.project.structure.message");
                 return;
             }
 
@@ -78,7 +78,7 @@ public class ZipArchiveValidator implements Validator {
                             try {
                                 NameChecker.validatePath(path.getName(i).toString());
                             } catch (IOException e) {
-                                errors.reject("ZipArchive.unknown.archive.path.message",
+                                errors.reject("zip-archive.unknown.archive.path.message",
                                     new String[] { e.getMessage() },
                                     e.getMessage());
                                 rejectedPaths.add(path);
@@ -96,7 +96,7 @@ public class ZipArchiveValidator implements Validator {
                             SystemReader.getInstance().checkPath(p);
                         } catch (CorruptObjectException e) {
                             String defaultMessage = StringUtils.capitalize(e.getMessage());
-                            errors.reject("ZipArchive.invalid.path.message",
+                            errors.reject("zip-archive.invalid.path.message",
                                 new String[] { defaultMessage },
                                 defaultMessage);
                             rejectedPaths.add(path);
@@ -112,15 +112,15 @@ public class ZipArchiveValidator implements Validator {
     private boolean validateSignature(Path archive, Errors errors) {
         boolean isValid = true;
         if (!Files.isRegularFile(archive)) {
-            errors.reject("ZipArchive.invalid.archive.message");
+            errors.reject("zip-archive.invalid.archive.message");
             isValid = false;
         } else {
             int sign = readSignature(archive);
             if (!FileSignatureHelper.isArchiveSign(sign)) {
-                errors.reject("ZipArchive.invalid.archive.message");
+                errors.reject("zip-archive.invalid.archive.message");
                 isValid = false;
             } else if (FileSignatureHelper.isEmptyArchive(sign)) {
-                errors.reject("ZipArchive.empty.archive.message");
+                errors.reject("zip-archive.empty.archive.message");
                 isValid = false;
             }
         }
