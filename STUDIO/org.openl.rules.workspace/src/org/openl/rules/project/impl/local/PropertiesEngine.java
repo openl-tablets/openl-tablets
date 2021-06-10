@@ -72,10 +72,17 @@ class PropertiesEngine {
         Path pathAbsolute;
         try {
             base = Paths.get(root.getAbsolutePath()).toRealPath();
+        } catch (IOException e) {
+            log.debug(e.getMessage(), e);
+            base = Paths.get(root.getAbsolutePath()).normalize();
+        }
+        try {
             pathAbsolute = Paths.get(path).toRealPath();
         } catch (IOException e) {
-            throw new IllegalStateException("Cannot determine properties folder: " + e.getMessage(), e);
+            log.debug(e.getMessage(), e);
+            pathAbsolute = Paths.get(path).normalize();
         }
+
         String relativePath = base.relativize(pathAbsolute).toString();
         log.debug("Relative: {}", relativePath);
         return relativePath;
