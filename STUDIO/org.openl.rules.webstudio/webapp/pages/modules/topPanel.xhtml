@@ -307,8 +307,9 @@
 
         function onTestOpen() {
             compiled(function(data) {
-                $j("#testModuleOnlyField").prop('checked', !data);
-                $j("#testModuleOnlyField").prop('disabled', !data);
+                var testModuleOnlyField = $j("#testModuleOnlyField");
+                testModuleOnlyField.prop('checked', !data);
+                testModuleOnlyField.prop('disabled', !data);
             });
         }
 

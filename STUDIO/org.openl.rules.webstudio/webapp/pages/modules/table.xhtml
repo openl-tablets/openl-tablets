@@ -661,10 +661,9 @@
                 button = $j(event.target).closest(buttonElem);
             if (popupId === "inputArgsMenu") {
                 compiled(function (data) {
-                    if (!data) {
-                        $j("#runTestModuleOnlyInputArgs").prop('checked', !data);
-                        $j("#runTestModuleOnlyInputArgs").prop('disabled', !data);
-                    }
+                    var runTestModuleOnlyInputArgs = $j("#runTestModuleOnlyInputArgs");
+                    runTestModuleOnlyInputArgs.prop('checked', !data);
+                    runTestModuleOnlyInputArgs.prop('disabled', !data);
                 });
             }
             ws.ui.showPopupMenu(event, popupId, button, {'offsetLeft' : -1, 'offsetTop' : 6, 'fitToScreen' : true});
@@ -831,8 +830,9 @@
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
             compiled(function (data) {
-                $j("#runTestModuleOnly").prop('checked', !data);
-                $j("#runTestModuleOnly").prop('disabled', !data);
+                var runTestModuleOnly = $j("#runTestModuleOnly");
+                runTestModuleOnly.prop('checked', !data);
+                runTestModuleOnly.prop('disabled', !data);
             });
         }
 
@@ -841,8 +841,9 @@
             $j('#unitsMenu .b-test, #unitsMenu .b-run, #unitsMenu .b-trace, #unitsMenu .b-benchmark').hide();
             $j('#unitsMenu .' + block).show();
             compiled(function (data) {
-                $j("#runTestModuleOnly").prop('checked', !data);
-                $j("#runTestModuleOnly").prop('disabled', !data);
+                var runTestModuleOnly = $j("#runTestModuleOnly");
+                runTestModuleOnly.prop('checked', !data);
+                runTestModuleOnly.prop('disabled', !data);
             });
         }
 
