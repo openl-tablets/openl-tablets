@@ -53,10 +53,6 @@ public class FileSystemRepository implements FolderRepository, Closeable {
 
     public void initialize() {
         try {
-            root.mkdirs();
-            if (!root.exists() || !root.isDirectory()) {
-                throw new IllegalStateException(String.format("Failed to initialize the root directory: [%s]", root));
-            }
             String rootPath = root.getCanonicalPath();
             rootPathLength = rootPath.length() + 1;
             monitor = new ChangesMonitor(new FileChangesMonitor(getRoot()), listenerTimerPeriod);
@@ -121,7 +117,9 @@ public class FileSystemRepository implements FolderRepository, Closeable {
     private FileData write(FileData data, InputStream stream) throws IOException {
         String dataName = data.getName();
         File file = new File(root, dataName);
-        file.getParentFile().mkdirs();
+        if (!file.getParentFile().mkdirs() && !file.getParentFile().exists()) {
+            LOG.warn("Couldn't create the folder '{}'", file.getParentFile());
+        }
 
         // Close only output stream. This class is not responsible for input stream: stream must be closed in the
         // place where it was created.
@@ -155,9 +153,12 @@ public class FileSystemRepository implements FolderRepository, Closeable {
         } catch (FileNotFoundException e) {
             return false;
         }
-        // Delete empty parent folders
-        while (!(file = file.getParentFile()).equals(root) && file.delete()) {
-        }
+        // Delete empty parent folders including repo root if they are empty
+        boolean deleted;
+        do {
+            file = file.getParentFile();
+            deleted = file.delete();
+        } while (!file.equals(root) && deleted);
         invokeListener();
         return true;
     }
@@ -173,9 +174,12 @@ public class FileSystemRepository implements FolderRepository, Closeable {
             } catch (FileNotFoundException ignored) {
                 continue;
             }
-            // Delete empty parent folders
-            while (!(f = f.getParentFile()).equals(root) && f.delete()) {
-            }
+            // Delete empty parent folders including repo root if they are empty
+            boolean parentDeleted;
+            do {
+                f = f.getParentFile();
+                parentDeleted = f.delete();
+            } while (!f.equals(root) && parentDeleted);
         }
         if (deleted) {
             invokeListener();
