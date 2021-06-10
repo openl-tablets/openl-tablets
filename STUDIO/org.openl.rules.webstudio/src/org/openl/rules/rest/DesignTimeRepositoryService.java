@@ -195,6 +195,7 @@ public class DesignTimeRepositoryService {
         if (repository != null) {
             return repository;
         }
-        throw new NotFoundException(String.format("Design Repository '%s' is not found!", repoName));
+        throw new NotFoundException("design.repo.message",
+            new String[] { repoName });
     }
 }

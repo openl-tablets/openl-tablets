@@ -22,12 +22,13 @@ public class ProjectNameConstraintValidator implements ConstraintValidator<Proje
         if (!NameChecker.checkName(value)) {
             context
                 .buildConstraintViolationWithTemplate(
-                    "Specified name is not a valid project name." + " " + NameChecker.BAD_NAME_MSG)
+                    "{openl.constraints.ProjectNameConstraint.1.message}" + " " + NameChecker.BAD_NAME_MSG)
                 .addConstraintViolation();
             return false;
         }
         if (NameChecker.isReservedName(value)) {
-            context.buildConstraintViolationWithTemplate("Specified project name is a reserved word.")
+            context
+                .buildConstraintViolationWithTemplate("{openl.constraints.ProjectNameConstraint.2.message}")
                 .addConstraintViolation();
             return false;
         }

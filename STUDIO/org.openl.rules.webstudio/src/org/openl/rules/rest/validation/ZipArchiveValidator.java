@@ -54,7 +54,7 @@ public class ZipArchiveValidator implements Validator {
         }
         Charset charset = zipCharsetDetector.detectCharset(() -> Files.newInputStream(archive));
         if (charset == null) {
-            errors.reject("validation.error.unknown.charset", "Cannot detect a charset for the zip file.");
+            errors.reject("ZipArchive.unknown.charset.message");
             return;
         }
 
@@ -63,7 +63,7 @@ public class ZipArchiveValidator implements Validator {
 
             Path walkRoot = fs.getPath("/");
             if (ProjectResolver.getInstance().isRulesProject(walkRoot) == null) {
-                errors.reject("validation.error.unknown.project.structure", "Unknown project structure.");
+                errors.reject("ZipArchive.unknown.project.structure.message");
                 return;
             }
 
@@ -78,7 +78,9 @@ public class ZipArchiveValidator implements Validator {
                             try {
                                 NameChecker.validatePath(path.getName(i).toString());
                             } catch (IOException e) {
-                                errors.reject("validation.error.archive.path", e.getMessage());
+                                errors.reject("ZipArchive.unknown.archive.path.message",
+                                    new String[] { e.getMessage() },
+                                    e.getMessage());
                                 rejectedPaths.add(path);
                                 return;
                             }
@@ -93,7 +95,10 @@ public class ZipArchiveValidator implements Validator {
                             }
                             SystemReader.getInstance().checkPath(p);
                         } catch (CorruptObjectException e) {
-                            errors.reject("validation.error.archive.path", StringUtils.capitalize(e.getMessage()));
+                            String defaultMessage = StringUtils.capitalize(e.getMessage());
+                            errors.reject("ZipArchive.invalid.path.message",
+                                new String[] { defaultMessage },
+                                defaultMessage);
                             rejectedPaths.add(path);
                         }
                     }
@@ -107,16 +112,15 @@ public class ZipArchiveValidator implements Validator {
     private boolean validateSignature(Path archive, Errors errors) {
         boolean isValid = true;
         if (!Files.isRegularFile(archive)) {
-            errors.reject("validation.error.not.archive", "Provided file is not an archive.");
+            errors.reject("ZipArchive.invalid.archive.message");
             isValid = false;
         } else {
             int sign = readSignature(archive);
             if (!FileSignatureHelper.isArchiveSign(sign)) {
-                errors.reject("validation.error.not.archive", "Provided file is not an archive.");
+                errors.reject("ZipArchive.invalid.archive.message");
                 isValid = false;
             } else if (FileSignatureHelper.isEmptyArchive(sign)) {
-                errors.reject("validation.error.empty.archive",
-                    "Cannot create a project from the given file. Zip file is empty.");
+                errors.reject("ZipArchive.empty.archive.message");
                 isValid = false;
             }
         }

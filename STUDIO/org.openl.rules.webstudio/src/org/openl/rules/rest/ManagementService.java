@@ -72,7 +72,7 @@ public class ManagementService {
             @FormParam("privilege") final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
-            throw new ConflictException("A group with such name already exists.");
+            throw new ConflictException("duplicated.group.message");
         }
         if (StringUtils.isBlank(oldName)) {
             groupManagementService.addGroup(name, description);

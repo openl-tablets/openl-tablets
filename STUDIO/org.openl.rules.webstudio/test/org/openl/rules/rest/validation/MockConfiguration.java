@@ -12,11 +12,13 @@ import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.filter.PathFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.core.env.Environment;
 
 @Configuration
+@ComponentScan(basePackages = "org.openl.rules.rest.validation")
 @ImportResource("file:webapp/WEB-INF/spring/validation-beans.xml")
 public class MockConfiguration {
 

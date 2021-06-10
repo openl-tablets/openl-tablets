@@ -15,7 +15,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ProjectNameConstraint {
 
-    String message() default "Project name is not valid";
+    String message() default "{openl.constraints.ProjectNameConstraint.message}";
 
     Class<?>[] groups() default {};
 

@@ -50,16 +50,17 @@ public class CreateUpdateProjectModelValidator implements Validator {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         if (!repository.supports().mappedFolders()) {
             if (StringUtils.isNotBlank(model.getPath())) {
-                errors.rejectValue("path",
-                    "validation.error.path.not.supported",
-                    "Design Repository doesn't support folders. Path must be empty.");
+                errors.rejectValue("path", "repo.notSupported.path.message");
             }
         }
 
         try {
             CommentValidator.forRepo(model.getRepoName()).validate(model.getComment());
         } catch (Exception e) {
-            errors.rejectValue("comment", "validation.error.project.comment", e.getMessage());
+            errors.rejectValue("comment",
+                "repo.invalid.comment.message",
+                new String[] { e.getMessage() },
+                e.getMessage());
         }
     }
 
@@ -69,20 +70,23 @@ public class CreateUpdateProjectModelValidator implements Validator {
             try {
                 AProject project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
                 if (!Objects.equals(project.getRealPath(), model.getPath() + model.getProjectName())) {
-                    throw new NotFoundException(String.format("Project '%s' is not found.", model.getProjectName()));
+                    throw new NotFoundException("project.message",
+                        new String[] { model.getProjectName() });
                 }
                 if (project.isDeleted()) {
-                    throw new ConflictException(String.format("Project '%s' is archived.", model.getProjectName()));
+                    throw new ConflictException("project.archived.message",
+                        new String[] { model.getProjectName() });
                 }
             } catch (ProjectException e) {
-                throw new NotFoundException(e.getMessage(), e);
+                throw new NotFoundException("project.message",
+                        new String[] { model.getProjectName() });
             }
         }
     }
 
     private void validateProjectCreation(CreateUpdateProjectModel model) {
         if (designTimeRepository.hasProject(model.getRepoName(), model.getProjectName())) {
-            throw new ConflictException("Cannot create project because project with such name already exists.");
+            throw new ConflictException("duplicated.project.message");
         } else {
             Repository repository = designTimeRepository.getRepository(model.getRepoName());
             if (repository.supports().mappedFolders()) {
@@ -90,8 +94,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
                                                                           : model.getPath() + model.getProjectName();
                 try {
                     if (((FolderMapper) repository).getDelegate().check(projectPath) != null) {
-                        throw new ConflictException(
-                            "Cannot create the project because a project with such path already exists. Try to import that project from repository or create new project with another path or name.");
+                        throw new ConflictException("duplicated.project.1.message");
                     } else {
                         final Path currentPath = Paths.get(projectPath);
                         if (designTimeRepository.getProjects(model.getRepoName())
@@ -99,8 +102,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
                             .map(AProjectFolder::getRealPath)
                             .map(Paths::get)
                             .anyMatch(path -> path.startsWith(currentPath) || currentPath.startsWith(path))) {
-                            throw new ConflictException(
-                                "Cannot create the project because a path conflicts with an existed project.");
+                            throw new ConflictException("duplicated.project.2.message");
                         }
                     }
                 } catch (IOException e) {

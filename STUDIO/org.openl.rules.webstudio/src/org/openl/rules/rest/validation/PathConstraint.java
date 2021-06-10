@@ -15,7 +15,7 @@ import javax.validation.Payload;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface PathConstraint {
 
-    String message() default "Path is not valid";
+    String message() default "{openl.constraints.PathConstraint.message}";
 
     Class<?>[] groups() default {};
 

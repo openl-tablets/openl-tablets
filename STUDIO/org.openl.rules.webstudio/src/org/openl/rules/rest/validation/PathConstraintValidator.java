@@ -24,7 +24,7 @@ public class PathConstraintValidator implements ConstraintValidator<PathConstrai
             return true;
         }
         if (value.startsWith("/")) {
-            context.buildConstraintViolationWithTemplate("Path in repository cannot start with '/'")
+            context.buildConstraintViolationWithTemplate("{openl.constraints.PathConstraint.1.message}")
                 .addConstraintViolation();
             return false;
         }

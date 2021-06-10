@@ -4,13 +4,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.NOT_FOUND)
-public class NotFoundException extends RuntimeException {
+public class NotFoundException extends RestRuntimeException {
 
-    public NotFoundException(String message) {
-        super(message);
+    public NotFoundException(String code) {
+        super(code);
     }
 
-    public NotFoundException(String message, Throwable cause) {
-        super(message, cause);
+    public NotFoundException(String code, Object[] args) {
+        super(code, args);
     }
 }
