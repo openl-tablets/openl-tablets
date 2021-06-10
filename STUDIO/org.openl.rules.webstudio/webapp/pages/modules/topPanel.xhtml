@@ -119,7 +119,7 @@
             <a id="refreshBtn" onclick="forceReload();" title="Refresh" class="imageButton changes-listener"
                style="background:url('webresource/images/refresh.png');padding:5px 16px;margin: 0 11px 0 7px" />
         </div>
-        <div class="navbar-inner">
+        <div id="testPanel" class="navbar-inner">
             <a4j:ajax oncomplete="ws.nav.reload(true)">
                 <h:commandLink styleClass="changes-listener primary" onclick="invokeManualCompile(); return false;"
                                id="verifyButton"
@@ -160,10 +160,10 @@
                                rendered="#{!empty module}" />
             </a4j:ajax>
 
-            <h:panelGroup rendered="#{!empty module and treeBean.projectTestsCount > 0 and treeBean.canRun}">
+            <h:panelGroup rendered="#{!empty module and treeBean.canRun}">
             <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                styleClass="navbar-dropdown" onclick="return runAllTests();">Test <span style="color:#888;padding: 1px 4px; border: 1px solid #ddd">#{treeBean.projectTestsCount}</span></h:outputLink>
-            <span class="dropdown dropdown-form">
+                styleClass="navbar-dropdown test-section" onclick="return runAllTests();">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
+            <span class="dropdown dropdown-form test-section">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
                 <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
                     <li onclick="event.stopPropagation()">
@@ -222,7 +222,7 @@
                     </li>
                 </ul>
             </span>
-            <span class="delimeter"></span>
+            <span class="delimeter test-section"></span>
             </h:panelGroup>
 
             <h:panelGroup rendered="#{!empty module and studio.model.canCreateTable}">
@@ -280,6 +280,24 @@
             });
             return query;
         }
+
+        $j('#testPanel').bind('refresh', function () {
+            return $jq.ajax({
+                url: "#{contextPath}/web/compile/tests",
+                datatype: "text"
+            })
+                .done(function (data) {
+                    data.count > 0 ? $j('.test-section').show() : $j('.test-section').hide();
+                    document.getElementById("testCountSpan").textContent = data.count;
+                    if (!data.compiled) {
+                        setTimeout(function () {
+                            $j('#testPanel').trigger('refresh')
+                        }, 1000);
+                    }
+                });
+        });
+
+        $j('#testPanel').trigger('refresh');
 
         function test(e, testUrl) {
             e.preventDefault();

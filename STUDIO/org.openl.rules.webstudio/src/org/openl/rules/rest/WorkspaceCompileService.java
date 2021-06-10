@@ -167,6 +167,18 @@ public class WorkspaceCompileService {
     }
 
     @GET
+    @Path("tests")
+    public Map<String, Object> tests() {
+        Map<String, Object> moduleTestsInfo = new HashMap<>();
+        WebStudio studio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
+        ProjectModel model = studio.getModel();
+        TestSuiteMethod[] allTestMethods = model.getAllTestMethods();
+        moduleTestsInfo.put("count", CollectionUtils.isNotEmpty(allTestMethods) ? allTestMethods.length : 0);
+        moduleTestsInfo.put("compiled", model.isProjectCompilationCompleted());
+        return moduleTestsInfo;
+    }
+
+    @GET
     @Path("module")
     public boolean module() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
