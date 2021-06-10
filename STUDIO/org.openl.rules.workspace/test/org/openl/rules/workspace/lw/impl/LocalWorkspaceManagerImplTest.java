@@ -1,5 +1,6 @@
 package org.openl.rules.workspace.lw.impl;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertSame;
 
@@ -7,6 +8,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
@@ -39,5 +41,11 @@ public class LocalWorkspaceManagerImplTest {
         workspace2 = manager.getWorkspace(user);
         assertNotSame(workspace1, workspace2);
         assertNotSame(workspace1.getRepository(repoId), workspace2.getRepository(repoId));
+    }
+
+    @Test
+    public void dontCreateEmptyFolder() throws WorkspaceException {
+        LocalWorkspace workspace1 = manager.getWorkspace(new WorkspaceUserImpl("user1"));
+        assertFalse(workspace1.getLocation().exists());
     }
 }

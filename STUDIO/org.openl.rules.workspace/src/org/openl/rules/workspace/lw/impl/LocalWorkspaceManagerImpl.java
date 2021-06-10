@@ -54,22 +54,18 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
             log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
-        if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
+        File location = new File(workspaceHome);
+        if (!location.mkdirs() && !location.exists()) {
             throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
         }
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
-    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
+    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) {
         String userId = user.getUserId();
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
-        if (!FolderHelper.checkOrCreateFolder(userWorkspace)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace.",
-                null,
-                userWorkspace.getAbsolutePath());
-        }
-        log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
+        log.debug("Workspace for user ''{}'' will be located at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
         LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, designTimeRepository);
         workspace.addWorkspaceListener(this);
         return workspace;

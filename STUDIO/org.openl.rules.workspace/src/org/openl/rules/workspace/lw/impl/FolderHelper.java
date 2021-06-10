@@ -18,10 +18,6 @@ public final class FolderHelper {
     private FolderHelper() {
     }
 
-    public static boolean checkOrCreateFolder(File location) {
-        return location.exists() || location.mkdirs();
-    }
-
     /**
      * Clears the folder's content. The folder itself will not be deleted. If you want to delete a folder itself, use
      * {@link #deleteFolder(File)} instead
