@@ -8,7 +8,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 
@@ -25,7 +24,7 @@ public class LocalWorkspaceManagerImplTest {
     }
 
     @Test
-    public void removeWorkspaceOnSessionTimeout() throws Exception {
+    public void removeWorkspaceOnSessionTimeout() {
         WorkspaceUserImpl user = new WorkspaceUserImpl("user1");
         LocalWorkspace workspace1 = manager.getWorkspace(user);
         String repoId = "design";
@@ -44,7 +43,7 @@ public class LocalWorkspaceManagerImplTest {
     }
 
     @Test
-    public void dontCreateEmptyFolder() throws WorkspaceException {
+    public void dontCreateEmptyFolder() {
         LocalWorkspace workspace1 = manager.getWorkspace(new WorkspaceUserImpl("user1"));
         assertFalse(workspace1.getLocation().exists());
     }

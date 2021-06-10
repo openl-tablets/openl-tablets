@@ -3,20 +3,18 @@ package org.openl.rules.webstudio.web;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.openl.util.FileUtils;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.common.ProjectVersion;
 import org.openl.rules.project.abstraction.AProject;
@@ -32,10 +30,10 @@ import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.Constants;
 import org.openl.rules.webstudio.web.util.Utils;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 import org.openl.rules.workspace.uw.impl.ProjectExportHelper;
+import org.openl.util.FileUtils;
 import org.openl.util.IOUtils;
 import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
@@ -61,7 +59,7 @@ public class ExportBean {
     @Autowired
     private Utils utils;
 
-    private static UserWorkspace getUserWorkspace() throws WorkspaceException {
+    private static UserWorkspace getUserWorkspace() {
         RulesUserSession rulesUserSession = WebStudioUtils.getRulesUserSession();
         return rulesUserSession.getUserWorkspace();
     }
@@ -169,7 +167,7 @@ public class ExportBean {
                 Collections.reverse(versions);
                 projectVersions.addAll(toSelectItems(versions));
             }
-        } catch (WorkspaceException | ProjectException e) {
+        } catch (ProjectException e) {
             LOG.error(e.getMessage(), e);
         }
         return projectVersions;

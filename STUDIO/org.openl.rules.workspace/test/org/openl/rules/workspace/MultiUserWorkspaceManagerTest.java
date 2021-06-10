@@ -28,7 +28,7 @@ public class MultiUserWorkspaceManagerTest {
     }
 
     @Test
-    public void removeWorkspaceOnSessionTimeout() throws Exception {
+    public void removeWorkspaceOnSessionTimeout() {
         WorkspaceUserImpl user = new WorkspaceUserImpl("user1");
         UserWorkspace workspace1 = manager.getUserWorkspace(user);
 
