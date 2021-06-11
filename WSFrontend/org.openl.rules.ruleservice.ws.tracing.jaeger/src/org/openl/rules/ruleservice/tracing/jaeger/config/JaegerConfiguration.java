@@ -7,6 +7,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
 
+import io.jaegertracing.Configuration;
 import io.jaegertracing.internal.samplers.ConstSampler;
 import io.opentracing.Tracer;
 import io.opentracing.util.GlobalTracer;
@@ -17,24 +18,21 @@ public class JaegerConfiguration implements ApplicationListener<ContextRefreshed
 
     private final Tracer tracer;
 
-    public JaegerConfiguration(@Value("${jaeger.service.name:RuleServices}") String applicationName,
+    public JaegerConfiguration(@Value("${jaeger.service.name}") String applicationName,
             @Value("${jaeger.agent.host}") String jaegerHost,
             @Value("${jaeger.agent.port}") Integer jaegerPort) {
-        io.jaegertracing.Configuration.SamplerConfiguration samplerConfig = io.jaegertracing.Configuration.SamplerConfiguration
-            .fromEnv()
+        Configuration.SamplerConfiguration samplerConfig = Configuration.SamplerConfiguration.fromEnv()
             .withType(ConstSampler.TYPE)
             .withParam(1);
 
-        io.jaegertracing.Configuration.SenderConfiguration senderConfiguration = io.jaegertracing.Configuration.SenderConfiguration
-            .fromEnv()
+        Configuration.SenderConfiguration senderConfiguration = Configuration.SenderConfiguration.fromEnv()
             .withAgentHost(jaegerHost)
             .withAgentPort(jaegerPort);
 
-        this.tracer = io.jaegertracing.Configuration.fromEnv(applicationName)
+        this.tracer = Configuration.fromEnv(applicationName)
             .withSampler(samplerConfig)
-            .withReporter(io.jaegertracing.Configuration.ReporterConfiguration.fromEnv()
-                .withLogSpans(true)
-                .withSender(senderConfiguration))
+            .withReporter(
+                Configuration.ReporterConfiguration.fromEnv().withLogSpans(true).withSender(senderConfiguration))
             .getTracer();
     }
 

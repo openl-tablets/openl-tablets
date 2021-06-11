@@ -2,6 +2,7 @@ package org.openl.itest;
 
 import static net.mguenther.kafka.junit.EmbeddedKafkaCluster.provisionWith;
 import static net.mguenther.kafka.junit.EmbeddedKafkaConfig.brokers;
+import static org.awaitility.Awaitility.given;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -9,13 +10,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.junit.AfterClass;
-import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
@@ -23,7 +23,6 @@ import io.opentracing.mock.MockSpan;
 import io.opentracing.mock.MockTracer;
 import io.opentracing.tag.Tags;
 import io.opentracing.util.GlobalTracer;
-import io.opentracing.util.ThreadLocalScopeManager;
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
 import net.mguenther.kafka.junit.EmbeddedKafkaClusterConfig;
 import net.mguenther.kafka.junit.KeyValue;
@@ -33,6 +32,10 @@ import net.mguenther.kafka.junit.SendKeyValues;
 public class RunTracingITest {
 
     private static final Logger log = Logger.getLogger(RunTracingITest.class);
+    public static final int AWAIT_TIMEOUT = 1;
+
+    final String TEST_WS_URL = "/deployment1/simple1";
+    final String TEST_REST_URL = "/REST/deployment1/simple1/Hello";
 
     private static JettyServer server;
     private static HttpClient client;
@@ -41,11 +44,10 @@ public class RunTracingITest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        tracer = Mockito.spy(new MockTracer(new ThreadLocalScopeManager(), MockTracer.Propagator.TEXT_MAP));
+        tracer = new MockTracer();
         GlobalTracer.registerIfAbsent(tracer);
         server = JettyServer.startSharingClassLoader();
         client = server.client();
-
         cluster = provisionWith(EmbeddedKafkaClusterConfig.newClusterConfig()
             .configure(brokers().with("listeners", "PLAINTEXT://:61099"))
             .build());
@@ -70,42 +72,46 @@ public class RunTracingITest {
         }
     }
 
-    @Before
-    public void beforeTest() {
-        tracer.reset();
-    }
-
     @Test
     public void testRESTServiceSpans() {
         client.send("simple1.tracing.rest.post");
-        List<MockSpan> mockSpans = tracer.finishedSpans();
-        assertEquals(1, mockSpans.size());
-        MockSpan span = mockSpans.iterator().next();
-
-        assertEquals(Tags.SPAN_KIND_SERVER, span.tags().get(Tags.SPAN_KIND.getKey()));
-        assertEquals("POST", span.operationName());
-        assertEquals(5, span.tags().size());
-        assertEquals("java-web-servlet", span.tags().get(Tags.COMPONENT.getKey()));
-        assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
-        String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
-        assertTrue(url.contains("/REST/deployment1/simple1/Hello"));
+        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
+            List<MockSpan> finishedSpans = tracer.finishedSpans();
+            Optional<MockSpan> restSpan = findSpanByURL(finishedSpans, TEST_REST_URL);
+            if (!restSpan.isPresent()) {
+                return false;
+            }
+            final MockSpan span = restSpan.get();
+            assertEquals(Tags.SPAN_KIND_SERVER, span.tags().get(Tags.SPAN_KIND.getKey()));
+            assertEquals("POST", span.operationName());
+            assertEquals(5, span.tags().size());
+            assertEquals("java-web-servlet", span.tags().get(Tags.COMPONENT.getKey()));
+            assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
+            String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
+            assertTrue(url.contains(TEST_REST_URL));
+            return true;
+        });
     }
 
     @Test
     public void testWSServiceSpans() {
         client.send("simple1.tracing.ws.post");
-        List<MockSpan> mockSpans = tracer.finishedSpans();
-
-        assertEquals(1, mockSpans.size());
-
-        MockSpan span = mockSpans.iterator().next();
-        assertEquals(Tags.SPAN_KIND_SERVER, span.tags().get(Tags.SPAN_KIND.getKey()));
-        assertEquals("POST", span.operationName());
-        assertEquals(5, span.tags().size());
-        assertEquals("java-web-servlet", span.tags().get(Tags.COMPONENT.getKey()));
-        assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
-        String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
-        assertTrue(url.contains("/deployment1/simple1"));
+        given().ignoreExceptions().await().atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS).until(() -> {
+            List<MockSpan> mockSpans = tracer.finishedSpans();
+            Optional<MockSpan> wsSpan = findSpanByURL(tracer.finishedSpans(), TEST_WS_URL);
+            if (!wsSpan.isPresent()) {
+                return false;
+            }
+            final MockSpan span = wsSpan.get();
+            assertEquals(Tags.SPAN_KIND_SERVER, span.tags().get(Tags.SPAN_KIND.getKey()));
+            assertEquals("POST", span.operationName());
+            assertEquals(5, span.tags().size());
+            assertEquals("java-web-servlet", span.tags().get(Tags.COMPONENT.getKey()));
+            assertEquals(200, span.tags().get(Tags.HTTP_STATUS.getKey()));
+            String url = (String) span.tags().get(Tags.HTTP_URL.getKey());
+            assertTrue(url.contains(TEST_WS_URL));
+            return true;
+        });
     }
 
     @Test
@@ -120,31 +126,24 @@ public class RunTracingITest {
         assertEquals(1, observedValues.size());
         List<MockSpan> mockSpans = tracer.finishedSpans();
 
-        Optional<MockSpan> from = mockSpans.stream()
-            .filter(x -> x.operationName().equals("From_hello-in-topic"))
-            .findFirst();
+        Optional<MockSpan> outTopicSpan = findKafkaSpan(mockSpans, "To_hello-out-topic");
+        assertTrue(outTopicSpan.isPresent());
+        MockSpan toKafkaSpan = outTopicSpan.get();
+        final long outTraceId = toKafkaSpan.context().traceId();
+
+        Optional<MockSpan> from = findKafkaSpan(mockSpans, outTraceId, "From_hello-in-topic");
         assertTrue(from.isPresent());
 
         MockSpan fromKafka = from.get();
-        assertEquals(1, fromKafka.context().traceId());
         assertTrue(fromKafka.references().isEmpty());
 
-        Optional<MockSpan> serviceCall = mockSpans.stream()
-            .filter(x -> x.operationName().equals("simple1-tracing"))
-            .findFirst();
+        Optional<MockSpan> serviceCall = findKafkaSpan(mockSpans, outTraceId, "simple1-tracing");
         assertTrue(serviceCall.isPresent());
         MockSpan serviceSpan = serviceCall.get();
-        assertEquals(1, serviceSpan.context().traceId());
         assertTrue(serviceSpan.tags().containsKey("Service Name"));
         MockSpan.Reference reference = serviceSpan.references().get(0);
         assertEquals("child_of", reference.getReferenceType());
 
-        Optional<MockSpan> toKafka = mockSpans.stream()
-            .filter(x -> x.operationName().equals("To_hello-out-topic"))
-            .findFirst();
-        assertTrue(toKafka.isPresent());
-        MockSpan toKafkaSpan = toKafka.get();
-        assertEquals(1, toKafkaSpan.context().traceId());
         MockSpan.Reference toKafkaRef = toKafkaSpan.references().get(0);
         assertEquals("child_of", toKafkaRef.getReferenceType());
 
@@ -162,39 +161,70 @@ public class RunTracingITest {
         List<String> observedValues = cluster.observeValues(observeRequestDlt);
         assertEquals(1, observedValues.size());
         List<MockSpan> mockSpans = tracer.finishedSpans();
-        assertEquals(3, mockSpans.size());
-        Optional<MockSpan> fromKafka = mockSpans.stream()
-            .filter(x -> x.operationName().equals("From_hello-in-topic"))
-            .findFirst();
-        assertTrue(fromKafka.isPresent());
-        long traceId = fromKafka.get().context().traceId();
 
-        Optional<MockSpan> errorTrace = mockSpans.stream()
-            .filter(x -> x.operationName().equals("simple1-tracing"))
-            .findFirst();
+        Optional<MockSpan> toDlt = findKafkaSpan(mockSpans, "To_hello-dlt-topic");
+        assertTrue(toDlt.isPresent());
+        final MockSpan errorTopicSpan = toDlt.get();
+        final long traceId = errorTopicSpan.context().traceId();
+
+        Optional<MockSpan> fromKafka = findKafkaSpan(mockSpans, traceId, "From_hello-in-topic");
+        assertTrue(fromKafka.isPresent());
+
+        Optional<MockSpan> errorTrace = findKafkaSpan(mockSpans, traceId, "simple1-tracing");
         assertTrue(errorTrace.isPresent());
         MockSpan errorSpan = errorTrace.get();
-        assertEquals(traceId, errorSpan.context().traceId());
         Map<String, Object> tags = errorSpan.tags();
         assertTrue((Boolean) tags.get("error"));
         assertEquals(1, errorSpan.logEntries().size());
 
-        Optional<MockSpan> toDlt = mockSpans.stream()
-            .filter(x -> x.operationName().equals("To_hello-dlt-topic"))
-            .findFirst();
-        assertTrue(toDlt.isPresent());
-        assertEquals(traceId, toDlt.get().context().traceId());
     }
 
     @Test
     public void testSkipUrls() {
         client.send("admin/services.get");
-        List<MockSpan> mockSpans = tracer.finishedSpans();
-        assertEquals(0, mockSpans.size());
+
+        given().ignoreExceptions()
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
+                final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
+                final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
+                final String stringURL = (String) objectURL;
+                return containsURL && stringURL.contains("/admin/services");
+            }));
 
         client.send("simple2.tracing.ws.post");
-        List<MockSpan> mockSpansIgnored = tracer.finishedSpans();
-        assertEquals(0, mockSpansIgnored.size());
+        given().ignoreExceptions()
+            .await()
+            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+            .until(() -> tracer.finishedSpans().stream().noneMatch(span -> {
+                final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
+                final Object objectURL = span.tags().get(Tags.HTTP_URL.getKey());
+                final String stringURL = (String) objectURL;
+                return containsURL && stringURL.contains("/deployment1/simple2");
+            }));
     }
 
+    private Optional<MockSpan> findKafkaSpan(List<MockSpan> mockSpans, String topicName) {
+        return mockSpans.stream()
+            .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.operationName().equals(topicName))
+            .findFirst();
+    }
+
+    private Optional<MockSpan> findKafkaSpan(List<MockSpan> mockSpans, long traceId, String topicName) {
+        return mockSpans.stream()
+            .filter(mockSpan -> mockSpan.operationName() != null && mockSpan.context().traceId() == traceId && mockSpan
+                .operationName()
+                .equals(topicName))
+            .findFirst();
+    }
+
+    private Optional<MockSpan> findSpanByURL(List<MockSpan> finishedSpans, String endpoint) {
+        return finishedSpans.stream().filter(span -> {
+            final boolean containsURL = span.tags().containsKey(Tags.HTTP_URL.getKey());
+            final Object tagURL = span.tags().get(Tags.HTTP_URL.getKey());
+            final String stringTagURL = (String) tagURL;
+            return containsURL && stringTagURL.contains(endpoint);
+        }).findFirst();
+    }
 }
