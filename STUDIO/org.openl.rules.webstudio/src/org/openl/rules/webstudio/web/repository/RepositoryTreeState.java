@@ -98,6 +98,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      * Root node for RichFaces's tree. It is not displayed.
      */
     private TreeRepository root;
+    private TreeRepository previousRoot;
     private TreeRepository rulesRepository;
     private TreeRepository deploymentRepository;
 
@@ -229,6 +230,13 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 rulesRepository.getElements();
             }
 
+            if (previousRoot != null) {
+                final TreeNode previousRulesRepo = previousRoot.getChild(projectsTreeId);
+                syncExpandedState((AbstractTreeNode) previousRulesRepo, rulesRepository);
+
+                previousRoot = null;
+            }
+
             try {
                 List<ADeploymentProject> deployConfigurations = userWorkspace.getDDProjects();
                 for (ADeploymentProject project : deployConfigurations) {
@@ -262,6 +270,18 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             log.error(message, e);
             errorMessage = message;
             setSelectedNode(rulesRepository);
+        }
+    }
+
+    private void syncExpandedState(AbstractTreeNode prev, AbstractTreeNode curr) {
+        curr.setExpanded(prev.isExpanded());
+
+        List<TreeNode> currChildren = curr.getChildNodes();
+        for (TreeNode currChild : currChildren) {
+            final TreeNode prevChild = prev.getChild(currChild.getId());
+            if (prevChild != null) {
+                syncExpandedState(((AbstractTreeNode) prevChild), (AbstractTreeNode) currChild);
+            }
         }
     }
 
@@ -414,18 +434,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             while (currentNode != null && it.hasNext()) {
                 String id = RepositoryUtils.getTreeNodeId(repoId, it.next());
                 TreeNode parentNode = currentNode;
-                currentNode = (TreeNode) currentNode.getChild(id);
+                currentNode = findNodeById(currentNode, id);
 
                 if (currentNode == null) {
                     if (artefact instanceof AProject) {
                         String actualPath = ((AProject) artefact).getRealPath();
-                        currentNode = parentNode.getChildNodes().stream().filter(child -> {
-                            AProjectArtefact data = child.getData();
-                            if (data instanceof AProject) {
-                                return actualPath.equals(((AProject) data).getRealPath());
-                            }
-                            return false;
-                        }).findFirst().orElse(null);
+                        currentNode = getAllProjectNodes(parentNode).stream()
+                            .filter(child -> actualPath.equals(((AProject) child.getData()).getRealPath()))
+                            .findFirst()
+                            .orElse(null);
                     }
                 }
 
@@ -460,6 +477,35 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         } else {
             invalidateSelection();
         }
+    }
+
+    private List<TreeNode> getAllProjectNodes(TreeNode parentNode) {
+        List<TreeNode> nodes = new ArrayList<>();
+        for (TreeNode child : parentNode.getChildNodes()) {
+            if (child instanceof TreeRepository || child instanceof TreeProjectGrouping) {
+                nodes.addAll(getAllProjectNodes(child));
+            } else if (child.getData() instanceof AProject) {
+                nodes.add(child);
+            }
+        }
+        return nodes;
+    }
+
+    private TreeNode findNodeById(TreeNode currentNode, String id) {
+        final TreeNode child = (TreeNode) currentNode.getChild(id);
+        if (child != null) {
+            return child;
+        }
+        if (currentNode instanceof TreeRepository || currentNode instanceof TreeProjectGrouping) {
+            for (TreeNode childNode : currentNode.getChildNodes()) {
+                final TreeNode n = findNodeById(childNode, id);
+                if (n != null) {
+                    return n;
+                }
+            }
+        }
+
+        return null;
     }
 
     public void refreshNode(TreeNode node) {
@@ -519,6 +565,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
      */
     public void invalidateTree() {
         synchronized (lock) {
+            backupRoot();
             root = null;
             errorMessage = null;
             projectGrouping = null;
@@ -571,6 +618,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
 
     private void onFilterChanged() {
         synchronized (lock) {
+            backupRoot();
             root = null;
             errorMessage = null;
         }
@@ -631,6 +679,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
                 }
             }
 
+            backupRoot();
             root = null;
             errorMessage = null;
         }
@@ -989,6 +1038,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         @Override
         public void workspaceReleased(UserWorkspace workspace) {
             synchronized (lock) {
+                backupRoot();
                 root = null;
             }
         }
@@ -996,8 +1046,15 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
         @Override
         public void workspaceRefreshed() {
             synchronized (lock) {
+                backupRoot();
                 root = null;
             }
+        }
+    }
+
+    private void backupRoot() {
+        if (root != null) {
+            previousRoot = root;
         }
     }
 }

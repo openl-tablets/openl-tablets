@@ -55,7 +55,7 @@ public class TreeProjectGrouping extends AbstractTreeNode {
             ProjectDescriptorArtefactResolver projectDescriptorResolver,
             OpenLProjectService projectService,
             List<Repository> repositories) {
-        super(id, name);
+        super("grp_" + id, name);
         this.projects = projects;
         this.projectGrouping = projectGrouping;
         this.level = level;

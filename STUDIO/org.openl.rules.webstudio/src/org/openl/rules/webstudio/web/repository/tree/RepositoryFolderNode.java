@@ -20,7 +20,6 @@ public class RepositoryFolderNode extends TreeFolder {
     private final FolderRepository repository;
     private final String path;
     private final SelectFolderBean selectFolderBean;
-    private boolean expanded = false;
 
     public RepositoryFolderNode(FolderRepository repository, String name, String path, SelectFolderBean selectFolderBean) {
         super(RepositoryUtils.getTreeNodeId(repository.getId(), name), name, new AllFilter<>());
@@ -66,11 +65,8 @@ public class RepositoryFolderNode extends TreeFolder {
         return path;
     }
 
+    @Override
     public boolean isExpanded() {
-        return expanded || selectFolderBean.isExpanded(this);
-    }
-
-    public void setExpanded(boolean expanded) {
-        this.expanded = expanded;
+        return super.isExpanded() || selectFolderBean.isExpanded(this);
     }
 }
