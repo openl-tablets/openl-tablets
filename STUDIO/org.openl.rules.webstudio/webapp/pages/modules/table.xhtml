@@ -113,11 +113,11 @@
 
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
 
-    <div id="unitsMenu" style="display: none; min-width: 175px">
+    <div id="unitsMenu" style="display: none; min-width: 300px">
         <c:set var="traceUrl" value="#{contextPath}/faces/pages/layout/frameView.xhtml?title=Trace&amp;treePage=faces/pages/modules/trace/tree.xhtml&amp;mainPage=faces/pages/modules/trace/showTraceTable.xhtml&amp;first=true" />
         <h:form prependId="false">
             <h:panelGroup id="runModuleOnlySetting" layout="block">
-                <div style="margin: 10px 15px 0" title="Run for the currently opened module only">
+                <div style="margin: 10px 15px 0; white-space:nowrap;" title="Run for the currently opened module only">
                     <span style="margin-right: 10px">Run for the currently opened module only</span>
                     <input id="runTestModuleOnly" name="currentOpenedModule" type="checkbox"
                            value="true" style="vertical-align:-2px;margin:-4px"/>
