@@ -162,7 +162,7 @@
 
             <h:panelGroup rendered="#{!empty module and treeBean.canRun}">
             <h:outputLink value="#{studio.url('test/test')}" title="Run Tests"
-                styleClass="navbar-dropdown test-section" onclick="return runAllTests();">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
+                styleClass="navbar-dropdown test-section" onclick="return runAllTests(event);">Test <span id="testCountSpan" style="color:#888;padding: 1px 4px; border: 1px solid #ddd"></span></h:outputLink>
             <span class="dropdown dropdown-form test-section">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#" onclick="onTestOpen()"><b class="caret" /></a>
                 <ul id="testSettings" class="dropdown-menu" role="menu" style="margin-left:-65px">
@@ -323,14 +323,14 @@
                 });
         }
 
-        function runAllTests() {
+        function runAllTests(e) {
             compiled(function (data) {
                 if (!data) {
                     if (!confirm("Tests can be run for the currently opened module only because the project is not compiled yet.")) {
                         return false;
                     }
                 }
-                test(event, '#{studio.url('test/test')}');
+                test(e, '#{studio.url('test/test')}');
             });
             return false;
         }
