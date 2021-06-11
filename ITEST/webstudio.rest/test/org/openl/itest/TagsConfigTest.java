@@ -61,5 +61,8 @@ public class TagsConfigTest {
         client.send("admin/tag-config/delete-tag-4.international");
 
         client.send("admin/tag-config/delete-type.international");
+
+        client.send("admin/tag-config/edit-absent-type");
+        client.send("admin/tag-config/edit-absent-tag");
     }
 }

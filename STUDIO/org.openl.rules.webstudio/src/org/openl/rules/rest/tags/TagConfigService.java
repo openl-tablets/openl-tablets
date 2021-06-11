@@ -8,7 +8,6 @@ import java.util.Objects;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.NotFoundException;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
@@ -67,7 +66,7 @@ public class TagConfigService {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
-           return Response.status(Response.Status.NOT_FOUND).build();
+            return Response.status(Response.Status.NOT_FOUND).build();
         }
         if (tagService.delete(id)) {
             return Response.noContent().build();
@@ -80,21 +79,21 @@ public class TagConfigService {
     @Path("/types")
     @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTagType(TagTypeDTO typeDTO, @Context UriInfo uriInfo) {
-        return created(uriInfo,
-            addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible()));
+        return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), uriInfo);
     }
 
     @PUT
     @Path("/types/{id}")
     @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
-    public void updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
-        addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible());
+    public Response updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
+        return addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), null);
     }
 
-    private Long addOrUpdateTagType(final Long id,
+    private Response addOrUpdateTagType(final Long id,
             final String name,
             final Boolean nullable,
-            final Boolean extensible) {
+            final Boolean extensible,
+            final UriInfo uriInfo) {
         SecurityChecker.allow(Privileges.ADMIN);
         final TagType tagType;
 
@@ -103,7 +102,7 @@ public class TagConfigService {
         } else {
             tagType = tagTypeService.getById(id);
             if (tagType == null) {
-                throw new NotFoundException();
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
         }
 
@@ -111,9 +110,13 @@ public class TagConfigService {
             tagType.setName(name);
 
             WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
+
             final TagType existing = tagTypeService.getByName(name);
-            WebStudioUtils.validate(existing == null || existing.getId().equals(id),
-                "Tag type with name \"" + name + "\" already exists.");
+            if (existing != null && !existing.getId().equals(id)) {
+                return Response.status(Response.Status.CONFLICT)
+                    .entity("Tag type with name \"" + name + "\" already exists.")
+                    .build();
+            }
         }
 
         if (nullable != null) {
@@ -125,30 +128,30 @@ public class TagConfigService {
 
         if (id == null) {
             tagTypeService.save(tagType);
+            return created(uriInfo, tagType.getId());
         } else {
             tagTypeService.update(tagType);
+            return Response.noContent().build();
         }
-
-        return tagType.getId();
     }
 
     @POST
     @Path("/types/{tagTypeId}/tags")
     @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
-        return created(uriInfo, addOrUpdateTag(tagTypeId, null, name));
+        return addOrUpdateTag(tagTypeId, null, name, uriInfo);
     }
 
     @PUT
     @Path("/types/{tagTypeId}/tags/{tagId}")
     @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
-    public void updateTag(@PathParam("tagTypeId") final Long tagTypeId,
+    public Response updateTag(@PathParam("tagTypeId") final Long tagTypeId,
             @PathParam("tagId") final Long tagId,
             final String name) {
-        addOrUpdateTag(tagTypeId, tagId, name);
+        return addOrUpdateTag(tagTypeId, tagId, name, null);
     }
 
-    private Long addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name) {
+    private Response addOrUpdateTag(final Long tagTypeId, final Long tagId, final String name, UriInfo uriInfo) {
         SecurityChecker.allow(Privileges.ADMIN);
 
         final Tag tag;
@@ -157,13 +160,13 @@ public class TagConfigService {
             tag = new Tag();
             final TagType tagType = tagTypeService.getById(tagTypeId);
             if (tagType == null) {
-                throw new NotFoundException();
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
             tag.setType(tagType);
         } else {
             tag = tagService.getById(tagId);
             if (tag == null) {
-                throw new NotFoundException();
+                return Response.status(Response.Status.NOT_FOUND).build();
             }
         }
 
@@ -171,21 +174,22 @@ public class TagConfigService {
         WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
 
         final Tag existing = tagService.getByName(tag.getType().getId(), name);
-        WebStudioUtils.validate(existing == null || existing.getId().equals(tagId),
-            "Tag with name \"" + name + "\" already exists.");
+        if (existing != null && !existing.getId().equals(tagId)) {
+            return Response.status(Response.Status.CONFLICT).entity("Tag with name \"" + name + "\" already exists.").build();
+        }
 
         tag.setName(name);
 
         if (tagId == null) {
             tagService.save(tag);
+            return created(uriInfo, tag.getId());
         } else {
             tagService.update(tag);
+            return Response.noContent().build();
         }
-
-        return tag.getId();
     }
 
-    private Response created(@Context UriInfo uriInfo, Long id) {
+    private Response created(UriInfo uriInfo, Long id) {
         try {
             return Response.created(new URI(uriInfo.getPath(false) + "/" + id)).build();
         } catch (URISyntaxException e) {
