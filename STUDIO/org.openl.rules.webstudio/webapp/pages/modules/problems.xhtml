@@ -91,6 +91,8 @@
                             if (!data.compilationCompleted) {
                                 progressInfoPanel.show();
                                 progressInfoPanel.attr("data-compilation-status", "inProgress");
+                                $j(".ui-layout-resizer-south").show();
+                                $j(".ui-layout-south").show();
                             } else {
                                 progressInfoPanel.attr("data-compilation-status", "finished");
                                 if (prevCompilationStatus === "inProgress") {
@@ -98,6 +100,10 @@
                                     progressInfoPanel.attr("data-compilation-finished", timestamp);
                                     setTimeout(function() {
                                         $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']").hide();
+                                        if ($j("#progress-info-panel").is(":hidden") && $jq('#warnings-count').text() == 0 && $jq('#errors-count').text() == 0){
+                                            $j(".ui-layout-resizer-south").hide();
+                                            $j(".ui-layout-south").hide();
+                                        }
                                     }, 10000);
                                 }
                             }
