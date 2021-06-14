@@ -109,6 +109,47 @@
             display: none;
         }
 
+        #testsSection {
+            padding-top: 3px;
+        }
+
+        .test-link:hover {
+            background: #7777771c;
+            text-decoration: none;
+        }
+
+        .test-link {
+            text-decoration: none;
+            padding-bottom: 1px;
+        }
+
+        #tests-section-toggle-id:hover {
+            background-color: #7777771c;
+        }
+
+        #tests-section-toggle-id .caret::before {
+            top: 0;
+            display:none
+        }
+
+        #tests-section-toggle-id .caret {
+            margin-top: 5px;
+        }
+
+        #tests-section-toggle-id {
+            padding-left: 0px;
+            padding-right: 4px;
+            margin-left: -2px;
+            border-radius: 4px;
+            display:none;
+        }
+
+        #tests-section-available-tests-id {
+            position: absolute;
+            z-index: 9000;
+            display: none;
+            max-height: 150px;
+        }
     </style>
 
     <c:if test="#{!empty tableBean.table and !tableBean.dispatcherValidationNode}">
@@ -561,11 +602,10 @@
                         <div>
                             <section id="testsSection">
                                 <div>
-                                    <h:outputLink value="{testLink}">
-                                        <f:param name="id" value="{testId}"/>
-                                        <h:outputText value="{testName}"/>
-                                    </h:outputLink>
+                                    <a class="test-link" href="{testLink}?id={testId}">{testName}</a>
                                 </div>
+                                <a id="tests-section-toggle-id" onclick="ws.ui.showPopupMenu(event, 'tests-section-available-tests-id', $j(this).prev(), {'offsetTop' : 2, 'offsetLeft' : -5})" title="Other Available Tests/Runs" href="javascript:void(0)"><b class="caret"></b></a>
+                                <div id="tests-section-available-tests-id" class="targetTablesPopup"></div>
                             </section>
                         </div>
                     </td>
@@ -981,18 +1021,23 @@
                 .done(function (data) {
                     $jq('#ftableTestsPanel').toggle(data.allTests.length !== 0);
                     $jq('#testsPanel').toggle(data.allTests.length !== 0);
-
                     var rowTemplate = $j('#testsSection>div:nth-child(1)');
                     var htmlTemplate = $j('<div/>').append(rowTemplate).html();
-                    var tests = htmlTemplate;
                     $j('#testsSection div.row').remove();
-                    data.allTests.forEach(function (item) {
-                        tests += htmlTemplate
-                            .replace(/{testLink}/g, item.uri)
-                            .replace(/{testId}/g, item.id)
-                            .replace(/{testName}/g, item.name);
+
+                    var availableTests = '';
+                    data.allTests.forEach(function (item, i) {
+                        var testLinkRow = htmlTemplate.replace(/{testLink}/g, item.uri)
+                                .replace(/{testName}/g, item.name)
+                                .replace(/{testId}/g, item.id);
+                        if (i === 0) {
+                            $j("#testsSection").prepend(testLinkRow.replace(/div/g, "span"));
+                        } else {
+                            $j("#tests-section-toggle-id").show();
+                            availableTests += testLinkRow;
+                        }
                     });
-                    $j('#testsSection').html(tests);
+                    $j('#tests-section-available-tests-id').html(availableTests);
 
                     if (data.compiled !== true) {
                         setTimeout(function () {$jq('#tableTestsPanel').trigger('refresh')}, 1000);
