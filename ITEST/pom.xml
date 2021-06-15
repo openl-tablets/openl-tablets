@@ -29,12 +29,14 @@
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>
+        <module>itest.healthchecks</module>
         <module>itest.dateTimeFormat</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
         <module>itest.WebService-lazy</module>
         <module>itest.SpreadsheetResult</module>
         <module>itest.storelogdata</module>
+        <module>itest.tracing</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>

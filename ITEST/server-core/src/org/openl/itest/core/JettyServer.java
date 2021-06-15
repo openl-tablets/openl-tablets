@@ -32,7 +32,8 @@ public class JettyServer {
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
         webAppContext.setExtraClasspath(getExtraClasspath());
-        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern", ".*/classes/.*");
+        webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern",
+            ".*/classes/.*|.*ruleservice.ws[^/]*\\.jar$");
         if (useWebXml) {
             webAppContext.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
                     new WebInfConfiguration(),
