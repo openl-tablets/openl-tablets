@@ -69,17 +69,16 @@ public class CreateUpdateProjectModelValidator implements Validator {
         if (repository.supports().mappedFolders()) {
             try {
                 AProject project = designTimeRepository.getProject(model.getRepoName(), model.getProjectName());
-                if (!Objects.equals(project.getRealPath(), model.getPath() + model.getProjectName())) {
-                    throw new NotFoundException("project.message",
-                        new String[] { model.getProjectName() });
+                if (!Objects.equals(project.getRealPath(),
+                    StringUtils.isEmpty(model.getPath()) ? model.getProjectName()
+                                                         : model.getPath() + model.getProjectName())) {
+                    throw new NotFoundException("project.message", new String[] { model.getProjectName() });
                 }
                 if (project.isDeleted()) {
-                    throw new ConflictException("project.archived.message",
-                        new String[] { model.getProjectName() });
+                    throw new ConflictException("project.archived.message", new String[] { model.getProjectName() });
                 }
             } catch (ProjectException e) {
-                throw new NotFoundException("project.message",
-                        new String[] { model.getProjectName() });
+                throw new NotFoundException("project.message", new String[] { model.getProjectName() });
             }
         }
     }
