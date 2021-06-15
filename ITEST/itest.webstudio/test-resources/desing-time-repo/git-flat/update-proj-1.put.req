@@ -1,0 +1,19 @@
+PUT /rest/repos/design-flat/projects/Project HTTP/1.1
+Authorization: Basic YWRtaW46YWRtaW4=
+Content-Type: multipart/form-data; boundary=WebKitFormBoundary7MA4YWxkTrZu0gW
+
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="template"; filename="Sample Project.zip"
+Content-Transfer-Encoding: binary
+Content-Type: application/zip
+
+&Sample Project.zip
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="overwrite"
+
+true
+--WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="comment"
+
+Project is created.
+--WebKitFormBoundary7MA4YWxkTrZu0gW--

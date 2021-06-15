@@ -1,0 +1,8 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{
+    "code": "openl.error.404.design.repo.message",
+    "message": "Design Repository 'must-not-exist' is not found!"
+}
+

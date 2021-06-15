@@ -1,0 +1,26 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[
+    {
+        "name": "Project",
+        "modifiedBy": "admin",
+        "modifiedAt": "*",
+        "branch":"master",
+        "rev": "*"
+    }, {
+        "name": "Project2",
+        "modifiedBy": "admin",
+        "modifiedAt": "*",
+        "branch":"master",
+        "rev": "*"
+    }, {
+       "name": "Project4",
+       "modifiedBy": "admin",
+       "modifiedAt": "*",
+       "rev": "*",
+       "branch": "master",
+       "path": "foo/bar"
+   }
+]
+
