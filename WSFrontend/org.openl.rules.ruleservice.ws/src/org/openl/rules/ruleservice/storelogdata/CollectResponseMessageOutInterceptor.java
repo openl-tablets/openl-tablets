@@ -1,13 +1,16 @@
 package org.openl.rules.ruleservice.storelogdata;
 
-import java.io.*;
+import java.io.FilterWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.time.ZonedDateTime;
 
 import org.apache.cxf.common.injection.NoJSR250Annotations;
 import org.apache.cxf.interceptor.Fault;
 import org.apache.cxf.interceptor.LoggingMessage;
 import org.apache.cxf.interceptor.StaxOutInterceptor;
-import org.apache.cxf.io.CacheAndWriteOutputStream;
 import org.apache.cxf.io.CachedOutputStream;
 import org.apache.cxf.io.CachedOutputStreamCallback;
 import org.apache.cxf.message.Message;
@@ -55,7 +58,6 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
     public void handleFault(Message message) {
         final StoreLogData storeLogData = StoreLogDataHolder.get();
         storeLogData.fault();
-        handleAnyMessage(message);
     }
 
     private void handleAnyMessage(Message message) {
@@ -65,15 +67,28 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             return;
         }
         if (os != null) {
-            final CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
-            if (threshold > 0) {
-                newOut.setThreshold(threshold);
+            if (storeLoggingManager.isAtLeastOneSync(StoreLogDataHolder.get())) {
+                CacheAndWriteOutputStream newOut = new CacheAndWriteOutputStream(os);
+                if (threshold > 0) {
+                    newOut.setThreshold(threshold);
+                }
+                if (limit > 0) {
+                    newOut.setCacheLimit(limit);
+                }
+                message.setContent(OutputStream.class, newOut);
+                newOut.registerCallback(new LoggingCallback(message, os));
+            } else {
+                org.apache.cxf.io.CacheAndWriteOutputStream newOut = new org.apache.cxf.io.CacheAndWriteOutputStream(
+                    os);
+                if (threshold > 0) {
+                    newOut.setThreshold(threshold);
+                }
+                if (limit > 0) {
+                    newOut.setCacheLimit(limit);
+                }
+                message.setContent(OutputStream.class, newOut);
+                newOut.registerCallback(new LoggingCallback(message, os));
             }
-            if (limit > 0) {
-                newOut.setCacheLimit(limit);
-            }
-            message.setContent(OutputStream.class, newOut);
-            newOut.registerCallback(new LoggingCallback(message, os));
         } else {
             message.setContent(Writer.class, new LogWriter(message, iowriter));
         }
@@ -183,20 +198,22 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             String id = (String) message.getExchange().get(LoggingMessage.ID_KEY);
             LoggingMessage loggingMessage = new LoggingMessage(null, id);
             loggingMessage.getContentType().append(ct);
-            loggingMessage.getPayload().append(buffer.toString());
-            handleMessage(loggingMessage);
+            loggingMessage.getPayload().append(buffer);
+            handleMessage(message, loggingMessage);
             message.setContent(Writer.class, out);
             super.close();
         }
     }
 
     @Override
-    protected void handleMessage(LoggingMessage message) throws Fault {
+    protected void handleMessage(Message message, LoggingMessage loggingMessage) throws Fault {
         final StoreLogData storeLogData = StoreLogDataHolder.get();
         try {
-            storeLogData.setResponseMessage(message);
+            storeLogData.setResponseMessage(loggingMessage);
             storeLogData.setOutcomingMessageTime(ZonedDateTime.now());
             getStoreLoggingManager().store(storeLogData);
+        } catch (StoreLogDataException e) {
+            throw new Fault(e);
         } finally {
             StoreLogDataHolder.remove();
         }
@@ -220,7 +237,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
 
         @Override
         public void onFlush(CachedOutputStream cos) {
-            //nothing to do
+            // nothing to do
         }
 
         @Override
@@ -230,7 +247,7 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             String ct = (String) message.get(Message.CONTENT_TYPE);
             if (!isSaveBinaryContent() && isBinaryContent(ct)) {
                 buffer.getMessage().append(BINARY_CONTENT_MESSAGE).append('\n');
-                handleMessage(buffer);
+                handleMessage(message, buffer);
                 return;
             }
 
@@ -252,8 +269,12 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
             } catch (Exception e) {
                 LOG.debug("Error occurred: ", e);
             }
-
-            handleMessage(buffer);
+            Fault fault = null;
+            try {
+                handleMessage(message, buffer);
+            } catch (Fault f) {
+                fault = f;
+            }
             try {
                 // empty out the cache
                 cos.lockOutputStream();
@@ -262,6 +283,17 @@ public class CollectResponseMessageOutInterceptor extends AbstractProcessLogging
                 LOG.debug("Ignored error: ", e);
             }
             message.setContent(OutputStream.class, origStream);
+            if (fault != null) {
+                throw fault;
+            } else {
+                if (cos instanceof CacheAndWriteOutputStream) {
+                    try {
+                        ((CacheAndWriteOutputStream) cos).copyCacheToFlowThroughStream();
+                    } catch (Exception e) {
+                        LOG.debug("Ignored error: ", e);
+                    }
+                }
+            }
         }
     }
 }

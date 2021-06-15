@@ -406,6 +406,11 @@ public class RunStoreLogDataITest {
     }
 
     @Test
+    public void testSyncStoreFails() {
+        client.send("simple7_Hello.json");
+    }
+
+    @Test
     public void testRestServiceOk() throws Exception {
         final String REQUEST = getText("simple3_Hello.req.json");
         final String RESPONSE = getText("simple3_Hello.resp.txt");
