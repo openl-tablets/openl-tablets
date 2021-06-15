@@ -241,13 +241,13 @@ class HttpData {
                     } else {
                         writer.append(line);
                     }
-                    writer.println();
+                    writer.print("\r\n");
                     if (boundaryEnd.equals(line)) {
                         writer.flush();
                         break;
                     }
                 }
-                writer.println();
+                writer.print("\r\n");
             }
             body = os.toByteArray();
         } else if (cl != null) {
