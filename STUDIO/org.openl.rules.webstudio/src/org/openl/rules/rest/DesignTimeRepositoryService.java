@@ -116,7 +116,11 @@ public class DesignTimeRepositoryService {
             dest.put("branch", Optional.of(src.getFileData()).map(FileData::getBranch).orElse(null));
         }
         if (features.mappedFolders()) {
-            dest.put("path", Paths.get(src.getRealPath()).getParent().toString().replace('\\', '/'));
+            Optional.ofNullable(src.getRealPath())
+                    .map(Paths::get)
+                    .map(Path::getParent)
+                    .map(Path::toString)
+                    .ifPresent(p -> dest.put("path", p.replace('\\', '/')));
         }
         return dest;
     }
