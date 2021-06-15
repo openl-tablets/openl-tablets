@@ -231,8 +231,7 @@ public class RepositoryTreeState implements DesignTimeRepositoryListener {
             }
 
             if (previousRoot != null) {
-                final TreeNode previousRulesRepo = previousRoot.getChild(projectsTreeId);
-                syncExpandedState((AbstractTreeNode) previousRulesRepo, rulesRepository);
+                syncExpandedState(previousRoot, root);
 
                 previousRoot = null;
             }
