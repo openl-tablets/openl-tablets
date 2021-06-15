@@ -27,18 +27,24 @@ public final class SimpleStoreLogDataManager implements StoreLogDataManager {
     }
 
     @Override
-    public void store(StoreLogData storeLogData) {
+    public void store(StoreLogData storeLogData) throws StoreLogDataException {
         if (!storeLogData.isIgnorable()) {
             if (!ignoreByFault(storeLogData)) {
                 for (StoreLogDataService storeLogDataService : storeLogDataServices) {
-                    try {
-                        storeLogDataService.save(storeLogData);
-                    } catch (Exception e) {
-                        log.error("Failed on save operation.", e);
-                    }
+                    storeLogDataService.save(storeLogData);
                 }
             }
         }
+    }
+
+    @Override
+    public boolean isAtLeastOneSync(StoreLogData storeLogData) {
+        for (StoreLogDataService storeLogDataService : storeLogDataServices) {
+            if (storeLogDataService.isSync(storeLogData)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

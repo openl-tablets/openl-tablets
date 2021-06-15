@@ -1,0 +1,8 @@
+HTTP/1.1 500
+Content-Type: application/json
+
+{
+  "message": "FileNotFoundException: /org/openl/itest/cassandra/HelloEntity7.cql",
+  "type": "SYSTEM",
+  "details": "*"
+}
