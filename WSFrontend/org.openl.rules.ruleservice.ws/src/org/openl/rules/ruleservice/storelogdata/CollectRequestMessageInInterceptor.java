@@ -121,7 +121,7 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
 
         if (!isSaveBinaryContent() && isBinaryContent(ct)) {
             buffer.getMessage().append(BINARY_CONTENT_MESSAGE).append('\n');
-            handleMessage(buffer);
+            handleMessage(message, buffer);
             return;
         }
 
@@ -134,13 +134,13 @@ public class CollectRequestMessageInInterceptor extends AbstractProcessLoggingMe
                 logReader(message, reader, buffer);
             }
         }
-        handleMessage(buffer);
+        handleMessage(message, buffer);
     }
 
     @Override
-    protected void handleMessage(LoggingMessage message) {
+    protected void handleMessage(Message message, LoggingMessage loggingMessage) {
         StoreLogData storeLogData = StoreLogDataHolder.get();
-        storeLogData.setRequestMessage(message);
+        storeLogData.setRequestMessage(loggingMessage);
         storeLogData.setIncomingMessageTime(ZonedDateTime.now());
     }
 

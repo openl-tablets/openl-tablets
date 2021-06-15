@@ -1,0 +1,5 @@
+{
+  "message": "FileNotFoundException: /org/openl/itest/cassandra/HelloEntity7.cql",
+  "type": "SYSTEM",
+  "details": "*"
+}

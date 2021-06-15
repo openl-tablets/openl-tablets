@@ -406,6 +406,11 @@ public class RunStoreLogDataITest {
     }
 
     @Test
+    public void testSyncStoreFails() {
+        client.post("/REST/deployment7/simple7/Hello", "/simple7_Hello.req.json", 500, "/simple7_Hello.resp.json");
+    }
+
+    @Test
     public void testRestServiceOk() throws Exception {
         final String REQUEST = getText("simple3_Hello.req.json");
         final String RESPONSE = getText("simple3_Hello.resp.txt");
