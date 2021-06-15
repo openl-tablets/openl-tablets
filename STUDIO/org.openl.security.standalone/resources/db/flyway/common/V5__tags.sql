@@ -12,7 +12,7 @@ CREATE TABLE OpenL_Tags (
     tag_type_id ${bigint} not null,
     name ${varchar}(255) not null,
     PRIMARY KEY (id),
-    CONSTRAINT fk_OpenL_Tags1 FOREIGN KEY (tag_type_id) REFERENCES OpenL_Tag_Types(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_OpenL_Tags1 FOREIGN KEY (tag_type_id) REFERENCES OpenL_Tag_Types(id) ON DELETE CASCADE,
     CONSTRAINT uni_OpenL_Tags1 UNIQUE (tag_type_id, name)
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE OpenL_Project_Tags (
 );
 
 CREATE TABLE OpenL_Tag_Templates (
-    template ${varchar} not null,
+    template ${varchar}(255) not null,
     priority int,
     PRIMARY KEY (template),
     CONSTRAINT uni_OpenL_Tag_Templates1 UNIQUE (priority)

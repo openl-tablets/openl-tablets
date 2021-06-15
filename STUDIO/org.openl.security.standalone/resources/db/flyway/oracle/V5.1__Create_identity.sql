@@ -7,6 +7,7 @@ begin
     select OpenL_Tag_Types_ID_SEQ.nextval into :new.id from dual;
   end if;
 end;
+/
 
 create SEQUENCE OpenL_Tags_ID_SEQ;
 create or replace trigger OpenL_Tags_ID_TRG
@@ -17,6 +18,7 @@ begin
     select OpenL_Tags_ID_SEQ.nextval into :new.id from dual;
   end if;
 end;
+/
 
 create SEQUENCE OpenL_Projects_ID_SEQ;
 create or replace trigger OpenL_Projects_ID_TRG
@@ -27,3 +29,4 @@ begin
     select OpenL_Projects_ID_SEQ.nextval into :new.id from dual;
   end if;
 end;
+/
