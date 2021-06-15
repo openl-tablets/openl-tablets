@@ -6,6 +6,7 @@ import javax.ws.rs.PathParam;
 
 import org.openl.itest.cassandra.HelloEntity6;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
+import org.openl.rules.ruleservice.core.interceptors.RulesType;
 import org.openl.rules.ruleservice.storelogdata.annotation.PrepareStoreLogData;
 import org.openl.rules.ruleservice.storelogdata.cassandra.annotation.StoreLogDataToCassandra;
 
@@ -21,5 +22,9 @@ public interface Simple6ServiceAnnotationTemplate {
     @Path("/response/{id}")
     @GET
     Simple6ResponseDTO getResponseById(@PathParam("id") String id);
-    
+
+    @ServiceExtraMethod(Simple6DoSomethingExtraMethodHandler.class)
+    @RulesType("DoSomething") // SpreadsheetResult custom class type
+    Object DoSomethingExtra();
+
 }

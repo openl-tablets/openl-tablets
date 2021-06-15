@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassVisitor;
@@ -19,6 +20,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.openl.binding.MethodUtil;
+import org.openl.rules.calc.CustomSpreadsheetResultOpenClass;
 import org.openl.rules.datatype.gen.ASMUtils;
 import org.openl.rules.ruleservice.core.InstantiationException;
 import org.openl.rules.ruleservice.core.annotations.ServiceExtraMethod;
@@ -203,8 +205,23 @@ public final class DynamicInterfaceAnnotationEnhancerHelper {
                         return type.getInstanceClass();
                     }
                 }
+                List<CustomSpreadsheetResultOpenClass> sprTypes = openClass.getTypes().stream()
+                        .filter(CustomSpreadsheetResultOpenClass.class::isInstance)
+                        .map(CustomSpreadsheetResultOpenClass.class::cast)
+                        .collect(Collectors.toList());
+
+                for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
+                    if (Objects.equals(sprType.getBeanClass().getName(), typeName)) {
+                        return sprType.getBeanClass();
+                    }
+                }
+                for (CustomSpreadsheetResultOpenClass sprType : sprTypes) {
+                    if (Objects.equals(sprType.getBeanClass().getSimpleName(), typeName)) {
+                        return sprType.getBeanClass();
+                    }
+                }
                 throw new InstantiationException(
-                    "Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.");
+                    String.format("Failed to apply annotation template class to the service class. Failed to load type '%s' that used in @RulesType annotation.", typeName));
             }
         }
     }
