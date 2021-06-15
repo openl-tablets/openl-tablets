@@ -50,7 +50,7 @@ public class CreateUpdateProjectModelValidator implements Validator {
         Repository repository = designTimeRepository.getRepository(model.getRepoName());
         if (!repository.supports().mappedFolders()) {
             if (StringUtils.isNotBlank(model.getPath())) {
-                errors.rejectValue("path", "repo.notSupported.path.message");
+                errors.rejectValue("path", "repo.not-supported.path.message");
             }
         }
 
