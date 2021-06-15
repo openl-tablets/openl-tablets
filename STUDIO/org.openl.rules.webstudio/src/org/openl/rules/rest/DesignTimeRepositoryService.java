@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -97,6 +98,7 @@ public class DesignTimeRepositoryService {
         return designTimeRepository.getProjects(repoName)
             .stream()
             .filter(proj -> !proj.isDeleted())
+            .sorted(Comparator.comparing(AProject::getBusinessName, String.CASE_INSENSITIVE_ORDER))
             .map(src -> mapProjectResponse(src, repository.supports()))
             .collect(Collectors.toList());
     }
@@ -117,10 +119,10 @@ public class DesignTimeRepositoryService {
         }
         if (features.mappedFolders()) {
             Optional.ofNullable(src.getRealPath())
-                    .map(Paths::get)
-                    .map(Path::getParent)
-                    .map(Path::toString)
-                    .ifPresent(p -> dest.put("path", p.replace('\\', '/')));
+                .map(Paths::get)
+                .map(Path::getParent)
+                .map(Path::toString)
+                .ifPresent(p -> dest.put("path", p.replace('\\', '/')));
         }
         return dest;
     }
@@ -199,7 +201,6 @@ public class DesignTimeRepositoryService {
         if (repository != null) {
             return repository;
         }
-        throw new NotFoundException("design.repo.message",
-            new String[] { repoName });
+        throw new NotFoundException("design.repo.message", new String[] { repoName });
     }
 }

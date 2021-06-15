@@ -1,5 +1,6 @@
 package org.openl.rules.rest;
 
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -60,11 +61,19 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
             dest.put("message", status.getReasonPhrase());
             if (bindingResult.hasFieldErrors()) {
                 dest.put("fields",
-                    bindingResult.getFieldErrors().stream().map(this::mapFiledError).collect(Collectors.toList()));
+                    bindingResult.getFieldErrors()
+                        .stream()
+                        .sorted(Comparator.comparing(FieldError::getField, String.CASE_INSENSITIVE_ORDER))
+                        .map(this::mapFiledError)
+                        .collect(Collectors.toList()));
             }
             if (bindingResult.hasGlobalErrors()) {
                 dest.put("errors",
-                    bindingResult.getGlobalErrors().stream().map(this::mapObjectError).collect(Collectors.toList()));
+                    bindingResult.getGlobalErrors()
+                        .stream()
+                        .sorted(Comparator.comparing(ObjectError::getCode, String.CASE_INSENSITIVE_ORDER))
+                        .map(this::mapObjectError)
+                        .collect(Collectors.toList()));
             }
         }
         return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).entity(dest).build();
@@ -104,7 +113,7 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
 
         } else {
             dest.put("message",
-                    Optional.ofNullable(e.getMessage()).filter(StringUtils::isNotBlank).orElseGet(status::getReasonPhrase));
+                Optional.ofNullable(e.getMessage()).filter(StringUtils::isNotBlank).orElseGet(status::getReasonPhrase));
         }
         return dest;
     }
