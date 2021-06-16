@@ -11,27 +11,21 @@ import org.junit.Test;
 import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 import org.openl.itest.core.worker.AsyncExecutor;
-import org.openl.itest.core.worker.TaskScheduler;
 
 public class RunFileRepoRestRulesDeploymentTest {
-
-    private static String OPENL_CONFIG_LOCATION;
 
     private static JettyServer server;
     private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        OPENL_CONFIG_LOCATION = System.getProperty("openl.config.location");
-        System.setProperty("openl.config.location", "file:./openl-repository/file-application.properties");
-        server = JettyServer.start();
+        server = JettyServer.start("file");
         client = server.client();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        System.setProperty("openl.config.location", OPENL_CONFIG_LOCATION);
     }
 
     @Test
