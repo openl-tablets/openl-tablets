@@ -44,6 +44,8 @@
             text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
             vertical-align: 12%;
             margin-right: 2px;
+            margin-bottom: 3px;
+            display: inline-block;
         }
 
         #groupsTable .role {
@@ -117,6 +119,14 @@
             color: #fff;
         }
 
+        .privileges-row {
+            word-break: break-all;
+        }
+
+        .align-middle {
+            vertical-align: middle;
+        }
+
     </style>
 
     <section id="groupsTable">
@@ -127,10 +137,10 @@
             <div>Action</div>
         </header>
         <div class="row {type}">
-            <div><span class="clickable name">{name}</span></div>
-            <div><span class="description">{description}</span></div>
-            <div>{privileges}</div>
-            <div><span class="clickable delete-icon"/></div>
+            <div class="align-middle"><span class="clickable name">{name}</span></div>
+            <div class="align-middle"><span class="description">{description}</span></div>
+            <div class="align-middle privileges-row">{privileges}</div>
+            <div class="align-middle"><span class="clickable delete-icon"/></div>
         </div>
     </section>
     <br/>
