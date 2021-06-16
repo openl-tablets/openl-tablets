@@ -43,6 +43,7 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
     private final AtomicLong highThreadPriorityFlag = new AtomicLong(0);
     private final ThreadLocal<ThreadPriority> threadPriority = new ThreadLocal<>();
     private volatile boolean active = true;
+    private final List<Consumer<CompiledDependency>> compilationListeners = new ArrayList<>();
 
     public WebStudioWorkspaceRelatedDependencyManager(Collection<ProjectDescriptor> projects,
             ClassLoader rootClassLoader,
@@ -213,5 +214,19 @@ public class WebStudioWorkspaceRelatedDependencyManager extends AbstractDependen
             .stream()
             .flatMap(Collection::stream)
             .collect(Collectors.toCollection(ArrayList::new)));
+    }
+
+    public void registerListeners(Consumer<CompiledDependency> compilationListener) {
+        compilationListeners.add(compilationListener);
+    }
+
+    public void fireCompilationListeners(CompiledDependency compiledDependency) {
+        for (Consumer<CompiledDependency> listener : compilationListeners) {
+            try {
+                listener.accept(compiledDependency);
+            } catch (Exception e) {
+                log.error("Fail during compilation listener.", e);
+            }
+        }
     }
 }
