@@ -69,14 +69,14 @@ public class DesignTimeRepositoryService {
             CreateUpdateProjectModelValidator createUpdateProjectModelValidator,
             ZipArchiveValidator zipArchiveValidator,
             ZipProjectSaveStrategy zipProjectSaveStrategy,
-            @Value("${openl.home.shared}") Path homeDirectory) {
+            @Value("${openl.home.shared}") String homeDirectory) {
         this.designTimeRepository = designTimeRepository;
         this.propertyResolver = propertyResolver;
         this.validationProvider = validationService;
         this.createUpdateProjectModelValidator = createUpdateProjectModelValidator;
         this.zipArchiveValidator = zipArchiveValidator;
         this.zipProjectSaveStrategy = zipProjectSaveStrategy;
-        this.lockManager = new LockManager(homeDirectory.resolve("locks/api"));
+        this.lockManager = new LockManager(Paths.get(homeDirectory).resolve("locks/api"));
     }
 
     @GET
