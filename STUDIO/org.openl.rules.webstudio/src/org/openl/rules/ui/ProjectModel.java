@@ -966,6 +966,15 @@ public class ProjectModel {
         }
     }
 
+    private void addSyntaxNodes(CompiledDependency compiledDependency) {
+        XlsMetaInfo metaInfo = (XlsMetaInfo) compiledDependency.getCompiledOpenClass()
+            .getOpenClassWithErrors()
+            .getMetaInfo();
+        if (metaInfo != null) {
+            allXlsModuleSyntaxNodes.add(metaInfo.getXlsModuleNode());
+        }
+    }
+
     public synchronized void setModuleInfo(Module moduleInfo, ReloadType reloadType) throws Exception {
         if (moduleInfo == null || this.moduleInfo == moduleInfo && reloadType == ReloadType.NO) {
             return;
@@ -1058,8 +1067,6 @@ public class ProjectModel {
                                 .getMetaInfo();
                             allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
                         } catch (RulesInstantiationException ignored) {
-                        } finally {
-                            addAllSyntaxNodes();
                         }
                     });
         } catch (Throwable t) {
@@ -1096,6 +1103,7 @@ public class ProjectModel {
         if (webStudioWorkspaceDependencyManager == null) {
             webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                 .buildDependencyManager(this.moduleInfo.getProject());
+            webStudioWorkspaceDependencyManager.registerListeners(this::addSyntaxNodes);
         } else {
             List<ProjectDescriptor> projectsInWorkspace = webStudioWorkspaceDependencyManagerFactory
                 .resolveWorkspace(this.moduleInfo.getProject());
@@ -1118,6 +1126,7 @@ public class ProjectModel {
                     webStudioWorkspaceDependencyManager.resetAll();
                     webStudioWorkspaceDependencyManager = webStudioWorkspaceDependencyManagerFactory
                         .buildDependencyManager(this.moduleInfo.getProject());
+                    webStudioWorkspaceDependencyManager.registerListeners(this::addSyntaxNodes);
                 } else {
                     // If loaded projects are a part of the new opened project, then we can reuse dependency manager
                     webStudioWorkspaceDependencyManager.expand(

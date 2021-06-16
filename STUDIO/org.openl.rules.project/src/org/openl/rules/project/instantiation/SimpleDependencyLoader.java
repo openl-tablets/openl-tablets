@@ -133,6 +133,7 @@ public class SimpleDependencyLoader implements IDependencyLoader {
             CompiledOpenClass compiledOpenClass = rulesInstantiationStrategy.compile();
             CompiledDependency compiledDependency = new CompiledDependency(dependencyName, compiledOpenClass);
             if (isActualDependency()) {
+                onCompilationComplete(compiledDependency);
                 this.compiledDependency = compiledDependency;
                 log.debug("Dependency '{}' is saved in cache.", dependencyName);
             }
@@ -145,6 +146,9 @@ public class SimpleDependencyLoader implements IDependencyLoader {
                 ValidationManager.turnOnValidation();
             }
         }
+    }
+
+    protected void onCompilationComplete(CompiledDependency compiledDependency) {
     }
 
     protected CompiledDependency onCompilationFailure(Exception ex,

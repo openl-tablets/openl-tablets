@@ -57,4 +57,10 @@ final class WebStudioDependencyLoader extends SimpleDependencyLoader {
             Thread.currentThread().setContextClassLoader(oldClassLoader);
         }
     }
+
+    @Override
+    protected void onCompilationComplete(CompiledDependency compiledDependency) {
+        super.onCompilationComplete(compiledDependency);
+        webStudioWorkspaceRelatedDependencyManager.fireCompilationListeners(compiledDependency);
+    }
 }
