@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
@@ -43,12 +44,18 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
             if (e instanceof ValidationException) {
                 return handleBindingResult(code, ((ValidationException) e).getBindingResult());
             } else {
-                return Response.status(code.value()).entity(mapCommonException(code, e)).build();
+                return Response.status(code.value())
+                    .type(MediaType.APPLICATION_JSON_TYPE)
+                    .entity(mapCommonException(code, e))
+                    .build();
             }
         } else {
             HttpStatus code = HttpStatus.INTERNAL_SERVER_ERROR;
             LOG.error(e.getMessage(), e);
-            return Response.status(code.value()).entity(mapCommonException(code, e)).build();
+            return Response.status(code.value())
+                .type(MediaType.APPLICATION_JSON_TYPE)
+                .entity(mapCommonException(code, e))
+                .build();
         }
     }
 
@@ -76,7 +83,10 @@ public class RestExceptionMapper implements ExceptionMapper<Exception> {
                         .collect(Collectors.toList()));
             }
         }
-        return Response.status(Response.Status.BAD_REQUEST.getStatusCode()).entity(dest).build();
+        return Response.status(Response.Status.BAD_REQUEST.getStatusCode())
+            .type(MediaType.APPLICATION_JSON_TYPE)
+            .entity(dest)
+            .build();
     }
 
     private String resolveLocalMessage(ObjectError error) {
