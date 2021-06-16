@@ -110,12 +110,12 @@ public class TagConfigService {
         }
 
         if (!NameChecker.checkName(name)) {
-            throw new BadRequestException("bad.name.message");
+            throw new BadRequestException("invalid.name.message");
         }
 
         final TagType existing = tagTypeService.getByName(name);
         if (existing != null && !existing.getId().equals(id)) {
-            throw new ConflictException("tag-type.exists.message", name);
+            throw new ConflictException("duplicated.tag-type.message", name);
         }
 
         tagType.setName(name);
@@ -173,12 +173,12 @@ public class TagConfigService {
             throw new BadRequestException("cannot.be.empty.message");
         }
         if (!NameChecker.checkName(name)) {
-            throw new BadRequestException("bad.name.message");
+            throw new BadRequestException("invalid.name.message");
         }
 
         final Tag existing = tagService.getByName(tag.getType().getId(), name);
         if (existing != null && !existing.getId().equals(tagId)) {
-            throw new ConflictException("tag.exists.message", name);
+            throw new ConflictException("duplicated.tag.message", name);
         }
 
         tag.setName(name);
