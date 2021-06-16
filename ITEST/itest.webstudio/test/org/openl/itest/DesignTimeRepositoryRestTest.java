@@ -11,15 +11,11 @@ import org.openl.itest.core.JettyServer;
 
 public class DesignTimeRepositoryRestTest {
 
-    private static String OPENL_HOME;
-
     private static JettyServer server;
     private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        OPENL_HOME = System.getProperty("openl.home");
-        System.setProperty("openl.home", Files.createTempDirectory(Paths.get("target").toAbsolutePath(), "webstudio-").toString());
         server = JettyServer.startWithWebXml();
         client = server.client();
     }
@@ -27,7 +23,6 @@ public class DesignTimeRepositoryRestTest {
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        System.setProperty("openl.home", OPENL_HOME);
     }
 
     @Test

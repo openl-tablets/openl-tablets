@@ -95,6 +95,9 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
             new ApplicationPropertySource(props, appName, profiles));
 
+        ConfigLog.LOG.info("Loading OpenL System Info properties...");
+        propertySources.addFirst(new SysInfoPropertySource());
+
         ConfigLog.LOG.info("Loading reconfigurable properties...");
         DynamicPropertySource propertySource = new DynamicPropertySource(appName, props);
         DynamicPropertySource.THE = propertySource;
@@ -102,8 +105,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
 
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, new DisablePropertySource(propertySources));
 
-        ConfigLog.LOG.info("Loading OpenL System Info properties...");
-        propertySources.addFirst(new SysInfoPropertySource());
         ConfigLog.LOG.info("Register reference property processor...");
         propertySources.addLast(new RefPropertySource(propertySources));
 
