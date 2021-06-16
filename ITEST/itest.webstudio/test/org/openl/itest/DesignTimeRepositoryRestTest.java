@@ -16,7 +16,7 @@ public class DesignTimeRepositoryRestTest {
 
     @BeforeClass
     public static void setUp() throws Exception {
-        server = JettyServer.startWithWebXml();
+        server = JettyServer.startWithWebXml("dtr");
         client = server.client();
     }
 
