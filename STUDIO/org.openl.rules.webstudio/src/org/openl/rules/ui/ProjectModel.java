@@ -8,6 +8,7 @@ import static org.openl.rules.security.Privileges.EDIT_TABLES;
 import java.io.File;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -94,7 +95,7 @@ public class ProjectModel {
     private volatile boolean projectCompilationCompleted;
 
     private XlsModuleSyntaxNode xlsModuleSyntaxNode;
-    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = new HashSet<>();
+    private final Collection<XlsModuleSyntaxNode> allXlsModuleSyntaxNodes = ConcurrentHashMap.newKeySet();
     private WorkbookSyntaxNode[] workbookSyntaxNodes;
 
     private Module moduleInfo;
