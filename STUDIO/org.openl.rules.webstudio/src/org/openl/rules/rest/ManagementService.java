@@ -15,6 +15,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.security.Privilege;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.dao.GroupDao;
@@ -71,7 +72,7 @@ public class ManagementService {
             @FormParam("privilege") final Set<String> privileges) {
         SecurityChecker.allow(Privileges.ADMIN);
         if (!name.equals(oldName) && groupManagementService.isGroupExist(name)) {
-            throw new IllegalArgumentException("A group with such name already exists.");
+            throw new ConflictException("duplicated.group.message");
         }
         if (StringUtils.isBlank(oldName)) {
             groupManagementService.addGroup(name, description);
