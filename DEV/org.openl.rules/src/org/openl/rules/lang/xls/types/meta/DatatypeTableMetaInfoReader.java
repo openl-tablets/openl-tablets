@@ -54,6 +54,9 @@ public class DatatypeTableMetaInfoReader extends BaseMetaInfoReader<DatatypeTabl
         ICell firstCell = logicalTable.getCell(0, 0);
         int r = row - firstCell.getAbsoluteRow();
         int c = col - firstCell.getAbsoluteColumn();
+        if (r < 0 || c < 0) {
+            return getHeaderMetaInfo();
+        }
         if (!logicalTable.isNormalOrientation()) {
             int temp = r;
             r = c;
