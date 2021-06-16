@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -220,7 +221,38 @@ class HttpData {
         byte[] body;
         String cl = headers.get("Content-Length");
         String te = headers.get("Transfer-Encoding");
-        if (cl != null) {
+        String ct = headers.get("Content-Type");
+
+        if (ct != null && ct.startsWith("multipart/form-data") && ct.contains("boundary=")) {
+            String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
+            String boundaryEnd = "--" + boundary + "--";
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try (PrintWriter writer = new PrintWriter(os)) {
+                while (true) {
+                    String line = readLine(input);
+                    if (!line.isEmpty() && line.charAt(0) == '&') {
+                        writer.flush();
+                        String fileRes = Paths.get(resource)
+                                .getParent()
+                                .resolve(line.substring(1))
+                                .toString().replace('\\', '/');
+                        try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                            StreamUtils.copy(fileStream, os);
+                        }
+                        os.flush();
+                    } else {
+                        writer.append(line);
+                    }
+                    writer.print("\r\n");
+                    if (boundaryEnd.equals(line)) {
+                        writer.flush();
+                        break;
+                    }
+                }
+                writer.print("\r\n");
+            }
+            body = os.toByteArray();
+        } else if (cl != null) {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
             body = readChunckedBody(input);

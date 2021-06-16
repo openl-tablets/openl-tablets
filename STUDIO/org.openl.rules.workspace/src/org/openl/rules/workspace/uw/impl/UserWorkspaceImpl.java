@@ -10,7 +10,9 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpression;
@@ -194,6 +196,21 @@ public class UserWorkspaceImpl implements UserWorkspace {
     @Override
     public Collection<RulesProject> getProjects() {
         return getProjects(true);
+    }
+
+    @Override
+    public List<? extends AProject> getProjects(String repositoryId) {
+        if (projectsRefreshNeeded) {
+            refreshRulesProjects();
+        }
+        synchronized (userRulesProjects) {
+            return userRulesProjects.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                .map(Map.Entry::getValue)
+                .sorted(PROJECTS_COMPARATOR)
+                .collect(Collectors.toList());
+        }
     }
 
     @Override

@@ -12,6 +12,7 @@
     <context:property-placeholder/>
     <context:component-scan base-package="org.openl.rules.webstudio.web.install org.openl.rules.webstudio.web.admin org.openl.rules.webstudio.web.util"/>
     <import resource="classpath:META-INF/cxf/cxf.xml" />
+    <import resource="validation-beans.xml" />
 
     <bean id="installerPage" class="org.openl.rules.webstudio.filter.RedirectFilter">
         <property name="redirectPage" value="/faces/pages/modules/install/index.xhtml"/>
@@ -43,7 +44,9 @@
         </property>
         <property name="providers">
             <list>
-                <bean class="org.openl.rules.rest.RestExceptionMapper"/>
+                <bean class="org.openl.rules.rest.RestExceptionMapper">
+                    <constructor-arg name="messageSource" ref="validationMessageSource"/>
+                </bean>
                 <bean class="com.fasterxml.jackson.jaxrs.json.JacksonJsonProvider">
                     <constructor-arg name="mapper">
                         <bean class="com.fasterxml.jackson.databind.ObjectMapper">

@@ -41,7 +41,7 @@
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
-        <module>webstudio.rest</module>
+        <module>itest.webstudio</module>
     </modules>
 
     <dependencyManagement>

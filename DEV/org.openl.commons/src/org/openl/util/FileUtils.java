@@ -1,7 +1,16 @@
 package org.openl.util;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.nio.channels.FileChannel;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -262,6 +271,31 @@ public class FileUtils {
     }
 
     /**
+     * Deletes a path. If provided path is a directory, delete it and all sub-directories.
+     *
+     * @param root path to file or directory to delete, must not be {@code null}
+     * @throws NullPointerException if the directory is {@code null}
+     * @throws FileNotFoundException if the file has not been found
+     * @throws IOException in case deletion is unsuccessful
+     */
+    public static void delete(Path root) throws IOException {
+        if (!Files.exists(root)) {
+            throw new FileNotFoundException("Path does not exist: " + root);
+        }
+        Files.walkFileTree(root, new SimpleFileVisitor<Path>() {
+            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                Files.delete(file);
+                return FileVisitResult.CONTINUE;
+            }
+
+            public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                Files.delete(dir);
+                return FileVisitResult.CONTINUE;
+            }
+        });
+    }
+
+    /**
      * Deletes a file, never throwing an exception. If file is a directory, delete it and all sub-directories.
      * <p/>
      * The difference between File.delete() and this method are:
@@ -275,6 +309,14 @@ public class FileUtils {
     public static void deleteQuietly(File file) {
         try {
             delete(file);
+        } catch (Exception ignored) {
+            // ignore
+        }
+    }
+
+    public static void deleteQuietly(Path path) {
+        try {
+            delete(path);
         } catch (Exception ignored) {
             // ignore
         }
