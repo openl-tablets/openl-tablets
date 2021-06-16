@@ -1,0 +1,7 @@
+HTTP/1.1 400
+Content-Type: application/json
+
+{
+    "code": "openl.error.400.bad.name.message",
+    "message": "Name cannot contain forbidden characters (*), start with space, end with space or dot."
+}

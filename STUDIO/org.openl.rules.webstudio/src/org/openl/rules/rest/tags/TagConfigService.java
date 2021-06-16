@@ -19,13 +19,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.openl.rules.rest.SecurityChecker;
+import org.openl.rules.rest.exception.BadRequestException;
+import org.openl.rules.rest.exception.ConflictException;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
 import org.openl.rules.webstudio.service.TagService;
 import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.NameChecker;
-import org.openl.rules.webstudio.web.util.WebStudioUtils;
 import org.openl.util.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -77,14 +78,12 @@ public class TagConfigService {
 
     @POST
     @Path("/types")
-    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTagType(TagTypeDTO typeDTO, @Context UriInfo uriInfo) {
         return addOrUpdateTagType(null, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), uriInfo);
     }
 
     @PUT
     @Path("/types/{id}")
-    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response updateTagType(@PathParam("id") final Long id, TagTypeDTO typeDTO) {
         return addOrUpdateTagType(id, typeDTO.getName(), typeDTO.isNullable(), typeDTO.isExtensible(), null);
     }
@@ -106,18 +105,20 @@ public class TagConfigService {
             }
         }
 
-        if (StringUtils.isNotBlank(name)) {
-            tagType.setName(name);
-
-            WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
-
-            final TagType existing = tagTypeService.getByName(name);
-            if (existing != null && !existing.getId().equals(id)) {
-                return Response.status(Response.Status.CONFLICT)
-                    .entity("Tag type with name \"" + name + "\" already exists.")
-                    .build();
-            }
+        if (StringUtils.isBlank(name)) {
+            throw new BadRequestException("cannot.be.empty.message");
         }
+
+        if (!NameChecker.checkName(name)) {
+            throw new BadRequestException("bad.name.message");
+        }
+
+        final TagType existing = tagTypeService.getByName(name);
+        if (existing != null && !existing.getId().equals(id)) {
+            throw new ConflictException("tag-type.exists.message", name);
+        }
+
+        tagType.setName(name);
 
         if (nullable != null) {
             tagType.setNullable(nullable);
@@ -137,14 +138,12 @@ public class TagConfigService {
 
     @POST
     @Path("/types/{tagTypeId}/tags")
-    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
         return addOrUpdateTag(tagTypeId, null, name, uriInfo);
     }
 
     @PUT
     @Path("/types/{tagTypeId}/tags/{tagId}")
-    @Produces(MediaType.TEXT_PLAIN) // TODO: Remove it when we move to error messages in json
     public Response updateTag(@PathParam("tagTypeId") final Long tagTypeId,
             @PathParam("tagId") final Long tagId,
             final String name) {
@@ -170,12 +169,16 @@ public class TagConfigService {
             }
         }
 
-        WebStudioUtils.validate(StringUtils.isNotBlank(name), "Can not be empty");
-        WebStudioUtils.validate(NameChecker.checkName(name), NameChecker.BAD_NAME_MSG);
+        if (StringUtils.isBlank(name)) {
+            throw new BadRequestException("cannot.be.empty.message");
+        }
+        if (!NameChecker.checkName(name)) {
+            throw new BadRequestException("bad.name.message");
+        }
 
         final Tag existing = tagService.getByName(tag.getType().getId(), name);
         if (existing != null && !existing.getId().equals(tagId)) {
-            return Response.status(Response.Status.CONFLICT).entity("Tag with name \"" + name + "\" already exists.").build();
+            throw new ConflictException("tag.exists.message", name);
         }
 
         tag.setName(name);
@@ -193,7 +196,7 @@ public class TagConfigService {
         try {
             return Response.created(new URI(uriInfo.getPath(false) + "/" + id)).build();
         } catch (URISyntaxException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+            throw new IllegalStateException(e);
         }
     }
 }

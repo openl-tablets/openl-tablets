@@ -213,7 +213,8 @@
                             nullable: tagType.nullable
                         }
                         updateTagType(obj, () => tagType.name = name, response => {
-                            ws.ui.error(response.responseText);
+                            let json = JSON.parse(response.responseText);
+                            ws.ui.error(json && json.message? json.message : 'Cannot update tag type');
                             $tagTypeName.focus();
                         });
                     }
@@ -243,7 +244,8 @@
                         updateTagType(obj,
                             () => $j('#tag-types-list').trigger('refresh'),
                             response => {
-                                ws.ui.error(response.responseText);
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag type');
                                 $tagTypeName.focus();
                             }
                         );
@@ -376,7 +378,8 @@
                         updateTag(obj,
                             () => triggerRefresh(),
                             response => {
-                                ws.ui.error(response.responseText);
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag');
                                 $tagName.focus();
                             }
                         );
@@ -410,7 +413,8 @@
                         updateTag(obj,
                             () => triggerRefresh(),
                             response => {
-                                ws.ui.error(response.responseText);
+                                let json = JSON.parse(response.responseText);
+                                ws.ui.error(json && json.message ? json.message : 'Cannot update tag');
                                 $tagName.focus();
                             }
                         );

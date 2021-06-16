@@ -1,0 +1,4 @@
+HTTP/1.1 409
+Content-Type: application/json
+
+{"code":"openl.error.409.tag.exists.message","message":"Tag with name \"*\" already exists."}
