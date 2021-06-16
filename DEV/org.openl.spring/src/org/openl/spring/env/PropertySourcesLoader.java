@@ -70,7 +70,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
             ServletContext servletContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         RawPropertyResolver props = new RawPropertyResolver(propertySources);
-        String[] profiles = env.getActiveProfiles();
 
         ConfigLog.LOG.info("Loading default properties...");
         DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
@@ -92,6 +91,7 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         }
 
         ConfigLog.LOG.info("Loading application properties...");
+        String[] profiles = env.getActiveProfiles();
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
             new ApplicationPropertySource(props, appName, profiles));
 
