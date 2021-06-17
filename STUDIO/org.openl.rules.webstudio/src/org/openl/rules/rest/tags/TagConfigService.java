@@ -21,6 +21,7 @@ import javax.ws.rs.core.UriInfo;
 import org.openl.rules.rest.SecurityChecker;
 import org.openl.rules.rest.exception.BadRequestException;
 import org.openl.rules.rest.exception.ConflictException;
+import org.openl.rules.rest.exception.NotFoundException;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.security.standalone.persistence.Tag;
 import org.openl.rules.security.standalone.persistence.TagType;
@@ -57,7 +58,7 @@ public class TagConfigService {
         if (tagTypeService.delete(id)) {
             return Response.noContent().build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("tag-type.message");
         }
     }
 
@@ -67,12 +68,12 @@ public class TagConfigService {
         SecurityChecker.allow(Privileges.ADMIN);
         final Tag tag = tagService.getById(id);
         if (tag == null || !Objects.equals(tag.getType().getId(), tagTypeId)) {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("tag.message");
         }
         if (tagService.delete(id)) {
             return Response.noContent().build();
         } else {
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("tag.message");
         }
     }
 
@@ -101,7 +102,7 @@ public class TagConfigService {
         } else {
             tagType = tagTypeService.getById(id);
             if (tagType == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                throw new NotFoundException("tag-type.message");
             }
         }
 
@@ -159,13 +160,13 @@ public class TagConfigService {
             tag = new Tag();
             final TagType tagType = tagTypeService.getById(tagTypeId);
             if (tagType == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                throw new NotFoundException("tag-type.message");
             }
             tag.setType(tagType);
         } else {
             tag = tagService.getById(tagId);
             if (tag == null) {
-                return Response.status(Response.Status.NOT_FOUND).build();
+                throw new NotFoundException("tag.message");
             }
         }
 
