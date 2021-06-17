@@ -324,13 +324,18 @@
         }
 
         function runAllTests(e) {
-            compiled(function (data) {
-                if (!data) {
-                    if (!confirm("Tests can be run for the currently opened module only because the project is not compiled yet.")) {
-                        return false;
-                    }
+            compiled(function (compiled) {
+                let proceed = () => test(e, "#{studio.url('test/test')}");
+
+                if (!compiled) {
+                    ws.ui.confirm({
+                        title: 'Tests',
+                        message: 'Tests can be run for the currently opened module only because the project is not compiled yet.',
+                        onOK: proceed
+                    });
+                } else {
+                    proceed();
                 }
-                test(e, '#{studio.url('test/test')}');
             });
             return false;
         }

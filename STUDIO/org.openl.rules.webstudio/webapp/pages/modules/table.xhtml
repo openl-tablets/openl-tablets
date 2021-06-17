@@ -737,44 +737,63 @@
         }
 
         function onRun() {
-            compiled(function (data) {
-                var currentOpenedModule = false;
-                if (!data) {
-                    if (!confirm("Can be run for the currently opened module only because the project is not compiled yet.")) {
-                        return false;
+            compiled(function (compiled) {
+                let proceed = () => {
+                    if (isAnyTestSelected()) {
+                        runTestCases(!compiled);
                     }
-                    currentOpenedModule = true;
-                }
-                if (isAnyTestSelected()) {
-                    runTestCases(currentOpenedModule);
+                };
+
+                if (!compiled) {
+                    ws.ui.confirm({
+                        title: 'Run',
+                        message: 'Can be run for the currently opened module only because the project is not compiled yet.',
+                        onOK: proceed
+                    });
+                } else {
+                    proceed();
                 }
             });
         }
 
         function onTrace() {
-            compiled(function (data) {
-                if (!data) {
-                    if (!confirm("Trace can be run for the currently opened module only because the project is not compiled yet.")) {
-                        return false;
+            compiled(function (compiled) {
+                let proceed = () => {
+                    if (isAnyTestSelected()) {
+                        $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
+                        onTraceFunction();
                     }
-                }
-                if (isAnyTestSelected()) {
-                    $j("#testModuleHiddenInput").val(!data).prop('disabled', false);
-                    onTraceFunction();
+                };
+
+                if (!compiled) {
+                    ws.ui.confirm({
+                        title: 'Trace',
+                        message: 'Trace can be run for the currently opened module only because the project is not compiled yet.',
+                        onOK: proceed
+                    });
+                } else {
+                    proceed();
                 }
             });
         }
 
         function onBenchmark() {
-            compiled(function (data) {
-                if (!data) {
-                    if (!confirm("Benchmark can be run for the currently opened module only because the project is not compiled yet.")) {
-                        return false;
+            compiled(function (compiled) {
+                let proceed = () => {
+                    if (isAnyTestSelected()) {
+                        $j("#testModuleHiddenInput").val(!compiled).prop('disabled', false);
+                        onBenchmarkFunction();
                     }
-                }
-                if (isAnyTestSelected()) {
-                    $j("#testModuleHiddenInput").val(!data).prop('disabled', false);
-                    onBenchmarkFunction();
+                };
+
+                if (!compiled) {
+                    ws.ui.confirm({
+                        title: 'Benchmark',
+                        message: 'Benchmark can be run for the currently opened module only because the project is not compiled yet.',
+                        onOK: proceed
+                    });
+                } else {
+                    proceed();
                 }
             });
         }
