@@ -1,0 +1,2 @@
+DELETE /web/admin/tag-config/types/1 HTTP/1.1
+

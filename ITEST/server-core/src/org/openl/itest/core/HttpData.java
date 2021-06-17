@@ -20,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.springframework.util.StreamUtils;
 
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class HttpData {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Pattern NO_CONTENT_STATUS_PATTERN = Pattern.compile("HTTP/\\S+\\s+204(\\s.*)?");
 
     private final String firstLine;
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -254,6 +256,10 @@ class HttpData {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
             body = readChunckedBody(input);
+        } else if (NO_CONTENT_STATUS_PATTERN.matcher(firstLine).matches()) {
+            // Depending on the implementation of InputStream, reading it can hang if no data is available.
+            // So for 204 status we just don't read body because it doesn't needed for this status.
+            body = new byte[0];
         } else {
             body = StreamUtils.copyToByteArray(input);
         }

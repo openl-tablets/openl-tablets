@@ -591,7 +591,7 @@ public class UserWorkspaceImpl implements UserWorkspace {
     }
 
     @Override
-    public void uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException {
+    public RulesProject uploadLocalProject(String repositoryId, String name, String projectFolder, String comment) throws ProjectException {
         try {
             String designPath = designTimeRepository.getRulesLocation() + name;
             FileData designData = new FileData();
@@ -617,6 +617,8 @@ public class UserWorkspaceImpl implements UserWorkspace {
             rulesProject.open();
 
             refreshRulesProjects();
+
+            return rulesProject;
         } catch (ProjectException e) {
             try {
                 if (designTimeRepository.hasProject(repositoryId, name)) {

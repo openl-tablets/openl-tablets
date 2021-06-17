@@ -21,7 +21,6 @@ public class Group implements Serializable {
     private String description;
     private Set<String> privileges;
     private Set<Group> includedGroups;
-    private Set<Group> parentGroups;
 
     /**
      * Description of group.
@@ -86,10 +85,6 @@ public class Group implements Serializable {
 
     public void setIncludedGroups(Set<Group> includedGroups) {
         this.includedGroups = includedGroups;
-    }
-
-    public void setParentGroups(Set<Group> parentGroups) {
-        this.parentGroups = parentGroups;
     }
 
     public void setName(String name) {

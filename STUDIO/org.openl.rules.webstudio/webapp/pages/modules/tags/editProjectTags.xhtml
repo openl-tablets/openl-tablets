@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:a4j="http://richfaces.org/a4j"
+        xmlns:rich="http://richfaces.org/rich">
+
+    <rich:popupPanel id="modalEditProjectTags" minWidth="330" autosized="true">
+        <f:facet name="header">
+            <h:outputText value="Tags"/>
+        </f:facet>
+
+        <f:facet name="controls">
+            <h:graphicImage value="/images/close.gif" class="close"
+                            onclick="hideEditProjectTags()" alt="Close"/>
+        </f:facet>
+
+        <h:form id="editProjectTagsForm">
+            <div>
+                <table class="formfields">
+                    <ui:repeat value="#{projectTagsBean.tags}" var="tag">
+                        <tr>
+                            <td>
+                                <label><h:outputText value="#{tag.type.name}:"/></label>
+                            </td>
+                            <td>
+                                <h:inputHidden value="#{tag.name}"/>
+
+                                <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
+                                    <h:panelGroup rendered="#{tag.type.nullable}">
+                                        <h:panelGroup rendered="#{tag.name == '[None]'}">
+                                            <option value="[None]" selected="selected">[None]</option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != '[None]'}">
+                                            <option value="[None]">[None]</option>
+                                        </h:panelGroup>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{not tag.type.nullable and tag.name == '[None]'}">
+                                        <option value="[None]" disabled="disabled" selected="selected">[None]</option>
+                                    </h:panelGroup>
+
+                                    <ui:repeat value="#{projectTagsBean.getTagValues(tag.type.name)}" var="t">
+                                        <h:panelGroup rendered="#{tag.name == t.name}">
+                                            <option value="#{t.name}" selected="selected"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                        <h:panelGroup rendered="#{tag.name != t.name}">
+                                            <option value="#{t.name}"><h:outputText value="#{t.name}"/></option>
+                                        </h:panelGroup>
+                                    </ui:repeat>
+                                </select>
+                            </td>
+                        </tr>
+                    </ui:repeat>
+
+                </table>
+            </div>
+
+            <footer>
+                <a4j:commandButton value="Save" action="#{projectTagsBean.save}" data="#{facesContext.maximumSeverity}"
+                                   oncomplete="if(!event.data) hideEditProjectTags()" render="nodeView"
+                                   styleClass="button-primary"/>
+                <input type="button" value="Cancel" onclick="hideEditProjectTags()"/>
+            </footer>
+
+            <a4j:jsFunction name="renderEditProjectTagsForm" render="@form"/>
+            <a4j:jsFunction name="initEditProjectTagsDialog" action="#{projectTagsBean.init}" render="@form"
+                            oncomplete="showEditProjectTagsDialog();"/>
+
+        </h:form>
+
+    </rich:popupPanel>
+
+    <script>
+        //<![CDATA[
+        function editProjectTags() {
+            initEditProjectTagsDialog();
+        }
+
+        function showEditProjectTagsDialog() {
+            $j('.editable-select').editableSelect({
+                filter: false
+            }).on('select.editable-select', function (e, $li) {
+                $li.parent().prev().prev('input[type=hidden]').val($li.text());
+            });
+            $j('.editable-select.es-input').change(function () {
+                $j(this).prev('input[type=hidden]').val($j(this).val());
+            });
+
+            $j('.editable-select').prop('readonly', false);
+            $j('.editable-select.readonly').prop('readonly', true);
+
+            RichFaces.$('modalEditProjectTags').show();
+        }
+
+        function hideEditProjectTags() {
+            RichFaces.$("modalEditProjectTags").hide();
+
+            // Reset form
+            $j("#editProjectTagsForm")[0].reset();
+        }
+
+        //]]>
+    </script>
+
+</ui:composition>

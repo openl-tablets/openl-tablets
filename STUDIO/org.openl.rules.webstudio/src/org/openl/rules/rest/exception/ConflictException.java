@@ -10,7 +10,7 @@ public class ConflictException extends RestRuntimeException {
         super(code);
     }
 
-    public ConflictException(String code, Object[] args) {
+    public ConflictException(String code, Object... args) {
         super(code, args);
     }
 }

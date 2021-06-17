@@ -64,6 +64,7 @@
                 <ref bean="projectHistoryService"/>
                 <ref bean="propertyService"/>
                 <ref bean="designTimeRepositoryService"/>
+                <ref bean="tagConfigService"/>
             </list>
         </property>
         <property name="providers">

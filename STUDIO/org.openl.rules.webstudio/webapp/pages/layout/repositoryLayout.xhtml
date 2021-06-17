@@ -16,10 +16,11 @@
 
         <link href="#{contextPath}/favicon.ico" rel="shortcut icon" type="image/x-icon"/>
         <link href="#{contextPath}/css/bootstrap.min.css" rel="stylesheet" />
-        <link href="#{contextPath}/css/common.css?6" rel="stylesheet" />
+        <link href="#{contextPath}/css/common.css?7" rel="stylesheet" />
         <link href="#{contextPath}/css/layout/main.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.popup.css" rel="stylesheet" />
         <link href="#{contextPath}/css/jquery.multiselect.css" rel="stylesheet" />
+        <link href="#{contextPath}/css/jquery-editable-select.min.css" rel="stylesheet" />
 
         <script src="#{contextPath}/javascript/common.js?7"></script>   <!-- increment parameter when js file is changed to force browser to reload cached file -->
         <script src="#{contextPath}/javascript/vendor/jquery-1.7.2.min.js"></script>
@@ -31,6 +32,7 @@
         <script src="#{contextPath}/javascript/jquery.multiselect.js"></script>
         <script src="#{contextPath}/javascript/bomjs.js"></script>
         <script src="#{contextPath}/javascript/vendor/response-monitor.js"></script>
+        <script src="#{contextPath}/javascript/vendor/jquery-editable-select.min.js"></script>
 
         <h:outputScript name="jsf.js" library="javax.faces" />
 
@@ -50,9 +52,14 @@
                     && data.errorName.indexOf("ViewExpiredException") > -1) { // Session Timeout
                     handleError(399);
                 }
-                handleError(data.responseCode);
                 console.error("Error in response:");
                 console.error(data);
+                let errorMessage = data.errorMessage;
+                if (errorMessage && ws) {
+                    ws.ui.info(errorMessage);
+                } else {
+                    handleError(data.responseCode);
+                }
             };
             jsf.ajax.addOnError(onError);
 
@@ -68,6 +75,7 @@
                 },
 
                 ui: {
+                    loaderOpened: 0,
                     success: function(content) {
                         message(content, 4000, true, "success");
                     },
@@ -78,10 +86,18 @@
                         message(content, 8000, true);
                     },
                     showLoader: function() {
-                        showLoader();
+                        if (ws.ui.loaderOpened++ === 0) {
+                            showAnimatedPanel($j('#loadingPanel'));
+                        }
                     },
                     hideLoader: function() {
-                        hideLoader();
+                        if (ws.ui.loaderOpened-- === 1) {
+                            $j('#loadingPanel').hide();
+                        }
+                        if (ws.ui.loaderOpened < 0) {
+                            ws.ui.loaderOpened = 0;
+                            console.warn('hideLoader() without showLoader() is called.');
+                        }
                     }
                 }
             };
@@ -140,16 +156,16 @@
             }
 
             function showLoader() {
-                showAnimatedPanel($j('#loadingPanel'));
+                ws.ui.showLoader();
             }
 
             function hideLoader() {
-                $j('#loadingPanel').hide();
+                ws.ui.hideLoader();
             }
 
           $j(function () {
               fixRichFaces();
-              updateSubmitListener(showLoader);
+              updateSubmitListener(ws.ui.showLoader);
           });
           //]]>
         </script>
@@ -205,6 +221,6 @@
         </div>
 
         <!-- ajax request can change DOM, for example add submit buttons. We must add listeners to them when request is finished. -->
-        <a4j:status onstart="showLoader()" onstop="hideLoader(); updateSubmitListener(showLoader);" />
+        <a4j:status onstart="ws.ui.showLoader()" onstop="ws.ui.hideLoader(); updateSubmitListener(ws.ui.showLoader);" />
     </h:body>
 </html>

@@ -62,6 +62,11 @@
                 <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>apache-jsp</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
@@ -71,11 +76,6 @@
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>apache-jsp</artifactId>
-                <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.openl.rules</groupId>
