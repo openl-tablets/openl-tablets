@@ -1,4 +1,4 @@
 PUT /web/admin/tag-config/types/2/tags/3 HTTP/1.1
-Content-Type: application/json; charset=UTF-8
+Content-Type: text/plain
 
 <my_finance>

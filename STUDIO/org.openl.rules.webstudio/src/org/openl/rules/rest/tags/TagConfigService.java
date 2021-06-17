@@ -139,12 +139,14 @@ public class TagConfigService {
 
     @POST
     @Path("/types/{tagTypeId}/tags")
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response addTag(@PathParam("tagTypeId") final Long tagTypeId, final String name, @Context UriInfo uriInfo) {
         return addOrUpdateTag(tagTypeId, null, name, uriInfo);
     }
 
     @PUT
     @Path("/types/{tagTypeId}/tags/{tagId}")
+    @Consumes(MediaType.TEXT_PLAIN)
     public Response updateTag(@PathParam("tagTypeId") final Long tagTypeId,
             @PathParam("tagId") final Long tagId,
             final String name) {
