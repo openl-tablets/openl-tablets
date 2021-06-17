@@ -522,6 +522,7 @@
                         <h:outputLink value="#{testLink}" title="Run Tests" styleClass="toolbarButton menuButton"
                                       onmouseover="$j(this).find('.arrow').css({'visibility':'visible'})"
                                       onmouseout="$j(this).find('.arrow').css({'visibility':'hidden'})"
+                                      onclick="onRun(true); return false;"
                                       rendered="#{tableBean.canRun}"  >
                             <table>
                                 <tr>
@@ -736,17 +737,17 @@
             ws.ui.info(data.message);
         }
 
-        function onRun() {
+        function onRun(skipSelectionCheck) {
             compiled(function (compiled) {
                 let proceed = () => {
-                    if (isAnyTestSelected()) {
+                    if (skipSelectionCheck || isAnyTestSelected()) {
                         runTestCases(!compiled);
                     }
                 };
 
                 if (!compiled) {
                     ws.ui.confirm({
-                        title: 'Run',
+                        title: 'Tests',
                         message: 'Can be run for the currently opened module only because the project is not compiled yet.',
                         onOK: proceed
                     });
