@@ -1,9 +1,5 @@
 package org.openl.itest;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -11,30 +7,18 @@ import org.openl.itest.core.HttpClient;
 import org.openl.itest.core.JettyServer;
 
 public class TagsConfigTest {
-    private static String OPENL_CONFIG_LOCATION;
-    private static String OPENL_HOME;
-
     private static JettyServer server;
     private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        OPENL_CONFIG_LOCATION = System.getProperty("openl.config.location");
-        System.setProperty("openl.config.location", "file:./openl-repository/single-user-application.properties");
-
-        OPENL_HOME = System.getProperty("openl.home");
-        System.setProperty("openl.home", Files.createTempDirectory(Paths.get("target").toAbsolutePath(), "tags-config-test-").toString());
-
-        server = JettyServer.startWithWebXml();
+        server = JettyServer.startWithWebXml("simple");
         client = server.client();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-
-        System.setProperty("openl.home", OPENL_HOME);
-        System.setProperty("openl.config.location", OPENL_CONFIG_LOCATION);
     }
 
     @Test
