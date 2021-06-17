@@ -286,6 +286,9 @@ public class ProjectModel {
 
             if (method instanceof OpenMethodDispatcher) {
                 resolvedMethod = resolveMethodDispatcher((OpenMethodDispatcher) method, tableUri);
+                if (resolvedMethod != null) {
+                    return method;
+                }
             } else {
                 resolvedMethod = resolveMethod(method, tableUri);
             }
