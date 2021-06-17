@@ -49,7 +49,8 @@ public class TagTemplateService {
     public void save(List<String> templates) {
         tagTemplateDao.deleteAll();
 
-        for (int i = 0, templatesSize = templates.size(); i < templatesSize; i++) {
+        for (int i = 0; i < templates.size(); i++) {
+
             final String templateString = templates.get(i);
             if (StringUtils.isBlank(templateString)) {
                 continue;
