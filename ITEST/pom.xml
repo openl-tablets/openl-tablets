@@ -99,8 +99,8 @@
                             <webservice-webapp>
                                 ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webservice
                             </webservice-webapp>
-                            <openl.config.location>file:./openl-repository/application.properties
-                            </openl.config.location>
+                            <openl.config.location>file:./openl-repository/</openl.config.location>
+                            <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
                             <server.responses>${project.build.directory}/responses/</server.responses>
                             <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
                             <http.timeout.read>${http.timeout.read}</http.timeout.read>

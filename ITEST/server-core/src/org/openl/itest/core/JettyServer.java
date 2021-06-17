@@ -26,22 +26,31 @@ public class JettyServer {
 
     private final Server server;
 
-    private JettyServer(String explodedWar, boolean sharedClassloader, boolean useWebXml) {
+    private JettyServer(String explodedWar, boolean sharedClassloader, boolean useWebXml, String[] profiles) {
         this.server = new Server(0);
         this.server.setStopAtShutdown(true);
         WebAppContext webAppContext = new WebAppContext();
         webAppContext.setResourceBase(explodedWar);
         webAppContext.setExtraClasspath(getExtraClasspath());
+
+        if (profiles != null && profiles.length > 0) {
+            webAppContext.setInitParameter("spring.profiles.active", String.join(",", profiles));
+        }
+
         webAppContext.setAttribute("org.eclipse.jetty.server.webapp.WebInfIncludeJarPattern",
             ".*/classes/.*|.*ruleservice.ws[^/]*\\.jar$");
+
+        Configuration[] configurations;
         if (useWebXml) {
-            webAppContext.setConfigurations(new Configuration[] { new AnnotationConfiguration(),
+            // Temporary for WebStudio only
+            configurations = new Configuration[] { new AnnotationConfiguration(),
                     new WebInfConfiguration(),
-                    new WebXmlConfiguration() });
+                    new WebXmlConfiguration() };
         } else {
-            webAppContext
-                .setConfigurations(new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() });
+            configurations = new Configuration[] { new AnnotationConfiguration(), new WebInfConfiguration() };
         }
+        webAppContext.setConfigurations(configurations);
+
         if (sharedClassloader) {
             webAppContext.setClassLoader(JettyServer.class.getClassLoader());
         }
@@ -56,20 +65,34 @@ public class JettyServer {
         }
     }
 
-    public static JettyServer start() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false);
+    /**
+     * Start an application with configuration defined using {@code @WebListener}.
+     *
+     * @param profiles Spring profiles which are activated
+     */
+    public static JettyServer start(String... profiles) throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, false, profiles);
         jetty.server.start();
         return jetty;
     }
 
+    /**
+     * Start an application with configuration defined using {@code @WebListener} and sharing JUnit classloader with the
+     * application.
+     */
     public static JettyServer startSharingClassLoader() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, false);
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), true, false, null);
         jetty.server.start();
         return jetty;
     }
 
-    public static JettyServer startWithWebXml() throws Exception {
-        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, true);
+    /**
+     * Temporary for WebStudio only! Start an application with configuration defined in web.xml.
+     *
+     * @param profiles Spring profiles which are activated
+     */
+    public static JettyServer startWithWebXml(String... profiles) throws Exception {
+        JettyServer jetty = new JettyServer(System.getProperty("webservice-webapp"), false, true, profiles);
         jetty.server.start();
         return jetty;
     }
