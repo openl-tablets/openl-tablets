@@ -413,6 +413,30 @@
 
                         $("#" + popupId).popup(popupParams);
                     },
+                    confirm: function (options) {
+                        let confirmPopup = RichFaces.$('confirmPopup');
+
+                        const defaults = {
+                            title: 'Confirm',
+                            message: 'Are you sure?',
+                            onOK: () => {},
+                            onCancel: () => {},
+                        };
+                        options = $.extend({}, defaults, options);
+
+                        $('#confirmPopupTitle').text(options.title);
+                        $('#confirmPopupMessage').text(options.message);
+                        $('#confirmPopupOkButton').off().click(() => {
+                            options.onOK();
+                            confirmPopup.hide();
+                        });
+                        $('#confirmPopupCancelButton').off().click(() => {
+                            options.onCancel();
+                            confirmPopup.hide();
+                        });
+
+                        confirmPopup.show();
+                    },
                     showLoader: function () {
                         if (reqs++ == 0) {
                             showAnimatedPanel(loadingPanel);
@@ -1072,5 +1096,6 @@
     </div>
 
     <ui:include src="/pages/modules/tooLongDownload.xhtml"/>
+    <ui:include src="/pages/modules/confirmPopup.xhtml" />
 </h:body>
 </html>

@@ -1,0 +1,20 @@
+<ui:composition
+        xmlns:f="http://java.sun.com/jsf/core"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:rich="http://richfaces.org/rich"
+        xmlns:ui="http://java.sun.com/jsf/facelets">
+
+    <rich:popupPanel id="confirmPopup" minWidth="530" autosized="true">
+        <f:facet name="header">
+            <h:outputText id="confirmPopupTitle"/>
+        </f:facet>
+
+        <div>
+            <span id="confirmPopupMessage"/>
+            <footer>
+                <input id="confirmPopupOkButton" type="button" value="OK"/>
+                <input id="confirmPopupCancelButton" type="button" value="Cancel"/>
+            </footer>
+        </div>
+    </rich:popupPanel>
+</ui:composition>
