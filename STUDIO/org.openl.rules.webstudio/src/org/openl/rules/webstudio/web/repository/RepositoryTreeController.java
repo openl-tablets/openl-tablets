@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -71,9 +72,11 @@ import org.openl.rules.repository.api.MergeConflictException;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
+import org.openl.rules.webstudio.service.TagTypeService;
 import org.openl.rules.webstudio.util.ExportFile;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.repository.cache.ProjectVersionCacheManager;
 import org.openl.rules.webstudio.web.repository.merge.ConflictUtils;
@@ -86,6 +89,7 @@ import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
+import org.openl.rules.webstudio.web.repository.tree.TreeProjectGrouping;
 import org.openl.rules.webstudio.web.repository.tree.TreeRepository;
 import org.openl.rules.webstudio.web.repository.upload.ProjectDescriptorUtils;
 import org.openl.rules.webstudio.web.repository.upload.ProjectUploader;
@@ -139,6 +143,9 @@ public class RepositoryTreeController {
     private RepositoryTreeState repositoryTreeState;
 
     @Autowired
+    private ProjectTagsBean projectTagsBean;
+
+    @Autowired
     private MultiUserWorkspaceManager workspaceManager;
 
     private volatile UserWorkspace userWorkspace = WebStudioUtils.getUserWorkspace(WebStudioUtils.getSession());
@@ -179,6 +186,9 @@ public class RepositoryTreeController {
 
     @Autowired
     private OpenAPIEditorService openAPIEditorService;
+
+    @Autowired
+    private TagTypeService tagTypeService;
 
     private String repositoryId;
     private String projectName;
@@ -638,6 +648,8 @@ public class RepositoryTreeController {
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
 
                     resetStudioModel();
+
+                    saveTags(createdProject);
 
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                     /* Clear the load form */
@@ -1434,10 +1446,6 @@ public class RepositoryTreeController {
         return this.fileName;
     }
 
-    public String getFilterString() {
-        return repositoryTreeState.getFilterString();
-    }
-
     public String getFolderName() {
         return null;
     }
@@ -1502,12 +1510,27 @@ public class RepositoryTreeController {
     }
 
     /**
-     * Gets all rules projects from a rule repository.
+     * Gets rules projects.
      *
      * @return list of rules projects
      */
     public List<TreeNode> getRulesProjects() {
-        return repositoryTreeState.getRulesRepository().getChildNodes();
+        final TreeNode node = getSelectedNode();
+        final List<TreeNode> rulesProjects = getRulesProjects(node);
+        rulesProjects.sort(Comparator.comparing(treeNode -> treeNode.getName().toLowerCase()));
+        return rulesProjects;
+    }
+
+    private List<TreeNode> getRulesProjects(TreeNode node) {
+        List<TreeNode> list = new ArrayList<>();
+        for (TreeNode treeNode : node.getChildNodes()) {
+            if (UiConst.TYPE_PROJECT .equals(treeNode.getType())) {
+                list.add(treeNode);
+            } else if (UiConst.TYPE_GROUP.equals(treeNode.getType())) {
+                list.addAll(getRulesProjects(treeNode));
+            }
+        }
+        return list;
     }
 
     public SelectItem[] getSelectedProjectVersions() {
@@ -1652,12 +1675,26 @@ public class RepositoryTreeController {
 
     private void selectProject(String projectName, TreeRepository root) {
         for (TreeNode node : root.getChildNodes()) {
-            if (node.getData().getName().equals(projectName) && repositoryId
-                .equals(node.getData().getRepository().getId())) {
-                repositoryTreeState.setSelectedNode(node);
+            if (trySelectProject(projectName, node)) {
                 break;
             }
         }
+    }
+
+    private boolean trySelectProject(String projectName, TreeNode node) {
+        if (node instanceof TreeProjectGrouping) {
+            for (TreeNode child : node.getChildNodes()) {
+                if (trySelectProject(projectName, child)) {
+                    return true;
+                }
+            }
+        } else if (node instanceof TreeProject) {
+            if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
+                repositoryTreeState.setSelectedNode(node);
+                return true;
+            }
+        }
+        return false;
     }
 
     public String selectRulesProject() {
@@ -1754,10 +1791,6 @@ public class RepositoryTreeController {
 
     public void setFileName(String fileName) {
         this.fileName = StringUtils.trim(fileName);
-    }
-
-    public void setFilterString(String filterString) {
-        repositoryTreeState.setFilterString(filterString);
     }
 
     public void setFolderName(String folderName) {
@@ -1887,6 +1920,7 @@ public class RepositoryTreeController {
                 repositoryTreeState.addRulesProjectToTree(createdProject);
                 selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                 resetStudioModel();
+                saveTags(createdProject);
                 WebStudioUtils.addInfoMessage("Project was created successfully.");
             } catch (Exception e) {
                 WebStudioUtils.addErrorMessage(e.getMessage());
@@ -1934,6 +1968,7 @@ public class RepositoryTreeController {
                     repositoryTreeState.addRulesProjectToTree(createdProject);
                     selectProject(createdProject.getName(), repositoryTreeState.getRulesRepository());
                     resetStudioModel();
+                    saveTags(createdProject);
                     WebStudioUtils.addInfoMessage("Project was created successfully.");
                 } catch (Exception e) {
                     WebStudioUtils.addErrorMessage(e.getMessage());
@@ -2595,14 +2630,6 @@ public class RepositoryTreeController {
         projectFolder = "";
     }
 
-    public String getFilterRepositoryId() {
-        return repositoryTreeState.getFilterRepositoryId();
-    }
-
-    public void setFilterRepositoryId(String filterRepositoryId) {
-        repositoryTreeState.setFilterRepositoryId(filterRepositoryId);
-    }
-
     public void tryImportFromRepo() {
         if (isOpenLProjectInFolder()) {
             importFromRepo();
@@ -2639,7 +2666,7 @@ public class RepositoryTreeController {
                 .ifPresent(project -> selectProject(project.getName(), repositoryTreeState.getRulesRepository()));
 
             resetStudioModel();
-
+            importedProject.ifPresent(this::saveTags);
             WebStudioUtils.addInfoMessage("Project was imported successfully.");
             clearForm();
         } catch (Exception e) {
@@ -2774,5 +2801,13 @@ public class RepositoryTreeController {
     public boolean isBranchDeletable() {
         UserWorkspaceProject project = getSelectedProject();
         return project != null && !project.isLocalOnly() && !project.isDeleted();
+    }
+
+    public boolean isHasTags() {
+        return !tagTypeService.getAllTagTypes().isEmpty();
+    }
+
+    private void saveTags(RulesProject project) {
+        projectTagsBean.saveTags(project);
     }
 }

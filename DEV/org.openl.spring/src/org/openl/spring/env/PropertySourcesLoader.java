@@ -70,7 +70,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
             ServletContext servletContext) {
         MutablePropertySources propertySources = env.getPropertySources();
         RawPropertyResolver props = new RawPropertyResolver(propertySources);
-        String[] profiles = env.getActiveProfiles();
 
         ConfigLog.LOG.info("Loading default properties...");
         DefaultPropertySource defaultPropertySource = new DefaultPropertySource();
@@ -92,8 +91,12 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
         }
 
         ConfigLog.LOG.info("Loading application properties...");
+        String[] profiles = env.getActiveProfiles();
         propertySources.addBefore(PreferencePropertySource.PROPS_NAME,
             new ApplicationPropertySource(props, appName, profiles));
+
+        ConfigLog.LOG.info("Loading OpenL System Info properties...");
+        propertySources.addFirst(new SysInfoPropertySource());
 
         ConfigLog.LOG.info("Loading reconfigurable properties...");
         DynamicPropertySource propertySource = new DynamicPropertySource(appName, props);
@@ -102,8 +105,6 @@ public class PropertySourcesLoader implements ApplicationContextInitializer<Conf
 
         propertySources.addBefore(DynamicPropertySource.PROPS_NAME, new DisablePropertySource(propertySources));
 
-        ConfigLog.LOG.info("Loading OpenL System Info properties...");
-        propertySources.addFirst(new SysInfoPropertySource());
         ConfigLog.LOG.info("Register reference property processor...");
         propertySources.addLast(new RefPropertySource(propertySources));
 

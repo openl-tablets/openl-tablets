@@ -78,4 +78,14 @@ public class HttpDataTest {
             assertEquals("Unexpected size of the chunk.", er.getMessage());
         }
     }
+
+    @Test
+    public void testResponse204() throws IOException {
+        final HttpData fullNoContent = HttpData.readFile("/no-content-full.resp");
+        final HttpData shortNoContent = HttpData.readFile("/no-content-short.resp");
+        final HttpData noContentWithBody = HttpData.readFile("/no-content-non-standard.resp");
+        fullNoContent.assertTo(shortNoContent);
+        fullNoContent.assertTo(noContentWithBody);
+        shortNoContent.assertTo(noContentWithBody);
+    }
 }

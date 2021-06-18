@@ -12,10 +12,10 @@
     </style>
 
     <div class="page">
-        <h1 class="page-header">Projects</h1>
+        <h1 class="page-header">Projects<span class="filtered-mark hidden"> (filtered)</span></h1>
 
         <div class="block">
-            <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj" styleClass="table">
+            <rich:dataTable value="#{repositoryTreeController.rulesProjects}" var="prj" styleClass="table filtered-table">
             <f:facet name="header">
               <rich:columnGroup>
                 <rich:column>
@@ -39,7 +39,7 @@
               </rich:columnGroup>
             </f:facet>
 
-              <rich:column>
+              <rich:column styleClass="project-name-column">
                 <h:commandLink value="#{prj.name}" action="#{repositoryTreeController.selectRulesProject}">
                   <f:param name="repositoryId" value="#{prj.data.repository.id}" />
                   <f:param name="projectName" value="#{prj.data.name}" />

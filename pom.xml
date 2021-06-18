@@ -4,7 +4,7 @@
     <groupId>org.openl.rules</groupId>
     <artifactId>openl-tablets</artifactId>
     <packaging>pom</packaging>
-    <version>5.24.2-SNAPSHOT</version>
+    <version>5.24.3-SNAPSHOT</version>
     <name>OpenL Tablets</name>
     <url>https://openl-tablets.org</url>
     <description>OpenL Tablets rules engine and related frameworks</description>
@@ -115,6 +115,11 @@
         <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
         <owasp.version>6.1.0</owasp.version>
         <groovy.version>3.0.8</groovy.version>
+        <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
+        <jaeger.client.version>1.5.0</jaeger.client.version>
+        <opentracing.kafka.client>0.1.15</opentracing.kafka.client>
+        <opentracing.mock.version>0.33.0</opentracing.mock.version>
+
 
         <!-- It needs to detect memory leaks. -->
         <!-- !!! Don't increase these parameters without special need !!! -->
@@ -123,7 +128,7 @@
         <surefire.argLine>-Xms8m -Xmx128m -Xss256k</surefire.argLine>
         <!-- Fine tuned settings to detects memory and performance issues -->
         <surefire.argLine.perf>-Xms8m -Xmx55m -Xss256k</surefire.argLine.perf>
-        <openl.home>${project.build.directory}/openl-test</openl.home>
+        <openl.home>${project.build.directory}/openl-test-${openl.start.milli}</openl.home>
         <java.io.tmpdir>${project.build.directory}</java.io.tmpdir>
         <openl.info>main</openl.info>
     </properties>
@@ -240,7 +245,7 @@
                         <systemPropertyVariables>
                             <openl.home>${openl.home}</openl.home>
                             <openl.info>${openl.info}</openl.info>
-                            <openl.config.location />
+                            <openl.config.location/>
                             <java.io.tmpdir>${java.io.tmpdir}</java.io.tmpdir>
                         </systemPropertyVariables>
                     </configuration>
@@ -320,7 +325,7 @@
                         <systemProperties>
                             <systemProperty>
                                 <name>openl.home</name>
-                                <value>${project.build.directory}/openl-jetty</value>
+                                <value>${project.build.directory}/openl-jetty-${openl.start.milli}</value>
                             </systemProperty>
                             <systemProperty>
                                 <name>openl.info</name>
@@ -413,7 +418,7 @@
             </activation>
             <properties>
                 <!-- Empty for building without JaCoCo agent -->
-                <jacoco.argLine />
+                <jacoco.argLine/>
                 <!-- JaCoCo agent cannot be attached if ${argLine} is missed -->
             </properties>
         </profile>
@@ -425,7 +430,7 @@
                 </property>
             </activation>
             <properties>
-                <sonar />
+                <sonar/>
                 <invoker.timeoutInSeconds>40</invoker.timeoutInSeconds>
             </properties>
             <build>
@@ -1531,6 +1536,13 @@
                 <version>${kafka.version}</version>
             </dependency>
             <!-- //Kafka -->
+            <!-- OpenTracing -->
+            <dependency>
+                <groupId>io.opentracing</groupId>
+                <artifactId>opentracing-mock</artifactId>
+                <version>${opentracing.mock.version}</version>
+                <scope>test</scope>
+            </dependency>
             <!-- dependencies to annotations for maven-plugin-plugin -->
             <dependency>
                 <groupId>org.apache.maven.plugin-tools</groupId>
@@ -1812,6 +1824,11 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.deployer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.ruleservice.ws.tracing.jaeger</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <!-- Util -->

@@ -9,27 +9,16 @@
 
     <c:set var="editable" value="#{editable == null ? false : editable}" />
     
-    <script>
-        function toggleStacktrace(stacktrace, summary, a) {
-            var j1 = $j(a).find("div");
-            var f = j1.hasClass("stacktrace-hidden")
-            $j(".summary-panels").show();
-            $j(".stacktrace-panels").hide();
-            $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
-            if (f) {
-                $j(stacktrace).show();
-                $j(summary).hide();
-                j1.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
-            } 
-        }
-    </script>
-    
     <a4j:repeat value="#{messages}" var="message" binding="#{messagesBean.messages}">
         <c:set var="messageBoxClass"
             value="#{message.severity == 'ERROR' ? 'problem-error' : (message.severity == 'WARN' ? 'problem-warning' : 'problem-info')}" />
 
         <table style="margin-top: 3px;"><tr><td style="border: 0; padding: 0">
         <div class="#{messageBoxClass}" style="#{messagesBean.hasStacktrace ? 'padding-bottom: 3px' : ''}">
+
+            <div class="arrow-top">
+                <a style="cursor:pointer" onclick="toggleStacktrace(this); return false;" class="stacktrace-links"><div/></a>
+            </div>
 
             <h:panelGroup id="summary_panel" styleClass="summary-panels">
                 <h:outputText id="summary" value="#{messagesBean.summary}" style="white-space: pre-wrap;"/>
@@ -61,11 +50,31 @@
                 </h:panelGroup>
             </h:panelGroup>
 
-            <h:panelGroup rendered="#{messagesBean.hasStacktrace}">
-                <h:outputLink onclick="toggleStacktrace(#{rich:element('stacktrace_panel')}, #{rich:element('summary_panel')}, this); return false;" styleClass="stacktrace-links"><div class="stacktrace-hidden"/></h:outputLink>
-            </h:panelGroup>
+            <div class="arrow-bottom" style="display:none">
+                <a style="cursor:pointer" onclick="toggleStacktrace(this); return false;" class="stacktrace-links"><div class="stacktrace-hidden"/></a>
+            </div>
         </div>
         </td></tr></table>
     </a4j:repeat>
+
+    <script>
+        $j(".stacktrace-panels").siblings(".arrow-bottom").show()
+
+        function toggleStacktrace(arrowBlock) {
+            var arrow = $j(arrowBlock).find("div");
+            var isHidden = arrow.hasClass("stacktrace-hidden")
+            $j(".summary-panels").show();
+            $j(".stacktrace-panels").hide();
+            $j(".stacktrace-showed").each(function(i, e) { $j(e).addClass("stacktrace-hidden").removeClass("stacktrace-showed"); });
+            $j(".arrow-top a div").removeClass("stacktrace-hidden");
+            if (isHidden) {
+                var messageBox = $j(arrowBlock).parent().parent();
+                messageBox.find('[id$="stacktrace_panel"]').show();
+                messageBox.find('[id$="summary_panel"]').hide();
+                arrow.addClass("stacktrace-showed").removeClass("stacktrace-hidden");
+                $j(arrowBlock).parent().parent().find(".arrow-top a div").addClass("stacktrace-showed");
+            }
+        }
+    </script>
 
 </ui:composition>

@@ -30,6 +30,7 @@ import org.openl.rules.rest.ProjectHistoryService;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
 import org.openl.rules.webstudio.web.admin.FolderStructureValidators;
+import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.admin.RepositorySettingsValidators;
 import org.openl.rules.webstudio.web.repository.CommentValidator;
 import org.openl.rules.webstudio.web.repository.RepositoryTreeState;
@@ -62,6 +63,8 @@ public class CopyBean {
 
     private final RepositoryTreeState repositoryTreeState;
 
+    private final ProjectTagsBean projectTagsBean;
+
     private final ApplicationContext applicationContext = FacesContextUtils
         .getRequiredWebApplicationContext(FacesContext.getCurrentInstance());
 
@@ -81,9 +84,12 @@ public class CopyBean {
     private String errorMessage;
     private Comments designRepoComments;
 
-    public CopyBean(PropertyResolver propertyResolver, RepositoryTreeState repositoryTreeState) {
+    public CopyBean(PropertyResolver propertyResolver,
+        RepositoryTreeState repositoryTreeState,
+        ProjectTagsBean projectTagsBean) {
         this.propertyResolver = propertyResolver;
         this.repositoryTreeState = repositoryTreeState;
+        this.projectTagsBean = projectTagsBean;
     }
 
     public boolean getCanCreate() {
@@ -262,6 +268,8 @@ public class CopyBean {
                 if (!userWorkspace.isOpenedOtherProject(copiedProject)) {
                     copiedProject.open();
                 }
+
+                projectTagsBean.saveTags(copiedProject);
             }
 
             WebStudioUtils.getWebStudio().resetProjects();

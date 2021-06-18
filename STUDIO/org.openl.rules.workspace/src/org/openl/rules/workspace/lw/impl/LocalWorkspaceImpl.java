@@ -7,7 +7,9 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
@@ -106,6 +108,18 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
             ArrayList<AProject> projects = new ArrayList<>(localProjects.values());
             projects.sort(PROJECTS_COMPARATOR);
             return projects;
+        }
+    }
+
+    @Override
+    public List<? extends AProject> getProjects(String repositoryId) {
+        synchronized (localProjects) {
+            return localProjects.entrySet()
+                .stream()
+                .filter(entry -> Objects.equals(repositoryId, entry.getKey().getRepositoryId()))
+                .map(Map.Entry::getValue)
+                .sorted(PROJECTS_COMPARATOR)
+                .collect(Collectors.toList());
         }
     }
 

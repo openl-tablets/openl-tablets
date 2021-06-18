@@ -829,6 +829,8 @@ public class RunStoreLogDataITest {
 
     @Test
     public void testStoreAndGetFromCassandra() {
+        client.send("simple6_openapi.json.get");
+
         client.send("simple6_Hello1.post");
         client.send("simple6_ResponseById1.get");
 
@@ -840,6 +842,8 @@ public class RunStoreLogDataITest {
 
         client.send("simple6_Hello4.post");
         client.send("simple6_ResponseById4.get");
+
+        client.send("simple6_DoSomethingExtra.get");
     }
 
     private interface Procedure {

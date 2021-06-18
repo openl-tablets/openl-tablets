@@ -12,12 +12,14 @@
     </style>
 
     <div class="page">
-        <h1 class="page-header"><h:outputText value="Projects in #{node.name}" rendered="#{node.type == 'proddeployment'}" />
-            <h:outputText value="Deployments" rendered="#{node.type == 'prodrepository'}" /></h1>
+        <h1 class="page-header"><h:outputText value="Projects in #{node.name}"
+                                              rendered="#{node.type == 'proddeployment'}"/>
+            <h:outputText value="Deployments" rendered="#{node.type == 'prodrepository'}"/><h:outputText
+                    styleClass="filtered-mark hidden" value=" (filtered)" rendered="#{node.type == 'prodrepository'}"/></h1>
 
         <div class="block">
 
-            <rich:dataTable value="#{productionRepositoriesTreeController.rulesProjects}" var="prj" styleClass="table">
+            <rich:dataTable value="#{productionRepositoriesTreeController.rulesProjects}" var="prj" styleClass="table #{node.type == 'prodrepository' ? 'filtered-table' : ''}">
             <f:facet name="header">
               <rich:columnGroup>
                 <rich:column>
@@ -35,7 +37,7 @@
               </rich:columnGroup>
             </f:facet>
 
-              <rich:column>
+              <rich:column styleClass="project-name-column">
                 <h:commandLink value="#{prj.name}" action="#{productionRepositoriesTreeController.selectRulesProject}">
                   <f:param name="projectName" value="#{prj.name}" />
                 </h:commandLink>
@@ -53,7 +55,7 @@
               </rich:column>
             </rich:dataTable>
 
-            <h:panelGroup rendered="#{empty repositoryTreeController.rulesProjects}" styleClass="noEntries">
+            <h:panelGroup rendered="#{empty productionRepositoriesTreeController.rulesProjects}" styleClass="noEntries">
                 <h:outputText value="No entries found" />
             </h:panelGroup>
         </div>

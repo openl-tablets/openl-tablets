@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.openl.rules</groupId>
         <artifactId>openl-tablets</artifactId>
-        <version>5.24.2-SNAPSHOT</version>
+        <version>5.24.3-SNAPSHOT</version>
     </parent>
 
     <groupId>org.openl.itest</groupId>
@@ -29,16 +29,19 @@
         <module>itest.jacksonbinding</module>
         <module>itest.WebServiceAnnotation</module>
         <module>itest.ws-rest-rules-deploy</module>
+        <module>itest.healthchecks</module>
         <module>itest.dateTimeFormat</module>
         <module>itest.swaggerSchemas</module>
         <module>itest.WebService</module>
         <module>itest.WebService-lazy</module>
         <module>itest.SpreadsheetResult</module>
         <module>itest.storelogdata</module>
+        <module>itest.tracing</module>
         <module>itest.BigServiceDeploy</module>
         <module>itest.non-lazy-compilation</module>
         <module>itest.deployment-filter</module>
         <module>itest.unpackClasspathJar</module>
+        <module>itest.webstudio</module>
     </modules>
 
     <dependencyManagement>
@@ -59,6 +62,11 @@
                 <version>${jetty.server.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.eclipse.jetty</groupId>
+                <artifactId>apache-jsp</artifactId>
+                <version>${jetty.server.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.openl.itest</groupId>
                 <artifactId>server-core</artifactId>
                 <version>${project.version}</version>
@@ -66,6 +74,12 @@
             <dependency>
                 <groupId>org.openl.rules</groupId>
                 <artifactId>org.openl.rules.ruleservice.ws</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.openl.rules</groupId>
+                <artifactId>org.openl.rules.webstudio</artifactId>
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
@@ -85,8 +99,8 @@
                             <webservice-webapp>
                                 ../../WSFrontend/org.openl.rules.ruleservice.ws/target/webservice
                             </webservice-webapp>
-                            <openl.config.location>file:./openl-repository/application.properties
-                            </openl.config.location>
+                            <openl.config.location>file:./openl-repository/</openl.config.location>
+                            <openl.config.name>application.properties, application-{profile}.properties</openl.config.name>
                             <server.responses>${project.build.directory}/responses/</server.responses>
                             <http.timeout.connect>${http.timeout.connect}</http.timeout.connect>
                             <http.timeout.read>${http.timeout.read}</http.timeout.read>

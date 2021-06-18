@@ -8,6 +8,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
@@ -19,6 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.regex.Pattern;
 
 import org.springframework.util.StreamUtils;
 
@@ -27,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 class HttpData {
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final Pattern NO_CONTENT_STATUS_PATTERN = Pattern.compile("HTTP/\\S+\\s+204(\\s.*)?");
 
     private final String firstLine;
     private final Map<String, String> headers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
@@ -218,10 +221,45 @@ class HttpData {
         byte[] body;
         String cl = headers.get("Content-Length");
         String te = headers.get("Transfer-Encoding");
-        if (cl != null) {
+        String ct = headers.get("Content-Type");
+
+        if (ct != null && ct.startsWith("multipart/form-data") && ct.contains("boundary=")) {
+            String boundary = ct.substring(ct.indexOf("boundary=") + "boundary=".length());
+            String boundaryEnd = "--" + boundary + "--";
+            ByteArrayOutputStream os = new ByteArrayOutputStream();
+            try (PrintWriter writer = new PrintWriter(os)) {
+                while (true) {
+                    String line = readLine(input);
+                    if (!line.isEmpty() && line.charAt(0) == '&') {
+                        writer.flush();
+                        String fileRes = Paths.get(resource)
+                                .getParent()
+                                .resolve(line.substring(1))
+                                .toString().replace('\\', '/');
+                        try (InputStream fileStream = HttpData.class.getResourceAsStream(fileRes)) {
+                            StreamUtils.copy(fileStream, os);
+                        }
+                        os.flush();
+                    } else {
+                        writer.append(line);
+                    }
+                    writer.print("\r\n");
+                    if (boundaryEnd.equals(line)) {
+                        writer.flush();
+                        break;
+                    }
+                }
+                writer.print("\r\n");
+            }
+            body = os.toByteArray();
+        } else if (cl != null) {
             body = readBody(input, cl);
         } else if (te != null && te.equalsIgnoreCase("chunked")) {
             body = readChunckedBody(input);
+        } else if (NO_CONTENT_STATUS_PATTERN.matcher(firstLine).matches()) {
+            // Depending on the implementation of InputStream, reading it can hang if no data is available.
+            // So for 204 status we just don't read body because it doesn't needed for this status.
+            body = new byte[0];
         } else {
             body = StreamUtils.copyToByteArray(input);
         }

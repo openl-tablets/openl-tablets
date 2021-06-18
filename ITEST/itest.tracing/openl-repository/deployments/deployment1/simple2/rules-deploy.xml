@@ -1,0 +1,13 @@
+<rules-deploy>
+    <serviceName>simple2-tracing</serviceName>
+    <publishers>
+        <publisher>WEBSERVICE</publisher>
+    </publishers>
+    <configuration>
+        <entry>
+            <string>rootClassNamesBinding</string>
+            <string>org.openl.rules.calculation.result.convertor2.CodeStep
+            </string>
+        </entry>
+    </configuration>
+</rules-deploy>
