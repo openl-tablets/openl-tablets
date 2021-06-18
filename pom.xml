@@ -91,7 +91,7 @@
         <kafka-junit.version>2.8.0</kafka-junit.version>
         <cassandra.driver.version>4.12.0</cassandra.driver.version>
         <cassandra.unit.version>4.3.1.0</cassandra.unit.version>
-        <cassandra.unit.driver.version>4.12.0</cassandra.unit.driver.version>
+        <cassandra.unit.driver.version>3.11.0</cassandra.unit.driver.version>
         <org.apache.cxf.version>3.4.3</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
@@ -1211,13 +1211,13 @@
             <dependency>
                 <groupId>com.datastax.oss</groupId>
                 <artifactId>java-driver-core</artifactId>
-                <version>${cassandra.unit.driver.version}</version>
+                <version>${cassandra.driver.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>com.datastax.cassandra</groupId>
                 <artifactId>cassandra-driver-mapping</artifactId>
-                <version>3.11.0</version>
+                <version>${cassandra.unit.driver.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
