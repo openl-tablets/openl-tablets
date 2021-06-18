@@ -86,6 +86,7 @@ import org.openl.rules.webstudio.web.repository.project.ExcelFilesProjectCreator
 import org.openl.rules.webstudio.web.repository.project.PredefinedTemplatesResolver;
 import org.openl.rules.webstudio.web.repository.project.ProjectFile;
 import org.openl.rules.webstudio.web.repository.project.TemplatesResolver;
+import org.openl.rules.webstudio.web.repository.tree.TreeDProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeNode;
 import org.openl.rules.webstudio.web.repository.tree.TreeProductProject;
 import org.openl.rules.webstudio.web.repository.tree.TreeProject;
@@ -1688,7 +1689,7 @@ public class RepositoryTreeController {
                     return true;
                 }
             }
-        } else if (node instanceof TreeProject) {
+        } else if (node instanceof TreeProject || node instanceof TreeDProject) {
             if (node.getData().getName().equals(projectName) && repositoryId.equals(node.getData().getRepository().getId())) {
                 repositoryTreeState.setSelectedNode(node);
                 return true;
