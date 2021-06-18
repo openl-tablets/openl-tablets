@@ -42,12 +42,9 @@ public final class Utils {
         ProjectModel model = WebStudioUtils.getWebStudio(session).getModel();
 
         IOpenLTable table = model.getTableById(id);
-        if (currentOpenedModule) {
-            IOpenMethod[] tests = model.getOpenedModuleTestMethods();
-            results = runAllTests(model, tests, true);
-        } else if (table != null) {
+        if (table != null) {
             String uri = table.getUri();
-            IOpenMethod method = model.getMethod(uri);
+            IOpenMethod method = currentOpenedModule ? model.getOpenedModuleMethod(uri) : model.getMethod(uri);
 
             if (method instanceof TestSuiteMethod) {
                 TestSuiteMethod testSuiteMethod = (TestSuiteMethod) method;
@@ -63,16 +60,16 @@ public final class Utils {
                 }
                 // Concrete test with cases
                 results = new TestUnitsResults[1];
-                results[0] = model.runTest(testSuite, false);
+                results[0] = model.runTest(testSuite, currentOpenedModule);
             } else {
                 // All tests for table
-                IOpenMethod[] tests = model.getTestMethods(uri, false);
-                results = runAllTests(model, tests, false);
+                IOpenMethod[] tests = model.getTestMethods(uri, currentOpenedModule);
+                results = runAllTests(model, tests, currentOpenedModule);
             }
         } else {
             // All tests for project
-            IOpenMethod[] tests = model.getAllTestMethods();
-            results = runAllTests(model, tests, false);
+            IOpenMethod[] tests = currentOpenedModule ? model.getOpenedModuleTestMethods() : model.getAllTestMethods();
+            results = runAllTests(model, tests, currentOpenedModule);
         }
         return results;
     }
