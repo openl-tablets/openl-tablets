@@ -45,11 +45,11 @@ import org.openl.rules.ruleservice.storelogdata.elasticsearch.DefaultElasticEnti
 import org.openl.util.IOUtils;
 import org.springframework.data.elasticsearch.annotations.Document;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
+import com.datastax.oss.driver.api.core.CqlSession;
+import com.datastax.oss.driver.api.core.cql.ResultSet;
+import com.datastax.oss.driver.api.core.cql.Row;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
@@ -128,10 +128,10 @@ public class RunStoreLogDataITest {
         }
     }
 
-    private static void createKeyspaceIfNotExists(Session session,
-            String keyspaceName,
-            String replicationStrategy,
-            int replicationFactor) {
+    private static void createKeyspaceIfNotExists(CqlSession session,
+                                                  String keyspaceName,
+                                                  String replicationStrategy,
+                                                  int replicationFactor) {
         String query = "CREATE KEYSPACE IF NOT EXISTS " + keyspaceName + " WITH replication = {" + "'class':'" + replicationStrategy + "','replication_factor':" + replicationFactor + "};";
         session.execute(query);
     }
@@ -213,8 +213,8 @@ public class RunStoreLogDataITest {
             } else {
                 assertNotNull(value);
             }
-            assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-            assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+            assertNotNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+            assertNotNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
             return true;
         };
     }
@@ -570,8 +570,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -591,8 +591,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -611,17 +611,17 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.RESPONSE));
         assertNull(row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-        assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+        assertNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+        assertNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertNull(row.getString(CassandraFields.VALUE));
         assertNull(row.getString(CassandraFields.RESULT));
 
-        assertNull(EmbeddedCassandraServerHelper.getCluster()
+        assertNull(EmbeddedCassandraServerHelper.getSession()
             .getMetadata()
             .getKeyspace(KEYSPACE)
-            .getTable(helloEntity4TableName));
+            .get().getTable(helloEntity4TableName));
 
         SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
         if (hits.length == 0) {
@@ -703,8 +703,8 @@ public class RunStoreLogDataITest {
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
                 assertEquals(HELLO2_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
                 assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                assertNotNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+                assertNotNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
                 assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
                 assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
@@ -799,8 +799,8 @@ public class RunStoreLogDataITest {
                 assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
                 assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
                 assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                assertNotNull(row.getLocalTime(CassandraFields.INCOMING_TIME));
+                assertNotNull(row.getLocalTime(CassandraFields.OUTCOMING_TIME));
                 assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
 
                 assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.HEADER1));
