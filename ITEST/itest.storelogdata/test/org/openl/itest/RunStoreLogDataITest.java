@@ -130,7 +130,7 @@ public class RunStoreLogDataITest {
                     .getKeyspace(KEYSPACE)
                     .get().getTable(table);
             if (tableMetadata.isPresent()) {
-                EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table + " IF EXISTS");
+                EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
             }
         } catch (QueryExecutionException | InvalidQueryException ignored) {
         }
