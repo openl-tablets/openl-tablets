@@ -64,7 +64,7 @@
                     <span class="message-panel-text">Warnings:</span>
                     <span id="warnings-count" class='badge badge-warning'/>
                 </div>
-                <div id="progress-info-panel" class='messagePanel'/>
+                <div id="progress-info-panel" style="display: none" class='messagePanel'/>
             </div>
         </div>
 
@@ -78,35 +78,16 @@
                 var $jq = jQuery.noConflict();
                 var messageId = -1;
                 var messageIndex = -1;
-                $jq('#progress-info-panel').attr("data-compilation-status", "inProgress");
 
+                var progressInfoPanel = $jq('#progress-info-panel');
+                var mainLayout = $j(".ui-layout-center").layout();
+                progressInfoPanel.attr("data-compilation-status", "finished");
                 $jq('#progress-info-panel').bind('refresh', function () {
                     $jq.ajax({
                         url: "#{contextPath}/web/compile/progress/" + messageId + "/" + messageIndex,
                         datatype: "text"
                     })
                         .done(function (data) {
-                            var progressInfoPanel = $jq('#progress-info-panel');
-                            var prevCompilationStatus = progressInfoPanel.attr("data-compilation-status");
-                            if (!data.compilationCompleted) {
-                                progressInfoPanel.show();
-                                progressInfoPanel.attr("data-compilation-status", "inProgress");
-                                $j(".ui-layout-resizer-south").show();
-                                $j(".ui-layout-south").show();
-                            } else {
-                                progressInfoPanel.attr("data-compilation-status", "finished");
-                                if (prevCompilationStatus === "inProgress") {
-                                    var timestamp = Date.now();
-                                    progressInfoPanel.attr("data-compilation-finished", timestamp);
-                                    setTimeout(function() {
-                                        $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']").hide();
-                                        if ($j("#progress-info-panel").is(":hidden") && $jq('#warnings-count').text() == 0 && $jq('#errors-count').text() == 0){
-                                            $j(".ui-layout-resizer-south").hide();
-                                            $j(".ui-layout-south").hide();
-                                        }
-                                    }, 10000);
-                                }
-                            }
                             progressInfoPanel.text("Compiled " + Math.round(data.modulesCompiled / data.modulesCount * 100) + "% (" + data.modulesCompiled + "/" + data.modulesCount + ")");
                             $jq('#errors-info-panel').toggle(data.errorsCount !== 0);
                             $jq('#errors-count').text(data.errorsCount);
@@ -155,12 +136,45 @@
                                 warningsPanel.appendChild(warningsDiv);
                                 errorsPanel.appendChild(errorsDiv);
                             }
-                            setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
+
+                            if (!(ws.nav.isModuleChanged() && data.compilationCompleted)) {
+                                if (progressInfoPanel.attr("data-compilation-status") === "finished" && data.compilationCompleted) {
+                                    inProgress();
+                                    finished();
+                                } else if (!data.compilationCompleted) {
+                                    inProgress();
+                                    setTimeout(function () {$jq('#progress-info-panel').trigger('refresh')}, 1000);
+                                } else {
+                                    finished();
+                                }
+                            }
                         });
                 });
 
                 $jq('#progress-info-panel').trigger('refresh');
 
+
+                var inProgress = function() {
+                    progressInfoPanel.attr("data-compilation-status", "inProgress");
+                    progressInfoPanel.show();
+                    mainLayout.show("south");
+                };
+
+                var finished = function() {
+                    progressInfoPanel.attr("data-compilation-status", "finished");
+                    var timestamp = Date.now();
+                    progressInfoPanel.attr("data-compilation-finished", timestamp);
+                    setTimeout(function() {
+                       var requiredProgressPanel =
+                            $j("#progress-info-panel[data-compilation-status='finished'][data-compilation-finished='" + timestamp + "']");
+                       if (requiredProgressPanel.length > 0 ) {
+                            requiredProgressPanel.hide();
+                            if ($jq('#warnings-count').text() == 0 && $jq('#errors-count').text() == 0) {
+                                mainLayout.hide("south");
+                            }
+                       }
+                    }, 10000);
+                };
                 //]]>
 
         </script>
