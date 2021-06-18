@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -50,6 +51,7 @@ import com.datastax.driver.core.exceptions.QueryExecutionException;
 import com.datastax.oss.driver.api.core.CqlSession;
 import com.datastax.oss.driver.api.core.cql.ResultSet;
 import com.datastax.oss.driver.api.core.cql.Row;
+import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
@@ -123,7 +125,13 @@ public class RunStoreLogDataITest {
 
     private void truncateTableIfExists(final String keyspace, final String table) {
         try {
-            EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
+            Optional<TableMetadata> tableMetadata = EmbeddedCassandraServerHelper.getSession()
+                    .getMetadata()
+                    .getKeyspace(KEYSPACE)
+                    .get().getTable(table);
+            if (tableMetadata.isPresent()) {
+                EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table + " IF EXISTS");
+            }
         } catch (QueryExecutionException | InvalidQueryException ignored) {
         }
     }
