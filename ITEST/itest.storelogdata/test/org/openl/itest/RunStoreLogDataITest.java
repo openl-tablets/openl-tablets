@@ -626,10 +626,10 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.VALUE));
         assertNull(row.getString(CassandraFields.RESULT));
 
-        assertNull(EmbeddedCassandraServerHelper.getSession()
+        assertFalse(EmbeddedCassandraServerHelper.getSession()
             .getMetadata()
             .getKeyspace(KEYSPACE)
-            .get().getTable(helloEntity4TableName));
+            .get().getTable(helloEntity4TableName).isPresent());
 
         SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
         if (hits.length == 0) {
