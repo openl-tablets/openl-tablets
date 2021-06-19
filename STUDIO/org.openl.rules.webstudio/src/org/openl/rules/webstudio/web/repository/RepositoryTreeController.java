@@ -1114,12 +1114,12 @@ public class RepositoryTreeController {
         if (files != null) {
             for (File file : files) {
                 if (file.isDirectory()) {
-                    String userName = file.getName();
+                    String userId = file.getName();
                     // Check for reserved folder name
-                    if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userName)) {
+                    if (!LockEngineImpl.LOCKS_FOLDER_NAME.equals(userId)) {
                         try {
                             LocalRepository repository = localWorkspaceManager
-                                .getWorkspace(new WorkspaceUserImpl(userName))
+                                .getWorkspace(userId)
                                 .getRepository(repoId);
                             repository.initialize();
 
