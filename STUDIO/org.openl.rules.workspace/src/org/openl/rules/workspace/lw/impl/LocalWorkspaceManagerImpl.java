@@ -9,7 +9,6 @@ import java.util.Map;
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -63,22 +62,20 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
-    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) {
-        String userId = user.getUserId();
+    private LocalWorkspaceImpl createWorkspace(String userId) {
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
-        log.debug("Workspace for user ''{}'' will be located at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, designTimeRepository);
+        log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository);
         workspace.addWorkspaceListener(this);
         return workspace;
     }
 
     @Override
-    public LocalWorkspace getWorkspace(WorkspaceUser user) {
-        String userId = user.getUserId();
+    public LocalWorkspace getWorkspace(String userId) {
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            lwi = createWorkspace(user);
+            lwi = createWorkspace(userId);
             localWorkspaces.put(userId, lwi);
         }
         return lwi;
@@ -111,6 +108,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     @Override
     public void workspaceReleased(LocalWorkspace workspace) {
         workspace.removeWorkspaceListener(this);
-        localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());
+        localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUserId());
     }
 }
