@@ -22,6 +22,10 @@ class PropertiesEngine {
 
         File properties = new File(propertiesFolder, propertiesFileName);
         try {
+            final File projectFolder = getProjectFolder(pathInProject);
+            if (!projectFolder.exists()) {
+                throw new IllegalStateException("Folder '" + projectFolder + "' is absent.");
+            }
             File parent = properties.getParentFile();
             if (!parent.mkdirs() && !parent.exists()) {
                 throw new IllegalStateException("Cannot create the folder " + parent);
