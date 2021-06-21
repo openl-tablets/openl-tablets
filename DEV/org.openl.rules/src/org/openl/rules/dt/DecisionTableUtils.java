@@ -41,19 +41,24 @@ public class DecisionTableUtils {
             boolean inChain,
             List<IdentifierNode> identifierNodes) {
         for (int i = 0; i < node.getNumberOfChildren(); i++) {
-            if ("identifier".equals(node.getChild(i).getType())) {
+            final ISyntaxNode child = node.getChild(i);
+            final String childType = child.getType();
+            if ("identifier".equals(childType)) {
                 if (!chain.booleanValue()) {
-                    identifierNodes.add((IdentifierNode) node.getChild(i));
+                    identifierNodes.add((IdentifierNode) child);
                     if (inChain) {
                         chain.setTrue();
                     }
                 }
-            } else if ("chain".equals(node.getChild(i).getType())) {
+            } else if ("chain".equals(childType)) {
                 boolean f = chain.booleanValue();
-                parseAndCollectIdentifierNodes(node.getChild(i), chain, true, identifierNodes);
+                parseAndCollectIdentifierNodes(child, chain, true, identifierNodes);
                 chain.setValue(f);
-            } else if ("function".equals(node.getChild(i).getType())) {
-                parseAndCollectIdentifierNodes(node.getChild(i), new MutableBoolean(false), false, identifierNodes);
+            } else if ("function".equals(childType)) {
+                parseAndCollectIdentifierNodes(child, new MutableBoolean(false), false, identifierNodes);
+            } else if ("selectfirst.index".equals(childType) || "selectall.index".equals(childType) || "transform.index"
+                .equals(childType) || "transformunique.index".equals(childType)) {
+                parseAndCollectIdentifierNodes(child, new MutableBoolean(false), false, identifierNodes);
             } else {
                 parseAndCollectIdentifierNodes(node.getChild(i), chain, inChain, identifierNodes);
             }
