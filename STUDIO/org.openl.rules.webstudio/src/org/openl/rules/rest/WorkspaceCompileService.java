@@ -14,27 +14,34 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 import org.openl.CompiledOpenClass;
 import org.openl.dependency.CompiledDependency;
 import org.openl.message.OpenLMessage;
+import org.openl.message.OpenLMessagesUtils;
+import org.openl.message.Severity;
 import org.openl.rules.lang.xls.TableSyntaxNodeUtils;
+import org.openl.rules.lang.xls.XlsNodeTypes;
 import org.openl.rules.lang.xls.syntax.TableSyntaxNode;
+import org.openl.rules.lang.xls.syntax.TableSyntaxNodeAdapter;
 import org.openl.rules.project.dependencies.ProjectExternalDependenciesHelper;
 import org.openl.rules.project.instantiation.IDependencyLoader;
 import org.openl.rules.project.model.Module;
 import org.openl.rules.project.model.ProjectDependencyDescriptor;
 import org.openl.rules.project.model.ProjectDescriptor;
 import org.openl.rules.table.IOpenLTable;
+import org.openl.rules.table.properties.ITableProperties;
+import org.openl.rules.table.properties.def.TablePropertyDefinitionUtils;
 import org.openl.rules.testmethod.ProjectHelper;
 import org.openl.rules.testmethod.TestSuiteMethod;
+import org.openl.rules.types.OpenMethodDispatcher;
 import org.openl.rules.ui.ProjectModel;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.dependencies.WebStudioWorkspaceRelatedDependencyManager;
 import org.openl.rules.webstudio.web.MessageHandler;
 import org.openl.rules.webstudio.web.tableeditor.TableBean;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
+import org.openl.types.IMemberMetaInfo;
 import org.openl.types.IOpenMethod;
 import org.openl.util.CollectionUtils;
 import org.openl.util.StringUtils;
@@ -47,6 +54,8 @@ import org.springframework.stereotype.Service;
 public class WorkspaceCompileService {
 
     private static final MessageHandler messageHandler = new MessageHandler();
+
+    private static final int MAX_PROBLEMS = 100;
 
     @GET
     @Path("progress/{messageId}/{messageIndex}")
@@ -183,6 +192,103 @@ public class WorkspaceCompileService {
     public boolean module() {
         WebStudio webStudio = WebStudioUtils.getWebStudio(WebStudioUtils.getSession());
         return webStudio.getModel().isProjectCompilationCompleted();
+    }
+
+    @GET
+    @Path("table/{tableId}")
+    public Map<String, Object> table(@PathParam("tableId") final String tableId) {
+        Map<String, Object> tableInfo = new HashMap<>();
+        ProjectModel model = WebStudioUtils.getWebStudio(WebStudioUtils.getSession()).getModel();
+        IOpenLTable table = model.getTableById(tableId);
+        String tableUri = table.getUri();
+        List<OpenLMessage> errors = new ArrayList<>(model.getErrorsByUri(tableUri));
+        List<OpenLMessage> warnings = new ArrayList<>(model.getWarnsByUri(tableUri));
+
+        if (warnings.size() >= MAX_PROBLEMS) {
+            warnings = warnings.subList(0, MAX_PROBLEMS);
+            warnings.add(OpenLMessagesUtils
+                .newErrorMessage("Only first " + MAX_PROBLEMS + " warnings are shown. Fix them first."));
+        }
+        if (errors.size() >= MAX_PROBLEMS) {
+            errors = errors.subList(0, MAX_PROBLEMS);
+            errors.add(OpenLMessagesUtils
+                .newErrorMessage("Only first " + MAX_PROBLEMS + " errors are shown. Fix them first."));
+        }
+
+        // if the current table is a test then check tested target tables on errors.
+        List<TableBean.TableDescription> targetTables = getTargetTables(table, model);
+        for (TableBean.TableDescription targetTable : targetTables) {
+            if (!model.getErrorsByUri(targetTable.getUri()).isEmpty()) {
+                warnings.add(new OpenLMessage("Tested rules have errors", Severity.WARN));
+                break;
+            }
+        }
+
+        List<OpenLMessage> problems = new ArrayList<>();
+        problems.addAll(errors);
+        problems.addAll(warnings);
+
+        tableInfo.put("problems", problems);
+        tableInfo.put("targetTables", targetTables);
+
+        return tableInfo;
+    }
+
+    private List<TableBean.TableDescription> getTargetTables(IOpenLTable table, ProjectModel model) {
+        List<TableBean.TableDescription> targetTables = new ArrayList<>();
+        String tableType = table.getType();
+        if (tableType.equals(XlsNodeTypes.XLS_TEST_METHOD.toString()) || tableType
+            .equals(XlsNodeTypes.XLS_RUN_METHOD.toString())) {
+            IOpenMethod method = model.getMethod(table.getUri());
+            if (method instanceof TestSuiteMethod) {
+                List<IOpenMethod> targetMethods = new ArrayList<>();
+                IOpenMethod testedMethod = ((TestSuiteMethod) method).getTestedMethod();
+
+                // Overloaded methods
+                if (testedMethod instanceof OpenMethodDispatcher) {
+                    List<IOpenMethod> overloadedMethods = ((OpenMethodDispatcher) testedMethod).getCandidates();
+                    targetMethods.addAll(overloadedMethods);
+                } else {
+                    targetMethods.add(testedMethod);
+                }
+
+                for (IOpenMethod targetMethod : targetMethods) {
+                    IMemberMetaInfo methodInfo = targetMethod.getInfo();
+                    if (methodInfo != null) {
+                        TableSyntaxNode tsn = (TableSyntaxNode) methodInfo.getSyntaxNode();
+                        IOpenLTable targetTable = new TableSyntaxNodeAdapter(tsn);
+                        targetTables.add((new TableBean.TableDescription(targetTable.getUri(),
+                            targetTable.getId(),
+                            getTableName(targetTable))));
+                    }
+                }
+            }
+        }
+        return targetTables;
+    }
+
+    public String getTableName(IOpenLTable table) {
+        String[] dimensionProps = TablePropertyDefinitionUtils.getDimensionalTablePropertiesNames();
+        ITableProperties tableProps = table.getProperties();
+        StringBuilder dimensionBuilder = new StringBuilder();
+        String tableName = table.getDisplayName();
+        if (tableProps != null) {
+            for (String dimensionProp : dimensionProps) {
+                String propValue = tableProps.getPropertyValueAsString(dimensionProp);
+
+                if (propValue != null && !propValue.isEmpty()) {
+                    dimensionBuilder.append(dimensionBuilder.length() == 0 ? "" : ", ")
+                        .append(dimensionProp)
+                        .append(" = ")
+                        .append(propValue);
+                }
+            }
+        }
+        if (dimensionBuilder.length() > 0) {
+            return tableName + " [" + dimensionBuilder + "]";
+        } else {
+            return tableName;
+        }
     }
 
     private void processMessages(Collection<OpenLMessage> messages, MessageCounter counter,
