@@ -1,7 +1,6 @@
 package org.openl.excel.grid;
 
 import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -48,6 +47,7 @@ import org.openl.syntax.exception.SyntaxNodeException;
 import org.openl.syntax.exception.SyntaxNodeExceptionUtils;
 import org.openl.syntax.impl.IdentifierNode;
 import org.openl.util.ParserUtils;
+import org.openl.util.StringTool;
 import org.openl.util.StringUtils;
 import org.openl.util.text.LocationUtils;
 import org.slf4j.Logger;
@@ -206,6 +206,43 @@ public class SequentialXlsLoader {
         imports.add(singleImport);
     }
 
+    protected static String getParentAndMergePaths(String p1, String p2) {
+        p1 = p1.replaceAll("\\\\", "/");
+        p2 = p2.replaceAll("\\\\", "/");
+
+        String[] pp1 = p1.split("/");
+        String[] pp2 = p2.split("/");
+        List<String> result = new ArrayList<>();
+
+        int len = p1.endsWith("/") ? pp1.length : pp1.length - 1;
+
+        for (int i = 0; i < len; i++) {
+            if (pp1[i].equals(".")) {
+                continue;
+            }
+            if (pp1[i].equals("..")) {
+                if (!result.isEmpty() && !result.get(result.size() - 1).equals("..")) {
+                    result.remove(result.size() - 1);
+                    continue;
+                }
+            }
+            result.add(pp1[i]);
+        }
+
+        for (String s : pp2) {
+            if (s.equals(".")) {
+                continue;
+            }
+            if (!result.isEmpty() && s.equals("..")) {
+                result.remove(result.size() - 1);
+                continue;
+            }
+            result.add(s);
+        }
+
+        return String.join("/", result);
+    }
+
     private void preprocessIncludeTable(TableSyntaxNode tableSyntaxNode,
             IGridTable table,
             XlsSheetSourceCodeModule sheetSource) {
@@ -235,11 +272,8 @@ public class SequentialXlsLoader {
                     }
                 } else {
                     try {
-                        String newURL = Paths.get(sheetSource.getWorkbookSource().getUri())
-                            .getParent()
-                            .resolve(include)
-                            .normalize()
-                            .toString();
+                        String newURL = getParentAndMergePaths(sheetSource.getWorkbookSource().getUri(),
+                            StringTool.encodeURL(include));
                         src = new URLSourceCodeModule(new URL(newURL));
                     } catch (Exception t) {
                         registerIncludeError(tableSyntaxNode, table, i, include, t);
