@@ -533,7 +533,7 @@ public class MergeConflictBean {
             if (!files.isEmpty()) {
                 FileData folderData = new FileData();
                 folderData.setName("");
-                folderData.setAuthor(getUserWorkspace().getUser().getUserId());
+                folderData.setAuthor(getUserWorkspace().getUser().getUserName());
                 folderData.setComment(mergeMessage);
                 folderData.setBranch(branch);
                 ((FolderRepository) repository).save(folderData, files, ChangesetType.DIFF);
