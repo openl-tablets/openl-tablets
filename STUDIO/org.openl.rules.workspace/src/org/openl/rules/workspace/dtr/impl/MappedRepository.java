@@ -53,7 +53,6 @@ import org.yaml.snakeyaml.representer.Representer;
 public class MappedRepository implements FolderRepository, BranchRepository, Closeable, FolderMapper {
     private static final Logger log = LoggerFactory.getLogger(MappedRepository.class);
     private static final String SEPARATOR = ":";
-    private final MessageDigest digest;
 
     private FolderRepository delegate;
 
@@ -87,14 +86,6 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
     }
 
     private MappedRepository() {
-        MessageDigest digest;
-        try {
-            digest = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
-            log.error(e.getMessage(), e);
-            digest = null;
-        }
-        this.digest = digest;
     }
 
     @Override
@@ -1046,9 +1037,11 @@ public class MappedRepository implements FolderRepository, BranchRepository, Clo
         if (StringUtils.isEmpty(s)) {
             return "";
         }
-        if (digest != null) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
             return bytesToHex(digest.digest(s.getBytes(StandardCharsets.UTF_8)));
-        } else {
+        } catch (NoSuchAlgorithmException e) {
+            log.error(e.getMessage(), e);
             // Fallback
             return String.valueOf(s.hashCode());
         }
