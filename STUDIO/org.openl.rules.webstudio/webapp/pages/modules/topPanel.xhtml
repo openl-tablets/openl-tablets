@@ -325,16 +325,14 @@
 
         function runAllTests(e) {
             compiled(function (compiled) {
-                let proceed = () => test(e, "#{studio.url('test/test')}");
-
                 if (!compiled) {
                     ws.ui.confirm({
                         title: 'Tests',
                         message: 'Tests can be run for the currently opened module only because the project is not compiled yet.',
-                        onOK: proceed
+                        onOK: () => ws.nav.go("#{studio.url('test/test')}?currentOpenedModule=true", true)
                     });
                 } else {
-                    proceed();
+                    ws.nav.go("#{studio.url('test/test')}", true)
                 }
             });
             return false;
