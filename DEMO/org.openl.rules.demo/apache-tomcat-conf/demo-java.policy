@@ -141,6 +141,8 @@ grant codeBase "file:${catalina.home}/webapps/webstudio/-" {
         //hibernate and java 9+
         permission java.lang.RuntimePermission "getStackWalkerWithClassReference";
 
+        permission org.hibernate.validator.HibernateValidatorPermission "accessPrivateMembers";
+
 };
 
 // WEBSERVICE
