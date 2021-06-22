@@ -259,7 +259,7 @@
                     },
                     reloadPanel: function(panel, callback) {
                         if (panel == "left") {
-                            api.ajax.load([DEFAULT_CONTENT.left], callback);
+                            api.ajax.load([DEFAULT_CONTENT.left], callback || openTreeNode);
                         }
                     },
                     openHistoryPanel: function() {

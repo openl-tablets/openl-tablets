@@ -1070,6 +1070,7 @@ public class ProjectModel {
                             XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                 .getMetaInfo();
                             allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                            redraw();
                         } catch (RulesInstantiationException ignored) {
                         }
                     });
