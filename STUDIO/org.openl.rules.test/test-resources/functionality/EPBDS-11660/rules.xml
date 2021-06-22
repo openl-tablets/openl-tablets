@@ -1,0 +1,9 @@
+<project>
+    <name>EPBDS-11660</name>
+    <modules>
+        <module>
+            <name>AutoPolicyTests</name>
+            <rules-root path="AutoPolicyTests.xlsx"/>
+        </module>
+    </modules>
+</project>

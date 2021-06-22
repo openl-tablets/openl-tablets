@@ -49,7 +49,7 @@ public final class RepositoryUtils {
         return getTreeNodeId(repoId) + "_" + getTreeNodeId(name);
     }
 
-    private static String getTreeNodeId(String name) {
+    public static String getTreeNodeId(String name) {
         if (StringUtils.isNotBlank(name)) {
             // FIXME name.hashCode() can produce collisions. Not good for id.
             return String.valueOf(name.hashCode());

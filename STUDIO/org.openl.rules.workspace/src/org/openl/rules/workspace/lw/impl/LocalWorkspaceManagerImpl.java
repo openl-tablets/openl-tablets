@@ -1,14 +1,14 @@
 package org.openl.rules.workspace.lw.impl;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.openl.rules.project.abstraction.LockEngine;
 import org.openl.rules.project.impl.local.DummyLockEngine;
 import org.openl.rules.project.impl.local.LockEngineImpl;
-import org.openl.rules.workspace.WorkspaceException;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.lw.LocalWorkspace;
 import org.openl.rules.workspace.lw.LocalWorkspaceListener;
@@ -49,38 +49,33 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     /**
      * init-method
      */
-    public void init() throws Exception {
+    public void init() throws FileNotFoundException {
         if (workspaceHome == null) {
             log.warn("workspaceHome is not initialized. Default value is used.");
             workspaceHome = FileUtils.getTempDirectoryPath() + "/rules-workspaces/";
         }
-        if (!FolderHelper.checkOrCreateFolder(new File(workspaceHome))) {
-            throw new WorkspaceException("Cannot create workspace location ''{0}''", null, workspaceHome);
+        File location = new File(workspaceHome);
+        if (!location.mkdirs() && !location.exists()) {
+            final String message = MessageFormat.format("Cannot create workspace location ''{0}''", workspaceHome);
+            throw new FileNotFoundException(message);
         }
         log.info("Location of Local Workspaces: {}", workspaceHome);
     }
 
-    private LocalWorkspaceImpl createWorkspace(WorkspaceUser user) throws WorkspaceException {
-        String userId = user.getUserId();
+    private LocalWorkspaceImpl createWorkspace(String userId) {
         File workspaceRoot = new File(workspaceHome);
         File userWorkspace = new File(workspaceRoot, userId);
-        if (!FolderHelper.checkOrCreateFolder(userWorkspace)) {
-            throw new WorkspaceException("Cannot create folder ''{0}'' for local workspace.",
-                null,
-                userWorkspace.getAbsolutePath());
-        }
-        log.debug("Creating workspace for user ''{}'' at ''{}''", user.getUserId(), userWorkspace.getAbsolutePath());
-        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(user, userWorkspace, designTimeRepository);
+        log.debug("Workspace for user ''{}'' will be located at ''{}''", userId, userWorkspace.getAbsolutePath());
+        LocalWorkspaceImpl workspace = new LocalWorkspaceImpl(userId, userWorkspace, designTimeRepository);
         workspace.addWorkspaceListener(this);
         return workspace;
     }
 
     @Override
-    public LocalWorkspace getWorkspace(WorkspaceUser user) throws WorkspaceException {
-        String userId = user.getUserId();
+    public LocalWorkspace getWorkspace(String userId) {
         LocalWorkspaceImpl lwi = localWorkspaces.get(userId);
         if (lwi == null) {
-            lwi = createWorkspace(user);
+            lwi = createWorkspace(userId);
             localWorkspaces.put(userId, lwi);
         }
         return lwi;
@@ -113,6 +108,6 @@ public class LocalWorkspaceManagerImpl implements LocalWorkspaceManager, LocalWo
     @Override
     public void workspaceReleased(LocalWorkspace workspace) {
         workspace.removeWorkspaceListener(this);
-        localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUser().getUserId());
+        localWorkspaces.remove(((LocalWorkspaceImpl) workspace).getUserId());
     }
 }

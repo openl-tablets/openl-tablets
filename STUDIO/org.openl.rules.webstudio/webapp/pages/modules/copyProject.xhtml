@@ -95,7 +95,21 @@
             </h:panelGroup>
 
             <footer>
-                <a4j:commandButton id="copy" value="Copy" onclick="return confirmSwitchingToNewBranch(#{copyBean.confirmationRequired})" action="#{copyBean.copy}" render="@form" styleClass="button-primary"
+                <ui:param name="hasTags" value="#{repositoryTreeController.hasTags}"/>
+
+                <a4j:commandButton id="copy#{hasTags ? '' : 'Hidden'}" value="Copy"
+                                   onclick="return createTagsOnCopyOrConfirmSwitchBranch(#{copyBean.confirmationRequired});"
+                                   action="#{copyBean.copy}"
+                                   render="@form"
+                                   styleClass="button-primary"
+                                   rendered="#{hasTags}"
+                                   data="#{copyBean.errorMessage}"
+                                   oncomplete="updateStates(); if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
+                <a4j:commandButton id="copy#{hasTags ? 'Hidden' : ''}" value="Copy"
+                                   onclick="return #{hasTags} || confirmSwitchingToNewBranch(#{copyBean.confirmationRequired});"
+                                   action="#{copyBean.copy}"
+                                   render="@form"
+                                   styleClass="button-primary #{hasTags ? 'hidden' : ''}"
                                    data="#{copyBean.errorMessage}"
                                    oncomplete="updateStates(); if (!event.data &amp;&amp; #{!facesContext.validationFailed}) {RichFaces.$('modalCopyProject').hide(); refreshPage(); return false;}"/>
                 <input type="button" value="Cancel" onclick="RichFaces.$('modalCopyProject').hide();"/>
@@ -221,6 +235,22 @@
             }
             return confirm("#{msg['ws.project.warning.other.branch']}");
         };
+
+        function createTagsOnCopyOrConfirmSwitchBranch(required) {
+            let $separateProjectCheckbox = $j('#copyProjectForm\\:separateProjectCheckbox');
+            if (required && !$separateProjectCheckbox.is(':checked')) {
+                if (!confirm("#{msg['ws.project.warning.other.branch']}")) {
+                    return false;
+                }
+            }
+            if ($separateProjectCheckbox.length === 0 || $separateProjectCheckbox.is(':checked')) {
+                createProjectTags($j('#copyProjectForm\\:newProjectName').val(), function () {
+                    $j('#copyProjectForm\\:copyHidden').click();
+                });
+                return false;
+            }
+            return true;
+        }
 
         //]]>
     </script>

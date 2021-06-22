@@ -45,24 +45,12 @@
                             <groupId>org.apache.poi</groupId>
                             <artifactId>poi-ooxml-schemas</artifactId>
                         </dependency>
+                        <dependency>
+                            <groupId>org.springframework.security</groupId>
+                            <artifactId>spring-security-crypto</artifactId>
+                        </dependency>
                     </ignoredDependencies>
                     <exceptions>
-                        <exception>
-                            <conflictingDependencies>
-                                <dependency>
-                                    <groupId>xmlpull</groupId>
-                                    <artifactId>xmlpull</artifactId>
-                                </dependency>
-                                <dependency>
-                                    <groupId>xpp3</groupId>
-                                    <artifactId>xpp3_min</artifactId>
-                                </dependency>
-                            </conflictingDependencies>
-                            <classes>
-                                <class>org.xmlpull.v1.XmlPullParser</class>
-                                <class>org.xmlpull.v1.XmlPullParserException</class>
-                            </classes>
-                        </exception>
                         <exception>
                             <conflictingDependencies>
                                 <dependency>
@@ -85,28 +73,6 @@
                         <ignoredResourcePattern>openl-default.properties</ignoredResourcePattern>
                     </ignoredResourcePatterns>
                 </configuration>
-            </plugin>
-            <plugin>
-                <artifactId>maven-antrun-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>websphere-fix-by-removing-beans-xml-file</id>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>run</goal>
-                        </goals>
-                        <configuration>
-                            <target>
-                                <jar destfile="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}-repacked.jar">
-                                    <zipfileset src="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar" excludes="META-INF/beans.xml" />
-                                </jar>
-                                <delete failonerror="true" verbose="true" file="${project.build.directory}/${project.build.finalName}/WEB-INF/lib/swagger-jaxrs2-${io.swagger.core.v3.version}.jar" />
-                                <delete failonerror="true" verbose="true" file="${project.build.directory}/${project.build.finalName}.war" />
-                                <jar destfile="${project.build.directory}/${project.build.finalName}.war" basedir="${project.build.directory}/${project.build.finalName}" />
-                            </target>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -276,8 +242,14 @@
         <!-- Provides the API for the Unified Expression Language shared by the JSP 2.1 and JSF 1.2 technologies. -->
         <dependency>
             <groupId>javax.el</groupId>
-            <artifactId>el-api</artifactId>
-            <version>1.0</version>
+            <artifactId>javax.el-api</artifactId>
+            <version>3.0.0</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish</groupId>
+            <artifactId>javax.el</artifactId>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
         <!-- Other -->

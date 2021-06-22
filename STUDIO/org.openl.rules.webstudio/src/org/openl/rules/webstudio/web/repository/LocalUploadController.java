@@ -10,16 +10,17 @@ import java.util.List;
 import org.openl.rules.common.ProjectException;
 import org.openl.rules.project.abstraction.AProject;
 import org.openl.rules.project.abstraction.Comments;
+import org.openl.rules.project.abstraction.RulesProject;
 import org.openl.rules.project.resolving.ProjectResolver;
 import org.openl.rules.project.resolving.ResolvingStrategy;
 import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.ui.WebStudio;
 import org.openl.rules.webstudio.util.NameChecker;
+import org.openl.rules.webstudio.web.admin.ProjectTagsBean;
 import org.openl.rules.webstudio.web.jsf.annotation.ViewScope;
 import org.openl.rules.webstudio.web.servlet.RulesUserSession;
 import org.openl.rules.webstudio.web.util.WebStudioUtils;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -67,21 +68,24 @@ public class LocalUploadController {
 
     private final PropertyResolver propertyResolver;
 
+    private final ProjectTagsBean projectTagsBean;
+
     private static final String NONE_REPO = "none";
 
-    public LocalUploadController(PropertyResolver propertyResolver) {
+    public LocalUploadController(PropertyResolver propertyResolver, ProjectTagsBean projectTagsBean) {
         this.propertyResolver = propertyResolver;
+        this.projectTagsBean = projectTagsBean;
     }
 
-    private void createProject(File baseFolder,
+    private RulesProject createProject(File baseFolder,
         RulesUserSession rulesUserSession,
         String comment,
-        String repositoryId) throws ProjectException, WorkspaceException, FileNotFoundException {
+        String repositoryId) throws ProjectException, FileNotFoundException {
         if (!baseFolder.isDirectory()) {
             throw new FileNotFoundException(baseFolder.getName());
         }
 
-        rulesUserSession.getUserWorkspace().uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
+        return rulesUserSession.getUserWorkspace().uploadLocalProject(repositoryId, baseFolder.getName(), projectFolder, comment);
     }
 
     public List<UploadBean> getProjects4Upload() {
@@ -199,8 +203,11 @@ public class LocalUploadController {
                             return null;
                         }
 
-                        createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
+                        RulesProject createdProject = createProject(new File(workspacePath, bean.getProjectName()), rulesUserSession, comment,
                             repositoryId);
+
+                        projectTagsBean.saveTags(createdProject);
+
                         WebStudioUtils.addInfoMessage("Project " + bean.getProjectName() + " was created successfully");
                     } catch (Exception e) {
                         String msg;

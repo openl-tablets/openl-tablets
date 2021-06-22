@@ -54,7 +54,6 @@ import org.openl.rules.repository.folder.FileChangesFromZip;
 import org.openl.rules.security.Privileges;
 import org.openl.rules.webstudio.web.repository.RepositoryUtils;
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.uw.UserWorkspace;
@@ -100,7 +99,7 @@ public class RepositoryService {
      */
     @GET
     @Path("projects")
-    public Response getProjects() throws WorkspaceException {
+    public Response getProjects() {
         if (!isGranted(Privileges.VIEW_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
         }
@@ -123,7 +122,7 @@ public class RepositoryService {
     @GET
     @Path("project/{name}")
     @Produces("application/zip")
-    public Response getLastProject(@PathParam("name") String name) throws WorkspaceException {
+    public Response getLastProject(@PathParam("name") String name) {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
@@ -150,7 +149,7 @@ public class RepositoryService {
     @Path("project/{name}/{version}")
     @Produces("application/zip")
     public Response getProject(@PathParam("name") final String name,
-            @PathParam("version") final String version) throws WorkspaceException {
+            @PathParam("version") final String version) {
         try {
             if (!isGranted(Privileges.VIEW_PROJECTS)) {
                 return Response.status(Status.FORBIDDEN).entity("Does not have VIEW privilege").build();
@@ -202,7 +201,7 @@ public class RepositoryService {
     public Response addProject(@Context UriInfo uriInfo,
             @PathParam("name") String name,
             @Multipart(value = "file") InputStream zipFile,
-            @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
+            @Multipart(value = "comment", required = false) String comment) {
         File modifiedZip = null;
         FileInputStream modifiedZipStream = null;
         File originalZipFolder = null;
@@ -251,7 +250,7 @@ public class RepositoryService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     public Response addProject(@Context UriInfo uriInfo,
             @Multipart(value = "file") File zipFile,
-            @Multipart(value = "comment", required = false) String comment) throws WorkspaceException {
+            @Multipart(value = "comment", required = false) String comment) {
         File zipFolder = null;
         try {
             // Temp folders
@@ -293,7 +292,7 @@ public class RepositoryService {
      */
     @POST
     @Path("project")
-    public Response addProject(@Context UriInfo uriInfo, File zipFile) throws WorkspaceException {
+    public Response addProject(@Context UriInfo uriInfo, File zipFile) {
         return addProject(uriInfo, zipFile, null);
     }
 
@@ -301,7 +300,7 @@ public class RepositoryService {
             String name,
             InputStream zipFile,
             long zipSize,
-            String comment) throws WorkspaceException {
+            String comment) {
         try {
             UserWorkspace userWorkspace = workspaceManager.getUserWorkspace(getUser());
             String repositoryId = getDefaultRepositoryId();
@@ -376,7 +375,7 @@ public class RepositoryService {
         }
     }
 
-    private String getFileName(String name) throws WorkspaceException {
+    private String getFileName(String name) {
         return getDesignTimeRepository().getRulesLocation() + name;
     }
 
@@ -387,7 +386,7 @@ public class RepositoryService {
      */
     @POST
     @Path("lockProject/{name}")
-    public Response lockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
+    public Response lockProject(@PathParam("name") String name) throws ProjectException {
         // When locking the project only EDIT_PROJECTS privilege is needed because we modify the project's state.
         if (!isGranted(Privileges.EDIT_PROJECTS)) {
             return Response.status(Status.FORBIDDEN).entity("Does not have EDIT PROJECTS privilege").build();
@@ -407,7 +406,7 @@ public class RepositoryService {
      */
     @POST
     @Path("unlockProject/{name}")
-    public Response unlockProject(@PathParam("name") String name) throws WorkspaceException, ProjectException {
+    public Response unlockProject(@PathParam("name") String name) throws ProjectException {
         // When unlocking the project locked by current user, only EDIT_PROJECTS privilege is needed because we modify
         // the project's state.
         // UNLOCK_PROJECTS privilege is needed only to unlock the project locked by other user (it's not our case).
@@ -425,17 +424,17 @@ public class RepositoryService {
         return Response.ok().build();
     }
 
-    private Repository getRepository() throws WorkspaceException {
+    private Repository getRepository() {
         return getDesignTimeRepository().getRepository(getDefaultRepositoryId());
     }
 
     @Deprecated
-    private String getDefaultRepositoryId() throws WorkspaceException {
+    private String getDefaultRepositoryId() {
         // We don't support several repositories for now. Use first repository.
         return getDesignTimeRepository().getRepositories().get(0).getId();
     }
 
-    private DesignTimeRepository getDesignTimeRepository() throws WorkspaceException {
+    private DesignTimeRepository getDesignTimeRepository() {
         return workspaceManager.getUserWorkspace(getUser()).getDesignTimeRepository();
     }
 

@@ -14,23 +14,18 @@ import org.openl.itest.core.worker.TaskScheduler;
 
 public class RunRestRulesDeploymentTest {
 
-    private static String OPENL_CONFIG_LOCATION;
-
     private static JettyServer server;
     private static HttpClient client;
 
     @BeforeClass
     public static void setUp() throws Exception {
-        OPENL_CONFIG_LOCATION = System.getProperty("openl.config.location");
-        System.setProperty("openl.config.location", "file:./openl-repository/jdbc-application.properties");
-        server = JettyServer.start();
+        server = JettyServer.start("jdbc");
         client = server.client();
     }
 
     @AfterClass
     public static void tearDown() throws Exception {
         server.stop();
-        System.setProperty("openl.config.location", OPENL_CONFIG_LOCATION);
     }
 
     @Test

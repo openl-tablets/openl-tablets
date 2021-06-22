@@ -1,0 +1,4 @@
+HTTP/1.1 404
+Content-Type: application/json
+
+{"code":"openl.error.404.tag.message","message":"Tag is not found."}

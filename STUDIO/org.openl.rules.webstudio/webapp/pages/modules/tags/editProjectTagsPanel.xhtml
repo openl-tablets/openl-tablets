@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui:composition
+        xmlns:ui="http://java.sun.com/jsf/facelets"
+        xmlns:h="http://java.sun.com/jsf/html"
+        xmlns:a4j="http://richfaces.org/a4j">
+
+    <h:panelGroup id="editProjectTagsPanel">
+        #{editProjectTagsBean.init(node)}
+        <h3>
+            Tags
+        </h3>
+        <table class="formfields" style="max-width: 500px;">
+            <ui:repeat value="#{editProjectTagsBean.tags}" var="tag">
+                <tr>
+                    <td class="label">
+                        <h:outputText value="#{tag.type.name}:"/>
+                    </td>
+                    <td>
+                        <h:outputText value="#{empty tag.name ? '[None]' : tag.name}" rendered="#{not canModifyTags}"/>
+
+                        <h:panelGroup rendered="#{canModifyTags}" styleClass="tag-type-#{tag.type.id}">
+                            <h:inputHidden id="tag-type" value="#{tag.type.id}"/>
+                            <h:inputHidden id="tag-type-name" value="#{tag.type.name}"/>
+                            <h:inputHidden id="tag-name" value="#{tag.name}"/>
+
+                            <select class="editable-select #{tag.type.extensible ? '' : 'readonly'}">
+                                <h:panelGroup rendered="#{tag.type.nullable}">
+                                    <h:panelGroup rendered="#{tag.name == '[None]'}">
+                                        <option value="[None]" selected="selected">[None]</option>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{tag.name != '[None]'}">
+                                        <option value="[None]">[None]</option>
+                                    </h:panelGroup>
+                                </h:panelGroup>
+                                <h:panelGroup rendered="#{not tag.type.nullable and tag.name == '[None]'}">
+                                    <option value="[None]" disabled="disabled" selected="selected">[None]</option>
+                                </h:panelGroup>
+
+                                <ui:repeat value="#{editProjectTagsBean.getTagValues(tag.type.name)}" var="t">
+                                    <h:panelGroup rendered="#{tag.name == t.name}">
+                                        <option value="#{t.name}" selected="selected"><h:outputText value="#{t.name}"/></option>
+                                    </h:panelGroup>
+                                    <h:panelGroup rendered="#{tag.name != t.name}">
+                                        <option value="#{t.name}"><h:outputText value="#{t.name}"/></option>
+                                    </h:panelGroup>
+                                </ui:repeat>
+                            </select>
+                            <h:panelGroup styleClass="error"
+                                          rendered="#{not empty editProjectTagsBean.errorMessage and editProjectTagsBean.typeId == tag.type.id}">
+                                <h:outputText value="#{editProjectTagsBean.errorMessage}"/>
+                            </h:panelGroup>
+                        </h:panelGroup>
+                    </td>
+                </tr>
+            </ui:repeat>
+
+            <h:inputHidden id="repoIdForTags" value="#{editProjectTagsBean.repoId}"/>
+            <h:inputHidden id="realPathForTags" value="#{editProjectTagsBean.realPath}"/>
+            <a4j:jsFunction name="saveTagChanges" action="#{editProjectTagsBean.save()}"
+                            execute="repoIdForTags realPathForTags"
+                            render="editProjectTagsPanel">
+                <a4j:param name="typeId" assignTo="#{editProjectTagsBean.typeId}"/>
+                <a4j:param name="tagName" assignTo="#{editProjectTagsBean.tagName}"/>
+            </a4j:jsFunction>
+        </table>
+
+        <script>
+            //<![CDATA[
+
+            function confirmAddTag(tagType, tagName) {
+                return window.confirm('Tag "' + tagName + '" does not exist for tag type "' + tagType + '".\nDo you want to add it?')
+            }
+
+            function initEditProjectTagsPanel() {
+                $j('#editProjectTagsPanel .editable-select').editableSelect({
+                    filter: false
+                }).on('select.editable-select', function (e, $li) {
+                    let typeId = $li.parent().parent().find('input[type=hidden][id$="tag-type"]').val();
+                    saveTagChanges(typeId, $li.text());
+                });
+
+                let applyManualEdit = function () {
+                    $j(this).off('blur');
+                    let typeId = $j(this).parent().find('input[type=hidden][id$="tag-type"]').val();
+                    let typeName = $j(this).parent().find('input[type=hidden][id$="tag-type-name"]').val();
+                    let tagName = $j(this).val();
+                    let exist = $j(this).parent().find('.es-list > li').filter(function () {
+                        return $j(this).text().toLowerCase() === tagName.toLowerCase();
+                    }).length > 0;
+
+                    if (exist) {
+                        saveTagChanges(typeId, tagName);
+                    } else {
+                        if (confirmAddTag(typeName, tagName)) {
+                            $j(this).blur();
+                            saveTagChanges(typeId, tagName);
+                        }
+                    }
+                };
+                let $comboInputs = $j('#editProjectTagsPanel .editable-select.es-input');
+                $comboInputs.focus(function () {
+                    $j(this).blur(applyManualEdit);
+                });
+
+                $comboInputs.each(function () {
+                    let handler = $j._data(this, "events")['keydown'][0]['handler'];
+                    let input = this;
+                    $j(this).off('keydown').on('keydown', function (e) {
+                        if (e.key === "Enter") {
+                            e.preventDefault();
+                            applyManualEdit.call(input);
+                            return;
+                        }
+                        if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                            handler.apply(this, arguments);
+                            setTimeout(() => {
+                                let selectedValue = $j(this).next('.es-list').find('li.selected').text();
+                                $j(this).val(selectedValue);
+                            });
+                            return;
+                        }
+                        if (e.key !== "Escape" && e.key !== "Tab") {
+                            if ($j(this).val() === "[None]" && !$j(this).prop('readonly')) {
+                                $j(this).val("");
+                            }
+                        }
+                        handler.apply(this, arguments);
+                    });
+                });
+
+
+                $j('#editProjectTagsPanel .editable-select').prop('readonly', false);
+                $j('#editProjectTagsPanel .editable-select.readonly').prop('readonly', true);
+
+                let $hiddenNames = $j('input[type=hidden][id$="tag-name"]');
+                $hiddenNames.each(function () {
+                    let $name = $j(this);
+                    $j(this).next('#editProjectTagsPanel .editable-select.es-input').val($name.val());
+                });
+            }
+
+            $j(() => initEditProjectTagsPanel());
+
+            //]]>
+        </script>
+
+    </h:panelGroup>
+</ui:composition>

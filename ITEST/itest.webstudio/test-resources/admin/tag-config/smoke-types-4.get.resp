@@ -1,0 +1,8 @@
+HTTP/1.1 200
+Content-Type: application/json
+
+[{
+    "id":1,
+    "name":"Domain",
+    "tags": [{"id": 2, "name": "my_finance", "tagTypeId": 1}, {"id": 1, "name": "Policy", "tagTypeId": 1}]
+}]

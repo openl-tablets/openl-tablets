@@ -27,8 +27,8 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
     /** Cache for User Workspaces */
     private final Map<String, UserWorkspace> userWorkspaces = new HashMap<>();
 
-    private UserWorkspace createUserWorkspace(WorkspaceUser user) throws WorkspaceException {
-        LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user);
+    private UserWorkspace createUserWorkspace(WorkspaceUser user) {
+        LocalWorkspace usersLocalWorkspace = localWorkspaceManager.getWorkspace(user.getUserId());
         UserWorkspaceImpl userWorkspace = new UserWorkspaceImpl(user,
             usersLocalWorkspace,
             designTimeRepository,
@@ -45,10 +45,8 @@ public class MultiUserWorkspaceManager implements UserWorkspaceListener {
      *
      * @param user active user
      * @return new or cached instance of user workspace
-     *
-     * @throws WorkspaceException if failed
      */
-    public UserWorkspace getUserWorkspace(WorkspaceUser user) throws WorkspaceException {
+    public UserWorkspace getUserWorkspace(WorkspaceUser user) {
         UserWorkspace uw = userWorkspaces.get(user.getUserId());
         if (uw == null) {
             uw = createUserWorkspace(user);
