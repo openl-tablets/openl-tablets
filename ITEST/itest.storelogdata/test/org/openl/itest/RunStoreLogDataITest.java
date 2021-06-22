@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
@@ -46,12 +45,11 @@ import org.openl.rules.ruleservice.storelogdata.elasticsearch.DefaultElasticEnti
 import org.openl.util.IOUtils;
 import org.springframework.data.elasticsearch.annotations.Document;
 
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.InvalidQueryException;
 import com.datastax.driver.core.exceptions.QueryExecutionException;
-import com.datastax.oss.driver.api.core.CqlSession;
-import com.datastax.oss.driver.api.core.cql.ResultSet;
-import com.datastax.oss.driver.api.core.cql.Row;
-import com.datastax.oss.driver.api.core.metadata.schema.TableMetadata;
 import com.datastax.oss.driver.api.mapper.annotations.CqlName;
 
 import net.mguenther.kafka.junit.EmbeddedKafkaCluster;
@@ -69,7 +67,7 @@ public class RunStoreLogDataITest {
     private static final String KEYSPACE = "openl_ws_logging";
 
     private static final String DEFAULT_ELASTIC_INDEX_NAME = DefaultElasticEntity.class.getAnnotation(Document.class)
-        .indexName();
+            .indexName();
     private static final String DEFAULT_ELASTIC_CLUSTER_NAME = "ELASTIC-SEARCH-CLUSTER";
 
     private static final String DEFAULT_TABLE_NAME = DefaultCassandraEntity.class.getAnnotation(CqlName.class).value();
@@ -99,14 +97,14 @@ public class RunStoreLogDataITest {
         EmbeddedCassandraServerHelper.cleanEmbeddedCassandra();
 
         System.setProperty("datastax-java-driver.basic.contact-points.0",
-            EmbeddedCassandraServerHelper.getHost() + ":" + EmbeddedCassandraServerHelper.getNativeTransportPort());
+                EmbeddedCassandraServerHelper.getHost() + ":" + EmbeddedCassandraServerHelper.getNativeTransportPort());
         System.setProperty("datastax-java-driver.basic.load-balancing-policy.local-datacenter", "datacenter1");
 
         createKeyspaceIfNotExists(EmbeddedCassandraServerHelper.getSession(), KEYSPACE, "SimpleStrategy", 1);
 
         cluster = provisionWith(EmbeddedKafkaClusterConfig.create()
-            .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
-            .build());
+                .provisionWith(EmbeddedKafkaConfig.create().with("listeners", "PLAINTEXT://:61099").build())
+                .build());
         cluster.start();
 
         server = JettyServer.startSharingClassLoader();
@@ -125,18 +123,12 @@ public class RunStoreLogDataITest {
 
     private void truncateTableIfExists(final String keyspace, final String table) {
         try {
-            Optional<TableMetadata> tableMetadata = EmbeddedCassandraServerHelper.getSession()
-                    .getMetadata()
-                    .getKeyspace(KEYSPACE)
-                    .get().getTable(table);
-            if (tableMetadata.isPresent()) {
-                EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
-            }
+            EmbeddedCassandraServerHelper.getSession().execute("TRUNCATE " + keyspace + "." + table);
         } catch (QueryExecutionException | InvalidQueryException ignored) {
         }
     }
 
-    private static void createKeyspaceIfNotExists(CqlSession session,
+    private static void createKeyspaceIfNotExists(Session session,
                                                   String keyspaceName,
                                                   String replicationStrategy,
                                                   int replicationFactor) {
@@ -186,12 +178,12 @@ public class RunStoreLogDataITest {
 
     private List<Row> getCassandraRows(final String tableName) {
         ResultSet resultSet = EmbeddedCassandraServerHelper.getSession()
-            .execute("SELECT * FROM " + KEYSPACE + "." + tableName);
+                .execute("SELECT * FROM " + KEYSPACE + "." + tableName);
         return resultSet.all();
     }
 
     private SearchHit[] getElasticSearchHits(final String indexName) throws InterruptedException,
-                                                                     java.util.concurrent.ExecutionException {
+            java.util.concurrent.ExecutionException {
         ActionFuture<SearchResponse> search = esClient.search(new SearchRequest(indexName));
         return search.get().getHits().getHits();
     }
@@ -221,8 +213,8 @@ public class RunStoreLogDataITest {
             } else {
                 assertNotNull(value);
             }
-            assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-            assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+            assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+            assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
             return true;
         };
     }
@@ -242,27 +234,27 @@ public class RunStoreLogDataITest {
         KeyValue<String, String> record = new KeyValue<>(null, REQUEST);
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record)).useDefaults());
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
+                .with("metadata.max.age.ms", 1000)
+                .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         assertEquals(1, observedValues.size());
         assertEquals(RESPONSE, observedValues.get(0));
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE1_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
+                RESPONSE,
+                HELLO_METHOD_NAME,
+                SIMPLE1_SERVICE_NAME,
+                KAFKA_PUBLISHER_TYPE);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -281,21 +273,21 @@ public class RunStoreLogDataITest {
         cluster.send(SendKeyValues.to("hello-in-topic-5", Collections.singletonList(record)).useDefaults());
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            HELLO_METHOD_NAME,
-            SIMPLE5_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
+                null,
+                HELLO_METHOD_NAME,
+                SIMPLE5_SERVICE_NAME,
+                KAFKA_PUBLISHER_TYPE);
         values.setResponseProvided(true);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -312,27 +304,27 @@ public class RunStoreLogDataITest {
         cluster.send(SendKeyValues.to("hello-in-topic", Collections.singletonList(record1)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
+                .with("metadata.max.age.ms", 1000)
+                .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         assertEquals(1, observedValuesDlt.size());
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            REQUEST,
-            HELLO_METHOD_NAME,
-            SIMPLE1_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
+                REQUEST,
+                HELLO_METHOD_NAME,
+                SIMPLE1_SERVICE_NAME,
+                KAFKA_PUBLISHER_TYPE);
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -351,28 +343,28 @@ public class RunStoreLogDataITest {
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-2", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
+                .with("metadata.max.age.ms", 1000)
+                .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         assertEquals(1, observedValues.size());
         assertEquals(RESPONSE, observedValues.get(0));
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE2_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
+                RESPONSE,
+                HELLO_METHOD_NAME,
+                SIMPLE2_SERVICE_NAME,
+                KAFKA_PUBLISHER_TYPE);
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -391,26 +383,26 @@ public class RunStoreLogDataITest {
         cluster.send(SendKeyValues.to("hello-in-topic-2", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequestDlt = ObserveKeyValues.on("hello-dlt-topic-2", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
+                .with("metadata.max.age.ms", 1000)
+                .build();
         List<String> observedValuesDlt = cluster.observeValues(observeRequestDlt);
         assertEquals(1, observedValuesDlt.size());
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE2_SERVICE_NAME,
-            KAFKA_PUBLISHER_TYPE);
+                RESPONSE,
+                HELLO_METHOD_NAME,
+                SIMPLE2_SERVICE_NAME,
+                KAFKA_PUBLISHER_TYPE);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -427,21 +419,21 @@ public class RunStoreLogDataITest {
         client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello.req.json", "/simple3_Hello.resp.txt");
 
         ExpectedLogValues parameters = new ExpectedLogValues(REQUEST,
-            RESPONSE,
-            HELLO_METHOD_NAME,
-            SIMPLE3_SERVICE_NAME,
-            RESTFUL_PUBLISHER_TYPE);
+                RESPONSE,
+                HELLO_METHOD_NAME,
+                SIMPLE3_SERVICE_NAME,
+                RESTFUL_PUBLISHER_TYPE);
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(parameters), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(parameters), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(parameters), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(parameters), equalTo(true));
     }
 
     private String getText(String file) throws Exception {
@@ -461,20 +453,20 @@ public class RunStoreLogDataITest {
         client.post("/REST/deployment3/simple3/Hello", "/simple3_Hello_fail.req.json", 400);
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            null,
-            SIMPLE3_SERVICE_NAME,
-            RESTFUL_PUBLISHER_TYPE);
+                null,
+                null,
+                SIMPLE3_SERVICE_NAME,
+                RESTFUL_PUBLISHER_TYPE);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -490,20 +482,20 @@ public class RunStoreLogDataITest {
         client.post("/deployment3/simple3", "/simple3_Hello.req.xml", "/simple3_Hello.resp.xml");
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            HELLO_METHOD_NAME,
-            SIMPLE3_SERVICE_NAME,
-            WEBSERVICE_PUBLISHER_TYPE);
+                null,
+                HELLO_METHOD_NAME,
+                SIMPLE3_SERVICE_NAME,
+                WEBSERVICE_PUBLISHER_TYPE);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -519,20 +511,20 @@ public class RunStoreLogDataITest {
         client.post("/deployment3/simple3", "/simple3_Hello_fail.req.xml", 200);
 
         ExpectedLogValues values = new ExpectedLogValues(REQUEST,
-            null,
-            HELLO_METHOD_NAME,
-            SIMPLE3_SERVICE_NAME,
-            WEBSERVICE_PUBLISHER_TYPE);
+                null,
+                HELLO_METHOD_NAME,
+                SIMPLE3_SERVICE_NAME,
+                WEBSERVICE_PUBLISHER_TYPE);
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(validateCassandra(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(validateCassandra(values), equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(validateElastic(values), equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(validateElastic(values), equalTo(true));
     }
 
     @Test
@@ -561,7 +553,7 @@ public class RunStoreLogDataITest {
             removeIndexIfExists(customElasticIndexName3);
             removeIndexIfExists(customElasticIndexName4);
             return !elasticRunner.indexExists(customElasticIndexName1) && !elasticRunner
-                .indexExists(customElasticIndexName2) && !elasticRunner
+                    .indexExists(customElasticIndexName2) && !elasticRunner
                     .indexExists(customElasticIndexName3) && !elasticRunner.indexExists(customElasticIndexName4);
         }, equalTo(true));
 
@@ -578,8 +570,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -599,8 +591,8 @@ public class RunStoreLogDataITest {
         assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
         assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-        assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertEquals("value1", row.getString(CassandraFields.VALUE));
@@ -619,17 +611,17 @@ public class RunStoreLogDataITest {
         assertNull(row.getString(CassandraFields.RESPONSE));
         assertNull(row.getString(CassandraFields.METHOD_NAME));
         assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-        assertNull(row.getInstant(CassandraFields.INCOMING_TIME));
-        assertNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
+        assertNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+        assertNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
         assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
         assertNull(row.getString(CassandraFields.VALUE));
         assertNull(row.getString(CassandraFields.RESULT));
 
-        assertFalse(EmbeddedCassandraServerHelper.getSession()
-            .getMetadata()
-            .getKeyspace(KEYSPACE)
-            .get().getTable(helloEntity4TableName).isPresent());
+        assertNull(EmbeddedCassandraServerHelper.getCluster()
+                .getMetadata()
+                .getKeyspace(KEYSPACE)
+                .getTable(helloEntity4TableName));
 
         SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
         if (hits.length == 0) {
@@ -697,57 +689,57 @@ public class RunStoreLogDataITest {
         client.post("/deployment4/simple4/Hello2", "/simple4_Hello2.req.json", "/simple4_Hello2.resp.txt");
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                List<Row> rows = getCassandraRows(helloEntity1TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                Row row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO2_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
-                assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> {
+                    List<Row> rows = getCassandraRows(helloEntity1TableName);
+                    if (rows.size() == 0) { // Table is created but row is not created
+                        return false;
+                    }
+                    assertEquals(1, rows.size());
+                    Row row = rows.iterator().next();
+                    assertNotNull(row.getString(CassandraFields.ID));
+                    assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+                    assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+                    assertEquals(HELLO2_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
+                    assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+                    assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+                    assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                    assertEquals(RESTFUL_PUBLISHER_TYPE, row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
-                assertEquals(22, row.getInt(CassandraFields.INT_VALUE2));
-                assertEquals(22, row.getInt(CassandraFields.INT_VALUE3));
-                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE1));
-                assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE2));
-                assertEquals(RESPONSE, row.getString(CassandraFields.STRING_VALUE3));
-                assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
-                assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
-                return true;
-            }, equalTo(true));
+                    assertEquals(5, row.getInt(CassandraFields.INT_VALUE1));
+                    assertEquals(22, row.getInt(CassandraFields.INT_VALUE2));
+                    assertEquals(22, row.getInt(CassandraFields.INT_VALUE3));
+                    assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE1));
+                    assertEquals("Good Night", row.getString(CassandraFields.STRING_VALUE2));
+                    assertEquals(RESPONSE, row.getString(CassandraFields.STRING_VALUE3));
+                    assertTrue(row.getBool(CassandraFields.BOOL_VALUE1));
+                    assertEquals("22", row.getString(CassandraFields.INT_VALUE_TO_STRING));
+                    return true;
+                }, equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-                if (hits.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hits.length);
-                SearchHit hit = hits[0];
-                Map<String, Object> source = hit.getSourceAsMap();
-                assertEquals(5, source.get(ElasticFields.INT_VALUE1));
-                assertEquals(22, source.get(ElasticFields.INT_VALUE2));
-                assertEquals(22, source.get(ElasticFields.INT_VALUE3));
-                assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE1));
-                assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE2));
-                assertEquals(RESPONSE, source.get(ElasticFields.STRING_VALUE3));
-                assertTrue((boolean) source.get(ElasticFields.BOOL_VALUE1));
-                assertEquals("22", source.get(ElasticFields.INT_VALUE_TO_STRING));
-                return true;
-            }, equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
+                    if (hits.length == 0) {
+                        return false;
+                    }
+                    assertEquals(1, hits.length);
+                    SearchHit hit = hits[0];
+                    Map<String, Object> source = hit.getSourceAsMap();
+                    assertEquals(5, source.get(ElasticFields.INT_VALUE1));
+                    assertEquals(22, source.get(ElasticFields.INT_VALUE2));
+                    assertEquals(22, source.get(ElasticFields.INT_VALUE3));
+                    assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE1));
+                    assertEquals("Good Night", source.get(ElasticFields.STRING_VALUE2));
+                    assertEquals(RESPONSE, source.get(ElasticFields.STRING_VALUE3));
+                    assertTrue((boolean) source.get(ElasticFields.BOOL_VALUE1));
+                    assertEquals("22", source.get(ElasticFields.INT_VALUE_TO_STRING));
+                    return true;
+                }, equalTo(true));
     }
 
     private static String getTableName(Class<?> entityClass) {
@@ -786,53 +778,53 @@ public class RunStoreLogDataITest {
         cluster.send(SendKeyValues.to("hello-in-topic-4", Collections.singletonList(record)).useDefaults());
 
         ObserveKeyValues<String, String> observeRequest = ObserveKeyValues.on("hello-out-topic-4", 1)
-            .with("metadata.max.age.ms", 1000)
-            .build();
+                .with("metadata.max.age.ms", 1000)
+                .build();
         List<String> observedValues = cluster.observeValues(observeRequest);
         assertEquals(1, observedValues.size());
         assertEquals(RESPONSE, observedValues.get(0));
 
         given().ignoreException(InvalidQueryException.class)
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .until(() -> {
-                List<Row> rows = getCassandraRows(helloEntity1TableName);
-                if (rows.size() == 0) { // Table is created but row is not created
-                    return false;
-                }
-                assertEquals(1, rows.size());
-                Row row = rows.iterator().next();
-                assertNotNull(row.getString(CassandraFields.ID));
-                assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
-                assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
-                assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
-                assertNotNull(row.getInstant(CassandraFields.INCOMING_TIME));
-                assertNotNull(row.getInstant(CassandraFields.OUTCOMING_TIME));
-                assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .until(() -> {
+                    List<Row> rows = getCassandraRows(helloEntity1TableName);
+                    if (rows.size() == 0) { // Table is created but row is not created
+                        return false;
+                    }
+                    assertEquals(1, rows.size());
+                    Row row = rows.iterator().next();
+                    assertNotNull(row.getString(CassandraFields.ID));
+                    assertEquals(REQUEST, row.getString(CassandraFields.REQUEST));
+                    assertEquals(RESPONSE, row.getString(CassandraFields.RESPONSE));
+                    assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.METHOD_NAME));
+                    assertEquals(SIMPLE4_SERVICE_NAME, row.getString(CassandraFields.SERVICE_NAME));
+                    assertNotNull(row.getTimestamp(CassandraFields.INCOMING_TIME));
+                    assertNotNull(row.getTimestamp(CassandraFields.OUTCOMING_TIME));
+                    assertEquals(PublisherType.KAFKA.toString(), row.getString(CassandraFields.PUBLISHER_TYPE));
 
-                assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.HEADER1));
-                assertEquals("testHeaderValue", row.getString(CassandraFields.HEADER2));
+                    assertEquals(HELLO_METHOD_NAME, row.getString(CassandraFields.HEADER1));
+                    assertEquals("testHeaderValue", row.getString(CassandraFields.HEADER2));
 
-                return true;
-            }, equalTo(true));
+                    return true;
+                }, equalTo(true));
 
         given().ignoreExceptions()
-            .await()
-            .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
-            .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
-            .until(() -> {
-                SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
-                if (hits.length == 0) {
-                    return false;
-                }
-                assertEquals(1, hits.length);
-                SearchHit hit = hits[0];
-                Map<String, Object> source = hit.getSourceAsMap();
-                assertEquals(HELLO_METHOD_NAME, source.get(ElasticFields.HEADER1));
-                assertEquals("testHeaderValue", source.get(ElasticFields.HEADER2));
-                return true;
-            }, equalTo(true));
+                .await()
+                .atMost(AWAIT_TIMEOUT, TimeUnit.SECONDS)
+                .pollInterval(POLL_INTERVAL_IN_MILLISECONDS, TimeUnit.MILLISECONDS)
+                .until(() -> {
+                    SearchHit[] hits = getElasticSearchHits(customElasticIndexName1);
+                    if (hits.length == 0) {
+                        return false;
+                    }
+                    assertEquals(1, hits.length);
+                    SearchHit hit = hits[0];
+                    Map<String, Object> source = hit.getSourceAsMap();
+                    assertEquals(HELLO_METHOD_NAME, source.get(ElasticFields.HEADER1));
+                    assertEquals("testHeaderValue", source.get(ElasticFields.HEADER2));
+                    return true;
+                }, equalTo(true));
     }
 
     @Test
