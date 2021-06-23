@@ -148,7 +148,9 @@
                                     finished();
                                 }
                             }
-                            ws.nav.reloadPanel('left');
+                            if (data.compilationCompleted) {
+                                ws.nav.reloadPanel('left');
+                            }
                         });
                 });
 

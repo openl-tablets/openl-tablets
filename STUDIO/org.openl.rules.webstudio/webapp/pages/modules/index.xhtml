@@ -225,6 +225,7 @@
                                 }
                             }
                             done && done();
+                            fixRichFaces();
                         });
                     }
                 },
@@ -259,7 +260,23 @@
                     },
                     reloadPanel: function(panel, callback) {
                         if (panel == "left") {
-                            api.ajax.load([DEFAULT_CONTENT.left], callback || openTreeNode);
+                            let isHistoryPanel = $('#recentVisitedTablesPanel').is(":visible");
+                            let expandedNodes = getExpandedNodes();
+                            let expandAndCallback = () => {
+                                expandNodes(expandedNodes);
+
+                                if (callback) {
+                                    callback();
+                                } else {
+                                    if (isHistoryPanel) {
+                                        $("#rulesTreePanel").hide();
+                                        $("#recentVisitedTablesPanel").show();
+                                    } else {
+                                        openTreeNode();
+                                    }
+                                }
+                            }
+                            api.ajax.load([DEFAULT_CONTENT.left], expandAndCallback);
                         }
                     },
                     openHistoryPanel: function() {
@@ -947,6 +964,31 @@
                         }
                     }
                 );
+            };
+
+            let getExpandedNodes = function () {
+                let $expanded = $("#rulesTree .rf-tr-nd-exp");
+                let expandedNodes = [];
+                $expanded.each(function () {
+                    let hrefChildren = $(this).find("a").filter(function() {
+                        return $(this).parents('.rf-tr-nd-colps').length === 0;
+                    });
+                    if (hrefChildren.length > 0) {
+                        expandedNodes.push(hrefChildren.first().attr("href"));
+                    }
+                });
+
+                return expandedNodes;
+            }
+
+            let expandNodes = function (expandedNodes) {
+                for (const node of expandedNodes) {
+                    let $node = $("#rulesTree a[href *= '" + node + "']");
+                    $node.parents(".rf-tr-nd-colps").each(function () {
+                        $(this).toggleClass("rf-tr-nd-colps rf-tr-nd-exp");
+                        $(this).find(".rf-trn-hnd-colps:first").toggleClass("rf-trn-hnd-colps rf-trn-hnd-exp")
+                    });
+                }
             };
 
             var openTreeNode = function(pageToOpen) {
