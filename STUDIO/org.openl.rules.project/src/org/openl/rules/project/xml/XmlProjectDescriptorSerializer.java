@@ -83,11 +83,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
 
     @Override
     public String serialize(ProjectDescriptor source) {
-        populateEmptyCollectionsWithNulls(source);
+        populateWithNulls(source);
         try {
             return xstream.toXML(source);
         } finally {
-            populateNullsWithEmptyCollections(source);
+            populateNullsWithDefaultValues(source);
         }
     }
 
@@ -97,11 +97,11 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
     @Override
     public ProjectDescriptor deserialize(InputStream source) {
         ProjectDescriptor descriptor = (ProjectDescriptor) xstream.fromXML(source);
-        populateNullsWithEmptyCollections(descriptor);
+        populateNullsWithDefaultValues(descriptor);
         return descriptor;
     }
 
-    private void populateNullsWithEmptyCollections(ProjectDescriptor descriptor) {
+    private void populateNullsWithDefaultValues(ProjectDescriptor descriptor) {
         if (descriptor.getClasspath() == null) {
             descriptor.setClasspath(new ArrayList<>());
         }
@@ -109,15 +109,27 @@ public class XmlProjectDescriptorSerializer implements IProjectDescriptorSeriali
         if (descriptor.getModules() == null) {
             descriptor.setModules(new ArrayList<>());
         }
+
+        for (Module module : descriptor.getModules()) {
+            if (module.getStandalone() == null) {
+                module.setStandalone(Boolean.FALSE);
+            }
+        }
     }
 
-    private void populateEmptyCollectionsWithNulls(ProjectDescriptor descriptor) {
+    private void populateWithNulls(ProjectDescriptor descriptor) {
         if (CollectionUtils.isEmpty(descriptor.getClasspath())) {
             descriptor.setClasspath(null);
         }
 
         if (CollectionUtils.isEmpty(descriptor.getModules())) {
             descriptor.setModules(null);
+        }
+
+        for (Module module : descriptor.getModules()) {
+            if (Boolean.FALSE.equals(module.getStandalone())) {
+                module.setStandalone(null);
+            }
         }
     }
 

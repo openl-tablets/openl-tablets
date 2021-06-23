@@ -1048,32 +1048,34 @@ public class ProjectModel {
             WorkbookLoaders.resetCurrentFactory();
 
             this.projectCompilationCompleted = false;
-            webStudioWorkspaceDependencyManager
-                .loadDependencyAsync(
-                    new Dependency(DependencyType.MODULE,
+            if (!moduleInfo.getStandalone()) {
+                webStudioWorkspaceDependencyManager.loadDependencyAsync(new Dependency(DependencyType.MODULE,
                         new IdentifierNode(DependencyType.MODULE.name(),
-                            null,
-                            SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
-                            null)),
-                    (e) -> {
-                        List<Module> modules = this.moduleInfo.getProject().getModules();
-                        RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
+                                null,
+                                SimpleDependencyLoader.buildDependencyName(moduleInfo.getProject(), null),
+                                null)), (e) -> {
+                    List<Module> modules = this.moduleInfo.getProject().getModules();
+                    RulesInstantiationStrategy instantiationStrategy = new SimpleMultiModuleInstantiationStrategy(
                             modules,
                             webStudioWorkspaceDependencyManager,
                             false);
-                        Map<String, Object> externalParameters = ProjectExternalDependenciesHelper
-                            .buildExternalParamsWithProjectDependencies(studio.getExternalProperties(), modules);
-                        instantiationStrategy.setExternalParameters(externalParameters);
-                        try {
-                            this.compiledOpenClass = this.validate(instantiationStrategy);
-                            this.projectCompilationCompleted = true;
-                            XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
+                    Map<String, Object> externalParameters = ProjectExternalDependenciesHelper.buildExternalParamsWithProjectDependencies(
+                            studio.getExternalProperties(),
+                            modules);
+                    instantiationStrategy.setExternalParameters(externalParameters);
+                    try {
+                        this.compiledOpenClass = this.validate(instantiationStrategy);
+                        this.projectCompilationCompleted = true;
+                        XlsMetaInfo metaInfo1 = (XlsMetaInfo) this.compiledOpenClass.getOpenClassWithErrors()
                                 .getMetaInfo();
-                            allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
-                            redraw();
-                        } catch (RulesInstantiationException ignored) {
-                        }
-                    });
+                        allXlsModuleSyntaxNodes.add(metaInfo1.getXlsModuleNode());
+                        redraw();
+                    } catch (RulesInstantiationException ignored) {
+                    }
+                });
+            } else {
+                projectCompilationCompleted = true;
+            }
         } catch (Throwable t) {
             log.error("Failed to load.", t);
             Collection<OpenLMessage> messages = new LinkedHashSet<>();

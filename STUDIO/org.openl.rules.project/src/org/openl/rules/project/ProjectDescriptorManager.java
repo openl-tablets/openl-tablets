@@ -142,6 +142,7 @@ public class ProjectDescriptorManager {
                     m.setRulesRootPath(new PathEntry(relativePath));
                     m.setName(FileUtils.getBaseName(modulePath.toString()));
                     m.setMethodFilter(module.getMethodFilter());
+                    m.setStandalone(module.getStandalone());
                     m.setWildcardRulesRootPath(pathPattern);
                     m.setWildcardName(module.getName());
                     modules.add(m);

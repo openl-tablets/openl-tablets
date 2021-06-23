@@ -518,6 +518,7 @@ public class ProjectBean {
         String path = WebStudioUtils.getRequestParameter("modulePath");
         String includes = WebStudioUtils.getRequestParameter("moduleIncludes");
         String excludes = WebStudioUtils.getRequestParameter("moduleExcludes");
+        String standalone = WebStudioUtils.getRequestParameter("moduleStandalone");
 
         Module module;
 
@@ -581,6 +582,8 @@ public class ProjectBean {
                     }
                 }
             }
+
+            module.setStandalone("on".equals(standalone));
 
             clean(newProjectDescriptor);
             save(newProjectDescriptor);
