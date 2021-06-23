@@ -247,9 +247,11 @@ public class ProjectModel {
         return getMessagesByTsn(uri, Severity.WARN);
     }
 
-    private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode, Severity severity) {
+    private List<OpenLMessage> getMessagesByTsn(TableSyntaxNode tableSyntaxNode,
+            Severity severity,
+            Collection<OpenLMessage> openLMessages) {
         List<OpenLMessage> messages = new ArrayList<>();
-        for (OpenLMessage openLMessage : getModuleMessages()) {
+        for (OpenLMessage openLMessage : openLMessages) {
             if (openLMessage.getSourceLocation() != null && openLMessage.getSeverity() == severity) {
                 XlsUrlParser xlsUrlParser = new XlsUrlParser(openLMessage.getSourceLocation());
                 if (tableSyntaxNode.getUriParser().intersects(xlsUrlParser)) {
@@ -260,9 +262,14 @@ public class ProjectModel {
         return messages;
     }
 
-    private List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
+    public List<OpenLMessage> getMessagesByTsn(String uri, Severity severity) {
         TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
-        return getMessagesByTsn(tableSyntaxNode, severity);
+        return getMessagesByTsn(tableSyntaxNode, severity, getModuleMessages());
+    }
+
+    public List<OpenLMessage> getOpenedModuleMessagesByTsn(String uri, Severity severity) {
+        TableSyntaxNode tableSyntaxNode = getTableByUri(uri);
+        return getMessagesByTsn(tableSyntaxNode, severity, getOpenedModuleMessages());
     }
 
     public synchronized List<OpenLMessage> getErrorsByUri(String uri) {
@@ -528,6 +535,14 @@ public class ProjectModel {
         CompiledOpenClass compiledOpenClass = getCompiledOpenClass();
         if (compiledOpenClass != null) {
             return compiledOpenClass.getMessages();
+        }
+        return Collections.emptyList();
+    }
+
+    public Collection<OpenLMessage> getOpenedModuleMessages() {
+        CompiledOpenClass openedCompiledOpenClass = getOpenedModuleCompiledOpenClass();
+        if (openedCompiledOpenClass != null) {
+            return openedCompiledOpenClass.getMessages();
         }
         return Collections.emptyList();
     }
