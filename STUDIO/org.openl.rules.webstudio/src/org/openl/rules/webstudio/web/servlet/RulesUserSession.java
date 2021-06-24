@@ -1,7 +1,6 @@
 package org.openl.rules.webstudio.web.servlet;
 
 import org.openl.rules.workspace.MultiUserWorkspaceManager;
-import org.openl.rules.workspace.WorkspaceException;
 import org.openl.rules.workspace.WorkspaceUserImpl;
 import org.openl.rules.workspace.uw.UserWorkspace;
 
@@ -17,7 +16,7 @@ public class RulesUserSession {
         return userName;
     }
 
-    public synchronized UserWorkspace getUserWorkspace() throws WorkspaceException {
+    public synchronized UserWorkspace getUserWorkspace() {
         if (userWorkspace == null) {
             userWorkspace = workspaceManager.getUserWorkspace(new WorkspaceUserImpl(getUserName()));
             userWorkspace.activate();

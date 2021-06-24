@@ -19,7 +19,6 @@ import org.openl.rules.repository.api.FileData;
 import org.openl.rules.repository.api.FolderMapper;
 import org.openl.rules.repository.api.Repository;
 import org.openl.rules.workspace.ProjectKey;
-import org.openl.rules.workspace.WorkspaceUser;
 import org.openl.rules.workspace.dtr.DesignTimeRepository;
 import org.openl.rules.workspace.dtr.impl.FileMappingData;
 import org.openl.rules.workspace.lw.LocalWorkspace;
@@ -30,15 +29,15 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         .compareToIgnoreCase(o2.getName());
     public static final String LOCAL_ID = "local";
 
-    private final WorkspaceUser user;
+    private final String userId;
     private final File location;
     private final Map<ProjectKey, AProject> localProjects;
     private final List<LocalWorkspaceListener> listeners = new ArrayList<>();
     private final LocalRepository localRepository;
     private final DesignTimeRepository designTimeRepository;
 
-    LocalWorkspaceImpl(WorkspaceUser user, File location, DesignTimeRepository designTimeRepository) {
-        this.user = user;
+    LocalWorkspaceImpl(String userId, File location, DesignTimeRepository designTimeRepository) {
+        this.userId = userId;
         this.location = location;
         this.designTimeRepository = designTimeRepository;
 
@@ -123,8 +122,8 @@ public class LocalWorkspaceImpl implements LocalWorkspace {
         }
     }
 
-    protected WorkspaceUser getUser() {
-        return user;
+    protected String getUserId() {
+        return userId;
     }
 
     @Override

@@ -78,9 +78,9 @@
         <!-- If true, deploying of artifacts will be skipped  -->
         <maven.deploy.skip>false</maven.deploy.skip>
         <maven.install.skip>${maven.deploy.skip}</maven.install.skip>
-        <org.springframework.version>5.2.14.RELEASE</org.springframework.version>
-        <org.springsecurity.version>5.4.6</org.springsecurity.version>
-        <org.hibernate.version>5.4.24.Final</org.hibernate.version>
+        <org.springframework.version>5.3.8</org.springframework.version>
+        <org.springsecurity.version>5.5.0</org.springsecurity.version>
+        <org.hibernate.version>5.4.32.Final</org.hibernate.version>
         <!-- Don't upgrade to 2.4.0. https://balusc.omnifaces.org/2018/04/do-not-use-orgglassfish-mojarra-240.html
             At the time of writing the latest official version is 2.3.9.
          -->
@@ -89,10 +89,10 @@
         <cglib.version>3.3.0</cglib.version>
         <kafka.version>2.8.0</kafka.version>
         <kafka-junit.version>2.8.0</kafka-junit.version>
-        <cassandra.driver.version>4.3.1</cassandra.driver.version>
+        <cassandra.driver.version>4.12.0</cassandra.driver.version>
         <cassandra.unit.version>3.11.2.0</cassandra.unit.version>
-        <cassandra.unit.driver.version>3.8.0</cassandra.unit.driver.version>
-        <org.apache.cxf.version>3.4.3</org.apache.cxf.version>
+        <cassandra.unit.driver.version>3.11.0</cassandra.unit.driver.version>
+        <org.apache.cxf.version>3.4.4</org.apache.cxf.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf -->
         <jakarta.ws.rs-api.version>2.1.6</jakarta.ws.rs-api.version>
         <!-- if updated org.apache.cxf.version to version from org.apache.cxf:cxf-rt-databinding-aegis:jar -> org.apache.cxf:cxf-core -> org.glassfish.jaxb:jaxb-runtime -->
@@ -101,11 +101,11 @@
         <log4j.version>2.14.1</log4j.version>
         <org.slf4j.version>1.7.30</org.slf4j.version>
         <org.apache.poi.version>4.1.2</org.apache.poi.version>
-        <org.bouncycastle.version>1.68</org.bouncycastle.version>
+        <org.bouncycastle.version>1.69</org.bouncycastle.version>
         <com.fasterxml.jackson.version>2.11.4</com.fasterxml.jackson.version>
         <maven.api.version>3.6.0</maven.api.version>
         <maven.plugin.version>3.6.0</maven.plugin.version>
-        <jetty.server.version>9.4.40.v20210413</jetty.server.version>
+        <jetty.server.version>9.4.42.v20210604</jetty.server.version>
         <elasticsearch-cluster-runner.version>6.8.9.0</elasticsearch-cluster-runner.version>
         <elasticsearch.version>6.8.13</elasticsearch.version>
         <hive.jdbc.version>3.1.2</hive.jdbc.version>
@@ -113,7 +113,7 @@
         <org.apache.zookeeper.version>3.6.2</org.apache.zookeeper.version>
         <org.apache.thrift.version>0.13.0</org.apache.thrift.version>
         <org.apache.ant.varsion>1.10.9</org.apache.ant.varsion>
-        <owasp.version>6.1.0</owasp.version>
+        <owasp.version>6.2.2</owasp.version>
         <groovy.version>3.0.8</groovy.version>
         <opentracing.web.servlet.filter>0.4.1</opentracing.web.servlet.filter>
         <jaeger.client.version>1.5.0</jaeger.client.version>
@@ -698,13 +698,13 @@
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.13.1</version>
+                <version>4.13.2</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>org.awaitility</groupId>
                 <artifactId>awaitility</artifactId>
-                <version>4.0.3</version>
+                <version>4.1.0</version>
                 <scope>test</scope>
             </dependency>
             <!-- Mock objects library for java -->
@@ -730,7 +730,7 @@
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
-                <version>3.11</version>
+                <version>3.12.0</version>
             </dependency>
             <!-- The Apache Commons Collections package contains types that extend and augment the Java Collections Framework. -->
             <dependency>
@@ -754,7 +754,7 @@
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>
-                <version>2.8.0</version>
+                <version>2.10.0</version>
             </dependency>
             <!-- Spring Framework -->
             <!-- Core utilities used by other modules. Define this if you use Spring
@@ -1120,7 +1120,7 @@
             <dependency>
                 <groupId>org.webjars</groupId>
                 <artifactId>swagger-ui</artifactId>
-                <version>3.47.1</version>
+                <version>3.50.0</version>
             </dependency>
             <dependency>
                 <groupId>io.swagger</groupId>
@@ -1323,7 +1323,7 @@
             <dependency>
                 <groupId>org.eclipse.jgit</groupId>
                 <artifactId>org.eclipse.jgit</artifactId>
-                <version>5.11.0.202103091610-r</version>
+                <version>5.12.0.202106070339-r</version>
             </dependency>
             <!-- The Bouncy Castle Crypto package is a Java implementation of cryptographic algorithms. This jar
             contains JCE provider and lightweight API for the Bouncy Castle Cryptography APIs for JDK 1.5 to JDK 1.8.
@@ -1395,13 +1395,6 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <!-- update Hibernate dependency on Javassist
-                        to 3.23.1 for Java 11 compatibility -->
-                <groupId>org.javassist</groupId>
-                <artifactId>javassist</artifactId>
-                <version>3.23.1-GA</version>
-            </dependency>
             <!-- Hibernate's Bean Validation (JSR-303) reference implementation. -->
             <dependency>
                 <groupId>org.hibernate</groupId>
@@ -1468,7 +1461,7 @@
             <dependency>
                 <groupId>org.yaml</groupId>
                 <artifactId>snakeyaml</artifactId>
-                <version>1.28</version>
+                <version>1.29</version>
             </dependency>
             <!-- OpenAPI -->
             <dependency>

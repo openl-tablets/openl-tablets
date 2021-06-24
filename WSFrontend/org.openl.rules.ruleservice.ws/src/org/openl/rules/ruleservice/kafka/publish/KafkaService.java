@@ -31,6 +31,7 @@ import org.openl.rules.ruleservice.kafka.RequestMessage;
 import org.openl.rules.ruleservice.kafka.tracing.KafkaTracingProvider;
 import org.openl.rules.ruleservice.storelogdata.ObjectSerializer;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataHolder;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataManager;
 import org.slf4j.Logger;
@@ -256,6 +257,13 @@ public final class KafkaService implements Runnable {
                                         if (storeLogData != null) {
                                             storeLogData.setProducerRecord(producerRecord);
                                         }
+                                        if (exception == null && storeLogData != null) {
+                                            try {
+                                                getStoreLogDataManager().store(storeLogData);
+                                            } catch (StoreLogDataException e) {
+                                                exception = e;
+                                            }
+                                        }
                                         if (exception != null) {
                                             try {
                                                 if (log.isErrorEnabled()) {
@@ -269,8 +277,6 @@ public final class KafkaService implements Runnable {
                                                 log.error("Unexpected error.", e);
                                             }
                                             sendErrorToDlt(consumerRecord, exception, storeLogData);
-                                        } else if (storeLogData != null) {
-                                            getStoreLogDataManager().store(storeLogData);
                                         }
                                     });
                                 } else {
@@ -398,7 +404,11 @@ public final class KafkaService implements Runnable {
                         System.lineSeparator(),
                         record.value().asText()), exception);
                 } else if (storeLogData != null) {
-                    getStoreLogDataManager().store(storeLogData);
+                    try {
+                        getStoreLogDataManager().store(storeLogData);
+                    } catch (StoreLogDataException e1) {
+                        log.error("Failed on data store operation.", e1);
+                    }
                 }
             });
         } catch (Exception e1) {

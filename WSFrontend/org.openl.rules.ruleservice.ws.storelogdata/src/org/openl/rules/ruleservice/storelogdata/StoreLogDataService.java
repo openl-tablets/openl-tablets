@@ -11,7 +11,9 @@ import java.util.Collections;
  */
 public interface StoreLogDataService {
 
-    void save(StoreLogData storeLogData);
+    boolean isSync(StoreLogData storeLogData);
+
+    void save(StoreLogData storeLogData) throws StoreLogDataException;
 
     default Collection<Inject<?>> additionalInjects() {
         return Collections.emptyList();

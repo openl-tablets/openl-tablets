@@ -10,14 +10,13 @@ import org.openl.binding.MethodUtil;
 import org.openl.rules.ruleservice.storelogdata.AbstractStoreLogDataService;
 import org.openl.rules.ruleservice.storelogdata.Inject;
 import org.openl.rules.ruleservice.storelogdata.StoreLogData;
+import org.openl.rules.ruleservice.storelogdata.StoreLogDataException;
 import org.openl.rules.ruleservice.storelogdata.StoreLogDataMapper;
 import org.openl.rules.ruleservice.storelogdata.annotation.AnnotationUtils;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.HiveConnection;
 import org.openl.rules.ruleservice.storelogdata.hive.annotation.StoreLogDataToHive;
 import org.openl.spring.config.ConditionalOnEnable;
 import org.openl.util.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,7 +24,6 @@ import org.springframework.stereotype.Component;
 @ConditionalOnEnable("ruleservice.store.logs.hive.enabled")
 public class HiveStoreLogDataService extends AbstractStoreLogDataService {
 
-    private final Logger log = LoggerFactory.getLogger(HiveStoreLogDataService.class);
     private final StoreLogDataMapper storeLogDataMapper = new StoreLogDataMapper();
 
     @Autowired
@@ -38,7 +36,7 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     @Override
-    protected boolean isSync(StoreLogData storeLogData) {
+    public boolean isSync(StoreLogData storeLogData) {
         StoreLogDataToHive storeLogDataToHive = AnnotationUtils.getAnnotationInServiceClassOrServiceMethod(storeLogData,
             StoreLogDataToHive.class);
         if (storeLogDataToHive != null) {
@@ -64,52 +62,53 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
     }
 
     @Override
-    protected void save(StoreLogData storeLogData, boolean sync) {
+    protected void save(StoreLogData storeLogData, boolean sync) throws StoreLogDataException {
         StoreLogDataToHive storeLogDataAnnotation = getAnnotation(storeLogData);
         if (storeLogDataAnnotation == null)
             return;
 
         Object[] entities = getEntities(storeLogDataAnnotation, storeLogData.getServiceMethod());
-        if (entities == null)
-            return;
 
         mapEntities(storeLogData, entities, storeLogData.getServiceMethod());
         saveEntities(entities);
     }
 
-    private void saveEntities(Object[] entities) {
+    private void saveEntities(Object[] entities) throws StoreLogDataException {
         for (Object entity : entities) {
             if (entity != null) {
                 try {
                     hiveOperations.save(entity);
                 } catch (Exception e) {
-                    log.error("Failed on hive entity save operation.", e);
+                    throw new StoreLogDataException("Failed on hive entity save operation.", e);
                 }
             }
         }
     }
 
-    private void mapEntities(StoreLogData storeLogData, Object[] entities, Method serviceMethod) {
+    private void mapEntities(StoreLogData storeLogData,
+            Object[] entities,
+            Method serviceMethod) throws StoreLogDataException {
         for (Object entity : entities) {
             try {
                 storeLogDataMapper.map(storeLogData, entity);
             } catch (Exception e) {
-                if (log.isErrorEnabled()) {
-                    if (serviceMethod != null) {
-                        log.error("Failed to populate hive entity '{}' for method '{}'.",
+                if (serviceMethod != null) {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate hive entity '%s' for method '%s'.",
                             entity.getClass().getTypeName(),
-                            MethodUtil.printQualifiedMethodName(serviceMethod),
-                            e);
-                    } else {
-                        log.error("Failed to populate hive entity '{}'.", entity.getClass().getTypeName(), e);
-                    }
+                            MethodUtil.printQualifiedMethodName(serviceMethod)),
+                        e);
+                } else {
+                    throw new StoreLogDataException(
+                        String.format("Failed to populate hive entity '%s'.", entity.getClass().getTypeName()),
+                        e);
                 }
-                return;
             }
         }
     }
 
-    private Object[] getEntities(StoreLogDataToHive storeLogDataAnnotation, Method serviceMethod) {
+    private Object[] getEntities(StoreLogDataToHive storeLogDataAnnotation,
+            Method serviceMethod) throws StoreLogDataException {
         Object[] entities;
         if (storeLogDataAnnotation.value().length == 0) {
             entities = new DefaultHiveEntity[] { new DefaultHiveEntity() };
@@ -123,14 +122,11 @@ public class HiveStoreLogDataService extends AbstractStoreLogDataService {
                     try {
                         entities[i] = entityClass.getDeclaredConstructor().newInstance();
                     } catch (Exception e) {
-                        if (log.isErrorEnabled()) {
-                            log.error(String.format(
-                                "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
-                                serviceMethod != null ? " for method '" + MethodUtil
-                                    .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
-                                entityClass.getTypeName()), e);
-                        }
-                        return null;
+                        throw new StoreLogDataException(String.format(
+                            "Failed to instantiate Hive entity '%s'. Please, check that class '%s' is not abstract and has a default constructor.",
+                            serviceMethod != null ? " for method '" + MethodUtil
+                                .printQualifiedMethodName(serviceMethod) + "'" : StringUtils.EMPTY,
+                            entityClass.getTypeName()), e);
                     }
                 }
                 i++;
