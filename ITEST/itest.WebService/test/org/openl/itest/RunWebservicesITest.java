@@ -648,8 +648,10 @@ public class RunWebservicesITest {
         client.send("EPBDS-11682/IntegerResponse2.json.post");
         client.send("EPBDS-11682/StringResponse.json.post");
         client.send("EPBDS-11682/StringResponse2.json.post");
+        client.send("EPBDS-11682/StringResponse3.json.post");
         client.send("EPBDS-11682/StringValueResponse.json.post");
         client.send("EPBDS-11682/StringValueResponse2.json.post");
+        client.send("EPBDS-11682/StringValueResponse3.json.post");
         client.send("EPBDS-11682/IntResponse.json.post");
         client.send("EPBDS-11682/GetOptionalResponse.json.post");
         client.send("EPBDS-11682/GetOptionalResponse2.json.post");
