@@ -34,6 +34,9 @@
               "type": "object"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -100,6 +103,9 @@
             "schema": {
               "$ref": "#/definitions/Benefit"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -169,6 +175,9 @@
               "$ref": "#/definitions/Benefit"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -226,6 +235,9 @@
             "schema": {
               "$ref": "#/definitions/WrapperClass"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
@@ -293,6 +305,9 @@
             "schema": {
               "$ref": "#/definitions/WrapperClass"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

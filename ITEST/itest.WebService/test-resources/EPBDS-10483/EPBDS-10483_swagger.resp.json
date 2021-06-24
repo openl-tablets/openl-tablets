@@ -25,6 +25,9 @@
               "$ref": "#/definitions/EntityXjoBxZVvyZgHogIF"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -93,6 +96,9 @@
               "$ref": "#/definitions/Test"
             }
           },
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "examples": {
@@ -160,6 +166,9 @@
             "schema": {
               "type": "string"
             }
+          },
+          "204": {
+            "description": "Successful operation"
           },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",

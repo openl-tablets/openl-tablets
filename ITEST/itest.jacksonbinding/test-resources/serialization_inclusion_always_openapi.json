@@ -17,6 +17,9 @@
         "description": "Rules method: org.openl.generated.beans.MyType getObject()",
         "operationId": "getObject",
         "responses": {
+          "204": {
+            "description": "Successful operation"
+          },
           "422": {
             "description": "Custom user errors in rules or validation errors in input parameters",
             "content": {
