@@ -50,7 +50,7 @@ public class SearchBean {
     private static final SelectItem[] searchScopeItems = new SelectItem[] {
             new SelectItem(SearchScope.CURRENT_MODULE, SearchScope.CURRENT_MODULE.getLabel()),
             new SelectItem(SearchScope.CURRENT_PROJECT, SearchScope.CURRENT_PROJECT.getLabel()),
-            new SelectItem(SearchScope.ALL_WITH_EXTRA_PROJECTS, SearchScope.ALL_WITH_EXTRA_PROJECTS.getLabel()) };
+            new SelectItem(SearchScope.ALL, SearchScope.ALL.getLabel()) };
 
     private String query;
     private String[] tableTypes;
